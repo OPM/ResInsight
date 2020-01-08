@@ -62,7 +62,7 @@ public:
     const std::vector<double>& cellIntersectionTVDs();
     const std::vector<size_t>& intersectedCellsGlobIdx();
 
-    const RigWellPath* wellPathData();
+    const RigWellPath* wellPathData() const;
 
     std::vector<WellPathCellIntersectionInfo> cellIntersectionInfosAlongWellPath() const;
 

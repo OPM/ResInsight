@@ -227,7 +227,6 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
         RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( wellPath, geomExtractor.p() );
 
         m_geomResultDefinition->loadResult();
-        geomExtractor->setRkbDiff( rkbDiff() );
         geomExtractor->curveData( m_geomResultDefinition->resultAddress(), timeStep, values );
     }
 }

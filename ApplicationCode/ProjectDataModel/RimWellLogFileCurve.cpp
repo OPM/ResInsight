@@ -89,7 +89,8 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 std::vector<double> values              = wellLogFile->values( m_wellLogChannnelName );
                 std::vector<double> measuredDepthValues = wellLogFile->depthValues();
 
-                if ( wellLogPlot && wellLogPlot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH )
+                if ( wellLogPlot && ( wellLogPlot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH ||
+                                      wellLogPlot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) )
                 {
                     bool canUseTvd = false;
                     if ( wellLogFile->hasTvdChannel() )
@@ -98,11 +99,12 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                         if ( values.size() == measuredDepthValues.size() && values.size() == tvdMslValues.size() )
                         {
-                            this->setValuesWithTVD( values,
-                                                    measuredDepthValues,
-                                                    tvdMslValues,
-                                                    wellLogFile->depthUnit(),
-                                                    false );
+                            this->setValuesWithMdAndTVD( values,
+                                                         measuredDepthValues,
+                                                         tvdMslValues,
+                                                         m_wellPath->wellPathGeometry()->rkbDiff(),
+                                                         wellLogFile->depthUnit(),
+                                                         false );
                             canUseTvd = true;
                         }
                     }
@@ -122,11 +124,12 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                             if ( values.size() == trueVerticalDepthValues.size() &&
                                  values.size() == measuredDepthValues.size() )
                             {
-                                this->setValuesWithTVD( values,
-                                                        measuredDepthValues,
-                                                        trueVerticalDepthValues,
-                                                        wellLogFile->depthUnit(),
-                                                        false );
+                                this->setValuesWithMdAndTVD( values,
+                                                             measuredDepthValues,
+                                                             trueVerticalDepthValues,
+                                                             m_wellPath->wellPathGeometry()->rkbDiff(),
+                                                             wellLogFile->depthUnit(),
+                                                             false );
                                 canUseTvd = true;
                             }
                         }
@@ -153,6 +156,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         this->setValuesAndDepths( values,
                                                   measuredDepthValues,
                                                   RiaDefines::MEASURED_DEPTH,
+                                                  0.0,
                                                   wellLogFile->depthUnit(),
                                                   false );
                     }
@@ -170,20 +174,16 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             displayUnit = wellLogPlot->depthUnit();
         }
-        if ( wellLogPlot && wellLogPlot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH &&
-             this->curveData()->availableDepthTypes().count( RiaDefines::TRUE_VERTICAL_DEPTH ) )
+
+        RiaDefines::DepthTypeEnum depthType = RiaDefines::MEASURED_DEPTH;
+        if ( wellLogPlot && this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
         {
-            m_qwtPlotCurve
-                ->setSamples( this->curveData()->xPlotValues().data(),
-                              this->curveData()->depthPlotValues( RiaDefines::TRUE_VERTICAL_DEPTH, displayUnit ).data(),
-                              static_cast<int>( this->curveData()->xPlotValues().size() ) );
+            depthType = wellLogPlot->depthType();
         }
-        else
-        {
-            m_qwtPlotCurve->setSamples( this->curveData()->xPlotValues().data(),
-                                        this->curveData()->depthPlotValues( RiaDefines::MEASURED_DEPTH, displayUnit ).data(),
-                                        static_cast<int>( this->curveData()->xPlotValues().size() ) );
-        }
+
+        m_qwtPlotCurve->setSamples( this->curveData()->xPlotValues().data(),
+                                    this->curveData()->depthPlotValues( depthType, displayUnit ).data(),
+                                    static_cast<int>( this->curveData()->xPlotValues().size() ) );
         m_qwtPlotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
 
         if ( updateParentPlot )

@@ -555,18 +555,18 @@ void RimMultiPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 void RimMultiPlotWindow::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Plot Layout" );
-    uiOrderingForPlotLayout( uiConfigName, *titleAndLegendsGroup );
+    uiOrderingForMultiPlotLayout( uiConfigName, *titleAndLegendsGroup );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlotWindow::uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimMultiPlotWindow::uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_showPlotWindowTitle );
     uiOrdering.add( &m_plotWindowTitle );
     uiOrdering.add( &m_showIndividualPlotTitles );
-    RimPlotWindow::uiOrderingForLegendSettings( uiConfigName, uiOrdering );
+    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, uiOrdering );
     uiOrdering.add( &m_columnCount );
     uiOrdering.add( &m_rowsPerPage );
 }

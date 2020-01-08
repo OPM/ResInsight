@@ -146,7 +146,8 @@ enum DepthTypeEnum
     MEASURED_DEPTH,
     TRUE_VERTICAL_DEPTH,
     PSEUDO_LENGTH,
-    CONNECTION_NUMBER
+    CONNECTION_NUMBER,
+    TRUE_VERTICAL_DEPTH_RKB
 };
 
 // Defines relate to plotting

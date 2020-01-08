@@ -56,6 +56,7 @@ void caf::AppEnum<RiaDefines::DepthTypeEnum>::setUp()
     addItem( RiaDefines::TRUE_VERTICAL_DEPTH, "TRUE_VERTICAL_DEPTH", "True Vertical Depth (MSL)" );
     addItem( RiaDefines::PSEUDO_LENGTH, "PSEUDO_LENGTH", "Pseudo Length" );
     addItem( RiaDefines::CONNECTION_NUMBER, "CONNECTION_NUMBER", "Connection Number" );
+    addItem( RiaDefines::TRUE_VERTICAL_DEPTH_RKB, "TRUE_VERTICAL_DEPTH_RKB", "True Vertical Depth (RKB)" );
     setDefault( RiaDefines::MEASURED_DEPTH );
 }
 

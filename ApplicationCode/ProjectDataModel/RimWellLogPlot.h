@@ -86,8 +86,6 @@ public:
     void availableDepthRange( double* minimumDepth, double* maximumDepth ) const;
     void visibleDepthRange( double* minimumDepth, double* maximumDepth ) const;
 
-    void enableAllAutoNameTags( bool enable );
-
     void uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     void uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 

@@ -110,12 +110,6 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             if ( values.size() == measuredDepthValues.size() )
             {
-                this->setValuesAndDepths( values,
-                                          measuredDepthValues,
-                                          RiaDefines::MEASURED_DEPTH,
-                                          RiaDefines::UNIT_METER,
-                                          false );
-
                 RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
                 if ( rigWellPath )
                 {
@@ -129,6 +123,16 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     this->setValuesAndDepths( values,
                                               measuredDepthValues,
                                               RiaDefines::TRUE_VERTICAL_DEPTH,
+                                              rigWellPath->rkbDiff(),
+                                              RiaDefines::UNIT_METER,
+                                              false );
+                }
+                else
+                {
+                    this->setValuesAndDepths( values,
+                                              measuredDepthValues,
+                                              RiaDefines::MEASURED_DEPTH,
+                                              0.0,
                                               RiaDefines::UNIT_METER,
                                               false );
                 }
@@ -148,22 +152,16 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
             {
                 displayUnit = wellLogPlot->depthUnit();
             }
-            if ( wellLogPlot && wellLogPlot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH &&
-                 this->curveData()->availableDepthTypes().count( RiaDefines::TRUE_VERTICAL_DEPTH ) )
+
+            RiaDefines::DepthTypeEnum depthType = RiaDefines::MEASURED_DEPTH;
+            if ( wellLogPlot && this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
             {
-                m_qwtPlotCurve->setSamples( this->curveData()->xPlotValues().data(),
-                                            this->curveData()
-                                                ->depthPlotValues( RiaDefines::TRUE_VERTICAL_DEPTH, displayUnit )
-                                                .data(),
-                                            static_cast<int>( this->curveData()->xPlotValues().size() ) );
+                depthType = wellLogPlot->depthType();
             }
-            else
-            {
-                m_qwtPlotCurve
-                    ->setSamples( this->curveData()->xPlotValues().data(),
-                                  this->curveData()->depthPlotValues( RiaDefines::MEASURED_DEPTH, displayUnit ).data(),
-                                  static_cast<int>( this->curveData()->xPlotValues().size() ) );
-            }
+
+            m_qwtPlotCurve->setSamples( this->curveData()->xPlotValues().data(),
+                                        this->curveData()->depthPlotValues( depthType, displayUnit ).data(),
+                                        static_cast<int>( this->curveData()->xPlotValues().size() ) );
             m_qwtPlotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
         }
 

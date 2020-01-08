@@ -333,12 +333,17 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
     double startDepth = m_startMD;
     double endDepth   = m_endMD;
 
-    if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+    if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH || m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
     {
         cvf::Vec3d startPoint = m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_startMD );
         cvf::Vec3d endPoint   = m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_endMD );
         startDepth            = -startPoint.z();
         endDepth              = -endPoint.z();
+        if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+        {
+            startDepth += m_wellPath->wellPathGeometry()->rkbDiff();
+            endDepth += m_wellPath->wellPathGeometry()->rkbDiff();
+        }
     }
     return std::make_pair( startDepth, endDepth );
 }

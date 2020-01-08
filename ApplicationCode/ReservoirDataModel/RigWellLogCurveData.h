@@ -41,10 +41,12 @@ public:
     void setValuesAndDepths( const std::vector<double>& xValues,
                              const std::vector<double>& depths,
                              RiaDefines::DepthTypeEnum  depthType,
+                             double                     rkbDiff,
                              RiaDefines::DepthUnitType  depthUnit,
                              bool                       isExtractionCurve );
     void setValuesAndDepths( const std::vector<double>&                                      xValues,
                              const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
+                             double                                                          rkbDiff,
                              RiaDefines::DepthUnitType                                       depthUnit,
                              bool                                                            isExtractionCurve );
 
@@ -86,6 +88,7 @@ private:
     std::vector<double>                                      m_xValues;
     std::map<RiaDefines::DepthTypeEnum, std::vector<double>> m_depths;
     bool                                                     m_isExtractionCurve;
+    double                                                   m_rkbDiff;
 
     std::vector<std::pair<size_t, size_t>> m_intervalsOfContinousValidValues;
 

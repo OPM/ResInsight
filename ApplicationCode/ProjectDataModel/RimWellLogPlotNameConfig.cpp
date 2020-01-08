@@ -33,11 +33,11 @@ RimWellLogPlotNameConfig::RimWellLogPlotNameConfig()
 {
     CAF_PDM_InitObject( "Well Log Plot Name Generator", "", "", "" );
 
-    CAF_PDM_InitField( &m_addCaseName, "AddCaseName", false, "Add Case Name", "", "", "" );
-    CAF_PDM_InitField( &m_addWellName, "AddWellName", false, "Add Well Name", "", "", "" );
-    CAF_PDM_InitField( &m_addTimestep, "AddTimeStep", false, "Add Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_addAirGap, "AddAirGap", false, "Add Air Gap", "", "", "" );
-    CAF_PDM_InitField( &m_addWaterDepth, "AddWaterDepth", false, "Add Water Depth", "", "", "" );
+    CAF_PDM_InitField( &m_addCaseName, "AddCaseName", false, "Show Case Name", "", "", "" );
+    CAF_PDM_InitField( &m_addWellName, "AddWellName", false, "Show Well Name", "", "", "" );
+    CAF_PDM_InitField( &m_addTimestep, "AddTimeStep", false, "Show Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_addAirGap, "AddAirGap", false, "Show Air Gap", "", "", "" );
+    CAF_PDM_InitField( &m_addWaterDepth, "AddWaterDepth", false, "Show Water Depth", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

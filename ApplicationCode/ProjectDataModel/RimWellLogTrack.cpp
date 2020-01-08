@@ -795,7 +795,10 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
             else if ( depthType == RiaDefines::PSEUDO_LENGTH )
                 out += "PL   ";
             else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
-                out += "TVD  ";
+                out += "TVDMSL  ";
+            else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+                out += "TVDRKB  ";
+
             for ( QString name : curveNames )
                 out += "  \t" + name;
             out += "\n";
@@ -1925,8 +1928,9 @@ CurveSamplingPointData RimWellLogTrack::curveSamplingPointData( RigEclipseWellLo
 {
     CurveSamplingPointData curveData;
 
-    curveData.md  = extractor->cellIntersectionMDs();
-    curveData.tvd = extractor->cellIntersectionTVDs();
+    curveData.md      = extractor->cellIntersectionMDs();
+    curveData.tvd     = extractor->cellIntersectionTVDs();
+    curveData.rkbDiff = extractor->wellPathData()->rkbDiff();
 
     extractor->curveData( resultAccessor, &curveData.data );
 
@@ -1941,8 +1945,9 @@ CurveSamplingPointData RimWellLogTrack::curveSamplingPointData( RigGeoMechWellLo
 {
     CurveSamplingPointData curveData;
 
-    curveData.md  = extractor->cellIntersectionMDs();
-    curveData.tvd = extractor->cellIntersectionTVDs();
+    curveData.md      = extractor->cellIntersectionMDs();
+    curveData.tvd     = extractor->cellIntersectionTVDs();
+    curveData.rkbDiff = extractor->wellPathData()->rkbDiff();
 
     extractor->curveData( resultAddress, 0, &curveData.data );
     return curveData;
@@ -1981,9 +1986,16 @@ void RimWellLogTrack::findRegionNamesToPlot( const CurveSamplingPointData&      
     {
         depthVector = curveData.md;
     }
-    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH || depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
     {
         depthVector = curveData.tvd;
+        if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+        {
+            for ( double& depthValue : depthVector )
+            {
+                depthValue += curveData.rkbDiff;
+            }
+        }
     }
 
     if ( depthVector.empty() ) return;
@@ -2171,7 +2183,8 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     {
         if ( m_formationWellPathForSourceWellPath == nullptr ) return;
 
-        if ( !( plot->depthType() == RiaDefines::MEASURED_DEPTH || plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH ) )
+        if ( !( plot->depthType() == RiaDefines::MEASURED_DEPTH || plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH ||
+                plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) )
         {
             return;
         }
@@ -2186,6 +2199,14 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                      &yValues,
                                                      m_showformationFluids(),
                                                      plot->depthType() );
+
+        if ( plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+        {
+            for ( double& depthValue : yValues )
+            {
+                depthValue += m_formationWellPathForSourceWellPath->wellPathGeometry()->rkbDiff();
+            }
+        }
 
         m_annotationTool->attachWellPicks( m_plotWidget, formationNamesToPlot, yValues );
     }

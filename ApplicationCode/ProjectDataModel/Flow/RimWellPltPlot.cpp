@@ -1006,7 +1006,7 @@ void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
             plotLayoutGroup->setCollapsedByDefault( true );
             RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *plotLayoutGroup );
-            RimWellLogPlot::uiOrderingForLegendSettings( uiConfigName, *plotLayoutGroup );
+            RimWellLogPlot::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
         }
     }
 

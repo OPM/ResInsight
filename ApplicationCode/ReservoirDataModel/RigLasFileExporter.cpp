@@ -20,9 +20,11 @@
 
 #include "RiaDefines.h"
 #include "RigWellLogCurveData.h"
+#include "RigWellPath.h"
 #include "RimCase.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellPath.h"
 
 #include "cafUtils.h"
 
@@ -588,9 +590,9 @@ QString RigLasFileExporter::caseNameFromCurve( RimWellLogCurve* curve )
 double RigLasFileExporter::rkbDiff( RimWellLogCurve* curve )
 {
     RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
-    if ( extractionCurve )
+    if ( extractionCurve && extractionCurve->wellPath() )
     {
-        return extractionCurve->rkbDiff();
+        return extractionCurve->wellPath()->wellPathGeometry()->rkbDiff();
     }
 
     return HUGE_VAL;

@@ -67,7 +67,6 @@ public:
 
     void curveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
     const RigGeoMechCaseData* caseData();
-    void                      setRkbDiff( double rkbDiff );
 
     void setWbsLasValues( const RigWbsParameter& parameter, const std::vector<std::pair<double, double>>& values );
     void setWbsParametersSource( RigWbsParameter parameter, WbsParameterSource source );
@@ -160,7 +159,6 @@ private:
 
 private:
     cvf::ref<RigGeoMechCaseData> m_caseData;
-    double                       m_rkbDiff;
 
     std::map<RigWbsParameter, std::vector<std::pair<double, double>>> m_lasFileValues;
 

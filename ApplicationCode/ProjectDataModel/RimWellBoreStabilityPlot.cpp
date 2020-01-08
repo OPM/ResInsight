@@ -82,7 +82,7 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
                                 "FG in shale = K0_FG * (OBG0-PP0)\nK0_FG = (FG-PP)/(OBG-PP)",
                                 "" );
 
-    CAF_PDM_InitField( &m_userDefinedPPShale, "UserPPShale", 1.05, "User Defined Pore Pressure, Shale [bar]", "", "", "" );
+    CAF_PDM_InitField( &m_userDefinedPPShale, "UserPPShale", 1.05, "Multiplier of hydrostatic PP", "", "", "" );
 
     CAF_PDM_InitField( &m_userDefinedPoissionRatio,
                        "UserPoissionRatio",
@@ -226,10 +226,14 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
         parameterSources->add( &m_userDefinedK0FG );
     }
 
-    caf::PdmUiGroup* titleLegendAndAxisGroup = uiOrdering.addNewGroup( "Title, Legend and Axis" );
-    RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *titleLegendAndAxisGroup );
-    RimWellLogPlot::uiOrderingForLegendSettings( uiConfigName, *titleLegendAndAxisGroup );
-    uiOrderingForDepthAxis( uiConfigName, *titleLegendAndAxisGroup );
+    caf::PdmUiGroup* depthGroup = uiOrdering.addNewGroup( "Depth Axis" );
+    RimWellLogPlot::uiOrderingForDepthAxis( uiConfigName, *depthGroup );
+
+    caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup( "Plot Title" );
+    RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *titleGroup );
+
+    caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
+    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -252,7 +256,8 @@ QList<caf::PdmOptionItemInfo>
             std::vector<ParameterSource> sources = supportedSources( parameter );
             for ( int i = 0; i < (int)sources.size(); ++i )
             {
-                if ( parameter.exclusiveOptions() || i == (int)sources.size() - 1 )
+                if ( parameter.exclusiveOptions() || i == (int)sources.size() - 1 ||
+                     sources[i] == RigWbsParameter::HYDROSTATIC )
                 {
                     options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( sources[i] ), sources[i] ) );
                 }

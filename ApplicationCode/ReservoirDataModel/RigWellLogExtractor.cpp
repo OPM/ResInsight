@@ -96,7 +96,7 @@ const std::vector<size_t>& RigWellLogExtractor::intersectedCellsGlobIdx()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigWellPath* RigWellLogExtractor::wellPathData()
+const RigWellPath* RigWellLogExtractor::wellPathData() const
 {
     return m_wellPath.p();
 }

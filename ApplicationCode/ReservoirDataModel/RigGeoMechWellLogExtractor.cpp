@@ -98,7 +98,7 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
 
         double trueVerticalDepth = -centroid.z();
 
-        double effectiveDepthMeters       = trueVerticalDepth + m_rkbDiff;
+        double effectiveDepthMeters       = trueVerticalDepth + wellPathData()->rkbDiff();
         double hydroStaticPorePressureBar = pascalToBar( effectiveDepthMeters * UNIT_WEIGHT_OF_WATER );
         interfaceShValuesDbl[i]           = interfaceShValues[i] / hydroStaticPorePressureBar;
         interfacePorePressuresDbl[i]      = interfacePorePressures[i];
@@ -689,14 +689,6 @@ void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int frameIndex, std::
 const RigGeoMechCaseData* RigGeoMechWellLogExtractor::caseData()
 {
     return m_caseData.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigGeoMechWellLogExtractor::setRkbDiff( double rkbDiff )
-{
-    m_rkbDiff = rkbDiff;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1408,7 +1400,7 @@ double RigGeoMechWellLogExtractor::hydroStaticPorePressureForSegment( size_t int
 {
     cvf::Vec3f centroid                      = cellCentroid( intersectionIdx );
     double     trueVerticalDepth             = -centroid.z();
-    double     effectiveDepthMeters          = trueVerticalDepth + m_rkbDiff;
+    double     effectiveDepthMeters          = trueVerticalDepth + wellPathData()->rkbDiff();
     double     hydroStaticPorePressurePascal = effectiveDepthMeters * UNIT_WEIGHT_OF_WATER;
     double     hydroStaticPorePressureBar    = pascalToBar( hydroStaticPorePressurePascal );
     return hydroStaticPorePressureBar;
