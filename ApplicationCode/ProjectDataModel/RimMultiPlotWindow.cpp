@@ -103,8 +103,11 @@ RimMultiPlotWindow& RimMultiPlotWindow::operator=( RimMultiPlotWindow&& rhs )
         m_plots.push_back( plot );
     }
 
+    // Deliberately don't set m_plotWindowTitle. This operator is used for copying parameters from children.
+    // This only happens for some plots that used to own a plot but now inherits the plot.
+    // These all had their own description at top level which we don't want to overwrite.
+
     m_showPlotWindowTitle      = rhs.m_showPlotWindowTitle;
-    m_plotWindowTitle          = rhs.m_plotWindowTitle;
     m_columnCount              = rhs.m_columnCount;
     m_rowsPerPage              = rhs.m_rowsPerPage;
     m_showIndividualPlotTitles = rhs.m_showIndividualPlotTitles;
