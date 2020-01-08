@@ -85,8 +85,7 @@ public:
     bool isBlockingViewSelectionOnSubWindowActivated() const;
 
 protected:
-    void              removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* viewer );
-    caf::UiStyleSheet createStyleSheet();
+    void removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* viewer );
 
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
