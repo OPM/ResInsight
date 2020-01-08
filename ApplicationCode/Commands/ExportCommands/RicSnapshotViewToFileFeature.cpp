@@ -105,7 +105,9 @@ void RicSnapshotViewToFileFeature::savePlotPDFReportAs( const QString& fileName,
         pdfPrinter.setCreator( QCoreApplication::applicationName() );
         pdfPrinter.setResolution( resolution );
         QRect widgetRect = plot->viewWidget()->contentsRect();
-        if ( dynamic_cast<RimMultiPlotWindow*>( plot ) )
+
+        RimMultiPlotWindow* multiPlot = dynamic_cast<RimMultiPlotWindow*>( plot );
+        if ( multiPlot && multiPlot->previewModeEnabled() )
         {
             QRect pageRect = pdfPrinter.pageLayout().fullRectPixels( resolution );
             plot->viewWidget()->resize( pageRect.size() );
