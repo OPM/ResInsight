@@ -500,7 +500,8 @@ void RiuMultiPlotWindow::createPages()
     }
     // Reapply plot settings
     setPlotTitle( m_plotTitle );
-    setFontSize( fontSize() );
+
+    setFontSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() );
     setTitleVisible( m_titleVisible );
     setPreviewModeEnabled( m_previewMode );
     m_book->adjustSize();
