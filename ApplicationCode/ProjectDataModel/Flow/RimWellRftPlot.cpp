@@ -126,6 +126,10 @@ RimWellRftPlot::RimWellRftPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSets, "EnsembleCurveSets", "Ensemble Curve Sets", "", "", "" );
 
+    // TODO: may want to support TRUE_VERTICAL_DEPTH_RKB in the future
+    // It was developed for regular well log plots and requires some more work for RFT plots.
+    setAvailableDepthTypes( {RiaDefines::MEASURED_DEPTH, RiaDefines::TRUE_VERTICAL_DEPTH} );
+
     m_nameConfig->setCustomName( "RFT Plot" );
     m_plotLegendsHorizontal = false;
 
