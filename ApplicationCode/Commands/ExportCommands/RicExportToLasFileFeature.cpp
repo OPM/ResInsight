@@ -48,6 +48,7 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
                                                                   const RimWellLogPlot* plotWindow,
                                                                   bool                  exportTvdRkb,
                                                                   bool                  capitalizeFileNames,
+                                                                  bool                  alwaysOverwrite,
                                                                   double                resampleInterval )
 {
     std::vector<RimWellLogCurve*> allCurves;
@@ -75,6 +76,7 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
                                  wellNames,
                                  rkbDiffs,
                                  capitalizeFileNames,
+                                 alwaysOverwrite,
                                  resampleInterval );
     }
 }
@@ -88,6 +90,7 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
                                                                   const std::vector<QString>&   wellNames,
                                                                   const std::vector<double>&    rkbDiffs,
                                                                   bool                          capitalizeFileNames,
+                                                                  bool                          alwaysOverwrite,
                                                                   double                        resampleInterval )
 {
     RigLasFileExporter lasExporter( curves );
@@ -104,7 +107,7 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
         lasExporter.setRkbDiffs( wellNames, rkbDiffs );
     }
 
-    writtenFiles = lasExporter.writeToFolder( exportFolder, filePrefix, capitalizeFileNames );
+    writtenFiles = lasExporter.writeToFolder( exportFolder, filePrefix, capitalizeFileNames, alwaysOverwrite );
 
     // Remember the path to next time
     RiaApplication::instance()->setLastUsedDialogDirectory( "WELL_LOGS_DIR", exportFolder );
@@ -186,6 +189,7 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
                           wellNames,
                           rkbDiffs,
                           featureUi.capitalizeFileName,
+                          false,
                           resampleInterval );
     }
 }

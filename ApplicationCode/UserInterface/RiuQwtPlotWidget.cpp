@@ -623,7 +623,6 @@ void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect, dou
     QPoint canvasBottomRightInWindowCoords = canvasBottomRightInPlotCoords + plotTopLeftInWindowCoords;
 
     QwtPlotRenderer renderer( this );
-    renderer.setDiscardFlag( QwtPlotRenderer::DiscardBackground, true );
     renderer.render( this, painter, targetRect );
     static_cast<QwtPlotCanvas*>( this->canvas() )->setPaintAttribute( QwtPlotCanvas::BackingStore, true );
 
