@@ -132,9 +132,9 @@ RimWellLogPlot& RimWellLogPlot::operator=( RimWellLogPlot&& rhs )
     m_depthAxisGridVisibility = rhs.m_depthAxisGridVisibility();
     m_isAutoScaleDepthEnabled = rhs.m_isAutoScaleDepthEnabled();
 
-    auto nameConfig = rhs.m_nameConfig();
-    rhs.m_nameConfig.removeChildObject( nameConfig );
-    m_nameConfig = nameConfig;
+    // Deliberately don't copy m_nameConfig. This operator is used for copying parameters from children.
+    // This only happens for some plots that used to own a plot but now inherits the plot.
+    // These all had their own description at top level which we don't want to overwrite.
 
     m_minAvailableDepth = rhs.m_minAvailableDepth;
     m_maxAvailableDepth = rhs.m_maxAvailableDepth;
