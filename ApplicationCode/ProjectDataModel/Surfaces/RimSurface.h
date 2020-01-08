@@ -35,16 +35,13 @@ public:
     ~RimSurface() override;
 
     void    setSurfaceFilePath( const QString& filePath );
-    QString surfaceFilePath()
-    {
-        return m_surfaceDefinitionFilePath().path();
-    }
-    void setColor( const cvf::Color3f& color )
-    {
-        m_color = color;
-    }
+    QString surfaceFilePath();
 
-    bool updateDataFromFile();
+    void         setColor( const cvf::Color3f& color );
+    cvf::Color3f color() const;
+
+    bool        updateSurfaceDataFromFile();
+    RigSurface* surfaceData();
 
     QString userDescription();
 

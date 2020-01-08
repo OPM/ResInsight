@@ -71,6 +71,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimSurfaceCollection.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
@@ -541,6 +542,8 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
                 fracture->loadDataAndUpdate();
             }
         }
+
+        oilField->surfaceCollection()->loadData();
     }
 
     // If load action is specified to recalculate statistics, do it now.

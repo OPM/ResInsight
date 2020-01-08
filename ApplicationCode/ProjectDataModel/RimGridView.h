@@ -90,6 +90,8 @@ protected:
     void initAfterRead() override;
 
 protected:
+    cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
+
     // Fields
     caf::PdmChildField<RimIntersectionCollection*> m_intersectionCollection;
 

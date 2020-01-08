@@ -17,13 +17,14 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimSurface.h"
 
+#include "RimSurfaceCollection.h"
+
 #include "RigSurface.h"
-#include "cafUtils.h"
+
 #include <QFileInfo>
+
 #include <fstream>
-#include <iosfwd>
 #include <sstream>
-#include <string>
 
 CAF_PDM_SOURCE_INIT( RimSurface, "Surface" );
 
@@ -59,9 +60,41 @@ void RimSurface::setSurfaceFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimSurface::surfaceFilePath()
+{
+    return m_surfaceDefinitionFilePath().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurface::setColor( const cvf::Color3f& color )
+{
+    m_color = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimSurface::color() const
+{
+    return m_color();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimSurface::userDescription()
 {
     return m_userDescription();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigSurface* RimSurface::surfaceData()
+{
+    return m_surfaceData.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,13 +114,17 @@ void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 {
     if ( changedField == &m_surfaceDefinitionFilePath )
     {
-        updateDataFromFile();
+        updateSurfaceDataFromFile();
 
-        // Todo: Update visualization
+        RimSurfaceCollection* surfColl;
+        this->firstAncestorOrThisOfTypeAsserted( surfColl );
+        surfColl->updateViews( {this} );
     }
     else if ( changedField == &m_color )
     {
-        // Todo: Update visualization
+        RimSurfaceCollection* surfColl;
+        this->firstAncestorOrThisOfTypeAsserted( surfColl );
+        surfColl->updateViews( {this} );
     }
 }
 
@@ -102,7 +139,7 @@ struct SurfacePointData
 //--------------------------------------------------------------------------------------------------
 /// Returns false for fatal failure
 //--------------------------------------------------------------------------------------------------
-bool RimSurface::updateDataFromFile()
+bool RimSurface::updateSurfaceDataFromFile()
 {
     std::ifstream stream( this->surfaceFilePath().toLatin1().data() );
 

@@ -19,10 +19,15 @@
 #include "RimSurfaceInViewCollection.h"
 
 #include "RiaApplication.h"
+#include "RimGridView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSurfaceCollection.h"
 #include "RimSurfaceInView.h"
+
+#include "RivSurfacePartMgr.h"
+
+#include "cvfModelBasicList.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInViewCollection, "SurfaceInViewCollection" );
 
@@ -84,6 +89,39 @@ void RimSurfaceInViewCollection::updateFromSurfaceCollection()
     }
 
     this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+{
+    if ( !m_isActive() ) return;
+
+    for ( RimSurfaceInView* surf : m_surfacesInView )
+    {
+        if ( surf->isActive() )
+        {
+            surf->surfacePartMgr()->appendNativeGeometryPartsToModel( model, scaleTransform );
+        }
+    }
+
+    model->updateBoundingBoxesRecursive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                   const QVariant&            oldValue,
+                                                   const QVariant&            newValue )
+{
+    if ( changedField == &m_isActive )
+    {
+        RimGridView* ownerView;
+        this->firstAncestorOrThisOfTypeAsserted( ownerView );
+        ownerView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

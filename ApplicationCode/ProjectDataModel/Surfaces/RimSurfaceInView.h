@@ -22,7 +22,10 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
+#include "cvfObject.h"
+
 class RimSurface;
+class RivSurfacePartMgr;
 
 class RimSurfaceInView : public caf::PdmObject
 {
@@ -37,12 +40,21 @@ public:
     QString     name() const;
     RimSurface* surface() const;
     void        setSurface( RimSurface* surf );
+    bool        isActive();
+
+    void               clearGeometry();
+    RivSurfacePartMgr* surfacePartMgr();
 
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue ) override;
 
     caf::PdmProxyValueField<QString> m_name;
     caf::PdmField<bool>              m_isActive;
     caf::PdmPtrField<RimSurface*>    m_surface;
+
+    cvf::ref<RivSurfacePartMgr> m_surfacePartMgr;
 };

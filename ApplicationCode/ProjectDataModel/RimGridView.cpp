@@ -48,6 +48,7 @@
 #include "RivSingleCellPartGenerator.h"
 
 #include "cvfModel.h"
+#include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfScene.h"
 
@@ -103,6 +104,9 @@ RimGridView::RimGridView()
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field", "", "", "" );
     m_surfaceCollection.uiCapability()->setUiTreeHidden( true );
+
+    m_surfaceVizModel = new cvf::ModelBasicList;
+    m_surfaceVizModel->setName( "SurfaceModel" );
 }
 
 //--------------------------------------------------------------------------------------------------

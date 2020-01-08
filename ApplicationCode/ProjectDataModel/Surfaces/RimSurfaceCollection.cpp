@@ -91,7 +91,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
         newSurface->setSurfaceFilePath( newFileName );
         newSurface->setColor( newColor );
 
-        if ( !newSurface->updateDataFromFile() )
+        if ( !newSurface->updateSurfaceDataFromFile() )
         {
             delete newSurface;
             errorMessages += newFileName + "\n";
@@ -135,17 +135,33 @@ std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::loadData()
+{
+    for ( auto surf : m_surfaces )
+    {
+        if ( !surf->updateSurfaceDataFromFile() )
+        {
+            // Error: could not open the surface file surf->surfaceFilePath();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToReload )
 {
-    RimProject*               proj = RiaApplication::instance()->project();
-    std::vector<RimGridView*> views;
-    proj->allVisibleGridViews( views );
+    RimProject* proj = RiaApplication::instance()->project();
+
+    std::vector<Rim3dView*> views;
+    proj->allViews( views );
 
     // Make sure the tree items are syncronized
 
     for ( auto view : views )
     {
-        view->updateSurfacesInViewTreeItems();
+        auto gridView = dynamic_cast<RimGridView*>( view );
+        if ( gridView ) gridView->updateSurfacesInViewTreeItems();
     }
 
     std::set<RimGridView*> viewsNeedingUpdate;

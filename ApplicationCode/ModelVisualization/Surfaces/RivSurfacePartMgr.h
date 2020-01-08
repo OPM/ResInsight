@@ -17,12 +17,34 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "cafPdmPointer.h"
+#include "cvfObject.h"
+
+namespace cvf
+{
+class ModelBasicList;
+class Transform;
+class Part;
+class ScalarMapper;
+class DrawableGeo;
+} // namespace cvf
+
+class RimSurfaceInView;
+class RigSurface;
+
 class RivSurfacePartMgr : public cvf::Object
 {
 public:
-    RivSurfacePartMgr( const RimSurfaceInView* surface );
+    explicit RivSurfacePartMgr( RimSurfaceInView* surface );
 
-    void appendGeometryPartsToModel( cvf::ModelBasicList* model );
+    void appendNativeGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
 private:
+    void generateNativePartGeometry();
+
+    caf::PdmPointer<RimSurfaceInView> m_surfaceInView;
+    cvf::ref<RigSurface> m_usedSurfaceData; // Store the reference to the old data, to know when new data has arrived.
+
+    cvf::ref<cvf::Part> m_nativeTrianglesPart;
+    cvf::ref<cvf::Part> m_nativeMeshLinesPart;
 };

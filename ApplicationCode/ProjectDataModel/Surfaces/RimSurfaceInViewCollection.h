@@ -21,6 +21,13 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+namespace cvf
+{
+class ModelBasicList;
+class Transform;
+class ScalarMapper;
+} // namespace cvf
+
 class RimSurfaceInView;
 class RimSurface;
 
@@ -34,10 +41,15 @@ public:
 
     void updateFromSurfaceCollection();
 
+    void appendPartsToModel( cvf::ModelBasicList* surfaceVizModel, cvf::Transform* scaleTransform );
+
 private:
     caf::PdmFieldHandle* objectToggleField() override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue ) override;
 
-    bool hasSurfaceInViewForSurface(const RimSurface * surf) const;
+    bool hasSurfaceInViewForSurface( const RimSurface* surf ) const;
 
     caf::PdmField<bool>                        m_isActive;
     caf::PdmChildArrayField<RimSurfaceInView*> m_surfacesInView;

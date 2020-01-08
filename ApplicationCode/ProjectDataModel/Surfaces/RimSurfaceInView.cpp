@@ -18,7 +18,10 @@
 
 #include "RimSurfaceInView.h"
 
+#include "RimGridView.h"
 #include "RimSurface.h"
+
+#include "RivSurfacePartMgr.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
 
@@ -73,6 +76,47 @@ RimSurface* RimSurfaceInView::surface() const
 void RimSurfaceInView::setSurface( RimSurface* surf )
 {
     m_surface = surf;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSurfaceInView::isActive()
+{
+    return m_isActive();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::clearGeometry()
+{
+    m_surfacePartMgr = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RivSurfacePartMgr* RimSurfaceInView::surfacePartMgr()
+{
+    if ( m_surfacePartMgr.isNull() ) m_surfacePartMgr = new RivSurfacePartMgr( this );
+
+    return m_surfacePartMgr.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                         const QVariant&            oldValue,
+                                         const QVariant&            newValue )
+{
+    if ( changedField == &m_isActive )
+    {
+        RimGridView* ownerView;
+        this->firstAncestorOrThisOfTypeAsserted( ownerView );
+        ownerView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -36,10 +36,10 @@ public:
 
     std::vector<RimSurface*> surfaces() const;
 
+    void loadData();
     void updateViews();
-
-private:
     void updateViews( const std::vector<RimSurface*>& surfsToReload );
 
+private:
     caf::PdmChildArrayField<RimSurface*> m_surfaces;
 };
