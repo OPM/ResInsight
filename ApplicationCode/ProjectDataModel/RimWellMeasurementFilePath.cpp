@@ -18,6 +18,8 @@
 
 #include "RimWellMeasurementFilePath.h"
 
+#include "cafPdmUiLineEditor.h"
+
 CAF_PDM_SOURCE_INIT( RimWellMeasurementFilePath, "WellMeasurementFilePath" );
 
 //--------------------------------------------------------------------------------------------------
@@ -29,6 +31,7 @@ RimWellMeasurementFilePath::RimWellMeasurementFilePath()
 
     CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
     m_filePath.uiCapability()->setUiReadOnly( true );
+    m_filePath.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
     setUiName( "File Path" );
 }
 
