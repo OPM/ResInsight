@@ -160,12 +160,25 @@ const RigWellLogCurveData* RimWellLogCurve::curveData() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::updateZoomInParentPlot()
 {
+    const double eps = 1.0e-8;
+
     RimWellLogPlot* wellLogPlot;
     firstAncestorOrThisOfType( wellLogPlot );
     if ( wellLogPlot )
     {
-        wellLogPlot->setAutoScaleYEnabled( true );
-        wellLogPlot->updateZoom();
+        double minPlotDepth, maxPlotDepth;
+        wellLogPlot->availableDepthRange( &minPlotDepth, &maxPlotDepth );
+        double plotRange = std::abs( maxPlotDepth - minPlotDepth );
+        double minCurveDepth, maxCurveDepth;
+        m_curveData->calculateDepthRange( wellLogPlot->depthType(),
+                                          wellLogPlot->depthUnit(),
+                                          &minCurveDepth,
+                                          &maxCurveDepth );
+        if ( minCurveDepth < minPlotDepth - eps * plotRange || maxCurveDepth > maxPlotDepth + eps * plotRange )
+        {
+            wellLogPlot->setAutoScaleYEnabled( true );
+            wellLogPlot->updateZoom();
+        }
     }
 }
 
