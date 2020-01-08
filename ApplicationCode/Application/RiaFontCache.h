@@ -40,6 +40,7 @@ class RiaFontCache
 public:
     enum FontSize
     {
+        INVALID       = -1,
         MIN_FONT_SIZE = 8,
         FONT_SIZE_8   = 8,
         FONT_SIZE_10  = 10,
