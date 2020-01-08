@@ -77,6 +77,9 @@ public:
 
     int indexOfPlotWidget( RiuQwtPlotWidget* plotWidget );
 
+    bool previewModeEnabled() const override;
+    void setPreviewModeEnabled( bool previewMode ) override;
+
     void scheduleUpdate();
     void scheduleReplotOfAllPlots();
     void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) override {}
@@ -118,4 +121,5 @@ protected:
     caf::PdmPointer<RimMultiPlotWindow> m_plotDefinition;
     QString                             m_plotTitle;
     bool                                m_titleVisible;
+    bool                                m_previewMode;
 };

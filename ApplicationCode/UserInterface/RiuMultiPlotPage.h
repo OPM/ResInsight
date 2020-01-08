@@ -74,6 +74,9 @@ public:
     void setFontSize( int fontSize ) override;
     int  fontSize() const override;
 
+    bool previewModeEnabled() const override;
+    void setPreviewModeEnabled( bool previewMode ) override;
+
     void scheduleUpdate() override;
     void scheduleReplotOfAllPlots() override;
     void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) override {}
@@ -136,6 +139,7 @@ protected:
     QList<QPointer<RiuQwtPlotWidget>>   m_plotWidgets;
     caf::PdmPointer<RimMultiPlotWindow> m_plotDefinition;
     QPointer<QLabel>                    m_dropTargetPlaceHolder;
+    bool                                m_previewMode;
 
     caf::UiStyleSheet m_dropTargetStyleSheet;
 

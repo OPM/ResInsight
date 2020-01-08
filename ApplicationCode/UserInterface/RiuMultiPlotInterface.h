@@ -50,6 +50,9 @@ public:
     virtual void setFontSize( int fontSize )              = 0;
     virtual int  fontSize() const                         = 0;
 
+    virtual bool previewModeEnabled() const                = 0;
+    virtual void setPreviewModeEnabled( bool previewMode ) = 0;
+
     virtual void scheduleUpdate()                                                                                  = 0;
     virtual void scheduleReplotOfAllPlots()                                                                        = 0;
     virtual void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) = 0;

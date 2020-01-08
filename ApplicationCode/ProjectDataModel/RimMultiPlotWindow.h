@@ -103,6 +103,8 @@ public:
     void         setAcceptDrops( bool acceptDrops );
     bool         acceptDrops() const;
 
+    bool previewModeEnabled() const;
+
 protected:
     QImage snapshotWindowContent() override;
 

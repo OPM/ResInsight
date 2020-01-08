@@ -66,6 +66,7 @@
 RiuMultiPlotPage::RiuMultiPlotPage( RimMultiPlotWindow* plotDefinition, QWidget* parent )
     : RiuMultiPlotInterface( parent )
     , m_plotDefinition( plotDefinition )
+    , m_previewMode( false )
 {
     Q_ASSERT( plotDefinition );
     m_plotDefinition = plotDefinition;
@@ -286,6 +287,22 @@ void RiuMultiPlotPage::setFontSize( int fontSize )
 int RiuMultiPlotPage::fontSize() const
 {
     return m_plotTitle->font().pointSize() - 2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuMultiPlotPage::previewModeEnabled() const
+{
+    return m_previewMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::setPreviewModeEnabled( bool previewMode )
+{
+    m_previewMode = previewMode;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -554,10 +571,17 @@ int RiuMultiPlotPage::heightForWidth( int width ) const
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::updateMarginsFromPageLayout()
 {
-    QPageLayout pageLayout = m_plotDefinition->pageLayout();
-    const int   resolution = RiaGuiApplication::applicationResolution();
-    QMargins    margins    = pageLayout.marginsPixels( resolution );
-    m_layout->setContentsMargins( margins );
+    if ( m_previewMode )
+    {
+        QPageLayout pageLayout = m_plotDefinition->pageLayout();
+        const int   resolution = RiaGuiApplication::applicationResolution();
+        QMargins    margins    = pageLayout.marginsPixels( resolution );
+        m_layout->setContentsMargins( margins );
+    }
+    else
+    {
+        m_layout->setContentsMargins( 0, 0, 0, 0 );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

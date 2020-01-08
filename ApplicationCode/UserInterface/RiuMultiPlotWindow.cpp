@@ -103,6 +103,7 @@ RiuMultiPlotWindow::RiuMultiPlotWindow( RimMultiPlotWindow* plotDefinition, QWid
     , m_plotDefinition( plotDefinition )
     , m_plotTitle( "Multi Plot" )
     , m_titleVisible( true )
+    , m_previewMode( true )
 {
     Q_ASSERT( plotDefinition );
     m_plotDefinition = plotDefinition;
@@ -250,10 +251,13 @@ void RiuMultiPlotWindow::setFontSize( int fontSize )
 
     font.setPixelSize( pixelSize );
     this->setFont( font );
+
     for ( auto page : m_pages )
     {
         page->setFontSize( fontSize );
     }
+
+    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,6 +274,29 @@ int RiuMultiPlotWindow::fontSize() const
 int RiuMultiPlotWindow::indexOfPlotWidget( RiuQwtPlotWidget* plotWidget )
 {
     return m_plotWidgets.indexOf( plotWidget );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuMultiPlotWindow::previewModeEnabled() const
+{
+    return m_previewMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotWindow::setPreviewModeEnabled( bool previewMode )
+{
+    m_previewMode = previewMode;
+
+    for ( auto page : m_pages )
+    {
+        page->setPreviewModeEnabled( previewModeEnabled() );
+    }
+
+    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -471,9 +498,11 @@ void RiuMultiPlotWindow::createPages()
         page->setVisible( true );
         page->performUpdate();
     }
-    // Reapply plot titles
+    // Reapply plot settings
     setPlotTitle( m_plotTitle );
+    setFontSize( fontSize() );
     setTitleVisible( m_titleVisible );
+    setPreviewModeEnabled( m_previewMode );
     m_book->adjustSize();
 }
 
