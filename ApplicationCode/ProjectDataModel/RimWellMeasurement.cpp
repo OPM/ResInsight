@@ -38,6 +38,7 @@ RimWellMeasurement::RimWellMeasurement()
     CAF_PDM_InitFieldNoDefault( &m_kind, "Kind", "Kind", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_quality, "Quality", "Quality", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_remark, "Remark", "Remark", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,6 +156,22 @@ QString RimWellMeasurement::remark() const
 void RimWellMeasurement::setRemark( const QString& remark )
 {
     m_remark = remark;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellMeasurement::filePath() const
+{
+    return m_filePath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurement::setFilePath( const QString& filePath )
+{
+    m_filePath = filePath;
 }
 
 //--------------------------------------------------------------------------------------------------

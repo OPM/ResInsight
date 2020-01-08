@@ -25,6 +25,7 @@
 #include "cafPdmProxyValueField.h"
 
 class RimWellMeasurement;
+class RimWellMeasurementFilePath;
 
 //==================================================================================================
 ///
@@ -45,6 +46,12 @@ public:
     void deleteMeasurement( RimWellMeasurement* measurementToDelete );
     void deleteAllMeasurements();
 
+    std::set<QString> importedFiles() const;
+
+    void addFilePath( const QString& filePath );
+    void removeFilePath( RimWellMeasurementFilePath* measurementFilePath );
+    void removeMeasurementsForFilePath( RimWellMeasurementFilePath* measurementFilePath );
+
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
@@ -56,5 +63,6 @@ protected:
                            const QVariant&            newValue ) override;
 
 private:
-    caf::PdmChildArrayField<RimWellMeasurement*> m_measurements;
+    caf::PdmChildArrayField<RimWellMeasurement*>         m_measurements;
+    caf::PdmChildArrayField<RimWellMeasurementFilePath*> m_importedFiles;
 };

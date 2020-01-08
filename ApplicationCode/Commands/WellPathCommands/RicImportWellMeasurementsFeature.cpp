@@ -94,6 +94,7 @@ void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
         wellMeasurement->setQuality( measurement.quality );
         wellMeasurement->setKind( measurement.kind );
         wellMeasurement->setRemark( measurement.remark );
+        wellMeasurement->setFilePath( measurement.filePath );
 
         // Ignore values for kinds which is known to not have values
         if ( !RimWellMeasurement::kindHasValue( measurement.kind ) )

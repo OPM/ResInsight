@@ -117,6 +117,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
+#include "RimWellMeasurementFilePath.h"
 #include "RimWellPath.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
@@ -325,6 +326,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicExportVisibleWellPathsFeature";
             menuBuilder.subMenuEnd();
             appendExportCompletions( menuBuilder );
+        }
+        else if ( dynamic_cast<RimWellMeasurementFilePath*>( firstUiItem ) )
+        {
+            menuBuilder << "RicDeleteWellMeasurementFilePathFeature";
         }
         else if ( dynamic_cast<RimWellPath*>( firstUiItem ) )
         {
