@@ -42,7 +42,7 @@ class Plot(PdmObject):
         
         Returns:
             A list of files exported
-        """
+        """        
         res = self._execute_command(exportWellLogPlotData=Cmd.ExportWellLogPlotDataRequest(exportFormat='LAS',
                                                                                            viewId=self.view_id,
                                                                                            exportFolder=export_folder,

@@ -215,7 +215,6 @@ public:
         }
         else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_NONE )
         {
-            CVF_ASSERT( false );
             lasFile->AddLog( "DEPTH",
                              "",
                              "Depth in Connection number",
@@ -268,10 +267,6 @@ public:
         else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_FEET )
         {
             lasFile->setDepthUnit( "FT" );
-        }
-        else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_NONE )
-        {
-            CVF_ASSERT( false );
         }
 
         double absentValue = SingleLasFileMetaData::createAbsentValue( m_minimumCurveValue );
@@ -387,7 +382,8 @@ void RigLasFileExporter::setRkbDiffs( const std::vector<QString>& wellNames, con
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RigLasFileExporter::writeToFolder( const QString& exportFolder,
                                                         const QString& filePrefix /*= ""*/,
-                                                        bool           capitalizeFileName /*= false*/ )
+                                                        bool           capitalizeFileName /*= false*/,
+                                                        bool           alwaysOverwrite /*= false*/ )
 {
     std::vector<QString> writtenFiles;
 
@@ -413,7 +409,7 @@ std::vector<QString> RigLasFileExporter::writeToFolder( const QString& exportFol
             fileName = fileName.toUpper();
         }
         QString fullPathName = dir.absoluteFilePath( fileName );
-        if ( caf::Utils::fileExists( fullPathName ) )
+        if ( caf::Utils::fileExists( fullPathName ) && !alwaysOverwrite )
         {
             QString txt = QString( "File %1 exists.\n\nDo you want to overwrite the file?" ).arg( fullPathName );
             int     ret = QMessageBox::question( nullptr,

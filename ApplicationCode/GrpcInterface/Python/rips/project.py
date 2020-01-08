@@ -157,7 +157,9 @@ class Project(PdmObject):
         pdm_objects = self.descendants("RimPlotWindow")
         plot_list = []
         for pdm_object in pdm_objects:
-            plot_list.append(Plot(pdm_object))
+            plot = Plot(pdm_object)
+            if plot.view_id != -1:
+                plot_list.append(plot)
         return plot_list
 
     def plot(self, view_id):

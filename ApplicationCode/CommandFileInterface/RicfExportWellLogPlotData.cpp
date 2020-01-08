@@ -81,11 +81,12 @@ RicfCommandResponse RicfExportWellLogPlotData::execute()
     {
         std::vector<RimWellLogPlot*> plots;
         RiaApplication::instance()->project()->descendantsIncludingThisOfType( plots );
+        RicfExportWellLogPlotDataResult* result = new RicfExportWellLogPlotDataResult;
+
         for ( RimWellLogPlot* plot : plots )
         {
             if ( plot->id() == m_viewId() )
             {
-                RicfExportWellLogPlotDataResult* result = new RicfExportWellLogPlotDataResult;
                 if ( m_format() == ASCII )
                 {
                     QString validFileName =
@@ -106,16 +107,22 @@ RicfCommandResponse RicfExportWellLogPlotData::execute()
                                                                      plot,
                                                                      m_exportTvdRkb(),
                                                                      m_capitalizeFileNames(),
+                                                                     true,
                                                                      m_resampleInterval() );
-                    result->exportedFiles.v() = exportedFiles;
-                }
-                response.setResult( result );
-                if ( result->exportedFiles().empty() )
-                {
-                    errorMessages << "No files exported";
+                    if ( exportedFiles.empty() )
+                    {
+                        errorMessages << QString( "No files exported for '%1'" ).arg( plot->description() );
+                    }
+                    else
+                    {
+                        result->exportedFiles.v().insert( result->exportedFiles.v().end(),
+                                                          exportedFiles.begin(),
+                                                          exportedFiles.end() );
+                    }
                 }
             }
         }
+        response.setResult( result );
     }
     else
     {

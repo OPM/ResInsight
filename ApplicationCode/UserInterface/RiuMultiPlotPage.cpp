@@ -350,6 +350,7 @@ void RiuMultiPlotPage::renderTo( QPaintDevice* paintDevice )
 void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 {
     setSelectionsVisible( false );
+    painter->fillRect( painter->viewport(), Qt::white );
     m_plotTitle->render( painter );
 
     // Subtract margins because we are rendering into part inside the margins
