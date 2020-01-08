@@ -71,7 +71,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    void uiOrderingForLegendSettings( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
 private:
     virtual void doUpdateLayout() {}

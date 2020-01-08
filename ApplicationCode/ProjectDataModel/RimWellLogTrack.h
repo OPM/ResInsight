@@ -61,6 +61,8 @@ struct CurveSamplingPointData
     std::vector<double> data;
     std::vector<double> md;
     std::vector<double> tvd;
+
+    double rkbDiff;
 };
 
 //==================================================================================================

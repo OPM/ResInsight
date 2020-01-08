@@ -290,7 +290,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         }
 
         RigWellLogCurveData tempCurveData;
-        tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, displayUnit, false );
+        tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, 0.0, displayUnit, false );
 
         depthValues              = tempCurveData.depthPlotValues( depthType, displayUnit );
         stackedValues            = tempCurveData.xPlotValues();
@@ -340,7 +340,7 @@ void RimWellFlowRateCurve::setFlowValuesPrDepthValue( const QString&            
                                                       const std::vector<double>& depthValues,
                                                       const std::vector<double>& flowRates )
 {
-    this->setValuesAndDepths( flowRates, depthValues, depthType, RiaDefines::UNIT_NONE, false );
+    this->setValuesAndDepths( flowRates, depthValues, depthType, 0.0, RiaDefines::UNIT_NONE, false );
 
     m_curveAutoName = curveName;
 }

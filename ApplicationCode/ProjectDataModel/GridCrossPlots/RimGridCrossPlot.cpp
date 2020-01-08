@@ -499,7 +499,7 @@ void RimGridCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     if ( isMdiWindow() )
     {
-        RimPlotWindow::uiOrderingForLegendSettings( uiConfigName, *generalGroup );
+        RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *generalGroup );
     }
     else
     {

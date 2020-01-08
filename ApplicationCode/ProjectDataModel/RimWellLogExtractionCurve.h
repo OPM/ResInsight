@@ -71,7 +71,6 @@ public:
 
     bool    isEclipseCurve() const;
     QString caseName() const;
-    double  rkbDiff() const;
 
     int  currentTimeStep() const;
     void setCurrentTimeStep( int timeStep );

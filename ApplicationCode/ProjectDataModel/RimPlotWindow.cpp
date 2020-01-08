@@ -235,7 +235,7 @@ QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotWindow::uiOrderingForLegendSettings( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimPlotWindow::uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_showPlotLegends );
     uiOrdering.add( &m_plotLegendsHorizontal );

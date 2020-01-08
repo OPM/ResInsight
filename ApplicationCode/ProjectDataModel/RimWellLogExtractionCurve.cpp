@@ -344,7 +344,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         RiaDefines::DepthTypeEnum depthType   = wellLogPlot->depthType();
         RiaDefines::DepthUnitType displayUnit = wellLogPlot->depthUnit();
-        if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+        if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH || depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
         {
             isUsingPseudoLength = false;
         }
@@ -447,6 +447,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     std::vector<double> values;
     std::vector<double> measuredDepthValues;
     std::vector<double> tvDepthValues;
+    double              rkbDiff = 0.0;
 
     RiaDefines::DepthUnitType depthUnit = RiaDefines::UNIT_METER;
 
@@ -454,6 +455,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     {
         measuredDepthValues = eclExtractor->cellIntersectionMDs();
         tvDepthValues       = eclExtractor->cellIntersectionTVDs();
+        rkbDiff             = eclExtractor->wellPathData()->rkbDiff();
 
         m_eclipseResultDefinition->loadResult();
 
@@ -480,6 +482,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     {
         measuredDepthValues = geomExtractor->cellIntersectionMDs();
         tvDepthValues       = geomExtractor->cellIntersectionTVDs();
+        rkbDiff             = geomExtractor->wellPathData()->rkbDiff();
 
         if ( measuredDepthValues.empty() )
         {
@@ -493,8 +496,6 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
         {
             wbsPlot->applyWbsParametersToExtractor( geomExtractor.p() );
         }
-
-        geomExtractor->setRkbDiff( rkbDiff() );
 
         m_geomResultDefinition->loadResult();
         geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values );
@@ -515,12 +516,18 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
             this->setValuesAndDepths( values,
                                       measuredDepthValues,
                                       RiaDefines::MEASURED_DEPTH,
+                                      0.0,
                                       depthUnit,
                                       !performDataSmoothing );
         }
         else
         {
-            this->setValuesWithTVD( values, measuredDepthValues, tvDepthValues, depthUnit, !performDataSmoothing );
+            this->setValuesWithMdAndTVD( values,
+                                         measuredDepthValues,
+                                         tvDepthValues,
+                                         rkbDiff,
+                                         depthUnit,
+                                         !performDataSmoothing );
         }
     }
 }
@@ -1034,18 +1041,6 @@ QString RimWellLogExtractionCurve::caseName() const
     }
 
     return QString();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimWellLogExtractionCurve::rkbDiff() const
-{
-    if ( m_wellPath && m_wellPath->wellPathGeometry() )
-    {
-        return m_wellPath->wellPathGeometry()->rkbDiff();
-    }
-    return HUGE_VAL;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -99,7 +99,9 @@ RimWellLogPlot::RimWellLogPlot()
     m_nameConfig = new RimWellLogPlotNameConfig();
 
     m_availableDepthUnits = {RiaDefines::UNIT_METER, RiaDefines::UNIT_FEET};
-    m_availableDepthTypes = {RiaDefines::MEASURED_DEPTH, RiaDefines::TRUE_VERTICAL_DEPTH};
+    m_availableDepthTypes = {RiaDefines::MEASURED_DEPTH,
+                             RiaDefines::TRUE_VERTICAL_DEPTH,
+                             RiaDefines::TRUE_VERTICAL_DEPTH_RKB};
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
@@ -281,14 +283,6 @@ void RimWellLogPlot::visibleDepthRange( double* minimumDepth, double* maximumDep
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::enableAllAutoNameTags( bool enable )
-{
-    m_nameConfig->enableAllAutoNameTags( enable );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     if ( m_availableDepthTypes.size() > 1u )
@@ -313,7 +307,6 @@ void RimWellLogPlot::uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrde
 {
     uiOrdering.add( &m_showPlotWindowTitle );
     m_nameConfig->uiOrdering( uiConfigName, uiOrdering );
-    uiOrdering.add( &m_showIndividualPlotTitles );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -579,7 +572,15 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_depthType )
     {
-        m_isAutoScaleDepthEnabled                   = true;
+        m_isAutoScaleDepthEnabled = true;
+
+        bool isTVDRKB = m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB;
+        m_nameConfig->setAutoNameTags( m_nameConfig->addCaseName(),
+                                       m_nameConfig->addWellName(),
+                                       m_nameConfig->addTimeStep(),
+                                       isTVDRKB,
+                                       m_nameConfig->addWaterDepth() );
+
         RimWellAllocationPlot* parentWellAllocation = nullptr;
         this->firstAncestorOrThisOfType( parentWellAllocation );
         if ( parentWellAllocation )
@@ -613,10 +614,12 @@ void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Depth Axis" );
     uiOrderingForDepthAxis( uiConfigName, *gridGroup );
 
-    caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Plot Layout" );
-    uiOrderingForAutoName( uiConfigName, *titleAndLegendsGroup );
-    RimPlotWindow::uiOrderingForLegendSettings( uiConfigName, *titleAndLegendsGroup );
-    titleAndLegendsGroup->add( &m_columnCount );
+    caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup( "Plot Title" );
+    uiOrderingForAutoName( uiConfigName, *titleGroup );
+
+    caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
+    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+    plotLayoutGroup->add( &m_columnCount );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -740,6 +743,10 @@ QString RimWellLogPlot::depthAxisTitle() const
 
         case RiaDefines::CONNECTION_NUMBER:
             depthTitle = "Connection";
+            break;
+
+        case RiaDefines::TRUE_VERTICAL_DEPTH_RKB:
+            depthTitle = "TVDRKB";
             break;
     }
 
