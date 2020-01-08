@@ -209,4 +209,9 @@ private:
     caf::PdmField<caf::FilePath> m_defaultPlotTemplate;
 
     QStringList m_tabNames;
+
+    caf::PdmField<FontSizeType> m_defaultSceneFontSize_OBSOLETE;
+    caf::PdmField<FontSizeType> m_defaultWellLabelFontSize_OBSOLETE;
+    caf::PdmField<FontSizeType> m_defaultAnnotationFontSize_OBSOLETE;
+    caf::PdmField<FontSizeType> m_defaultPlotFontSize_OBSOLETE;
 };
