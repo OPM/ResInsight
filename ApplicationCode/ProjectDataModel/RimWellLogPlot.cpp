@@ -39,6 +39,7 @@
 #include "RiuWellLogPlot.h"
 
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiDoubleValueEditor.h"
 #include "cvfAssert.h"
 
 #include <QKeyEvent>
@@ -89,6 +90,9 @@ RimWellLogPlot::RimWellLogPlot()
 
     CAF_PDM_InitField( &m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "" );
     CAF_PDM_InitField( &m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "" );
+    m_minVisibleDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_maxVisibleDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
     CAF_PDM_InitFieldNoDefault( &m_depthAxisGridVisibility, "ShowDepthGridLines", "Show Grid Lines", "", "", "" );
     CAF_PDM_InitField( &m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "" );
     m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden( true );
@@ -692,6 +696,15 @@ void RimWellLogPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
         if ( comboAttr )
         {
             comboAttr->iconSize = QSize( 24, 14 );
+        }
+    }
+    else if ( field == &m_minVisibleDepth || field == &m_maxVisibleDepth )
+    {
+        auto doubleAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
+        if ( doubleAttr )
+        {
+            doubleAttr->m_decimals     = 2;
+            doubleAttr->m_numberFormat = caf::PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED;
         }
     }
 }
