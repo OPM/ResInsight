@@ -91,6 +91,7 @@ void RivSurfacePartMgr::generateNativePartGeometry()
     cvf::ref<cvf::DrawableGeo> drawGeo = new cvf::DrawableGeo;
     drawGeo->addPrimitiveSet( indexSet.p() );
     drawGeo->setVertexArray( cvfVertices.p() );
+    drawGeo->computeNormals();
 
     m_nativeTrianglesPart = new cvf::Part();
     m_nativeTrianglesPart->setDrawable( drawGeo.p() );
