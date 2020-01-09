@@ -26,6 +26,7 @@
 
 class RimSurface;
 class RivSurfacePartMgr;
+class RivIntersectionHexGridInterface;
 
 class RimSurfaceInView : public caf::PdmObject
 {
@@ -45,10 +46,12 @@ public:
     void               clearGeometry();
     RivSurfacePartMgr* surfacePartMgr();
 
+    cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
+
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+    void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue ) override;
 

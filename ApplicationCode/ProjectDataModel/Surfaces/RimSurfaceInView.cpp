@@ -21,6 +21,10 @@
 #include "RimGridView.h"
 #include "RimSurface.h"
 
+#include "RigFemPartCollection.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechView.h"
+#include "RivHexGridIntersectionTools.h"
 #include "RivSurfacePartMgr.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
@@ -133,4 +137,54 @@ caf::PdmFieldHandle* RimSurfaceInView::userDescriptionField()
 caf::PdmFieldHandle* RimSurfaceInView::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RivIntersectionHexGridInterface> RimSurfaceInView::createHexGridInterface()
+{
+    // RimIntersectionResultDefinition* resDef = activeSeparateResultDefinition();
+    // if ( resDef && resDef->activeCase() )
+    //{
+    //    // Eclipse case
+    //
+    //    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( resDef->activeCase() );
+    //    if ( eclipseCase && eclipseCase->eclipseCaseData() )
+    //    {
+    //        return new RivEclipseIntersectionGrid( eclipseCase->eclipseCaseData()->mainGrid(),
+    //                                              eclipseCase->eclipseCaseData()->activeCellInfo(
+    //                                                  resDef->eclipseResultDefinition()->porosityModel() ),
+    //                                              this->isInactiveCellsVisible() );
+    //    }
+    //
+    //    // Geomech case
+    //
+    //    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( resDef->activeCase() );
+    //
+    //    if ( geomCase && geomCase->geoMechData() && geomCase->geoMechData()->femParts() )
+    //    {
+    //        RigFemPart* femPart = geomCase->geoMechData()->femParts()->part( 0 );
+    //        return new RivFemIntersectionGrid( femPart );
+    //    }
+    //}
+
+    RimEclipseView* eclipseView;
+    this->firstAncestorOrThisOfType( eclipseView );
+    if ( eclipseView )
+    {
+        RigMainGrid* grid = eclipseView->mainGrid();
+        return new RivEclipseIntersectionGrid( grid, eclipseView->currentActiveCellInfo(), true );
+    }
+
+    RimGeoMechView* geoView;
+    this->firstAncestorOrThisOfType( geoView );
+    if ( geoView && geoView->femParts() && geoView->femParts()->partCount() )
+    {
+        RigFemPart* femPart = geoView->femParts()->part( 0 );
+
+        return new RivFemIntersectionGrid( femPart );
+    }
+
+    return nullptr;
 }

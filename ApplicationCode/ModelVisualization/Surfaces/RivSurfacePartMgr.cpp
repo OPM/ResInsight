@@ -22,7 +22,22 @@
 #include "RimSurface.h"
 #include "RimSurfaceInView.h"
 
+#include "RigHexIntersectionTools.h"
+#include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
 #include "RimCase.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechCellColors.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
+#include "RimRegularLegendConfig.h"
+#include "RimTernaryLegendConfig.h"
+#include "RivHexGridIntersectionTools.h"
+#include "RivScalarMapperUtils.h"
+#include "RivTernaryScalarMapper.h"
 #include "cafEffectGenerator.h"
 #include "cvfDrawableGeo.h"
 #include "cvfModelBasicList.h"
@@ -50,10 +65,7 @@ void RivSurfacePartMgr::appendNativeGeometryPartsToModel( cvf::ModelBasicList* m
     if ( m_nativeTrianglesPart.notNull() )
     {
         m_nativeTrianglesPart->setTransform( scaleTransform );
-
-        caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( m_surfaceInView->surface()->color() ), caf::PO_1 );
-        cvf::ref<cvf::Effect>       eff = surfaceGen.generateCachedEffect();
-        m_nativeTrianglesPart->setEffect( eff.p() );
+        this->applySingleColor();
 
         model->addPart( m_nativeTrianglesPart.p() );
 
@@ -62,6 +74,105 @@ void RivSurfacePartMgr::appendNativeGeometryPartsToModel( cvf::ModelBasicList* m
             m_nativeMeshLinesPart->setTransform( scaleTransform );
             model->addPart( m_nativeMeshLinesPart.p() );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivSurfacePartMgr::updateCellResultColor( size_t timeStepIndex )
+{
+    if ( !m_vertexToCellIndexMap.size() )
+    {
+        generateVertexToCellIndexMap();
+    }
+
+    RimGridView* gridView = nullptr;
+    m_surfaceInView->firstAncestorOrThisOfType( gridView );
+
+    if ( !gridView ) return;
+
+    bool isLightingDisabled = gridView->isLightingDisabled();
+
+    RimEclipseResultDefinition*   eclipseResDef      = nullptr;
+    RimGeoMechResultDefinition*   geomResultDef      = nullptr;
+    const cvf::ScalarMapper*      scalarColorMapper  = nullptr;
+    const RivTernaryScalarMapper* ternaryColorMapper = nullptr;
+
+    // Ordinary result
+
+    if ( !eclipseResDef && !geomResultDef )
+    {
+        RimEclipseView* eclipseView = nullptr;
+        m_surfaceInView->firstAncestorOrThisOfType( eclipseView );
+
+        if ( eclipseView )
+        {
+            eclipseResDef = eclipseView->cellResult();
+            if ( !scalarColorMapper ) scalarColorMapper = eclipseView->cellResult()->legendConfig()->scalarMapper();
+            if ( !ternaryColorMapper )
+                ternaryColorMapper = eclipseView->cellResult()->ternaryLegendConfig()->scalarMapper();
+        }
+
+        RimGeoMechView* geoView;
+        m_surfaceInView->firstAncestorOrThisOfType( geoView );
+
+        if ( geoView )
+        {
+            geomResultDef = geoView->cellResult();
+            if ( !scalarColorMapper ) scalarColorMapper = geoView->cellResult()->legendConfig()->scalarMapper();
+        }
+    }
+
+    cvf::ref<cvf::Vec2fArray> intersectionFacesTextureCoords = new cvf::Vec2fArray();
+
+    if ( eclipseResDef )
+    {
+        if ( !eclipseResDef->isTernarySaturationSelected() )
+        {
+            RigEclipseCaseData* eclipseCaseData = eclipseResDef->eclipseCase()->eclipseCaseData();
+
+            cvf::ref<RigResultAccessor> resultAccessor;
+
+            if ( !RiaDefines::isPerCellFaceResult( eclipseResDef->resultVariable() ) )
+
+            {
+                resultAccessor = RigResultAccessorFactory::createFromResultDefinition( eclipseCaseData,
+                                                                                       0,
+                                                                                       timeStepIndex,
+                                                                                       eclipseResDef );
+            }
+
+            if ( resultAccessor.isNull() )
+            {
+                resultAccessor = new RigHugeValResultAccessor;
+            }
+
+            RivSurfacePartMgr::calculateVertexTextureCoordinates( intersectionFacesTextureCoords.p(),
+                                                                  m_vertexToCellIndexMap,
+                                                                  resultAccessor.p(),
+                                                                  scalarColorMapper );
+
+            RivScalarMapperUtils::applyTextureResultsToPart( m_nativeTrianglesPart.p(),
+                                                             intersectionFacesTextureCoords.p(),
+                                                             scalarColorMapper,
+                                                             1.0,
+                                                             caf::FC_NONE,
+                                                             isLightingDisabled );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivSurfacePartMgr::applySingleColor()
+{
+    if ( m_nativeTrianglesPart.notNull() )
+    {
+        caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( m_surfaceInView->surface()->color() ), caf::PO_1 );
+        cvf::ref<cvf::Effect>       eff = surfaceGen.generateCachedEffect();
+        m_nativeTrianglesPart->setEffect( eff.p() );
     }
 }
 
@@ -95,4 +206,67 @@ void RivSurfacePartMgr::generateNativePartGeometry()
 
     m_nativeTrianglesPart = new cvf::Part();
     m_nativeTrianglesPart->setDrawable( drawGeo.p() );
+
+    m_vertexToCellIndexMap.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivSurfacePartMgr::generateVertexToCellIndexMap()
+{
+    cvf::ref<RivIntersectionHexGridInterface> hexGrid = m_surfaceInView->createHexGridInterface();
+
+    const std::vector<cvf::Vec3d>& vertices = m_usedSurfaceData->vertices();
+    m_vertexToCellIndexMap.resize( vertices.size(), -1 );
+
+    for ( size_t vxIdx = 0; vxIdx < vertices.size(); ++vxIdx )
+    {
+        cvf::BoundingBox box;
+        box.add( vertices[vxIdx] );
+        std::vector<size_t> cellCandidates;
+        hexGrid->findIntersectingCells( box, &cellCandidates );
+
+        for ( size_t cellIdx : cellCandidates )
+        {
+            cvf::Vec3d cellCorners[8];
+            hexGrid->cellCornerVertices( cellIdx, cellCorners );
+
+            if ( RigHexIntersectionTools::isPointInCell( vertices[vxIdx], cellCorners ) )
+            {
+                m_vertexToCellIndexMap[vxIdx] = cellIdx;
+                break;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Calculates the texture coordinates in a "nearly" one dimensional texture.
+/// Undefined values are coded with a y-texturecoordinate value of 1.0 instead of the normal 0.5
+//--------------------------------------------------------------------------------------------------
+void RivSurfacePartMgr::calculateVertexTextureCoordinates( cvf::Vec2fArray*           textureCoords,
+                                                           const std::vector<size_t>& vertexToCellIdxMap,
+                                                           const RigResultAccessor*   resultAccessor,
+                                                           const cvf::ScalarMapper*   mapper )
+{
+    if ( !resultAccessor ) return;
+
+    size_t numVertices = vertexToCellIdxMap.size();
+
+    textureCoords->resize( numVertices );
+    cvf::Vec2f* rawPtr = textureCoords->ptr();
+
+#pragma omp parallel for
+    for ( int vxIdx = 0; vxIdx < numVertices; vxIdx++ )
+    {
+        double     cellScalarValue = resultAccessor->cellScalarGlobIdx( vertexToCellIdxMap[vxIdx] );
+        cvf::Vec2f texCoord        = mapper->mapToTextureCoord( cellScalarValue );
+        if ( cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue ) // a != a is true for NAN's
+        {
+            texCoord[1] = 1.0f;
+        }
+
+        rawPtr[vxIdx] = texCoord;
+    }
 }
