@@ -23,6 +23,8 @@
 
 #include <QFileInfo>
 
+#include <cmath>
+
 #include <fstream>
 #include <sstream>
 
@@ -242,14 +244,14 @@ bool RimSurface::updateSurfaceDataFromFile()
                 unsigned q3 = indexToPointData[iIdx + 1][jIdx + 0];
                 unsigned q4 = indexToPointData[iIdx + 1][jIdx + 1];
 
-                if ( q1 != -1 && q2 != -1 && q4 != -1 )
+                if ( q1 != ( (unsigned)-1 ) && q2 != ( (unsigned)-1 ) && q4 != ( (unsigned)-1 ) )
                 {
                     triangleIndices.push_back( q1 );
                     triangleIndices.push_back( q2 );
                     triangleIndices.push_back( q4 );
                 }
 
-                if ( q1 != -1 && q2 != -1 && q3 != -1 )
+                if ( q1 != ( (unsigned)-1 ) && q2 != ( (unsigned)-1 ) && q3 != ( (unsigned)-1 ) )
                 {
                     triangleIndices.push_back( q1 );
                     triangleIndices.push_back( q4 );
