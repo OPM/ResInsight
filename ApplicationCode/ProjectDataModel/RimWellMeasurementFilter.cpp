@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWellMeasurementFilter.h"
 
+#include "cvfMath.h"
+
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
@@ -31,23 +33,52 @@ std::vector<RimWellMeasurement*>
                                                   const RimWellPath&                      wellPath,
                                                   const std::vector<QString>&             measurementKinds )
 {
-    std::vector<RimWellMeasurement*> filteredMeasurements;
+    std::vector<RimWellMeasurement*> filteredMeasurementsByKinds = filterMeasurements( measurements, measurementKinds );
 
-    for ( auto& measurement : measurements )
+    std::vector<RimWellMeasurement*> filteredMeasurements;
+    for ( auto& measurement : filteredMeasurementsByKinds )
     {
-        if ( std::find( measurementKinds.begin(), measurementKinds.end(), measurement->kind() ) != measurementKinds.end() )
+        RimWellPath* matchedWellPath = wellPathCollection.tryFindMatchingWellPath( measurement->wellName() );
+        if ( matchedWellPath && matchedWellPath == &wellPath )
         {
-            RimWellPath* matchedWellPath = wellPathCollection.tryFindMatchingWellPath( measurement->wellName() );
-            if ( matchedWellPath && matchedWellPath == &wellPath )
-            {
-                filteredMeasurements.push_back( measurement );
-            }
+            filteredMeasurements.push_back( measurement );
         }
     }
 
     return filteredMeasurements;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellMeasurement*>
+    RimWellMeasurementFilter::filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
+                                                  const RimWellPathCollection&            wellPathCollection,
+                                                  const RimWellPath&                      wellPath,
+                                                  const std::vector<QString>&             measurementKinds,
+                                                  double                                  lowerBound,
+                                                  double                                  upperBound )
+{
+    std::vector<RimWellMeasurement*> filteredMeasurementsByKindsAndWellPath = filterMeasurements( measurements,
+                                                                                                  wellPathCollection,
+                                                                                                  wellPath,
+                                                                                                  measurementKinds );
+
+    std::vector<RimWellMeasurement*> filteredMeasurements;
+    for ( auto& measurement : filteredMeasurementsByKindsAndWellPath )
+    {
+        if ( RimWellMeasurementFilter::isInsideRange( measurement->value(), lowerBound, upperBound ) )
+        {
+            filteredMeasurements.push_back( measurement );
+        }
+    }
+
+    return filteredMeasurements;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimWellMeasurement*>
     RimWellMeasurementFilter::filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
                                                   const std::vector<QString>&             measurementKinds )
@@ -63,4 +94,23 @@ std::vector<RimWellMeasurement*>
     }
 
     return filteredMeasurements;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellMeasurementFilter::isInsideRange( double value, double lowerBound, double upperBound )
+{
+    // Invalid range: everything is inside
+    if ( lowerBound == cvf::UNDEFINED_DOUBLE || cvf::UNDEFINED_DOUBLE == upperBound )
+    {
+        return true;
+    }
+
+    if ( lowerBound <= value && value <= upperBound )
+    {
+        return true;
+    }
+
+    return false;
 }

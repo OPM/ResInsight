@@ -51,8 +51,15 @@ public:
 
     bool hasCategoryResult() const;
 
+    void rangeValues( double* lowerBound, double* upperBound ) const;
+
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
@@ -70,4 +77,9 @@ private:
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
     caf::PdmField<QString>                      m_measurementKind;
     caf::PdmField<std::vector<QString>>         m_wells;
+    caf::PdmField<double>                       m_lowerBound;
+    caf::PdmField<double>                       m_upperBound;
+
+    double m_minimumResultValue;
+    double m_maximumResultValue;
 };

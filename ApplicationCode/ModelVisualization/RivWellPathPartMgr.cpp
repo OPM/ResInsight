@@ -283,13 +283,18 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
             std::vector<QString> measurementKinds;
             measurementKinds.push_back( wellMeasurementInView->measurementKind() );
 
-            RivPipeGeometryGenerator         geoGenerator;
+            double lowerBound = 0.0;
+            double upperBound = 0.0;
+            wellMeasurementInView->rangeValues( &lowerBound, &upperBound );
             std::vector<RimWellMeasurement*> wellMeasurements =
                 RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
                                                               *wellPathCollection,
                                                               *m_rimWellPath,
-                                                              measurementKinds );
+                                                              measurementKinds,
+                                                              lowerBound,
+                                                              upperBound );
 
+            RivPipeGeometryGenerator geoGenerator;
             for ( RimWellMeasurement* wellMeasurement : wellMeasurements )
             {
                 double wellPathRadius = this->wellPathRadius( characteristicCellSize, this->wellPathCollection() );
