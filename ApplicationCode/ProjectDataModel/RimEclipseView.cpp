@@ -1905,13 +1905,10 @@ void RimEclipseView::updateVirtualConnectionLegendRanges()
 
         virtualTransmissibilities->computeMinMax( &minValue, &maxValue, &posClosestToZero, &negClosestToZero );
 
-        if ( minValue != HUGE_VAL )
-        {
-            RimRegularLegendConfig* legendConfig = virtualPerforationResult()->legendConfig();
+        RimRegularLegendConfig* legendConfig = virtualPerforationResult()->legendConfig();
 
-            legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
-            legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
-        }
+        legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
+        legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
     }
 }
 
