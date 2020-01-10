@@ -32,6 +32,7 @@
 #include "RiuViewer.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -57,9 +58,17 @@ RimWellMeasurementInView::RimWellMeasurementInView()
     CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells", "", "", "" );
     m_wells.uiCapability()->setAutoAddingOptionFromValue( false );
     m_wells.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_wells.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &m_lowerBound, "LowerBound", -HUGE_VAL, "Min", "", "", "" );
+    m_lowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_upperBound, "UpperBound", HUGE_VAL, "Max", "", "", "" );
+    m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     this->setName( "Well Measurement" );
+
+    m_minimumResultValue = cvf::UNDEFINED_DOUBLE;
+    m_maximumResultValue = cvf::UNDEFINED_DOUBLE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,6 +92,49 @@ void RimWellMeasurementInView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellMeasurementInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    RimCheckableNamedObject::defineUiOrdering( uiConfigName, uiOrdering );
+    uiOrdering.add( &m_wells );
+
+    if ( !hasCategoryResult() )
+    {
+        caf::PdmUiGroup& filterGroup = *( uiOrdering.addNewGroup( "Value Filter Settings" ) );
+        filterGroup.add( &m_lowerBound );
+        filterGroup.add( &m_upperBound );
+    }
+
+    uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementInView::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                      QString                    uiConfigName,
+                                                      caf::PdmUiEditorAttribute* attribute )
+{
+    if ( m_minimumResultValue == cvf::UNDEFINED_DOUBLE || m_maximumResultValue == cvf::UNDEFINED_DOUBLE )
+    {
+        return;
+    }
+
+    if ( field == &m_lowerBound || field == &m_upperBound )
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( !myAttr )
+        {
+            return;
+        }
+
+        myAttr->m_minimum = m_minimumResultValue;
+        myAttr->m_maximum = m_maximumResultValue;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellMeasurementInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                  const QVariant&            oldValue,
                                                  const QVariant&            newValue )
@@ -91,6 +143,15 @@ void RimWellMeasurementInView::fieldChangedByUi( const caf::PdmFieldHandle* chan
     RimGridView* rimGridView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( rimGridView );
     rimGridView->scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementInView::rangeValues( double* lowerBound, double* upperBound ) const
+{
+    *lowerBound = m_lowerBound;
+    *upperBound = m_upperBound;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,21 +191,38 @@ bool RimWellMeasurementInView::updateLegendData()
             RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
                                                           selectedMeasurementKinds );
 
-        double minValue         = HUGE_VAL;
-        double maxValue         = -HUGE_VAL;
+        double oldMinimumResultValue = m_minimumResultValue;
+        double oldMaximumResultValue = m_maximumResultValue;
+
+        m_minimumResultValue    = HUGE_VAL;
+        m_maximumResultValue    = -HUGE_VAL;
         double posClosestToZero = HUGE_VAL;
         double negClosestToZero = -HUGE_VAL;
 
         for ( auto& measurement : wellMeasurements )
         {
-            minValue = std::min( measurement->value(), minValue );
-            maxValue = std::max( measurement->value(), maxValue );
+            m_minimumResultValue = std::min( measurement->value(), m_minimumResultValue );
+            m_maximumResultValue = std::max( measurement->value(), m_maximumResultValue );
         }
 
-        if ( minValue != HUGE_VAL )
+        if ( m_minimumResultValue != HUGE_VAL )
         {
+            // Refresh filter slider if lower or upper boundary was undefined
+            if ( std::isinf( m_lowerBound ) )
+            {
+                m_lowerBound = m_minimumResultValue;
+            }
+
+            if ( std::isinf( m_upperBound ) )
+            {
+                m_upperBound = m_maximumResultValue;
+            }
+
             m_legendConfig->setTitle( QString( "Well Measurement: \n" ) + selectedMeasurementKinds[0] );
-            m_legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
+            m_legendConfig->setAutomaticRanges( m_minimumResultValue,
+                                                m_maximumResultValue,
+                                                m_minimumResultValue,
+                                                m_maximumResultValue );
             m_legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
             return true;
         }
