@@ -36,9 +36,9 @@ public:
     QString filePath() const;
     void    setFilePath( const QString& filePath );
 
-protected:
-    void initAfterRead() override;
-
 private:
+    caf::PdmFieldHandle* userDescriptionField() override;
+
+    caf::PdmField<QString>       m_userDescription;
     caf::PdmField<caf::FilePath> m_filePath;
 };

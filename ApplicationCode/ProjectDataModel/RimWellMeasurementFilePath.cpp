@@ -20,6 +20,8 @@
 
 #include "cafPdmUiLineEditor.h"
 
+#include <QFileInfo>
+
 CAF_PDM_SOURCE_INIT( RimWellMeasurementFilePath, "WellMeasurementFilePath" );
 
 //--------------------------------------------------------------------------------------------------
@@ -29,10 +31,10 @@ RimWellMeasurementFilePath::RimWellMeasurementFilePath()
 {
     CAF_PDM_InitObject( "RimWellMeasurementFilePath", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_userDescription, "UserDecription", "Name", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
     m_filePath.uiCapability()->setUiReadOnly( true );
     m_filePath.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
-    setUiName( "File Path" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,14 +55,17 @@ QString RimWellMeasurementFilePath::filePath() const
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementFilePath::setFilePath( const QString& filePath )
 {
-    m_filePath = caf::FilePath( filePath );
-    setUiName( filePath );
+    m_filePath = filePath;
+    if ( m_userDescription().isEmpty() )
+    {
+        m_userDescription = QFileInfo( filePath ).fileName();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurementFilePath::initAfterRead()
+caf::PdmFieldHandle* RimWellMeasurementFilePath::userDescriptionField()
 {
-    setUiName( filePath() );
+    return &m_userDescription;
 }
