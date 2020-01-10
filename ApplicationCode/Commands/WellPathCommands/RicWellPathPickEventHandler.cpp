@@ -26,6 +26,8 @@
 #include "RimPerforationInterval.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
+#include "RimWellMeasurementInView.h"
+#include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
@@ -159,7 +161,23 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
                     }
 
                     RiuMainWindow::instance()->setResultInfo( measurementText );
-                    RiuMainWindow::instance()->selectAsCurrentItem( collection );
+
+                    Rim3dView* rimView = RiaApplication::instance()->activeReservoirView();
+                    if ( rimView )
+                    {
+                        // Find the RimWellMeasurementInView which matches the selection
+                        std::vector<RimWellMeasurementInViewCollection*> wellMeasurementInViewCollections;
+                        rimView->descendantsIncludingThisOfType( wellMeasurementInViewCollections );
+                        if ( !wellMeasurementInViewCollections.empty() )
+                        {
+                            RimWellMeasurementInView* wellMeasurementInView =
+                                wellMeasurementInViewCollections[0]->getWellMeasurementInView( measurement );
+                            if ( wellMeasurementInView )
+                            {
+                                RiuMainWindow::instance()->selectAsCurrentItem( wellMeasurementInView );
+                            }
+                        }
+                    }
                 }
             }
 
