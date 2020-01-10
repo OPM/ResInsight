@@ -2197,8 +2197,13 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
             errorCurveData.values  = errorValues;
         }
 
-        if ( casePosInList == cvf::UNDEFINED_SIZE_T )
+        if ( casePosInList == cvf::UNDEFINED_SIZE_T ||
+             curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
         {
+            // Create a section with separate time axis data if
+            // 1. Case is not referenced before, or
+            // 2. We have calculated data, and it we cannot assume identical time axis
+
             auto curveDataList = std::vector<CurveData>( {curveData} );
             if ( hasErrorData ) curveDataList.push_back( errorCurveData );
 
@@ -2208,6 +2213,8 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
         }
         else
         {
+            // Append curve data to previously created curvesdata object
+
             curvesData->allCurveData[casePosInList].push_back( curveData );
             if ( hasErrorData ) curvesData->allCurveData[casePosInList].push_back( errorCurveData );
         }
