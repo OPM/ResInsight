@@ -22,7 +22,6 @@
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementFilePath.h"
 
-#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -42,7 +41,7 @@ RimWellMeasurementCollection::RimWellMeasurementCollection()
     m_measurements.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_importedFiles, "ImportedFiles", "Imported Files", "", "", "" );
-    m_importedFiles.uiCapability()->setUiTreeHidden( false );
+    m_importedFiles.uiCapability()->setUiTreeHidden( true );
 
     this->setName( "Well Measurements" );
 }
@@ -79,6 +78,14 @@ std::vector<RimWellMeasurement*> RimWellMeasurementCollection::measurements() co
         attrs.push_back( attr.p() );
     }
     return attrs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellMeasurementCollection::isEmpty() const
+{
+    return m_measurements.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,7 +167,10 @@ void RimWellMeasurementCollection::defineUiOrdering( QString uiConfigName, caf::
 void RimWellMeasurementCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
                                                          QString                 uiConfigName /*= ""*/ )
 {
-    uiTreeOrdering.add( &m_importedFiles );
+    if ( !m_importedFiles.empty() )
+    {
+        uiTreeOrdering.add( &m_importedFiles );
+    }
     uiTreeOrdering.skipRemainingChildren( true );
 }
 

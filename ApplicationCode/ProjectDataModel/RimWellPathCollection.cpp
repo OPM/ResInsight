@@ -47,6 +47,7 @@
 #include "RifWellPathImporter.h"
 
 #include "cafPdmUiEditorHandle.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
 #include <QFile>
@@ -430,6 +431,24 @@ void RimWellPathCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Clipping" );
     advancedGroup->add( &wellPathClip );
     advancedGroup->add( &wellPathClipZDistance );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
+{
+    if ( !wellPaths.empty() )
+    {
+        uiTreeOrdering.add( &wellPaths );
+    }
+
+    if ( !m_wellMeasurements->isEmpty() )
+    {
+        uiTreeOrdering.add( &m_wellMeasurements );
+    }
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------

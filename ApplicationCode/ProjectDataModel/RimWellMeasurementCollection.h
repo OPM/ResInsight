@@ -45,6 +45,7 @@ public:
     void appendMeasurement( RimWellMeasurement* measurement );
     void deleteMeasurement( RimWellMeasurement* measurementToDelete );
     void deleteAllMeasurements();
+    bool isEmpty() const;
 
     std::set<QString> importedFiles() const;
 
