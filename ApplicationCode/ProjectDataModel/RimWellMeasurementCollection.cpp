@@ -33,7 +33,7 @@ CAF_PDM_SOURCE_INIT( RimWellMeasurementCollection, "WellMeasurements" );
 //--------------------------------------------------------------------------------------------------
 RimWellMeasurementCollection::RimWellMeasurementCollection()
 {
-    CAF_PDM_InitObject( "Well Measurement", "", "", "" );
+    CAF_PDM_InitObject( "Well Measurements", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_measurements, "Measurements", "Well Measurements", "", "", "" );
     m_measurements.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -42,8 +42,6 @@ RimWellMeasurementCollection::RimWellMeasurementCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_importedFiles, "ImportedFiles", "Imported Files", "", "", "" );
     m_importedFiles.uiCapability()->setUiTreeHidden( true );
-
-    this->setName( "Well Measurements" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,22 +170,6 @@ void RimWellMeasurementCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering&
         uiTreeOrdering.add( &m_importedFiles );
     }
     uiTreeOrdering.skipRemainingChildren( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                     const QVariant&            oldValue,
-                                                     const QVariant&            newValue )
-{
-    if ( changedField == &m_isChecked )
-    {
-        RimProject* proj;
-        this->firstAncestorOrThisOfTypeAsserted( proj );
-        proj->scheduleCreateDisplayModelAndRedrawAllViews();
-        this->updateAllReferringTracks();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimCheckableNamedObject.h"
-
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -30,7 +28,7 @@ class RimWellMeasurementFilePath;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimWellMeasurementCollection : public RimCheckableNamedObject
+class RimWellMeasurementCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -59,9 +57,6 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
 
 private:
     caf::PdmChildArrayField<RimWellMeasurement*>         m_measurements;
