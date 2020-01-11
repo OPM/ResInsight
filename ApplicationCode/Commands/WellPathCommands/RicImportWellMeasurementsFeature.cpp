@@ -150,5 +150,11 @@ RimWellPathCollection* RicImportWellMeasurementsFeature::selectedWellPathCollect
         return objects[0];
     }
 
+    auto measurementColl = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellMeasurementCollection>();
+    if ( measurementColl )
+    {
+        return caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathCollection>();
+    }
+
     return nullptr;
 }
