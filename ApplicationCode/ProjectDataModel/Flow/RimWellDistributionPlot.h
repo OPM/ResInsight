@@ -44,7 +44,7 @@ public:
     ~RimWellDistributionPlot() override;
 
     void setDataSourceParameters( RimEclipseResultCase* eclipseResultCase, int timeStepIndex, QString targetWellName );
-    void setPlotOptions( bool groupSmallContributions, double smallContributionsRelativeThreshold );
+    void setPlotOptions( bool groupSmallContributions, double smallContributionsRelativeThreshold, double maximumTof );
 
     // RimPlot implementations
     RiuQwtPlotWidget* viewer() override;
@@ -81,7 +81,8 @@ private:
     void        fixupDependentFieldsAfterCaseChange();
     static void populatePlotWidgetWithCurveData( const RigTofWellDistributionCalculator& calculator,
                                                  const RimFlowDiagSolution&              flowDiagSolution,
-                                                 RiuQwtPlotWidget*                       plotWidget );
+                                                 RiuQwtPlotWidget*                       plotWidget,
+                                                 double                                  maximumTof );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
@@ -98,6 +99,7 @@ private:
     caf::PdmField<caf::AppEnum<RiaDefines::PhaseType>> m_phase;
     caf::PdmField<bool>                                m_groupSmallContributions;
     caf::PdmField<double>                              m_smallContributionsRelativeThreshold;
+    caf::PdmField<double>                              m_maximumTof;
 
     QPointer<RiuQwtPlotWidget> m_plotWidget;
 };

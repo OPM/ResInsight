@@ -10,6 +10,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicShowContributingWellsFeatureImpl.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPlotProductionRateFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectViewUI.h
 ${CMAKE_CURRENT_LIST_DIR}/RicShowTotalAllocationDataFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicShowCumulativePhasePlotFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -23,6 +24,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicShowContributingWellsFeatureImpl.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicPlotProductionRateFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSelectViewUI.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicShowTotalAllocationDataFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicShowCumulativePhasePlotFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

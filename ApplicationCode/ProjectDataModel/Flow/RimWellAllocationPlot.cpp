@@ -912,6 +912,15 @@ QString RimWellAllocationPlot::description() const
 void RimWellAllocationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
+
+    if ( !m_case ) return;
+
+    // If no 3D view is open, we have to make sure the case is opened
+    if ( !m_case->ensureReservoirCaseIsOpen() )
+    {
+        return;
+    }
+
     updateFromWell();
     m_accumulatedWellFlowPlot->loadDataAndUpdate();
     updateFormationNamesData();
