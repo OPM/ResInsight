@@ -24,6 +24,7 @@
 #include <vector>
 
 class RimWellMeasurementInView;
+class RimWellMeasurement;
 
 class RimWellMeasurementInViewCollection : public RimCheckableNamedObject
 {
@@ -36,6 +37,8 @@ public:
     std::vector<RimWellMeasurementInView*> measurements() const;
 
     void syncWithChangesInWellMeasurementCollection();
+
+    RimWellMeasurementInView* getWellMeasurementInView( const RimWellMeasurement* measurement ) const;
 
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;

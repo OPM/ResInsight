@@ -54,6 +54,8 @@ public:
     void    setQuality( int quality );
     QString remark() const;
     void    setRemark( const QString& remark );
+    QString filePath() const;
+    void    setFilePath( const QString& filePath );
 
     static bool                 kindHasValue( const QString& measurementKind );
     static cvf::Color3f         mapToColor( const QString& measurementKind );
@@ -73,4 +75,5 @@ private:
     caf::PdmField<QString> m_kind;
     caf::PdmField<int>     m_quality;
     caf::PdmField<QString> m_remark;
+    caf::PdmField<QString> m_filePath;
 };

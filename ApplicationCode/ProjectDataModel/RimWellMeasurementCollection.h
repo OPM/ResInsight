@@ -17,19 +17,18 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimCheckableNamedObject.h"
-
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 
 class RimWellMeasurement;
+class RimWellMeasurementFilePath;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimWellMeasurementCollection : public RimCheckableNamedObject
+class RimWellMeasurementCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -44,6 +43,13 @@ public:
     void appendMeasurement( RimWellMeasurement* measurement );
     void deleteMeasurement( RimWellMeasurement* measurementToDelete );
     void deleteAllMeasurements();
+    bool isEmpty() const;
+
+    std::set<QString> importedFiles() const;
+
+    void addFilePath( const QString& filePath );
+    void removeFilePath( RimWellMeasurementFilePath* measurementFilePath );
+    void removeMeasurementsForFilePath( RimWellMeasurementFilePath* measurementFilePath );
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
@@ -51,10 +57,8 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
 
 private:
-    caf::PdmChildArrayField<RimWellMeasurement*> m_measurements;
+    caf::PdmChildArrayField<RimWellMeasurement*>         m_measurements;
+    caf::PdmChildArrayField<RimWellMeasurementFilePath*> m_importedFiles;
 };

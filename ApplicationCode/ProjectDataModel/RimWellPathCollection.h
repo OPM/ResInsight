@@ -121,7 +121,9 @@ protected:
                            const QVariant&            newValue ) override;
 
 private:
-    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+
     caf::PdmFieldHandle* objectToggleField() override;
 
     void readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray );

@@ -47,6 +47,7 @@
 #include "RifWellPathImporter.h"
 
 #include "cafPdmUiEditorHandle.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
 #include <QFile>
@@ -108,7 +109,7 @@ RimWellPathCollection::RimWellPathCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_wellMeasurements, "WellMeasurements", "Measurements", "", "", "" );
     m_wellMeasurements = new RimWellMeasurementCollection;
-    m_wellMeasurements->uiCapability()->setUiTreeHidden( true );
+    m_wellMeasurements.uiCapability()->setUiTreeHidden( true );
 
     m_wellPathImporter            = new RifWellPathImporter;
     m_wellPathFormationsImporter  = new RifWellPathFormationsImporter;
@@ -430,6 +431,24 @@ void RimWellPathCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Clipping" );
     advancedGroup->add( &wellPathClip );
     advancedGroup->add( &wellPathClipZDistance );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
+{
+    if ( !m_wellMeasurements->isEmpty() )
+    {
+        uiTreeOrdering.add( &m_wellMeasurements );
+    }
+
+    if ( !wellPaths.empty() )
+    {
+        uiTreeOrdering.add( &wellPaths );
+    }
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------

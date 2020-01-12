@@ -20,8 +20,8 @@
 #include "RimProject.h"
 #include "RimWellLogTrack.h"
 #include "RimWellMeasurement.h"
+#include "RimWellMeasurementFilePath.h"
 
-#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -33,14 +33,15 @@ CAF_PDM_SOURCE_INIT( RimWellMeasurementCollection, "WellMeasurements" );
 //--------------------------------------------------------------------------------------------------
 RimWellMeasurementCollection::RimWellMeasurementCollection()
 {
-    CAF_PDM_InitObject( "Well Measurement", "", "", "" );
+    CAF_PDM_InitObject( "Well Measurements", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_measurements, "Measurements", "Well Measurements", "", "", "" );
     m_measurements.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_measurements.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_measurements.uiCapability()->setUiTreeHidden( true );
 
-    this->setName( "Well Measurements" );
+    CAF_PDM_InitFieldNoDefault( &m_importedFiles, "ImportedFiles", "Imported Files", "", "", "" );
+    m_importedFiles.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +81,14 @@ std::vector<RimWellMeasurement*> RimWellMeasurementCollection::measurements() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellMeasurementCollection::isEmpty() const
+{
+    return m_measurements.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCollection::insertMeasurement( RimWellMeasurement* insertBefore, RimWellMeasurement* measurement )
 {
     size_t index = m_measurements.index( insertBefore );
@@ -88,6 +97,7 @@ void RimWellMeasurementCollection::insertMeasurement( RimWellMeasurement* insert
     else
         m_measurements.push_back( measurement );
 
+    addFilePath( measurement->filePath() );
     this->updateAllReferringTracks();
 }
 
@@ -97,6 +107,7 @@ void RimWellMeasurementCollection::insertMeasurement( RimWellMeasurement* insert
 void RimWellMeasurementCollection::appendMeasurement( RimWellMeasurement* measurement )
 {
     m_measurements.push_back( measurement );
+    addFilePath( measurement->filePath() );
     this->updateAllReferringTracks();
 }
 
@@ -145,6 +156,7 @@ void RimWellMeasurementCollection::defineEditorAttribute( const caf::PdmFieldHan
 void RimWellMeasurementCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_measurements );
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,21 +165,74 @@ void RimWellMeasurementCollection::defineUiOrdering( QString uiConfigName, caf::
 void RimWellMeasurementCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
                                                          QString                 uiConfigName /*= ""*/ )
 {
+    if ( !m_importedFiles.empty() )
+    {
+        uiTreeOrdering.add( &m_importedFiles );
+    }
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                     const QVariant&            oldValue,
-                                                     const QVariant&            newValue )
+std::set<QString> RimWellMeasurementCollection::importedFiles() const
 {
-    if ( changedField == &m_isChecked )
+    std::set<QString> importedFiles;
+    for ( auto importedFile : m_importedFiles )
     {
-        RimProject* proj;
-        this->firstAncestorOrThisOfTypeAsserted( proj );
-        proj->scheduleCreateDisplayModelAndRedrawAllViews();
-        this->updateAllReferringTracks();
+        importedFiles.insert( importedFile->filePath() );
     }
+
+    return importedFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementCollection::addFilePath( const QString& filePath )
+{
+    std::set<QString> existingFilePaths = importedFiles();
+    if ( existingFilePaths.find( filePath ) == existingFilePaths.end() )
+    {
+        RimWellMeasurementFilePath* measurementFilePath = new RimWellMeasurementFilePath;
+        measurementFilePath->setFilePath( filePath );
+        m_importedFiles.push_back( measurementFilePath );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementCollection::removeFilePath( RimWellMeasurementFilePath* measurementFilePath )
+{
+    m_importedFiles.removeChildObject( measurementFilePath );
+    delete measurementFilePath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementCollection::removeMeasurementsForFilePath( RimWellMeasurementFilePath* measurementFilePath )
+{
+    // Find all measurements for this file path
+    std::vector<RimWellMeasurement*> measurementsToRemove;
+    for ( auto attr : m_measurements )
+    {
+        if ( attr->filePath() == measurementFilePath->filePath() )
+        {
+            measurementsToRemove.push_back( attr );
+        }
+    }
+
+    // Remove then remove them without invalidating the iterator
+    for ( unsigned int i = 0; i < measurementsToRemove.size(); i++ )
+    {
+        m_measurements.removeChildObject( measurementsToRemove[i] );
+        delete measurementsToRemove[i];
+    }
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted( proj );
+    proj->scheduleCreateDisplayModelAndRedrawAllViews();
+    this->updateAllReferringTracks();
 }

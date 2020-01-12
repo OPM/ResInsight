@@ -25,6 +25,7 @@
 #include "RiuPlotMainWindow.h"
 
 #include "RimProject.h"
+#include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -98,6 +99,11 @@ void RicExportCompletionsForVisibleWellPathsFeature::setupActionLook( QAction* a
 std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibleWellPaths()
 {
     std::vector<RimWellPath*> wellPaths;
+
+    {
+        auto measurementColl = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellMeasurementCollection>();
+        if ( measurementColl ) return wellPaths;
+    }
 
     {
         std::vector<RimWellPathCollection*> wellPathCollections;

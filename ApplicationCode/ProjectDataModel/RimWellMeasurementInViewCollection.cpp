@@ -142,3 +142,21 @@ void RimWellMeasurementInViewCollection::syncWithChangesInWellMeasurementCollect
         updateConnectedEditors();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Get the "in-view" measurement corresponding to a give measurement.
+//--------------------------------------------------------------------------------------------------
+RimWellMeasurementInView*
+    RimWellMeasurementInViewCollection::getWellMeasurementInView( const RimWellMeasurement* measurement ) const
+{
+    for ( RimWellMeasurementInView* wellMeasurementInView : measurements() )
+    {
+        if ( wellMeasurementInView->measurementKind() == measurement->kind() )
+        {
+            return wellMeasurementInView;
+        }
+    }
+
+    // No match
+    return nullptr;
+}
