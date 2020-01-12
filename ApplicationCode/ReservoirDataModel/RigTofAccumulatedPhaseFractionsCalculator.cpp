@@ -42,6 +42,7 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
                                                                                       size_t                timestep )
 {
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
+    if ( !eclipseCaseData ) return;
 
     const std::vector<double>* swatResults = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
                                                                             RiaDefines::DYNAMIC_NATIVE,

@@ -339,7 +339,7 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
 
     updateLegend();
 
-    if ( m_case )
+    if ( m_case && m_case->ensureReservoirCaseIsOpen() )
     {
         // tim.reportLapTimeMS("about to start calc");
         RigTofWellDistributionCalculator calc( m_case, m_wellName, m_timeStepIndex, m_phase() );
