@@ -57,7 +57,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 {
     // cvf::Trace::show("RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()");
 
-    CAF_PDM_InitObject( "Cumulative Phase Distribution", "", "", "" );
+    CAF_PDM_InitObject( "Cumulative Phase Distribution Plot", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
     CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step", "", "", "" );
@@ -72,7 +72,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
                        "" );
 
     CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]", "", "", "" );
-    m_plotWindowTitle = "Well Distribution Plots";
+    m_plotWindowTitle = "Cumulative Phase Distribution Plots";
     m_columnCount     = RimMultiPlotWindow::COLUMNS_UNLIMITED;
 
     m_showPlotLegends = false;
