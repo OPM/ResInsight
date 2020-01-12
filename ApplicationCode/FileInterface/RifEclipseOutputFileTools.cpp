@@ -151,13 +151,12 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         }
     }
 
-    bool allTimeStepsOnSameDate = true;
+    bool useStartOfSimulationDate = true;
     {
         // See https://github.com/OPM/ResInsight/issues/4770
 
-        std::set<int> days;
-        std::set<int> months;
-        std::set<int> years;
+        std::set<std::tuple<int, int, int>> uniqueDays;
+
         for ( int i = 0; i < numINTEHEAD; i++ )
         {
             ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, i );
@@ -167,9 +166,7 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
             int year  = 0;
             getDayMonthYear( kwINTEHEAD, &day, &month, &year );
 
-            days.insert( day );
-            months.insert( month );
-            years.insert( year );
+            uniqueDays.insert( std::make_tuple( day, month, year ) );
         }
 
         std::set<double> uniqueDayValues;
@@ -178,10 +175,15 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
             uniqueDayValues.insert( dayValue );
         }
 
-        if ( days.size() == 1 && months.size() == 1 && years.size() == 1 && uniqueDayValues.size() == 1 )
+        if ( uniqueDays.size() == 1 && uniqueDayValues.size() == 1 )
         {
-            QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime(
-                QDate( *years.begin(), *months.begin(), *days.begin() ) );
+            int day   = 0;
+            int month = 0;
+            int year  = 0;
+
+            std::tie( day, month, year ) = *( uniqueDays.begin() );
+
+            QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime( QDate( year, month, day ) );
 
             timeSteps->push_back( reportDateTime );
             daysSinceSimulationStart->push_back( *uniqueDayValues.begin() );
@@ -193,15 +195,26 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
             return;
         }
 
-        if ( days.size() > 1 ) allTimeStepsOnSameDate = false;
-        if ( months.size() > 1 ) allTimeStepsOnSameDate = false;
-        if ( years.size() > 1 ) allTimeStepsOnSameDate = false;
+        // Some simulations might end up with wrong data reported for day/month/year. If this situation is detected,
+        // base all time step on double values and use start of simulation as first date
+        // See https://github.com/OPM/ResInsight/issues/4850
+        if ( uniqueDays.size() == dayValues.size() ) useStartOfSimulationDate = false;
     }
 
     std::set<QDateTime> existingTimesteps;
     for ( int i = 0; i < numINTEHEAD; i++ )
     {
-        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, i );
+        ecl_kw_type* kwINTEHEAD = nullptr;
+
+        if ( useStartOfSimulationDate )
+        {
+            kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, 0 );
+        }
+        else
+        {
+            kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, i );
+        }
+
         CVF_ASSERT( kwINTEHEAD );
         int day   = 0;
         int month = 0;
@@ -213,7 +226,7 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
 
         double dayDoubleValue = dayValues[i];
         int    dayValue       = cvf::Math::floor( dayDoubleValue );
-        if ( allTimeStepsOnSameDate )
+        if ( useStartOfSimulationDate )
         {
             reportDateTime = reportDateTime.addDays( dayValue );
         }
@@ -222,6 +235,7 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         double milliseconds = dayFraction * 24.0 * 60.0 * 60.0 * 1000.0;
 
         reportDateTime = reportDateTime.addMSecs( milliseconds );
+
         if ( existingTimesteps.insert( reportDateTime ).second )
         {
             timeSteps->push_back( reportDateTime );
