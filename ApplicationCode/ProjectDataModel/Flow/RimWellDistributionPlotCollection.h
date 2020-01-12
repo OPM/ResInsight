@@ -68,4 +68,5 @@ private:
     caf::PdmField<QString>                  m_wellName;
     caf::PdmField<bool>                     m_groupSmallContributions;
     caf::PdmField<double>                   m_smallContributionsRelativeThreshold;
+    caf::PdmField<double>                   m_maximumTof;
 };

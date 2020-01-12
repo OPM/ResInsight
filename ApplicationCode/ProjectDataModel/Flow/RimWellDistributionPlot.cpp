@@ -73,6 +73,8 @@ RimWellDistributionPlot::RimWellDistributionPlot( RiaDefines::PhaseType phase )
                        "",
                        "" );
 
+    CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]", "", "", "" );
+
     m_showWindow      = false;
     m_showPlotLegends = true;
 }
@@ -97,10 +99,13 @@ void RimWellDistributionPlot::setDataSourceParameters( RimEclipseResultCase* ecl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::setPlotOptions( bool groupSmallContributions, double smallContributionsRelativeThreshold )
+void RimWellDistributionPlot::setPlotOptions( bool   groupSmallContributions,
+                                              double smallContributionsRelativeThreshold,
+                                              double maximumTof )
 {
     m_groupSmallContributions             = groupSmallContributions;
     m_smallContributionsRelativeThreshold = smallContributionsRelativeThreshold;
+    m_maximumTof                          = maximumTof;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -355,7 +360,7 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
 
         // cvf::Trace::show("Populating plot for phase '%s'", m_phase == RiaDefines::OIL_PHASE ? "oil" : (m_phase ==
         // RiaDefines::GAS_PHASE ? "gas" : "water"));
-        populatePlotWidgetWithCurveData( calc, *flowDiagSolution, m_plotWidget );
+        populatePlotWidgetWithCurveData( calc, *flowDiagSolution, m_plotWidget, m_maximumTof );
     }
 
     QString phaseString = "N/A";
@@ -385,7 +390,8 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlot::populatePlotWidgetWithCurveData( const RigTofWellDistributionCalculator& calculator,
                                                                const RimFlowDiagSolution&              flowDiagSolution,
-                                                               RiuQwtPlotWidget*                       plotWidget )
+                                                               RiuQwtPlotWidget*                       plotWidget,
+                                                               double                                  maximumTof )
 {
     // cvf::Trace::show("RimWellDistributionPlot::populatePlotWidgetWithCurves()");
 
@@ -409,6 +415,9 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData( const RigTofWellD
     for ( double tofDays : tofValuesDays )
     {
         const double tofYears = tofDays / 365.2425;
+
+        if ( tofYears > maximumTof ) continue;
+
         tofValuesYears.push_back( tofYears );
     }
 

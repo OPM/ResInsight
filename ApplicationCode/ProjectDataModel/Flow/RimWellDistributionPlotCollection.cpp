@@ -57,7 +57,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 {
     // cvf::Trace::show("RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()");
 
-    CAF_PDM_InitObject( "Well Distribution Plots", "", "", "" );
+    CAF_PDM_InitObject( "Cumulative Phase Distribution", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
     CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step", "", "", "" );
@@ -71,6 +71,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
                        "",
                        "" );
 
+    CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]", "", "", "" );
     m_plotWindowTitle = "Well Distribution Plots";
     m_columnCount     = RimMultiPlotWindow::COLUMNS_UNLIMITED;
 
@@ -110,6 +111,7 @@ void RimWellDistributionPlotCollection::defineUiOrdering( QString uiConfigName, 
     uiOrdering.add( &m_wellName );
     uiOrdering.add( &m_groupSmallContributions );
     uiOrdering.add( &m_smallContributionsRelativeThreshold );
+    uiOrdering.add( &m_maximumTof );
 
     m_smallContributionsRelativeThreshold.uiCapability()->setUiReadOnly( m_groupSmallContributions == false );
 
@@ -194,7 +196,8 @@ void RimWellDistributionPlotCollection::fieldChangedByUi( const caf::PdmFieldHan
 
     bool shouldRecalculatePlotData = false;
     if ( changedField == &m_case || changedField == &m_timeStepIndex || changedField == &m_wellName ||
-         changedField == &m_groupSmallContributions || changedField == &m_smallContributionsRelativeThreshold )
+         changedField == &m_groupSmallContributions || changedField == &m_smallContributionsRelativeThreshold ||
+         changedField == &m_maximumTof )
     {
         applyPlotParametersToContainedPlots();
         shouldRecalculatePlotData = true;
@@ -221,7 +224,7 @@ void RimWellDistributionPlotCollection::applyPlotParametersToContainedPlots()
         if ( aPlot )
         {
             aPlot->setDataSourceParameters( m_case, m_timeStepIndex, m_wellName );
-            aPlot->setPlotOptions( m_groupSmallContributions, m_smallContributionsRelativeThreshold );
+            aPlot->setPlotOptions( m_groupSmallContributions, m_smallContributionsRelativeThreshold, m_maximumTof );
         }
     }
 }
