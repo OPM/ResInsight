@@ -47,6 +47,8 @@ public:
     RimWellDistributionPlotCollection();
     ~RimWellDistributionPlotCollection() override;
 
+    void setData( RimEclipseResultCase* eclipseCase, QString wellName, int timeStepIndex );
+
 private:
     // RimPlotWindow overrides
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

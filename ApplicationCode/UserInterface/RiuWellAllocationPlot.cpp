@@ -185,6 +185,7 @@ void RiuWellAllocationPlot::contextMenuEvent( QContextMenuEvent* event )
     caf::CmdFeatureMenuBuilder menuBuilder;
 
     menuBuilder << "RicShowContributingWellsFromPlotFeature";
+    menuBuilder << "RicShowCumulativePhasePlotFeature";
 
     menuBuilder.appendToMenu( &menu );
 

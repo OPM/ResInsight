@@ -43,11 +43,12 @@ public:
     void   loadDataAndUpdate();
     size_t plotCount() const;
 
-    void                        addWellAllocPlotToStoredPlots( RimWellAllocationPlot* plot );
-    void                        addFlowCharacteristicsPlotToStoredPlots( RimFlowCharacteristicsPlot* plot );
-    RimWellAllocationPlot*      defaultWellAllocPlot();
-    RimFlowCharacteristicsPlot* defaultFlowCharacteristicsPlot();
-    void                        ensureDefaultFlowPlotsAreCreated();
+    void                               addWellAllocPlotToStoredPlots( RimWellAllocationPlot* plot );
+    void                               addFlowCharacteristicsPlotToStoredPlots( RimFlowCharacteristicsPlot* plot );
+    RimWellAllocationPlot*             defaultWellAllocPlot();
+    RimFlowCharacteristicsPlot*        defaultFlowCharacteristicsPlot();
+    RimWellDistributionPlotCollection* wellDistributionPlotCollection() const;
+    void                               ensureDefaultFlowPlotsAreCreated();
 
 private:
     caf::PdmChildField<RimFlowCharacteristicsPlot*> m_flowCharacteristicsPlot;

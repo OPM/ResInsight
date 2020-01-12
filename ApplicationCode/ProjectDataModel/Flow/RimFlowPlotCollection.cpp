@@ -193,6 +193,14 @@ RimFlowCharacteristicsPlot* RimFlowPlotCollection::defaultFlowCharacteristicsPlo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimWellDistributionPlotCollection* RimFlowPlotCollection::wellDistributionPlotCollection() const
+{
+    return m_wellDistributionPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::ensureDefaultFlowPlotsAreCreated()
 {
     if ( !m_defaultWellAllocPlot() )

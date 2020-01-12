@@ -94,6 +94,18 @@ RimWellDistributionPlotCollection::~RimWellDistributionPlotCollection() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlotCollection::setData( RimEclipseResultCase* eclipseCase, QString wellName, int timeStepIndex )
+{
+    m_case          = eclipseCase;
+    m_wellName      = wellName;
+    m_timeStepIndex = timeStepIndex;
+
+    applyPlotParametersToContainedPlots();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::onLoadDataAndUpdate()
 {
     // cvf::Trace::show("RimWellDistributionPlotCollection::onLoadDataAndUpdate()");
