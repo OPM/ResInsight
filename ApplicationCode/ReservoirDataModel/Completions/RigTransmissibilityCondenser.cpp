@@ -29,9 +29,11 @@
 
 #include <Eigen/Core>
 #include <Eigen/LU>
+
 #include <iomanip>
 
 #include <QDebug>
+#include <fstream>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -350,8 +352,21 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilities()
     }
     else
     {
-        MatrixXd Tei    = totalSystem.bottomLeftCorner( externalEquationCount, internalEquationCount );
-        m_TiiInv        = totalSystem.topLeftCorner( internalEquationCount, internalEquationCount ).inverse();
+        MatrixXd Tei = totalSystem.bottomLeftCorner( externalEquationCount, internalEquationCount );
+        MatrixXd Tii = totalSystem.topLeftCorner( internalEquationCount, internalEquationCount );
+
+        // std::ofstream outFileStream( "D:\\Data\\TestData\\TiiMatrix.txt" );
+        // outFileStream << Tii;
+
+        Eigen::FullPivLU<MatrixXd> solver( Tii );
+
+        // outFileStream << std::endl;
+        // outFileStream << "Rows x Cols: " << Tii.rows() << "x" << Tii.cols() << std::endl;
+        // outFileStream << "Invertible:  " << ( solver.isInvertible() ? "True" : "False" ) << std::endl;
+        // outFileStream << "Condition:   " << solver.rcond() << std::endl;
+        // outFileStream << "Rank:        " << solver.rank() << std::endl;
+
+        m_TiiInv        = solver.inverse();
         m_Tie           = totalSystem.topRightCorner( internalEquationCount, externalEquationCount );
         condensedSystem = Tee - Tei * m_TiiInv * m_Tie;
     }
