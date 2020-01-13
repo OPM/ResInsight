@@ -27,7 +27,6 @@
 #include "qwt_plot_layout.h"
 #include "qwt_scale_widget.h"
 
-#include <QGraphicsDropShadowEffect>
 #include <QRegExp>
 #include <vector>
 
@@ -49,14 +48,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     QFrame* canvasFrame = dynamic_cast<QFrame*>( plot->canvas() );
     canvasFrame->setFrameShape( QFrame::Box );
 
-    QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( plot->canvas() );
-    dropShadowEffect->setOffset( 1.0, 1.0 );
-    dropShadowEffect->setBlurRadius( 3.0 );
-    dropShadowEffect->setColor( QColor( 60, 60, 60, 60 ) );
-    plot->canvas()->setGraphicsEffect( dropShadowEffect );
-
     // Grid
-
     QwtPlotGrid* grid = new QwtPlotGrid;
     grid->attach( plot );
     QPen gridPen( Qt::SolidLine );
