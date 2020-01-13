@@ -181,6 +181,14 @@ RifReaderRftInterface* RimSummaryCase::rftReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
+{
+    updateTreeItemName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateTreeItemName()
 {
     if ( caseName() != shortName() )
@@ -216,8 +224,6 @@ RiaEclipseUnitTools::UnitSystemType RimSummaryCase::unitsSystem()
 void RimSummaryCase::initAfterRead()
 {
     updateOptionSensitivity();
-
-    updateTreeItemName();
 }
 
 //--------------------------------------------------------------------------------------------------
