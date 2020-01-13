@@ -72,6 +72,11 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
                        "" );
 
     CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]", "", "", "" );
+
+    CAF_PDM_InitField( &m_showOil, "ShowOil", true, "Show Oil", "", "", "" );
+    CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Show Gas", "", "", "" );
+    CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Show Water", "", "", "" );
+
     m_plotWindowTitle = "Cumulative Phase Distribution Plots";
     m_columnCount     = RimMultiPlotWindow::COLUMNS_UNLIMITED;
 
@@ -124,6 +129,10 @@ void RimWellDistributionPlotCollection::defineUiOrdering( QString uiConfigName, 
     uiOrdering.add( &m_groupSmallContributions );
     uiOrdering.add( &m_smallContributionsRelativeThreshold );
     uiOrdering.add( &m_maximumTof );
+
+    uiOrdering.add( &m_showOil );
+    uiOrdering.add( &m_showGas );
+    uiOrdering.add( &m_showWater );
 
     m_smallContributionsRelativeThreshold.uiCapability()->setUiReadOnly( m_groupSmallContributions == false );
 
@@ -209,7 +218,8 @@ void RimWellDistributionPlotCollection::fieldChangedByUi( const caf::PdmFieldHan
     bool shouldRecalculatePlotData = false;
     if ( changedField == &m_case || changedField == &m_timeStepIndex || changedField == &m_wellName ||
          changedField == &m_groupSmallContributions || changedField == &m_smallContributionsRelativeThreshold ||
-         changedField == &m_maximumTof )
+         changedField == &m_maximumTof || changedField == &m_showOil || changedField == &m_showGas ||
+         changedField == &m_showWater )
     {
         applyPlotParametersToContainedPlots();
         shouldRecalculatePlotData = true;
@@ -219,6 +229,8 @@ void RimWellDistributionPlotCollection::fieldChangedByUi( const caf::PdmFieldHan
 
     if ( shouldRecalculatePlotData )
     {
+        updateLayout();
+
         loadDataAndUpdate();
     }
 }
@@ -235,6 +247,19 @@ void RimWellDistributionPlotCollection::applyPlotParametersToContainedPlots()
         RimWellDistributionPlot* aPlot = dynamic_cast<RimWellDistributionPlot*>( plotByIndex( i ) );
         if ( aPlot )
         {
+            if ( aPlot->phase() == RiaDefines::PhaseType::OIL_PHASE )
+            {
+                aPlot->setShowWindow( m_showOil );
+            }
+            else if ( aPlot->phase() == RiaDefines::PhaseType::GAS_PHASE )
+            {
+                aPlot->setShowWindow( m_showGas );
+            }
+            else if ( aPlot->phase() == RiaDefines::PhaseType::WATER_PHASE )
+            {
+                aPlot->setShowWindow( m_showWater );
+            }
+
             aPlot->setDataSourceParameters( m_case, m_timeStepIndex, m_wellName );
             aPlot->setPlotOptions( m_groupSmallContributions, m_smallContributionsRelativeThreshold, m_maximumTof );
         }

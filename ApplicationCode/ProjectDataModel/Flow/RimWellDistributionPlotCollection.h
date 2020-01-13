@@ -71,4 +71,8 @@ private:
     caf::PdmField<bool>                     m_groupSmallContributions;
     caf::PdmField<double>                   m_smallContributionsRelativeThreshold;
     caf::PdmField<double>                   m_maximumTof;
+
+    caf::PdmField<bool> m_showOil;
+    caf::PdmField<bool> m_showGas;
+    caf::PdmField<bool> m_showWater;
 };

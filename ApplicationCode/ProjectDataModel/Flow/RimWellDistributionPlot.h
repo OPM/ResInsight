@@ -46,6 +46,8 @@ public:
     void setDataSourceParameters( RimEclipseResultCase* eclipseResultCase, int timeStepIndex, QString targetWellName );
     void setPlotOptions( bool groupSmallContributions, double smallContributionsRelativeThreshold, double maximumTof );
 
+    RiaDefines::PhaseType phase() const;
+
     // RimPlot implementations
     RiuQwtPlotWidget* viewer() override;
     void              setAutoScaleXEnabled( bool enabled ) override;
