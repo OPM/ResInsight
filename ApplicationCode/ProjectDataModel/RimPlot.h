@@ -26,6 +26,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <QObject>
 #include <QPointer>
 
 class RiuQwtPlotWidget;
@@ -33,13 +34,15 @@ class RimPlotCurve;
 class QwtPlotCurve;
 
 class QPaintDevice;
+class QWheelEvent;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimPlot : public RimPlotWindow
+class RimPlot : public QObject, public RimPlotWindow
 {
+    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
 
 public:
@@ -85,17 +88,27 @@ public:
 
     virtual caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const = 0;
 
-    virtual void onAxisSelected( int axis, bool toggle ) = 0;
-
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
 
+    static void attachPlotWidgetSignals( RimPlot* plot, RiuQwtPlotWidget* plotWidget );
+
 private:
     virtual void doRemoveFromCollection() = 0;
     virtual void doRenderWindowContent( QPaintDevice* paintDevice );
+    virtual void handleKeyPressEvent( QKeyEvent* event ) {}
+    virtual void handleWheelEvent( QWheelEvent* event ) {}
+
+private slots:
+    void         onPlotSelected( bool toggle );
+    virtual void onAxisSelected( int axis, bool toggle ) = 0;
+    void         onCurveSelected( QwtPlotCurve* curve, bool toggle );
+    void         onViewerDestroyed();
+    void         onKeyPressEvent( QKeyEvent* event );
+    void         onWheelEvent( QWheelEvent* event );
 
 protected:
     caf::PdmField<RowOrColSpanEnum> m_rowSpan;

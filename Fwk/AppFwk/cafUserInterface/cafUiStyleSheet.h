@@ -86,6 +86,8 @@ public:
     void applyToWidgetAndChildren(QWidget* widget);
     static void clearWidgetStates(QWidget* widget);
     void setWidgetState(QWidget* widget, QString stateTag, bool on = true) const;
+    void stashWidgetStates();
+    void restoreWidgetStates();
 
 private:
     QString fullText(const QString& className, const QString& objectName, bool applyToSubClasses) const;
@@ -93,5 +95,6 @@ private:
 
 private:
     std::map<QString, State> m_states;
+    std::map<QString, State> m_stashedStates;
 };
 }

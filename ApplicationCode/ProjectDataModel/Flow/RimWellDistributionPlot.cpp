@@ -300,11 +300,12 @@ QWidget* RimWellDistributionPlot::createViewWidget( QWidget* mainWindowParent )
         return m_plotWidget;
     }
 
-    m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+    m_plotWidget = new RiuQwtPlotWidget( mainWindowParent );
 
     m_plotWidget->setAutoReplot( false );
     m_plotWidget->setDraggable( false );
 
+    RimPlot::attachPlotWidgetSignals( this, m_plotWidget );
     updateLegend();
     onLoadDataAndUpdate();
 

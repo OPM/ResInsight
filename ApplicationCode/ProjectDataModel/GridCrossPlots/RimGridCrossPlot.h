@@ -54,6 +54,7 @@ private:
 
 class RimGridCrossPlot : public RimPlot, public RimNameConfigHolderInterface
 {
+    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
 
 public:
@@ -147,6 +148,9 @@ private:
 
     void    doRemoveFromCollection() override;
     QString generateInfoBoxText() const;
+
+private slots:
+    void onPlotZoomed();
 
 private:
     caf::PdmField<bool>                             m_showInfoBox;

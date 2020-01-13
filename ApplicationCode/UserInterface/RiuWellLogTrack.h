@@ -21,6 +21,7 @@
 #include "RiuQwtPlotWidget.h"
 
 class RimWellLogTrack;
+class QWheelEvent;
 
 //==================================================================================================
 //
@@ -34,9 +35,6 @@ class RiuWellLogTrack : public RiuQwtPlotWidget
 public:
     RiuWellLogTrack( RimWellLogTrack* plotTrackDefinition, QWidget* parent = nullptr );
     ~RiuWellLogTrack() override;
-
-protected:
-    bool eventFilter( QObject* watched, QEvent* event ) override;
 
 private:
     void setAxisEnabled( QwtPlot::Axis axis, bool enabled );

@@ -65,6 +65,7 @@ class QKeyEvent;
 //==================================================================================================
 class RimSummaryPlot : public RimPlot
 {
+    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
 
 public:
@@ -155,7 +156,6 @@ public:
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();
 
-    void                                      handleKeyPressEvent( QKeyEvent* keyEvent );
     virtual RimSummaryPlotSourceStepping*     sourceSteppingObjectForKeyEventHandling() const;
     virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
@@ -186,6 +186,7 @@ private:
     void detachAllPlotItems();
 
     void doRemoveFromCollection() override;
+    void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
 protected:
     // Overridden PDM methods
@@ -200,6 +201,9 @@ protected:
     QImage snapshotWindowContent() override;
 
     void setAsCrossPlot();
+
+private slots:
+    void onPlotZoomed();
 
 private:
     std::vector<RimSummaryCurve*>         visibleSummaryCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;

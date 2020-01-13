@@ -51,7 +51,7 @@ class QwtPlot;
 // RiuMultiPlotPage
 //
 //==================================================================================================
-class RiuMultiPlotPage : public RiuMultiPlotInterface, public caf::SelectionChangedReceiver
+class RiuMultiPlotPage : public RiuMultiPlotInterface
 {
     Q_OBJECT
 
@@ -66,8 +66,6 @@ public:
     void removePlot( RiuQwtPlotWidget* plotWidget ) override;
     void removeAllPlots();
     int  indexOfPlotWidget( RiuQwtPlotWidget* plotWidget ) override;
-
-    void setSelectionsVisible( bool visible );
 
     void setPlotTitle( const QString& plotTitle ) override;
     void setTitleVisible( bool visible ) override;
@@ -93,34 +91,26 @@ protected:
     QLabel* createTitleLabel() const;
 
     void showEvent( QShowEvent* event ) override;
-    void dragEnterEvent( QDragEnterEvent* event ) override;
-    void dragMoveEvent( QDragMoveEvent* event ) override;
-    void dragLeaveEvent( QDragLeaveEvent* event ) override;
-    void dropEvent( QDropEvent* event ) override;
     bool hasHeightForWidth() const override;
     void updateMarginsFromPageLayout();
 
-    virtual bool willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const;
-
     std::pair<int, int> rowAndColumnCount( int plotWidgetCount ) const;
-
-    virtual void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
-
-    void setWidgetState( const QString& widgetState );
 
     virtual bool showYAxis( int row, int column ) const;
 
     void reinsertPlotWidgets();
     int  alignCanvasTops();
 
-    void              clearGridLayout();
-    caf::UiStyleSheet createDropTargetStyleSheet();
+    void clearGridLayout();
 
     QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets() const;
     QList<QPointer<RiuQwtPlotLegend>> legendsForVisiblePlots() const;
     QList<QPointer<QLabel>>           subTitlesForVisiblePlots() const;
 
     std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
+
+    void stashWidgetStates();
+    void restoreWidgetStates();
 
 private slots:
     virtual void performUpdate();
@@ -138,10 +128,7 @@ protected:
     QList<QPointer<RiuQwtPlotLegend>>   m_legends;
     QList<QPointer<RiuQwtPlotWidget>>   m_plotWidgets;
     caf::PdmPointer<RimMultiPlotWindow> m_plotDefinition;
-    QPointer<QLabel>                    m_dropTargetPlaceHolder;
     bool                                m_previewMode;
-
-    caf::UiStyleSheet m_dropTargetStyleSheet;
 
 private:
     friend class RiaPlotWindowRedrawScheduler;

@@ -272,6 +272,8 @@ private:
 
     RimWellLogPlot* parentWellLogPlot() const;
 
+    void handleWheelEvent( QWheelEvent* event ) override;
+
 private:
     QString m_xAxisTitle;
 

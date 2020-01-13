@@ -70,7 +70,6 @@ public:
     void setPlotTitle( const QString& plotTitle ) override;
 
     void setTitleVisible( bool visible ) override;
-    void setSelectionsVisible( bool visible );
 
     void setFontSize( int fontSize );
     int  fontSize() const;

@@ -78,8 +78,13 @@
 #include "cafPdmUiSliderEditor.h"
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
+
+#include <QWheelEvent>
+
 #define RI_LOGPLOTTRACK_MINX_DEFAULT -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT 100.0
+#define RI_SCROLLWHEEL_ZOOMFACTOR 1.1
+#define RI_SCROLLWHEEL_PANFACTOR 0.1
 
 CAF_PDM_SOURCE_INIT( RimWellLogTrack, "WellLogPlotTrack" );
 
@@ -1309,7 +1314,7 @@ QWidget* RimWellLogTrack::createViewWidget( QWidget* mainWindowParent )
         {
             m_curves[cIdx]->setParentQwtPlotNoReplot( this->m_plotWidget );
         }
-
+        RimPlot::attachPlotWidgetSignals( this, m_plotWidget );
         m_plotWidget->scheduleReplot();
     }
     return m_plotWidget;
@@ -1758,6 +1763,38 @@ RimWellLogPlot* RimWellLogTrack::parentWellLogPlot() const
     RimWellLogPlot* wellLogPlot = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
     return wellLogPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::handleWheelEvent( QWheelEvent* event )
+{
+    RimWellLogPlot* wellLogPlot = nullptr;
+    this->firstAncestorOrThisOfType( wellLogPlot );
+
+    if ( wellLogPlot )
+    {
+        if ( event->modifiers() & Qt::ControlModifier )
+        {
+            QwtScaleMap scaleMap   = m_plotWidget->canvasMap( QwtPlot::yLeft );
+            double      zoomCenter = scaleMap.invTransform( event->pos().y() );
+
+            if ( event->delta() > 0 )
+            {
+                wellLogPlot->setDepthAxisRangeByFactorAndCenter( RI_SCROLLWHEEL_ZOOMFACTOR, zoomCenter );
+            }
+            else
+            {
+                wellLogPlot->setDepthAxisRangeByFactorAndCenter( 1.0 / RI_SCROLLWHEEL_ZOOMFACTOR, zoomCenter );
+            }
+        }
+        else
+        {
+            wellLogPlot->setDepthAxisRangeByPanDepth( event->delta() < 0 ? RI_SCROLLWHEEL_PANFACTOR
+                                                                         : -RI_SCROLLWHEEL_PANFACTOR );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

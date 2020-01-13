@@ -226,24 +226,6 @@ void RiuMultiPlotWindow::setTitleVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::setSelectionsVisible( bool visible )
-{
-    for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
-    {
-        if ( visible && caf::SelectionManager::instance()->isSelected( plotWidget->plotDefinition(), 0 ) )
-        {
-            plotWidget->setWidgetState( "selected" );
-        }
-        else
-        {
-            caf::UiStyleSheet::clearWidgetStates( plotWidget );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotWindow::setFontSize( int fontSize )
 {
     QFont font      = this->font();
@@ -323,7 +305,10 @@ void RiuMultiPlotWindow::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotWindow::renderTo( QPaintDevice* paintDevice )
 {
-    setSelectionsVisible( false );
+    for ( auto page : m_pages )
+    {
+        page->stashWidgetStates();
+    }
 
     int    resolution = paintDevice->logicalDpiX();
     double scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
@@ -344,7 +329,10 @@ void RiuMultiPlotWindow::renderTo( QPaintDevice* paintDevice )
         firstPage = false;
     }
 
-    setSelectionsVisible( true );
+    for ( auto page : m_pages )
+    {
+        page->restoreWidgetStates();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -481,7 +469,7 @@ void RiuMultiPlotWindow::createPages()
     m_bookLayout->addWidget( page );
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
     {
-        int expextedColSpan = static_cast<int>( plotWidgets[visibleIndex]->plotDefinition()->colSpan() );
+        int expextedColSpan = static_cast<int>( plotWidgets[visibleIndex]->colSpan() );
         int colSpan         = std::min( expextedColSpan, rowAndColumnCount.second );
 
         std::tie( row, column ) = page->findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );

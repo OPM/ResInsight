@@ -58,8 +58,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimPlot* plotDefinition, QWidget* parent /*= nullptr*/ )
-    : RiuQwtPlotWidget( plotDefinition, parent )
+RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( QWidget* parent /*= nullptr*/ )
+    : RiuQwtPlotWidget( parent )
 {
     // LeftButton for the zooming
     m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
@@ -135,14 +135,6 @@ void RiuGridCrossQwtPlot::updateAnnotationObjects( RimPlotAxisProperties* axisPr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewWindow* RiuGridCrossQwtPlot::ownerViewWindow() const
-{
-    return dynamic_cast<RimViewWindow*>( plotDefinition() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::setLegendFontSize( int fontSize )
 {
     if ( legend() )
@@ -182,7 +174,7 @@ void RiuGridCrossQwtPlot::contextMenuEvent( QContextMenuEvent* event )
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
-    caf::SelectionManager::instance()->setSelectedItem( ownerViewWindow() );
+    emit plotSelected( false );
 
     menuBuilder << "RicSwapGridCrossPlotDataSetAxesFeature";
     menuBuilder << "Separator";
@@ -281,5 +273,5 @@ void RiuGridCrossQwtPlot::endZoomOperations()
 //--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::onZoomedSlot()
 {
-    plotDefinition()->updateZoomFromQwt();
+    emit plotZoomed();
 }

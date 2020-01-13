@@ -92,8 +92,8 @@ static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimPlot* plotDefinition, QWidget* parent /*= nullptr*/ )
-    : RiuQwtPlotWidget( plotDefinition, parent )
+RiuSummaryQwtPlot::RiuSummaryQwtPlot( QWidget* parent /*= nullptr*/ )
+    : RiuQwtPlotWidget( parent )
 {
     // LeftButton for the zooming
     m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
@@ -125,9 +125,6 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimPlot* plotDefinition, QWidget* parent /
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
     RiuQwtPlotTools::setDefaultAxes( this );
 
-    this->installEventFilter( this );
-    this->canvas()->installEventFilter( this );
-
     setLegendVisible( true );
 }
 
@@ -154,14 +151,6 @@ void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 {
     setAxisScaleEngine( QwtPlot::xBottom, new QwtLinearScaleEngine() );
     setAxisScaleDraw( QwtPlot::xBottom, new QwtScaleDraw() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimViewWindow* RiuSummaryQwtPlot::ownerViewWindow() const
-{
-    return dynamic_cast<RimViewWindow*>( plotDefinition() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,25 +199,12 @@ void RiuSummaryQwtPlot::setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::keyPressEvent( QKeyEvent* keyEvent )
-{
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( plotDefinition() );
-
-    if ( summaryPlot )
-    {
-        summaryPlot->handleKeyPressEvent( keyEvent );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 {
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
-    caf::SelectionManager::instance()->setSelectedItem( plotDefinition() );
+    emit plotSelected( false );
 
     menuBuilder << "RicShowPlotDataFeature";
     menuBuilder << "RicSavePlotTemplateFeature";
@@ -274,7 +250,5 @@ void RiuSummaryQwtPlot::endZoomOperations()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::onZoomedSlot()
 {
-    plotDefinition()->setAutoScaleXEnabled( false );
-    plotDefinition()->setAutoScaleYEnabled( false );
-    plotDefinition()->updateZoomFromQwt();
+    emit plotZoomed();
 }

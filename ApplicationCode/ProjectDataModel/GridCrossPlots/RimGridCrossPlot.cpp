@@ -436,16 +436,29 @@ QString RimGridCrossPlot::generateInfoBoxText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::onPlotZoomed()
+{
+    setAutoScaleXEnabled( false );
+    setAutoScaleYEnabled( false );
+    updateZoomFromQwt();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* RimGridCrossPlot::createViewWidget( QWidget* mainWindowParent )
 {
     if ( !m_plotWidget )
     {
-        m_plotWidget = new RiuGridCrossQwtPlot( this, mainWindowParent );
+        m_plotWidget = new RiuGridCrossQwtPlot( mainWindowParent );
 
         for ( auto dataSet : m_crossPlotDataSets )
         {
             dataSet->setParentQwtPlotNoReplot( m_plotWidget );
         }
+
+        RimPlot::attachPlotWidgetSignals( this, m_plotWidget );
+        this->connect( m_plotWidget, SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
     }
 
     m_plotWidget->scheduleReplot();

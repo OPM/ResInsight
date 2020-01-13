@@ -31,7 +31,6 @@
 #include <set>
 
 class RiaPlotWindowRedrawScheduler;
-class RimPlot;
 class RiuDraggableOverlayFrame;
 
 class QwtLegend;
@@ -45,6 +44,7 @@ class QEvent;
 class QLabel;
 class QPainter;
 class QPaintDevice;
+class QWheelEvent;
 
 //==================================================================================================
 //
@@ -56,12 +56,16 @@ class RiuQwtPlotWidget : public QwtPlot
     Q_OBJECT
 
 public:
-    RiuQwtPlotWidget( RimPlot* plotTrackDefinition, QWidget* parent = nullptr );
+    RiuQwtPlotWidget( QWidget* parent = nullptr );
     ~RiuQwtPlotWidget() override;
 
-    RimPlot* plotDefinition() const;
-
     bool isChecked() const;
+    void setChecked( bool checked );
+
+    int  colSpan() const;
+    int  rowSpan() const;
+    void setColSpan( int colSpan );
+    void setRowSpan( int rowSpan );
 
     void setDraggable( bool draggable );
 
@@ -99,6 +103,8 @@ public:
     QPoint dragStartPosition() const;
 
     void scheduleReplot();
+    void stashWidgetStates();
+    void restoreWidgetStates();
     void setWidgetState( const QString& widgetState );
 
     void addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
@@ -109,13 +115,19 @@ public:
     void renderTo( QPaintDevice* painter, const QRect& targetRect );
     int  overlayMargins() const;
 
+signals:
+    void plotSelected( bool toggleSelection );
+    void axisSelected( int axisId, bool toggleSelection );
+    void curveSelected( QwtPlotCurve* curve, bool toggleSelection );
+    void onKeyPressEvent( QKeyEvent* event );
+    void onWheelEvent( QWheelEvent* event );
+
 protected:
-    QSize sizeHint() const override;
-    QSize minimumSizeHint() const override;
-    bool  eventFilter( QObject* watched, QEvent* event ) override;
-    void  hideEvent( QHideEvent* event ) override;
-    void  showEvent( QShowEvent* event ) override;
-    void  resizeEvent( QResizeEvent* event ) override;
+    bool eventFilter( QObject* watched, QEvent* event ) override;
+    void hideEvent( QHideEvent* event ) override;
+    void showEvent( QShowEvent* event ) override;
+    void resizeEvent( QResizeEvent* event ) override;
+    void keyPressEvent( QKeyEvent* event ) override;
 
     void applyAxisTitleToQwt( QwtPlot::Axis axis );
 
@@ -125,7 +137,6 @@ protected:
     virtual void endZoomOperations();
 
 private:
-    void       selectPlotOwner( bool toggleItemInSelection = false );
     void       selectClosestCurve( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
     void       replot() override;
@@ -140,7 +151,6 @@ private:
     void updateOverlayFrameLayout();
 
 private:
-    caf::PdmPointer<RimPlot>         m_plotDefinition;
     QPoint                           m_clickPosition;
     std::map<QwtPlot::Axis, QString> m_axisTitles;
     std::map<QwtPlot::Axis, bool>    m_axisTitlesEnabled;
@@ -162,6 +172,10 @@ private:
 
     caf::UiStyleSheet m_plotStyleSheet;
     caf::UiStyleSheet m_canvasStyleSheet;
+
+    bool m_checked;
+    int  m_colSpan;
+    int  m_rowSpan;
 
     friend class RiaPlotWindowRedrawScheduler;
 };

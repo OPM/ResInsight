@@ -27,14 +27,11 @@
 
 #include <QWheelEvent>
 
-#define RIU_SCROLLWHEEL_ZOOMFACTOR 1.1
-#define RIU_SCROLLWHEEL_PANFACTOR 0.1
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* plotTrackDefinition, QWidget* parent /*= nullptr */ )
-    : RiuQwtPlotWidget( plotTrackDefinition, parent )
+    : RiuQwtPlotWidget( parent )
 {
     setAxisEnabled( QwtPlot::yLeft, true );
     setAxisEnabled( QwtPlot::yRight, false );
@@ -46,49 +43,6 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* plotTrackDefinition, QWidget*
 ///
 //--------------------------------------------------------------------------------------------------
 RiuWellLogTrack::~RiuWellLogTrack() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuWellLogTrack::eventFilter( QObject* watched, QEvent* event )
-{
-    QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>( event );
-    if ( wheelEvent && watched == canvas() )
-    {
-        RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotDefinition() );
-        CAF_ASSERT( track );
-
-        RimWellLogPlot* wellLogPlot = nullptr;
-        track->firstAncestorOrThisOfType( wellLogPlot );
-
-        if ( wellLogPlot )
-        {
-            if ( wheelEvent->modifiers() & Qt::ControlModifier )
-            {
-                QwtScaleMap scaleMap   = canvasMap( QwtPlot::yLeft );
-                double      zoomCenter = scaleMap.invTransform( wheelEvent->pos().y() );
-
-                if ( wheelEvent->delta() > 0 )
-                {
-                    wellLogPlot->setDepthAxisRangeByFactorAndCenter( RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter );
-                }
-                else
-                {
-                    wellLogPlot->setDepthAxisRangeByFactorAndCenter( 1.0 / RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter );
-                }
-            }
-            else
-            {
-                wellLogPlot->setDepthAxisRangeByPanDepth( wheelEvent->delta() < 0 ? RIU_SCROLLWHEEL_PANFACTOR
-                                                                                  : -RIU_SCROLLWHEEL_PANFACTOR );
-            }
-
-            event->accept();
-            return true;
-        }
-    }
-    return RiuQwtPlotWidget::eventFilter( watched, event );
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

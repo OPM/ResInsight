@@ -1602,6 +1602,16 @@ void RimSummaryPlot::setAsCrossPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::onPlotZoomed()
+{
+    setAutoScaleXEnabled( false );
+    setAutoScaleYEnabled( false );
+    updateZoomFromQwt();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     if ( !m_isCrossPlot )
@@ -1652,7 +1662,7 @@ QWidget* RimSummaryPlot::createViewWidget( QWidget* mainWindowParent )
 {
     if ( !m_plotWidget )
     {
-        m_plotWidget = new RiuSummaryQwtPlot( this, mainWindowParent );
+        m_plotWidget = new RiuSummaryQwtPlot( mainWindowParent );
         m_plotWidget->setDraggable( m_isDraggable );
 
         for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
@@ -1674,6 +1684,9 @@ QWidget* RimSummaryPlot::createViewWidget( QWidget* mainWindowParent )
         {
             m_ensembleCurveSetCollection->setParentQwtPlotAndReplot( m_plotWidget );
         }
+
+        RimPlot::attachPlotWidgetSignals( this, m_plotWidget );
+        this->connect( m_plotWidget, SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
     }
 
     return m_plotWidget;
