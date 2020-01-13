@@ -261,7 +261,7 @@ TEST(InterpolationTest, Warp)
 
     {
         std::array<cvf::Vec3d, 8> cornerCopy = hexCorners;
-        // Compress z
+        // Compress x
         for ( auto & v : cornerCopy ) v[0] *= 0.1;
 
         cornerCopy[0][0] += 0.25;
@@ -286,3 +286,46 @@ TEST(InterpolationTest, Warp)
     }
 }
 
+TEST(InterpolationTest, TotalCombined)
+{
+    // Identity element
+    std::array<cvf::Vec3d, 8> hexCorners = { 
+        cvf::Vec3d(-1.0,-1.0,-1.0),
+        cvf::Vec3d( 1.0,-1.0,-1.0),
+        cvf::Vec3d( 1.0, 1.0,-1.0),
+        cvf::Vec3d(-1.0, 1.0,-1.0),
+        cvf::Vec3d(-1.0,-1.0, 1.0),
+        cvf::Vec3d( 1.0,-1.0, 1.0),
+        cvf::Vec3d( 1.0, 1.0, 1.0),
+        cvf::Vec3d(-1.0, 1.0, 1.0)
+    };
+
+    cvf::Mat4d rot = cvf::Mat4d::fromRotation({0, 0, 1}, 1.0*0.25*3.14159);
+
+    for ( int i = 4 ; i< 8 ; ++i) hexCorners[i].transformPoint(rot);
+
+    for ( int i = 4 ; i< 8 ; ++i) hexCorners[i] += {0.2, 0.0, 0.0};
+
+
+    {
+        std::array<cvf::Vec3d, 8> cornerCopy = hexCorners;
+        // Compress z
+        for ( auto & v : hexCorners ) v[2] *= 0.3;
+
+        hexCorners[0][2] += 0.25;
+        hexCorners[2][2] += 0.25;
+        hexCorners[4][2] += 0.2;
+        hexCorners[6][2] += 0.4;
+    }
+
+    for (  auto & v : hexCorners) v *= 200;
+
+    for (  auto & v : hexCorners) v += {2.3e5, 4.7e6, -2000};
+
+    cvf::Mat4d rot2 = cvf::Mat4d::fromRotation({1,1, 0}, 3.14159);
+
+    for (  auto & v : hexCorners) v.transformPoint(rot2);
+
+
+    testHex(hexCorners);
+}
