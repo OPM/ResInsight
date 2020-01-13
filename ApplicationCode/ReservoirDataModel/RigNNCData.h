@@ -75,14 +75,9 @@ public:
                                                                         std::vector<size_t>*     connectionPolygon,
                                                                         std::vector<cvf::Vec3d>* connectionIntersections );
 
-    std::vector<RigConnection>& connections()
-    {
-        return m_connections;
-    }
-    const std::vector<RigConnection>& connections() const
-    {
-        return m_connections;
-    }
+    void setConnections( std::vector<RigConnection>& connections );
+
+    const std::vector<RigConnection>& connections() const;
 
     std::vector<double>&       makeStaticConnectionScalarResult( QString nncDataType );
     const std::vector<double>* staticConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const;

@@ -728,24 +728,31 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
             if ( numNNC > 0 )
             {
                 // Transform to our own data structures
+                std::vector<RigConnection> nncConnections;
+                std::vector<double>        transmissibilityValuesTemp;
 
-                mainGrid->nncData()->connections().resize( numNNC );
-                std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeStaticConnectionScalarResult(
-                    RiaDefines::propertyNameCombTrans() );
                 const double* transValues = ecl_nnc_data_get_values( tran_data );
 
                 for ( int nIdx = 0; nIdx < numNNC; ++nIdx )
                 {
                     const ecl_nnc_pair_type* geometry_pair = ecl_nnc_geometry_iget( nnc_geo, nIdx );
                     RigGridBase*             grid1         = mainGrid->gridByIndex( geometry_pair->grid_nr1 );
-                    mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(
-                        geometry_pair->global_index1 );
-                    RigGridBase* grid2 = mainGrid->gridByIndex( geometry_pair->grid_nr2 );
-                    mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(
-                        geometry_pair->global_index2 );
+                    RigGridBase*             grid2         = mainGrid->gridByIndex( geometry_pair->grid_nr2 );
 
-                    transmissibilityValues[nIdx] = transValues[nIdx];
+                    RigConnection nncConnection;
+                    nncConnection.m_c1GlobIdx = grid1->reservoirCellIndex( geometry_pair->global_index1 );
+                    nncConnection.m_c2GlobIdx = grid2->reservoirCellIndex( geometry_pair->global_index2 );
+
+                    nncConnections.push_back( nncConnection );
+
+                    transmissibilityValuesTemp.push_back( transValues[nIdx] );
                 }
+
+                mainGrid->nncData()->setConnections( nncConnections );
+
+                std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeStaticConnectionScalarResult(
+                    RiaDefines::propertyNameCombTrans() );
+                transmissibilityValues = transmissibilityValuesTemp;
             }
 
             ecl_nnc_data_free( tran_data );

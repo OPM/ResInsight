@@ -182,6 +182,22 @@ cvf::StructGridInterface::FaceType RigNNCData::calculateCellFaceOverlap( const R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigNNCData::setConnections( std::vector<RigConnection>& connections )
+{
+    m_connections = connections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<RigConnection>& RigNNCData::connections() const
+{
+    return m_connections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double>& RigNNCData::makeStaticConnectionScalarResult( QString nncDataType )
 {
     std::vector<std::vector<double>>& results = m_connectionResults[nncDataType];
