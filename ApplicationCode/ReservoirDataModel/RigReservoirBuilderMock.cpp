@@ -562,7 +562,7 @@ void RigReservoirBuilderMock::addFaults( RigEclipseCaseData* eclipseCase )
     }
 
     std::vector<double>& tranVals = grid->nncData()->makeStaticConnectionScalarResult(
-        RigNNCData::propertyNameCombTrans() );
+        RiaDefines::propertyNameCombTrans() );
     for ( size_t cIdx = 0; cIdx < tranVals.size(); ++cIdx )
     {
         tranVals[cIdx] = 0.2;

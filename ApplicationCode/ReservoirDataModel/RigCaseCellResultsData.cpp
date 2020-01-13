@@ -2196,8 +2196,8 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
     std::vector<double>& permYResults       = m_cellScalarResults[permYResultIdx][0];
     std::vector<double>& permZResults       = m_cellScalarResults[permZResultIdx][0];
     std::vector<double>& riCombTransResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(
-        RigNNCData::propertyNameRiCombTrans() );
-    m_ownerMainGrid->nncData()->setEclResultAddress( RigNNCData::propertyNameRiCombTrans(), riCombTransEclResAddr );
+        RiaDefines::propertyNameRiCombTrans() );
+    m_ownerMainGrid->nncData()->setEclResultAddress( RiaDefines::propertyNameRiCombTrans(), riCombTransEclResAddr );
 
     std::vector<double>* ntgResults = nullptr;
     if ( hasNTGResults )
@@ -2444,7 +2444,7 @@ void RigCaseCellResultsData::computeNncCombRiMULT()
     if ( m_ownerMainGrid->nncData()->staticConnectionScalarResult( riCombMultEclResAddr ) ) return;
 
     std::vector<double>& riMultResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(
-        RigNNCData::propertyNameRiCombMult() );
+        RiaDefines::propertyNameRiCombMult() );
 
     const std::vector<double>* riTransResults = m_ownerMainGrid->nncData()->staticConnectionScalarResult(
         riCombTransEclResAddr );
@@ -2452,7 +2452,7 @@ void RigCaseCellResultsData::computeNncCombRiMULT()
     const std::vector<double>* transResults = m_ownerMainGrid->nncData()->staticConnectionScalarResult(
         combTransEclResAddr );
 
-    m_ownerMainGrid->nncData()->setEclResultAddress( RigNNCData::propertyNameRiCombMult(), riCombMultEclResAddr );
+    m_ownerMainGrid->nncData()->setEclResultAddress( RiaDefines::propertyNameRiCombMult(), riCombMultEclResAddr );
 
     for ( size_t nncConIdx = 0; nncConIdx < riMultResults.size(); ++nncConIdx )
     {
@@ -2585,9 +2585,9 @@ void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
     if ( m_ownerMainGrid->nncData()->staticConnectionScalarResult( riCombTransByAreaEclResAddr ) ) return;
 
     std::vector<double>& riAreaNormTransResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(
-        RigNNCData::propertyNameRiCombTransByArea() );
+        RiaDefines::propertyNameRiCombTransByArea() );
 
-    m_ownerMainGrid->nncData()->setEclResultAddress( RigNNCData::propertyNameRiCombTransByArea(),
+    m_ownerMainGrid->nncData()->setEclResultAddress( RiaDefines::propertyNameRiCombTransByArea(),
                                                      riCombTransByAreaEclResAddr );
 
     const std::vector<double>* transResults = m_ownerMainGrid->nncData()->staticConnectionScalarResult(

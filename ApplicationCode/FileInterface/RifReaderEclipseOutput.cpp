@@ -731,7 +731,7 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
 
                 mainGrid->nncData()->connections().resize( numNNC );
                 std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeStaticConnectionScalarResult(
-                    RigNNCData::propertyNameCombTrans() );
+                    RiaDefines::propertyNameCombTrans() );
                 const double* transValues = ecl_nnc_data_get_values( tran_data );
 
                 for ( int nIdx = 0; nIdx < numNNC; ++nIdx )
@@ -767,11 +767,11 @@ void RifReaderEclipseOutput::transferDynamicNNCData( const ecl_grid_type* mainEc
     size_t timeStepCount = m_dynamicResultsAccess->timeStepCount();
 
     std::vector<std::vector<double>>& waterFluxData =
-        mainGrid->nncData()->makeDynamicConnectionScalarResult( RigNNCData::propertyNameFluxWat(), timeStepCount );
+        mainGrid->nncData()->makeDynamicConnectionScalarResult( RiaDefines::propertyNameFluxWat(), timeStepCount );
     std::vector<std::vector<double>>& oilFluxData =
-        mainGrid->nncData()->makeDynamicConnectionScalarResult( RigNNCData::propertyNameFluxOil(), timeStepCount );
+        mainGrid->nncData()->makeDynamicConnectionScalarResult( RiaDefines::propertyNameFluxOil(), timeStepCount );
     std::vector<std::vector<double>>& gasFluxData =
-        mainGrid->nncData()->makeDynamicConnectionScalarResult( RigNNCData::propertyNameFluxGas(), timeStepCount );
+        mainGrid->nncData()->makeDynamicConnectionScalarResult( RiaDefines::propertyNameFluxGas(), timeStepCount );
 
     for ( size_t timeStep = 0; timeStep < timeStepCount; ++timeStep )
     {

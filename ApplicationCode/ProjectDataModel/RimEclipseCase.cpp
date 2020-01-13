@@ -828,7 +828,7 @@ bool RimEclipseCase::openReserviorCase()
                                                                          RiaDefines::combinedTransmissibilityResultName() );
                 if ( results->hasResultEntry( combinedTransmissibilityResAddr ) )
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RigNNCData::propertyNameCombTrans(),
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameCombTrans(),
                                                                                    combinedTransmissibilityResAddr );
                 }
 
@@ -836,7 +836,7 @@ bool RimEclipseCase::openReserviorCase()
                                                                   RiaDefines::combinedWaterFluxResultName() );
                 if ( results->hasResultEntry( combinedWaterFluxResAddr ) )
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RigNNCData::propertyNameFluxWat(),
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxWat(),
                                                                                    combinedWaterFluxResAddr );
                 }
 
@@ -844,7 +844,7 @@ bool RimEclipseCase::openReserviorCase()
                                                                 RiaDefines::combinedOilFluxResultName() );
                 if ( results->hasResultEntry( combinedOilFluxResAddr ) )
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RigNNCData::propertyNameFluxOil(),
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxOil(),
                                                                                    combinedOilFluxResAddr );
                 }
                 RigEclipseResultAddress combinedGasFluxResAddr( RiaDefines::DYNAMIC_NATIVE,
@@ -852,7 +852,7 @@ bool RimEclipseCase::openReserviorCase()
 
                 if ( results->hasResultEntry( combinedGasFluxResAddr ) )
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RigNNCData::propertyNameFluxGas(),
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxGas(),
                                                                                    combinedGasFluxResAddr );
                 }
             }

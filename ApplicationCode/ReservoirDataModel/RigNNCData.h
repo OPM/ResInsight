@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "RiaNncDefines.h"
+
 #include "cvfObject.h"
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"
@@ -62,35 +64,6 @@ public:
         NNC_STATIC,
         NNC_GENERATED
     };
-
-    static QString propertyNameFluxWat()
-    {
-        return "FLRWAT";
-    }
-    static QString propertyNameFluxOil()
-    {
-        return "FLROIL";
-    }
-    static QString propertyNameFluxGas()
-    {
-        return "FLRGAS";
-    }
-    static QString propertyNameCombTrans()
-    {
-        return "TRAN";
-    }
-    static QString propertyNameRiCombTrans()
-    {
-        return "riTRAN";
-    }
-    static QString propertyNameRiCombTransByArea()
-    {
-        return "riTRANbyArea";
-    }
-    static QString propertyNameRiCombMult()
-    {
-        return "riMULT";
-    }
 
     RigNNCData();
 

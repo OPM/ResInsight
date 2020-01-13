@@ -103,9 +103,9 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 
     progress.incrementProgress();
 
-    // TODO: oil or gas flowrate
+    // TODO: oil or gas flow rate
     std::vector<const std::vector<double>*> flowrateNNCatAllTimeSteps;
-    QString                                 nncConnectionProperty = mainGrid->nncData()->propertyNameFluxWat();
+    QString                                 nncConnectionProperty = RiaDefines::propertyNameFluxWat();
 
     progress.incrementProgress();
 
