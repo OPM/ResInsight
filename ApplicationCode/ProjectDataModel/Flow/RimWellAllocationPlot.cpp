@@ -103,7 +103,6 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot->setDepthType( RiaDefines::CONNECTION_NUMBER );
     m_accumulatedWellFlowPlot->setLegendsVisible( false );
     m_accumulatedWellFlowPlot->uiCapability()->setUiIconFromResourceString( ":/WellFlowPlot16x16.png" );
-    m_accumulatedWellFlowPlot->setAcceptDrops( false );
 
     CAF_PDM_InitFieldNoDefault( &m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "" );
     m_totalWellAllocationPlot.uiCapability()->setUiHidden( true );

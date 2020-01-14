@@ -99,15 +99,12 @@ private:
 ///
 //--------------------------------------------------------------------------------------------------
 RiuMultiPlotWindow::RiuMultiPlotWindow( RimMultiPlotWindow* plotDefinition, QWidget* parent )
-    : RiuMultiPlotInterface( parent )
+    : QWidget( parent )
     , m_plotDefinition( plotDefinition )
     , m_plotTitle( "Multi Plot" )
     , m_titleVisible( true )
     , m_previewMode( true )
 {
-    Q_ASSERT( plotDefinition );
-    m_plotDefinition = plotDefinition;
-
     const int spacing = 8;
 
     this->setBackgroundRole( QPalette::Dark );
@@ -148,14 +145,6 @@ RiuMultiPlotWindow::RiuMultiPlotWindow( RimMultiPlotWindow* plotDefinition, QWid
 ///
 //--------------------------------------------------------------------------------------------------
 RiuMultiPlotWindow::~RiuMultiPlotWindow() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimMultiPlotWindow* RiuMultiPlotWindow::ownerPlotDefinition()
-{
-    return m_plotDefinition;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -220,6 +209,17 @@ void RiuMultiPlotWindow::setTitleVisible( bool visible )
     for ( auto page : m_pages )
     {
         page->setTitleVisible( visible );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotWindow::setSubTitlesVisible( bool visible )
+{
+    for ( auto page : m_pages )
+    {
+        page->setSubTitlesVisible( visible );
     }
 }
 
@@ -343,7 +343,7 @@ void RiuMultiPlotWindow::contextMenuEvent( QContextMenuEvent* event )
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
-    caf::SelectionManager::instance()->setSelectedItem( ownerPlotDefinition() );
+    caf::SelectionManager::instance()->setSelectedItem( ownerViewWindow() );
 
     menuBuilder << "RicShowPlotDataFeature";
     menuBuilder << "RicShowContributingWellsFromPlotFeature";

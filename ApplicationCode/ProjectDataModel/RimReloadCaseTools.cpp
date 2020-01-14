@@ -36,6 +36,7 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlotCollection.h"
+#include "RimMultiPlotWindow.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlot.h"

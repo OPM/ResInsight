@@ -487,11 +487,11 @@ void RimWellLogTrack::updateYZoom()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::doRemoveFromCollection()
 {
-    RimMultiPlotWindow* multiPlot = nullptr;
-    this->firstAncestorOrThisOfType( multiPlot );
-    if ( multiPlot )
+    RimWellLogPlot* wellLogPlot = nullptr;
+    this->firstAncestorOrThisOfType( wellLogPlot );
+    if ( wellLogPlot )
     {
-        multiPlot->removePlot( this );
+        wellLogPlot->removePlot( this );
     }
 }
 

@@ -245,7 +245,7 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
 
     for ( RimWellLogPlot* wellLogPlot : wellLogPlots )
     {
-        QString title = wellLogPlot->multiPlotTitle();
+        QString title = wellLogPlot->description();
         QString text  = wellLogPlot->asciiDataForPlotExport();
         RicShowPlotDataFeature::showTextWindow( title, text );
     }

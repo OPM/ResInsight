@@ -18,8 +18,7 @@
 #pragma once
 
 #include "RiuInterfaceToViewWindow.h"
-#include "RiuMultiPlotInterface.h"
-
+#include "RiuMultiPlotPage.h"
 #include "cafUiStyleSheet.h"
 
 #include "cafPdmPointer.h"
@@ -49,41 +48,43 @@ class QwtPlot;
 
 //==================================================================================================
 //
-// RiuMultiPlotWidget
+// RiuMultiPlotWindow
 //
 //==================================================================================================
-class RiuMultiPlotWindow : public RiuMultiPlotInterface, public RiuInterfaceToViewWindow
+class RiuMultiPlotWindow : public QWidget, public RiuInterfaceToViewWindow
 {
     Q_OBJECT
+
+public:
+    using ColumnCount = RiuMultiPlotPage::ColumnCount;
 
 public:
     RiuMultiPlotWindow( RimMultiPlotWindow* plotDefinition, QWidget* parent = nullptr );
     ~RiuMultiPlotWindow() override;
 
-    RimMultiPlotWindow* ownerPlotDefinition();
-    RimViewWindow*      ownerViewWindow() const override;
+    RimViewWindow* ownerViewWindow() const override;
 
-    void addPlot( RiuQwtPlotWidget* plotWidget ) override;
-    void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index ) override;
-    void removePlot( RiuQwtPlotWidget* plotWidget ) override;
+    void addPlot( RiuQwtPlotWidget* plotWidget );
+    void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
+    void removePlot( RiuQwtPlotWidget* plotWidget );
 
-    void setPlotTitle( const QString& plotTitle ) override;
+    void setPlotTitle( const QString& plotTitle );
 
-    void setTitleVisible( bool visible ) override;
+    void setTitleVisible( bool visible );
+    void setSubTitlesVisible( bool visible );
 
     void setFontSize( int fontSize );
     int  fontSize() const;
 
     int indexOfPlotWidget( RiuQwtPlotWidget* plotWidget );
 
-    bool previewModeEnabled() const override;
-    void setPreviewModeEnabled( bool previewMode ) override;
+    bool previewModeEnabled() const;
+    void setPreviewModeEnabled( bool previewMode );
 
     void scheduleUpdate();
     void scheduleReplotOfAllPlots();
-    void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) override {}
 
-    void renderTo( QPaintDevice* painter ) override;
+    void renderTo( QPaintDevice* painter );
 
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;

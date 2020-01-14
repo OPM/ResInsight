@@ -24,6 +24,7 @@
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimMultiPlotCollection.h"
+#include "RimMultiPlotWindow.h"
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"

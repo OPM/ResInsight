@@ -52,7 +52,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuCellAndNncPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPickItemInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
-${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
@@ -213,7 +212,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
-${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.h

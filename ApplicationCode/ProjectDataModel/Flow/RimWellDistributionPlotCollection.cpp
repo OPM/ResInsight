@@ -19,6 +19,7 @@
 #include "RimWellDistributionPlotCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
+#include "RimPlot.h"
 #include "RimProject.h"
 #include "RimWellDistributionPlot.h"
 
@@ -27,6 +28,7 @@
 
 #include "RiaColorTools.h"
 
+#include "RiuMultiPlotPage.h"
 #include "RiuQwtPlotTools.h"
 
 #include "qwt_legend.h"
@@ -53,7 +55,6 @@ CAF_PDM_SOURCE_INIT( RimWellDistributionPlotCollection, "WellDistributionPlotCol
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
-    : RimMultiPlotWindow( true )
 {
     // cvf::Trace::show("RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()");
 
@@ -73,17 +74,25 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 
     CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "", "", "", "" );
+    m_plots.uiCapability()->setUiHidden( true );
+    m_plots.uiCapability()->setUiTreeChildrenHidden( true );
+
     CAF_PDM_InitField( &m_showOil, "ShowOil", true, "Show Oil", "", "", "" );
     CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Show Gas", "", "", "" );
     CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Show Water", "", "", "" );
 
-    m_plotWindowTitle = "Cumulative Phase Distribution Plots";
-    m_columnCount     = RimMultiPlotWindow::COLUMNS_UNLIMITED;
+    CAF_PDM_InitField( &m_plotWindowTitle,
+                       "PlotDescription",
+                       QString( "Cumulative Phase Distribution Plots" ),
+                       "Name",
+                       "",
+                       "",
+                       "" );
 
     m_showPlotLegends = false;
     m_showWindow      = false;
 
-    setAcceptDrops( false );
     setAsPlotMdiWindow();
 
     addPlot( new RimWellDistributionPlot( RiaDefines::OIL_PHASE ) );
@@ -111,11 +120,101 @@ void RimWellDistributionPlotCollection::setData( RimEclipseResultCase* eclipseCa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QWidget* RimWellDistributionPlotCollection::viewWidget()
+{
+    return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellDistributionPlotCollection::description() const
+{
+    return m_plotWindowTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QImage RimWellDistributionPlotCollection::snapshotWindowContent()
+{
+    QImage image;
+
+    if ( m_viewer )
+    {
+        QPixmap pix( m_viewer->size() );
+        m_viewer->renderTo( &pix );
+        image = pix.toImage();
+    }
+
+    return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlotCollection::zoomAll() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::onLoadDataAndUpdate()
 {
     // cvf::Trace::show("RimWellDistributionPlotCollection::onLoadDataAndUpdate()");
+    updateMdiWindowVisibility();
+    updatePlots();
+    updateLayout();
+}
 
-    RimMultiPlotWindow::onLoadDataAndUpdate();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* RimWellDistributionPlotCollection::createViewWidget( QWidget* mainWindowParent )
+{
+    m_viewer = new RiuMultiPlotPage( this, mainWindowParent );
+    m_viewer->setPlotTitle( m_plotWindowTitle );
+    recreatePlotWidgets();
+
+    return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlotCollection::deleteViewWidget()
+{
+    cleanupBeforeClose();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlotCollection::doRenderWindowContent( QPaintDevice* paintDevice )
+{
+    if ( m_viewer )
+    {
+        m_viewer->renderTo( paintDevice );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlotCollection::addPlot( RimPlot* plot )
+{
+    if ( plot )
+    {
+        size_t index = m_plots.size();
+        m_plots.insert( index, plot );
+
+        if ( m_viewer )
+        {
+            plot->createPlotWidget();
+            m_viewer->insertPlot( plot->viewer(), index );
+        }
+        plot->setShowWindow( true );
+        plot->setLegendsVisible( false );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,8 +246,7 @@ QList<caf::PdmOptionItemInfo>
     RimWellDistributionPlotCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                               bool*                      useOptionsOnly )
 {
-    QList<caf::PdmOptionItemInfo> options = RimMultiPlotWindow::calculateValueOptions( fieldNeedingOptions,
-                                                                                       useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
     if ( fieldNeedingOptions == &m_case )
     {
@@ -225,13 +323,12 @@ void RimWellDistributionPlotCollection::fieldChangedByUi( const caf::PdmFieldHan
         shouldRecalculatePlotData = true;
     }
 
-    RimMultiPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
+    RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( shouldRecalculatePlotData )
     {
-        updateLayout();
-
         loadDataAndUpdate();
+        updateLayout();
     }
 }
 
@@ -240,11 +337,11 @@ void RimWellDistributionPlotCollection::fieldChangedByUi( const caf::PdmFieldHan
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::applyPlotParametersToContainedPlots()
 {
-    const size_t numPlots = plotCount();
+    const size_t numPlots = m_plots.size();
     for ( size_t i = 0; i < numPlots; i++ )
     {
         // Dirty usage of dyn_cast, but type is lost when adding the plots to our base class
-        RimWellDistributionPlot* aPlot = dynamic_cast<RimWellDistributionPlot*>( plotByIndex( i ) );
+        RimWellDistributionPlot* aPlot = dynamic_cast<RimWellDistributionPlot*>( m_plots[i] );
         if ( aPlot )
         {
             if ( aPlot->phase() == RiaDefines::PhaseType::OIL_PHASE )
@@ -263,6 +360,54 @@ void RimWellDistributionPlotCollection::applyPlotParametersToContainedPlots()
             aPlot->setDataSourceParameters( m_case, m_timeStepIndex, m_wellName );
             aPlot->setPlotOptions( m_groupSmallContributions, m_smallContributionsRelativeThreshold, m_maximumTof );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlotCollection::updatePlots()
+{
+    if ( m_showWindow )
+    {
+        for ( RimPlot* plot : m_plots() )
+        {
+            plot->loadDataAndUpdate();
+            plot->updateZoomInQwt();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlotCollection::cleanupBeforeClose()
+{
+    auto plotVector = m_plots.childObjects();
+    for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
+    {
+        plotVector[tIdx]->detachAllCurves();
+    }
+
+    if ( m_viewer )
+    {
+        m_viewer->setParent( nullptr );
+        delete m_viewer;
+        m_viewer = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDistributionPlotCollection::recreatePlotWidgets()
+{
+    CVF_ASSERT( m_viewer );
+
+    for ( auto plot : m_plots() )
+    {
+        plot->createPlotWidget();
+        m_viewer->addPlot( plot->viewer() );
     }
 }
 

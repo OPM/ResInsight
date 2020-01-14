@@ -63,21 +63,19 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMultiPlotPage::RiuMultiPlotPage( RimMultiPlotWindow* plotDefinition, QWidget* parent )
-    : RiuMultiPlotInterface( parent )
+RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* parent )
+    : QWidget( parent )
     , m_plotDefinition( plotDefinition )
     , m_previewMode( false )
+    , m_showSubTitles( false )
 {
-    Q_ASSERT( plotDefinition );
-    m_plotDefinition = plotDefinition;
-
     m_layout = new QVBoxLayout( this );
     m_layout->setMargin( 0 );
     m_layout->setSpacing( 2 );
 
     m_plotTitle = createTitleLabel();
     m_layout->addWidget( m_plotTitle );
-    m_plotTitle->setVisible( m_plotDefinition->isMultiPlotTitleVisible() );
+    m_plotTitle->setVisible( true );
 
     m_plotLayout = new QHBoxLayout;
     m_layout->addLayout( m_plotLayout );
@@ -129,7 +127,7 @@ RiuMultiPlotPage::~RiuMultiPlotPage() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiPlotWindow* RiuMultiPlotPage::ownerPlotDefinition()
+RimPlotWindow* RiuMultiPlotPage::ownerPlotDefinition()
 {
     return m_plotDefinition;
 }
@@ -262,6 +260,14 @@ void RiuMultiPlotPage::setFontSize( int fontSize )
 int RiuMultiPlotPage::fontSize() const
 {
     return m_plotTitle->font().pointSize() - 2;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::setSubTitlesVisible( bool visible )
+{
+    m_showSubTitles = visible;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -547,7 +553,7 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
                 ->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
             m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, column, 1 + ( rowSpan - 1 ) * 3, colSpan );
 
-            subTitles[visibleIndex]->setVisible( m_plotDefinition->showPlotTitles() );
+            subTitles[visibleIndex]->setVisible( m_showSubTitles );
 
             plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
             plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, showYAxis( row, column ) );

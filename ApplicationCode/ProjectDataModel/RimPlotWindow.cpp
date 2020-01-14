@@ -24,6 +24,7 @@
 #include "RicfCommandObject.h"
 
 #include "RimProject.h"
+#include "RiuMultiPlotPage.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -153,6 +154,22 @@ void RimPlotWindow::updateParentLayout()
             plotWindow->updateLayout();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotWindow::acceptDrops() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPlotWindow::columnCount() const
+{
+    return static_cast<int>( RiuMultiPlotPage::ColumnCount::COLUMNS_UNLIMITED );
 }
 
 //--------------------------------------------------------------------------------------------------

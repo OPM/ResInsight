@@ -33,12 +33,12 @@ namespace caf
 template <>
 void RimMultiPlotWindow::ColumnCountEnum::setUp()
 {
-    addItem( RimMultiPlotWindow::COLUMNS_1, "1", "1 Column" );
-    addItem( RimMultiPlotWindow::COLUMNS_2, "2", "2 Columns" );
-    addItem( RimMultiPlotWindow::COLUMNS_3, "3", "3 Columns" );
-    addItem( RimMultiPlotWindow::COLUMNS_4, "4", "4 Columns" );
-    addItem( RimMultiPlotWindow::COLUMNS_UNLIMITED, "UNLIMITED", "Unlimited" );
-    setDefault( RimMultiPlotWindow::COLUMNS_2 );
+    addItem( RimMultiPlotWindow::ColumnCount::COLUMNS_1, "1", "1 Column" );
+    addItem( RimMultiPlotWindow::ColumnCount::COLUMNS_2, "2", "2 Columns" );
+    addItem( RimMultiPlotWindow::ColumnCount::COLUMNS_3, "3", "3 Columns" );
+    addItem( RimMultiPlotWindow::ColumnCount::COLUMNS_4, "4", "4 Columns" );
+    addItem( RimMultiPlotWindow::ColumnCount::COLUMNS_UNLIMITED, "UNLIMITED", "Unlimited" );
+    setDefault( RimMultiPlotWindow::ColumnCount::COLUMNS_2 );
 }
 template <>
 void RimMultiPlotWindow::RowCountEnum::setUp()
@@ -57,7 +57,7 @@ CAF_PDM_SOURCE_INIT( RimMultiPlotWindow, "MultiPlot" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiPlotWindow::RimMultiPlotWindow( bool hidePlotsInTreeView )
+RimMultiPlotWindow::RimMultiPlotWindow()
     : m_acceptDrops( true )
 {
     CAF_PDM_InitObject( "Multi Plot", ":/WellLogPlot16x16.png", "", "" );
@@ -65,9 +65,8 @@ RimMultiPlotWindow::RimMultiPlotWindow( bool hidePlotsInTreeView )
     CAF_PDM_InitField( &m_showPlotWindowTitle, "ShowTitleInPlot", true, "Show Title", "", "", "" );
     CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "", "", "", "" );
     m_plots.uiCapability()->setUiHidden( true );
-    m_plots.uiCapability()->setUiTreeChildrenHidden( hidePlotsInTreeView );
 
     CAF_PDM_InitFieldNoDefault( &m_columnCount, "NumberOfColumns", "Number of Columns", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_rowsPerPage, "RowsPerPage", "Rows per Page", "", "", "" );
@@ -297,6 +296,7 @@ void RimMultiPlotWindow::doUpdateLayout()
 {
     if ( m_showWindow && m_viewer )
     {
+        m_viewer->setSubTitlesVisible( m_showIndividualPlotTitles );
         m_viewer->scheduleUpdate();
         m_viewer->adjustSize();
     }
@@ -311,17 +311,6 @@ void RimMultiPlotWindow::updateSubPlotNames() {}
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlotWindow::updatePlotWindowTitle() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimMultiPlotWindow::doSetAutoScaleYEnabled( bool enabled )
-{
-    for ( RimPlot* plot : plots() )
-    {
-        plot->setAutoScaleYEnabled( enabled );
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -364,7 +353,10 @@ void RimMultiPlotWindow::setAutoScaleXEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlotWindow::setAutoScaleYEnabled( bool enabled )
 {
-    doSetAutoScaleYEnabled( enabled );
+    for ( RimPlot* plot : plots() )
+    {
+        plot->setAutoScaleYEnabled( enabled );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -372,11 +364,11 @@ void RimMultiPlotWindow::setAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 int RimMultiPlotWindow::columnCount() const
 {
-    if ( m_columnCount() == COLUMNS_UNLIMITED )
+    if ( m_columnCount() == ColumnCount::COLUMNS_UNLIMITED )
     {
         return std::numeric_limits<int>::max();
     }
-    return static_cast<int>( m_columnCount() );
+    return static_cast<int>( m_columnCount().value() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -587,7 +579,7 @@ QList<caf::PdmOptionItemInfo> RimMultiPlotWindow::calculateValueOptions( const c
         for ( size_t i = 0; i < ColumnCountEnum::size(); ++i )
         {
             ColumnCount enumVal = ColumnCountEnum::fromIndex( i );
-            if ( enumVal == COLUMNS_UNLIMITED )
+            if ( enumVal == ColumnCount::COLUMNS_UNLIMITED )
             {
                 QString iconPath( ":/ColumnsUnlimited.png" );
                 options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),

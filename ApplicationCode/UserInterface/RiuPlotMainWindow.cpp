@@ -25,6 +25,7 @@
 #include "RiaSummaryTools.h"
 
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimMultiPlotWindow.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveCollection.h"

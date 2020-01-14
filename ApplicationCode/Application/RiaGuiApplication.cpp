@@ -62,6 +62,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlotCollection.h"
+#include "RimMultiPlotWindow.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"

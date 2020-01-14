@@ -49,16 +49,18 @@ public:
     RimPlotWindow& operator=( RimPlotWindow&& rhs );
 
     virtual QString description() const = 0;
-
-    bool legendsVisible() const;
-    void setLegendsVisible( bool doShow );
-    bool legendsHorizontal() const;
-    void setLegendsHorizontal( bool horizontal );
-    int  legendFontSize() const;
-    void setLegendFontSize( int fontSize );
+    bool            legendsVisible() const;
+    void            setLegendsVisible( bool doShow );
+    bool            legendsHorizontal() const;
+    void            setLegendsHorizontal( bool horizontal );
+    int             legendFontSize() const;
+    void            setLegendFontSize( int fontSize );
 
     void updateLayout();
     void updateParentLayout();
+
+    virtual bool acceptDrops() const;
+    virtual int  columnCount() const;
 
     void        renderWindowContent( QPaintDevice* painter );
     QPageLayout pageLayout() const;
