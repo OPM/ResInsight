@@ -36,11 +36,9 @@ RimSurfaceInView::RimSurfaceInView()
 {
     CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Visible", "", "", "" );
-    m_isActive.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
     m_name.registerGetMethod( this, &RimSurfaceInView::name );
+    m_name.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface", "", "", "" );
     m_surface.uiCapability()->setUiHidden( true );
@@ -80,14 +78,6 @@ void RimSurfaceInView::setSurface( RimSurface* surf )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSurfaceInView::isActive()
-{
-    return m_isActive();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSurfaceInView::clearGeometry()
 {
     m_surfacePartMgr = nullptr;
@@ -121,65 +111,31 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_name );
+
+    uiOrdering.add( &m_showInactiveCells );
+
+    this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
+}
+
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIntersectionResultsDefinitionCollection* RimSurfaceInView::findSeparateResultsCollection()
+{
+    RimGridView* view;
+    this->firstAncestorOrThisOfTypeAsserted( view );
+    return view->separateSurfaceResultsCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSurfaceInView::userDescriptionField()
 {
     return &m_name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSurfaceInView::objectToggleField()
-{
-    return &m_isActive;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RivIntersectionHexGridInterface> RimSurfaceInView::createHexGridInterface()
-{
-    // RimIntersectionResultDefinition* resDef = activeSeparateResultDefinition();
-    // if ( resDef && resDef->activeCase() )
-    //{
-    //    // Eclipse case
-    //
-    //    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( resDef->activeCase() );
-    //    if ( eclipseCase && eclipseCase->eclipseCaseData() )
-    //    {
-    //        return new RivEclipseIntersectionGrid( eclipseCase->eclipseCaseData()->mainGrid(),
-    //                                              eclipseCase->eclipseCaseData()->activeCellInfo(
-    //                                                  resDef->eclipseResultDefinition()->porosityModel() ),
-    //                                              this->isInactiveCellsVisible() );
-    //    }
-    //
-    //    // Geomech case
-    //
-    //    RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( resDef->activeCase() );
-    //
-    //    if ( geomCase && geomCase->geoMechData() && geomCase->geoMechData()->femParts() )
-    //    {
-    //        RigFemPart* femPart = geomCase->geoMechData()->femParts()->part( 0 );
-    //        return new RivFemIntersectionGrid( femPart );
-    //    }
-    //}
-
-    RimEclipseView* eclipseView;
-    this->firstAncestorOrThisOfType( eclipseView );
-    if ( eclipseView )
-    {
-        RigMainGrid* grid = eclipseView->mainGrid();
-        return new RivEclipseIntersectionGrid( grid, eclipseView->currentActiveCellInfo(), true );
-    }
-
-    RimGeoMechView* geoView;
-    this->firstAncestorOrThisOfType( geoView );
-    if ( geoView && geoView->femParts() && geoView->femParts()->partCount() )
-    {
-        RigFemPart* femPart = geoView->femParts()->part( 0 );
-
-        return new RivFemIntersectionGrid( femPart );
-    }
-
-    return nullptr;
 }

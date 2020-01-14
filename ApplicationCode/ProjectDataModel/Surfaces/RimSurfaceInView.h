@@ -24,11 +24,14 @@
 
 #include "cvfObject.h"
 
+#include "RimIntersection.h"
+
 class RimSurface;
+
 class RivSurfacePartMgr;
 class RivIntersectionHexGridInterface;
 
-class RimSurfaceInView : public caf::PdmObject
+class RimSurfaceInView : public RimIntersection
 {
     CAF_PDM_HEADER_INIT;
 
@@ -36,25 +39,23 @@ public:
     RimSurfaceInView();
     ~RimSurfaceInView() override;
 
-    QString     name() const;
+    QString     name() const override;
     RimSurface* surface() const;
     void        setSurface( RimSurface* surf );
-    bool        isActive();
 
     void               clearGeometry();
     RivSurfacePartMgr* surfacePartMgr();
 
-    cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
-
 private:
+    virtual RimIntersectionResultsDefinitionCollection* findSeparateResultsCollection() override;
+
     caf::PdmFieldHandle* userDescriptionField() override;
-    caf::PdmFieldHandle* objectToggleField() override;
-    void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue ) override;
+    virtual void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     caf::PdmProxyValueField<QString> m_name;
-    caf::PdmField<bool>              m_isActive;
     caf::PdmPtrField<RimSurface*>    m_surface;
 
     cvf::ref<RivSurfacePartMgr> m_surfacePartMgr;

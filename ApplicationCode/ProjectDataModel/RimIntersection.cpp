@@ -87,10 +87,9 @@ RimIntersectionResultDefinition* RimIntersection::activeSeparateResultDefinition
 
     if ( !m_separateDataSource->isActive() ) return nullptr;
 
-    RimGridView* view;
-    this->firstAncestorOrThisOfTypeAsserted( view );
+    if ( !findSeparateResultsCollection() ) return nullptr;
 
-    if ( !view->separateIntersectionResultsCollection()->isActive() ) return nullptr;
+    if ( !findSeparateResultsCollection()->isActive() ) return nullptr;
 
     return m_separateDataSource;
 }
@@ -105,11 +104,8 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf:
 
     if ( fieldNeedingOptions == &m_separateDataSource )
     {
-        RimGridView* view;
-        this->firstAncestorOrThisOfTypeAsserted( view );
-
         std::vector<RimIntersectionResultDefinition*> iResDefs =
-            view->separateIntersectionResultsCollection()->intersectionResultsDefinitions();
+            findSeparateResultsCollection()->intersectionResultsDefinitions();
 
         for ( auto iresdef : iResDefs )
         {
@@ -118,6 +114,16 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf:
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIntersectionResultsDefinitionCollection* RimIntersection::findSeparateResultsCollection()
+{
+    RimGridView* view;
+    this->firstAncestorOrThisOfTypeAsserted( view );
+    return view->separateIntersectionResultsCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,18 +169,12 @@ void RimIntersection::updateDefaultSeparateDataSource()
 {
     if ( m_separateDataSource() == nullptr )
     {
-        RimGridView* view;
-        this->firstAncestorOrThisOfType( view );
+        std::vector<RimIntersectionResultDefinition*> iResDefs =
+            findSeparateResultsCollection()->intersectionResultsDefinitions();
 
-        if ( view )
+        if ( iResDefs.size() )
         {
-            std::vector<RimIntersectionResultDefinition*> iResDefs =
-                view->separateIntersectionResultsCollection()->intersectionResultsDefinitions();
-
-            if ( iResDefs.size() )
-            {
-                m_separateDataSource = iResDefs[0];
-            }
+            m_separateDataSource = iResDefs[0];
         }
     }
 }

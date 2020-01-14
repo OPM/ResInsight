@@ -26,6 +26,7 @@
 
 class RimIntersectionResultDefinition;
 class RivIntersectionHexGridInterface;
+class RimIntersectionResultsDefinitionCollection;
 
 class RimIntersection : public caf::PdmObject
 {
@@ -45,6 +46,8 @@ public:
     cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 
 protected:
+    virtual RimIntersectionResultsDefinitionCollection* findSeparateResultsCollection();
+
     caf::PdmFieldHandle*          objectToggleField() override final;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
