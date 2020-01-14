@@ -18,8 +18,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigNNCData.h"
+
+#include "RigCellFaceGeometryTools.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+
 #include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -43,7 +46,11 @@ void RigNNCData::processConnections( const RigMainGrid& mainGrid )
         std::vector<cvf::Vec3d>            connectionIntersections;
         cvf::StructGridInterface::FaceType connectionFace = cvf::StructGridInterface::NO_FACE;
 
-        connectionFace = calculateCellFaceOverlap( c1, c2, mainGrid, &connectionPolygon, &connectionIntersections );
+        connectionFace = RigCellFaceGeometryTools::calculateCellFaceOverlap( c1,
+                                                                             c2,
+                                                                             mainGrid,
+                                                                             &connectionPolygon,
+                                                                             &connectionIntersections );
 
         if ( connectionFace != cvf::StructGridInterface::NO_FACE )
         {
@@ -69,114 +76,6 @@ void RigNNCData::processConnections( const RigMainGrid& mainGrid )
             // + "C2: " + cvf::String((int)m_connections[cnIdx].m_c2GlobIdx));
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::StructGridInterface::FaceType RigNNCData::calculateCellFaceOverlap( const RigCell&           c1,
-                                                                         const RigCell&           c2,
-                                                                         const RigMainGrid&       mainGrid,
-                                                                         std::vector<size_t>*     connectionPolygon,
-                                                                         std::vector<cvf::Vec3d>* connectionIntersections )
-{
-    // Try to find the shared face
-
-    bool isPossibleNeighborInDirection[6] = {true, true, true, true, true, true};
-
-    if ( c1.hostGrid() == c2.hostGrid() )
-    {
-        char hasNeighbourInAnyDirection = 0;
-
-        size_t i1, j1, k1;
-        c1.hostGrid()->ijkFromCellIndex( c1.gridLocalCellIndex(), &i1, &j1, &k1 );
-        size_t i2, j2, k2;
-        c2.hostGrid()->ijkFromCellIndex( c2.gridLocalCellIndex(), &i2, &j2, &k2 );
-
-        isPossibleNeighborInDirection[cvf::StructGridInterface::POS_I] = ( ( i1 + 1 ) == i2 );
-        isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_I] = ( ( i2 + 1 ) == i1 );
-        isPossibleNeighborInDirection[cvf::StructGridInterface::POS_J] = ( ( j1 + 1 ) == j2 );
-        isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_J] = ( ( j2 + 1 ) == j1 );
-        isPossibleNeighborInDirection[cvf::StructGridInterface::POS_K] = ( ( k1 + 1 ) == k2 );
-        isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_K] = ( ( k2 + 1 ) == k1 );
-
-        hasNeighbourInAnyDirection = isPossibleNeighborInDirection[cvf::StructGridInterface::POS_I] +
-                                     isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_I] +
-                                     isPossibleNeighborInDirection[cvf::StructGridInterface::POS_J] +
-                                     isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_J] +
-                                     isPossibleNeighborInDirection[cvf::StructGridInterface::POS_K] +
-                                     isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_K];
-
-        // If cell 2 is not adjancent with respect to any of the six ijk directions,
-        // assume that we have no overlapping area.
-
-        if ( !hasNeighbourInAnyDirection )
-        {
-            // Add to search map
-            // m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c1GlobIdx][cvf::StructGridInterface::NO_FACE].push_back(cnIdx);
-            // m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c2GlobIdx][cvf::StructGridInterface::NO_FACE].push_back(cnIdx);
-
-            // cvf::Trace::show("NNC: No direct neighbors : C1: " + cvf::String((int)m_connections[cnIdx].m_c1GlobIdx) +
-            // " C2: " + cvf::String((int)m_connections[cnIdx].m_c2GlobIdx));
-            return cvf::StructGridInterface::NO_FACE;
-        }
-    }
-
-#if 0
-    // Possibly do some testing to avoid unneccesary overlap calculations
-    cvf::Vec3d normal;
-    for ( char fIdx = 0; fIdx < 6; ++fIdx )
-    {
-        if ( isPossibleNeighborInDirection[fIdx] )
-        {
-            cvf::Vec3d fc1 = c1.faceCenter((cvf::StructGridInterface::FaceType)(fIdx));
-            cvf::Vec3d fc2 = c2.faceCenter(cvf::StructGridInterface::oppositeFace((cvf::StructGridInterface::FaceType)(fIdx)));
-            cvf::Vec3d fc1ToFc2 = fc2 - fc1;
-            normal = c1.faceNormalWithAreaLenght((cvf::StructGridInterface::FaceType)(fIdx));
-            normal.normalize();
-            // Check that face centers are approx in the face plane
-            if ( normal.dot(fc1ToFc2) < 0.01*fc1ToFc2.length() )
-            {
-
-            }
-        }
-    }
-#endif
-
-    for ( unsigned char fIdx = 0; fIdx < 6; ++fIdx )
-    {
-        if ( !isPossibleNeighborInDirection[fIdx] )
-        {
-            continue;
-        }
-
-        // Calculate connection polygon
-
-        std::vector<size_t>     polygon;
-        std::vector<cvf::Vec3d> intersections;
-        std::array<size_t, 4>   face1;
-        std::array<size_t, 4>   face2;
-        c1.faceIndices( ( cvf::StructGridInterface::FaceType )( fIdx ), &face1 );
-        c2.faceIndices( cvf::StructGridInterface::oppositeFace( ( cvf::StructGridInterface::FaceType )( fIdx ) ), &face2 );
-
-        bool foundOverlap =
-            cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
-                                                                   &intersections,
-                                                                   (cvf::EdgeIntersectStorage<size_t>*)nullptr,
-                                                                   cvf::wrapArrayConst( &mainGrid.nodes() ),
-                                                                   face1.data(),
-                                                                   face2.data(),
-                                                                   1e-6 );
-
-        if ( foundOverlap )
-        {
-            if ( connectionPolygon ) ( *connectionPolygon ) = polygon;
-            if ( connectionIntersections ) ( *connectionIntersections ) = intersections;
-            return ( cvf::StructGridInterface::FaceType )( fIdx );
-        }
-    }
-
-    return cvf::StructGridInterface::NO_FACE;
 }
 
 //--------------------------------------------------------------------------------------------------
