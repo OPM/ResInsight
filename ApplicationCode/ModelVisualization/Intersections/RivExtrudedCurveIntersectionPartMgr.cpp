@@ -590,8 +590,8 @@ void RivExtrudedCurveIntersectionPartMgr::createExtrusionDirParts( bool useBuffe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionPartMgr::appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model,
-                                                                                cvf::Transform*      scaleTransform )
+void RivExtrudedCurveIntersectionPartMgr::appendIntersectionFacesToModel( cvf::ModelBasicList* model,
+                                                                          cvf::Transform*      scaleTransform )
 {
     if ( m_intersectionFaces.isNull() )
     {
