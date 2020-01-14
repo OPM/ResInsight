@@ -69,12 +69,6 @@ public:
 
     void processConnections( const RigMainGrid& mainGrid );
 
-    static cvf::StructGridInterface::FaceType calculateCellFaceOverlap( const RigCell&           c1,
-                                                                        const RigCell&           c2,
-                                                                        const RigMainGrid&       mainGrid,
-                                                                        std::vector<size_t>*     connectionPolygon,
-                                                                        std::vector<cvf::Vec3d>* connectionIntersections );
-
     void setConnections( std::vector<RigConnection>& connections );
 
     const std::vector<RigConnection>& connections() const;
