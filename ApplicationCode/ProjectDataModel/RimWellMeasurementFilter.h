@@ -38,7 +38,8 @@ public:
                                                                 const RimWellPath&           rimWellPath,
                                                                 const std::vector<QString>&  measurementKinds,
                                                                 double                       lowerBound,
-                                                                double                       upperBound );
+                                                                double                       upperBound,
+                                                                const std::vector<int>&      qualityFilter );
 
     static std::vector<RimWellMeasurement*> filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
                                                                 const std::vector<QString>& measurementKinds );
@@ -47,4 +48,6 @@ private:
     RimWellMeasurementFilter();
 
     static bool isInsideRange( double value, double lowerBound, double upperBound );
+
+    static bool hasQuality( int quality, const std::vector<int>& qualityFilter );
 };

@@ -57,7 +57,8 @@ std::vector<RimWellMeasurement*>
                                                   const RimWellPath&                      wellPath,
                                                   const std::vector<QString>&             measurementKinds,
                                                   double                                  lowerBound,
-                                                  double                                  upperBound )
+                                                  double                                  upperBound,
+                                                  const std::vector<int>&                 qualityFilter )
 {
     std::vector<RimWellMeasurement*> filteredMeasurementsByKindsAndWellPath = filterMeasurements( measurements,
                                                                                                   wellPathCollection,
@@ -67,7 +68,8 @@ std::vector<RimWellMeasurement*>
     std::vector<RimWellMeasurement*> filteredMeasurements;
     for ( auto& measurement : filteredMeasurementsByKindsAndWellPath )
     {
-        if ( RimWellMeasurementFilter::isInsideRange( measurement->value(), lowerBound, upperBound ) )
+        if ( RimWellMeasurementFilter::isInsideRange( measurement->value(), lowerBound, upperBound ) &&
+             RimWellMeasurementFilter::hasQuality( measurement->quality(), qualityFilter ) )
         {
             filteredMeasurements.push_back( measurement );
         }
@@ -113,4 +115,12 @@ bool RimWellMeasurementFilter::isInsideRange( double value, double lowerBound, d
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellMeasurementFilter::hasQuality( int quality, const std::vector<int>& qualityFilter )
+{
+    return std::find( qualityFilter.begin(), qualityFilter.end(), quality ) != qualityFilter.end();
 }

@@ -135,6 +135,7 @@ void RimWellMeasurementInViewCollection::syncWithChangesInWellMeasurementCollect
             measurementInView->setName( kind );
             measurementInView->setMeasurementKind( kind );
             measurementInView->setAllWellsSelected();
+            measurementInView->setAllQualitiesSelected();
 
             m_measurementsInView.push_back( measurementInView );
         }

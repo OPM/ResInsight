@@ -46,12 +46,14 @@ public:
     void                    setMeasurementKind( const QString& measurementKind );
     bool                    isWellChecked( const QString& wellName ) const;
     void                    setAllWellsSelected();
+    void                    setAllQualitiesSelected();
 
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
     bool hasCategoryResult() const;
 
-    void rangeValues( double* lowerBound, double* upperBound ) const;
+    void             rangeValues( double* lowerBound, double* upperBound ) const;
+    std::vector<int> qualityFilter() const;
 
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
@@ -79,6 +81,7 @@ private:
     caf::PdmField<std::vector<QString>>         m_wells;
     caf::PdmField<double>                       m_lowerBound;
     caf::PdmField<double>                       m_upperBound;
+    caf::PdmField<std::vector<int>>             m_qualityFilter;
 
     double m_minimumResultValue;
     double m_maximumResultValue;
