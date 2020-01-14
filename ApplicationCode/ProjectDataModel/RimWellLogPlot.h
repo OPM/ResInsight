@@ -82,6 +82,7 @@ public:
 
     std::vector<RimPlot*> plots() const;
     std::vector<RimPlot*> visiblePlots() const;
+    RimPlot*              plotFromWidget( const RiuQwtPlotWidget* plotWidget ) override;
 
     DepthTypeEnum depthType() const;
     void          setDepthType( DepthTypeEnum depthType );

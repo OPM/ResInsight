@@ -69,7 +69,9 @@ public:
     void addPlot( RimPlot* plot );
     void insertPlot( RimPlot* plot, size_t index );
     void removePlot( RimPlot* plot );
-    void movePlotsToThis( const std::vector<RimPlot*>& plots, RimPlot* plotToInsertAfter );
+	void movePlotsToThis( const std::vector<RimPlot*>& plots, RimPlot* plotToInsertAfter );
+    void movePlotsToThis( const std::vector<const RiuQwtPlotWidget*>& plotWidgetsToMove,
+                          const RiuQwtPlotWidget*                     plotWidgetToInsertAfter );
 
     size_t   plotCount() const;
     size_t   plotIndex( const RimPlot* plot ) const;
@@ -96,6 +98,8 @@ public:
     bool    acceptDrops() const override;
 
     bool previewModeEnabled() const;
+
+    RimPlot* plotFromWidget( const RiuQwtPlotWidget* plotWidget ) override;
 
 protected:
     QImage snapshotWindowContent() override;

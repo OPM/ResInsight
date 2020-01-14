@@ -87,6 +87,7 @@ public:
     virtual void detachAllCurves()   = 0;
 
     virtual caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const = 0;
+    RimPlot*                plotFromWidget( const RiuQwtPlotWidget* plotWidget ) override;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

@@ -49,7 +49,7 @@ class QwtPlot;
 // RiuMultiPlotPage
 //
 //==================================================================================================
-class RiuMultiPlotPage : public QWidget
+class RiuMultiPlotPage : public QWidget, public caf::SelectionChangedReceiver
 {
     Q_OBJECT
 
@@ -100,17 +100,27 @@ protected:
     QLabel* createTitleLabel() const;
 
     void showEvent( QShowEvent* event ) override;
+    void dragEnterEvent( QDragEnterEvent* event ) override;
+    void dragMoveEvent( QDragMoveEvent* event ) override;
+    void dragLeaveEvent( QDragLeaveEvent* event ) override;
+    void dropEvent( QDropEvent* event ) override;
     bool hasHeightForWidth() const override;
     void updateMarginsFromPageLayout();
 
+    virtual bool willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const;
+
     std::pair<int, int> rowAndColumnCount( int plotWidgetCount ) const;
+
+    virtual void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
+    void         setWidgetState( const QString& widgetState );
 
     virtual bool showYAxis( int row, int column ) const;
 
     void reinsertPlotWidgets();
     int  alignCanvasTops();
 
-    void clearGridLayout();
+    void              clearGridLayout();
+    caf::UiStyleSheet createDropTargetStyleSheet();
 
     QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets() const;
     QList<QPointer<RiuQwtPlotLegend>> legendsForVisiblePlots() const;
@@ -137,9 +147,12 @@ protected:
     QList<QPointer<RiuQwtPlotLegend>> m_legends;
     QList<QPointer<RiuQwtPlotWidget>> m_plotWidgets;
     caf::PdmPointer<RimPlotWindow>    m_plotDefinition;
+    QPointer<QLabel>                  m_dropTargetPlaceHolder;
 
     bool m_previewMode;
     bool m_showSubTitles;
+
+    caf::UiStyleSheet m_dropTargetStyleSheet;
 
 private:
     friend class RiaPlotWindowRedrawScheduler;

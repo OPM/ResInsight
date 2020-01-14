@@ -158,6 +158,21 @@ void RimWellDistributionPlotCollection::zoomAll() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPlot* RimWellDistributionPlotCollection::plotFromWidget( const RiuQwtPlotWidget* plotWidget )
+{
+    for ( RimPlot* plot : m_plots() )
+    {
+        if ( plotWidget == plot->viewer() )
+        {
+            return plot;
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::onLoadDataAndUpdate()
 {
     // cvf::Trace::show("RimWellDistributionPlotCollection::onLoadDataAndUpdate()");

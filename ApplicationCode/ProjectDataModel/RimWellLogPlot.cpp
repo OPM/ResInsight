@@ -311,6 +311,21 @@ std::vector<RimPlot*> RimWellLogPlot::visiblePlots() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPlot* RimWellLogPlot::plotFromWidget( const RiuQwtPlotWidget* plotWidget )
+{
+    for ( RimPlot* plot : m_plots() )
+    {
+        if ( plotWidget == plot->viewer() )
+        {
+            return plot;
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::updateZoom()
 {
     if ( m_isAutoScaleDepthEnabled )

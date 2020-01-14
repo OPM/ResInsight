@@ -96,6 +96,13 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
 
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
 
+    m_dropTargetPlaceHolder = new QLabel( "Drag plots here" );
+    m_dropTargetPlaceHolder->setAlignment( Qt::AlignCenter );
+    m_dropTargetPlaceHolder->setObjectName(
+        QString( "%1" ).arg( reinterpret_cast<uint64_t>( m_dropTargetPlaceHolder.data() ) ) );
+    m_dropTargetStyleSheet = createDropTargetStyleSheet();
+    m_dropTargetStyleSheet.applyToWidget( m_dropTargetPlaceHolder );
+
     this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::MinimumExpanding );
 
     setFocusPolicy( Qt::StrongFocus );
@@ -410,6 +417,128 @@ void RiuMultiPlotPage::showEvent( QShowEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::dragEnterEvent( QDragEnterEvent* event )
+{
+    RiuQwtPlotWidget* source = dynamic_cast<RiuQwtPlotWidget*>( event->source() );
+    if ( source )
+    {
+        setWidgetState( "dragTargetInto" );
+        event->acceptProposedAction();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::dragMoveEvent( QDragMoveEvent* event )
+{
+    if ( event->answerRect().intersects( this->geometry() ) )
+    {
+        RiuQwtPlotWidget* source = dynamic_cast<RiuQwtPlotWidget*>( event->source() );
+        if ( source && willAcceptDroppedPlot( source ) )
+        {
+            setWidgetState( "dragTargetInto" );
+
+            QRect  originalGeometry = source->geometry();
+            QPoint offset           = source->dragStartPosition();
+            QRect  newRect( event->pos() - offset, originalGeometry.size() );
+
+            QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets = this->visiblePlotWidgets();
+
+            int insertBeforeIndex = visiblePlotWidgets.size();
+            for ( int visibleIndex = 0; visibleIndex < visiblePlotWidgets.size(); ++visibleIndex )
+            {
+                caf::UiStyleSheet::clearWidgetStates( visiblePlotWidgets[visibleIndex] );
+
+                if ( visiblePlotWidgets[visibleIndex]->frameIsInFrontOfThis( newRect ) )
+                {
+                    insertBeforeIndex = std::min( insertBeforeIndex, visibleIndex );
+                }
+            }
+            if ( insertBeforeIndex >= 0 && insertBeforeIndex < visiblePlotWidgets.size() )
+            {
+                visiblePlotWidgets[insertBeforeIndex]->setWidgetState( "dragTargetBefore" );
+            }
+
+            if ( insertBeforeIndex > 0 )
+            {
+                int insertAfterIndex = insertBeforeIndex - 1;
+                visiblePlotWidgets[insertAfterIndex]->setWidgetState( "dragTargetAfter" );
+            }
+            event->acceptProposedAction();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::dragLeaveEvent( QDragLeaveEvent* event )
+{
+    caf::UiStyleSheet::clearWidgetStates( this );
+
+    for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
+    {
+        caf::UiStyleSheet::clearWidgetStates( m_plotWidgets[tIdx] );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::dropEvent( QDropEvent* event )
+{
+    caf::UiStyleSheet::clearWidgetStates( this );
+
+    for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
+    {
+        caf::UiStyleSheet::clearWidgetStates( m_plotWidgets[tIdx] );
+    }
+
+    if ( this->geometry().contains( event->pos() ) )
+    {
+        RiuQwtPlotWidget*   source    = dynamic_cast<RiuQwtPlotWidget*>( event->source() );
+        RimMultiPlotWindow* multiPlot = dynamic_cast<RimMultiPlotWindow*>( m_plotDefinition.p() );
+
+        if ( source && willAcceptDroppedPlot( source ) && multiPlot )
+        {
+            event->acceptProposedAction();
+
+            QRect  originalGeometry = source->geometry();
+            QPoint offset           = source->dragStartPosition();
+            QRect  newRect( event->pos() - offset, originalGeometry.size() );
+
+            int beforeIndex = m_plotWidgets.size();
+            for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
+            {
+                if ( m_plotWidgets[tIdx]->isVisible() )
+                {
+                    if ( m_plotWidgets[tIdx]->frameIsInFrontOfThis( newRect ) )
+                    {
+                        beforeIndex = tIdx;
+                        break;
+                    }
+                }
+            }
+            RiuQwtPlotWidget* insertAfter = nullptr;
+            if ( beforeIndex > 0 )
+            {
+                insertAfter = m_plotWidgets[beforeIndex - 1];
+            }
+
+            RiuQwtPlotWidget* plotToMove = source;
+
+            if ( insertAfter != plotToMove )
+            {
+                multiPlot->movePlotsToThis( {plotToMove}, insertAfter );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiuMultiPlotPage::hasHeightForWidth() const
 {
     return true;
@@ -469,6 +598,14 @@ QSize RiuMultiPlotPage::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiuMultiPlotPage::willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<int, int> RiuMultiPlotPage::rowAndColumnCount( int plotWidgetCount ) const
 {
     if ( plotWidgetCount == 0 )
@@ -479,6 +616,41 @@ std::pair<int, int> RiuMultiPlotPage::rowAndColumnCount( int plotWidgetCount ) c
     int columnCount = std::max( 1, m_plotDefinition->columnCount() );
     int rowCount    = static_cast<int>( std::ceil( plotWidgetCount / static_cast<double>( columnCount ) ) );
     return std::make_pair( rowCount, columnCount );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
+{
+    for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
+    {
+        CAF_ASSERT( plotWidget );
+
+        bool isSelected = false;
+        for ( int changedLevel : changedSelectionLevels )
+        {
+            isSelected = isSelected ||
+                         caf::SelectionManager::instance()->isSelected( m_plotDefinition->plotFromWidget( plotWidget ),
+                                                                        changedLevel );
+        }
+        if ( isSelected )
+        {
+            plotWidget->setWidgetState( "selected" );
+        }
+        else
+        {
+            caf::UiStyleSheet::clearWidgetStates( plotWidget );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::setWidgetState( const QString& widgetState )
+{
+    m_dropTargetStyleSheet.setWidgetState( m_dropTargetPlaceHolder, widgetState );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -534,8 +706,15 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
     QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets = this->visiblePlotWidgets();
 
-    if ( !plotWidgets.empty() )
+    if ( plotWidgets.empty() && acceptDrops() )
     {
+        m_gridLayout->addWidget( m_dropTargetPlaceHolder, 0, 0 );
+        m_gridLayout->setRowStretch( 0, 1 );
+        m_dropTargetPlaceHolder->setVisible( true );
+    }
+    else
+    {
+        m_dropTargetPlaceHolder->setVisible( false );
         auto rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
 
         int row    = 0;
@@ -648,6 +827,22 @@ void RiuMultiPlotPage::clearGridLayout()
         delete m_gridLayout;
         m_gridLayout = new QGridLayout( m_plotWidgetFrame );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::UiStyleSheet RiuMultiPlotPage::createDropTargetStyleSheet()
+{
+    caf::UiStyleSheet styleSheet;
+
+    styleSheet.set( "background-color", "white" );
+    styleSheet.set( "border", "1px dashed black" );
+    styleSheet.set( "font-size", "14pt" );
+    styleSheet.property( "dragTargetInto" ).set( "border", "1px dashed lime" );
+    styleSheet.property( "dragTargetInto" ).set( "background-color", "#DDFFDD" );
+
+    return styleSheet;
 }
 
 //--------------------------------------------------------------------------------------------------

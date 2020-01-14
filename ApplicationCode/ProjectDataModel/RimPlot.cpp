@@ -102,6 +102,19 @@ void RimPlot::updateAfterInsertingIntoMultiPlot()
     updateLegend();
     updateAxes();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlot* RimPlot::plotFromWidget( const RiuQwtPlotWidget* plotWidget )
+{
+    if ( viewer() == plotWidget )
+    {
+        return this;
+    }
+    return nullptr;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -130,6 +143,7 @@ void RimPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const Q
 //--------------------------------------------------------------------------------------------------
 void RimPlot::attachPlotWidgetSignals( RimPlot* plot, RiuQwtPlotWidget* plotWidget )
 {
+    CAF_ASSERT( plot && plotWidget );
     plot->connect( plotWidget, SIGNAL( plotSelected( bool ) ), SLOT( onPlotSelected( bool ) ) );
     plot->connect( plotWidget, SIGNAL( axisSelected( int, bool ) ), SLOT( onAxisSelected( int, bool ) ) );
     plot->connect( plotWidget,

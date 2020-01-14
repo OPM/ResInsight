@@ -464,9 +464,13 @@ void RiuMultiPlotWindow::createPages()
     int row         = 0;
     int column      = 0;
 
+    // Make sure we always add a page. For empty multi-plots we'll have an empty page with a drop target.
     RiuMultiPlotPage* page = new RiuMultiPlotPage( m_plotDefinition, this );
     m_pages.push_back( page );
     m_bookLayout->addWidget( page );
+    page->setVisible( true );
+    page->performUpdate();
+
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
     {
         int expextedColSpan = static_cast<int>( plotWidgets[visibleIndex]->colSpan() );
@@ -483,7 +487,6 @@ void RiuMultiPlotWindow::createPages()
             column = 0;
         }
         page->addPlot( plotWidgets[visibleIndex] );
-        page->setVisible( true );
         page->performUpdate();
     }
     // Reapply plot settings

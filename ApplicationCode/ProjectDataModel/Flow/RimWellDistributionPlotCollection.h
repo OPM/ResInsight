@@ -58,6 +58,8 @@ public:
     QImage   snapshotWindowContent() override;
     void     zoomAll() override;
 
+    RimPlot* plotFromWidget( const RiuQwtPlotWidget* plotWidget ) override;
+
 private:
     // RimPlotWindow overrides
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

@@ -26,7 +26,9 @@
 
 #include <QPageLayout>
 
+class RimPlot;
 class RimProject;
+class RiuQwtPlotWidget;
 
 class QwtPlotCurve;
 class QKeyEvent;
@@ -58,6 +60,8 @@ public:
 
     void updateLayout();
     void updateParentLayout();
+
+    virtual RimPlot* plotFromWidget( const RiuQwtPlotWidget* plotWidget ) = 0;
 
     virtual bool acceptDrops() const;
     virtual int  columnCount() const;

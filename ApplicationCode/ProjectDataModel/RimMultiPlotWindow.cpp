@@ -17,7 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimMultiPlotWindow.h"
 
+#include "RiaApplication.h"
 #include "RimPlot.h"
+#include "RimProject.h"
 
 #include "RiuMultiPlotWindow.h"
 #include "RiuPlotMainWindow.h"
@@ -239,6 +241,38 @@ void RimMultiPlotWindow::movePlotsToThis( const std::vector<RimPlot*>& plotsToMo
 
     this->updateLayout();
     this->updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlotWindow::movePlotsToThis( const std::vector<const RiuQwtPlotWidget*>& plotsWidgetsToMove,
+                                          const RiuQwtPlotWidget*                     plotWidgetToInsertAfter )
+{
+    std::vector<RimPlot*> allPlots;
+    RiaApplication::instance()->project()->descendantsIncludingThisOfType( allPlots );
+
+    std::vector<RimPlot*> plotsToMove;
+    for ( const RiuQwtPlotWidget* plotWidget : plotsWidgetsToMove )
+    {
+        RimPlot* plotToMove = nullptr;
+        for ( RimPlot* plot : allPlots )
+        {
+            if ( plot->viewer() == plotWidget )
+            {
+                plotToMove = plot;
+            }
+        }
+
+        if ( plotToMove )
+        {
+            plotsToMove.push_back( plotToMove );
+        }
+    }
+
+    RimPlot* plotToInsertAfter = plotFromWidget( plotWidgetToInsertAfter );
+
+    movePlotsToThis( plotsToMove, plotToInsertAfter );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -475,6 +509,21 @@ bool RimMultiPlotWindow::previewModeEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPlot* RimMultiPlotWindow::plotFromWidget( const RiuQwtPlotWidget* plotWidget )
+{
+    for ( RimPlot* plot : m_plots() )
+    {
+        if ( plotWidget == plot->viewer() )
+        {
+            return plot;
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QImage RimMultiPlotWindow::snapshotWindowContent()
 {
     QImage image;
@@ -499,6 +548,7 @@ QWidget* RimMultiPlotWindow::createViewWidget( QWidget* mainWindowParent )
         m_viewer = new RiuMultiPlotWindow( this, mainWindowParent );
     }
     recreatePlotWidgets();
+
     return m_viewer;
 }
 
