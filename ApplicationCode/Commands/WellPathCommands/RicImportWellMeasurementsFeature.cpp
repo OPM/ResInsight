@@ -19,24 +19,12 @@
 #include "RicImportWellMeasurementsFeature.h"
 
 #include "RiaApplication.h"
-#include "RiaLogging.h"
 
-#include "Rim3dView.h"
-#include "RimGridView.h"
-#include "RimPerforationCollection.h"
-#include "RimPerforationInterval.h"
-#include "RimProject.h"
-#include "RimWellMeasurement.h"
-#include "RimWellMeasurementCollection.h"
-#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RifFileParseTools.h"
-#include "RifWellMeasurementReader.h"
+#include "RicWellMeasurementImportTools.h"
 
 #include "Riu3DMainWindowTools.h"
-
-#include "cafSelectionManager.h"
 
 #include <QAction>
 #include <QFileDialog>
@@ -48,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicImportWellMeasurementsFeature, "RicImportWellMeasurement
 //--------------------------------------------------------------------------------------------------
 bool RicImportWellMeasurementsFeature::isCommandEnabled()
 {
-    return ( RicImportWellMeasurementsFeature::selectedWellPathCollection() != nullptr );
+    return ( RicWellMeasurementImportTools::selectedWellPathCollection() != nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +44,7 @@ bool RicImportWellMeasurementsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
 {
-    RimWellPathCollection* wellPathCollection = RicImportWellMeasurementsFeature::selectedWellPathCollection();
+    RimWellPathCollection* wellPathCollection = RicWellMeasurementImportTools::selectedWellPathCollection();
     CVF_ASSERT( wellPathCollection );
 
     // Open dialog box to select well path files
@@ -72,61 +60,7 @@ void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );
 
-    std::vector<RifWellMeasurement> wellMeasurements;
-    try
-    {
-        RifWellMeasurementReader::readWellMeasurements( wellMeasurements, wellPathFilePaths );
-    }
-    catch ( FileParseException& exception )
-    {
-        RiaLogging::warning( QString( "Well measurement import failed: '%1'." ).arg( exception.message ) );
-        return;
-    }
-
-    RimWellMeasurement* lastWellMeasurement = nullptr;
-    for ( auto& measurement : wellMeasurements )
-    {
-        RimWellMeasurement* wellMeasurement = new RimWellMeasurement;
-        wellMeasurement->setWellName( measurement.wellName );
-        wellMeasurement->setMD( measurement.MD );
-        wellMeasurement->setValue( measurement.value );
-        wellMeasurement->setDate( measurement.date );
-        wellMeasurement->setQuality( measurement.quality );
-        wellMeasurement->setKind( measurement.kind );
-        wellMeasurement->setRemark( measurement.remark );
-        wellMeasurement->setFilePath( measurement.filePath );
-
-        // Ignore values for kinds which is known to not have values
-        if ( !RimWellMeasurement::kindHasValue( measurement.kind ) )
-        {
-            wellMeasurement->setValue( 0.0 );
-        }
-
-        wellPathCollection->measurementCollection()->appendMeasurement( wellMeasurement );
-        lastWellMeasurement = wellMeasurement;
-    }
-    wellPathCollection->uiCapability()->updateConnectedEditors();
-
-    if ( app->project() )
-    {
-        std::vector<Rim3dView*> views;
-        app->project()->allViews( views );
-        for ( auto& view : views )
-        {
-            RimGridView* gridView = dynamic_cast<RimGridView*>( view );
-            if ( gridView )
-            {
-                gridView->updateWellMeasurements();
-            }
-        }
-
-        app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
-    }
-
-    if ( lastWellMeasurement )
-    {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastWellMeasurement );
-    }
+    RicWellMeasurementImportTools::importWellMeasurementsFromFiles( wellPathFilePaths, wellPathCollection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,26 +69,4 @@ void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
 void RicImportWellMeasurementsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Import Measurements" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellPathCollection* RicImportWellMeasurementsFeature::selectedWellPathCollection()
-{
-    std::vector<RimWellPathCollection*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
-    if ( objects.size() == 1 )
-    {
-        return objects[0];
-    }
-
-    auto measurementColl = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellMeasurementCollection>();
-    if ( measurementColl )
-    {
-        return caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathCollection>();
-    }
-
-    return nullptr;
 }
