@@ -87,6 +87,15 @@ RimGridView::RimGridView()
     m_intersectionResultDefCollection.uiCapability()->setUiTreeHidden( true );
     m_intersectionResultDefCollection = new RimIntersectionResultsDefinitionCollection;
 
+    CAF_PDM_InitFieldNoDefault( &m_surfaceResultDefCollection,
+                                "ReservoirSurfaceResultDefColl",
+                                "Separate Surface Results",
+                                "",
+                                "",
+                                "" );
+    m_surfaceResultDefCollection.uiCapability()->setUiTreeHidden( true );
+    m_surfaceResultDefCollection = new RimIntersectionResultsDefinitionCollection;
+
     CAF_PDM_InitFieldNoDefault( &m_gridCollection, "GridCollection", "GridCollection", "", "", "" );
     m_gridCollection.uiCapability()->setUiHidden( true );
     m_gridCollection = new RimGridCollection();
@@ -206,6 +215,14 @@ RimWellMeasurementInViewCollection* RimGridView::measurementCollection() const
 RimIntersectionResultsDefinitionCollection* RimGridView::separateIntersectionResultsCollection() const
 {
     return m_intersectionResultDefCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIntersectionResultsDefinitionCollection* RimGridView::separateSurfaceResultsCollection() const
+{
+    return m_surfaceResultDefCollection;
 }
 
 //--------------------------------------------------------------------------------------------------

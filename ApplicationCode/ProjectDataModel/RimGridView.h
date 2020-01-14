@@ -50,6 +50,7 @@ public:
     RimIntersectionCollection*                  intersectionCollection() const;
     RimSurfaceInViewCollection*                 surfaceInViewCollection() const;
     RimIntersectionResultsDefinitionCollection* separateIntersectionResultsCollection() const;
+    RimIntersectionResultsDefinitionCollection* separateSurfaceResultsCollection() const;
     RimAnnotationInViewCollection*              annotationCollection() const;
     RimWellMeasurementInViewCollection*         measurementCollection() const;
 
@@ -96,6 +97,7 @@ protected:
     caf::PdmChildField<RimIntersectionCollection*> m_intersectionCollection;
 
     caf::PdmChildField<RimIntersectionResultsDefinitionCollection*> m_intersectionResultDefCollection;
+    caf::PdmChildField<RimIntersectionResultsDefinitionCollection*> m_surfaceResultDefCollection;
 
     caf::PdmChildField<Rim3dOverlayInfoConfig*>             m_overlayInfoConfig;
     caf::PdmChildField<RimCellRangeFilterCollection*>       m_rangeFilterCollection;

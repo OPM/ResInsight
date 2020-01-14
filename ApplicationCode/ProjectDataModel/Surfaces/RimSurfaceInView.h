@@ -36,8 +36,6 @@ public:
     RimSurfaceInView();
     ~RimSurfaceInView() override;
 
-    void loadDataAndUpdate();
-
     QString     name() const;
     RimSurface* surface() const;
     void        setSurface( RimSurface* surf );
