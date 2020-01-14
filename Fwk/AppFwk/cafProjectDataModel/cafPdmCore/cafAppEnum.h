@@ -106,6 +106,8 @@ public:
     bool                operator!= (T value) const      { return m_value != value;}
                                               
                         operator T () const             { return m_value;}
+                        
+    T                   value() const                   { return m_value;  }
     size_t              index() const                   { return EnumMapper::instance()->index(m_value);}
     QString             text() const                    { return EnumMapper::instance()->text(m_value);}
     QString             uiText() const                  { return EnumMapper::instance()->uiText(m_value);}
