@@ -330,6 +330,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimWellMeasurementFilePath*>( firstUiItem ) )
         {
+            menuBuilder << "RicReloadWellMeasurementsFeature";
             menuBuilder << "RicDeleteWellMeasurementFilePathFeature";
             menuBuilder << "RicImportWellMeasurementsFeature";
         }
