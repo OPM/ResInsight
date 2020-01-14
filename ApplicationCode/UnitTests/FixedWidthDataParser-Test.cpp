@@ -35,9 +35,9 @@ TEST( FixedWidthDataParser, BasicUsage )
         std::getline( streamData, line );
 
         std::string firstDataLine = "6-NOV-1997";
-        line.find_first_of( firstDataLine );
+        size_t      foundPos      = line.find_first_of( firstDataLine );
 
-        EXPECT_TRUE( line.find_first_of( firstDataLine ) != std::string::npos );
+        EXPECT_TRUE( foundPos != std::string::npos );
     }
 
     auto colHeaders = RifEclipseUserDataParserTools::splitIntoColumnHeaders( tableHeaderLines );
