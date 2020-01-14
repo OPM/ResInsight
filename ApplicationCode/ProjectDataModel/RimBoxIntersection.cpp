@@ -55,6 +55,8 @@ RimBoxIntersection::RimBoxIntersection()
 {
     CAF_PDM_InitObject( "Intersection Box", ":/IntersectionBox16x16.png", "", "" );
 
+    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
+
     CAF_PDM_InitField( &m_singlePlaneState,
                        "singlePlaneState",
                        caf::AppEnum<SinglePlaneState>( SinglePlaneState::PLANE_STATE_NONE ),
@@ -98,6 +100,30 @@ RimBoxIntersection::~RimBoxIntersection()
     {
         m_boxManipulator->deleteLater();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimBoxIntersection::userDescriptionField()
+{
+    return &m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimBoxIntersection::name() const
+{
+    return m_name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimBoxIntersection::setName( const QString& newName )
+{
+    m_name = newName;
 }
 
 //--------------------------------------------------------------------------------------------------

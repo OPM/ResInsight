@@ -31,14 +31,13 @@
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RivHexGridIntersectionTools.h"
 
-CAF_PDM_SOURCE_INIT( RimIntersection, "RimIntersectionHandle" );
+CAF_PDM_ABSTRACT_SOURCE_INIT( RimIntersection, "RimIntersectionHandle" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimIntersection::RimIntersection()
 {
-    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
@@ -50,22 +49,6 @@ RimIntersection::RimIntersection()
 ///
 //--------------------------------------------------------------------------------------------------
 RimIntersection::~RimIntersection() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimIntersection::name() const
-{
-    return m_name();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimIntersection::setName( const QString& newName )
-{
-    m_name = newName;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -135,14 +118,6 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf:
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimIntersection::userDescriptionField()
-{
-    return &m_name;
 }
 
 //--------------------------------------------------------------------------------------------------

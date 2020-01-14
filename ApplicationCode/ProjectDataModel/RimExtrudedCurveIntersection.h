@@ -81,6 +81,9 @@ public:
     caf::PdmField<bool> inputExtrusionPointsFromViewerEnabled;
     caf::PdmField<bool> inputTwoAzimuthPointsFromViewerEnabled;
 
+    QString name() const override;
+    void    setName( const QString& newName );
+
     std::vector<std::vector<cvf::Vec3d>> polyLines( cvf::Vec3d* flattenedPolylineStartPoint = nullptr ) const;
     void                                 appendPointToPolyLine( const cvf::Vec3d& point );
 
@@ -106,6 +109,7 @@ public:
     void rebuildGeometryAndScheduleCreateDisplayModel();
 
 protected:
+    caf::PdmFieldHandle*          userDescriptionField() override final;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                     const QVariant&            oldValue,
                                                     const QVariant&            newValue ) override;
@@ -117,6 +121,8 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
 private:
+    caf::PdmField<QString> m_name;
+
     caf::PdmField<int>    m_branchIndex;
     caf::PdmField<double> m_extentLength;
     caf::PdmField<double> m_azimuthAngle;

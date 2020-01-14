@@ -83,6 +83,7 @@ CAF_PDM_SOURCE_INIT( RimExtrudedCurveIntersection, "CrossSection" );
 RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 {
     CAF_PDM_InitObject( "Intersection", ":/CrossSection16x16.png", "", "" );
+    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &type, "Type", "Type", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &direction, "Direction", "Direction", "", "", "" );
@@ -138,6 +139,30 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 ///
 //--------------------------------------------------------------------------------------------------
 RimExtrudedCurveIntersection::~RimExtrudedCurveIntersection() {}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimExtrudedCurveIntersection::userDescriptionField()
+{
+    return &m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimExtrudedCurveIntersection::name() const
+{
+    return m_name();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::setName( const QString& newName )
+{
+    m_name = newName;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

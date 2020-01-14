@@ -62,6 +62,9 @@ public:
     RimBoxIntersection();
     ~RimBoxIntersection() override;
 
+    QString name() const override;
+    void    setName( const QString& newName );
+
     cvf::Mat4d       boxOrigin() const;
     cvf::Vec3d       boxSize() const;
     SinglePlaneState singlePlaneState() const;
@@ -76,6 +79,8 @@ public:
     void setToDefaultSizeSlice( SinglePlaneState plane, const cvf::Vec3d& position );
 
 protected:
+    caf::PdmFieldHandle* userDescriptionField() override final;
+
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
@@ -105,6 +110,8 @@ private:
     RiuViewer* viewer();
 
 private:
+    caf::PdmField<QString> m_name;
+
     caf::PdmField<caf::AppEnum<SinglePlaneState>> m_singlePlaneState;
 
     caf::PdmField<double> m_minXCoord;
