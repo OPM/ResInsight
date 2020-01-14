@@ -191,8 +191,7 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
     std::vector<double> xValues;
     std::vector<double> measuredDepths;
 
-    bool                isTVDAvailable    = false;
-    bool                isTVDRKBAvailable = false;
+    bool                isTVDAvailable = false;
     std::vector<double> tvDepths;
 
     auto mdIt  = m_depths.find( RiaDefines::MEASURED_DEPTH );
