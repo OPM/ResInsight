@@ -65,6 +65,10 @@ RimWellMeasurementInView::RimWellMeasurementInView()
     CAF_PDM_InitField( &m_upperBound, "UpperBound", HUGE_VAL, "Max", "", "", "" );
     m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitFieldNoDefault( &m_qualityFilter, "QualityFilter", "Quality Filter", "", "", "" );
+    m_qualityFilter.uiCapability()->setAutoAddingOptionFromValue( false );
+    m_qualityFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
     this->setName( "Well Measurement" );
 
     m_minimumResultValue = cvf::UNDEFINED_DOUBLE;
@@ -103,6 +107,8 @@ void RimWellMeasurementInView::defineUiOrdering( QString uiConfigName, caf::PdmU
         filterGroup.add( &m_lowerBound );
         filterGroup.add( &m_upperBound );
     }
+
+    uiOrdering.add( &m_qualityFilter );
 
     uiOrdering.skipRemainingFields();
 }
@@ -152,6 +158,14 @@ void RimWellMeasurementInView::rangeValues( double* lowerBound, double* upperBou
 {
     *lowerBound = m_lowerBound;
     *upperBound = m_upperBound;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RimWellMeasurementInView::qualityFilter() const
+{
+    return m_qualityFilter;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,6 +310,26 @@ QList<caf::PdmOptionItemInfo>
             }
         }
     }
+    else if ( fieldNeedingOptions == &m_qualityFilter )
+    {
+        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+        if ( wellPathCollection )
+        {
+            std::vector<RimWellMeasurement*> measurements = wellPathCollection->measurementCollection()->measurements();
+
+            // Find possible quality values for a given measurement kind
+            std::set<int> qualityValues;
+            for ( const auto& measurement : measurements )
+            {
+                if ( measurement->kind() == m_measurementKind ) qualityValues.insert( measurement->quality() );
+            }
+
+            for ( const auto& quality : qualityValues )
+            {
+                options.push_back( caf::PdmOptionItemInfo( QString::number( quality ), quality ) );
+            }
+        }
+    }
 
     return options;
 }
@@ -353,6 +387,30 @@ void RimWellMeasurementInView::setAllWellsSelected()
         for ( const auto& wellName : wellsWithMeasurementKind )
         {
             m_wells.v().push_back( wellName );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementInView::setAllQualitiesSelected()
+{
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    if ( wellPathCollection )
+    {
+        std::vector<RimWellMeasurement*> measurements = wellPathCollection->measurementCollection()->measurements();
+
+        // Find possible quality values for a given measurement kind
+        std::set<int> qualityValues;
+        for ( const auto& measurement : measurements )
+        {
+            if ( measurement->kind() == m_measurementKind ) qualityValues.insert( measurement->quality() );
+        }
+
+        for ( const auto& quality : qualityValues )
+        {
+            m_qualityFilter.v().push_back( quality );
         }
     }
 }

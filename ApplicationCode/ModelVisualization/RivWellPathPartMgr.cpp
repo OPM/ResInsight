@@ -286,13 +286,16 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
             double lowerBound = 0.0;
             double upperBound = 0.0;
             wellMeasurementInView->rangeValues( &lowerBound, &upperBound );
+            std::vector<int> qualityFilter = wellMeasurementInView->qualityFilter();
+
             std::vector<RimWellMeasurement*> wellMeasurements =
                 RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
                                                               *wellPathCollection,
                                                               *m_rimWellPath,
                                                               measurementKinds,
                                                               lowerBound,
-                                                              upperBound );
+                                                              upperBound,
+                                                              qualityFilter );
 
             RivPipeGeometryGenerator geoGenerator;
             for ( RimWellMeasurement* wellMeasurement : wellMeasurements )
