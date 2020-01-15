@@ -32,6 +32,7 @@ add_executable (${PROJECT_NAME}
 	cafPdmXmlBasicTest.cpp
 	cafPdmAdvancedTemplateTest.cpp
 	cafPdmXmlNumberTest.cpp
+	cafPdmPtrArrayTest.cpp
 )
 
 if (Qt5Core_FOUND)
