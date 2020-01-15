@@ -57,14 +57,10 @@ void RigNNCData::processConnections( const RigMainGrid& mainGrid )
             // Found an overlap polygon. Store data about connection
 
             m_connections[cnIdx].m_c1Face = connectionFace;
-            for ( size_t pIdx = 0; pIdx < connectionPolygon.size(); ++pIdx )
-            {
-                if ( connectionPolygon[pIdx] < mainGrid.nodes().size() )
-                    m_connections[cnIdx].m_polygon.push_back( mainGrid.nodes()[connectionPolygon[pIdx]] );
-                else
-                    m_connections[cnIdx].m_polygon.push_back(
-                        connectionIntersections[connectionPolygon[pIdx] - mainGrid.nodes().size()] );
-            }
+
+            m_connections[cnIdx].m_polygon = RigCellFaceGeometryTools::extractPolygon( mainGrid.nodes(),
+                                                                                       connectionPolygon,
+                                                                                       connectionIntersections );
 
             // Add to search map, possibly not needed
             // m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c1GlobIdx][connectionFace].push_back(cnIdx);
@@ -76,6 +72,18 @@ void RigNNCData::processConnections( const RigMainGrid& mainGrid )
             // + "C2: " + cvf::String((int)m_connections[cnIdx].m_c2GlobIdx));
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigNNCData::computeNncsFromFaults( const RigMainGrid* mainGrid )
+{
+    m_nativeConnectionCount = m_connections.size();
+
+    std::vector<RigConnection> otherConnections = RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections );
+
+    m_connections.insert( m_connections.end(), otherConnections.begin(), otherConnections.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
