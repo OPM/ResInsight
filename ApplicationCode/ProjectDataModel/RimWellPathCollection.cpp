@@ -154,10 +154,6 @@ void RimWellPathCollection::loadDataAndUpdate()
                 QString errorMessage;
                 if ( !fWPath->readWellPathFile( &errorMessage, m_wellPathImporter ) )
                 {
-                    if ( RiaGuiApplication::isRunning() )
-                    {
-                        QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
-                    }
                     RiaLogging::warning( errorMessage );
                 }
             }
@@ -169,21 +165,7 @@ void RimWellPathCollection::loadDataAndUpdate()
                     QString errorMessage;
                     if ( !wellLogFile->readFile( &errorMessage ) )
                     {
-                        QString displayMessage = "Could not open the well log file: \n" + wellLogFile->fileName();
-
-                        if ( !errorMessage.isEmpty() )
-                        {
-                            displayMessage += "\n\n";
-                            displayMessage += errorMessage;
-                        }
-
                         RiaLogging::warning( errorMessage );
-                        if ( RiaGuiApplication::isRunning() )
-                        {
-                            QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
-                                                  "File open error",
-                                                  displayMessage );
-                        }
                     }
                 }
             }
