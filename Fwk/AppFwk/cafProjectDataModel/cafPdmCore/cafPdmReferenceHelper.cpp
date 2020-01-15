@@ -320,12 +320,12 @@ PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference(PdmFieldHandle* fr
 {
     if (!fromField) return nullptr;
     if (reference.isEmpty()) return nullptr;
+    if (reference.trimmed().isEmpty()) return nullptr;
 
     QStringList decodedReference = reference.split(QRegExp("\\s+"), QString::SkipEmptyParts);
     PdmObjectHandle* lastCommonAnchestor = fromField->ownerObject();
     CAF_ASSERT(lastCommonAnchestor);
-    CAF_ASSERT(decodedReference.size());
-
+ 
     while (!decodedReference.empty() && decodedReference.front() == "..")
     {
         PdmFieldHandle* parentField = lastCommonAnchestor->parentField();
