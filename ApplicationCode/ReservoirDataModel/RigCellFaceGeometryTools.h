@@ -26,6 +26,7 @@
 
 class RigCell;
 class RigMainGrid;
+class RigConnection;
 
 //==================================================================================================
 ///
@@ -38,4 +39,11 @@ public:
                                                                         const RigMainGrid&       mainGrid,
                                                                         std::vector<size_t>*     connectionPolygon,
                                                                         std::vector<cvf::Vec3d>* connectionIntersections );
+
+    static std::vector<RigConnection> computeOtherNncs( const RigMainGrid*                mainGrid,
+                                                        const std::vector<RigConnection>& nativeConnections );
+
+    static std::vector<cvf::Vec3d> extractPolygon( const std::vector<cvf::Vec3d>& nativeNodes,
+                                                   const std::vector<size_t>&     connectionPolygon,
+                                                   const std::vector<cvf::Vec3d>& connectionIntersections );
 };

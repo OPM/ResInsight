@@ -21,6 +21,8 @@
 
 #include "RiaNncDefines.h"
 
+#include "RigNncConnection.h"
+
 #include "cvfObject.h"
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"
@@ -32,28 +34,6 @@
 class RigMainGrid;
 class RigCell;
 class RigEclipseResultAddress;
-
-class RigConnection
-{
-public:
-    RigConnection()
-        : m_c1GlobIdx( cvf::UNDEFINED_SIZE_T )
-        , m_c1Face( cvf::StructGridInterface::NO_FACE )
-        , m_c2GlobIdx( cvf::UNDEFINED_SIZE_T )
-    {
-    }
-
-    bool hasCommonArea() const
-    {
-        return m_polygon.size() > 0;
-    }
-
-    size_t                             m_c1GlobIdx;
-    cvf::StructGridInterface::FaceType m_c1Face;
-    size_t                             m_c2GlobIdx;
-
-    std::vector<cvf::Vec3d> m_polygon;
-};
 
 class RigNNCData : public cvf::Object
 {
@@ -68,6 +48,7 @@ public:
     RigNNCData();
 
     void processConnections( const RigMainGrid& mainGrid );
+    void computeNncsFromFaults( const RigMainGrid* mainGrid );
 
     void setConnections( std::vector<RigConnection>& connections );
 
@@ -108,6 +89,7 @@ private:
 
 private:
     std::vector<RigConnection>                          m_connections;
+    size_t                                              m_nativeConnectionCount;
     std::map<QString, std::vector<std::vector<double>>> m_connectionResults;
     std::map<RigEclipseResultAddress, QString>          m_resultAddrToNNCDataType;
 };
