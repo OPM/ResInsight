@@ -247,24 +247,22 @@ std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const Rig
                     size_t ck = std::numeric_limits<size_t>::max();
                     mainGrid->ijkFromCellIndex( candidateCellIndex, &ci, &cj, &ck );
 
-                    if ( sourceCellFace == cvf::StructGridInterface::POS_I ||
-                         sourceCellFace == cvf::StructGridInterface::NEG_I )
+                    auto gridAxis = cvf::StructGridInterface::gridAxisFromFace( sourceCellFace );
+                    if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_I )
                     {
                         if ( ni != ci )
                         {
                             continue;
                         }
                     }
-                    else if ( sourceCellFace == cvf::StructGridInterface::POS_J ||
-                              sourceCellFace == cvf::StructGridInterface::NEG_J )
+                    else if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_J )
                     {
                         if ( nj != cj )
                         {
                             continue;
                         }
                     }
-                    else if ( sourceCellFace == cvf::StructGridInterface::POS_K ||
-                              sourceCellFace == cvf::StructGridInterface::NEG_K )
+                    else if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_K )
                     {
                         if ( nk != ck )
                         {
