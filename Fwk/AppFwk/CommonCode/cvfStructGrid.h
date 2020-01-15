@@ -70,6 +70,14 @@ public:
     typedef caf::AppEnum<StructGridInterface::FaceType> FaceEnum;
 
 
+    enum class GridAxisType
+    {
+        AXIS_I,
+        AXIS_J,
+        AXIS_K,
+        NO_AXIS
+    };
+
 public:
     StructGridInterface();
 
@@ -108,6 +116,8 @@ public:
     static void cellFaceVertexIndices(FaceType face, cvf::ubyte vertexIndices[4]);
     static FaceType oppositeFace(FaceType face);
     static void neighborIJKAtCellFace(size_t i, size_t j, size_t k, StructGridInterface::FaceType face, size_t* ni, size_t* nj, size_t* nk);
+
+    static GridAxisType gridAxisFromFace(FaceType face);
 
 private:
     mutable double m_characteristicCellSizeI;

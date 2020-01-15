@@ -291,13 +291,13 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints( const RigRange
                                   cvf::UNDEFINED_SIZE_T};
             for ( int faceIdx = 0; faceIdx < 6; ++faceIdx )
             {
+                auto gridAxis = cvf::StructGridInterface::gridAxisFromFace(
+                    cvf::StructGridInterface::FaceType( faceIdx ) );
+
                 int ijOrk = 0;
-                if ( faceIdx == cvf::StructGridInterface::POS_I || faceIdx == cvf::StructGridInterface::NEG_I )
-                    ijOrk = 0;
-                if ( faceIdx == cvf::StructGridInterface::POS_J || faceIdx == cvf::StructGridInterface::NEG_J )
-                    ijOrk = 1;
-                if ( faceIdx == cvf::StructGridInterface::POS_K || faceIdx == cvf::StructGridInterface::NEG_K )
-                    ijOrk = 2;
+                if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_I ) ijOrk = 0;
+                if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_J ) ijOrk = 1;
+                if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_K ) ijOrk = 2;
 
                 cvf::ubyte surfCorners[4];
                 cvf::StructGridInterface::cellFaceVertexIndices( (cvf::StructGridInterface::FaceType)faceIdx,

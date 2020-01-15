@@ -205,6 +205,29 @@ void StructGridInterface::neighborIJKAtCellFace(size_t i, size_t j, size_t k, Fa
 
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+StructGridInterface::GridAxisType StructGridInterface::gridAxisFromFace(FaceType face)
+{
+    GridAxisType axis = GridAxisType::NO_AXIS;
+
+    if (face == cvf::StructGridInterface::POS_I || face == cvf::StructGridInterface::NEG_I)
+    {
+        axis = GridAxisType::AXIS_I;
+    }
+    else if (face == cvf::StructGridInterface::POS_J || face == cvf::StructGridInterface::NEG_J)
+    {
+        axis = GridAxisType::AXIS_J;
+    }
+    else if (face == cvf::StructGridInterface::POS_K || face == cvf::StructGridInterface::NEG_K)
+    {
+        axis = GridAxisType::AXIS_K;
+    }
+
+    return axis;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Models with large absolute values for coordinate scalars will often end up with z-fighting due
 /// to numerical limits in float used by OpenGL. displayModelOffset() is intended
 //  to be subtracted from a domain model coordinate when building geometry

@@ -621,8 +621,9 @@ void RifEclipseInputFileTools::saveFault( QTextStream&                          
 
         if ( refinement != cvf::Vec3st( 1, 1, 1 ) )
         {
-            if ( faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_I ||
-                 faultCellAndFace.m_nativeFace == cvf::StructGridInterface::NEG_I )
+            auto gridAxis = cvf::StructGridInterface::gridAxisFromFace( faultCellAndFace.m_nativeFace );
+
+            if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_I )
             {
                 if ( faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_I )
                 {
@@ -639,8 +640,7 @@ void RifEclipseInputFileTools::saveFault( QTextStream&                          
                     }
                 }
             }
-            else if ( faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_J ||
-                      faultCellAndFace.m_nativeFace == cvf::StructGridInterface::NEG_J )
+            else if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_J )
             {
                 if ( faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_J )
                 {
@@ -658,8 +658,7 @@ void RifEclipseInputFileTools::saveFault( QTextStream&                          
                     }
                 }
             }
-            else if ( faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_K ||
-                      faultCellAndFace.m_nativeFace == cvf::StructGridInterface::NEG_K )
+            else if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_K )
             {
                 if ( faultCellAndFace.m_nativeFace == cvf::StructGridInterface::POS_K )
                 {
