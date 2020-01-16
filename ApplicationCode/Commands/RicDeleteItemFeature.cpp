@@ -152,6 +152,9 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     if ( dynamic_cast<RimGridCrossPlot*>( uiItem ) ) return true;
 
     if ( dynamic_cast<RimGridCrossPlotDataSet*>( uiItem ) ) return true;
+
+    if ( dynamic_cast<RimMultiPlot*>( uiItem ) ) return true;
+
     return false;
 }
 
