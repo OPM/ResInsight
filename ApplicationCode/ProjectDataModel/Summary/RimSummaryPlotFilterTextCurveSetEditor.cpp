@@ -427,6 +427,9 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineUiOrdering( QString uiConfigN
 void RimSummaryPlotFilterTextCurveSetEditor::setupBeforeSave()
 {
     m_curveFilterText = curveFilterTextWithoutOutdatedLabel();
+
+    // If a source case has been deleted, make sure null pointers are removed
+    m_selectedSources.removePtr( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
