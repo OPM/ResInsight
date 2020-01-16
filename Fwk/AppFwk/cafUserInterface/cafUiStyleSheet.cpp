@@ -216,6 +216,25 @@ void caf::UiStyleSheet::setWidgetState(QWidget* widget, QString stateTag, bool o
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void caf::UiStyleSheet::stashWidgetStates()
+{
+    m_stashedStates.swap(m_states);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void caf::UiStyleSheet::restoreWidgetStates()
+{
+    if (!m_stashedStates.empty())
+    {
+        m_stashedStates.swap(m_states);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString caf::UiStyleSheet::fullText(const QString& className, const QString& objectName, bool applyToSubClasses) const
 {
     QStringList stateTexts;
