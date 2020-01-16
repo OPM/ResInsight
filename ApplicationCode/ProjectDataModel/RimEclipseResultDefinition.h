@@ -173,6 +173,7 @@ protected:
     caf::PdmField<caf::AppEnum<RiaDefines::PorosityModelType>> m_porosityModel;
     caf::PdmField<QString>                                     m_resultVariable;
     caf::PdmField<int>                                         m_timeLapseBaseTimestep;
+    caf::PdmField<QString>                                     m_inputPropertyFileName;
 
     caf::PdmPtrField<RimEclipseCase*> m_differenceCase;
 
@@ -251,6 +252,8 @@ private:
 
     void ensureProcessingOfObsoleteFields();
     bool isTernaryEnabled() const;
+
+    QString getInputPropertyFileName( const QString& resultName ) const;
 
 private:
     bool                             m_diffResultOptionsEnabled;

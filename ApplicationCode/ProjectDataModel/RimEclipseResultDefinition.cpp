@@ -45,6 +45,8 @@
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
@@ -154,6 +156,10 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     m_resultVariableUiField.xmlCapability()->disableIO();
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( m_labelPosition );
+
+    CAF_PDM_InitFieldNoDefault( &m_inputPropertyFileName, "InputPropertyFileName", "File Name", "", "", "" );
+    m_inputPropertyFileName.xmlCapability()->disableIO();
+    m_inputPropertyFileName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowSolutionUiField, "MFlowDiagSolution", "Solution", "", "", "" );
     m_flowSolutionUiField.xmlCapability()->disableIO();
@@ -306,6 +312,10 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
         else if ( m_resultTypeUiField() == RiaDefines::INJECTION_FLOODING )
         {
             m_selectedSouringTracers = m_selectedSouringTracersUiField();
+        }
+        else if ( m_resultTypeUiField() == RiaDefines::INPUT_PROPERTY )
+        {
+            m_inputPropertyFileName = getInputPropertyFileName( newValue.toString() );
         }
         loadDataAndUpdate();
     }
@@ -1460,13 +1470,10 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
         uiOrdering.add( &m_selectedSouringTracersUiField );
     }
 
-    if ( m_resultTypeUiField() == RiaDefines::FLOW_DIAGNOSTICS )
+    uiOrdering.add( &m_resultVariableUiField );
+    if ( m_resultTypeUiField() == RiaDefines::INPUT_PROPERTY )
     {
-        uiOrdering.add( &m_resultVariableUiField );
-    }
-    else
-    {
-        uiOrdering.add( &m_resultVariableUiField );
+        uiOrdering.add( &m_inputPropertyFileName );
     }
 
     if ( isCaseDiffResultAvailable() || isTimeDiffResultAvailable() )
@@ -2559,4 +2566,28 @@ void RimEclipseResultDefinition::ensureProcessingOfObsoleteFields()
             setSelectedProducerTracers( selectedProducerTracers );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseResultDefinition::getInputPropertyFileName( const QString& resultName ) const
+{
+    RimEclipseCase* eclipseCase;
+    this->firstAncestorOrThisOfType( eclipseCase );
+
+    if ( eclipseCase )
+    {
+        RimEclipseInputPropertyCollection* inputPropertyCollection = eclipseCase->inputPropertyCollection();
+        if ( inputPropertyCollection )
+        {
+            RimEclipseInputProperty* inputProperty = inputPropertyCollection->findInputProperty( resultName );
+            if ( inputProperty )
+            {
+                return inputProperty->fileName.v().path();
+            }
+        }
+    }
+
+    return "";
 }
