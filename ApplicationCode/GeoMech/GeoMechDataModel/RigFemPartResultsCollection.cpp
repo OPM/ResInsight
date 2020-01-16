@@ -400,6 +400,13 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["ST"].push_back( "S3inc" );
             fieldCompNames["ST"].push_back( "S3azi" );
 
+            fieldCompNames["SG"].push_back( "S11" );
+            fieldCompNames["SG"].push_back( "S22" );
+            fieldCompNames["SG"].push_back( "S33" );
+            fieldCompNames["SG"].push_back( "S12" );
+            fieldCompNames["SG"].push_back( "S13" );
+            fieldCompNames["SG"].push_back( "S23" );
+
             fieldCompNames["Gamma"].push_back( "Gamma1" );
             fieldCompNames["Gamma"].push_back( "Gamma2" );
             fieldCompNames["Gamma"].push_back( "Gamma3" );
@@ -971,6 +978,49 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSTM( i
         for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
         {
             dstFrameData[vIdx] = ( st11Data[vIdx] + st22Data[vIdx] + st33Data[vIdx] ) / 3.0f;
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradient( int                        partIndex,
+                                                                                const RigFemResultAddress& resVarAddr )
+{
+    CVF_ASSERT( resVarAddr.fieldName == "SG" );
+
+    caf::ProgressInfo frameCountProgress( this->frameCount() * 2, "" );
+    frameCountProgress.setProgressDescription(
+        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    frameCountProgress.setNextProgressIncrement( this->frameCount() );
+
+    RigFemScalarResultFrames* st11 = this->findOrLoadScalarResult( partIndex,
+                                                                   RigFemResultAddress( resVarAddr.resultPosType,
+                                                                                        "SE",
+                                                                                        resVarAddr.componentName ) );
+
+    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
+
+    frameCountProgress.incrementProgress();
+
+    int frameCount = st11->frameCount();
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        const std::vector<float>& st11Data = st11->frameData( fIdx );
+
+        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
+        size_t              valCount     = st11Data.size();
+        dstFrameData.resize( valCount );
+
+#pragma omp parallel for
+        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+        {
+            dstFrameData[vIdx] = st11Data[vIdx];
         }
 
         frameCountProgress.incrementProgress();
@@ -2158,6 +2208,14 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
     if ( resVarAddr.fieldName == "ST" && resVarAddr.componentName == "STM" )
     {
         return calculateMeanStressSTM( partIndex, resVarAddr );
+    }
+
+    // TODO: handle more cases..
+    if ( resVarAddr.fieldName == "SG" && ( resVarAddr.componentName == "S11" || resVarAddr.componentName == "S22" ||
+                                           resVarAddr.componentName == "S33" || resVarAddr.componentName == "S12" ||
+                                           resVarAddr.componentName == "S13" || resVarAddr.componentName == "S23" ) )
+    {
+        return calculateStressGradient( partIndex, resVarAddr );
     }
 
     if ( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SEM" )
