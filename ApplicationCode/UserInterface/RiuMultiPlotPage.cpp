@@ -98,7 +98,7 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
 
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
 
-    this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::MinimumExpanding );
+    this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
 
     setFocusPolicy( Qt::StrongFocus );
 
@@ -627,7 +627,7 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             }
             for ( int c = column; c < column + colSpan; ++c )
             {
-                int colStretch = 6;
+                int colStretch = 6; // Empirically chosen to try to counter the width of the axis on the first track
                 if ( showYAxis( row, column ) ) colStretch += 1;
                 m_gridLayout->setColumnStretch( c, std::max( colStretch, m_gridLayout->columnStretch( c ) ) );
             }

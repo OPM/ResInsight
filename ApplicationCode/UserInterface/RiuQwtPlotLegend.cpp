@@ -36,6 +36,7 @@ RiuQwtPlotLegend::RiuQwtPlotLegend( QWidget* parent /*= nullptr */ )
     {
         legendLayout->setExpandingDirections( Qt::Horizontal | Qt::Vertical );
     }
+    setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
 }
 
 //--------------------------------------------------------------------------------------------------
