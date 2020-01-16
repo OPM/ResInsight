@@ -36,6 +36,7 @@
 #include "RigFemPartResults.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigFormationNames.h"
+#include "RigHexGradientTools.h"
 #include "RigHexIntersectionTools.h"
 #include "RigStatisticsDataCache.h"
 #include "RigWbsParameter.h"
@@ -46,10 +47,9 @@
 #include "RimWellLogPlotCollection.h"
 
 #include "cafProgressInfo.h"
-#include "cvfBoundingBox.h"
-
-#include "cafProgressInfo.h"
 #include "cafTensor3.h"
+
+#include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 #include "cvfMath.h"
 
@@ -1008,6 +1008,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradient( 
 
     frameCountProgress.incrementProgress();
 
+    const RigFemPart*              femPart      = m_femParts->part( partIndex );
+    int                            elementCount = femPart->elementCount();
+    const std::vector<cvf::Vec3f>& nodeCoords   = femPart->nodes().coordinates;
+
     int frameCount = st11->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
@@ -1017,10 +1021,40 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradient( 
         size_t              valCount     = st11Data.size();
         dstFrameData.resize( valCount );
 
-#pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+#pragma omp parallel for schedule( dynamic )
+        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
         {
-            dstFrameData[vIdx] = st11Data[vIdx];
+            const int*     cornerIndices = femPart->connectivities( elmIdx );
+            RigElementType elmType       = femPart->elementType( elmIdx );
+
+            if ( !( elmType == HEX8P || elmType == HEX8 ) ) continue;
+
+            // Find the corner coordinates for element
+            std::array<cvf::Vec3d, 8> hexCorners;
+            for ( int i = 0; i < 8; i++ )
+            {
+                hexCorners[i] = cvf::Vec3d( nodeCoords[cornerIndices[i]] );
+            }
+
+            // Find the corresponding corner values for the element
+            std::array<double, 8> cornerValues;
+
+            int elmNodeCount = RigFemTypes::elmentNodeCount( elmType );
+            for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+            {
+                size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                int    nodeIdx      = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
+
+                cornerValues[elmNodIdx] = st11Data[nodeIdx];
+            }
+
+            std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
+
+            for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+            {
+                size_t elmNodResIdx        = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                dstFrameData[elmNodResIdx] = gradients[elmNodIdx].x();
+            }
         }
 
         frameCountProgress.incrementProgress();
