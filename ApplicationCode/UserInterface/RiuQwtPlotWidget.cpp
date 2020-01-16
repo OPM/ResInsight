@@ -74,6 +74,8 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
 
     this->installEventFilter( this );
     this->canvas()->installEventFilter( this );
+
+    this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
 }
 
 //--------------------------------------------------------------------------------------------------
