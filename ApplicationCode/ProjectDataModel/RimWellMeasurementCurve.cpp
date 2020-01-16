@@ -120,12 +120,13 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         trueVerticalDepthValues.push_back(
                             -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
                     }
-                    this->setValuesAndDepths( values,
-                                              measuredDepthValues,
-                                              RiaDefines::TRUE_VERTICAL_DEPTH,
-                                              rigWellPath->rkbDiff(),
-                                              RiaDefines::UNIT_METER,
-                                              false );
+
+                    this->setValuesWithMdAndTVD( values,
+                                                 measuredDepthValues,
+                                                 trueVerticalDepthValues,
+                                                 m_wellPath->wellPathGeometry()->rkbDiff(),
+                                                 RiaDefines::UNIT_METER,
+                                                 false );
                 }
                 else
                 {
