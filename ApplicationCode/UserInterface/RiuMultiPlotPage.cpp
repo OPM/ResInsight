@@ -160,6 +160,7 @@ void RiuMultiPlotPage::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
     QString subTitleText = plotWidget->plotTitle();
     QLabel* subTitle     = new QLabel( subTitleText );
     subTitle->setAlignment( Qt::AlignHCenter );
+    subTitle->setWordWrap( true );
     subTitle->setVisible( false );
     m_subTitles.insert( static_cast<int>( index ), subTitle );
 
