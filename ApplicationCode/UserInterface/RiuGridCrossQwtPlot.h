@@ -27,6 +27,7 @@
 
 #include <memory>
 
+class RimGridCrossPlot;
 class RimGridCrossPlotDataSet;
 class RimPlotAxisProperties;
 class RimPlot;
@@ -45,22 +46,23 @@ class TitledOverlayFrame;
 //
 //
 //==================================================================================================
-class RiuGridCrossQwtPlot : public RiuQwtPlotWidget, public RiuInterfaceToViewWindow
+class RiuGridCrossQwtPlot : public RiuQwtPlotWidget
 {
     Q_OBJECT;
 
 public:
-    RiuGridCrossQwtPlot( RimPlot* plotDefinition, QWidget* parent = nullptr );
+    RiuGridCrossQwtPlot( RimGridCrossPlot* crossPlot, QWidget* parent = nullptr );
     ~RiuGridCrossQwtPlot();
 
     RiuGridCrossQwtPlot( const RiuGridCrossQwtPlot& ) = delete;
 
     void updateAnnotationObjects( RimPlotAxisProperties* axisProperties );
 
-    RimViewWindow* ownerViewWindow() const override;
-
     void setLegendFontSize( int fontSize );
     void setInternalQwtLegendVisible( bool visible );
+
+signals:
+    void plotZoomed();
 
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;

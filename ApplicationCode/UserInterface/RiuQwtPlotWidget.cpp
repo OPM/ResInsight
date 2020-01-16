@@ -23,9 +23,7 @@
 #include "RiaFontCache.h"
 #include "RiaGuiApplication.h"
 #include "RiaPlotWindowRedrawScheduler.h"
-
 #include "RimPlot.h"
-#include "RimPlotCurve.h"
 
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindowTools.h"
@@ -66,12 +64,12 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plot, QWidget* parent )
+RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     : QwtPlot( parent )
-    , m_plotDefinition( plot )
-    , m_draggable( true )
+    , m_plotDefinition( plotDefinition )
     , m_overlayMargins( 5 )
 {
+    CAF_ASSERT( m_plotDefinition );
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
 
     this->installEventFilter( this );
@@ -92,22 +90,45 @@ RiuQwtPlotWidget::~RiuQwtPlotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPlot* RiuQwtPlotWidget::plotDefinition()
+{
+    return m_plotDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiuQwtPlotWidget::isChecked() const
 {
     if ( m_plotDefinition )
     {
         return m_plotDefinition->showWindow();
     }
-
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setDraggable( bool draggable )
+int RiuQwtPlotWidget::colSpan() const
 {
-    m_draggable = draggable;
+    if ( m_plotDefinition )
+    {
+        return m_plotDefinition->colSpan();
+    }
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuQwtPlotWidget::rowSpan() const
+{
+    if ( m_plotDefinition )
+    {
+        return m_plotDefinition->rowSpan();
+    }
+    return 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,14 +184,6 @@ void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis     axis,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlot* RiuQwtPlotWidget::plotDefinition() const
-{
-    return m_plotDefinition;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisTitleText( QwtPlot::Axis axis, const QString& title )
 {
     m_axisTitles[axis] = title;
@@ -184,6 +197,40 @@ void RiuQwtPlotWidget::setAxisTitleEnabled( QwtPlot::Axis axis, bool enable )
 {
     m_axisTitlesEnabled[axis] = enable;
     applyAxisTitleToQwt( axis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setPlotTitle( const QString& plotTitle )
+{
+    m_plotTitle = plotTitle;
+    applyPlotTitleToQwt();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RiuQwtPlotWidget::plotTitle() const
+{
+    return m_plotTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setPlotTitleEnabled( bool enabled )
+{
+    m_plotTitleEnabled = enabled;
+    applyPlotTitleToQwt();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuQwtPlotWidget::plotTitleEnabled() const
+{
+    return m_plotTitleEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -402,6 +449,22 @@ void RiuQwtPlotWidget::scheduleReplot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::stashWidgetStates()
+{
+    m_plotStyleSheet.stashWidgetStates();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::restoreWidgetStates()
+{
+    m_plotStyleSheet.restoreWidgetStates();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setWidgetState( const QString& widgetState )
 {
     caf::UiStyleSheet::clearWidgetStates( this );
@@ -445,24 +508,17 @@ void RiuQwtPlotWidget::updateLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QSize RiuQwtPlotWidget::sizeHint() const
-{
-    return QSize( 0, 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QSize RiuQwtPlotWidget::minimumSizeHint() const
-{
-    return QSize( 0, 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 {
+    QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>( event );
+    if ( wheelEvent && watched == canvas() )
+    {
+        event->accept();
+
+        emit onWheelEvent( wheelEvent );
+        return true;
+    }
+
     QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>( event );
     if ( mouseEvent )
     {
@@ -470,48 +526,32 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 
         bool toggleItemInSelection = ( mouseEvent->modifiers() & Qt::ControlModifier ) != 0;
 
-        if ( m_draggable && mouseEvent->type() == QMouseEvent::MouseButtonPress && mouseEvent->button() == Qt::LeftButton )
+        if ( mouseEvent->type() == QMouseEvent::MouseButtonPress && mouseEvent->button() == Qt::LeftButton )
         {
             m_clickPosition = mouseEvent->pos();
         }
 
         if ( watched == this && !this->canvas()->geometry().contains( mouseEvent->pos() ) )
         {
-            if ( m_draggable && mouseEvent->type() == QMouseEvent::MouseMove &&
-                 ( mouseEvent->buttons() & Qt::LeftButton ) && !m_clickPosition.isNull() )
-            {
-                int dragLength = ( mouseEvent->pos() - m_clickPosition ).manhattanLength();
-                if ( dragLength >= QApplication::startDragDistance() )
-                {
-                    QPixmap    pixmap   = this->grab();
-                    QDrag*     drag     = new QDrag( this );
-                    QMimeData* mimeData = new QMimeData;
-                    mimeData->setImageData( pixmap );
-                    drag->setMimeData( mimeData );
-                    drag->setPixmap( pixmap );
-                    drag->setHotSpot( mouseEvent->pos() );
-                    drag->exec( Qt::MoveAction );
-                    return true;
-                }
-            }
-            else if ( mouseEvent->type() == QMouseEvent::MouseButtonRelease &&
-                      ( mouseEvent->button() == Qt::LeftButton ) && !m_clickPosition.isNull() )
+            if ( mouseEvent->type() == QMouseEvent::MouseButtonRelease && ( mouseEvent->button() == Qt::LeftButton ) &&
+                 !m_clickPosition.isNull() )
             {
                 QWidget* childClicked = this->childAt( m_clickPosition );
-
                 if ( childClicked )
                 {
                     QwtScaleWidget* scaleWidget = qobject_cast<QwtScaleWidget*>( childClicked );
                     if ( scaleWidget )
                     {
                         onAxisSelected( scaleWidget, toggleItemInSelection );
+                        m_clickPosition = QPoint();
                         return true;
                     }
                 }
                 else
                 {
-                    selectPlotOwner( toggleItemInSelection );
                     endZoomOperations();
+                    emit plotSelected( toggleItemInSelection );
+                    m_clickPosition = QPoint();
                     return true;
                 }
             }
@@ -521,8 +561,9 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
             if ( mouseEvent->type() == QMouseEvent::MouseButtonRelease && mouseEvent->button() == Qt::LeftButton &&
                  !m_clickPosition.isNull() )
             {
-                selectClosestCurve( mouseEvent->pos(), toggleItemInSelection );
                 endZoomOperations();
+                selectClosestCurve( mouseEvent->pos(), toggleItemInSelection );
+                m_clickPosition = QPoint();
                 return true;
             }
         }
@@ -561,6 +602,28 @@ void RiuQwtPlotWidget::resizeEvent( QResizeEvent* event )
     QwtPlot::resizeEvent( event );
     updateOverlayFrameLayout();
     event->accept();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::keyPressEvent( QKeyEvent* event )
+{
+    emit onKeyPressEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::applyPlotTitleToQwt()
+{
+    QString plotTitleToApply = m_plotTitleEnabled ? m_plotTitle : QString( "" );
+    QwtText plotTitle        = this->title();
+    if ( plotTitleToApply != plotTitle.text() )
+    {
+        plotTitle.setText( plotTitleToApply );
+        setTitle( plotTitle );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -687,7 +750,7 @@ void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInS
             axisId = i;
         }
     }
-    m_plotDefinition->onAxisSelected( axisId, toggleItemInSelection );
+    emit axisSelected( axisId, toggleItemInSelection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -706,19 +769,6 @@ caf::UiStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
 
     styleSheet.property( "selected" ).set( "border", QString( "1px solid %1" ).arg( highlightColor.name() ) );
 
-    if ( m_draggable )
-    {
-        QString backgroundGradient = QString( QString( "qlineargradient( x1 : 1, y1 : 0, x2 : 1, y2 : 1,"
-                                                       "stop: 0 %1, stop: 0.02 %2, stop:1 %3 )" )
-                                                  .arg( blendedHighlightColor.name() )
-                                                  .arg( nearlyBackgroundColor.name() )
-                                                  .arg( backgroundColor.name() ) );
-
-        styleSheet.pseudoState( "hover" ).set( "background", backgroundGradient );
-        styleSheet.pseudoState( "hover" ).set( "border", QString( "1px dashed %1" ).arg( blendedHighlightColor.name() ) );
-    }
-    styleSheet.property( "dropTargetBefore" ).set( "border-left", "1px solid lime" );
-    styleSheet.property( "dropTargetAfter" ).set( "border-right", "1px solid lime" );
     return styleSheet;
 }
 
@@ -787,22 +837,6 @@ void RiuQwtPlotWidget::updateOverlayFrameLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::selectPlotOwner( bool toggleItemInSelection )
-{
-    if ( toggleItemInSelection )
-    {
-        RiuPlotMainWindowTools::toggleItemInSelection( m_plotDefinition );
-    }
-    else
-    {
-        RiuPlotMainWindowTools::selectAsCurrentItem( m_plotDefinition );
-    }
-    scheduleReplot();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::selectClosestCurve( const QPoint& pos, bool toggleItemInSelection /*= false*/ )
 {
     QwtPlotCurve* closestCurve      = nullptr;
@@ -830,24 +864,10 @@ void RiuQwtPlotWidget::selectClosestCurve( const QPoint& pos, bool toggleItemInS
     resetCurveHighlighting();
     if ( closestCurve && distMin < 20 )
     {
-        if ( m_plotDefinition )
-        {
-            RimPlotCurve* selectedCurve = dynamic_cast<RimPlotCurve*>(
-                m_plotDefinition->findPdmObjectFromQwtCurve( closestCurve ) );
-            if ( selectedCurve )
-            {
-                if ( toggleItemInSelection )
-                {
-                    RiuPlotMainWindowTools::toggleItemInSelection( selectedCurve );
-                }
-                else
-                {
-                    RiuPlotMainWindowTools::selectAsCurrentItem( selectedCurve );
-                }
-                // TODO: highlight all selected curves
-                highlightCurve( closestCurve );
-            }
-        }
+        // TODO: highlight all selected curves
+        highlightCurve( closestCurve );
+        emit curveSelected( closestCurve, toggleItemInSelection );
+
         if ( distMin < 10 )
         {
             selectPoint( closestCurve, closestCurvePoint );
@@ -860,7 +880,7 @@ void RiuQwtPlotWidget::selectClosestCurve( const QPoint& pos, bool toggleItemInS
     }
     else
     {
-        selectPlotOwner( toggleItemInSelection );
+        emit plotSelected( toggleItemInSelection );
     }
 }
 

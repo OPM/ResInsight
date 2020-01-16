@@ -77,7 +77,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.h
-${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotWindow.h
+${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurve.h
@@ -229,7 +229,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotWindow.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.cpp
@@ -310,5 +310,8 @@ list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
+list(APPEND QT_MOC_HEADERS
+${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
+)
 
 source_group( "ProjectDataModel" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

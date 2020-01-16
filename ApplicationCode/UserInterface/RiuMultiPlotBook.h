@@ -18,8 +18,7 @@
 #pragma once
 
 #include "RiuInterfaceToViewWindow.h"
-#include "RiuMultiPlotInterface.h"
-
+#include "RiuMultiPlotPage.h"
 #include "cafUiStyleSheet.h"
 
 #include "cafPdmPointer.h"
@@ -35,7 +34,7 @@
 #include <map>
 
 class RiaPlotWindowRedrawScheduler;
-class RimMultiPlotWindow;
+class RimMultiPlot;
 class RiuMultiPlotPage;
 class RiuQwtPlotWidget;
 
@@ -49,42 +48,43 @@ class QwtPlot;
 
 //==================================================================================================
 //
-// RiuMultiPlotWidget
+// RiuMultiPlotWindow
 //
 //==================================================================================================
-class RiuMultiPlotWindow : public RiuMultiPlotInterface, public RiuInterfaceToViewWindow
+class RiuMultiPlotBook : public QWidget, public RiuInterfaceToViewWindow
 {
     Q_OBJECT
 
 public:
-    RiuMultiPlotWindow( RimMultiPlotWindow* plotDefinition, QWidget* parent = nullptr );
-    ~RiuMultiPlotWindow() override;
+    using ColumnCount = RiuMultiPlotPage::ColumnCount;
 
-    RimMultiPlotWindow* ownerPlotDefinition();
-    RimViewWindow*      ownerViewWindow() const override;
+public:
+    RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* parent = nullptr );
+    ~RiuMultiPlotBook() override;
 
-    void addPlot( RiuQwtPlotWidget* plotWidget ) override;
-    void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index ) override;
-    void removePlot( RiuQwtPlotWidget* plotWidget ) override;
+    RimViewWindow* ownerViewWindow() const override;
 
-    void setPlotTitle( const QString& plotTitle ) override;
+    void addPlot( RiuQwtPlotWidget* plotWidget );
+    void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
+    void removePlot( RiuQwtPlotWidget* plotWidget );
 
-    void setTitleVisible( bool visible ) override;
-    void setSelectionsVisible( bool visible );
+    void setPlotTitle( const QString& plotTitle );
+
+    void setTitleVisible( bool visible );
+    void setSubTitlesVisible( bool visible );
 
     void setFontSize( int fontSize );
     int  fontSize() const;
 
     int indexOfPlotWidget( RiuQwtPlotWidget* plotWidget );
 
-    bool previewModeEnabled() const override;
-    void setPreviewModeEnabled( bool previewMode ) override;
+    bool previewModeEnabled() const;
+    void setPreviewModeEnabled( bool previewMode );
 
     void scheduleUpdate();
     void scheduleReplotOfAllPlots();
-    void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) override {}
 
-    void renderTo( QPaintDevice* painter ) override;
+    void renderTo( QPaintDevice* painter );
 
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
@@ -104,6 +104,7 @@ private:
     void                                     deleteAllPages();
     void                                     createPages();
     const QList<QPointer<RiuMultiPlotPage>>& pages() const;
+    RiuMultiPlotPage*                        createPage();
 
 private slots:
     virtual void performUpdate();
@@ -116,10 +117,11 @@ protected:
     QPointer<BookFrame>   m_book;
     QPointer<QVBoxLayout> m_bookLayout;
 
-    QList<QPointer<RiuMultiPlotPage>>   m_pages;
-    QList<QPointer<RiuQwtPlotWidget>>   m_plotWidgets;
-    caf::PdmPointer<RimMultiPlotWindow> m_plotDefinition;
-    QString                             m_plotTitle;
-    bool                                m_titleVisible;
-    bool                                m_previewMode;
+    QList<QPointer<RiuMultiPlotPage>> m_pages;
+    QList<QPointer<RiuQwtPlotWidget>> m_plotWidgets;
+    caf::PdmPointer<RimMultiPlot>     m_plotDefinition;
+    QString                           m_plotTitle;
+    bool                              m_titleVisible;
+    bool                              m_subTitlesVisible;
+    bool                              m_previewMode;
 };

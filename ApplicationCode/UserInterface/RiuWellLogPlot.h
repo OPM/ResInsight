@@ -23,7 +23,7 @@
 class RiuQwtPlotWidget;
 class RimWellLogPlot;
 
-class RiuWellLogPlot : public RiuMultiPlotPage, public RiuInterfaceToViewWindow
+class RiuWellLogPlot : public RiuMultiPlotPage
 {
     Q_OBJECT
 public:
@@ -35,8 +35,6 @@ public:
     void renderTo( QPaintDevice* paintDevice ) override;
 
 protected:
-    void keyPressEvent( QKeyEvent* event ) override;
-    bool willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const override;
     bool showYAxis( int row, int column ) const override;
 
     void reinsertScrollbar();

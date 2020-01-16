@@ -19,8 +19,10 @@
 #pragma once
 
 #include "RiaDefines.h"
-#include "RimMultiPlotWindow.h"
+#include "RimPlotWindow.h"
 
+#include "cafPdmChildArrayField.h"
+#include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
 #include <QPointer>
@@ -29,7 +31,9 @@
 
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
+class RimPlot;
 class RigTofWellDistributionCalculator;
+class RiuMultiPlotPage;
 
 class QTextBrowser;
 class QwtPlot;
@@ -39,7 +43,7 @@ class QwtPlot;
 //
 //
 //==================================================================================================
-class RimWellDistributionPlotCollection : public RimMultiPlotWindow
+class RimWellDistributionPlotCollection : public RimPlotWindow
 {
     CAF_PDM_HEADER_INIT;
 
@@ -49,6 +53,11 @@ public:
 
     void setData( RimEclipseResultCase* eclipseCase, QString wellName, int timeStepIndex );
 
+    QWidget* viewWidget() override;
+    QString  description() const override;
+    QImage   snapshotWindowContent() override;
+    void     zoomAll() override;
+
 private:
     // RimPlotWindow overrides
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -57,12 +66,20 @@ private:
                                                     const QVariant&            oldValue,
                                                     const QVariant&            newValue ) override;
 
-    void onLoadDataAndUpdate() override;
+    void     onLoadDataAndUpdate() override;
+    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+    void     deleteViewWidget() override;
+
+    void doRenderWindowContent( QPaintDevice* paintDevice ) override;
 
 private:
+    void addPlot( RimPlot* plot );
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fixupDependentFieldsAfterCaseChange();
     void applyPlotParametersToContainedPlots();
+    void updatePlots();
+    void cleanupBeforeClose();
+    void recreatePlotWidgets();
 
 private:
     caf::PdmPtrField<RimEclipseResultCase*> m_case;
@@ -72,7 +89,12 @@ private:
     caf::PdmField<double>                   m_smallContributionsRelativeThreshold;
     caf::PdmField<double>                   m_maximumTof;
 
+    caf::PdmField<QString>            m_plotWindowTitle;
+    caf::PdmChildArrayField<RimPlot*> m_plots;
+
     caf::PdmField<bool> m_showOil;
     caf::PdmField<bool> m_showGas;
     caf::PdmField<bool> m_showWater;
+
+    QPointer<RiuMultiPlotPage> m_viewer;
 };

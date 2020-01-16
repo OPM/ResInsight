@@ -97,7 +97,6 @@ RicSummaryCurveCreator::RicSummaryCurveCreator()
     CAF_PDM_InitFieldNoDefault( &m_regionAppearanceType, "RegionAppearanceType", "Region", "", "", "" );
 
     m_previewPlot.reset( new RimSummaryPlot() );
-    m_previewPlot->setDraggable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_useAutoPlotTitleProxy, "UseAutoPlotTitle", "Auto Plot Title", "", "", "" );
     m_useAutoPlotTitleProxy.registerGetMethod( this, &RicSummaryCurveCreator::proxyPlotAutoTitle );

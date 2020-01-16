@@ -23,6 +23,7 @@
 #include "RimFlowPlotCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
+#include "RimMultiPlot.h"
 #include "RimMultiPlotCollection.h"
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
@@ -262,7 +263,7 @@ void RimMainPlotCollection::updatePlotsWithFormations()
 
     if ( m_multiPlotCollection )
     {
-        for ( RimMultiPlotWindow* plotWindow : m_multiPlotCollection->multiPlots() )
+        for ( RimMultiPlot* plotWindow : m_multiPlotCollection->multiPlots() )
         {
             plotWindow->loadDataAndUpdate();
         }
@@ -284,7 +285,7 @@ void RimMainPlotCollection::updatePlotsWithCompletions()
 
     if ( m_multiPlotCollection )
     {
-        for ( RimMultiPlotWindow* plotWindow : m_multiPlotCollection->multiPlots() )
+        for ( RimMultiPlot* plotWindow : m_multiPlotCollection->multiPlots() )
         {
             plotWindow->loadDataAndUpdate();
         }

@@ -25,7 +25,7 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotWidget.h"
 
-#include "RimMultiPlotWindow.h"
+#include "RimMultiPlot.h"
 #include "RimPlotWindow.h"
 #include "RimWellLogTrack.h"
 
@@ -50,7 +50,7 @@ bool RicDeleteSubPlotFeature::isCommandEnabled()
         size_t plotsSelected = 0;
         for ( caf::PdmObject* object : selection )
         {
-            RimMultiPlotWindow* multiPlot = nullptr;
+            RimMultiPlot* multiPlot = nullptr;
             object->firstAncestorOrThisOfType( multiPlot );
             if ( dynamic_cast<RimPlotWindow*>( object ) && multiPlot )
             {
@@ -72,11 +72,11 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 
     std::vector<RimPlot*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    std::set<RimMultiPlotWindow*> alteredPlotWindows;
+    std::set<RimMultiPlot*> alteredPlotWindows;
 
     for ( RimPlot* plot : selection )
     {
-        RimMultiPlotWindow* plotWindow = nullptr;
+        RimMultiPlot* plotWindow = nullptr;
         plot->firstAncestorOrThisOfType( plotWindow );
         if ( plot && plotWindow )
         {
@@ -89,7 +89,7 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    for ( RimMultiPlotWindow* plotWindow : alteredPlotWindows )
+    for ( RimMultiPlot* plotWindow : alteredPlotWindows )
     {
         plotWindow->uiCapability()->updateConnectedEditors();
     }

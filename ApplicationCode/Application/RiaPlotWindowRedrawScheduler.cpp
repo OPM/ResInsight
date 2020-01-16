@@ -17,8 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiaPlotWindowRedrawScheduler.h"
 
+#include "RiuMultiPlotBook.h"
 #include "RiuMultiPlotPage.h"
-#include "RiuMultiPlotWindow.h"
 #include "RiuQwtPlotWidget.h"
 
 #include <QCoreApplication>
@@ -41,7 +41,7 @@ RiaPlotWindowRedrawScheduler* RiaPlotWindowRedrawScheduler::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::scheduleMultiPlotWindowUpdate( RiuMultiPlotWindow* plotWindow )
+void RiaPlotWindowRedrawScheduler::scheduleMultiPlotWindowUpdate( RiuMultiPlotBook* plotWindow )
 {
     m_plotWindowsToUpdate.push_back( plotWindow );
 
@@ -90,26 +90,36 @@ void RiaPlotWindowRedrawScheduler::clearAllScheduledUpdates()
 //--------------------------------------------------------------------------------------------------
 void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
 {
-    std::set<RiuQwtPlotWidget*>   updatedPlots;
-    std::set<RiuMultiPlotWindow*> updatedPlotWindows;
-    std::set<RiuMultiPlotPage*>   updatedPlotPages;
+    std::vector<QPointer<RiuMultiPlotBook>> plotWindowsToUpdate;
+    std::vector<QPointer<RiuMultiPlotPage>> plotPagesToUpdate;
+    std::vector<QPointer<RiuQwtPlotWidget>> plotWidgetsToReplot;
 
-    for ( RiuMultiPlotWindow* plotWindow : m_plotWindowsToUpdate )
+    plotWindowsToUpdate.swap( m_plotWindowsToUpdate );
+    plotPagesToUpdate.swap( m_plotPagesToUpdate );
+    plotWidgetsToReplot.swap( m_plotWidgetsToReplot );
+
+    std::set<QPointer<RiuQwtPlotWidget>> updatedPlots;
+    std::set<QPointer<RiuMultiPlotBook>> updatedPlotWindows;
+    std::set<QPointer<RiuMultiPlotPage>> updatedPlotPages;
+
+    for ( QPointer<RiuMultiPlotBook> plotWindow : plotWindowsToUpdate )
     {
-        if ( plotWindow && !updatedPlotWindows.count( plotWindow ) )
+        if ( !plotWindow.isNull() && !updatedPlotWindows.count( plotWindow ) )
         {
-            plotWindow->performUpdate();
-            updatedPlotWindows.insert( plotWindow );
             for ( RiuMultiPlotPage* page : plotWindow->pages() )
             {
-                updatedPlotPages.insert( page );
+                plotPagesToUpdate.erase( std::remove( plotPagesToUpdate.begin(), plotPagesToUpdate.end(), page ),
+                                         plotPagesToUpdate.end() );
             }
+
+            plotWindow->performUpdate();
+            updatedPlotWindows.insert( plotWindow );
         }
     }
 
-    for ( RiuMultiPlotPage* plotPage : m_plotPagesToUpdate )
+    for ( QPointer<RiuMultiPlotPage> plotPage : plotPagesToUpdate )
     {
-        if ( plotPage && !updatedPlotPages.count( plotPage ) )
+        if ( !plotPage.isNull() && !updatedPlotPages.count( plotPage ) )
         {
             plotPage->performUpdate();
             updatedPlotPages.insert( plotPage );
@@ -117,18 +127,14 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
     }
 
     //  Perform update and replot. Make sure we handle legend update
-    for ( RiuQwtPlotWidget* plot : m_plotWidgetsToReplot )
+    for ( QPointer<RiuQwtPlotWidget> plot : plotWidgetsToReplot )
     {
-        if ( plot && !updatedPlots.count( plot ) )
+        if ( !plot.isNull() && !updatedPlots.count( plot ) )
         {
             plot->replot();
             updatedPlots.insert( plot );
         }
     }
-
-    m_plotWidgetsToReplot.clear();
-    m_plotPagesToUpdate.clear();
-    m_plotWindowsToUpdate.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

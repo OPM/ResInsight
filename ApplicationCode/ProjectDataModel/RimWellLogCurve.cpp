@@ -176,7 +176,7 @@ void RimWellLogCurve::updateZoomInParentPlot()
                                           &maxCurveDepth );
         if ( minCurveDepth < minPlotDepth - eps * plotRange || maxCurveDepth > maxPlotDepth + eps * plotRange )
         {
-            wellLogPlot->setAutoScaleYEnabled( true );
+            wellLogPlot->setAutoScaleDepthEnabled( true );
             wellLogPlot->updateZoom();
         }
     }

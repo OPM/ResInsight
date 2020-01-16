@@ -25,6 +25,7 @@
 #include "RiaSummaryTools.h"
 
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimMultiPlot.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveCollection.h"
@@ -576,7 +577,7 @@ void RiuPlotMainWindow::updateWellLogPlotToolBar()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::updateMultiPlotToolBar()
 {
-    RimMultiPlotWindow* plotWindow = dynamic_cast<RimMultiPlotWindow*>( m_activePlotViewWindow.p() );
+    RimMultiPlot* plotWindow = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
     if ( plotWindow )
     {
         std::vector<caf::PdmFieldHandle*> toolBarFields = {plotWindow->columnCountField()};
@@ -597,8 +598,8 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
 {
-    RimSummaryPlot*     summaryPlot = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
-    RimMultiPlotWindow* multiPlot   = dynamic_cast<RimMultiPlotWindow*>( m_activePlotViewWindow.p() );
+    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
+    RimMultiPlot*   multiPlot   = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
     if ( multiPlot )
     {
         summaryPlot = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryPlot>();

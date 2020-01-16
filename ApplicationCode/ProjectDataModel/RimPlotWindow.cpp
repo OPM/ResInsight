@@ -24,6 +24,7 @@
 #include "RicfCommandObject.h"
 
 #include "RimProject.h"
+#include "RiuMultiPlotPage.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 
@@ -158,6 +159,14 @@ void RimPlotWindow::updateParentLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimPlotWindow::columnCount() const
+{
+    return static_cast<int>( RiuMultiPlotPage::ColumnCount::COLUMNS_UNLIMITED );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotWindow::renderWindowContent( QPaintDevice* paintDevice )
 {
     doRenderWindowContent( paintDevice );
@@ -185,6 +194,11 @@ void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                       const QVariant&            newValue )
 {
     RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( changedField == &m_showWindow )
+    {
+        updateWindowVisibility();
+    }
 
     if ( changedField == &m_showPlotLegends || changedField == &m_plotLegendsHorizontal )
     {
@@ -248,6 +262,21 @@ void RimPlotWindow::uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrd
 bool RimPlotWindow::hasCustomPageLayout( QPageLayout* customPageLayout ) const
 {
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::updateWindowVisibility()
+{
+    if ( isMdiWindow() )
+    {
+        updateMdiWindowVisibility();
+    }
+    else
+    {
+        updateParentLayout();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

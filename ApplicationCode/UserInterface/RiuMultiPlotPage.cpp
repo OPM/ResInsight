@@ -28,7 +28,7 @@
 #include "RiaGuiApplication.h"
 
 #include "RimContextCommandBuilder.h"
-#include "RimMultiPlotWindow.h"
+#include "RimMultiPlot.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuMainWindow.h"
@@ -63,13 +63,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMultiPlotPage::RiuMultiPlotPage( RimMultiPlotWindow* plotDefinition, QWidget* parent )
-    : RiuMultiPlotInterface( parent )
+RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* parent )
+    : QWidget( parent )
     , m_plotDefinition( plotDefinition )
     , m_previewMode( false )
+    , m_showSubTitles( false )
 {
-    Q_ASSERT( plotDefinition );
-    m_plotDefinition = plotDefinition;
+    CAF_ASSERT( m_plotDefinition );
 
     m_layout = new QVBoxLayout( this );
     m_layout->setMargin( 0 );
@@ -77,7 +77,7 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimMultiPlotWindow* plotDefinition, QWidget*
 
     m_plotTitle = createTitleLabel();
     m_layout->addWidget( m_plotTitle );
-    m_plotTitle->setVisible( m_plotDefinition->isMultiPlotTitleVisible() );
+    m_plotTitle->setVisible( true );
 
     m_plotLayout = new QHBoxLayout;
     m_layout->addLayout( m_plotLayout );
@@ -98,18 +98,9 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimMultiPlotWindow* plotDefinition, QWidget*
 
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
 
-    m_dropTargetPlaceHolder = new QLabel( "Drag plots here" );
-    m_dropTargetPlaceHolder->setAlignment( Qt::AlignCenter );
-    m_dropTargetPlaceHolder->setObjectName(
-        QString( "%1" ).arg( reinterpret_cast<uint64_t>( m_dropTargetPlaceHolder.data() ) ) );
-    m_dropTargetStyleSheet = createDropTargetStyleSheet();
-    m_dropTargetStyleSheet.applyToWidget( m_dropTargetPlaceHolder );
-
     this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::MinimumExpanding );
 
     setFocusPolicy( Qt::StrongFocus );
-
-    setAcceptDrops( m_plotDefinition->acceptDrops() );
 
     RiaApplication* app             = RiaApplication::instance();
     int             defaultFontSize = app->preferences()->defaultPlotFontSize();
@@ -136,7 +127,15 @@ RiuMultiPlotPage::~RiuMultiPlotPage() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiPlotWindow* RiuMultiPlotPage::ownerPlotDefinition()
+RimViewWindow* RiuMultiPlotPage::ownerViewWindow() const
+{
+    return m_plotDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotWindow* RiuMultiPlotPage::ownerPlotDefinition()
 {
     return m_plotDefinition;
 }
@@ -155,11 +154,11 @@ void RiuMultiPlotPage::addPlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
 {
-    plotWidget->setDraggable( true ); // Becomes draggable when added to a grid plot window
     m_plotWidgets.insert( static_cast<int>( index ), plotWidget );
     plotWidget->setVisible( false );
 
-    QLabel* subTitle = new QLabel( plotWidget->plotDefinition()->description() );
+    QString subTitleText = plotWidget->plotTitle();
+    QLabel* subTitle     = new QLabel( subTitleText );
     subTitle->setAlignment( Qt::AlignHCenter );
     subTitle->setVisible( false );
     m_subTitles.insert( static_cast<int>( index ), subTitle );
@@ -243,24 +242,6 @@ void RiuMultiPlotPage::setTitleVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::setSelectionsVisible( bool visible )
-{
-    for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
-    {
-        if ( visible && caf::SelectionManager::instance()->isSelected( plotWidget->plotDefinition(), 0 ) )
-        {
-            plotWidget->setWidgetState( "selected" );
-        }
-        else
-        {
-            caf::UiStyleSheet::clearWidgetStates( plotWidget );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::setFontSize( int fontSize )
 {
     int pixelSize = RiaFontCache::pointSizeToPixelSize( fontSize );
@@ -292,6 +273,14 @@ int RiuMultiPlotPage::fontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::setSubTitlesVisible( bool visible )
+{
+    m_showSubTitles = visible;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiuMultiPlotPage::previewModeEnabled() const
 {
     return m_previewMode;
@@ -318,6 +307,7 @@ int RiuMultiPlotPage::indexOfPlotWidget( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::scheduleUpdate()
 {
+    CAF_ASSERT( m_plotDefinition );
     RiaPlotWindowRedrawScheduler::instance()->scheduleMultiPlotPageUpdate( this );
 }
 
@@ -349,7 +339,7 @@ void RiuMultiPlotPage::renderTo( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 {
-    setSelectionsVisible( false );
+    stashWidgetStates();
     painter->fillRect( painter->viewport(), Qt::white );
     m_plotTitle->render( painter );
 
@@ -381,7 +371,7 @@ void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
         plotWidget->renderTo( painter, plotWidgetGeometry, scalingFactor );
     }
 
-    setSelectionsVisible( true );
+    restoreWidgetStates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -410,7 +400,7 @@ void RiuMultiPlotPage::contextMenuEvent( QContextMenuEvent* event )
 //--------------------------------------------------------------------------------------------------
 QLabel* RiuMultiPlotPage::createTitleLabel() const
 {
-    QLabel* plotTitle = new QLabel( "PLOT TITLE HERE", nullptr );
+    QLabel* plotTitle = new QLabel( "", nullptr );
     plotTitle->setAlignment( Qt::AlignHCenter );
     plotTitle->setWordWrap( true );
     plotTitle->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
@@ -423,128 +413,7 @@ QLabel* RiuMultiPlotPage::createTitleLabel() const
 void RiuMultiPlotPage::showEvent( QShowEvent* event )
 {
     QWidget::showEvent( event );
-    scheduleUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::dragEnterEvent( QDragEnterEvent* event )
-{
-    RiuQwtPlotWidget* source = dynamic_cast<RiuQwtPlotWidget*>( event->source() );
-    if ( source )
-    {
-        setWidgetState( "dragTargetInto" );
-        event->acceptProposedAction();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::dragMoveEvent( QDragMoveEvent* event )
-{
-    if ( event->answerRect().intersects( this->geometry() ) )
-    {
-        RiuQwtPlotWidget* source = dynamic_cast<RiuQwtPlotWidget*>( event->source() );
-        if ( source && willAcceptDroppedPlot( source ) )
-        {
-            setWidgetState( "dragTargetInto" );
-
-            QRect  originalGeometry = source->geometry();
-            QPoint offset           = source->dragStartPosition();
-            QRect  newRect( event->pos() - offset, originalGeometry.size() );
-
-            QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets = this->visiblePlotWidgets();
-
-            int insertBeforeIndex = visiblePlotWidgets.size();
-            for ( int visibleIndex = 0; visibleIndex < visiblePlotWidgets.size(); ++visibleIndex )
-            {
-                caf::UiStyleSheet::clearWidgetStates( visiblePlotWidgets[visibleIndex] );
-
-                if ( visiblePlotWidgets[visibleIndex]->frameIsInFrontOfThis( newRect ) )
-                {
-                    insertBeforeIndex = std::min( insertBeforeIndex, visibleIndex );
-                }
-            }
-            if ( insertBeforeIndex >= 0 && insertBeforeIndex < visiblePlotWidgets.size() )
-            {
-                visiblePlotWidgets[insertBeforeIndex]->setWidgetState( "dragTargetBefore" );
-            }
-
-            if ( insertBeforeIndex > 0 )
-            {
-                int insertAfterIndex = insertBeforeIndex - 1;
-                visiblePlotWidgets[insertAfterIndex]->setWidgetState( "dragTargetAfter" );
-            }
-            event->acceptProposedAction();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::dragLeaveEvent( QDragLeaveEvent* event )
-{
-    caf::UiStyleSheet::clearWidgetStates( this );
-
-    for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
-    {
-        caf::UiStyleSheet::clearWidgetStates( m_plotWidgets[tIdx] );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::dropEvent( QDropEvent* event )
-{
-    caf::UiStyleSheet::clearWidgetStates( this );
-
-    for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
-    {
-        caf::UiStyleSheet::clearWidgetStates( m_plotWidgets[tIdx] );
-    }
-
-    if ( this->geometry().contains( event->pos() ) )
-    {
-        RiuQwtPlotWidget* source = dynamic_cast<RiuQwtPlotWidget*>( event->source() );
-
-        if ( source && willAcceptDroppedPlot( source ) )
-        {
-            event->acceptProposedAction();
-
-            QRect  originalGeometry = source->geometry();
-            QPoint offset           = source->dragStartPosition();
-            QRect  newRect( event->pos() - offset, originalGeometry.size() );
-
-            int beforeIndex = m_plotWidgets.size();
-            for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
-            {
-                if ( m_plotWidgets[tIdx]->isVisible() )
-                {
-                    if ( m_plotWidgets[tIdx]->frameIsInFrontOfThis( newRect ) )
-                    {
-                        beforeIndex = tIdx;
-                        break;
-                    }
-                }
-            }
-            RimPlot* insertAfter = nullptr;
-            if ( beforeIndex > 0 )
-            {
-                insertAfter = m_plotWidgets[beforeIndex - 1]->plotDefinition();
-            }
-
-            RimPlot* plotToMove = source->plotDefinition();
-
-            if ( insertAfter != plotToMove )
-            {
-                m_plotDefinition->movePlotsToThis( {plotToMove}, insertAfter );
-            }
-        }
-    }
+    performUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -590,13 +459,16 @@ void RiuMultiPlotPage::updateMarginsFromPageLayout()
 //--------------------------------------------------------------------------------------------------
 QSize RiuMultiPlotPage::sizeHint() const
 {
-    QPageLayout pageLayout = m_plotDefinition->pageLayout();
-    const int   resolution = RiaGuiApplication::applicationResolution();
-    QRect       rect       = pageLayout.fullRectPixels( resolution );
+    QPageLayout pageLayout = RiaApplication::instance()->preferences()->defaultPageLayout();
+    if ( m_plotDefinition )
+    {
+        pageLayout = m_plotDefinition->pageLayout();
+    }
 
+    const int resolution = RiaGuiApplication::applicationResolution();
+    QRect     rect       = pageLayout.fullRectPixels( resolution );
     return rect.size();
 }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -604,14 +476,6 @@ QSize RiuMultiPlotPage::minimumSizeHint() const
 {
     QSize fullSizeHint = sizeHint();
     return QSize( fullSizeHint.width() / 2, fullSizeHint.height() / 2 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuMultiPlotPage::willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const
-{
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -634,15 +498,18 @@ std::pair<int, int> RiuMultiPlotPage::rowAndColumnCount( int plotWidgetCount ) c
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
 {
+    if ( !m_plotDefinition ) return;
+
     for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
     {
         CAF_ASSERT( plotWidget );
+        RimPlot* plot = plotWidget->plotDefinition();
+        if ( !plot ) continue;
 
         bool isSelected = false;
         for ( int changedLevel : changedSelectionLevels )
         {
-            isSelected = isSelected ||
-                         caf::SelectionManager::instance()->isSelected( plotWidget->plotDefinition(), changedLevel );
+            isSelected = isSelected || caf::SelectionManager::instance()->isSelected( plot, changedLevel );
         }
         if ( isSelected )
         {
@@ -653,14 +520,6 @@ void RiuMultiPlotPage::onSelectionManagerSelectionChanged( const std::set<int>& 
             caf::UiStyleSheet::clearWidgetStates( plotWidget );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::setWidgetState( const QString& widgetState )
-{
-    m_dropTargetStyleSheet.setWidgetState( m_dropTargetPlaceHolder, widgetState );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -716,25 +575,17 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
     QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets = this->visiblePlotWidgets();
 
-    if ( plotWidgets.empty() && acceptDrops() )
+    if ( !plotWidgets.empty() )
     {
-        m_gridLayout->addWidget( m_dropTargetPlaceHolder, 0, 0 );
-        m_gridLayout->setRowStretch( 0, 1 );
-        m_dropTargetPlaceHolder->setVisible( true );
-    }
-    else
-    {
-        m_dropTargetPlaceHolder->setVisible( false );
-
         auto rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
 
         int row    = 0;
         int column = 0;
         for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
         {
-            int expextedColSpan = static_cast<int>( plotWidgets[visibleIndex]->plotDefinition()->colSpan() );
-            int colSpan         = std::min( expextedColSpan, rowAndColumnCount.second );
-            int rowSpan         = plotWidgets[visibleIndex]->plotDefinition()->rowSpan();
+            int expectedColSpan = static_cast<int>( plotWidgets[visibleIndex]->colSpan() );
+            int colSpan         = std::min( expectedColSpan, rowAndColumnCount.second );
+            int rowSpan         = plotWidgets[visibleIndex]->rowSpan();
 
             std::tie( row, column ) = findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
 
@@ -743,7 +594,7 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
                 ->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
             m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, column, 1 + ( rowSpan - 1 ) * 3, colSpan );
 
-            subTitles[visibleIndex]->setVisible( m_plotDefinition->showPlotTitles() );
+            subTitles[visibleIndex]->setVisible( m_showSubTitles );
 
             plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
             plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
@@ -775,7 +626,7 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             }
             for ( int c = column; c < column + colSpan; ++c )
             {
-                int colStretch = 1;
+                int colStretch = 6;
                 if ( showYAxis( row, column ) ) colStretch += 1;
                 m_gridLayout->setColumnStretch( c, std::max( colStretch, m_gridLayout->columnStretch( c ) ) );
             }
@@ -838,22 +689,6 @@ void RiuMultiPlotPage::clearGridLayout()
         delete m_gridLayout;
         m_gridLayout = new QGridLayout( m_plotWidgetFrame );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::UiStyleSheet RiuMultiPlotPage::createDropTargetStyleSheet()
-{
-    caf::UiStyleSheet styleSheet;
-
-    styleSheet.set( "background-color", "white" );
-    styleSheet.set( "border", "1px dashed black" );
-    styleSheet.set( "font-size", "14pt" );
-    styleSheet.property( "dragTargetInto" ).set( "border", "1px dashed lime" );
-    styleSheet.property( "dragTargetInto" ).set( "background-color", "#DDFFDD" );
-
-    return styleSheet;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -938,4 +773,26 @@ std::pair<int, int>
         availableRow++;
     }
     return std::make_pair( availableRow, availableColumn );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::stashWidgetStates()
+{
+    for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
+    {
+        plotWidget->stashWidgetStates();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::restoreWidgetStates()
+{
+    for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
+    {
+        plotWidget->restoreWidgetStates();
+    }
 }

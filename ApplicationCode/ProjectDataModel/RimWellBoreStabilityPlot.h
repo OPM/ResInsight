@@ -32,7 +32,7 @@ class RimGeoMechCase;
 class RimWellPath;
 
 class RimWellBoreStabilityPlot : public RimWellLogPlot
-{
+{    
     CAF_PDM_HEADER_INIT;
 
     using ParameterSource     = RigGeoMechWellLogExtractor::WbsParameterSource;

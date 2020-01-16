@@ -45,6 +45,7 @@ class QEvent;
 class QLabel;
 class QPainter;
 class QPaintDevice;
+class QWheelEvent;
 
 //==================================================================================================
 //
@@ -56,14 +57,15 @@ class RiuQwtPlotWidget : public QwtPlot
     Q_OBJECT
 
 public:
-    RiuQwtPlotWidget( RimPlot* plotTrackDefinition, QWidget* parent = nullptr );
+    RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent = nullptr );
     ~RiuQwtPlotWidget() override;
 
-    RimPlot* plotDefinition() const;
+    RimPlot* plotDefinition();
 
     bool isChecked() const;
 
-    void setDraggable( bool draggable );
+    int colSpan() const;
+    int rowSpan() const;
 
     int  axisTitleFontSize( QwtPlot::Axis axis ) const;
     int  axisValueFontSize( QwtPlot::Axis axis ) const;
@@ -75,6 +77,11 @@ public:
 
     void setAxisTitleText( QwtPlot::Axis axis, const QString& title );
     void setAxisTitleEnabled( QwtPlot::Axis axis, bool enable );
+
+    void           setPlotTitle( const QString& plotTitle );
+    const QString& plotTitle() const;
+    void           setPlotTitleEnabled( bool enabled );
+    bool           plotTitleEnabled() const;
 
     QwtInterval axisRange( QwtPlot::Axis axis );
     void        setAxisRange( QwtPlot::Axis axis, double min, double max );
@@ -99,6 +106,8 @@ public:
     QPoint dragStartPosition() const;
 
     void scheduleReplot();
+    void stashWidgetStates();
+    void restoreWidgetStates();
     void setWidgetState( const QString& widgetState );
 
     void addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
@@ -109,14 +118,21 @@ public:
     void renderTo( QPaintDevice* painter, const QRect& targetRect );
     int  overlayMargins() const;
 
-protected:
-    QSize sizeHint() const override;
-    QSize minimumSizeHint() const override;
-    bool  eventFilter( QObject* watched, QEvent* event ) override;
-    void  hideEvent( QHideEvent* event ) override;
-    void  showEvent( QShowEvent* event ) override;
-    void  resizeEvent( QResizeEvent* event ) override;
+signals:
+    void plotSelected( bool toggleSelection );
+    void axisSelected( int axisId, bool toggleSelection );
+    void curveSelected( QwtPlotCurve* curve, bool toggleSelection );
+    void onKeyPressEvent( QKeyEvent* event );
+    void onWheelEvent( QWheelEvent* event );
 
+protected:
+    bool eventFilter( QObject* watched, QEvent* event ) override;
+    void hideEvent( QHideEvent* event ) override;
+    void showEvent( QShowEvent* event ) override;
+    void resizeEvent( QResizeEvent* event ) override;
+    void keyPressEvent( QKeyEvent* event ) override;
+
+    void applyPlotTitleToQwt();
     void applyAxisTitleToQwt( QwtPlot::Axis axis );
 
     virtual void selectPoint( QwtPlotCurve* curve, int pointNumber );
@@ -125,7 +141,6 @@ protected:
     virtual void endZoomOperations();
 
 private:
-    void       selectPlotOwner( bool toggleItemInSelection = false );
     void       selectClosestCurve( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
     void       replot() override;
@@ -145,8 +160,9 @@ private:
     std::map<QwtPlot::Axis, QString> m_axisTitles;
     std::map<QwtPlot::Axis, bool>    m_axisTitlesEnabled;
     QPointer<QwtPlotPicker>          m_plotPicker;
-    bool                             m_draggable;
     const int                        m_overlayMargins;
+    QString                          m_plotTitle;
+    bool                             m_plotTitleEnabled;
 
     QList<QPointer<RiuDraggableOverlayFrame>> m_overlayFrames;
 

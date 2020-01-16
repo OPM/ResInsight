@@ -23,7 +23,7 @@
 #include "RiaPlotWindowRedrawScheduler.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimMultiPlotWindow.h"
+#include "RimMultiPlot.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
@@ -106,7 +106,7 @@ void RicSnapshotViewToFileFeature::savePlotPDFReportAs( const QString& fileName,
         pdfPrinter.setResolution( resolution );
         QRect widgetRect = plot->viewWidget()->contentsRect();
 
-        RimMultiPlotWindow* multiPlot = dynamic_cast<RimMultiPlotWindow*>( plot );
+        RimMultiPlot* multiPlot = dynamic_cast<RimMultiPlot*>( plot );
         if ( multiPlot && multiPlot->previewModeEnabled() )
         {
             QRect pageRect = pdfPrinter.pageLayout().fullRectPixels( resolution );

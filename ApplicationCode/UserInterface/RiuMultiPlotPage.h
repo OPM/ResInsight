@@ -17,12 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiuMultiPlotInterface.h"
-
-#include "cafUiStyleSheet.h"
+#include "RiuInterfaceToViewWindow.h"
 
 #include "cafPdmPointer.h"
 #include "cafSelectionChangedReceiver.h"
+#include "cafUiStyleSheet.h"
 
 #include <QFrame>
 #include <QGridLayout>
@@ -34,7 +33,7 @@
 #include <map>
 
 class RiaPlotWindowRedrawScheduler;
-class RimMultiPlotWindow;
+class RimPlotWindow;
 class RiuQwtPlotLegend;
 class RiuQwtPlotWidget;
 
@@ -51,38 +50,48 @@ class QwtPlot;
 // RiuMultiPlotPage
 //
 //==================================================================================================
-class RiuMultiPlotPage : public RiuMultiPlotInterface, public caf::SelectionChangedReceiver
+class RiuMultiPlotPage : public QWidget, public caf::SelectionChangedReceiver, public RiuInterfaceToViewWindow
 {
     Q_OBJECT
 
 public:
-    RiuMultiPlotPage( RimMultiPlotWindow* plotDefinition, QWidget* parent = nullptr );
+    enum class ColumnCount
+    {
+        COLUMNS_1         = 1,
+        COLUMNS_2         = 2,
+        COLUMNS_3         = 3,
+        COLUMNS_4         = 4,
+        COLUMNS_UNLIMITED = 1000,
+    };
+
+public:
+    RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* parent = nullptr );
     ~RiuMultiPlotPage() override;
 
-    RimMultiPlotWindow* ownerPlotDefinition();
+    RimViewWindow* ownerViewWindow() const override;
+    RimPlotWindow* ownerPlotDefinition();
 
-    void addPlot( RiuQwtPlotWidget* plotWidget ) override;
-    void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index ) override;
-    void removePlot( RiuQwtPlotWidget* plotWidget ) override;
+    void addPlot( RiuQwtPlotWidget* plotWidget );
+    void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
+    void removePlot( RiuQwtPlotWidget* plotWidget );
     void removeAllPlots();
-    int  indexOfPlotWidget( RiuQwtPlotWidget* plotWidget ) override;
+    int  indexOfPlotWidget( RiuQwtPlotWidget* plotWidget );
 
-    void setSelectionsVisible( bool visible );
+    void setPlotTitle( const QString& plotTitle );
+    void setTitleVisible( bool visible );
+    void setFontSize( int fontSize );
+    int  fontSize() const;
+    void setSubTitlesVisible( bool visible );
 
-    void setPlotTitle( const QString& plotTitle ) override;
-    void setTitleVisible( bool visible ) override;
-    void setFontSize( int fontSize ) override;
-    int  fontSize() const override;
+    bool previewModeEnabled() const;
+    void setPreviewModeEnabled( bool previewMode );
 
-    bool previewModeEnabled() const override;
-    void setPreviewModeEnabled( bool previewMode ) override;
+    void         scheduleUpdate();
+    void         scheduleReplotOfAllPlots();
+    virtual void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) {}
 
-    void scheduleUpdate() override;
-    void scheduleReplotOfAllPlots() override;
-    void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) override {}
-
-    void renderTo( QPaintDevice* paintDevice ) override;
-    void renderTo( QPainter* painter, double scalingFactor );
+    virtual void renderTo( QPaintDevice* paintDevice );
+    void         renderTo( QPainter* painter, double scalingFactor );
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
@@ -93,28 +102,19 @@ protected:
     QLabel* createTitleLabel() const;
 
     void showEvent( QShowEvent* event ) override;
-    void dragEnterEvent( QDragEnterEvent* event ) override;
-    void dragMoveEvent( QDragMoveEvent* event ) override;
-    void dragLeaveEvent( QDragLeaveEvent* event ) override;
-    void dropEvent( QDropEvent* event ) override;
     bool hasHeightForWidth() const override;
     void updateMarginsFromPageLayout();
-
-    virtual bool willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const;
 
     std::pair<int, int> rowAndColumnCount( int plotWidgetCount ) const;
 
     virtual void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
-
-    void setWidgetState( const QString& widgetState );
 
     virtual bool showYAxis( int row, int column ) const;
 
     void reinsertPlotWidgets();
     int  alignCanvasTops();
 
-    void              clearGridLayout();
-    caf::UiStyleSheet createDropTargetStyleSheet();
+    void clearGridLayout();
 
     QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets() const;
     QList<QPointer<RiuQwtPlotLegend>> legendsForVisiblePlots() const;
@@ -122,26 +122,28 @@ protected:
 
     std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
 
+    void stashWidgetStates();
+    void restoreWidgetStates();
+
 private slots:
     virtual void performUpdate();
     void         onLegendUpdated();
 
 protected:
-    friend class RiuMultiPlotWindow;
+    friend class RiuMultiPlotBook;
 
-    QPointer<QVBoxLayout>               m_layout;
-    QPointer<QHBoxLayout>               m_plotLayout;
-    QPointer<QFrame>                    m_plotWidgetFrame;
-    QPointer<QGridLayout>               m_gridLayout;
-    QPointer<QLabel>                    m_plotTitle;
-    QList<QPointer<QLabel>>             m_subTitles;
-    QList<QPointer<RiuQwtPlotLegend>>   m_legends;
-    QList<QPointer<RiuQwtPlotWidget>>   m_plotWidgets;
-    caf::PdmPointer<RimMultiPlotWindow> m_plotDefinition;
-    QPointer<QLabel>                    m_dropTargetPlaceHolder;
-    bool                                m_previewMode;
+    QPointer<QVBoxLayout>             m_layout;
+    QPointer<QHBoxLayout>             m_plotLayout;
+    QPointer<QFrame>                  m_plotWidgetFrame;
+    QPointer<QGridLayout>             m_gridLayout;
+    QPointer<QLabel>                  m_plotTitle;
+    QList<QPointer<QLabel>>           m_subTitles;
+    QList<QPointer<RiuQwtPlotLegend>> m_legends;
+    QList<QPointer<RiuQwtPlotWidget>> m_plotWidgets;
+    caf::PdmPointer<RimPlotWindow>    m_plotDefinition;
 
-    caf::UiStyleSheet m_dropTargetStyleSheet;
+    bool m_previewMode;
+    bool m_showSubTitles;
 
 private:
     friend class RiaPlotWindowRedrawScheduler;
