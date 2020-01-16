@@ -168,13 +168,25 @@ void RimWellLogCurve::updateZoomInParentPlot()
     {
         double minPlotDepth, maxPlotDepth;
         wellLogPlot->availableDepthRange( &minPlotDepth, &maxPlotDepth );
-        double plotRange = std::abs( maxPlotDepth - minPlotDepth );
-        double minCurveDepth, maxCurveDepth;
-        m_curveData->calculateDepthRange( wellLogPlot->depthType(),
-                                          wellLogPlot->depthUnit(),
-                                          &minCurveDepth,
-                                          &maxCurveDepth );
-        if ( minCurveDepth < minPlotDepth - eps * plotRange || maxCurveDepth > maxPlotDepth + eps * plotRange )
+
+        bool updatePlotZoom = false;
+        if ( minPlotDepth == std::numeric_limits<double>::infinity() ||
+             maxPlotDepth == -std::numeric_limits<double>::infinity() )
+        {
+            updatePlotZoom = true;
+        }
+        else
+        {
+            double plotRange = std::abs( maxPlotDepth - minPlotDepth );
+            double minCurveDepth, maxCurveDepth;
+            m_curveData->calculateDepthRange( wellLogPlot->depthType(),
+                                              wellLogPlot->depthUnit(),
+                                              &minCurveDepth,
+                                              &maxCurveDepth );
+            updatePlotZoom = minCurveDepth < minPlotDepth - eps * plotRange ||
+                             maxCurveDepth > maxPlotDepth + eps * plotRange;
+        }
+        if ( updatePlotZoom )
         {
             wellLogPlot->setAutoScaleDepthEnabled( true );
             wellLogPlot->updateZoom();
