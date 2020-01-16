@@ -213,6 +213,13 @@ public:
         return interpolateInNormElm( pointInNormElm, values);
     }
 
+    static std::array<double, 8> vertexWeights(const std::array<cvf::Vec3d, 8>& hexCorners, 
+                                               const cvf::Vec3d& point )
+    {
+        cvf::Vec3d pointInNormElm = findNormalizedCoords(hexCorners, point);
+        return interpolationCoeffs(pointInNormElm);
+    }
+
 private:
     
     static double interpolateInNormElm( const cvf::Vec3d & pointInNormElm, const std::array<double, 8>& values)
