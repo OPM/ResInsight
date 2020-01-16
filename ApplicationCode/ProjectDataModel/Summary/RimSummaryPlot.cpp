@@ -34,7 +34,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimGridTimeHistoryCurve.h"
-#include "RimMultiPlotWindow.h"
+#include "RimMultiPlot.h"
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -209,7 +209,6 @@ RimSummaryPlot::RimSummaryPlot()
     m_summaryCurves_OBSOLETE.uiCapability()->setUiTreeHidden( true );
 
     m_isCrossPlot = false;
-    m_isDraggable = true;
 
     m_nameHelperAllCurves.reset( new RimSummaryPlotNameHelper );
 
@@ -543,6 +542,14 @@ void RimSummaryPlot::updatePlotTitle()
 
     updateCurveNames();
     updateMdiWindowTitle();
+
+    if ( m_plotWidget )
+    {
+        QString plotTitle = description();
+        m_plotWidget->setPlotTitle( plotTitle );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+        m_plotWidget->scheduleReplot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1336,11 +1343,6 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_showWindow )
-    {
-        updateWindowVisibility();
-    }
-
     if ( changedField == &m_showPlotTitle || changedField == &m_description || changedField == &m_useAutoPlotTitle )
     {
         updatePlotTitle();
@@ -1425,8 +1427,7 @@ void RimSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 void RimSummaryPlot::onLoadDataAndUpdate()
 {
     updatePlotTitle();
-
-    updateWindowVisibility();
+    updateMdiWindowVisibility();
 
     if ( m_summaryCurveCollection )
     {
@@ -1570,14 +1571,6 @@ QString RimSummaryPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setDraggable( bool draggable )
-{
-    m_isDraggable = draggable;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::enableAutoPlotTitle( bool enable )
 {
     m_useAutoPlotTitle = enable;
@@ -1597,6 +1590,16 @@ bool RimSummaryPlot::autoPlotTitle() const
 void RimSummaryPlot::setAsCrossPlot()
 {
     m_isCrossPlot = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::onPlotZoomed()
+{
+    setAutoScaleXEnabled( false );
+    setAutoScaleYEnabled( false );
+    updateZoomFromQwt();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1648,12 +1651,11 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimSummaryPlot::createViewWidget( QWidget* mainWindowParent )
+RiuQwtPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     if ( !m_plotWidget )
     {
         m_plotWidget = new RiuSummaryQwtPlot( this, mainWindowParent );
-        m_plotWidget->setDraggable( m_isDraggable );
 
         for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
         {
@@ -1674,6 +1676,10 @@ QWidget* RimSummaryPlot::createViewWidget( QWidget* mainWindowParent )
         {
             m_ensembleCurveSetCollection->setParentQwtPlotAndReplot( m_plotWidget );
         }
+
+        this->connect( m_plotWidget, SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
+
+        updatePlotTitle();
     }
 
     return m_plotWidget;
@@ -1738,36 +1744,6 @@ void RimSummaryPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateMdiWindowTitle()
-{
-    if ( m_plotWidget )
-    {
-        if ( isMdiWindow() )
-        {
-            QString plotTitle = description();
-
-            m_plotWidget->setWindowTitle( plotTitle );
-
-            if ( m_showPlotTitle )
-            {
-                m_plotWidget->setTitle( plotTitle );
-            }
-            else
-            {
-                m_plotWidget->setTitle( "" );
-            }
-        }
-        else
-        {
-            m_plotWidget->setTitle( "" );
-        }
-        m_plotWidget->scheduleReplot();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* nameHelper ) const
 {
     if ( !nameHelper ) return;
@@ -1815,22 +1791,6 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     nameHelper->appendAddresses( addresses );
     nameHelper->setSummaryCases( sumCases );
     nameHelper->setEnsembleCases( ensembleCases );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateWindowVisibility()
-{
-    if ( isMdiWindow() )
-    {
-        updateMdiWindowVisibility();
-    }
-    else
-    {
-        updateParentLayout();
-    }
-    updateAxes();
 }
 
 //--------------------------------------------------------------------------------------------------

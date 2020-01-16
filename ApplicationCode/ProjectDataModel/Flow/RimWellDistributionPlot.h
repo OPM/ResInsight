@@ -75,11 +75,12 @@ private:
     void doRemoveFromCollection() override;
 
     // RimViewWindow implementations
-    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
-    void     deleteViewWidget() override;
-    void     onLoadDataAndUpdate() override;
+    void deleteViewWidget() override;
+    void onLoadDataAndUpdate() override;
 
 private:
+    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
+
     void        fixupDependentFieldsAfterCaseChange();
     static void populatePlotWidgetWithCurveData( const RigTofWellDistributionCalculator& calculator,
                                                  const RimFlowDiagSolution&              flowDiagSolution,

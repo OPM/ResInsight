@@ -29,7 +29,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
-#include "RimMultiPlotWindow.h"
+#include "RimMultiPlot.h"
 #include "RimPlot.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -186,7 +186,7 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
             }
-            else if ( dynamic_cast<RimMultiPlotWindow*>( uiItem ) )
+            else if ( dynamic_cast<RimMultiPlot*>( uiItem ) )
             {
                 if ( RiuTypedPdmObjects<RimPlot>::containsTypedObjects( m_dragItems ) )
                 {
@@ -297,14 +297,7 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
             return handleWellLogPlotCurveDrop( action, draggedObjects, wellLogPlotCurve );
         }
 
-        RimWellLogTrack* wellLogPlotTrack;
-        dropTarget->firstAncestorOrThisOfType( wellLogPlotTrack );
-        if ( wellLogPlotTrack )
-        {
-            return handleWellLogPlotTrackDrop( action, draggedObjects, wellLogPlotTrack, row );
-        }
-
-        RimMultiPlotWindow* multiPlot;
+        RimMultiPlot* multiPlot;
         dropTarget->firstAncestorOrThisOfType( multiPlot );
         if ( multiPlot )
         {
@@ -399,64 +392,9 @@ bool RiuDragDrop::handleGridCaseGroupDrop( Qt::DropAction             action,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
-                                              caf::PdmObjectGroup& draggedObjects,
-                                              RimWellLogTrack*     trackTarget,
-                                              int                  insertAtPosition )
-{
-    std::vector<RimWellLogFileChannel*> wellLogFileChannels =
-        RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup( draggedObjects );
-    if ( wellLogFileChannels.size() > 0 )
-    {
-        if ( action == Qt::CopyAction )
-        {
-            RicWellLogTools::addWellLogChannelsToPlotTrack( trackTarget, wellLogFileChannels );
-            return true;
-        }
-    }
-
-    std::vector<RimWellLogCurve*> wellLogPlotCurves = RiuTypedPdmObjects<RimWellLogCurve>::typedObjectsFromGroup(
-        draggedObjects );
-    if ( wellLogPlotCurves.size() > 0 )
-    {
-        if ( action == Qt::MoveAction )
-        {
-            RimWellLogCurve* insertAfter = nullptr;
-            if ( insertAtPosition > 0 )
-            {
-                auto visibleCurves = trackTarget->visibleCurves();
-                if ( !visibleCurves.empty() )
-                {
-                    int insertAfterPosition = std::min( insertAtPosition - 1, (int)visibleCurves.size() - 1 );
-                    insertAfter             = visibleCurves[insertAfterPosition];
-                }
-            }
-            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( trackTarget, wellLogPlotCurves, insertAfter );
-            return true;
-        }
-    }
-
-    std::vector<RimWellLogTrack*> wellLogPlotTracks = RiuTypedPdmObjects<RimWellLogTrack>::typedObjectsFromGroup(
-        draggedObjects );
-    if ( wellLogPlotTracks.size() > 0 )
-    {
-        if ( action == Qt::MoveAction )
-        {
-            RimWellLogPlot* wellLogPlot;
-            trackTarget->firstAncestorOrThisOfType( wellLogPlot );
-            return handleMultiPlotDrop( action, draggedObjects, wellLogPlot, insertAtPosition );
-        }
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RiuDragDrop::handleMultiPlotDrop( Qt::DropAction       action,
                                        caf::PdmObjectGroup& draggedObjects,
-                                       RimMultiPlotWindow*  multiPlot,
+                                       RimMultiPlot*        multiPlot,
                                        int                  insertAtPosition )
 {
     std::vector<RimPlot*> plots = RiuTypedPdmObjects<RimPlot>::typedObjectsFromGroup( draggedObjects );

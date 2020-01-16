@@ -65,6 +65,7 @@ class QKeyEvent;
 //==================================================================================================
 class RimSummaryPlot : public RimPlot
 {
+    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
 
 public:
@@ -75,8 +76,6 @@ public:
     void    setShowPlotTitle( bool showTitle );
     void    setDescription( const QString& description );
     QString description() const override;
-
-    void setDraggable( bool draggable );
 
     void enableAutoPlotTitle( bool enable );
     bool autoPlotTitle() const;
@@ -155,7 +154,6 @@ public:
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();
 
-    void                                      handleKeyPressEvent( QKeyEvent* keyEvent );
     virtual RimSummaryPlotSourceStepping*     sourceSteppingObjectForKeyEventHandling() const;
     virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
@@ -172,20 +170,20 @@ public:
 
 public:
     // RimViewWindow overrides
-    QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
-    void     deleteViewWidget() override;
-    void     initAfterRead() override;
+    void deleteViewWidget() override;
+    void initAfterRead() override;
 
 private:
-    void updateMdiWindowTitle() override;
+    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+
     void updateNameHelperWithCurveData( RimSummaryPlotNameHelper* nameHelper ) const;
 
-    void updateWindowVisibility();
     void doUpdateLayout() override;
 
     void detachAllPlotItems();
 
     void doRemoveFromCollection() override;
+    void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
 protected:
     // Overridden PDM methods
@@ -200,6 +198,9 @@ protected:
     QImage snapshotWindowContent() override;
 
     void setAsCrossPlot();
+
+private slots:
+    void onPlotZoomed();
 
 private:
     std::vector<RimSummaryCurve*>         visibleSummaryCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
@@ -244,7 +245,6 @@ private:
     std::unique_ptr<QwtPlotTextLabel> m_plotInfoLabel;
 
     bool m_isCrossPlot;
-    bool m_isDraggable;
 
     std::unique_ptr<RimSummaryPlotNameHelper> m_nameHelperAllCurves;
 

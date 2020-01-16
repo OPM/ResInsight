@@ -240,7 +240,7 @@ QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreatePlotWidget()
     if ( m_summaryCurveCreator )
     {
         // TODO: Rename previewPlot()->createViewWidget to getOrCreateViewWidget
-        return m_summaryCurveCreator->previewPlot()->createViewWidget( this->widget() );
+        return m_summaryCurveCreator->previewPlot()->createPlotWidget( this->widget() );
     }
 
     return nullptr;

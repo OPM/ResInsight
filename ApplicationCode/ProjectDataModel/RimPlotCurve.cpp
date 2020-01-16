@@ -430,13 +430,16 @@ void RimPlotCurve::updateCurveName()
         m_curveName = m_customCurveName;
     }
 
-    if ( !m_legendEntryText().isEmpty() )
+    if ( m_qwtPlotCurve )
     {
-        m_qwtPlotCurve->setTitle( m_legendEntryText );
-    }
-    else
-    {
-        m_qwtPlotCurve->setTitle( m_curveName );
+        if ( !m_legendEntryText().isEmpty() )
+        {
+            m_qwtPlotCurve->setTitle( m_legendEntryText );
+        }
+        else
+        {
+            m_qwtPlotCurve->setTitle( m_curveName );
+        }
     }
 }
 
@@ -562,6 +565,45 @@ void RimPlotCurve::setSamplesFromXYErrorValues(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSamplesFromXYValues( const std::vector<double>& xValues,
+                                           const std::vector<double>& yValues,
+                                           bool                       keepOnlyPositiveValues )
+{
+    if ( m_qwtPlotCurve )
+    {
+        m_qwtPlotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, keepOnlyPositiveValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
+                                                  const std::vector<double>&    yValues,
+                                                  bool                          keepOnlyPositiveValues )
+{
+    if ( m_qwtPlotCurve )
+    {
+        m_qwtPlotCurve->setSamplesFromDatesAndYValues( dateTimes, yValues, keepOnlyPositiveValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
+                                                  const std::vector<double>& yValues,
+                                                  bool                       keepOnlyPositiveValues )
+{
+    if ( m_qwtPlotCurve )
+    {
+        m_qwtPlotCurve->setSamplesFromTimeTAndYValues( dateTimes, yValues, keepOnlyPositiveValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_curveColor );
@@ -591,7 +633,7 @@ void RimPlotCurve::curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateUiIconFromPlotSymbol()
 {
-    if ( m_pointSymbol() != RiuQwtSymbol::NoSymbol )
+    if ( m_pointSymbol() != RiuQwtSymbol::NoSymbol && m_qwtPlotCurve )
     {
         CVF_ASSERT( RiaGuiApplication::isRunning() );
         QColor curveColor( m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte() );
@@ -651,8 +693,6 @@ void RimPlotCurve::attachCurveAndErrorBars()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveAppearance()
 {
-    CVF_ASSERT( m_qwtPlotCurve );
-
     QColor     curveColor( m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte() );
     QwtSymbol* symbol = nullptr;
 
@@ -681,33 +721,38 @@ void RimPlotCurve::updateCurveAppearance()
             symbol->setPen( curveColor );
         }
     }
-    m_qwtPlotCurve->setAppearance( m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor );
-    m_qwtPlotCurve->setSymbol( symbol );
-    m_qwtPlotCurve->setSymbolSkipPixelDistance( m_symbolSkipPixelDistance() );
 
+    if ( m_qwtCurveErrorBars )
     {
         QwtIntervalSymbol* newSymbol = new QwtIntervalSymbol( QwtIntervalSymbol::Bar );
         newSymbol->setPen( QPen( curveColor ) );
         m_qwtCurveErrorBars->setSymbol( newSymbol );
     }
 
-    // Make sure the legend lines are long enough to distinguish between line types.
-    // Standard width in Qwt is 8 which is too short.
-    // Use 10 and scale this by curve thickness + add space for displaying symbol.
-    if ( m_lineStyle() != RiuQwtPlotCurve::STYLE_NONE )
+    if ( m_qwtPlotCurve )
     {
-        QSize legendIconSize = m_qwtPlotCurve->legendIconSize();
+        m_qwtPlotCurve->setAppearance( m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor );
+        m_qwtPlotCurve->setSymbol( symbol );
+        m_qwtPlotCurve->setSymbolSkipPixelDistance( m_symbolSkipPixelDistance() );
 
-        int symbolWidth = 0;
-        if ( symbol )
+        // Make sure the legend lines are long enough to distinguish between line types.
+        // Standard width in Qwt is 8 which is too short.
+        // Use 10 and scale this by curve thickness + add space for displaying symbol.
+        if ( m_lineStyle() != RiuQwtPlotCurve::STYLE_NONE )
         {
-            symbolWidth = symbol->boundingRect().size().width() + 2;
+            QSize legendIconSize = m_qwtPlotCurve->legendIconSize();
+
+            int symbolWidth = 0;
+            if ( symbol )
+            {
+                symbolWidth = symbol->boundingRect().size().width() + 2;
+            }
+
+            int width = std::max( 10 * m_curveThickness, ( symbolWidth * 3 ) / 2 );
+
+            legendIconSize.setWidth( width );
+            m_qwtPlotCurve->setLegendIconSize( legendIconSize );
         }
-
-        int width = std::max( 10 * m_curveThickness, ( symbolWidth * 3 ) / 2 );
-
-        legendIconSize.setWidth( width );
-        m_qwtPlotCurve->setLegendIconSize( legendIconSize );
     }
 }
 
@@ -923,6 +968,8 @@ void RimPlotCurve::updateLegendEntryVisibilityAndPlotLegend()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
+    if ( !m_qwtPlotCurve ) return;
+
     RimEnsembleCurveSet* ensembleCurveSet = nullptr;
     this->firstAncestorOrThisOfType( ensembleCurveSet );
     if ( ensembleCurveSet )

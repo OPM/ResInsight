@@ -27,6 +27,7 @@
 #include <QPointer>
 
 class RimEnsembleParameterColorHandlerInterface;
+class RimSummaryPlot;
 class RiuCvfOverlayItemWidget;
 class RiuQwtPlotZoomer;
 class RiuQwtPlotWheelZoomer;
@@ -36,12 +37,12 @@ class RiuQwtPlotWheelZoomer;
 //
 //
 //==================================================================================================
-class RiuSummaryQwtPlot : public RiuQwtPlotWidget, public RiuInterfaceToViewWindow
+class RiuSummaryQwtPlot : public RiuQwtPlotWidget
 {
     Q_OBJECT;
 
 public:
-    RiuSummaryQwtPlot( RimPlot* plotDefinition, QWidget* parent = nullptr );
+    RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent = nullptr );
     ~RiuSummaryQwtPlot() override;
 
     void useDateBasedTimeAxis(
@@ -52,15 +53,15 @@ public:
 
     void useTimeBasedTimeAxis();
 
-    RimViewWindow* ownerViewWindow() const override;
-
     void setLegendFontSize( int fontSize );
     void setLegendVisible( bool visible );
 
     void setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic );
 
+signals:
+    void plotZoomed();
+
 protected:
-    void keyPressEvent( QKeyEvent* ) override;
     void contextMenuEvent( QContextMenuEvent* ) override;
     void setDefaults();
     bool isZoomerActive() const override;

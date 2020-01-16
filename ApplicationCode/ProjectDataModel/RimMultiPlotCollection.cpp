@@ -18,7 +18,7 @@
 #include "RimMultiPlotCollection.h"
 
 #include "RiaApplication.h"
-#include "RimMultiPlotWindow.h"
+#include "RimMultiPlot.h"
 #include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT( RimMultiPlotCollection, "RimMultiPlotCollection" );
@@ -50,7 +50,7 @@ void RimMultiPlotCollection::deleteAllChildObjects()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimMultiPlotWindow*> RimMultiPlotCollection::multiPlots() const
+std::vector<RimMultiPlot*> RimMultiPlotCollection::multiPlots() const
 {
     return m_multiPlots.childObjects();
 }
@@ -58,9 +58,9 @@ std::vector<RimMultiPlotWindow*> RimMultiPlotCollection::multiPlots() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiPlotWindow* RimMultiPlotCollection::createMultiPlot()
+RimMultiPlot* RimMultiPlotCollection::createMultiPlot()
 {
-    RimMultiPlotWindow* plot = new RimMultiPlotWindow();
+    RimMultiPlot* plot = new RimMultiPlot();
     plot->setAsPlotMdiWindow();
 
     addMultiPlot( plot );
@@ -70,7 +70,7 @@ RimMultiPlotWindow* RimMultiPlotCollection::createMultiPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlotCollection::addMultiPlot( RimMultiPlotWindow* plot )
+void RimMultiPlotCollection::addMultiPlot( RimMultiPlot* plot )
 {
     m_multiPlots().push_back( plot );
 }

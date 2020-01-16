@@ -290,7 +290,7 @@ void RimWellDistributionPlot::doRemoveFromCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimWellDistributionPlot::createViewWidget( QWidget* mainWindowParent )
+RiuQwtPlotWidget* RimWellDistributionPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     // cvf::Trace::show("RimWellDistributionPlot::createViewWidget()");
 
@@ -303,7 +303,6 @@ QWidget* RimWellDistributionPlot::createViewWidget( QWidget* mainWindowParent )
     m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
 
     m_plotWidget->setAutoReplot( false );
-    m_plotWidget->setDraggable( false );
 
     updateLegend();
     onLoadDataAndUpdate();

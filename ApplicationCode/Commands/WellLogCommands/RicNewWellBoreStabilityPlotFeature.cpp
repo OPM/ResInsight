@@ -102,11 +102,11 @@ RimWellBoreStabilityPlot*
         auto task = progInfo.task( "Updating all tracks", 5 );
 
         plot->nameConfig()->setAutoNameTags( true, true, true, false, true );
-        plot->setMultiPlotTitleVisible( true );
+        plot->setPlotTitleVisible( true );
         plot->setLegendsVisible( true );
         plot->setLegendsHorizontal( true );
         plot->setDepthType( RiaDefines::TRUE_VERTICAL_DEPTH );
-        plot->setAutoScaleYEnabled( true );
+        plot->setAutoScaleDepthEnabled( true );
 
         RicNewWellLogPlotFeatureImpl::updateAfterCreation( plot );
     }

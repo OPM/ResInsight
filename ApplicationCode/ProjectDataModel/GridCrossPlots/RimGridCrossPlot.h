@@ -54,6 +54,7 @@ private:
 
 class RimGridCrossPlot : public RimPlot, public RimNameConfigHolderInterface
 {
+    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
 
 public:
@@ -112,12 +113,11 @@ public:
     void            onAxisSelected( int axis, bool toggle ) override;
 
 protected:
-    QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
-    void     deleteViewWidget() override;
-    void     onLoadDataAndUpdate() override;
-    void     initAfterRead() override;
-    void     defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void     defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void deleteViewWidget() override;
+    void onLoadDataAndUpdate() override;
+    void initAfterRead() override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
@@ -142,11 +142,16 @@ protected:
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
 private:
+    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+
     void doUpdateLayout() override;
     void cleanupBeforeClose();
 
     void    doRemoveFromCollection() override;
     QString generateInfoBoxText() const;
+
+private slots:
+    void onPlotZoomed();
 
 private:
     caf::PdmField<bool>                             m_showInfoBox;

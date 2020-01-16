@@ -893,7 +893,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( changedField == &m_wellPathName )
     {
-        setMultiPlotTitle( QString( plotNameFormatString() ).arg( m_wellPathName ) );
+        m_nameConfig->setCustomName( QString( plotNameFormatString() ).arg( m_wellPathName ) );
     }
 
     if ( changedField == &m_wellPathName )

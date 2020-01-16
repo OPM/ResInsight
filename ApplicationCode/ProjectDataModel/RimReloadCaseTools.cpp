@@ -35,6 +35,7 @@
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimMainPlotCollection.h"
+#include "RimMultiPlot.h"
 #include "RimMultiPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -182,7 +183,7 @@ void RimReloadCaseTools::updateAllPlots()
         RimMultiPlotCollection* multiPlotCollection = project->mainPlotCollection()->multiPlotCollection();
         if ( multiPlotCollection )
         {
-            for ( RimMultiPlotWindow* plotWindow : multiPlotCollection->multiPlots() )
+            for ( RimMultiPlot* plotWindow : multiPlotCollection->multiPlots() )
             {
                 plotWindow->loadDataAndUpdate();
             }

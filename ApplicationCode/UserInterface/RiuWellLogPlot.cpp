@@ -76,22 +76,6 @@ void RiuWellLogPlot::renderTo( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::keyPressEvent( QKeyEvent* event )
-{
-    wellLogPlotDefinition()->handleKeyPressEvent( event );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuWellLogPlot::willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const
-{
-    return dynamic_cast<const RiuWellLogTrack*>( plotWidget ) != nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RiuWellLogPlot::showYAxis( int row, int column ) const
 {
     return column == 0;
@@ -131,7 +115,7 @@ void RiuWellLogPlot::slotSetMinDepth( int value )
 
     double delta = value - minimumDepth;
     wellLogPlotDefinition()->setDepthAxisRange( minimumDepth + delta, maximumDepth + delta );
-    wellLogPlotDefinition()->setAutoScaleYEnabled( false );
+    wellLogPlotDefinition()->setAutoScaleDepthEnabled( false );
 }
 
 //--------------------------------------------------------------------------------------------------

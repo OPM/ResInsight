@@ -204,11 +204,12 @@ public:
 
 protected:
     // RimViewWindow overrides
-    QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
-    void     deleteViewWidget() override;
-    void     onLoadDataAndUpdate() override;
+    void deleteViewWidget() override;
+    void onLoadDataAndUpdate() override;
 
 private:
+    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+
     void cleanupBeforeClose();
     void detachAllPlotItems();
     void calculateXZoomRange();
@@ -271,6 +272,8 @@ private:
     void updateWellPathAttributesCollection();
 
     RimWellLogPlot* parentWellLogPlot() const;
+
+    void handleWheelEvent( QWheelEvent* event ) override;
 
 private:
     QString m_xAxisTitle;

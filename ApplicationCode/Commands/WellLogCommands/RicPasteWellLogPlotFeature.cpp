@@ -85,8 +85,8 @@ void RicPasteWellLogPlotFeature::onActionTriggered( bool isChecked )
             newObject->resolveReferencesRecursively();
             newObject->initAfterReadRecursively();
 
-            QString description = "Copy of " + newObject->multiPlotTitle();
-            newObject->setMultiPlotTitle( description );
+            QString customName = "Copy of " + newObject->nameConfig()->customName();
+            newObject->nameConfig()->setCustomName( customName );
 
             newObject->loadDataAndUpdate();
 

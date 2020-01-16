@@ -1,8 +1,10 @@
 #include "RimPlot.h"
 
-#include "RimMultiPlotWindow.h"
+#include "RimMultiPlot.h"
+#include "RimPlotCurve.h"
 #include "RimPlotWindow.h"
 
+#include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
 
 #include "cafPdmObject.h"
@@ -43,9 +45,24 @@ RimPlot::~RimPlot() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlot::createPlotWidget()
+QWidget* RimPlot::createViewWidget( QWidget* parent /*= nullptr */ )
 {
-    createViewWidget( nullptr );
+    RiuQwtPlotWidget* plotWidget = doCreatePlotViewWidget( parent );
+
+    RimPlot::attachPlotWidgetSignals( this, plotWidget );
+
+    updateWindowVisibility();
+    plotWidget->scheduleReplot();
+
+    return plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* RimPlot::createPlotWidget( QWidget* parent )
+{
+    return createViewWidget( parent );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,6 +87,7 @@ RimPlot::RowOrColSpan RimPlot::colSpan() const
 void RimPlot::setRowSpan( RowOrColSpan rowSpan )
 {
     m_rowSpan = rowSpan;
+    updateParentLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,6 +96,7 @@ void RimPlot::setRowSpan( RowOrColSpan rowSpan )
 void RimPlot::setColSpan( RowOrColSpan colSpan )
 {
     m_colSpan = colSpan;
+    updateParentLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,6 +118,7 @@ void RimPlot::updateAfterInsertingIntoMultiPlot()
 {
     updateLegend();
     updateAxes();
+    updateLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,10 +138,32 @@ void RimPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrde
 //--------------------------------------------------------------------------------------------------
 void RimPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_colSpan || changedField == &m_rowSpan )
+    RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( changedField == &m_showWindow )
     {
         updateParentLayout();
     }
+    else if ( changedField == &m_colSpan || changedField == &m_rowSpan )
+    {
+        updateParentLayout();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::attachPlotWidgetSignals( RimPlot* plot, RiuQwtPlotWidget* plotWidget )
+{
+    CAF_ASSERT( plot && plotWidget );
+    plot->connect( plotWidget, SIGNAL( plotSelected( bool ) ), SLOT( onPlotSelected( bool ) ) );
+    plot->connect( plotWidget, SIGNAL( axisSelected( int, bool ) ), SLOT( onAxisSelected( int, bool ) ) );
+    plot->connect( plotWidget,
+                   SIGNAL( curveSelected( QwtPlotCurve*, bool ) ),
+                   SLOT( onCurveSelected( QwtPlotCurve*, bool ) ) );
+    plot->connect( plotWidget, SIGNAL( onKeyPressEvent( QKeyEvent* ) ), SLOT( onKeyPressEvent( QKeyEvent* ) ) );
+    plot->connect( plotWidget, SIGNAL( onWheelEvent( QWheelEvent* ) ), SLOT( onWheelEvent( QWheelEvent* ) ) );
+    plot->connect( plotWidget, SIGNAL( destroyed() ), SLOT( onViewerDestroyed() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,4 +175,64 @@ void RimPlot::doRenderWindowContent( QPaintDevice* paintDevice )
     {
         viewer()->renderTo( paintDevice, viewer()->frameGeometry() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::onPlotSelected( bool toggle )
+{
+    if ( toggle )
+    {
+        RiuPlotMainWindowTools::toggleItemInSelection( this );
+    }
+    else
+    {
+        RiuPlotMainWindowTools::selectAsCurrentItem( this );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::onCurveSelected( QwtPlotCurve* curve, bool toggle )
+{
+    RimPlotCurve* selectedCurve = dynamic_cast<RimPlotCurve*>( this->findPdmObjectFromQwtCurve( curve ) );
+    if ( selectedCurve )
+    {
+        if ( toggle )
+        {
+            RiuPlotMainWindowTools::toggleItemInSelection( selectedCurve );
+        }
+        else
+        {
+            RiuPlotMainWindowTools::selectAsCurrentItem( selectedCurve );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::onViewerDestroyed()
+{
+    m_showWindow = false;
+    updateConnectedEditors();
+    updateUiIconFromToggleField();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::onKeyPressEvent( QKeyEvent* event )
+{
+    handleKeyPressEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlot::onWheelEvent( QWheelEvent* event )
+{
+    handleWheelEvent( event );
 }

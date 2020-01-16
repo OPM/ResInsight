@@ -22,8 +22,8 @@
 #include "RiaApplication.h"
 
 #include "RimMainPlotCollection.h"
+#include "RimMultiPlot.h"
 #include "RimMultiPlotCollection.h"
-#include "RimMultiPlotWindow.h"
 #include "RimPlot.h"
 #include "RimProject.h"
 
@@ -53,7 +53,7 @@ RicfCommandResponse RicNewMultiPlotFeature::execute()
     RimProject*             project        = RiaApplication::instance()->project();
     RimMultiPlotCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
 
-    RimMultiPlotWindow* plotWindow = new RimMultiPlotWindow;
+    RimMultiPlot* plotWindow = new RimMultiPlot;
     plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
     plotWindow->setAsPlotMdiWindow();
     plotCollection->addMultiPlot( plotWindow );
@@ -68,7 +68,7 @@ RicfCommandResponse RicNewMultiPlotFeature::execute()
         plotWindow->movePlotsToThis( plots, nullptr );
     }
 
-    plotCollection->updateAllRequiredEditors();
+    project->updateAllRequiredEditors();
     plotWindow->loadDataAndUpdate();
 
     RiuPlotMainWindowTools::setExpanded( plotCollection, true );
@@ -82,13 +82,6 @@ RicfCommandResponse RicNewMultiPlotFeature::execute()
 //--------------------------------------------------------------------------------------------------
 bool RicNewMultiPlotFeature::isCommandEnabled()
 {
-    RimMultiPlotCollection* multiPlotCollection =
-        caf::SelectionManager::instance()->selectedItemOfType<RimMultiPlotCollection>();
-    if ( multiPlotCollection )
-    {
-        return true;
-    }
-
     auto plots = selectedPlots();
 
     std::vector<caf::PdmUiItem*> selectedUiItems;
@@ -116,16 +109,8 @@ void RicNewMultiPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewMultiPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    if ( selectedPlots().empty() )
-    {
-        actionToSetup->setText( "New Empty Multi Plot" );
-        actionToSetup->setIcon( QIcon( ":/WellLogPlot16x16.png" ) );
-    }
-    else
-    {
-        actionToSetup->setText( "Create Multi Plot from Selected Plots" );
-        actionToSetup->setIcon( QIcon( ":/WellLogPlot16x16.png" ) );
-    }
+    actionToSetup->setText( "Create Multi Plot from Selected Plots" );
+    actionToSetup->setIcon( QIcon( ":/WellLogPlot16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

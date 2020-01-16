@@ -18,7 +18,7 @@
 #pragma once
 
 #include "RimPlotWindow.h"
-#include "RiuMultiPlotInterface.h"
+#include "RiuMultiPlotBook.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -34,19 +34,12 @@
 
 class RimPlot;
 
-class RimMultiPlotWindow : public RimPlotWindow
+class RimMultiPlot : public RimPlotWindow
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum ColumnCount
-    {
-        COLUMNS_1         = 1,
-        COLUMNS_2         = 2,
-        COLUMNS_3         = 3,
-        COLUMNS_4         = 4,
-        COLUMNS_UNLIMITED = 1000,
-    };
+    using ColumnCount     = RiuMultiPlotBook::ColumnCount;
     using ColumnCountEnum = caf::AppEnum<ColumnCount>;
 
     enum RowCount
@@ -59,10 +52,10 @@ public:
     using RowCountEnum = caf::AppEnum<RowCount>;
 
 public:
-    RimMultiPlotWindow( bool hidePlotsInTreeView = false );
-    ~RimMultiPlotWindow() override;
+    RimMultiPlot();
+    ~RimMultiPlot() override;
 
-    RimMultiPlotWindow& operator=( RimMultiPlotWindow&& rhs );
+    RimMultiPlot& operator=( RimMultiPlot&& rhs );
 
     QWidget* viewWidget() override;
 
@@ -90,7 +83,7 @@ public:
     void setAutoScaleXEnabled( bool enabled );
     void setAutoScaleYEnabled( bool enabled );
 
-    int                  columnCount() const;
+    int                  columnCount() const override;
     int                  rowsPerPage() const;
     caf::PdmFieldHandle* columnCountField();
     caf::PdmFieldHandle* rowsPerPageField();
@@ -98,10 +91,7 @@ public:
 
     void zoomAll() override;
 
-    QString      asciiDataForPlotExport() const;
-    virtual void onPlotAdditionOrRemoval();
-    void         setAcceptDrops( bool acceptDrops );
-    bool         acceptDrops() const;
+    QString asciiDataForPlotExport() const;
 
     bool previewModeEnabled() const;
 
@@ -125,10 +115,10 @@ protected:
     void                          onLoadDataAndUpdate() override;
     void                          initAfterRead() override;
 
-    void         applyPlotWindowTitleToWidgets();
-    void         updatePlots();
-    virtual void updateZoom();
-    void         recreatePlotWidgets();
+    void applyPlotWindowTitleToWidgets();
+    void updatePlots();
+    void updateZoom();
+    void recreatePlotWidgets();
 
     bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
     bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
@@ -137,12 +127,12 @@ protected:
                         bool                        forceChange = false ) override;
 
 private:
-    void         cleanupBeforeClose();
-    void         doUpdateLayout() override;
-    virtual void updateSubPlotNames();
-    virtual void updatePlotWindowTitle();
-    virtual void doSetAutoScaleYEnabled( bool enabled );
-    void         doRenderWindowContent( QPaintDevice* paintDevice ) override;
+    void cleanupBeforeClose();
+    void doUpdateLayout() override;
+    void updateSubPlotNames();
+    void updatePlotWindowTitle();
+    void doRenderWindowContent( QPaintDevice* paintDevice ) override;
+    void onPlotAdditionOrRemoval();
 
 protected:
     caf::PdmField<bool>            m_showPlotWindowTitle;
@@ -151,11 +141,9 @@ protected:
     caf::PdmField<RowCountEnum>    m_rowsPerPage;
     caf::PdmField<bool>            m_showIndividualPlotTitles;
 
-    friend class RiuMultiPlotInterface;
-    QPointer<RiuMultiPlotInterface> m_viewer;
+    friend class RiuMultiPlotBook;
+    QPointer<RiuMultiPlotBook> m_viewer;
 
 private:
     caf::PdmChildArrayField<RimPlot*> m_plots;
-
-    bool m_acceptDrops;
 };

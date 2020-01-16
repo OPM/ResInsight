@@ -128,6 +128,16 @@ protected:
                                       const std::vector<double>&   errorValues,
                                       bool                         keepOnlyPositiveValues,
                                       RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ERROR_ALONG_Y_AXIS );
+    void setSamplesFromXYValues( const std::vector<double>& xValues,
+                                 const std::vector<double>& yValues,
+                                 bool                       keepOnlyPositiveValues );
+    void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
+                                        const std::vector<double>&    yValues,
+                                        bool                          keepOnlyPositiveValues );
+
+    void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
+                                        const std::vector<double>& yValues,
+                                        bool                       keepOnlyPositiveValues );
 
 protected:
     // Overridden PDM methods

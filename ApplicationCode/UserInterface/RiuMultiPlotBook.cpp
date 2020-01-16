@@ -15,14 +15,14 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RiuMultiPlotWindow.h"
+#include "RiuMultiPlotBook.h"
 
 #include "RiaGuiApplication.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 
 #include "RimContextCommandBuilder.h"
-#include "RimMultiPlotWindow.h"
+#include "RimMultiPlot.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuMainWindow.h"
@@ -98,16 +98,14 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMultiPlotWindow::RiuMultiPlotWindow( RimMultiPlotWindow* plotDefinition, QWidget* parent )
-    : RiuMultiPlotInterface( parent )
+RiuMultiPlotBook::RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* parent )
+    : QWidget( parent )
     , m_plotDefinition( plotDefinition )
     , m_plotTitle( "Multi Plot" )
     , m_titleVisible( true )
+    , m_subTitlesVisible( true )
     , m_previewMode( true )
 {
-    Q_ASSERT( plotDefinition );
-    m_plotDefinition = plotDefinition;
-
     const int spacing = 8;
 
     this->setBackgroundRole( QPalette::Dark );
@@ -147,12 +145,12 @@ RiuMultiPlotWindow::RiuMultiPlotWindow( RimMultiPlotWindow* plotDefinition, QWid
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMultiPlotWindow::~RiuMultiPlotWindow() {}
+RiuMultiPlotBook::~RiuMultiPlotBook() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiPlotWindow* RiuMultiPlotWindow::ownerPlotDefinition()
+RimViewWindow* RiuMultiPlotBook::ownerViewWindow() const
 {
     return m_plotDefinition;
 }
@@ -160,15 +158,7 @@ RimMultiPlotWindow* RiuMultiPlotWindow::ownerPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewWindow* RiuMultiPlotWindow::ownerViewWindow() const
-{
-    return m_plotDefinition;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::addPlot( RiuQwtPlotWidget* plotWidget )
+void RiuMultiPlotBook::addPlot( RiuQwtPlotWidget* plotWidget )
 {
     // Push the plot to the back of the list
     insertPlot( plotWidget, m_plotWidgets.size() );
@@ -177,9 +167,8 @@ void RiuMultiPlotWindow::addPlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
+void RiuMultiPlotBook::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
 {
-    plotWidget->setDraggable( true ); // Becomes draggable when added to a grid plot window
     m_plotWidgets.insert( static_cast<int>( index ), plotWidget );
     scheduleUpdate();
 }
@@ -187,7 +176,7 @@ void RiuMultiPlotWindow::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::removePlot( RiuQwtPlotWidget* plotWidget )
+void RiuMultiPlotBook::removePlot( RiuQwtPlotWidget* plotWidget )
 {
     if ( !plotWidget ) return;
 
@@ -202,7 +191,7 @@ void RiuMultiPlotWindow::removePlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::setPlotTitle( const QString& plotTitle )
+void RiuMultiPlotBook::setPlotTitle( const QString& plotTitle )
 {
     m_plotTitle = plotTitle;
     for ( int i = 0; i < m_pages.size(); ++i )
@@ -214,7 +203,7 @@ void RiuMultiPlotWindow::setPlotTitle( const QString& plotTitle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::setTitleVisible( bool visible )
+void RiuMultiPlotBook::setTitleVisible( bool visible )
 {
     m_titleVisible = visible;
     for ( auto page : m_pages )
@@ -226,25 +215,19 @@ void RiuMultiPlotWindow::setTitleVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::setSelectionsVisible( bool visible )
+void RiuMultiPlotBook::setSubTitlesVisible( bool visible )
 {
-    for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
+    m_subTitlesVisible = visible;
+    for ( auto page : m_pages )
     {
-        if ( visible && caf::SelectionManager::instance()->isSelected( plotWidget->plotDefinition(), 0 ) )
-        {
-            plotWidget->setWidgetState( "selected" );
-        }
-        else
-        {
-            caf::UiStyleSheet::clearWidgetStates( plotWidget );
-        }
+        page->setSubTitlesVisible( visible );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::setFontSize( int fontSize )
+void RiuMultiPlotBook::setFontSize( int fontSize )
 {
     QFont font      = this->font();
     int   pixelSize = RiaFontCache::pointSizeToPixelSize( fontSize );
@@ -256,14 +239,12 @@ void RiuMultiPlotWindow::setFontSize( int fontSize )
     {
         page->setFontSize( fontSize );
     }
-
-    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuMultiPlotWindow::fontSize() const
+int RiuMultiPlotBook::fontSize() const
 {
     return RiaFontCache::pixelSizeToPointSize( this->font().pixelSize() );
 }
@@ -271,7 +252,7 @@ int RiuMultiPlotWindow::fontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuMultiPlotWindow::indexOfPlotWidget( RiuQwtPlotWidget* plotWidget )
+int RiuMultiPlotBook::indexOfPlotWidget( RiuQwtPlotWidget* plotWidget )
 {
     return m_plotWidgets.indexOf( plotWidget );
 }
@@ -279,7 +260,7 @@ int RiuMultiPlotWindow::indexOfPlotWidget( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuMultiPlotWindow::previewModeEnabled() const
+bool RiuMultiPlotBook::previewModeEnabled() const
 {
     return m_previewMode;
 }
@@ -287,7 +268,7 @@ bool RiuMultiPlotWindow::previewModeEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::setPreviewModeEnabled( bool previewMode )
+void RiuMultiPlotBook::setPreviewModeEnabled( bool previewMode )
 {
     m_previewMode = previewMode;
 
@@ -295,14 +276,12 @@ void RiuMultiPlotWindow::setPreviewModeEnabled( bool previewMode )
     {
         page->setPreviewModeEnabled( previewModeEnabled() );
     }
-
-    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::scheduleUpdate()
+void RiuMultiPlotBook::scheduleUpdate()
 {
     RiaPlotWindowRedrawScheduler::instance()->scheduleMultiPlotWindowUpdate( this );
 }
@@ -310,7 +289,7 @@ void RiuMultiPlotWindow::scheduleUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::scheduleReplotOfAllPlots()
+void RiuMultiPlotBook::scheduleReplotOfAllPlots()
 {
     for ( RiuQwtPlotWidget* plotWidget : visiblePlotWidgets() )
     {
@@ -321,9 +300,12 @@ void RiuMultiPlotWindow::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::renderTo( QPaintDevice* paintDevice )
+void RiuMultiPlotBook::renderTo( QPaintDevice* paintDevice )
 {
-    setSelectionsVisible( false );
+    for ( auto page : m_pages )
+    {
+        page->stashWidgetStates();
+    }
 
     int    resolution = paintDevice->logicalDpiX();
     double scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
@@ -344,18 +326,21 @@ void RiuMultiPlotWindow::renderTo( QPaintDevice* paintDevice )
         firstPage = false;
     }
 
-    setSelectionsVisible( true );
+    for ( auto page : m_pages )
+    {
+        page->restoreWidgetStates();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::contextMenuEvent( QContextMenuEvent* event )
+void RiuMultiPlotBook::contextMenuEvent( QContextMenuEvent* event )
 {
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
-    caf::SelectionManager::instance()->setSelectedItem( ownerPlotDefinition() );
+    caf::SelectionManager::instance()->setSelectedItem( ownerViewWindow() );
 
     menuBuilder << "RicShowPlotDataFeature";
     menuBuilder << "RicShowContributingWellsFromPlotFeature";
@@ -371,7 +356,7 @@ void RiuMultiPlotWindow::contextMenuEvent( QContextMenuEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::showEvent( QShowEvent* event )
+void RiuMultiPlotBook::showEvent( QShowEvent* event )
 {
     QWidget::showEvent( event );
     performUpdate();
@@ -381,7 +366,7 @@ void RiuMultiPlotWindow::showEvent( QShowEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::resizeEvent( QResizeEvent* event )
+void RiuMultiPlotBook::resizeEvent( QResizeEvent* event )
 {
     setBookSize( event->size().width() );
     QWidget::resizeEvent( event );
@@ -390,7 +375,7 @@ void RiuMultiPlotWindow::resizeEvent( QResizeEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::setBookSize( int frameWidth )
+void RiuMultiPlotBook::setBookSize( int frameWidth )
 {
     for ( auto page : m_pages )
     {
@@ -404,7 +389,7 @@ void RiuMultiPlotWindow::setBookSize( int frameWidth )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, int> RiuMultiPlotWindow::rowAndColumnCount( int plotWidgetCount ) const
+std::pair<int, int> RiuMultiPlotBook::rowAndColumnCount( int plotWidgetCount ) const
 {
     if ( plotWidgetCount == 0 )
     {
@@ -419,7 +404,7 @@ std::pair<int, int> RiuMultiPlotWindow::rowAndColumnCount( int plotWidgetCount )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuMultiPlotWindow::showYAxis( int row, int column ) const
+bool RiuMultiPlotBook::showYAxis( int row, int column ) const
 {
     return true;
 }
@@ -427,7 +412,7 @@ bool RiuMultiPlotWindow::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::performUpdate()
+void RiuMultiPlotBook::performUpdate()
 {
     deleteAllPages();
     createPages();
@@ -437,7 +422,7 @@ void RiuMultiPlotWindow::performUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<QPointer<RiuQwtPlotWidget>> RiuMultiPlotWindow::visiblePlotWidgets() const
+QList<QPointer<RiuQwtPlotWidget>> RiuMultiPlotBook::visiblePlotWidgets() const
 {
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets;
     for ( QPointer<RiuQwtPlotWidget> plotWidget : m_plotWidgets )
@@ -453,7 +438,7 @@ QList<QPointer<RiuQwtPlotWidget>> RiuMultiPlotWindow::visiblePlotWidgets() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::deleteAllPages()
+void RiuMultiPlotBook::deleteAllPages()
 {
     for ( RiuMultiPlotPage* page : m_pages )
     {
@@ -467,8 +452,10 @@ void RiuMultiPlotWindow::deleteAllPages()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotWindow::createPages()
+void RiuMultiPlotBook::createPages()
 {
+    CAF_ASSERT( m_plotDefinition );
+
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets       = this->visiblePlotWidgets();
     auto                              rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
 
@@ -476,41 +463,53 @@ void RiuMultiPlotWindow::createPages()
     int row         = 0;
     int column      = 0;
 
-    RiuMultiPlotPage* page = new RiuMultiPlotPage( m_plotDefinition, this );
-    m_pages.push_back( page );
-    m_bookLayout->addWidget( page );
+    // Make sure we always add a page. For empty multi-plots we'll have an empty page with a drop target.
+    RiuMultiPlotPage* page = createPage();
+
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
     {
-        int expextedColSpan = static_cast<int>( plotWidgets[visibleIndex]->plotDefinition()->colSpan() );
+        int expextedColSpan = static_cast<int>( plotWidgets[visibleIndex]->colSpan() );
         int colSpan         = std::min( expextedColSpan, rowAndColumnCount.second );
 
         std::tie( row, column ) = page->findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
         if ( row >= rowsPerPage )
         {
-            page = new RiuMultiPlotPage( m_plotDefinition, this );
-
-            m_pages.push_back( page );
-            m_bookLayout->addWidget( page );
+            page   = createPage();
             row    = 0;
             column = 0;
         }
         page->addPlot( plotWidgets[visibleIndex] );
-        page->setVisible( true );
         page->performUpdate();
     }
-    // Reapply plot settings
-    setPlotTitle( m_plotTitle );
-
-    setFontSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() );
-    setTitleVisible( m_titleVisible );
-    setPreviewModeEnabled( m_previewMode );
     m_book->adjustSize();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QList<QPointer<RiuMultiPlotPage>>& RiuMultiPlotWindow::pages() const
+const QList<QPointer<RiuMultiPlotPage>>& RiuMultiPlotBook::pages() const
 {
     return m_pages;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuMultiPlotPage* RiuMultiPlotBook::createPage()
+{
+    RiuMultiPlotPage* page = new RiuMultiPlotPage( m_plotDefinition, this );
+
+    // Reapply plot settings
+    size_t pageNumber = m_pages.size() + 1;
+    page->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( pageNumber ).arg( pageNumber ) );
+    page->setFontSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    page->setTitleVisible( m_titleVisible );
+    page->setSubTitlesVisible( m_subTitlesVisible );
+    page->setPreviewModeEnabled( m_previewMode );
+
+    m_pages.push_back( page );
+    m_bookLayout->addWidget( page );
+
+    page->setVisible( true );
+    return page;
 }

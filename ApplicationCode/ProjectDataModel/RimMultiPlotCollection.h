@@ -20,7 +20,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-class RimMultiPlotWindow;
+class RimMultiPlot;
 
 //==================================================================================================
 ///
@@ -36,10 +36,10 @@ public:
 
     void deleteAllChildObjects();
 
-    std::vector<RimMultiPlotWindow*> multiPlots() const;
-    RimMultiPlotWindow*              createMultiPlot();
-    void                             addMultiPlot( RimMultiPlotWindow* plot );
+    std::vector<RimMultiPlot*> multiPlots() const;
+    RimMultiPlot*              createMultiPlot();
+    void                       addMultiPlot( RimMultiPlot* plot );
 
 private:
-    caf::PdmChildArrayField<RimMultiPlotWindow*> m_multiPlots;
+    caf::PdmChildArrayField<RimMultiPlot*> m_multiPlots;
 };

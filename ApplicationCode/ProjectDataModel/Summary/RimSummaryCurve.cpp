@@ -496,9 +496,9 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                 if ( curveMerger.allXValues().size() > 0 )
                 {
-                    m_qwtPlotCurve->setSamplesFromXValuesAndYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
-                                                                     curveMerger.interpolatedYValuesForAllXValues( 1 ),
-                                                                     isLogCurve );
+                    this->setSamplesFromXYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
+                                                  curveMerger.interpolatedYValuesForAllXValues( 1 ),
+                                                  isLogCurve );
                 }
                 else
                 {
@@ -530,12 +530,12 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                             }
                             else
                             {
-                                m_qwtPlotCurve->setSamplesFromXValuesAndYValues( timeSteps, curveValuesY, isLogCurve );
+                                this->setSamplesFromXYValues( timeSteps, curveValuesY, isLogCurve );
                             }
                         }
                         else
                         {
-                            m_qwtPlotCurve->setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, isLogCurve );
+                            this->setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, isLogCurve );
                         }
                     }
                 }
@@ -553,7 +553,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         }
                     }
 
-                    m_qwtPlotCurve->setSamplesFromXValuesAndYValues( timeFromSimulationStart, curveValuesY, isLogCurve );
+                    this->setSamplesFromXYValues( timeFromSimulationStart, curveValuesY, isLogCurve );
                 }
             }
             else
@@ -564,7 +564,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( shouldPopulateViewWithEmptyData )
         {
-            m_qwtPlotCurve->setSamplesFromXValuesAndYValues( std::vector<double>(), std::vector<double>(), isLogCurve );
+            this->setSamplesFromXYValues( std::vector<double>(), std::vector<double>(), isLogCurve );
         }
 
         if ( updateParentPlot && m_parentQwtPlot )
