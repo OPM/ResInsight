@@ -112,12 +112,16 @@ public:
                                                           CellDirection direction );
 
     void setCombinedValuesExplicitTrans( double         transmissibility,
+                                         double         kh,
+                                         double         dFactor,
                                          double         skinFactor,
                                          double         diameter,
                                          CellDirection  celldirection,
                                          CompletionType completionType );
 
     void setCombinedValuesImplicitTransWPImult( double         wpimult,
+                                                double         kh,
+                                                double         dFactor,
                                                 double         skinFactor,
                                                 double         diameter,
                                                 CellDirection  celldirection,
