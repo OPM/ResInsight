@@ -46,6 +46,7 @@
 #include "qwt_scale_widget.h"
 #include "qwt_symbol.h"
 #include "qwt_text.h"
+#include "qwt_text_label.h"
 
 #include <QDebug>
 #include <QDrag>
@@ -178,7 +179,7 @@ void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis     axis,
     axisTitleFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( titleFontSize ) );
     axisTitleFont.setBold( titleBold );
     axisTitle.setFont( axisTitleFont );
-    axisTitle.setRenderFlags( alignment );
+    axisTitle.setRenderFlags( alignment | Qt::TextWordWrap );
 
     setAxisTitle( axis, axisTitle );
 }

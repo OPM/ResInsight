@@ -43,8 +43,8 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
 
     plot->setAutoFillBackground( true );
     plot->setCanvasBackground( Qt::white );
+    plot->plotLayout()->setCanvasMargin( 0, -1 );
 
-    plot->canvas()->setContentsMargins( 1, 1, 1, 1 );
     QFrame* canvasFrame = dynamic_cast<QFrame*>( plot->canvas() );
     canvasFrame->setFrameShape( QFrame::Box );
 
@@ -90,7 +90,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     plot->canvas()->setMouseTracking( true );
     plot->plotLayout()->setAlignCanvasToScales( true );
 
-    plot->setContentsMargins( 2, 2, 2, 2 );
+    plot->setContentsMargins( 1, 1, 1, 1 );
 
     // Store the pointer address as an object name. This way each plot can be identified uniquely for CSS-stylesheets
     QString objectName = QString( "%1" ).arg( reinterpret_cast<uint64_t>( plot ) );
@@ -112,6 +112,8 @@ void RiuQwtPlotTools::setDefaultAxes( QwtPlot* plot )
 
     plot->axisWidget( QwtPlot::xBottom )->setMargin( 0 );
     plot->axisWidget( QwtPlot::yLeft )->setMargin( 0 );
+    plot->axisWidget( QwtPlot::xTop )->setMargin( 0 );
+    plot->axisWidget( QwtPlot::yRight )->setMargin( 0 );
 
     plot->setAxisMaxMinor( QwtPlot::xBottom, 2 );
     plot->setAxisMaxMinor( QwtPlot::yLeft, 3 );
