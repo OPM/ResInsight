@@ -106,6 +106,13 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         this->firstAncestorOrThisOfTypeAsserted( ownerView );
         ownerView->scheduleCreateDisplayModelAndRedraw();
     }
+    else if ( changedField == &m_showInactiveCells )
+    {
+        m_surfacePartMgr = nullptr;
+        RimGridView* ownerView;
+        this->firstAncestorOrThisOfTypeAsserted( ownerView );
+        ownerView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

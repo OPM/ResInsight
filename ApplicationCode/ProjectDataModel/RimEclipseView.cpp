@@ -891,6 +891,8 @@ void RimEclipseView::appendWellsAndFracturesToModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::onLoadDataAndUpdate()
 {
+    this->updateSurfacesInViewTreeItems();
+
     onUpdateScaleTransform();
 
     if ( m_eclipseCase )

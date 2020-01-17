@@ -34,23 +34,31 @@ class RimSurfaceInView;
 class RigSurface;
 class RigResultAccessor;
 
+class RivSurfaceIntersectionGeometryGenerator;
+
 class RivSurfacePartMgr : public cvf::Object
 {
 public:
     explicit RivSurfacePartMgr( RimSurfaceInView* surface );
 
-    void appendNativeGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
-    void updateCellResultColor( size_t timeStepIndex );
     void applySingleColor();
+    void updateCellResultColor( size_t timeStepIndex );
+    void appendIntersectionGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
+
+    void appendNativeGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
 private:
+    void generatePartGeometry();
+
     void generateNativePartGeometry();
-    void generateVertexToCellIndexMap();
+    void generateNativeVertexToCellIndexMap();
 
     static void calculateVertexTextureCoordinates( cvf::Vec2fArray*           textureCoords,
                                                    const std::vector<size_t>& vertexToCellIdxMap,
                                                    const RigResultAccessor*   resultAccessor,
                                                    const cvf::ScalarMapper*   mapper );
+
+    cvf::ref<RivSurfaceIntersectionGeometryGenerator> m_intersectionGenerator;
 
     caf::PdmPointer<RimSurfaceInView> m_surfaceInView;
     cvf::ref<RigSurface> m_usedSurfaceData; // Store the reference to the old data, to know when new data has arrived.
@@ -58,5 +66,15 @@ private:
     cvf::ref<cvf::Part> m_nativeTrianglesPart;
     cvf::ref<cvf::Part> m_nativeMeshLinesPart;
 
-    std::vector<size_t> m_vertexToCellIndexMap;
+    cvf::ref<cvf::Part> m_intersectionFaces;
+    cvf::ref<cvf::Part> m_intersectionGridLines;
+    cvf::ref<cvf::Part> m_intersectionFaultGridLines;
+
+    cvf::ref<cvf::Vec2fArray> m_intersectionFacesTextureCoords;
+
+    std::vector<size_t> m_nativeVertexToCellIndexMap;
+};
+
+class RivReservoirSurfaceGeometryGenerator : public cvf::Object
+{
 };

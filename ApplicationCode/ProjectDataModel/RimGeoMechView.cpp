@@ -131,7 +131,10 @@ void RimGeoMechView::onLoadDataAndUpdate()
 {
     caf::ProgressInfo progress( 7, "" );
     progress.setNextProgressIncrement( 5 );
+
     onUpdateScaleTransform();
+
+    this->updateSurfacesInViewTreeItems();
 
     if ( m_geomechCase )
     {
@@ -395,13 +398,20 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
         else
             m_vizLogic->updateStaticCellColors( m_currentTimeStep() );
 
-        m_intersectionCollection->updateCellResultColor( this->cellResult()->hasResult(), m_currentTimeStep );
+        bool hasGeneralCellResult = this->cellResult()->hasResult();
+
+        m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
+        if ( m_surfaceCollection )
+        {
+            m_surfaceCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
+        }
     }
     else
     {
         m_vizLogic->updateStaticCellColors( -1 );
 
         m_intersectionCollection->updateCellResultColor( false, m_currentTimeStep );
+        if ( m_surfaceCollection ) m_surfaceCollection->updateCellResultColor( false, m_currentTimeStep );
 
         nativeOrOverrideViewer()->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }

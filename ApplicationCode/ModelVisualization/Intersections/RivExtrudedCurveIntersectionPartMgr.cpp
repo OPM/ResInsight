@@ -190,21 +190,27 @@ void RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMech
 #pragma omp parallel for schedule( dynamic )
         for ( int triangleVxIdx = 0; triangleVxIdx < vxCount; ++triangleVxIdx )
         {
-            float resValue    = 0;
-            int   weightCount = vertexWeights[triangleVxIdx].size();
-            for ( int wIdx = 0; wIdx < weightCount; ++wIdx )
-            {
-                size_t resIdx;
-                if ( isElementNodalResult )
-                {
-                    resIdx = vertexWeights[triangleVxIdx].vxId( wIdx );
-                }
-                else
-                {
-                    resIdx = femPart->nodeIdxFromElementNodeResultIdx( vertexWeights[triangleVxIdx].vxId( wIdx ) );
-                }
+            float resValue = HUGE_VAL;
 
-                resValue += resultValues[resIdx] * vertexWeights[triangleVxIdx].weight( wIdx );
+            int weightCount = vertexWeights[triangleVxIdx].size();
+            if ( weightCount )
+            {
+                resValue = 0;
+
+                for ( int wIdx = 0; wIdx < weightCount; ++wIdx )
+                {
+                    size_t resIdx;
+                    if ( isElementNodalResult )
+                    {
+                        resIdx = vertexWeights[triangleVxIdx].vxId( wIdx );
+                    }
+                    else
+                    {
+                        resIdx = femPart->nodeIdxFromElementNodeResultIdx( vertexWeights[triangleVxIdx].vxId( wIdx ) );
+                    }
+
+                    resValue += resultValues[resIdx] * vertexWeights[triangleVxIdx].weight( wIdx );
+                }
             }
 
             if ( resValue == HUGE_VAL || resValue != resValue ) // a != a is true for NAN's

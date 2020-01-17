@@ -102,7 +102,8 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
     {
         if ( surf->isActive() )
         {
-            surf->surfacePartMgr()->appendNativeGeometryPartsToModel( model, scaleTransform );
+            // surf->surfacePartMgr()->appendNativeGeometryPartsToModel( model, scaleTransform );
+            surf->surfacePartMgr()->appendIntersectionGeometryPartsToModel( model, scaleTransform );
         }
     }
 
