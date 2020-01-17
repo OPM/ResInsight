@@ -97,6 +97,14 @@ void RigNNCData::setConnections( std::vector<RigConnection>& connections )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RigNNCData::nativeConnectionCount() const
+{
+    return m_nativeConnectionCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::vector<RigConnection>& RigNNCData::connections() const
 {
     return m_connections;

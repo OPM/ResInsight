@@ -50,7 +50,8 @@ public:
     void processNativeConnections( const RigMainGrid& mainGrid );
     void computeCompleteSetOfNncs( const RigMainGrid* mainGrid );
 
-    void setConnections( std::vector<RigConnection>& connections );
+    void   setConnections( std::vector<RigConnection>& connections );
+    size_t nativeConnectionCount() const;
 
     const std::vector<RigConnection>& connections() const;
 

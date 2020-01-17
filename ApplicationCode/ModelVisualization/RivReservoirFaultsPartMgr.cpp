@@ -154,7 +154,9 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
         {
             if ( faultCollection->showNNCs() )
             {
-                bool showNncs = true;
+                bool showNncs             = true;
+                bool showAllenNncGeometry = false;
+
                 if ( faultCollection->hideNncsWhenNoResultIsAvailable() )
                 {
                     RigEclipseResultAddress eclipseResultAddress;
@@ -167,6 +169,11 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
                         eclipseResultAddress = cellResultColors->eclipseResultAddress();
                     }
 
+                    if ( eclipseResultAddress.m_resultCatType == RiaDefines::ALLEN_DIAGRAMS )
+                    {
+                        showAllenNncGeometry = true;
+                    }
+
                     RigMainGrid* mainGrid = m_reservoirView->mainGrid();
                     if ( !( mainGrid && mainGrid->nncData()->hasScalarValues( eclipseResultAddress ) ) )
                     {
@@ -176,7 +183,14 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
 
                 if ( showNncs )
                 {
-                    rivFaultPart->appendNNCFacesToModel( &parts );
+                    if ( showAllenNncGeometry )
+                    {
+                        rivFaultPart->appendCompleteNNCFacesToModel( &parts );
+                    }
+                    else
+                    {
+                        rivFaultPart->appendNativeNNCFacesToModel( &parts );
+                    }
                 }
             }
         }
