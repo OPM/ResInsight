@@ -403,6 +403,9 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setEnableMask( faultBit );
             part->setPriority( RivPartPriority::PartType::Nnc );
 
+            cvf::ref<cvf::Effect> eff = new cvf::Effect;
+            part->setEffect( eff.p() );
+
             m_NNCFaces = part;
         }
     }
@@ -430,6 +433,9 @@ void RivFaultPartMgr::generatePartGeometry()
             part->updateBoundingBox();
             part->setEnableMask( faultBit );
             part->setPriority( RivPartPriority::PartType::Nnc );
+
+            cvf::ref<cvf::Effect> eff = new cvf::Effect;
+            part->setEffect( eff.p() );
 
             m_allenNNCFaces = part;
         }
