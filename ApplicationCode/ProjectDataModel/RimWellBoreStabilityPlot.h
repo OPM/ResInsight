@@ -26,68 +26,30 @@
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
-#include <set>
-
 class RimGeoMechCase;
 class RimWellPath;
+class RimWbsParameters;
 
 class RimWellBoreStabilityPlot : public RimWellLogPlot
-{    
+{
     CAF_PDM_HEADER_INIT;
-
-    using ParameterSource     = RigGeoMechWellLogExtractor::WbsParameterSource;
-    using ParameterSourceEnum = RigGeoMechWellLogExtractor::WbsParameterSourceEnum;
 
 public:
     RimWellBoreStabilityPlot();
-
-    void applyWbsParametersToExtractor( RigGeoMechWellLogExtractor* extractor );
-
-    RimWellBoreStabilityPlot::ParameterSource parameterSource( const RigWbsParameter& parameter ) const;
-    double                                    userDefinedValue( const RigWbsParameter& parameter ) const;
-
-    void setParameterSource( const RigWbsParameter& parameter, RimWellBoreStabilityPlot::ParameterSource );
+    void   applyWbsParametersToExtractor( RigGeoMechWellLogExtractor* extractor );
+    double userDefinedValue( const RigWbsParameter& parameter ) const;
+    void   setWbsParameters( const RimWbsParameters& wbsParameters );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly ) override;
-
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
-
-    void assignValidSource( caf::PdmField<ParameterSourceEnum>* parameterSourceField,
-                            const std::vector<ParameterSource>& validSources );
     void onLoadDataAndUpdate() override;
-
-    bool hasLasFileWithChannel( const QString& channel ) const;
-    bool hasElementPropertyEntry( const RigFemResultAddress& resAddr ) const;
-
-    caf::PdmField<ParameterSourceEnum>* sourceField( const RigWbsParameter& parameter ) const;
-
-    std::vector<ParameterSource> supportedSources( const RigWbsParameter& parameter ) const;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void initAfterRead() override;
 
 private:
-    caf::PdmField<ParameterSourceEnum> m_porePressureSource;
-    caf::PdmField<ParameterSourceEnum> m_porePressureShaleSource;
-    caf::PdmField<ParameterSourceEnum> m_poissonRatioSource;
-    caf::PdmField<ParameterSourceEnum> m_ucsSource;
-    caf::PdmField<ParameterSourceEnum> m_OBG0Source;
-    caf::PdmField<ParameterSourceEnum> m_DFSource;
-    caf::PdmField<ParameterSourceEnum> m_K0FGSource;
-    caf::PdmField<ParameterSourceEnum> m_K0SHSource;
-    caf::PdmField<ParameterSourceEnum> m_FGShaleSource;
+    void applyDataSource();
 
-    caf::PdmField<double> m_userDefinedPPShale;
-    caf::PdmField<double> m_userDefinedPoissionRatio;
-    caf::PdmField<double> m_userDefinedUcs;
-    caf::PdmField<double> m_userDefinedDF;
-    caf::PdmField<double> m_userDefinedK0FG;
-    caf::PdmField<double> m_userDefinedK0SH;
-    caf::PdmField<double> m_FGShaleMultiplier;
-
-    std::map<RigWbsParameter, caf::PdmField<ParameterSourceEnum>*> m_parameterSourceFields;
-    std::map<RigWbsParameter, caf::PdmField<double>*>              m_userDefinedValueFields;
+private:
+    caf::PdmChildField<RimWbsParameters*> m_wbsParameters;
 };

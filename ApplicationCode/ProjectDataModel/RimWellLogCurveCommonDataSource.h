@@ -52,6 +52,8 @@ public:
 
     RimWellLogCurveCommonDataSource();
 
+    void setCaseType( RiaDefines::CaseType caseType );
+
     RimCase*      caseToApply() const;
     void          setCaseToApply( RimCase* val );
     int           trajectoryTypeToApply() const;
@@ -102,6 +104,8 @@ protected:
     void                          modifyCurrentIndex( caf::PdmValueField* field, int indexOffset );
 
 private:
+    RiaDefines::CaseType m_caseType;
+
     caf::PdmPtrField<RimCase*>     m_case;
     caf::PdmField<int>             m_trajectoryType;
     caf::PdmPtrField<RimWellPath*> m_wellPath;

@@ -69,6 +69,7 @@ bool RimWellLogCurveCommonDataSource::DoubleComparator::operator()( const double
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
+    : m_caseType( RiaDefines::UNDEFINED_CASE )
 {
     CAF_PDM_InitObject( "Change Data Source", "", "", "" );
 
@@ -98,6 +99,14 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
 
     m_case     = nullptr;
     m_wellPath = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::setCaseType( RiaDefines::CaseType caseType )
+{
+    m_caseType = caseType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -749,7 +758,19 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_case )
     {
-        RimTools::caseOptionItems( &options );
+        if ( m_caseType == RiaDefines::GEOMECH_ODB_CASE )
+        {
+            RimTools::geoMechCaseOptionItems( &options );
+        }
+        else if ( m_caseType == RiaDefines::ECLIPSE_RESULT_CASE || m_caseType == RiaDefines::ECLIPSE_INPUT_CASE ||
+                  m_caseType == RiaDefines::ECLIPSE_SOURCE_CASE || m_caseType == RiaDefines::ECLIPSE_STAT_CASE )
+        {
+            RimTools::eclipseCaseOptionItems( &options );
+        }
+        else
+        {
+            RimTools::caseOptionItems( &options );
+        }
 
         if ( caseToApply() == nullptr )
         {
