@@ -188,6 +188,7 @@ QString        defaultDirectoryLabel( ImportFileType fileTypes );
 
 enum CaseType
 {
+    UNDEFINED_CASE      = -1,
     ECLIPSE_RESULT_CASE = 1,
     ECLIPSE_INPUT_CASE  = 2,
     ECLIPSE_STAT_CASE   = 3,
