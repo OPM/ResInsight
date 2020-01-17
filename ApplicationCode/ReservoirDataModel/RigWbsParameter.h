@@ -39,7 +39,7 @@ public:
         HYDROSTATIC,
         DERIVED_FROM_K0FG, // FG in shale
         PROPORTIONAL_TO_SH, // FG in shale
-        INVALID = 1000,
+        UNDEFINED = 1000,
     };
     using SourceEnum   = caf::AppEnum<Source>;
     using SourceVector = std::vector<std::pair<Source, SourceAddress>>;
@@ -66,8 +66,8 @@ public:
     bool operator==( const RigWbsParameter& rhs ) const;
     bool operator<( const RigWbsParameter& rhs ) const;
 
-    static RigWbsParameter PP_Sand();
-    static RigWbsParameter PP_Shale();
+    static RigWbsParameter PP_Reservoir();
+    static RigWbsParameter PP_NonReservoir();
     static RigWbsParameter poissonRatio();
     static RigWbsParameter UCS();
     static RigWbsParameter OBG();

@@ -77,7 +77,7 @@ private:
 
 private:
     caf::PdmField<ParameterSourceEnum> m_porePressureSource;
-    caf::PdmField<ParameterSourceEnum> m_porePressureShaleSource;
+    caf::PdmField<ParameterSourceEnum> m_porePressureNonReservoirSource;
     caf::PdmField<ParameterSourceEnum> m_poissonRatioSource;
     caf::PdmField<ParameterSourceEnum> m_ucsSource;
     caf::PdmField<ParameterSourceEnum> m_OBG0Source;

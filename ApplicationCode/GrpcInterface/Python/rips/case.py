@@ -750,7 +750,7 @@ class Case(PdmObject):
             exportFile=export_file,
         ))
 
-    def create_well_bore_stability_plot(self, well_path, time_step):
+    def create_well_bore_stability_plot(self, well_path, time_step, wbsParameters=None):
         """ Create a new well bore stability plot
 
         Arguments:
@@ -762,7 +762,8 @@ class Case(PdmObject):
         """
         plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.case_id,
                                                                                                  wellPath=well_path,
-                                                                                                 timeStep=time_step))
+                                                                                                 timeStep=time_step,
+                                                                                                 wbsParameters=wbsParameters))
         return self._project.plot(view_id=plot_result.createWbsPlotResult.viewId)
 
     def import_formation_names(self, formation_files=None):

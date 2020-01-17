@@ -211,16 +211,16 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
 {
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 
-    std::vector<WbsParameterSource> finalSourcesPerSegment( m_intersections.size(), RigWbsParameter::INVALID );
+    std::vector<WbsParameterSource> finalSourcesPerSegment( m_intersections.size(), RigWbsParameter::UNDEFINED );
 
     outputValues->resize( m_intersections.size(), std::numeric_limits<double>::infinity() );
 
-    if ( primarySource == RigWbsParameter::INVALID )
+    if ( primarySource == RigWbsParameter::UNDEFINED )
     {
         return finalSourcesPerSegment;
     }
 
-    bool isPPresult = parameter == RigWbsParameter::PP_Sand() || parameter == RigWbsParameter::PP_Shale();
+    bool isPPresult = parameter == RigWbsParameter::PP_Reservoir() || parameter == RigWbsParameter::PP_NonReservoir();
 
     std::vector<WbsParameterSource> allSources = parameter.sources();
     auto                            primary_it = std::find( allSources.begin(), allSources.end(), primarySource );
@@ -438,7 +438,7 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
     CVF_ASSERT( values );
 
     values->resize( m_intersections.size(), std::numeric_limits<double>::infinity() );
-    std::vector<WbsParameterSource> sources( m_intersections.size(), RigWbsParameter::INVALID );
+    std::vector<WbsParameterSource> sources( m_intersections.size(), RigWbsParameter::UNDEFINED );
 
     if ( resAddr.fieldName == RiaDefines::wbsPPResult().toStdString() )
     {
@@ -446,12 +446,10 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         std::vector<double> ppSandValues( m_intersections.size(), std::numeric_limits<double>::infinity() );
         std::vector<double> ppShaleValues( m_intersections.size(), std::numeric_limits<double>::infinity() );
 
-        std::vector<WbsParameterSource> ppSandSources = calculateWbsParameterForAllSegments( RigWbsParameter::PP_Sand(),
-                                                                                             frameIndex,
-                                                                                             &ppSandValues );
-        std::vector<WbsParameterSource> ppShaleSources = calculateWbsParameterForAllSegments( RigWbsParameter::PP_Shale(),
-                                                                                              0,
-                                                                                              &ppShaleValues );
+        std::vector<WbsParameterSource> ppSandSources =
+            calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(), frameIndex, &ppSandValues );
+        std::vector<WbsParameterSource> ppShaleSources =
+            calculateWbsParameterForAllSegments( RigWbsParameter::PP_NonReservoir(), 0, &ppShaleValues );
 
 #pragma omp parallel for
         for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
@@ -504,7 +502,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
     RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, "POR-Bar", "" );
 
     // Allow POR as an element property value
-    RigFemResultAddress ppSandElementPropertyAddr = RigWbsParameter::PP_Sand().femAddress(
+    RigFemResultAddress ppSandElementPropertyAddr = RigWbsParameter::PP_Reservoir().femAddress(
         RigWbsParameter::ELEMENT_PROPERTY_TABLE );
 
     RigFemResultAddress poissonResAddr = RigWbsParameter::poissonRatio().femAddress(
@@ -531,7 +529,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
     values->resize( m_intersections.size(), 0.0f );
 
     std::vector<double> ppSandAllSegments( m_intersections.size(), std::numeric_limits<double>::infinity() );
-    std::vector<WbsParameterSource> ppSources = calculateWbsParameterForAllSegments( RigWbsParameter::PP_Sand(),
+    std::vector<WbsParameterSource> ppSources = calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(),
                                                                                      RigWbsParameter::GRID,
                                                                                      frameIndex,
                                                                                      &ppSandAllSegments );

@@ -25,6 +25,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
+#include "RimWbsParameters.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellPath.h"
 
@@ -51,6 +52,8 @@ RicfCreateWellBoreStabilityPlotFeature::RicfCreateWellBoreStabilityPlotFeature()
     RICF_InitField( &m_caseId, "caseId", -1, "GeoMech Case Id", "", "", "" );
     RICF_InitField( &m_wellPath, "wellPath", QString( "" ), "Well Path", "", "", "" );
     RICF_InitField( &m_timeStep, "timeStep", -1, "Time Step", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_wbsParameters, "wbsParameters", "WbsParameters", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,7 +90,8 @@ RicfCommandResponse RicfCreateWellBoreStabilityPlotFeature::execute()
     {
         RimWellBoreStabilityPlot* wbsPlot = RicNewWellBoreStabilityPlotFeature::createPlot( chosenCase,
                                                                                             chosenWellPath,
-                                                                                            m_timeStep() );
+                                                                                            m_timeStep(),
+                                                                                            m_wbsParameters() );
         RicfCommandResponse       response;
         response.setResult( new RicfCreateWbsPlotResult( wbsPlot->id() ) );
         return response;

@@ -43,7 +43,8 @@
 //--------------------------------------------------------------------------------------------------
 RimWellBoreStabilityPlot*
     RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( bool           showAfterCreation /*= true*/,
-                                                               const QString& plotDescription /*= QString("")*/ )
+                                                               const QString& plotDescription /*= QString("")*/,
+                                                               const RimWbsParameters* params /*= nullptr*/ )
 {
     RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
     CVF_ASSERT( wellLogPlotColl );
@@ -52,6 +53,11 @@ RimWellBoreStabilityPlot*
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
 
     RimWellBoreStabilityPlot* plot = new RimWellBoreStabilityPlot();
+    if ( params )
+    {
+        plot->copyWbsParameters( params );
+    }
+
     plot->setAsPlotMdiWindow();
 
     wellLogPlotColl->wellLogPlots().push_back( plot );

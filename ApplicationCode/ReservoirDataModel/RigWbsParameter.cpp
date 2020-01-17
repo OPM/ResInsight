@@ -29,10 +29,10 @@ void RigWbsParameter::SourceEnum::setUp()
     addItem( RigWbsParameter::ELEMENT_PROPERTY_TABLE, "ELEMENT_PROPERTY_TABLE", "Property Table" );
     addItem( RigWbsParameter::USER_DEFINED, "USER_DEFINED", "User Defined" );
     addItem( RigWbsParameter::HYDROSTATIC, "HYDROSTATIC", "Hydrostatic" );
-    addItem( RigWbsParameter::DERIVED_FROM_K0FG, "K0FG", "FG derived from K0_FG" );
+    addItem( RigWbsParameter::DERIVED_FROM_K0FG, "DERIVED_FROM_K0FG", "FG derived from K0_FG" );
     addItem( RigWbsParameter::PROPORTIONAL_TO_SH, "PROPORTIONAL_TO_SH", "Proportional to SH" );
-    addItem( RigWbsParameter::INVALID, "UNDEFINED", "Undefined" );
-    setDefault( RigWbsParameter::INVALID );
+    addItem( RigWbsParameter::UNDEFINED, "UNDEFINED", "Undefined" );
+    setDefault( RigWbsParameter::UNDEFINED );
 }
 } // End namespace caf
 
@@ -169,7 +169,7 @@ bool RigWbsParameter::operator<( const RigWbsParameter& rhs ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWbsParameter RigWbsParameter::PP_Sand()
+RigWbsParameter RigWbsParameter::PP_Reservoir()
 {
     SourceVector sources = {{GRID, SourceAddress( "POR-Bar" )},
                             {LAS_FILE, SourceAddress( "POR" )},
@@ -180,11 +180,11 @@ RigWbsParameter RigWbsParameter::PP_Sand()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWbsParameter RigWbsParameter::PP_Shale()
+RigWbsParameter RigWbsParameter::PP_NonReservoir()
 {
-    return RigWbsParameter( "PP Shale",
+    return RigWbsParameter( "PP Non-Reservoir",
                             true,
-                            {{LAS_FILE, SourceAddress( "POR_Shale" )},
+                            {{LAS_FILE, SourceAddress( "POR_NonReservoir" )},
                              {HYDROSTATIC, SourceAddress( "Hydrostatic" )},
                              {USER_DEFINED, SourceAddress()}} );
 }
@@ -209,7 +209,7 @@ RigWbsParameter RigWbsParameter::UCS()
     return RigWbsParameter( "UCS",
                             false,
                             {{LAS_FILE, SourceAddress( "UCS" )},
-                             {ELEMENT_PROPERTY_TABLE, SourceAddress( "RATIO" )},
+                             {ELEMENT_PROPERTY_TABLE, SourceAddress( "UCS" )},
                              {USER_DEFINED, SourceAddress()}} );
 }
 
@@ -285,7 +285,7 @@ RigWbsParameter RigWbsParameter::FG_Shale()
 //--------------------------------------------------------------------------------------------------
 std::set<RigWbsParameter> RigWbsParameter::allParameters()
 {
-    return {PP_Sand(), PP_Shale(), poissonRatio(), UCS(), OBG(), OBG0(), SH(), DF(), K0_FG(), K0_SH(), FG_Shale()};
+    return {PP_Reservoir(), PP_NonReservoir(), poissonRatio(), UCS(), OBG(), OBG0(), SH(), DF(), K0_FG(), K0_SH(), FG_Shale()};
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -66,12 +66,16 @@ CAF_CMD_SOURCE_INIT( RicNewWellBoreStabilityPlotFeature, "RicNewWellBoreStabilit
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellBoreStabilityPlot*
-    RicNewWellBoreStabilityPlotFeature::createPlot( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep )
+    RicNewWellBoreStabilityPlotFeature::createPlot( RimGeoMechCase*         geoMechCase,
+                                                    RimWellPath*            wellPath,
+                                                    int                     timeStep,
+                                                    const RimWbsParameters* parameters /* = nullptr*/ )
 {
     caf::ProgressInfo progInfo( 100, "Creating Well Bore Stability Plot" );
 
     RimWellBoreStabilityPlot* plot = RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( false,
-                                                                                                "Well Bore Stability" );
+                                                                                                "Well Bore Stability",
+                                                                                                parameters );
 
     {
         auto task = progInfo.task( "Creating formation track", 2 );

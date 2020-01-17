@@ -2290,8 +2290,9 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                 caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
 
                 std::vector<QString> sourceNames =
-                    RigWbsParameter::PP_Sand().allSourceLabels( "\n",
-                                                                wbsPlot->userDefinedValue( RigWbsParameter::PP_Shale() ) );
+                    RigWbsParameter::PP_Reservoir().allSourceLabels( "\n",
+                                                                     wbsPlot->userDefinedValue(
+                                                                         RigWbsParameter::PP_NonReservoir() ) );
                 curveData.data = ppSourceRegions;
 
                 std::vector<QString>                   sourceNamesToPlot;

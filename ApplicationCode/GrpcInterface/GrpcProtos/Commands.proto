@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "Case.proto";
 import "Definitions.proto";
+import "PdmObject.proto";
 
 package rips;
 
@@ -274,9 +275,10 @@ message CloneViewRequest
 
 message CreateWbsPlotRequest
 {
-	int32 caseId    = 1;
-	string wellPath = 2;
-	int32 timeStep  = 3;
+	int32 caseId            = 1;
+	string wellPath         = 2;
+	int32 timeStep          = 3;
+	PdmObject wbsParameters = 4;
 }
 
 message ImportWellPathsRequest

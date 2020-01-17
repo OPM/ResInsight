@@ -26,7 +26,10 @@ class RimCase;
 
 namespace caf
 {
+class PdmChildArrayFieldHandle;
+class PdmChildFieldHandle;
 class PdmObject;
+class PdmObjectHandle;
 class PdmValueField;
 } // namespace caf
 
@@ -50,13 +53,15 @@ public:
     static RimCase* findCase( int caseId );
     static size_t   numberOfMessagesForByteCount( size_t messageSize, size_t byteCount = 64 * 1024u );
 
-    static void copyPdmObjectFromCafToRips( const caf::PdmObject* source, rips::PdmObject* destination );
-    static void copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObject* destination );
+    static void copyPdmObjectFromCafToRips( const caf::PdmObjectHandle* source, rips::PdmObject* destination );
+    static void copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination );
 
     static void assignFieldValue( const QString& stringValue, caf::PdmValueField* field );
 
-    static caf::PdmObject*
-        emplaceChildArrayField( caf::PdmObject* parent, const QString& fieldLabel, const QString& classKeyword );
+    static caf::PdmObjectHandle* emplaceChildField( caf::PdmObject* parent, const QString& fieldLabel );
+
+    static caf::PdmObjectHandle* emplaceChildField( caf::PdmChildFieldHandle* childField );
+    static caf::PdmObjectHandle* emplaceChildArrayField( caf::PdmChildArrayFieldHandle* childArrayField );
 };
 
 #include "cafFactory.h"
