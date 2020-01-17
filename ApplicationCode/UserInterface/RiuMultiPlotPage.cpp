@@ -159,7 +159,7 @@ void RiuMultiPlotPage::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
 
     QString subTitleText = plotWidget->plotTitle();
     QLabel* subTitle     = new QLabel( subTitleText );
-    subTitle->setAlignment( Qt::AlignHCenter );
+    subTitle->setAlignment( Qt::AlignHCenter | Qt::AlignBottom );
     subTitle->setWordWrap( true );
     subTitle->setVisible( false );
     m_subTitles.insert( static_cast<int>( index ), subTitle );
@@ -653,10 +653,12 @@ int RiuMultiPlotPage::alignCanvasTops()
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
     {
         int row = visibleIndex / rowAndColumnCount.second;
-
-        QFont font      = m_plotWidgets[visibleIndex]->axisFont( QwtPlot::xTop );
-        maxExtents[row] = std::max( maxExtents[row],
-                                    plotWidgets[visibleIndex]->axisScaleDraw( QwtPlot::xTop )->extent( font ) );
+        if ( plotWidgets[visibleIndex]->axisEnabled( QwtPlot::xTop ) )
+        {
+            QFont font      = m_plotWidgets[visibleIndex]->axisFont( QwtPlot::xTop );
+            maxExtents[row] = std::max( maxExtents[row],
+                                        plotWidgets[visibleIndex]->axisScaleDraw( QwtPlot::xTop )->extent( font ) );
+        }
     }
 
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )

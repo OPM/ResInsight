@@ -70,26 +70,33 @@ QSize RiuQwtPlotLegend::sizeHint() const
     {
         int numColumns = m_columnCount;
         int numRows    = legendLayout->itemCount() / numColumns;
-        if ( legendLayout->itemCount() % numColumns ) numRows++;
-
-        int width = numColumns * legendLayout->maxItemWidth();
-
-        int maxHeight = 0;
-        for ( unsigned int i = 0; i < legendLayout->itemCount(); ++i )
+        if ( numRows == 0 )
         {
-            auto itemSize = legendLayout->itemAt( i )->sizeHint();
-            maxHeight     = std::max( maxHeight, itemSize.height() );
+            return QSize( 0, 0 );
         }
-        QMargins margins      = legendLayout->contentsMargins();
-        int      totalSpacing = ( numRows + 2 ) * legendLayout->spacing() + margins.top() + margins.bottom();
+        else
+        {
+            if ( legendLayout->itemCount() % numColumns ) numRows++;
 
-        int height = maxHeight * numRows + totalSpacing;
+            int width = numColumns * legendLayout->maxItemWidth();
 
-        QSize layoutSize( width, height );
-        QSize frameSize = layoutSize + QSize( 2 * frameWidth(), 2 * frameWidth() );
+            int maxHeight = 0;
+            for ( unsigned int i = 0; i < legendLayout->itemCount(); ++i )
+            {
+                auto itemSize = legendLayout->itemAt( i )->sizeHint();
+                maxHeight     = std::max( maxHeight, itemSize.height() );
+            }
+            QMargins margins      = legendLayout->contentsMargins();
+            int      totalSpacing = ( numRows + 2 ) * legendLayout->spacing() + margins.top() + margins.bottom();
 
-        fullSizeHint.setWidth( std::max( fullSizeHint.width(), frameSize.width() ) );
-        fullSizeHint.setHeight( std::max( fullSizeHint.height(), frameSize.height() ) );
+            int height = maxHeight * numRows + totalSpacing;
+
+            QSize layoutSize( width, height );
+            QSize frameSize = layoutSize + QSize( 2 * frameWidth(), 2 * frameWidth() );
+
+            fullSizeHint.setWidth( std::max( fullSizeHint.width(), frameSize.width() ) );
+            fullSizeHint.setHeight( std::max( fullSizeHint.height(), frameSize.height() ) );
+        }
     }
     return fullSizeHint;
 }
