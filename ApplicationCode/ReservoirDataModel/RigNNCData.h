@@ -47,8 +47,8 @@ public:
 
     RigNNCData();
 
-    void processConnections( const RigMainGrid& mainGrid );
-    void computeNncsFromFaults( const RigMainGrid* mainGrid );
+    void processNativeConnections( const RigMainGrid& mainGrid );
+    void computeCompleteSetOfNncs( const RigMainGrid* mainGrid );
 
     void setConnections( std::vector<RigConnection>& connections );
 

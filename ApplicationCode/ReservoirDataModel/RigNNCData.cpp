@@ -33,7 +33,7 @@ RigNNCData::RigNNCData() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::processConnections( const RigMainGrid& mainGrid )
+void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
 {
     // cvf::Trace::show("NNC: Total number: " + cvf::String((int)m_connections.size()));
 
@@ -77,7 +77,7 @@ void RigNNCData::processConnections( const RigMainGrid& mainGrid )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::computeNncsFromFaults( const RigMainGrid* mainGrid )
+void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid* mainGrid )
 {
     m_nativeConnectionCount = m_connections.size();
 

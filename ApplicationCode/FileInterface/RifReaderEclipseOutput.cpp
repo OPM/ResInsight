@@ -464,7 +464,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
 
             {
                 auto subNncTask = nncProgress.task( "Processing connections", 8 );
-                eclipseCase->mainGrid()->nncData()->processConnections( *( eclipseCase->mainGrid() ) );
+                eclipseCase->mainGrid()->nncData()->processNativeConnections( *( eclipseCase->mainGrid() ) );
             }
         }
     }
