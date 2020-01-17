@@ -559,7 +559,9 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
         dFactorCalculator.addValueAndWeight( completion.dFactor(), completion.transmissibility() );
     }
 
-    double combinedDFactor = dFactorCalculator.weightedMean();
+    // Arithmetic MEAN dFactor weighted by Tj/SumTj from the completions
+    // Note : Divide by n is intentional, based on input from @hhgs in mail dated 18.01.2020
+    double combinedDFactor = dFactorCalculator.weightedMean() / completions.size();
 
     if ( settings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES )
     {
