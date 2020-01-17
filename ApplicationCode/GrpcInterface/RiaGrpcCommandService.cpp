@@ -23,8 +23,10 @@
 #include "RicfSetTimeStep.h"
 
 #include "cafAssert.h"
+#include "cafPdmChildField.h"
 #include "cafPdmDataValueField.h"
 #include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmObject.h"
 #include "cafPdmValueField.h"
 #include <google/protobuf/reflection.h>
 
@@ -52,13 +54,13 @@ grpc::Status
         auto grpcOneOfMessage = requestDescriptor->FindFieldByNumber( (int)paramsCase );
         CAF_ASSERT( grpcOneOfMessage->type() == FieldDescriptor::TYPE_MESSAGE );
 
-        const Message& params               = request->GetReflection()->GetMessage( *request, grpcOneOfMessage );
-        QString        grpcOneOfMessageName = QString::fromStdString( grpcOneOfMessage->name() );
-        auto           pdmObjectHandle      = caf::PdmDefaultObjectFactory::instance()->create( grpcOneOfMessageName );
-        auto           commandHandle        = dynamic_cast<RicfCommandObject*>( pdmObjectHandle );
+        QString grpcOneOfMessageName = QString::fromStdString( grpcOneOfMessage->name() );
+        auto    pdmObjectHandle      = caf::PdmDefaultObjectFactory::instance()->create( grpcOneOfMessageName );
+        auto    commandHandle        = dynamic_cast<RicfCommandObject*>( pdmObjectHandle );
 
         if ( commandHandle )
         {
+            // Copy parameters
             RicfMultiCaseReplace* multiCaseReplaceCommand = dynamic_cast<RicfMultiCaseReplace*>( commandHandle );
             if ( multiCaseReplaceCommand )
             {
@@ -74,24 +76,13 @@ grpc::Status
             }
             else
             {
-                auto subMessageDescriptor = grpcOneOfMessage->message_type();
-                int  numParameters        = subMessageDescriptor->field_count();
-                for ( int i = 0; i < numParameters; ++i )
-                {
-                    auto parameter = subMessageDescriptor->field( i );
-                    if ( parameter )
-                    {
-                        QString parameterName       = QString::fromStdString( parameter->name() );
-                        auto    pdmValueFieldHandle = dynamic_cast<caf::PdmValueField*>(
-                            pdmObjectHandle->findField( parameterName ) );
-                        if ( pdmValueFieldHandle )
-                        {
-                            assignPdmFieldValue( pdmValueFieldHandle, params, parameter );
-                        }
-                    }
-                }
+                assignPdmObjectValues( commandHandle, *request, grpcOneOfMessage );
             }
+
+            // Execute command
             RicfCommandResponse response = commandHandle->execute();
+
+            // Copy results
             if ( response.status() == RicfCommandResponse::COMMAND_ERROR )
             {
                 return grpc::Status( grpc::FAILED_PRECONDITION, response.sanitizedResponseMessage().toStdString() );
@@ -230,6 +221,60 @@ void RiaGrpcCommandService::assignPdmFieldValue( caf::PdmValueField*    pdmValue
             auto value = reflection->GetEnumValue( params, paramDescriptor );
             pdmValueField->setFromQVariant( QVariant( value ) );
             break;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaGrpcCommandService::assignPdmObjectValues( caf::PdmObjectHandle*                    pdmObjectHandle,
+                                                   const google::protobuf::Message&         params,
+                                                   const google::protobuf::FieldDescriptor* paramDescriptor )
+{
+    FieldDescriptor::Type fieldDataType = paramDescriptor->type();
+    const Reflection*     reflection    = params.GetReflection();
+
+    CAF_ASSERT( fieldDataType == FieldDescriptor::TYPE_MESSAGE );
+
+    const Message& subMessage = reflection->GetMessage( params, paramDescriptor );
+
+    auto messageDescriptor = paramDescriptor->message_type();
+    int  numParameters     = messageDescriptor->field_count();
+    for ( int i = 0; i < numParameters; ++i )
+    {
+        auto parameter = messageDescriptor->field( i );
+        if ( parameter )
+        {
+            QString parameterName       = QString::fromStdString( parameter->name() );
+            auto    pdmChildFieldHandle = dynamic_cast<caf::PdmChildFieldHandle*>(
+                pdmObjectHandle->findField( parameterName ) );
+            auto pdmValueFieldHandle = dynamic_cast<caf::PdmValueField*>( pdmObjectHandle->findField( parameterName ) );
+            if ( pdmChildFieldHandle )
+            {
+                std::vector<caf::PdmObjectHandle*> childObjects;
+                pdmChildFieldHandle->childObjects( &childObjects );
+                caf::PdmObjectHandle* childObject = nullptr;
+                CAF_ASSERT( childObjects.size() <= 1u ); // We do not support child array fields yet
+
+                if ( childObjects.size() == 1u )
+                {
+                    childObject = childObjects.front();
+                }
+                else if ( childObjects.empty() )
+                {
+                    childObject = emplaceChildField( pdmChildFieldHandle );
+                }
+                CAF_ASSERT( childObject );
+                if ( childObject )
+                {
+                    assignPdmObjectValues( childObject, subMessage, parameter );
+                }
+            }
+            else if ( pdmValueFieldHandle )
+            {
+                assignPdmFieldValue( pdmValueFieldHandle, subMessage, parameter );
+            }
         }
     }
 }

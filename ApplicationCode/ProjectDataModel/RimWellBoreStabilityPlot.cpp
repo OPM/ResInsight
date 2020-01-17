@@ -70,9 +70,12 @@ double RimWellBoreStabilityPlot::userDefinedValue( const RigWbsParameter& parame
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellBoreStabilityPlot::setWbsParameters( const RimWbsParameters& wbsParameters )
+void RimWellBoreStabilityPlot::copyWbsParameters( const RimWbsParameters* wbsParameters )
 {
-    *m_wbsParameters = wbsParameters;
+    if ( wbsParameters )
+    {
+        *m_wbsParameters = *wbsParameters;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

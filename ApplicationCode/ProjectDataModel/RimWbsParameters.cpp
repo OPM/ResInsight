@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWbsParameters.h"
 
+#include "RicfCommandObject.h"
+
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
 
@@ -33,78 +35,80 @@ RimWbsParameters::RimWbsParameters()
 {
     CAF_PDM_InitObject( "Well Bore Stability Parameters", ":/WellLogPlot16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_porePressureSource,
-                                "PorePressureSource",
-                                "Pore Pressure",
-                                "",
-                                "Data source for Pore Pressure",
-                                "" );
+    RICF_InitFieldNoDefault( &m_porePressureSource,
+                             "PorePressureReservoirSource",
+                             "Reservoir Pore Pressure",
+                             "",
+                             "Data source for Pore Pressure in reservoir",
+                             "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_porePressureShaleSource,
-                                "PorePressureShaleSource",
-                                "Shale Pore Pressure",
-                                "",
-                                "Data source for Pore Pressure in Shale",
-                                "" );
+    RICF_InitFieldNoDefault( &m_porePressureNonReservoirSource,
+                             "PorePressureNonReservoirSource",
+                             "Non-Reservoir Pore Pressure",
+                             "",
+                             "Data source for Pore Pressure outside reservoir",
+                             "" );
+    RICF_InitField( &m_userDefinedPPShale, "UserPPNonReservoir", 1.05, "  Multiplier of hydrostatic PP", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_poissonRatioSource,
-                                "PoissionRatioSource",
-                                "Poisson Ratio",
-                                "",
-                                "Data source for Poisson Ratio",
-                                "" );
+    RICF_InitFieldNoDefault( &m_poissonRatioSource,
+                             "PoissionRatioSource",
+                             "Poisson Ratio",
+                             "",
+                             "Data source for Poisson Ratio",
+                             "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ucsSource, "UcsSource", "Uniaxial Compressive Strength", "", "Data source for UCS", "" );
+    RICF_InitFieldNoDefault( &m_ucsSource, "UcsSource", "Uniaxial Compressive Strength", "", "Data source for UCS", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_OBG0Source, "OBG0Source", "Initial Overburden Gradient", "", "Data source for OBG0", "" );
-    CAF_PDM_InitFieldNoDefault( &m_DFSource, "DFSource", "Depletion Factor (DF)", "", "Data source for Depletion Factor", "" );
+    RICF_InitFieldNoDefault( &m_OBG0Source, "OBG0Source", "Initial Overburden Gradient", "", "Data source for OBG0", "" );
+    RICF_InitFieldNoDefault( &m_DFSource, "DFSource", "Depletion Factor (DF)", "", "Data source for Depletion Factor", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_K0SHSource,
-                                "K0SHSource",
-                                "K0_SH",
-                                "",
-                                "SH in Shale (Matthews & Kelly) = K0_SH * (OBG0-PP0) + PP0 + DF * (PP-PP0)\nK0_SH = "
-                                "(SH - PP)/(OBG-PP)",
-                                "" );
+    RICF_InitFieldNoDefault( &m_K0SHSource,
+                             "K0SHSource",
+                             "K0_SH",
+                             "",
+                             "SH in Shale (Matthews & Kelly) = K0_SH * (OBG0-PP0) + PP0 + DF * (PP-PP0)\nK0_SH = "
+                             "(SH - PP)/(OBG-PP)",
+                             "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_FGShaleSource, "FGShaleSource", "FG in Shale Calculation", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_K0FGSource,
-                                "K0FGSource",
-                                "K0_FG",
-                                "",
-                                "FG in shale = K0_FG * (OBG0-PP0)\nK0_FG = (FG-PP)/(OBG-PP)",
-                                "" );
+    RICF_InitFieldNoDefault( &m_FGShaleSource, "FGShaleSource", "FG in Shale Calculation", "", "", "" );
+    RICF_InitFieldNoDefault( &m_K0FGSource,
+                             "K0FGSource",
+                             "K0_FG",
+                             "",
+                             "FG in shale = K0_FG * (OBG0-PP0)\nK0_FG = (FG-PP)/(OBG-PP)",
+                             "" );
 
-    CAF_PDM_InitField( &m_userDefinedPPShale, "UserPPShale", 1.05, "Multiplier of hydrostatic PP", "", "", "" );
-
-    CAF_PDM_InitField( &m_userDefinedPoissionRatio,
-                       "UserPoissionRatio",
-                       0.35,
-                       "User Defined Poisson Ratio",
-                       "",
-                       "User Defined Poisson Ratio",
-                       "" );
+    RICF_InitField( &m_userDefinedPoissionRatio,
+                    "UserPoissionRatio",
+                    0.35,
+                    "User Defined Poisson Ratio",
+                    "",
+                    "User Defined Poisson Ratio",
+                    "" );
     // Typical UCS: http://ceae.colorado.edu/~amadei/CVEN5768/PDF/NOTES8.pdf
     // Typical UCS for Shale is 5 - 100 MPa -> 50 - 1000 bar.
-    CAF_PDM_InitField( &m_userDefinedUcs, "UserUcs", 100.0, "User Defined UCS [bar]", "", "User Defined UCS [bar]", "" );
+    RICF_InitField( &m_userDefinedUcs, "UserUcs", 100.0, "User Defined UCS [bar]", "", "User Defined UCS [bar]", "" );
 
-    CAF_PDM_InitField( &m_userDefinedDF, "UserDF", 0.7, "User Defined DF", "", "User Defined Depletion Factor", "" );
-    CAF_PDM_InitField( &m_userDefinedK0FG, "UserK0FG", 0.75, "User Defined K0_FG", "", "", "" );
-    CAF_PDM_InitField( &m_userDefinedK0SH, "UserK0SH", 0.65, "User Defined K0_SH", "", "", "" );
-    CAF_PDM_InitField( &m_FGShaleMultiplier,
-                       "FGMultiplier",
-                       1.05,
-                       "SH Multiplier for FG in Shale",
-                       "",
-                       "FG in Shale = Multiplier * SH",
-                       "" );
+    RICF_InitField( &m_userDefinedDF, "UserDF", 0.7, "User Defined DF", "", "User Defined Depletion Factor", "" );
+    RICF_InitField( &m_userDefinedK0FG, "UserK0FG", 0.75, "User Defined K0_FG", "", "", "" );
+    RICF_InitField( &m_userDefinedK0SH, "UserK0SH", 0.65, "User Defined K0_SH", "", "", "" );
+    RICF_InitField( &m_FGShaleMultiplier,
+                    "FGMultiplier",
+                    1.05,
+                    "SH Multiplier for FG in Shale",
+                    "",
+                    "FG in Shale = Multiplier * SH",
+                    "" );
 
     CAF_PDM_InitFieldNoDefault( &m_geoMechCase, "GeoMechCase", "GeoMechCase", "", "", "" );
+    m_geoMechCase.uiCapability()->setUiHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "WellPath", "", "", "" );
+    m_wellPath.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "TimeStep", "", "", "" );
+    m_timeStep.uiCapability()->setUiHidden( true );
 
-    m_parameterSourceFields = {{RigWbsParameter::PP_Sand(), &m_porePressureSource},
-                               {RigWbsParameter::PP_Shale(), &m_porePressureShaleSource},
+    m_parameterSourceFields = {{RigWbsParameter::PP_Reservoir(), &m_porePressureSource},
+                               {RigWbsParameter::PP_NonReservoir(), &m_porePressureNonReservoirSource},
                                {RigWbsParameter::poissonRatio(), &m_poissonRatioSource},
                                {RigWbsParameter::UCS(), &m_ucsSource},
                                {RigWbsParameter::OBG0(), &m_OBG0Source},
@@ -113,7 +117,7 @@ RimWbsParameters::RimWbsParameters()
                                {RigWbsParameter::K0_SH(), &m_K0SHSource},
                                {RigWbsParameter::FG_Shale(), &m_FGShaleSource}};
 
-    m_userDefinedValueFields = {{RigWbsParameter::PP_Shale(), &m_userDefinedPPShale},
+    m_userDefinedValueFields = {{RigWbsParameter::PP_NonReservoir(), &m_userDefinedPPShale},
                                 {RigWbsParameter::poissonRatio(), &m_userDefinedPoissionRatio},
                                 {RigWbsParameter::UCS(), &m_userDefinedUcs},
                                 {RigWbsParameter::DF(), &m_userDefinedDF},
@@ -150,7 +154,11 @@ RimWbsParameters& RimWbsParameters::operator=( const RimWbsParameters& copyFrom 
 
     for ( auto parameterSourcePair : m_parameterSourceFields )
     {
-        setParameterSource( parameterSourcePair.first, copyFrom.parameterSource( parameterSourcePair.first ) );
+        auto paramSource = copyFrom.parameterSource( parameterSourcePair.first );
+        if ( paramSource != RigWbsParameter::UNDEFINED )
+        {
+            setParameterSource( parameterSourcePair.first, paramSource );
+        }
     }
     for ( auto parameterUserDefinedValuePair : m_userDefinedValueFields )
     {
@@ -215,7 +223,7 @@ RimWbsParameters::ParameterSource RimWbsParameters::parameterSource( const RigWb
     {
         return ( *field )();
     }
-    return RigWbsParameter::INVALID;
+    return RigWbsParameter::UNDEFINED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -334,8 +342,8 @@ void RimWbsParameters::loadDataAndUpdate()
 void RimWbsParameters::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_porePressureSource );
-    uiOrdering.add( &m_porePressureShaleSource );
-    if ( m_porePressureShaleSource == RigWbsParameter::USER_DEFINED )
+    uiOrdering.add( &m_porePressureNonReservoirSource );
+    if ( m_porePressureNonReservoirSource == RigWbsParameter::USER_DEFINED )
     {
         uiOrdering.add( &m_userDefinedPPShale );
     }
@@ -358,6 +366,7 @@ void RimWbsParameters::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
         uiOrdering.add( &m_K0FGSource );
         uiOrdering.add( &m_userDefinedK0FG );
     }
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------

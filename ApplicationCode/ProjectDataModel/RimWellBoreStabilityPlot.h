@@ -38,7 +38,7 @@ public:
     RimWellBoreStabilityPlot();
     void   applyWbsParametersToExtractor( RigGeoMechWellLogExtractor* extractor );
     double userDefinedValue( const RigWbsParameter& parameter ) const;
-    void   setWbsParameters( const RimWbsParameters& wbsParameters );
+    void   copyWbsParameters( const RimWbsParameters* wbsParameters );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

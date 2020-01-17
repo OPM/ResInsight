@@ -212,9 +212,8 @@ grpc::Status RiaGrpcPdmObjectService::CreateChildPdmObject( grpc::ServerContext*
     {
         CAF_ASSERT( request );
 
-        caf::PdmObject* pdmObject = emplaceChildArrayField( matchingObject,
-                                                            QString::fromStdString( request->child_field() ),
-                                                            QString::fromStdString( request->child_class() ) );
+        caf::PdmObjectHandle* pdmObject = emplaceChildField( matchingObject,
+                                                             QString::fromStdString( request->child_field() ) );
         if ( pdmObject )
         {
             copyPdmObjectFromCafToRips( pdmObject, reply );

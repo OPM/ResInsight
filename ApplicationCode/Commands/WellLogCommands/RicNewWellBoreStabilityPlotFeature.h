@@ -22,6 +22,7 @@
 
 class RimGeoMechCase;
 class RimGeoMechView;
+class RimWbsParameters;
 class RimWellBoreStabilityPlot;
 class RimWellPath;
 
@@ -33,7 +34,10 @@ class RicNewWellBoreStabilityPlotFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static RimWellBoreStabilityPlot* createPlot( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep );
+    static RimWellBoreStabilityPlot* createPlot( RimGeoMechCase*         geoMechCase,
+                                                 RimWellPath*            wellPath,
+                                                 int                     timeStep,
+                                                 const RimWbsParameters* parameters = nullptr );
 
 protected:
     // Overrides

@@ -541,7 +541,7 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimW
     auto allParams = RigWbsParameter::allParameters();
     for ( const RigWbsParameter& parameter : allParams )
     {
-        if ( parameter == RigWbsParameter::PP_Sand() || parameter == RigWbsParameter::PP_Shale() )
+        if ( parameter == RigWbsParameter::PP_Reservoir() || parameter == RigWbsParameter::PP_NonReservoir() )
         {
             findAndLoadPorePressuresFromLasFiles( wellPath, parameter, geomExtractor );
         }

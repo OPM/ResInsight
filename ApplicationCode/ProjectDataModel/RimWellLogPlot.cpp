@@ -21,6 +21,8 @@
 
 #include "RiaApplication.h"
 
+#include "RicfCommandObject.h"
+
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
@@ -82,24 +84,24 @@ RimWellLogPlot::RimWellLogPlot()
     m_commonDataSource.xmlCapability()->disableIO();
     m_commonDataSource = new RimWellLogCurveCommonDataSource;
 
-    CAF_PDM_InitField( &m_showPlotWindowTitle, "ShowTitleInPlot", true, "Show Title", "", "", "" );
+    RICF_InitField( &m_showPlotWindowTitle, "ShowTitleInPlot", true, "Show Title", "", "", "" );
 
     CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
 
     caf::AppEnum<RimWellLogPlot::DepthTypeEnum> depthType = RiaDefines::MEASURED_DEPTH;
-    CAF_PDM_InitField( &m_depthType, "DepthType", depthType, "Type", "", "", "" );
+    RICF_InitField( &m_depthType, "DepthType", depthType, "Type", "", "", "" );
 
     caf::AppEnum<RiaDefines::DepthUnitType> depthUnit = RiaDefines::UNIT_METER;
-    CAF_PDM_InitField( &m_depthUnit, "DepthUnit", depthUnit, "Unit", "", "", "" );
+    RICF_InitField( &m_depthUnit, "DepthUnit", depthUnit, "Unit", "", "", "" );
 
-    CAF_PDM_InitField( &m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "" );
-    CAF_PDM_InitField( &m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "" );
+    RICF_InitField( &m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "" );
+    RICF_InitField( &m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "" );
     m_minVisibleDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_maxVisibleDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_depthAxisGridVisibility, "ShowDepthGridLines", "Show Grid Lines", "", "", "" );
-    CAF_PDM_InitField( &m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "" );
+    RICF_InitFieldNoDefault( &m_depthAxisGridVisibility, "ShowDepthGridLines", "Show Grid Lines", "", "", "" );
+    RICF_InitField( &m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "" );
     m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
