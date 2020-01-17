@@ -504,27 +504,6 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
     resultCompletion.setSecondOrderingValue( firstCompletion.secondOrderingValue() );
     resultCompletion.setSourcePdmObject( firstCompletion.sourcePdmObject() );
 
-    bool anyNonDarcyFlowPresent = false;
-    for ( const auto& c : completions )
-    {
-        if ( c.isNonDarcyFlow() ) anyNonDarcyFlowPresent = true;
-    }
-
-    if ( anyNonDarcyFlowPresent && completions.size() > 1 )
-    {
-        QString errorMessage =
-            QString( "Cannot combine multiple completions when Non-Darcy Flow contribution is present in same cell %1" )
-                .arg( cellIndexIJK.oneBasedLocalCellIndexString() );
-        RiaLogging::error( errorMessage );
-        resultCompletion.addMetadata( "ERROR", errorMessage );
-        return resultCompletion; // Returning empty completion, should not be exported
-    }
-
-    if ( firstCompletion.isNonDarcyFlow() )
-    {
-        return firstCompletion;
-    }
-
     // completion type, skin factor, well bore diameter and cell direction are taken from (first) main bore,
     // if no main bore they are taken from first completion
     double        skinfactor       = firstCompletion.skinFactor();
@@ -541,11 +520,13 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
             skinfactor       = completion.skinFactor();
             wellBoreDiameter = completion.diameter();
             cellDirection    = completion.direction();
-            break;
         }
     }
 
-    double totalTrans = 0.0;
+    RiaWeightedMeanCalculator<double> dFactorCalculator;
+
+    double combinedTrans = 0.0;
+    double combinedKh    = 0.0;
 
     for ( const RigCompletionData& completion : completions )
     {
@@ -553,15 +534,6 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
         resultCompletion.m_metadata.insert( resultCompletion.m_metadata.end(),
                                             completion.m_metadata.begin(),
                                             completion.m_metadata.end() );
-
-        if ( completion.completionType() != firstCompletion.completionType() )
-        {
-            QString errorMessage = QString( "Cannot combine completions of different types in same cell %1" )
-                                       .arg( cellIndexIJK.oneBasedLocalCellIndexString() );
-            RiaLogging::error( errorMessage );
-            resultCompletion.addMetadata( "ERROR", errorMessage );
-            return resultCompletion; // Returning empty completion, should not be exported
-        }
 
         if ( completion.wellName() != firstCompletion.wellName() )
         {
@@ -581,12 +553,21 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
             return resultCompletion; // Returning empty completion, should not be exported
         }
 
-        totalTrans = totalTrans + completion.transmissibility();
+        combinedTrans = combinedTrans + completion.transmissibility();
+        combinedKh    = combinedKh + completion.kh();
+
+        dFactorCalculator.addValueAndWeight( completion.dFactor(), completion.transmissibility() );
     }
+
+    // Arithmetic MEAN dFactor weighted by Tj/SumTj from the completions
+    // Note : Divide by n is intentional, based on input from @hhgs in mail dated 18.01.2020
+    double combinedDFactor = dFactorCalculator.weightedMean() / completions.size();
 
     if ( settings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES )
     {
-        resultCompletion.setCombinedValuesExplicitTrans( totalTrans,
+        resultCompletion.setCombinedValuesExplicitTrans( combinedTrans,
+                                                         combinedKh,
+                                                         combinedDFactor,
                                                          skinfactor,
                                                          wellBoreDiameter,
                                                          cellDirection,
@@ -603,8 +584,10 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
                                                                                                     .globalCellIndex(),
                                                                                                 cellDirection );
 
-        double wpimult = totalTrans / transmissibilityEclipseCalculation;
+        double wpimult = combinedTrans / transmissibilityEclipseCalculation;
         resultCompletion.setCombinedValuesImplicitTransWPImult( wpimult,
+                                                                combinedKh,
+                                                                combinedDFactor,
                                                                 skinfactor,
                                                                 wellBoreDiameter,
                                                                 cellDirection,

@@ -204,12 +204,16 @@ void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation( double 
 ///
 //==================================================================================================
 void RigCompletionData::setCombinedValuesExplicitTrans( double         transmissibility,
+                                                        double         kh,
+                                                        double         dFactor,
                                                         double         skinFactor,
                                                         double         diameter,
                                                         CellDirection  celldirection,
                                                         CompletionType completionType )
 {
     m_transmissibility = transmissibility;
+    m_kh               = kh;
+    m_dFactor          = dFactor;
     m_skinFactor       = skinFactor;
     m_diameter         = diameter;
     m_direction        = celldirection;
@@ -220,12 +224,16 @@ void RigCompletionData::setCombinedValuesExplicitTrans( double         transmiss
 ///
 //==================================================================================================
 void RigCompletionData::setCombinedValuesImplicitTransWPImult( double         wpimult,
+                                                               double         kh,
+                                                               double         dFactor,
                                                                double         skinFactor,
                                                                double         diameter,
                                                                CellDirection  celldirection,
                                                                CompletionType completionType )
 {
     m_wpimult        = wpimult;
+    m_kh             = kh;
+    m_dFactor        = dFactor;
     m_direction      = celldirection;
     m_completionType = completionType;
     m_skinFactor     = skinFactor;
