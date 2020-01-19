@@ -31,10 +31,12 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivNNCGeometryGenerator::RivNNCGeometryGenerator( const RigNNCData*         nncData,
+RivNNCGeometryGenerator::RivNNCGeometryGenerator( bool                      includeAllen,
+                                                  const RigNNCData*         nncData,
                                                   const cvf::Vec3d&         offset,
                                                   const cvf::Array<size_t>* nncIndexes )
-    : m_nncData( nncData )
+    : m_includeAllenDiagramGeometry( includeAllen )
+    , m_nncData( nncData )
     , m_nncIndexes( nncIndexes )
     , m_offset( offset )
 {
@@ -85,6 +87,11 @@ void RivNNCGeometryGenerator::computeArrays()
     for ( long long nIdx = 0; nIdx < numConnections; ++nIdx )
     {
         size_t conIdx = m_nncIndexes.isNull() ? nIdx : ( *m_nncIndexes )[nIdx];
+
+        if ( !m_includeAllenDiagramGeometry && conIdx >= m_nncData->nativeConnectionCount() )
+        {
+            continue;
+        }
 
         const RigConnection& conn = m_nncData->connections()[conIdx];
 
@@ -177,8 +184,17 @@ void RivNNCGeometryGenerator::textureCoordinates( cvf::Vec2fArray*              
 #pragma omp parallel for
     for ( int tIdx = 0; tIdx < static_cast<int>( m_triangleIndexToNNCIndex->size() ); tIdx++ )
     {
-        double     cellScalarValue = ( *nncResultVals )[( *m_triangleIndexToNNCIndex )[tIdx]];
-        cvf::Vec2f texCoord        = mapper->mapToTextureCoord( cellScalarValue );
+        double cellScalarValue = HUGE_VAL;
+        size_t resultIndex     = ( *m_triangleIndexToNNCIndex )[tIdx];
+
+        // The nnc connections can have more connections than reported from Eclipse, clamp the result index to Eclipse Results
+
+        if ( resultIndex < nncResultVals->size() )
+        {
+            cellScalarValue = ( *nncResultVals )[resultIndex];
+        }
+
+        cvf::Vec2f texCoord = mapper->mapToTextureCoord( cellScalarValue );
         if ( cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue ) // a != a is true for NAN's
         {
             texCoord[1] = 1.0f;

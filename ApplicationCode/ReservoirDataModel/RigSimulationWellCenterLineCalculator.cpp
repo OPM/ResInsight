@@ -20,6 +20,7 @@
 #include "RigSimulationWellCenterLineCalculator.h"
 
 #include "RigCell.h"
+#include "RigCellFaceGeometryTools.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
@@ -800,11 +801,12 @@ private:
                     std::vector<size_t>     poygonIndices;
                     std::vector<cvf::Vec3d> intersections;
 
-                    auto contactFace = RigNNCData::calculateCellFaceOverlap( c1,
-                                                                             c2,
-                                                                             *( m_eclipseCaseData->mainGrid() ),
-                                                                             &poygonIndices,
-                                                                             &intersections );
+                    auto contactFace =
+                        RigCellFaceGeometryTools::calculateCellFaceOverlap( c1,
+                                                                            c2,
+                                                                            *( m_eclipseCaseData->mainGrid() ),
+                                                                            &poygonIndices,
+                                                                            &intersections );
 
                     if ( contactFace != cvf::StructGridInterface::NO_FACE )
                     {

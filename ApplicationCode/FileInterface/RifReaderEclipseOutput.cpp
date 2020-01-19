@@ -464,7 +464,7 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
 
             {
                 auto subNncTask = nncProgress.task( "Processing connections", 8 );
-                eclipseCase->mainGrid()->nncData()->processConnections( *( eclipseCase->mainGrid() ) );
+                eclipseCase->mainGrid()->nncData()->processNativeConnections( *( eclipseCase->mainGrid() ) );
             }
         }
     }
@@ -728,24 +728,31 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
             if ( numNNC > 0 )
             {
                 // Transform to our own data structures
+                std::vector<RigConnection> nncConnections;
+                std::vector<double>        transmissibilityValuesTemp;
 
-                mainGrid->nncData()->connections().resize( numNNC );
-                std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeStaticConnectionScalarResult(
-                    RigNNCData::propertyNameCombTrans() );
                 const double* transValues = ecl_nnc_data_get_values( tran_data );
 
                 for ( int nIdx = 0; nIdx < numNNC; ++nIdx )
                 {
                     const ecl_nnc_pair_type* geometry_pair = ecl_nnc_geometry_iget( nnc_geo, nIdx );
                     RigGridBase*             grid1         = mainGrid->gridByIndex( geometry_pair->grid_nr1 );
-                    mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(
-                        geometry_pair->global_index1 );
-                    RigGridBase* grid2 = mainGrid->gridByIndex( geometry_pair->grid_nr2 );
-                    mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(
-                        geometry_pair->global_index2 );
+                    RigGridBase*             grid2         = mainGrid->gridByIndex( geometry_pair->grid_nr2 );
 
-                    transmissibilityValues[nIdx] = transValues[nIdx];
+                    RigConnection nncConnection;
+                    nncConnection.m_c1GlobIdx = grid1->reservoirCellIndex( geometry_pair->global_index1 );
+                    nncConnection.m_c2GlobIdx = grid2->reservoirCellIndex( geometry_pair->global_index2 );
+
+                    nncConnections.push_back( nncConnection );
+
+                    transmissibilityValuesTemp.push_back( transValues[nIdx] );
                 }
+
+                mainGrid->nncData()->setConnections( nncConnections );
+
+                std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeStaticConnectionScalarResult(
+                    RiaDefines::propertyNameCombTrans() );
+                transmissibilityValues = transmissibilityValuesTemp;
             }
 
             ecl_nnc_data_free( tran_data );
@@ -767,11 +774,11 @@ void RifReaderEclipseOutput::transferDynamicNNCData( const ecl_grid_type* mainEc
     size_t timeStepCount = m_dynamicResultsAccess->timeStepCount();
 
     std::vector<std::vector<double>>& waterFluxData =
-        mainGrid->nncData()->makeDynamicConnectionScalarResult( RigNNCData::propertyNameFluxWat(), timeStepCount );
+        mainGrid->nncData()->makeDynamicConnectionScalarResult( RiaDefines::propertyNameFluxWat(), timeStepCount );
     std::vector<std::vector<double>>& oilFluxData =
-        mainGrid->nncData()->makeDynamicConnectionScalarResult( RigNNCData::propertyNameFluxOil(), timeStepCount );
+        mainGrid->nncData()->makeDynamicConnectionScalarResult( RiaDefines::propertyNameFluxOil(), timeStepCount );
     std::vector<std::vector<double>>& gasFluxData =
-        mainGrid->nncData()->makeDynamicConnectionScalarResult( RigNNCData::propertyNameFluxGas(), timeStepCount );
+        mainGrid->nncData()->makeDynamicConnectionScalarResult( RiaDefines::propertyNameFluxGas(), timeStepCount );
 
     for ( size_t timeStep = 0; timeStep < timeStepCount; ++timeStep )
     {

@@ -536,7 +536,7 @@ void RigReservoirBuilderMock::addFaults( RigEclipseCaseData* eclipseCase )
     grid->setFaults( faults );
 
     // NNCs
-    std::vector<RigConnection>& nncConnections = grid->nncData()->connections();
+    std::vector<RigConnection> nncConnections;
     {
         size_t i1 = 2;
         size_t j1 = 2;
@@ -561,8 +561,10 @@ void RigReservoirBuilderMock::addFaults( RigEclipseCaseData* eclipseCase )
         addNnc( grid, i1, j1, k1, i2, j2, k2, nncConnections );
     }
 
+    grid->nncData()->setConnections( nncConnections );
+
     std::vector<double>& tranVals = grid->nncData()->makeStaticConnectionScalarResult(
-        RigNNCData::propertyNameCombTrans() );
+        RiaDefines::propertyNameCombTrans() );
     for ( size_t cIdx = 0; cIdx < tranVals.size(); ++cIdx )
     {
         tranVals[cIdx] = 0.2;

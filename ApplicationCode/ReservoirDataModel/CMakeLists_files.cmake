@@ -75,6 +75,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEquil.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseAllenFaultsStatCalc.h
+${CMAKE_CURRENT_LIST_DIR}/RigCellFaceGeometryTools.h
+${CMAKE_CURRENT_LIST_DIR}/RigNncConnection.h
 )
 
 
@@ -147,6 +149,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEquil.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseAllenFaultsStatCalc.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigCellFaceGeometryTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigNncConnection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

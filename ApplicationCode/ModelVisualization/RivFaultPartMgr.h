@@ -68,9 +68,11 @@ public:
 
     void appendNativeFaultFacesToModel( cvf::ModelBasicList* model );
     void appendOppositeFaultFacesToModel( cvf::ModelBasicList* model );
-    void appendNNCFacesToModel( cvf::ModelBasicList* model );
     void appendLabelPartsToModel( cvf::ModelBasicList* model );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model );
+
+    void appendNativeNNCFacesToModel( cvf::ModelBasicList* model );
+    void appendCompleteNNCFacesToModel( cvf::ModelBasicList* model );
 
 private:
     void generatePartGeometry();
@@ -107,6 +109,10 @@ private:
     cvf::ref<RivNNCGeometryGenerator> m_NNCGenerator;
     cvf::ref<cvf::Part>               m_NNCFaces;
     cvf::ref<cvf::Vec2fArray>         m_NNCTextureCoords;
+
+    cvf::ref<RivNNCGeometryGenerator> m_allenNNCGenerator;
+    cvf::ref<cvf::Part>               m_allenNNCFaces;
+    cvf::ref<cvf::Vec2fArray>         m_allenNNCTextureCoords;
 
     cvf::ref<cvf::Part> m_faultLabelPart;
     cvf::ref<cvf::Part> m_faultLabelLinePart;
