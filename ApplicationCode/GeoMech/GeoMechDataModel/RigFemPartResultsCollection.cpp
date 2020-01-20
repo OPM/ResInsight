@@ -400,12 +400,15 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["ST"].push_back( "S3inc" );
             fieldCompNames["ST"].push_back( "S3azi" );
 
-            fieldCompNames["SG"].push_back( "S11" );
-            fieldCompNames["SG"].push_back( "S22" );
-            fieldCompNames["SG"].push_back( "S33" );
-            fieldCompNames["SG"].push_back( "S12" );
-            fieldCompNames["SG"].push_back( "S13" );
-            fieldCompNames["SG"].push_back( "S23" );
+            fieldCompNames["SG"].push_back( "S11-x" );
+            fieldCompNames["SG"].push_back( "S11-y" );
+            fieldCompNames["SG"].push_back( "S11-z" );
+            fieldCompNames["SG"].push_back( "S22-x" );
+            fieldCompNames["SG"].push_back( "S22-y" );
+            fieldCompNames["SG"].push_back( "S22-z" );
+            fieldCompNames["SG"].push_back( "S33-x" );
+            fieldCompNames["SG"].push_back( "S33-y" );
+            fieldCompNames["SG"].push_back( "S33-z" );
 
             fieldCompNames["Gamma"].push_back( "Gamma1" );
             fieldCompNames["Gamma"].push_back( "Gamma2" );
@@ -996,30 +999,40 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradient( 
 
     caf::ProgressInfo frameCountProgress( this->frameCount() * 2, "" );
     frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+        "Calculating gradient: " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
 
-    RigFemScalarResultFrames* st11 = this->findOrLoadScalarResult( partIndex,
-                                                                   RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                        "SE",
-                                                                                        resVarAddr.componentName ) );
+    QString origComponentName = QString::fromStdString( resVarAddr.componentName );
+    QString componentName     = origComponentName.left( origComponentName.lastIndexOf( QChar( '-' ) ) );
 
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
+    RigFemScalarResultFrames* inputResultFrames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, "SE", componentName.toStdString() ) );
 
+    RigFemScalarResultFrames* dataFramesX = m_femPartResults[partIndex]->createScalarResult(
+        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-x" ) );
+    RigFemScalarResultFrames* dataFramesY = m_femPartResults[partIndex]->createScalarResult(
+        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-y" ) );
+    RigFemScalarResultFrames* dataFramesZ = m_femPartResults[partIndex]->createScalarResult(
+        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-z" ) );
     frameCountProgress.incrementProgress();
 
     const RigFemPart*              femPart      = m_femParts->part( partIndex );
     int                            elementCount = femPart->elementCount();
     const std::vector<cvf::Vec3f>& nodeCoords   = femPart->nodes().coordinates;
 
-    int frameCount = st11->frameCount();
+    int frameCount = inputResultFrames->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
-        const std::vector<float>& st11Data = st11->frameData( fIdx );
+        const std::vector<float>& inputData = inputResultFrames->frameData( fIdx );
 
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = st11Data.size();
-        dstFrameData.resize( valCount );
+        std::vector<float>& dstFrameDataX = dataFramesX->frameData( fIdx );
+        std::vector<float>& dstFrameDataY = dataFramesY->frameData( fIdx );
+        std::vector<float>& dstFrameDataZ = dataFramesZ->frameData( fIdx );
+        size_t              valCount      = inputData.size();
+        dstFrameDataX.resize( valCount );
+        dstFrameDataY.resize( valCount );
+        dstFrameDataZ.resize( valCount );
 
 #pragma omp parallel for schedule( dynamic )
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
@@ -1042,25 +1055,27 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradient( 
             int elmNodeCount = RigFemTypes::elmentNodeCount( elmType );
             for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
             {
-                size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                int    nodeIdx      = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
-
-                cornerValues[elmNodIdx] = st11Data[nodeIdx];
+                size_t elmNodResIdx     = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                cornerValues[elmNodIdx] = inputData[elmNodResIdx];
             }
 
             std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
 
             for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
             {
-                size_t elmNodResIdx        = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                dstFrameData[elmNodResIdx] = gradients[elmNodIdx].x();
+                size_t elmNodResIdx         = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                dstFrameDataX[elmNodResIdx] = gradients[elmNodIdx].x();
+                dstFrameDataY[elmNodResIdx] = gradients[elmNodIdx].y();
+                dstFrameDataZ[elmNodResIdx] = gradients[elmNodIdx].z();
             }
         }
 
         frameCountProgress.incrementProgress();
     }
 
-    return dstDataFrames;
+    RigFemScalarResultFrames* requestedStress = this->findOrLoadScalarResult( partIndex, resVarAddr );
+    CVF_ASSERT( requestedStress );
+    return requestedStress;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2245,9 +2260,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
     }
 
     // TODO: handle more cases..
-    if ( resVarAddr.fieldName == "SG" && ( resVarAddr.componentName == "S11" || resVarAddr.componentName == "S22" ||
-                                           resVarAddr.componentName == "S33" || resVarAddr.componentName == "S12" ||
-                                           resVarAddr.componentName == "S13" || resVarAddr.componentName == "S23" ) )
+    if ( resVarAddr.fieldName == "SG" && ( resVarAddr.componentName == "S11-x" || resVarAddr.componentName == "S11-y" ||
+                                           resVarAddr.componentName == "S11-z" || resVarAddr.componentName == "S22-x" ||
+                                           resVarAddr.componentName == "S22-y" || resVarAddr.componentName == "S22-z" ||
+                                           resVarAddr.componentName == "S33-x" || resVarAddr.componentName == "S33-y" ||
+                                           resVarAddr.componentName == "S33-z" ) )
     {
         return calculateStressGradient( partIndex, resVarAddr );
     }
