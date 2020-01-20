@@ -26,6 +26,7 @@
 
 class RimIntersectionResultDefinition;
 class RivIntersectionHexGridInterface;
+class RimIntersectionResultsDefinitionCollection;
 
 class RimIntersection : public caf::PdmObject
 {
@@ -35,17 +36,18 @@ public:
     RimIntersection();
     ~RimIntersection() override;
 
-    QString name() const;
-    void    setName( const QString& newName );
-    bool    isActive() const;
-    void    setActive( bool isActive );
-    bool    isInactiveCellsVisible() const;
+    virtual QString name() const = 0;
+
+    bool isActive() const;
+    void setActive( bool isActive );
+    bool isInactiveCellsVisible() const;
 
     RimIntersectionResultDefinition*          activeSeparateResultDefinition();
     cvf::ref<RivIntersectionHexGridInterface> createHexGridInterface();
 
 protected:
-    caf::PdmFieldHandle*          userDescriptionField() override final;
+    virtual RimIntersectionResultsDefinitionCollection* findSeparateResultsCollection();
+
     caf::PdmFieldHandle*          objectToggleField() override final;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
@@ -54,7 +56,6 @@ protected:
     void defineSeparateDataSourceUi( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     void updateDefaultSeparateDataSource();
 
-    caf::PdmField<QString>                             m_name;
     caf::PdmField<bool>                                m_isActive;
     caf::PdmField<bool>                                m_showInactiveCells;
     caf::PdmField<bool>                                m_useSeparateDataSource;

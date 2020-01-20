@@ -31,14 +31,13 @@
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RivHexGridIntersectionTools.h"
 
-CAF_PDM_SOURCE_INIT( RimIntersection, "RimIntersectionHandle" );
+CAF_PDM_ABSTRACT_SOURCE_INIT( RimIntersection, "RimIntersectionHandle" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimIntersection::RimIntersection()
 {
-    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name", "", "", "" );
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
@@ -50,22 +49,6 @@ RimIntersection::RimIntersection()
 ///
 //--------------------------------------------------------------------------------------------------
 RimIntersection::~RimIntersection() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimIntersection::name() const
-{
-    return m_name();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimIntersection::setName( const QString& newName )
-{
-    m_name = newName;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -104,10 +87,9 @@ RimIntersectionResultDefinition* RimIntersection::activeSeparateResultDefinition
 
     if ( !m_separateDataSource->isActive() ) return nullptr;
 
-    RimGridView* view;
-    this->firstAncestorOrThisOfTypeAsserted( view );
+    if ( !findSeparateResultsCollection() ) return nullptr;
 
-    if ( !view->separateIntersectionResultsCollection()->isActive() ) return nullptr;
+    if ( !findSeparateResultsCollection()->isActive() ) return nullptr;
 
     return m_separateDataSource;
 }
@@ -122,11 +104,8 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf:
 
     if ( fieldNeedingOptions == &m_separateDataSource )
     {
-        RimGridView* view;
-        this->firstAncestorOrThisOfTypeAsserted( view );
-
         std::vector<RimIntersectionResultDefinition*> iResDefs =
-            view->separateIntersectionResultsCollection()->intersectionResultsDefinitions();
+            findSeparateResultsCollection()->intersectionResultsDefinitions();
 
         for ( auto iresdef : iResDefs )
         {
@@ -140,9 +119,11 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimIntersection::userDescriptionField()
+RimIntersectionResultsDefinitionCollection* RimIntersection::findSeparateResultsCollection()
 {
-    return &m_name;
+    RimGridView* view;
+    this->firstAncestorOrThisOfTypeAsserted( view );
+    return view->separateIntersectionResultsCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,18 +169,12 @@ void RimIntersection::updateDefaultSeparateDataSource()
 {
     if ( m_separateDataSource() == nullptr )
     {
-        RimGridView* view;
-        this->firstAncestorOrThisOfType( view );
+        std::vector<RimIntersectionResultDefinition*> iResDefs =
+            findSeparateResultsCollection()->intersectionResultsDefinitions();
 
-        if ( view )
+        if ( iResDefs.size() )
         {
-            std::vector<RimIntersectionResultDefinition*> iResDefs =
-                view->separateIntersectionResultsCollection()->intersectionResultsDefinitions();
-
-            if ( iResDefs.size() )
-            {
-                m_separateDataSource = iResDefs[0];
-            }
+            m_separateDataSource = iResDefs[0];
         }
     }
 }

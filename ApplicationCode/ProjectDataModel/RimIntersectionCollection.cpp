@@ -150,7 +150,7 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
     {
         if ( cs->isActive() )
         {
-            cs->intersectionPartMgr()->appendNativeIntersectionFacesToModel( model, scaleTransform );
+            cs->intersectionPartMgr()->appendIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendPolylinePartsToModel( view, model, scaleTransform );
         }

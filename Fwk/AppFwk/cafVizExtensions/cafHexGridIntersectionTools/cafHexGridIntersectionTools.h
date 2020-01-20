@@ -65,7 +65,15 @@ public:
                                                       std::vector<ClipVx>* clippedTriangleVxes,
                                                       std::vector<int>* cellFaceForEachClippedTriangleEdge);
 
-    static cvf::Vec3d planeLineIntersectionForMC(const cvf::Plane& plane, 
+    static void clipPlanarTrianglesWithInPlaneTriangle(const std::vector<cvf::Vec3d>& triangleVxes, 
+                                                       const std::vector<int>& cellFaceForEachTriangleEdge, 
+                                                       const cvf::Vec3d& tp1, 
+                                                       const cvf::Vec3d& tp2, 
+                                                       const cvf::Vec3d& tp3, 
+                                                       std::vector<cvf::Vec3d>* clippedTriangleVxes, 
+                                                       std::vector<int>* cellFaceForEachClippedTriangleEdge);
+
+    static cvf::Vec3d planeLineIntersectionForMC(const cvf::Plane& plane,
                                                  const cvf::Vec3d& p1, 
                                                  const cvf::Vec3d& p2, 
                                                  double* normalizedDistFromP1);

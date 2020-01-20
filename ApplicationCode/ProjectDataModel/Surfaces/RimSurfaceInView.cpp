@@ -21,6 +21,10 @@
 #include "RimGridView.h"
 #include "RimSurface.h"
 
+#include "RigFemPartCollection.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechView.h"
+#include "RivHexGridIntersectionTools.h"
 #include "RivSurfacePartMgr.h"
 
 CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
@@ -32,11 +36,9 @@ RimSurfaceInView::RimSurfaceInView()
 {
     CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Visible", "", "", "" );
-    m_isActive.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
     m_name.registerGetMethod( this, &RimSurfaceInView::name );
+    m_name.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface", "", "", "" );
     m_surface.uiCapability()->setUiHidden( true );
@@ -60,11 +62,6 @@ QString RimSurfaceInView::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInView::loadDataAndUpdate() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimSurface* RimSurfaceInView::surface() const
 {
     return m_surface();
@@ -76,14 +73,6 @@ RimSurface* RimSurfaceInView::surface() const
 void RimSurfaceInView::setSurface( RimSurface* surf )
 {
     m_surface = surf;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSurfaceInView::isActive()
-{
-    return m_isActive();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,6 +106,37 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         this->firstAncestorOrThisOfTypeAsserted( ownerView );
         ownerView->scheduleCreateDisplayModelAndRedraw();
     }
+    else if ( changedField == &m_showInactiveCells )
+    {
+        m_surfacePartMgr = nullptr;
+        RimGridView* ownerView;
+        this->firstAncestorOrThisOfTypeAsserted( ownerView );
+        ownerView->scheduleCreateDisplayModelAndRedraw();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_name );
+
+    uiOrdering.add( &m_showInactiveCells );
+
+    this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
+}
+
+//--------------------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIntersectionResultsDefinitionCollection* RimSurfaceInView::findSeparateResultsCollection()
+{
+    RimGridView* view;
+    this->firstAncestorOrThisOfTypeAsserted( view );
+    return view->separateSurfaceResultsCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,12 +145,4 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 caf::PdmFieldHandle* RimSurfaceInView::userDescriptionField()
 {
     return &m_name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSurfaceInView::objectToggleField()
-{
-    return &m_isActive;
 }

@@ -102,7 +102,8 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
     {
         if ( surf->isActive() )
         {
-            surf->surfacePartMgr()->appendNativeGeometryPartsToModel( model, scaleTransform );
+            // surf->surfacePartMgr()->appendNativeGeometryPartsToModel( model, scaleTransform );
+            surf->surfacePartMgr()->appendIntersectionGeometryPartsToModel( model, scaleTransform );
         }
     }
 
@@ -146,4 +147,29 @@ bool RimSurfaceInViewCollection::hasSurfaceInViewForSurface( const RimSurface* s
 caf::PdmFieldHandle* RimSurfaceInViewCollection::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResult, size_t timeStepIndex )
+{
+    if ( !this->m_isActive() ) return;
+
+    for ( RimSurfaceInView* surf : m_surfacesInView )
+    {
+        if ( surf->isActive() )
+        {
+            bool hasSeparateInterResult = false; // surf->activeSeparateResultDefinition() &&
+                                                 // surf->activeSeparateResultDefinition()->hasResult();
+            if ( hasSeparateInterResult || hasGeneralCellResult )
+            {
+                surf->surfacePartMgr()->updateCellResultColor( timeStepIndex );
+            }
+            else
+            {
+                surf->surfacePartMgr()->applySingleColor();
+            }
+        }
+    }
 }

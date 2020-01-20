@@ -72,7 +72,7 @@ public:
                                 const cvf::ScalarMapper*      explicitScalarColorMapper,
                                 const RivTernaryScalarMapper* explicitTernaryColorMapper );
 
-    void appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
+    void appendIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendPolylinePartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 

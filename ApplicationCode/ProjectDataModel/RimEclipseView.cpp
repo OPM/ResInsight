@@ -803,10 +803,11 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
 
     this->updateFaultColors();
 
-    m_intersectionCollection->updateCellResultColor( ( this->hasUserRequestedAnimation() &&
-                                                       this->cellResult()->hasResult() ) ||
-                                                         this->cellResult()->isTernarySaturationSelected(),
-                                                     m_currentTimeStep );
+    bool hasGeneralCellResult = ( this->hasUserRequestedAnimation() && this->cellResult()->hasResult() ) ||
+                                this->cellResult()->isTernarySaturationSelected();
+
+    m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
+    if ( m_surfaceCollection ) m_surfaceCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -890,6 +891,8 @@ void RimEclipseView::appendWellsAndFracturesToModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::onLoadDataAndUpdate()
 {
+    this->updateSurfacesInViewTreeItems();
+
     onUpdateScaleTransform();
 
     if ( m_eclipseCase )
@@ -1738,6 +1741,8 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( cellEdgeResult() );
     uiTreeOrdering.add( faultResultSettings() );
     uiTreeOrdering.add( &m_intersectionResultDefCollection );
+    uiTreeOrdering.add( &m_surfaceResultDefCollection );
+
     uiTreeOrdering.add( wellCollection() );
     uiTreeOrdering.add( &m_wellMeasurementCollection );
 

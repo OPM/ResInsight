@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include <algorithm>
+#include <array>
 
 namespace caf {
 
@@ -499,6 +500,157 @@ void HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes(const std::
         }
 
         CVF_ASSERT(false);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// Creates a plane with normal perpendicular to the edge, pointing in the direction of the pointInNormalDirection
+//--------------------------------------------------------------------------------------------------
+cvf::Plane createPlaneFromEdgeAndPointInNormalDirection(cvf::Vec3d ep1, cvf::Vec3d ep2, cvf::Vec3d pointInNormalDirection)
+{
+    cvf::Vec3d ep1ep2 = ep2 - ep1;
+    cvf::Vec3d ep1pointforNorm = pointInNormalDirection - ep1;
+    cvf::Vec3d triNormal = ep1ep2^ep1pointforNorm;
+    cvf::Vec3d pointInPlane = ep1 + triNormal;
+
+    cvf::Plane plane;
+    plane.setFromPoints(ep1, pointInPlane, ep2);
+
+    return plane;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Clips the supplied triangles into new triangles returned in clippedTriangleVxes.
+// New vertices have set isVxIdsNative = false and their vxIds is indices into triangleVxes
+// The cellFaceForEachTriangleEdge refer to the edge after the corresponding triangle vertex.
+// This method will keep the faces provided, while added edges is marked with no face = 6
+//--------------------------------------------------------------------------------------------------
+void HexGridIntersectionTools::clipPlanarTrianglesWithInPlaneTriangle(const std::vector<cvf::Vec3d>& triangleVxes,
+                                                                     const std::vector<int>&    cellFaceForEachTriangleEdge,
+                                                                     const cvf::Vec3d&          tp1,
+                                                                     const cvf::Vec3d&          tp2,
+                                                                     const cvf::Vec3d&          tp3,
+                                                                     std::vector<cvf::Vec3d>*   clippedTriangleVxes,
+                                                                     std::vector<int>*          cellFaceForEachClippedTriangleEdge)
+{
+    #define HT_NO_FACE 6
+
+    size_t triangleCount = triangleVxes.size() / 3;
+
+    // Creating a plane for each of the edges of the clipping triangle
+    std::array<cvf::Plane, 3> clipTrianglePlanes;
+
+    clipTrianglePlanes[0] = createPlaneFromEdgeAndPointInNormalDirection (tp1, tp2, tp3);
+    clipTrianglePlanes[1] = createPlaneFromEdgeAndPointInNormalDirection (tp2, tp3, tp1);
+    clipTrianglePlanes[2] = createPlaneFromEdgeAndPointInNormalDirection (tp3, tp1, tp2);
+
+
+    for (size_t tIdx = 0; tIdx < triangleCount; ++tIdx)
+    {
+        size_t triVxIdx = tIdx * 3;
+
+        std::vector<cvf::Vec3d>  currentInputTriangleVxes;
+        std::vector<int> currentInputCellFaceForEachTriangleEdge;
+        std::vector<cvf::Vec3d>  currentOutputTriangleVxes;
+        std::vector<int> currentOutputCellFaceForEachTriangleEdge;
+
+
+        currentInputTriangleVxes.push_back(triangleVxes[triVxIdx + 0]);
+        currentInputTriangleVxes.push_back(triangleVxes[triVxIdx + 1]);
+        currentInputTriangleVxes.push_back(triangleVxes[triVxIdx + 2]);
+
+        currentInputCellFaceForEachTriangleEdge.push_back(cellFaceForEachTriangleEdge[triVxIdx + 0]);
+        currentInputCellFaceForEachTriangleEdge.push_back(cellFaceForEachTriangleEdge[triVxIdx + 1]);
+        currentInputCellFaceForEachTriangleEdge.push_back(cellFaceForEachTriangleEdge[triVxIdx + 2]);
+
+
+        for ( int planeIdx = 0; planeIdx < 3; ++planeIdx )
+        {
+            size_t inTriangleCount = currentInputTriangleVxes.size()/3;
+
+            currentOutputTriangleVxes.clear();
+            currentOutputCellFaceForEachTriangleEdge.clear();
+
+            for ( size_t inTrIdx = 0; inTrIdx < inTriangleCount ; ++inTrIdx )
+            {
+                size_t inTriVxIdx = inTrIdx * 3;
+
+                ClipVx newVx1;
+                newVx1.isVxIdsNative = false;
+                ClipVx newVx2;
+                newVx2.isVxIdsNative = false;
+
+                bool isMostVxesOnPositiveSide = false;
+
+                bool isIntersectingPlane = planeTriangleIntersection(clipTrianglePlanes[planeIdx],
+                                                                     currentInputTriangleVxes[inTriVxIdx + 0], inTriVxIdx + 0,
+                                                                     currentInputTriangleVxes[inTriVxIdx + 1], inTriVxIdx + 1,
+                                                                     currentInputTriangleVxes[inTriVxIdx + 2], inTriVxIdx + 2,
+                                                                     &newVx1, &newVx2, &isMostVxesOnPositiveSide);
+
+
+                if ( !isIntersectingPlane)
+                {
+                    // All on negative side: Discard triangle
+
+                    if (!isMostVxesOnPositiveSide)
+                    {
+                        continue;
+                    }
+                    else  // All on positive side: keep all
+                    {
+                        currentOutputTriangleVxes.push_back(currentInputTriangleVxes[inTriVxIdx + 0]);
+                        currentOutputTriangleVxes.push_back(currentInputTriangleVxes[inTriVxIdx + 1]);
+                        currentOutputTriangleVxes.push_back(currentInputTriangleVxes[inTriVxIdx + 2]);
+
+                        currentOutputCellFaceForEachTriangleEdge.push_back(currentInputCellFaceForEachTriangleEdge[inTriVxIdx + 0]);
+                        currentOutputCellFaceForEachTriangleEdge.push_back(currentInputCellFaceForEachTriangleEdge[inTriVxIdx + 1]);
+                        currentOutputCellFaceForEachTriangleEdge.push_back(currentInputCellFaceForEachTriangleEdge[inTriVxIdx + 2]);
+                    }
+                }
+                else // intersecting
+                {
+                    if ( isMostVxesOnPositiveSide )
+                    {
+                        // We need the Quad 
+
+                        currentOutputTriangleVxes.push_back(newVx2.vx);
+                        currentOutputTriangleVxes.push_back(newVx1.vx);
+                        currentOutputTriangleVxes.push_back(currentInputTriangleVxes[newVx1.clippedEdgeVx2Id]);
+
+                        currentOutputCellFaceForEachTriangleEdge.push_back(HT_NO_FACE);
+                        currentOutputCellFaceForEachTriangleEdge.push_back(currentInputCellFaceForEachTriangleEdge[newVx1.clippedEdgeVx1Id]);
+                        currentOutputCellFaceForEachTriangleEdge.push_back(HT_NO_FACE);
+
+                        currentOutputTriangleVxes.push_back(currentInputTriangleVxes[newVx1.clippedEdgeVx2Id]);
+                        currentOutputTriangleVxes.push_back(currentInputTriangleVxes[newVx2.clippedEdgeVx2Id]);
+                        currentOutputTriangleVxes.push_back(newVx2.vx);
+
+                        currentOutputCellFaceForEachTriangleEdge.push_back(currentInputCellFaceForEachTriangleEdge[newVx1.clippedEdgeVx2Id]);
+                        currentOutputCellFaceForEachTriangleEdge.push_back(currentInputCellFaceForEachTriangleEdge[newVx2.clippedEdgeVx2Id]);
+                        currentOutputCellFaceForEachTriangleEdge.push_back(HT_NO_FACE);
+                    }
+                    else
+                    {
+                        currentOutputTriangleVxes.push_back(newVx1.vx);
+                        currentOutputTriangleVxes.push_back(newVx2.vx);
+                        currentOutputTriangleVxes.push_back(currentInputTriangleVxes[newVx1.clippedEdgeVx1Id]);
+
+                        currentOutputCellFaceForEachTriangleEdge.push_back(HT_NO_FACE);
+                        currentOutputCellFaceForEachTriangleEdge.push_back(currentInputCellFaceForEachTriangleEdge[newVx2.clippedEdgeVx2Id]);
+                        currentOutputCellFaceForEachTriangleEdge.push_back(currentInputCellFaceForEachTriangleEdge[newVx1.clippedEdgeVx1Id]);
+                    }
+                }
+            }
+
+            currentInputTriangleVxes = currentOutputTriangleVxes;
+            currentInputCellFaceForEachTriangleEdge = currentOutputCellFaceForEachTriangleEdge;
+        }
+
+        // Append the result of the completely clipped triangle to the output
+
+        clippedTriangleVxes->insert(clippedTriangleVxes->end(), currentOutputTriangleVxes.begin(), currentOutputTriangleVxes.end());
+        cellFaceForEachClippedTriangleEdge->insert(cellFaceForEachClippedTriangleEdge->end(), currentOutputCellFaceForEachTriangleEdge.begin(), currentOutputCellFaceForEachTriangleEdge.end());
     }
 }
 

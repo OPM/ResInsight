@@ -42,6 +42,7 @@ public:
     void updateFromSurfaceCollection();
 
     void appendPartsToModel( cvf::ModelBasicList* surfaceVizModel, cvf::Transform* scaleTransform );
+    void updateCellResultColor( bool hasGeneralCellResult, size_t timeStepIndex );
 
 private:
     caf::PdmFieldHandle* objectToggleField() override;

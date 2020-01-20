@@ -123,7 +123,7 @@ public:
 
     Where the k's are normalized distances along the edge, from the edge start vertex .
 
-    This is the interpolation sceme:
+    This is the interpolation scheme:
 
     v   = (1 - k  )* v1   + k *v2;
 
@@ -203,6 +203,13 @@ public:
 
         m_weights[0] = ( (float)( 1.0 - normDistFromE1V1 ) );
         m_weights[1] = ( (float)( normDistFromE1V1 ) );
+    }
+
+    explicit RivIntersectionVertexWeights( const std::array<size_t, 8> vxIds, const std::array<double, 8> explicitWeights )
+        : m_count( 8 )
+        , m_vxIds( vxIds )
+    {
+        std::copy( explicitWeights.begin(), explicitWeights.end(), m_weights.begin() );
     }
 
     int size() const
