@@ -205,9 +205,6 @@ bool RimWellMeasurementInView::updateLegendData()
             RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
                                                           selectedMeasurementKinds );
 
-        double oldMinimumResultValue = m_minimumResultValue;
-        double oldMaximumResultValue = m_maximumResultValue;
-
         m_minimumResultValue    = HUGE_VAL;
         m_maximumResultValue    = -HUGE_VAL;
         double posClosestToZero = HUGE_VAL;
