@@ -49,8 +49,8 @@ RicfCommandResponse RicfCloneView::execute()
             {
                 RimEclipseCase* eclipseCase    = eclipseView->eclipseCase();
                 RimEclipseView* newEclipseView = eclipseCase->createCopyAndAddView( eclipseView );
-                newViewId                      = newEclipseView->id();
                 newEclipseView->loadDataAndUpdate();
+                newViewId = newEclipseView->id();
                 eclipseCase->updateConnectedEditors();
                 Riu3DMainWindowTools::setExpanded( newEclipseView );
             }
@@ -58,8 +58,8 @@ RicfCommandResponse RicfCloneView::execute()
             {
                 RimGeoMechCase* geoMechCase    = geoMechView->geoMechCase();
                 RimGeoMechView* newGeoMechView = geoMechCase->createCopyAndAddView( geoMechView );
-                newViewId                      = newGeoMechView->id();
                 view->loadDataAndUpdate();
+                newViewId = newGeoMechView->id();
                 geoMechCase->updateConnectedEditors();
                 Riu3DMainWindowTools::setExpanded( view );
             }
