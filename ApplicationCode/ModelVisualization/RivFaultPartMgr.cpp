@@ -749,7 +749,13 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::updateNNCColors( size_t timeStepIndex, RimEclipseCellColors* cellResultColors )
 {
-    if ( m_NNCFaces.isNull() ) return;
+    bool updateNnc   = m_NNCFaces.notNull();
+    bool updateAllen = m_allenNNCFaces.notNull();
+
+    if ( !updateNnc && !updateAllen )
+    {
+        return;
+    }
 
     bool showNncsWithScalarMappedColor = false;
 
@@ -779,17 +785,24 @@ void RivFaultPartMgr::updateNNCColors( size_t timeStepIndex, RimEclipseCellColor
             if ( eclipseCase )
             {
                 size_t nativeTimeStepIndex = eclipseCase->uiToNativeTimeStepIndex( timeStepIndex );
-                m_NNCGenerator->textureCoordinates( m_NNCTextureCoords.p(),
-                                                    mapper,
-                                                    resultType,
-                                                    eclResAddr,
-                                                    nativeTimeStepIndex );
 
-                m_allenNNCGenerator->textureCoordinates( m_allenNNCTextureCoords.p(),
-                                                         mapper,
-                                                         resultType,
-                                                         eclResAddr,
-                                                         nativeTimeStepIndex );
+                if ( updateNnc )
+                {
+                    m_NNCGenerator->textureCoordinates( m_NNCTextureCoords.p(),
+                                                        mapper,
+                                                        resultType,
+                                                        eclResAddr,
+                                                        nativeTimeStepIndex );
+                }
+
+                if ( updateAllen )
+                {
+                    m_allenNNCGenerator->textureCoordinates( m_allenNNCTextureCoords.p(),
+                                                             mapper,
+                                                             resultType,
+                                                             eclResAddr,
+                                                             nativeTimeStepIndex );
+                }
             }
         }
 
@@ -810,18 +823,21 @@ void RivFaultPartMgr::updateNNCColors( size_t timeStepIndex, RimEclipseCellColor
             nncEffect = nncEffgen.generateCachedEffect();
         }
 
+        if ( updateNnc )
         {
             cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>( m_NNCFaces->drawable() );
             if ( dg ) dg->setTextureCoordArray( m_NNCTextureCoords.p() );
+
+            m_NNCFaces->setEffect( nncEffect.p() );
         }
 
+        if ( updateAllen )
         {
             cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>( m_allenNNCFaces->drawable() );
             if ( dg ) dg->setTextureCoordArray( m_allenNNCTextureCoords.p() );
-        }
 
-        m_NNCFaces->setEffect( nncEffect.p() );
-        m_allenNNCFaces->setEffect( nncEffect.p() );
+            m_allenNNCFaces->setEffect( nncEffect.p() );
+        }
     }
     else
     {
@@ -847,7 +863,14 @@ void RivFaultPartMgr::updateNNCColors( size_t timeStepIndex, RimEclipseCellColor
             nncEffect = nncEffgen.generateCachedEffect();
         }
 
-        m_NNCFaces->setEffect( nncEffect.p() );
-        m_allenNNCFaces->setEffect( nncEffect.p() );
+        if ( updateNnc )
+        {
+            m_NNCFaces->setEffect( nncEffect.p() );
+        }
+
+        if ( updateAllen )
+        {
+            m_allenNNCFaces->setEffect( nncEffect.p() );
+        }
     }
 }
