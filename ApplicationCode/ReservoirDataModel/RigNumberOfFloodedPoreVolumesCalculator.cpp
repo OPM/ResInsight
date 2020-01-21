@@ -298,7 +298,10 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNNCflow( const std::vect
 {
     RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
 
-    for ( size_t connectionIndex = 0; connectionIndex < connections.size(); connectionIndex++ )
+    // Find max count for connections with result. Allen results introduce connections without results
+    size_t connectionsWithResultCount = std::min( flowrateNNC->size(), connections.size() );
+
+    for ( size_t connectionIndex = 0; connectionIndex < connectionsWithResultCount; connectionIndex++ )
     {
         RigConnection connection      = connections[connectionIndex];
         double        connectionValue = flowrateNNC->at( connectionIndex );
