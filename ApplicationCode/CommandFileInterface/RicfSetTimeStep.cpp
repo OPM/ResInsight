@@ -68,16 +68,19 @@ void RicfSetTimeStep::setTimeStepIndex( int timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 RicfCommandResponse RicfSetTimeStep::execute()
 {
-    RimEclipseCase* eclipseCase = nullptr;
+    RimCase*              rimCase = nullptr;
+    std::vector<RimCase*> allCases;
 
     {
+        RiaApplication::instance()->project()->allCases( allCases );
+
         bool foundCase = false;
-        for ( RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels()->cases )
+        for ( RimCase* c : allCases )
         {
             if ( c->caseId == m_caseId )
             {
-                eclipseCase = c;
-                foundCase   = true;
+                rimCase   = c;
+                foundCase = true;
                 break;
             }
         }
@@ -89,7 +92,7 @@ RicfCommandResponse RicfSetTimeStep::execute()
         }
     }
 
-    int maxTimeStep = eclipseCase->timeStepStrings().size() - 1;
+    int maxTimeStep = rimCase->timeStepStrings().size() - 1;
     if ( m_timeStepIndex() > maxTimeStep )
     {
         QString error = QString( "setTimeStep: Step %1 is larger than the maximum of %2 for case %3" )
@@ -100,7 +103,7 @@ RicfCommandResponse RicfSetTimeStep::execute()
         return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
 
-    for ( Rim3dView* view : eclipseCase->views() )
+    for ( Rim3dView* view : rimCase->views() )
     {
         if ( m_viewId() == -1 || view->id() == m_viewId() )
         {
