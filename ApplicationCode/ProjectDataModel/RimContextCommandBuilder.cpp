@@ -1128,10 +1128,6 @@ void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& me
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
     CVF_ASSERT( commandManager );
 
-    RicExecuteScriptForCasesFeature* executeScriptFeature = dynamic_cast<RicExecuteScriptForCasesFeature*>(
-        commandManager->getCommandFeature( "RicExecuteScriptForCasesFeature" ) );
-    CVF_ASSERT( executeScriptFeature );
-
     for ( size_t i = 0; i < scriptCollection->calcScripts.size(); i++ )
     {
         RimCalcScript* calcScript = scriptCollection->calcScripts[i];
