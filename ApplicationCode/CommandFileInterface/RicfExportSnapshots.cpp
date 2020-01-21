@@ -36,6 +36,14 @@ CAF_PDM_SOURCE_INIT( RicfExportSnapshots, "exportSnapshots" );
 namespace caf
 {
 template <>
+void RicfExportSnapshots::PreferredOutputFormatEnum::setUp()
+{
+    addItem( RicfExportSnapshots::PlotOutputFormat::PNG, "PNG", "PNG" );
+    addItem( RicfExportSnapshots::PlotOutputFormat::PDF, "PDF", "PDF" );
+    setDefault( RicfExportSnapshots::PlotOutputFormat::PNG );
+}
+
+template <>
 void RicfExportSnapshots::SnapshotsTypeEnum::setUp()
 {
     addItem( RicfExportSnapshots::ALL, "ALL", "All" );
@@ -55,6 +63,7 @@ RicfExportSnapshots::RicfExportSnapshots()
     RICF_InitField( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
     RICF_InitField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
     RICF_InitField( &m_exportFolder, "exportFolder", QString(), "Export Folder", "", "", "" );
+    RICF_InitFieldNoDefault( &m_plotOutputFormat, "plotOutputFormat", "Output Format", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,9 +118,12 @@ RicfCommandResponse RicfExportSnapshots::execute()
             QApplication::processEvents();
         }
 
+        QString fileSuffix = ".png";
+        if ( m_plotOutputFormat == PlotOutputFormat::PDF ) fileSuffix = ".pdf";
         RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( absolutePathToSnapshotDir,
                                                                            m_prefix,
-                                                                           m_viewId() );
+                                                                           m_viewId(),
+                                                                           fileSuffix );
     }
 
     mainWnd->loadWinGeoAndDockToolBarLayout();
