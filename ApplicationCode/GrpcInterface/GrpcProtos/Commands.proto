@@ -45,6 +45,12 @@ message ExportMultiCaseRequest
 	string gridListFile = 1;
 }
 
+enum PlotOutputFormat
+{
+	PNG = 0;
+	PDF = 1;
+}
+
 enum SnapshotType
 {
 	VIEWS = 0;
@@ -54,11 +60,12 @@ enum SnapshotType
 
 message ExportSnapshotsRequest
 {
-	SnapshotType type   = 1;
-	string       prefix = 2;
-	int32        caseId = 3;
-	int32        viewId = 4;
-	string exportFolder = 5;
+	SnapshotType type                 = 1;
+	string                     prefix = 2;
+	int32                      caseId = 3;
+	int32                      viewId = 4;
+	string               exportFolder = 5;
+	PlotOutputFormat plotOutputFormat = 6;
 }
 
 message ExportPropertyRequest

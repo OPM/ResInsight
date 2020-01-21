@@ -50,7 +50,12 @@ CAF_CMD_SOURCE_INIT( RicSnapshotViewToFileFeature, "RicSnapshotViewToFileFeature
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow )
 {
-    if ( viewWindow )
+    RimPlotWindow* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
+    if ( plotWindow && fileName.endsWith( ".pdf" ) )
+    {
+        savePlotPDFReportAs( fileName, plotWindow );
+    }
+    else if ( viewWindow )
     {
         QImage image = viewWindow->snapshotWindowContent();
         saveSnapshotAs( fileName, image );

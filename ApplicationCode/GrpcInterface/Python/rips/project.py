@@ -224,16 +224,17 @@ class Project(PdmObject):
             exportMultiCaseSnapshot=Cmd.ExportMultiCaseRequest(
                 gridListFile=grid_list_file))
 
-    def export_snapshots(self, snapshot_type='ALL', prefix=''):
+    def export_snapshots(self, snapshot_type='ALL', prefix='', plot_format='PNG'):
         """ Export all snapshots of a given type
         
         Arguments:
             snapshot_type (str): Enum string ('ALL', 'VIEWS' or 'PLOTS')
             prefix (str): Exported file name prefix
+            plot_format(str): Enum string, 'PNG' or 'PDF'
         """
         return self._execute_command(
             exportSnapshots=Cmd.ExportSnapshotsRequest(
-                type=snapshot_type, prefix=prefix, caseId=-1, viewId=-1))
+                type=snapshot_type, prefix=prefix, caseId=-1, viewId=-1, plotOutputFormat=plot_format))
 
     def export_well_paths(self, well_paths=None, md_step_size=5.0):
         """ Export a set of well paths

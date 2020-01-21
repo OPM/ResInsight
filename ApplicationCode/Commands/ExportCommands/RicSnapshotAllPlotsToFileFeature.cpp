@@ -68,7 +68,8 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QString& snapshotFolderName,
                                                                         const QString& prefix,
-                                                                        int            viewId )
+                                                                        int            viewId,
+                                                                        const QString& preferredFileSuffix /*=".png"*/ )
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -98,7 +99,7 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QS
 
             fileName.replace( " ", "_" );
 
-            QString absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName, ".png" );
+            QString absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName, preferredFileSuffix );
 
             RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, viewWindow );
         }

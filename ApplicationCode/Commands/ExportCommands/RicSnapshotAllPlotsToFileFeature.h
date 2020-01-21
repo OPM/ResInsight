@@ -33,8 +33,9 @@ public:
     static void saveAllPlots();
 
     static void exportSnapshotOfPlotsIntoFolder( const QString& snapshotFolderName,
-                                                 const QString& prefix = "",
-                                                 int            viewId = -1 );
+                                                 const QString& prefix              = "",
+                                                 int            viewId              = -1,
+                                                 const QString& preferredFileSuffix = ".png" );
 
 protected:
     // Overrides
