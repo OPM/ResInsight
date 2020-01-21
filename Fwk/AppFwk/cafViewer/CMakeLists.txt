@@ -2,6 +2,11 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (cafViewer)
 
+# Unity Build
+if (COMMAND caf_apply_unity_build)
+  caf_apply_unity_build("${PROJECT_NAME}")
+endif()
+
 # Qt
 
 # These headers need to go through Qt's MOC compiler
@@ -68,4 +73,14 @@ if (COMMAND caf_apply_cotire)
     cafOpenGLWidget.cpp
   )
   caf_apply_cotire("${PROJECT_NAME}")
+endif()
+
+# Unity Build
+if (CMAKE_UNITY_BUILD)
+  list(APPEND CAF_UNITY_EXCLUDE_FILES
+    cafOpenGLWidget.cpp
+  )
+  foreach (fileToExclude ${CAF_UNITY_EXCLUDE_FILES})
+    set_source_files_properties (${fileToExclude} PROPERTIES COTIRE_EXCLUDED TRUE)
+  endforeach(fileToExclude)
 endif()

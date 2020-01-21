@@ -2,6 +2,11 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (cafProjectDataModel)
 
+# Unity Build
+if (COMMAND caf_apply_unity_build)
+  caf_apply_unity_build("${PROJECT_NAME}")
+endif()
+
 # Qt
 if (CEE_USE_QT5)
 	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)

@@ -2,6 +2,11 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (RifOdbReader)
 
+# Unity Build
+if (COMMAND caf_apply_unity_build)
+  caf_apply_unity_build("${PROJECT_NAME}")
+endif()
+
 if (MSVC)
 	add_definitions(-DHKS_NT)
 	add_definitions(-DABQ_WIN86_64)

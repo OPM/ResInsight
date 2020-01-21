@@ -2,6 +2,11 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (cafUserInterface)
 
+# Unity Build
+if (COMMAND caf_apply_unity_build)
+  caf_apply_unity_build("${PROJECT_NAME}")
+endif()
+
 if (MSVC)
     # Define this one to tell windows.h to not define min() and max() as macros
     add_definitions(-DNOMINMAX)

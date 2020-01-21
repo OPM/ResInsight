@@ -1,5 +1,11 @@
 cmake_minimum_required (VERSION 2.8.12)
+
 project (cafPdmCore)
+
+# Unity Build
+if (COMMAND caf_apply_unity_build)
+  caf_apply_unity_build("${PROJECT_NAME}")
+endif()
 
 # Qt
 option(CEE_USE_QT5 "Use Qt 5 instead of Qt 4" true) 

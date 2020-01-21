@@ -2,11 +2,6 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (ApplicationCode)
 
-# Consider moving this option to master cmakefile
-# CMAKE_UNITY_BUILD was introduced in cmake 3.16.2
-option(RESINSIGHT_ENABLE_UNITY_BUILD "Experimental speedup of compilation using Cmake Unity Build" OFF)
-mark_as_advanced(FORCE RESINSIGHT_ENABLE_UNITY_BUILD)
-
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
     message( STATUS "ResInsight Unity Build Enabled" )
     set(CMAKE_UNITY_BUILD true)

@@ -2,6 +2,11 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (cafPdmUiCore)		
 
+# Unity Build
+if (COMMAND caf_apply_unity_build)
+  caf_apply_unity_build("${PROJECT_NAME}")
+endif()
+
 # These headers need to go through Qt's MOC compiler
 set (MOC_HEADER_FILES    
     cafPdmUiEditorHandle.h

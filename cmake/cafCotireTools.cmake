@@ -49,3 +49,19 @@ macro (caf_cotire_start_unity_at_first_item all_files)
     #message("CAF_COTIRE_START_NEW_UNITY_SOURCES : ${CAF_COTIRE_START_NEW_UNITY_SOURCES}")
   endif(COMMAND cotire)
 endmacro (caf_cotire_start_unity_at_first_item)
+
+
+macro (caf_apply_unity_build target_name)
+  if (CAF_ENABLE_UNITY_BUILD)
+  
+    message("Cmake Unity build is enabled on : ${target_name}")
+    
+    set(CMAKE_UNITY_BUILD true)
+
+#    
+#    foreach (fileToExclude ${CAF_COTIRE_EXCLUDE_FILES})
+#        set_source_files_properties (${fileToExclude} PROPERTIES COTIRE_EXCLUDED TRUE)
+#    endforeach(fileToExclude)
+
+  endif()
+endmacro (caf_apply_unity_build)

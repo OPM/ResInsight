@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(Qwt)
 
+# Unity Build
+if (COMMAND caf_apply_unity_build)
+  caf_apply_unity_build("${PROJECT_NAME}")
+endif()
+
 if (MSVC)
     # Disable some annoying warnings (relative to warning level 3)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267")

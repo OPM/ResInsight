@@ -2,6 +2,11 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (RigGeoMechDataModel)
 
+# Unity Build
+if (COMMAND caf_apply_unity_build)
+  caf_apply_unity_build("${PROJECT_NAME}")
+endif()
+
 add_library( ${PROJECT_NAME}
 	RigFemPart.h
 	RigFemPart.cpp
