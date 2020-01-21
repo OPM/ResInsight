@@ -39,6 +39,7 @@ class PdmObject;
 }
 
 class QString;
+class QVariant;
 
 //==================================================================================================
 //
@@ -56,7 +57,8 @@ public:
     static void copyPdmObjectFromCafToRips( const caf::PdmObjectHandle* source, rips::PdmObject* destination );
     static void copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination );
 
-    static void assignFieldValue( const QString& stringValue, caf::PdmValueField* field );
+    static bool
+        assignFieldValue( const QString& stringValue, caf::PdmValueField* field, QVariant* oldValue, QVariant* newValue );
 
     static caf::PdmObjectHandle* emplaceChildField( caf::PdmObject* parent, const QString& fieldLabel );
 
