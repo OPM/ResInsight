@@ -29,12 +29,10 @@
     <file>CreateGridCaseGroup16x16.png</file>
     <file>CrossSection16x16.png</file>
     <file>CrossSections16x16.png</file>
-    <file>Default.png</file>
     <file>DownViewArrow.png</file>
     <file>EastViewArrow.png</file>
     <file>EclipseInput48x48.png</file>
     <file>EdgeResult_1.png</file>
-    <file>EdgeResult_2.png</file>
     <file>EditableWell.png</file>
     <file>EnsembleCurveSet16x16.png</file>
     <file>EnsembleCurveSets16x16.png</file>
@@ -167,8 +165,6 @@
     <file>draw_style_faults_label_24x24.png</file>
     <file>draw_style_lines_24x24.png</file>
     <file>draw_style_meshlines_24x24.png</file>
-    <file>draw_style_meshoutlines_24x24.png</file>
-    <file>draw_style_outlines_24x24.png</file>
     <file>draw_style_surface_24x24.png</file>
     <file>draw_style_surface_w_fault_mesh_24x24.png</file>
     <file>octave.png</file>
