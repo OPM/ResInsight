@@ -43,7 +43,8 @@ for case in cases:
                 replace_params.user_poisson_ratio = 0.654321
                 replace_params.user_fg_shale = 1.0321
                 wbsplot.set_parameters(replace_params)
-                
+                wbsplot.set_depth_type("TRUE_VERTICAL_DEPTH_RKB")
                 wbsplot.export_snapshot(export_folder=dirname)
+
             except grpc.RpcError as e:
                 print("Error: ", e.details())
