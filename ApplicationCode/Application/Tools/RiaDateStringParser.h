@@ -38,9 +38,15 @@ private:
     static bool tryParseDayFirst( const std::string& s, int& year, int& month, int& day );
     static bool tryParseMonthFirst( const std::string& s, int& year, int& month, int& day );
 
+    static bool tryParseYearFirstNoSeparators( const std::string& s, int& year, int& month, int& day );
+    static bool tryParseDayFirstNoSeparators( const std::string& s, int& year, int& month, int& day );
+    static bool tryParseMonthFirstNoSeparators( const std::string& s, int& year, int& month, int& day );
+
     static bool tryParseYear( const std::string& s, int& year );
     static bool tryParseMonth( const std::string& s, int& month );
     static bool tryParseDay( const std::string& s, int& day );
 
+    static std::string separators();
+    static bool        hasSeparators( const std::string& s );
     static std::string trimString( const std::string& s );
 };

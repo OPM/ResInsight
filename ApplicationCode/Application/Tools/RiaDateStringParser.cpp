@@ -39,10 +39,20 @@ QDateTime RiaDateStringParser::parseDateString( const QString& dateString )
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaDateStringParser::parseDateString( const std::string& dateString )
 {
-    int  year, month, day;
-    bool parsedOk = tryParseYearFirst( dateString, year, month, day ) ||
-                    tryParseDayFirst( dateString, year, month, day ) ||
-                    tryParseMonthFirst( dateString, year, month, day );
+    int  year = -1, month = -1, day = -1;
+    bool parsedOk = false;
+    if ( hasSeparators( dateString ) )
+    {
+        parsedOk = tryParseYearFirst( dateString, year, month, day ) ||
+                   tryParseDayFirst( dateString, year, month, day ) ||
+                   tryParseMonthFirst( dateString, year, month, day );
+    }
+    else if ( !RiaStdStringTools::containsAlphabetic( dateString ) )
+    {
+        parsedOk = tryParseYearFirstNoSeparators( dateString, year, month, day ) ||
+                   tryParseDayFirstNoSeparators( dateString, year, month, day ) ||
+                   tryParseMonthFirstNoSeparators( dateString, year, month, day );
+    }
 
     QDateTime dt;
     dt.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
@@ -60,13 +70,12 @@ QDateTime RiaDateStringParser::parseDateString( const std::string& dateString )
 /// 'yyyy-mm-dd'
 /// 'yyyy-MMM-dd'
 /// 'yyyy.MMM.dd'
-/// 'yyyy.MMM.dd'
 /// MMM is month name (shortened)
 //--------------------------------------------------------------------------------------------------
 bool RiaDateStringParser::tryParseYearFirst( const std::string& s, int& year, int& month, int& day )
 {
-    auto firstSep = s.find_first_of( " -_." );
-    auto lastSep  = s.find_first_of( " -_.", firstSep + 1 );
+    auto firstSep = s.find_first_of( separators() );
+    auto lastSep  = s.find_first_of( separators(), firstSep + 1 );
 
     if ( firstSep == std::string::npos || lastSep == std::string::npos ) return false;
 
@@ -91,8 +100,8 @@ bool RiaDateStringParser::tryParseYearFirst( const std::string& s, int& year, in
 //--------------------------------------------------------------------------------------------------
 bool RiaDateStringParser::tryParseDayFirst( const std::string& s, int& year, int& month, int& day )
 {
-    auto firstSep = s.find_first_of( " -_." );
-    auto lastSep  = s.find_first_of( " -_.", firstSep + 1 );
+    auto firstSep = s.find_first_of( separators() );
+    auto lastSep  = s.find_first_of( separators(), firstSep + 1 );
 
     if ( firstSep == std::string::npos || lastSep == std::string::npos ) return false;
 
@@ -108,8 +117,8 @@ bool RiaDateStringParser::tryParseDayFirst( const std::string& s, int& year, int
 //--------------------------------------------------------------------------------------------------
 bool RiaDateStringParser::tryParseMonthFirst( const std::string& s, int& year, int& month, int& day )
 {
-    auto firstSep = s.find_first_of( " -_." );
-    auto lastSep  = s.find_first_of( " -_.", firstSep + 1 );
+    auto firstSep = s.find_first_of( separators() );
+    auto lastSep  = s.find_first_of( separators(), firstSep + 1 );
 
     if ( firstSep == std::string::npos || lastSep == std::string::npos ) return false;
 
@@ -123,13 +132,98 @@ bool RiaDateStringParser::tryParseMonthFirst( const std::string& s, int& year, i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaDateStringParser::tryParseYearFirstNoSeparators( const std::string& s, int& year, int& month, int& day )
+{
+    if ( s.length() == 8 )
+    {
+        // Four digit year
+        auto sYear  = s.substr( 0, 4 );
+        auto sMonth = s.substr( 4, 2 );
+        auto sDay   = s.substr( 6, 2 );
+        return tryParseYear( sYear, year ) && tryParseMonth( sMonth, month ) && tryParseDay( sDay, day );
+    }
+    else if ( s.length() == 6 )
+    {
+        // Two digit year
+        auto sYear  = s.substr( 0, 2 );
+        auto sMonth = s.substr( 2, 2 );
+        auto sDay   = s.substr( 4, 2 );
+
+        return tryParseYear( sYear, year ) && tryParseMonth( sMonth, month ) && tryParseDay( sDay, day );
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDateStringParser::tryParseDayFirstNoSeparators( const std::string& s, int& year, int& month, int& day )
+{
+    if ( s.length() == 8 )
+    {
+        // Four digit year
+        auto sDay   = s.substr( 0, 2 );
+        auto sMonth = s.substr( 2, 2 );
+        auto sYear  = s.substr( 4, 4 );
+
+        return tryParseYear( sYear, year ) && tryParseMonth( sMonth, month ) && tryParseDay( sDay, day );
+    }
+    else if ( s.length() == 6 )
+    {
+        // Two digit year
+        auto sDay   = s.substr( 0, 2 );
+        auto sMonth = s.substr( 2, 2 );
+        auto sYear  = s.substr( 4, 2 );
+
+        return tryParseYear( sYear, year ) && tryParseMonth( sMonth, month ) && tryParseDay( sDay, day );
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDateStringParser::tryParseMonthFirstNoSeparators( const std::string& s, int& year, int& month, int& day )
+{
+    if ( s.length() == 8 )
+    {
+        // Four digit year
+        auto sMonth = s.substr( 0, 2 );
+        auto sDay   = s.substr( 2, 2 );
+        auto sYear  = s.substr( 4, 4 );
+
+        return tryParseYear( sYear, year ) && tryParseMonth( sMonth, month ) && tryParseDay( sDay, day );
+    }
+    else if ( s.length() == 6 )
+    {
+        // Two digit year
+        auto sMonth = s.substr( 0, 2 );
+        auto sDay   = s.substr( 2, 2 );
+        auto sYear  = s.substr( 4, 2 );
+
+        return tryParseYear( sYear, year ) && tryParseMonth( sMonth, month ) && tryParseDay( sDay, day );
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaDateStringParser::tryParseYear( const std::string& s, int& year )
 {
     if ( RiaStdStringTools::containsAlphabetic( s ) ) return false;
 
     auto today = QDate::currentDate();
     int  y     = RiaStdStringTools::toInt( s );
-    if ( y > 1970 && y <= today.year() )
+    if ( y < 100 )
+    {
+        if ( y > 70 )
+            y += 1900;
+        else
+            y += 2000;
+    }
+
+    if ( y > 1970 && y <= today.year() + 50 ) // Support dates 50 years into the future.
     {
         year = y;
 
@@ -191,6 +285,23 @@ bool RiaDateStringParser::tryParseDay( const std::string& s, int& day )
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaDateStringParser::separators()
+{
+    return " -_.";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDateStringParser::hasSeparators( const std::string& s )
+{
+    auto firstSep = s.find_first_of( separators() );
+    return firstSep != std::string::npos;
 }
 
 //--------------------------------------------------------------------------------------------------
