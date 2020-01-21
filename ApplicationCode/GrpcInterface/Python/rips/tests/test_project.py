@@ -18,6 +18,31 @@ def test_loadProject(rips_instance, initialize_test):
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
 
+def test_well_log_plots(rips_instance, initialize_test):
+    project = rips_instance.project.open(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/10KWithWellLog.rsp")
+    plots = project.plots()
+    well_log_plots = []
+    for plot in plots:
+        well_log_plot = rips.WellLogPlot.from_pdm_object(plot)
+        if well_log_plot is not None:
+            assert(well_log_plot.depth_type() == "MEASURED_DEPTH")
+            well_log_plots.append(well_log_plot)
+    assert(len(well_log_plots) == 2)
+
+    with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
+        for well_log_plot in well_log_plots:
+            well_log_plot.set_depth_type("TRUE_VERTICAL_DEPTH_RKB")
+            well_log_plot.export_snapshot(tmpdirname)
+            well_log_plot.export_data_as_las(tmpdirname)
+        files = os.listdir(tmpdirname)
+        assert(len(files) == 4)    
+    
+    plots2 = project.plots()
+    for plot2 in plots2:
+        well_log_plot2 = rips.WellLogPlot.from_pdm_object(plot)
+        if well_log_plot2 is not None:
+            assert(well_log_plot2.depth_type() == "TRUE_VERTICAL_DEPTH_RKB")
+    
 @pytest.mark.skipif(sys.platform.startswith('linux'), reason="Brugge is currently exceptionally slow on Linux")
 def test_loadGridCaseGroup(rips_instance, initialize_test):
      case_paths = []
