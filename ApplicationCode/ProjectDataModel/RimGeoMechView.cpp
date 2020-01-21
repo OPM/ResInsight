@@ -321,6 +321,7 @@ void RimGeoMechView::onCreateDisplayModel()
         onUpdateLegends();
         m_vizLogic->updateStaticCellColors( -1 );
         m_intersectionCollection->applySingleColorEffect();
+        m_surfaceCollection->applySingleColorEffect();
 
         m_overlayInfoConfig()->update3DInfo();
     }
@@ -450,6 +451,13 @@ void RimGeoMechView::onResetLegendsInViewer()
         sepInterResDef->ternaryLegendConfig()->recreateLegend();
     }
 
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->regularLegendConfig()->recreateLegend();
+        sepInterResDef->ternaryLegendConfig()->recreateLegend();
+    }
+
     for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
     {
         wellMeasurement->legendConfig()->recreateLegend();
@@ -490,7 +498,17 @@ void RimGeoMechView::onUpdateLegends()
         for ( RimIntersectionResultDefinition* sepInterResDef :
               this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
         {
-            sepInterResDef->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+            sepInterResDef->updateLegendRangesTextAndVisibility( "Intersection Results:\n",
+                                                                 nativeOrOverrideViewer(),
+                                                                 isUsingOverrideViewer() );
+        }
+
+        for ( RimIntersectionResultDefinition* sepInterResDef :
+              this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
+        {
+            sepInterResDef->updateLegendRangesTextAndVisibility( "Surface Results:\n",
+                                                                 nativeOrOverrideViewer(),
+                                                                 isUsingOverrideViewer() );
         }
 
         if ( tensorResults()->showTensors() )
@@ -614,6 +632,12 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
 
     for ( RimIntersectionResultDefinition* sepInterResDef :
           this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        absLegendConfigs.push_back( sepInterResDef->regularLegendConfig() );
+    }
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
     {
         absLegendConfigs.push_back( sepInterResDef->regularLegendConfig() );
     }
@@ -747,10 +771,22 @@ bool RimGeoMechView::isTimeStepDependentDataVisible() const
     {
         return true;
     }
+
     if ( this->hasVisibleTimeStepDependent3dWellLogCurves() )
     {
         return true;
     }
+
+    if ( this->intersectionCollection()->hasAnyActiveSeparateResults() )
+    {
+        return true;
+    }
+
+    if ( this->surfaceInViewCollection()->hasAnyActiveSeparateResults() )
+    {
+        return true;
+    }
+
     if ( m_wellMeasurementCollection->isChecked() )
     {
         return true;

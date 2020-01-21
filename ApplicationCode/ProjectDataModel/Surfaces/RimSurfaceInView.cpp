@@ -100,7 +100,7 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue )
 {
-    if ( changedField == &m_isActive )
+    if ( changedField == &m_isActive || changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource )
     {
         RimGridView* ownerView;
         this->firstAncestorOrThisOfTypeAsserted( ownerView );

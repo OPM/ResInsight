@@ -59,6 +59,7 @@ public:
     void appendIntersectionBoxNoUpdate( RimBoxIntersection* intersectionBox );
 
     bool hasActiveIntersectionForSimulationWell( const RimSimWellInView* simWell ) const;
+    bool hasAnyActiveSeparateResults();
 
     void updateIntersectionBoxGeometry();
 

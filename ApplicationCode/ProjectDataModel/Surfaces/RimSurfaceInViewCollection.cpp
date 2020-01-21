@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RimGridView.h"
+#include "RimIntersectionResultDefinition.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSurfaceCollection.h"
@@ -160,9 +161,11 @@ void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResul
     {
         if ( surf->isActive() )
         {
-            bool hasSeparateInterResult = false; // surf->activeSeparateResultDefinition() &&
-                                                 // surf->activeSeparateResultDefinition()->hasResult();
-            if ( hasSeparateInterResult || hasGeneralCellResult )
+            bool showResults = surf->activeSeparateResultDefinition()
+                                   ? surf->activeSeparateResultDefinition()->hasResult()
+                                   : hasGeneralCellResult;
+
+            if ( showResults )
             {
                 surf->surfacePartMgr()->updateCellResultColor( timeStepIndex );
             }
@@ -172,4 +175,39 @@ void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResul
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::applySingleColorEffect()
+{
+    if ( !this->m_isActive() ) return;
+
+    for ( RimSurfaceInView* surf : m_surfacesInView )
+    {
+        if ( surf->isActive() )
+        {
+            surf->surfacePartMgr()->applySingleColor();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSurfaceInViewCollection::hasAnyActiveSeparateResults()
+{
+    if ( !this->m_isActive() ) return false;
+
+    for ( RimSurfaceInView* surf : m_surfacesInView )
+    {
+        if ( surf->isActive() && surf->activeSeparateResultDefinition() &&
+             surf->activeSeparateResultDefinition()->hasResult() )
+        {
+            return true;
+        }
+    }
+
+    return false;
 }

@@ -54,7 +54,9 @@ public:
     RimEclipseResultDefinition* eclipseResultDefinition() const;
     RimGeoMechResultDefinition* geoMechResultDefinition() const;
 
-    void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
+    void updateLegendRangesTextAndVisibility( const QString& title,
+                                              RiuViewer*     nativeOrOverrideViewer,
+                                              bool           isUsingOverrideViewer );
 
 protected:
     virtual caf::PdmFieldHandle* userDescriptionField() override;
