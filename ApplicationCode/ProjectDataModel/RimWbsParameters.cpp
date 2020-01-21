@@ -79,7 +79,7 @@ RimWbsParameters::RimWbsParameters()
                              "" );
 
     RICF_InitField( &m_userDefinedPoissionRatio,
-                    "UserPoissionRatio",
+                    "UserPoissonRatio",
                     0.35,
                     "User Defined Poisson Ratio",
                     "",

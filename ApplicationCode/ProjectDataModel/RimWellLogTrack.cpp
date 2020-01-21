@@ -2374,11 +2374,11 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
 {
     m_wellPathAttributePlotObjects.clear();
 
-    if ( wellPathAttributeSource() )
+    if ( wellPathAttributeSource())
     {
         std::vector<const RimWellPathComponentInterface*> allWellPathComponents;
 
-        if ( m_showWellPathAttributes || m_showWellPathCompletions )
+        if ( wellPathAttributeSource()->wellPathGeometry() && (m_showWellPathAttributes || m_showWellPathCompletions ))
         {
             m_wellPathAttributePlotObjects.push_back( std::unique_ptr<RiuWellPathComponentPlotItem>(
                 new RiuWellPathComponentPlotItem( wellPathAttributeSource() ) ) );

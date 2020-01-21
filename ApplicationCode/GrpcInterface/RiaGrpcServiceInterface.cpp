@@ -103,7 +103,6 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
 {
     CAF_ASSERT( source && destination && destination->xmlCapability() );
     CAF_ASSERT( source->class_keyword() == destination->xmlCapability()->classKeyword().toStdString() );
-    CAF_ASSERT( source->address() == reinterpret_cast<uint64_t>( destination ) );
     std::vector<caf::PdmFieldHandle*> fields;
     destination->fields( fields );
 

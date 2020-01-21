@@ -19,6 +19,7 @@
 #include "RicNewWellBoreStabilityPlotFeature.h"
 
 #include "RiaColorTables.h"
+#include "RiaLogging.h"
 
 #include "RicNewWellLogCurveExtractionFeature.h"
 #include "RicNewWellLogFileCurveFeature.h"
@@ -172,6 +173,13 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
 
     if ( !geoMechCase )
     {
+        return;
+    }
+
+    if ( !wellPath->wellPathGeometry() )
+    {
+        RiaLogging::warning( QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" )
+                                 .arg( wellPath->name() ) );
         return;
     }
 

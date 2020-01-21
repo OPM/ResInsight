@@ -15,13 +15,13 @@ case = None
 try:
     case = resinsight.project.load_case("Nonsense")
 except grpc.RpcError as e:
-    print("Expected Server Exception Received while loading case: ", e)
+    print("Expected Server Exception Received while loading case: ", e.code(), e.details())
 
 # Try loading well paths from a non-existing folder.  We should get a grpc.RpcError exception from the server
 try:
     well_path_files = resinsight.project.import_well_paths(well_path_folder="NONSENSE/NONSENSE")
 except grpc.RpcError as e:
-    print("Expected Server Exception Received while loading wellpaths: ", e)
+    print("Expected Server Exception Received while loading wellpaths: ", e.code(), e.details())
 
 # Try loading well paths from an existing but empty folder. We should get a warning.
 try:

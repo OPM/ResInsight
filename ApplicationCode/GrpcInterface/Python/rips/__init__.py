@@ -12,3 +12,5 @@ from rips.view import View
 from rips.project import Project
 from rips.plot import Plot
 from rips.contour_map import ContourMap, ContourMapType
+from rips.well_log_plot import WellLogPlot
+from rips.well_bore_stability_plot import WellBoreStabilityPlot, WbsParameters
