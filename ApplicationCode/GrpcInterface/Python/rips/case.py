@@ -12,13 +12,17 @@ import grpc
 import rips.generated.Case_pb2 as Case_pb2
 import rips.generated.Case_pb2_grpc as Case_pb2_grpc
 import rips.generated.Commands_pb2 as Cmd
+import rips.generated.PdmObject_pb2 as PdmObject_pb2
+
 import rips.generated.Properties_pb2 as Properties_pb2
 import rips.generated.Properties_pb2_grpc as Properties_pb2_grpc
+
 
 from rips.grid import Grid
 from rips.pdmobject import PdmObject
 from rips.view import View
 from rips.contour_map import ContourMap, ContourMapType
+from rips.well_bore_stability_plot import WellBoreStabilityPlot, WbsParameters
 
 class Case(PdmObject):
     """ResInsight case class
@@ -224,10 +228,15 @@ class Case(PdmObject):
 
     def views(self):
         """Get a list of views belonging to a case"""
-        pdm_objects = self.children("ReservoirViews")
+        eclipse_pdm_objects = self.children("ReservoirViews")
+        geomech_pdm_objects = self.children("GeoMechViews")
+
         view_list = []
-        for pdm_object in pdm_objects:
+        for pdm_object in eclipse_pdm_objects:
             view_list.append(View(pdm_object, self._project))
+        for pdm_object in geomech_pdm_objects:
+            view_list.append(View(pdm_object, self._project))
+
         return view_list
 
     def view(self, view_id):
@@ -750,7 +759,7 @@ class Case(PdmObject):
             exportFile=export_file,
         ))
 
-    def create_well_bore_stability_plot(self, well_path, time_step, wbsParameters=None):
+    def create_well_bore_stability_plot(self, well_path, time_step, wbs_parameters=None):
         """ Create a new well bore stability plot
 
         Arguments:
@@ -760,11 +769,17 @@ class Case(PdmObject):
         Returns:
             A new plot object
         """
+        pdm_parameters = None
+        if wbs_parameters is not None:
+            assert(isinstance(wbs_parameters, WbsParameters))
+            pdm_parameters = PdmObject.create("WbsParameters", self.__channel, self._project)
+            wbs_parameters.to_pdm_object(pdm_parameters)
+
         plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.case_id,
                                                                                                  wellPath=well_path,
                                                                                                  timeStep=time_step,
-                                                                                                 wbsParameters=wbsParameters))
-        return self._project.plot(view_id=plot_result.createWbsPlotResult.viewId)
+                                                                                                 wbsParameters=pdm_parameters.pb2_object()))
+        return WellBoreStabilityPlot(self._project.plot(view_id=plot_result.createWbsPlotResult.viewId))
 
     def import_formation_names(self, formation_files=None):
         """ Import formation names into project and apply it to the current case

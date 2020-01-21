@@ -88,6 +88,14 @@ RicfCommandResponse RicfCreateWellBoreStabilityPlotFeature::execute()
 
     if ( chosenCase && chosenWellPath && m_timeStep() >= 0 )
     {
+        if ( !chosenWellPath->wellPathGeometry() )
+        {
+            QString error = QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" )
+                                .arg( chosenWellPath->name() );
+            RiaLogging::error( error );
+            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        }
+
         RimWellBoreStabilityPlot* wbsPlot = RicNewWellBoreStabilityPlotFeature::createPlot( chosenCase,
                                                                                             chosenWellPath,
                                                                                             m_timeStep(),

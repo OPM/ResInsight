@@ -171,6 +171,8 @@ if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 			"rips/pdmobject.py"
 			"rips/plot.py"
 			"rips/view.py"
+			"rips/well_log_plot.py"
+			"rips/well_bore_stability_plot.py"
 			"rips/PythonExamples/instance_example.py"
 			"rips/PythonExamples/command_example.py"
 			"rips/PythonExamples/case_grid_group.py"

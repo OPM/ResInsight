@@ -239,6 +239,13 @@ void RiaGrpcCommandService::assignPdmObjectValues( caf::PdmObjectHandle*        
 
     const Message& subMessage = reflection->GetMessage( params, paramDescriptor );
 
+    const rips::PdmObject* ripsPdmObject = dynamic_cast<const rips::PdmObject*>( &subMessage );
+    if ( ripsPdmObject )
+    {
+        copyPdmObjectFromRipsToCaf( ripsPdmObject, pdmObjectHandle );
+        return;
+    }
+
     auto messageDescriptor = paramDescriptor->message_type();
     int  numParameters     = messageDescriptor->field_count();
     for ( int i = 0; i < numParameters; ++i )

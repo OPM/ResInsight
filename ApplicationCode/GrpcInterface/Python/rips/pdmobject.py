@@ -2,11 +2,13 @@
 """
 ResInsight caf::PdmObject connection module
 """
+
+import grpc
+
 import rips.generated.PdmObject_pb2 as PdmObject_pb2
 import rips.generated.PdmObject_pb2_grpc as PdmObject_pb2_grpc
 import rips.generated.Commands_pb2 as Cmd
 import rips.generated.Commands_pb2_grpc as CmdRpc
-
 
 class PdmObject:
     """
@@ -30,6 +32,11 @@ class PdmObject:
         self._commands = CmdRpc.CommandsStub(channel)
         self._project = project
         self.__warnings = []
+
+    @classmethod
+    def create(cls, class_keyword, channel, project):
+        pb2_object = PdmObject_pb2.PdmObject(class_keyword=class_keyword)
+        return cls(pb2_object, channel, project)
 
     def warnings(self):
         return self.__warnings
@@ -166,11 +173,16 @@ class PdmObject:
         """
         request = PdmObject_pb2.PdmChildObjectRequest(object=self._pb2_object,
                                                       child_field=child_field)
-        object_list = self._pdm_object_stub.GetChildPdmObjects(request).objects
-        child_list = []
-        for pdm_object in object_list:
-            child_list.append(PdmObject(pdm_object, self._channel, self._project))
-        return child_list
+        try:
+            object_list = self._pdm_object_stub.GetChildPdmObjects(request).objects
+            child_list = []
+            for pdm_object in object_list:
+                child_list.append(PdmObject(pdm_object, self._channel, self._project))
+            return child_list
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.NOT_FOUND:
+                return []
+            raise e
 
     def ancestor(self, class_keyword):
         """Find the first ancestor that matches the provided class_keyword
@@ -179,8 +191,13 @@ class PdmObject:
         """
         request = PdmObject_pb2.PdmParentObjectRequest(
             object=self._pb2_object, parent_keyword=class_keyword)
-        return PdmObject(self._pdm_object_stub.GetAncestorPdmObject(request),
-                         self._channel, self._project)
+        try:
+            return PdmObject(self._pdm_object_stub.GetAncestorPdmObject(request),
+                             self._channel, self._project)
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.NOT_FOUND:
+                return None
+            raise e
 
     def update(self):
         """Sync all fields from the Python Object to ResInsight"""

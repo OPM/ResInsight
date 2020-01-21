@@ -18,6 +18,12 @@ class View(PdmObject):
         PdmObject.__init__(self, pdm_object.pb2_object(), pdm_object.channel(), project)
         self.view_id = pdm_object.get_value("ViewId")
 
+    def is_eclipse_view(self):
+        return self.class_keyword() == "ReservoirView"
+
+    def is_geomech_view(self):
+        return self.class_keyword() == "GeoMechView"
+
     def show_grid_box(self):
         """Check if the grid box is meant to be shown in the view"""
         return self.get_value("ShowGridBox")

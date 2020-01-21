@@ -52,7 +52,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* w
     , m_maxColumnOffset( 0.0 )
     , m_showLabel( false )
 {
-    CVF_ASSERT( wellPath );
+    CVF_ASSERT( wellPath && wellPath->wellPathGeometry() );
     double wellStart = wellPath->wellPathGeometry()->measureDepths().front();
     double wellEnd   = wellPath->wellPathGeometry()->measureDepths().back();
     m_startMD        = wellStart;
