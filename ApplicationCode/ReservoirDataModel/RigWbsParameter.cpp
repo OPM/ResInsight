@@ -228,7 +228,7 @@ RigWbsParameter RigWbsParameter::OBG()
 RigWbsParameter RigWbsParameter::OBG0()
 {
     std::vector<std::pair<Source, SourceAddress>> sources = {{GRID, SourceAddress( "ST", "S33" )},
-                                                             {LAS_FILE, SourceAddress( "POR" )}};
+                                                             {LAS_FILE, SourceAddress( "OBG0" )}};
     return RigWbsParameter( "OBG0", true, sources );
 }
 
