@@ -321,7 +321,10 @@ void RimGeoMechView::onCreateDisplayModel()
         onUpdateLegends();
         m_vizLogic->updateStaticCellColors( -1 );
         m_intersectionCollection->applySingleColorEffect();
-        m_surfaceCollection->applySingleColorEffect();
+        if ( m_surfaceCollection )
+        {
+            m_surfaceCollection->applySingleColorEffect();
+        }
 
         m_overlayInfoConfig()->update3DInfo();
     }
@@ -782,7 +785,7 @@ bool RimGeoMechView::isTimeStepDependentDataVisible() const
         return true;
     }
 
-    if ( this->surfaceInViewCollection()->hasAnyActiveSeparateResults() )
+    if ( this->surfaceInViewCollection() && this->surfaceInViewCollection()->hasAnyActiveSeparateResults() )
     {
         return true;
     }

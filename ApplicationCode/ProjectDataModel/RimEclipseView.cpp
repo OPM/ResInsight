@@ -1858,7 +1858,7 @@ bool RimEclipseView::isTimeStepDependentDataVisible() const
         return true;
     }
 
-    if ( this->surfaceInViewCollection()->hasAnyActiveSeparateResults() )
+    if ( this->surfaceInViewCollection() && this->surfaceInViewCollection()->hasAnyActiveSeparateResults() )
     {
         return true;
     }
