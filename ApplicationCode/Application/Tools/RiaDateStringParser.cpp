@@ -223,7 +223,7 @@ bool RiaDateStringParser::tryParseYear( const std::string& s, int& year )
             y += 2000;
     }
 
-    if ( y > 1970 && y <= today.year() + 50 ) // Support dates 50 years into the future.
+    if ( y > 1970 && y <= today.year() + 100 ) // Support dates 100 years into the future.
     {
         year = y;
 
