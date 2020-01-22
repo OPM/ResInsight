@@ -105,20 +105,34 @@ const std::vector<double>& RigWellLogCurveData::xValues() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigWellLogCurveData::depths( RiaDefines::DepthTypeEnum depthType ) const
 {
-    if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB && m_rkbDiff != 0.0 )
+    auto it = m_depths.find( depthType );
+    if ( it != m_depths.end() )
     {
-        std::vector<double> tvds = depths( RiaDefines::TRUE_VERTICAL_DEPTH );
-        for ( double& tvdValue : tvds )
+        return it->second;
+    }
+
+    if ( m_rkbDiff != 0.0 )
+    {
+        if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB && m_depths.count( RiaDefines::TRUE_VERTICAL_DEPTH ) )
         {
-            tvdValue += m_rkbDiff;
+            std::vector<double> tvds = depths( RiaDefines::TRUE_VERTICAL_DEPTH );
+            for ( double& tvdValue : tvds )
+            {
+                tvdValue += m_rkbDiff;
+            }
+            return tvds;
         }
-        return tvds;
+        else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH && m_depths.count( RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) )
+        {
+            std::vector<double> tvds = depths( RiaDefines::TRUE_VERTICAL_DEPTH_RKB );
+            for ( double& tvdValue : tvds )
+            {
+                tvdValue -= m_rkbDiff;
+            }
+            return tvds;
+        }
     }
-    else
-    {
-        auto it = m_depths.find( depthType );
-        return it != m_depths.end() ? it->second : std::vector<double>();
-    }
+    return std::vector<double>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,11 +145,22 @@ std::set<RiaDefines::DepthTypeEnum> RigWellLogCurveData::availableDepthTypes() c
     for ( auto depthValuePair : m_depths )
     {
         depthTypes.insert( depthValuePair.first );
-        if ( depthValuePair.first == RiaDefines::TRUE_VERTICAL_DEPTH && m_rkbDiff != 0.0 )
+    }
+
+    if ( m_rkbDiff != 0.0 )
+    {
+        if ( depthTypes.count( RiaDefines::TRUE_VERTICAL_DEPTH ) &&
+             !depthTypes.count( RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) )
         {
             depthTypes.insert( RiaDefines::TRUE_VERTICAL_DEPTH_RKB );
         }
+        else if ( depthTypes.count( RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) &&
+                  !depthTypes.count( RiaDefines::TRUE_VERTICAL_DEPTH ) )
+        {
+            depthTypes.insert( RiaDefines::TRUE_VERTICAL_DEPTH );
+        }
     }
+
     return depthTypes;
 }
 

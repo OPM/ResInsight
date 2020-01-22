@@ -104,6 +104,10 @@ bool RigWellLogFile::open( const QString& fileName, QString* errorMessage )
         {
             m_tvdMslLogName = logName;
         }
+        else if ( logName.toUpper() == "TVDRKB" )
+        {
+            m_tvdRkbLogName = logName;
+        }
     }
 
     m_wellLogChannelNames = wellLogNames;
@@ -167,6 +171,14 @@ std::vector<double> RigWellLogFile::depthValues() const
 std::vector<double> RigWellLogFile::tvdMslValues() const
 {
     return values( m_tvdMslLogName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogFile::tvdRkbValues() const
+{
+    return values( m_tvdRkbLogName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,9 +263,17 @@ QString RigWellLogFile::wellLogChannelUnitString( const QString&            well
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigWellLogFile::hasTvdChannel() const
+bool RigWellLogFile::hasTvdMslChannel() const
 {
     return !m_tvdMslLogName.isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigWellLogFile::hasTvdRkbChannel() const
+{
+    return !m_tvdRkbLogName.isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------
