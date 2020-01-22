@@ -226,8 +226,9 @@ RimGeoMechResultDefinition* RimIntersectionResultDefinition::geoMechResultDefini
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer,
-                                                                           bool       isUsingOverrideViewer )
+void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( const QString& title,
+                                                                           RiuViewer*     nativeOrOverrideViewer,
+                                                                           bool           isUsingOverrideViewer )
 {
     if ( !this->isInAction() ) return;
 
@@ -257,7 +258,7 @@ void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( RiuVi
                                                       this->ternaryLegendConfig(),
                                                       this->timeStep() );
 
-        eclResultDef->updateLegendTitle( this->regularLegendConfig(), "Intersection Results:\n" );
+        eclResultDef->updateLegendTitle( this->regularLegendConfig(), title );
 
         if ( this->regularLegendConfig()->showLegend() && eclResultDef->hasResult() )
         {
@@ -268,16 +269,14 @@ void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( RiuVi
                   eclResultDef->currentGridCellResults()->maxTimeStepCount() > 1 &&
                   this->ternaryLegendConfig()->showLegend() && this->ternaryLegendConfig()->titledOverlayFrame() )
         {
-            this->ternaryLegendConfig()->setTitle( "Intersection Results: \n" );
+            this->ternaryLegendConfig()->setTitle( title );
             nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( this->ternaryLegendConfig()->titledOverlayFrame(),
                                                                       isUsingOverrideViewer );
         }
     }
     else
     {
-        this->geoMechResultDefinition()->updateLegendTextAndRanges( this->regularLegendConfig(),
-                                                                    "Intersection Results:\n",
-                                                                    this->timeStep() );
+        this->geoMechResultDefinition()->updateLegendTextAndRanges( this->regularLegendConfig(), title, this->timeStep() );
 
         if ( this->geoMechResultDefinition()->hasResult() && this->regularLegendConfig()->showLegend() )
         {

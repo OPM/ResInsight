@@ -106,9 +106,10 @@ void RimIntersectionCollection::updateCellResultColor( bool hasGeneralCellResult
     {
         if ( cs->isActive() )
         {
-            bool hasSeparateInterResult = cs->activeSeparateResultDefinition() &&
-                                          cs->activeSeparateResultDefinition()->hasResult();
-            if ( hasSeparateInterResult || hasGeneralCellResult )
+            bool showResults = cs->activeSeparateResultDefinition() ? cs->activeSeparateResultDefinition()->hasResult()
+                                                                    : hasGeneralCellResult;
+
+            if ( showResults )
             {
                 cs->intersectionPartMgr()->updateCellResultColor( timeStepIndex, nullptr, nullptr );
             }
@@ -135,6 +136,31 @@ void RimIntersectionCollection::updateCellResultColor( bool hasGeneralCellResult
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimIntersectionCollection::hasAnyActiveSeparateResults()
+{
+    if ( !this->isActive() ) return false;
+
+    for ( RimExtrudedCurveIntersection* cs : m_intersections )
+    {
+        if ( cs->isActive() && cs->activeSeparateResultDefinition() && cs->activeSeparateResultDefinition()->hasResult() )
+        {
+            return true;
+        }
+    }
+
+    for ( RimBoxIntersection* cs : m_intersectionBoxes )
+    {
+        if ( cs->isActive() && cs->activeSeparateResultDefinition() && cs->activeSeparateResultDefinition()->hasResult() )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -102,7 +102,7 @@ void RivSurfacePartMgr::updateCellResultColor( size_t timeStepIndex )
     if ( m_intersectionFaces.notNull() )
     {
         RivIntersectionResultsColoringTools::calculateIntersectionResultColors( timeStepIndex,
-                                                                                false,
+                                                                                true,
                                                                                 m_surfaceInView,
                                                                                 m_intersectionGenerator.p(),
                                                                                 nullptr,

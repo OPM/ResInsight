@@ -1232,7 +1232,17 @@ void RimEclipseView::onUpdateLegends()
     for ( RimIntersectionResultDefinition* sepInterResDef :
           this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
     {
-        sepInterResDef->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+        sepInterResDef->updateLegendRangesTextAndVisibility( "Intersection Results:\n",
+                                                             nativeOrOverrideViewer(),
+                                                             isUsingOverrideViewer() );
+    }
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->updateLegendRangesTextAndVisibility( "Surface Results:\n",
+                                                             nativeOrOverrideViewer(),
+                                                             isUsingOverrideViewer() );
     }
 
     if ( this->cellEdgeResult()->legendConfig()->showLegend() )
@@ -1843,6 +1853,16 @@ bool RimEclipseView::isTimeStepDependentDataVisible() const
         if ( this->faultResultSettings()->customFaultResult()->isTernarySaturationSelected() ) return true;
     }
 
+    if ( this->intersectionCollection()->hasAnyActiveSeparateResults() )
+    {
+        return true;
+    }
+
+    if ( this->surfaceInViewCollection()->hasAnyActiveSeparateResults() )
+    {
+        return true;
+    }
+
     if ( this->wellPathCollection() && this->wellPathCollection()->anyWellsContainingPerforationIntervals() )
         return true;
 
@@ -1879,6 +1899,13 @@ void RimEclipseView::onResetLegendsInViewer()
 
     for ( RimIntersectionResultDefinition* sepInterResDef :
           this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->regularLegendConfig()->recreateLegend();
+        sepInterResDef->ternaryLegendConfig()->recreateLegend();
+    }
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
     {
         sepInterResDef->regularLegendConfig()->recreateLegend();
         sepInterResDef->ternaryLegendConfig()->recreateLegend();
@@ -2039,6 +2066,13 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
 
     for ( RimIntersectionResultDefinition* sepInterResDef :
           this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        absLegends.push_back( sepInterResDef->regularLegendConfig() );
+        absLegends.push_back( sepInterResDef->ternaryLegendConfig() );
+    }
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
     {
         absLegends.push_back( sepInterResDef->regularLegendConfig() );
         absLegends.push_back( sepInterResDef->ternaryLegendConfig() );
