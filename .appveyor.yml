@@ -5,7 +5,7 @@ branches:
 image: Visual Studio 2017
 clone_depth: 1
 environment:
-  QT5: C:\Qt\5.10.1\msvc2017_64
+  QT5: C:\Qt\5.13.2\msvc2017_64
 build_script:
 - cmd: >-
     mkdir cmakebuild
