@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(LibGuiQt)
 
+# Unity Build
+if (COMMAND caf_apply_unity_build)
+  caf_apply_unity_build("${PROJECT_NAME}")
+endif()
+
 # We're getting too much trouble from Qt using strict
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_BASE_CXX_FLAGS}")
 
@@ -59,6 +64,17 @@ target_link_libraries ( ${PROJECT_NAME}
 )
 set(PROJECT_FILES ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 source_group("" FILES ${PROJECT_FILES})
+
+# Unity Build
+if (CMAKE_UNITY_BUILD)
+  list(APPEND CAF_UNITY_EXCLUDE_FILES
+    cvfqtOpenGLWidget.cpp
+    cvfqtOpenGLContext.cpp
+  )
+  foreach (fileToExclude ${CAF_UNITY_EXCLUDE_FILES})
+    set_source_files_properties (${fileToExclude} PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
+  endforeach(fileToExclude)
+endif()
 
 #if (COMMAND ri_apply_cotire)
 #  set_source_files_properties (cvfqtOpenGLWidget.cpp PROPERTIES COTIRE_EXCLUDED TRUE)

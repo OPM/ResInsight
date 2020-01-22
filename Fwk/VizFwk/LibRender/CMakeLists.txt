@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 2.8)
 
 project(LibRender)
 
+# Unity Build
+if (COMMAND caf_apply_unity_build)
+  caf_apply_unity_build("${PROJECT_NAME}")
+endif()
 
 # Use our strict compile flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_STRICT_CXX_FLAGS}")
@@ -191,11 +195,19 @@ target_link_libraries ( ${PROJECT_NAME}
 set(PROJECT_FILES ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 source_group("" FILES ${PROJECT_FILES})
 
-#if (COMMAND ri_apply_cotire)
-#  set_source_files_properties (cvfOpenGLCapabilities.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
-#  set_source_files_properties (cvfOpenGLContext.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
-#  set_source_files_properties (cvfOpenGLContextGroup.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
-#  set_source_files_properties (cvfOpenGLResourceManager.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
-#  set_source_files_properties (cvfOpenGL.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
-#  ri_apply_cotire()
-#endif()
+# Unity Build
+if (CMAKE_UNITY_BUILD)
+
+  set_property(TARGET  
+    LibRender
+    PROPERTY UNITY_BUILD_BATCH_SIZE 8
+  )
+
+  list(APPEND CAF_UNITY_EXCLUDE_FILES
+    cvfOpenGL.cpp
+    cvfOpenGLContextGroup.cpp
+  )
+  foreach (fileToExclude ${CAF_UNITY_EXCLUDE_FILES})
+    set_source_files_properties (${fileToExclude} PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
+  endforeach(fileToExclude)
+endif()

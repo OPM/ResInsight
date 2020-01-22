@@ -74,13 +74,3 @@ if (COMMAND caf_apply_cotire)
   )
   caf_apply_cotire("${PROJECT_NAME}")
 endif()
-
-# Unity Build
-if (CMAKE_UNITY_BUILD)
-  list(APPEND CAF_UNITY_EXCLUDE_FILES
-    cafOpenGLWidget.cpp
-  )
-  foreach (fileToExclude ${CAF_UNITY_EXCLUDE_FILES})
-    set_source_files_properties (${fileToExclude} PROPERTIES COTIRE_EXCLUDED TRUE)
-  endforeach(fileToExclude)
-endif()

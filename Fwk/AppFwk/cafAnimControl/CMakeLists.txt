@@ -2,6 +2,11 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (cafAnimControl)
 
+# Unity Build
+if (COMMAND caf_apply_unity_build)
+  caf_apply_unity_build("${PROJECT_NAME}")
+endif()
+
 # Qt
 set( MOC_HEADER_FILES    
     cafFrameAnimationControl.h

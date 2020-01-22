@@ -4,7 +4,7 @@ project(LibViewing)
 
 # CMake Unity Build
 if (CVF_ENABLE_UNITY_BUILD)
-  message("Cmake Unity build is enabled on : ${target_name}")
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
   set(CMAKE_UNITY_BUILD true)
 endif()
 
