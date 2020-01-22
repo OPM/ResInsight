@@ -18,6 +18,7 @@ if len(well_paths) < 1:
     exit(1)
 print(well_paths)
 
+# Example of creating parameters for new plots
 wbs_parameters = rips.WbsParameters()
 wbs_parameters.user_poisson_ratio = 0.412347
 wbs_parameters.pore_pressure_outside_reservoir_source = "USER_DEFINED"
@@ -38,12 +39,16 @@ for case in cases:
 
         for well_path in well_paths:
             try:
+                # Create plot with parameters
                 wbsplot = case.create_well_bore_stability_plot(well_path=well_path, time_step=0, wbs_parameters=wbs_parameters)
+                # Example of setting parameters for existing plots
                 replace_params = wbsplot.parameters()
                 replace_params.user_poisson_ratio = 0.654321
                 replace_params.user_fg_shale = 1.0321
                 wbsplot.set_parameters(replace_params)
-                wbsplot.set_depth_type("TRUE_VERTICAL_DEPTH_RKB")
+                # Demonstrate altering general well log plot settings
+                wbsplot.set_depth_type("TRUE_VERTICAL_DEPTH_RKB")         
+                       
                 wbsplot.export_snapshot(export_folder=dirname)
 
             except grpc.RpcError as e:
