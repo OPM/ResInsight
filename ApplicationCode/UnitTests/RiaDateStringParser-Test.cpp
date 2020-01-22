@@ -111,7 +111,7 @@ TEST( RiaDateStringParserTest, ParseWithoutSeparators )
     may2ndDT.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
     feb5thDT.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
 
-    std::vector<std::string> may2ndStrings = {"20110502", "02052011"};
+    std::vector<std::string> may2ndStrings = {"20110502", "02052011", "Date_20110502"};
     for ( auto may2ndString : may2ndStrings )
     {
         QDateTime parsedDate = RiaDateStringParser::parseDateString( may2ndString );
