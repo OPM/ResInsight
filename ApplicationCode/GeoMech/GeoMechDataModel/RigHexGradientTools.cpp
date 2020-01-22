@@ -29,13 +29,13 @@ std::array<cvf::Vec3d, 8> RigHexGradientTools::gradients( const std::array<cvf::
     //
     std::array<cvf::Vec3d, 8> gradientsUVW;
     gradientsUVW[0] = cvf::Vec3d( forwardFD( values, 0, 1 ), forwardFD( values, 0, 3 ), forwardFD( values, 0, 4 ) );
-    gradientsUVW[1] = cvf::Vec3d( backwardFD( values, 1, 0 ), forwardFD( values, 1, 2 ), forwardFD( values, 1, 5 ) );
-    gradientsUVW[2] = cvf::Vec3d( backwardFD( values, 2, 3 ), backwardFD( values, 2, 1 ), forwardFD( values, 2, 6 ) );
-    gradientsUVW[3] = cvf::Vec3d( forwardFD( values, 3, 2 ), backwardFD( values, 3, 0 ), forwardFD( values, 3, 7 ) );
-    gradientsUVW[4] = cvf::Vec3d( forwardFD( values, 4, 5 ), forwardFD( values, 4, 7 ), backwardFD( values, 4, 0 ) );
-    gradientsUVW[5] = cvf::Vec3d( backwardFD( values, 5, 4 ), forwardFD( values, 5, 6 ), backwardFD( values, 5, 1 ) );
-    gradientsUVW[6] = cvf::Vec3d( backwardFD( values, 6, 7 ), backwardFD( values, 6, 5 ), backwardFD( values, 6, 2 ) );
-    gradientsUVW[7] = cvf::Vec3d( forwardFD( values, 7, 6 ), backwardFD( values, 7, 4 ), backwardFD( values, 7, 3 ) );
+    gradientsUVW[1] = cvf::Vec3d( backwardFD( values, 0, 1 ), forwardFD( values, 1, 2 ), forwardFD( values, 1, 5 ) );
+    gradientsUVW[2] = cvf::Vec3d( backwardFD( values, 3, 2 ), backwardFD( values, 1, 2 ), forwardFD( values, 2, 6 ) );
+    gradientsUVW[3] = cvf::Vec3d( forwardFD( values, 3, 2 ), backwardFD( values, 0, 3 ), forwardFD( values, 3, 7 ) );
+    gradientsUVW[4] = cvf::Vec3d( forwardFD( values, 4, 5 ), forwardFD( values, 4, 7 ), backwardFD( values, 0, 4 ) );
+    gradientsUVW[5] = cvf::Vec3d( backwardFD( values, 4, 5 ), forwardFD( values, 5, 6 ), backwardFD( values, 1, 5 ) );
+    gradientsUVW[6] = cvf::Vec3d( backwardFD( values, 7, 6 ), backwardFD( values, 5, 6 ), backwardFD( values, 2, 6 ) );
+    gradientsUVW[7] = cvf::Vec3d( forwardFD( values, 7, 6 ), backwardFD( values, 4, 7 ), backwardFD( values, 3, 7 ) );
 
     std::array<cvf::Vec3d, 8> NC;
     NC[0] = {-1, -1, -1};

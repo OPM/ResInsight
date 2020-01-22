@@ -1007,7 +1007,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradient( 
 
     RigFemScalarResultFrames* inputResultFrames =
         this->findOrLoadScalarResult( partIndex,
-                                      RigFemResultAddress( resVarAddr.resultPosType, "SE", componentName.toStdString() ) );
+                                      RigFemResultAddress( resVarAddr.resultPosType, "ST", componentName.toStdString() ) );
 
     RigFemScalarResultFrames* dataFramesX = m_femPartResults[partIndex]->createScalarResult(
         RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-x" ) );
