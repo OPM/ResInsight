@@ -37,6 +37,7 @@
 #include "RiuQwtPlotWidget.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 
 #include "cafPdmUiTreeOrdering.h"
@@ -88,78 +89,59 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
             {
                 std::vector<double> values              = wellLogFile->values( m_wellLogChannnelName );
                 std::vector<double> measuredDepthValues = wellLogFile->depthValues();
+                std::vector<double> tvdMslValues        = wellLogFile->tvdMslValues();
+                std::vector<double> tvdRkbValues        = wellLogFile->tvdRkbValues();
 
-                if ( wellLogPlot && ( wellLogPlot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH ||
-                                      wellLogPlot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) )
+                bool rkbDiff = m_wellPath->wellPathGeometry() ? m_wellPath->wellPathGeometry()->rkbDiff() : 0.0;
+
+                if ( tvdMslValues.size() != values.size() )
                 {
-                    bool canUseTvd = false;
-                    if ( wellLogFile->hasTvdChannel() )
+                    RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
+                    if ( rigWellPath )
                     {
-                        std::vector<double> tvdMslValues = wellLogFile->tvdMslValues();
-
-                        if ( values.size() == measuredDepthValues.size() && values.size() == tvdMslValues.size() )
+                        tvdMslValues.clear();
+                        for ( double measuredDepthValue : measuredDepthValues )
                         {
-                            this->setValuesWithMdAndTVD( values,
-                                                         measuredDepthValues,
-                                                         tvdMslValues,
-                                                         m_wellPath->wellPathGeometry()->rkbDiff(),
-                                                         wellLogFile->depthUnit(),
-                                                         false );
-                            canUseTvd = true;
-                        }
-                    }
-
-                    if ( !canUseTvd )
-                    {
-                        RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
-                        if ( rigWellPath )
-                        {
-                            std::vector<double> trueVerticalDepthValues;
-
-                            for ( double measuredDepthValue : measuredDepthValues )
-                            {
-                                trueVerticalDepthValues.push_back(
-                                    -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
-                            }
-                            if ( values.size() == trueVerticalDepthValues.size() &&
-                                 values.size() == measuredDepthValues.size() )
-                            {
-                                this->setValuesWithMdAndTVD( values,
-                                                             measuredDepthValues,
-                                                             trueVerticalDepthValues,
-                                                             m_wellPath->wellPathGeometry()->rkbDiff(),
-                                                             wellLogFile->depthUnit(),
-                                                             false );
-                                canUseTvd = true;
-                            }
-                        }
-                    }
-
-                    if ( !canUseTvd )
-                    {
-                        if ( RiaApplication::instance()->preferences()->showLasCurveWithoutTvdWarning() )
-                        {
-                            QString tmp = QString(
-                                "Display of True Vertical Depth (TVD) for LAS curves is not possible without a well "
-                                "log path, and the LAS curve will be hidden in this mode.\n\n" );
-                            tmp += "Control display of this warning from \"Preferences->Show LAS curve without TVD "
-                                   "warning\"";
-
-                            QMessageBox::warning( nullptr, "LAS curve without TVD", tmp );
+                            tvdMslValues.push_back(
+                                -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
                         }
                     }
                 }
-                else
+
+                std::map<RiaDefines::DepthTypeEnum, std::vector<double>> validDepths;
+                if ( values.size() == measuredDepthValues.size() )
                 {
-                    if ( values.size() == measuredDepthValues.size() )
-                    {
-                        this->setValuesAndDepths( values,
-                                                  measuredDepthValues,
-                                                  RiaDefines::MEASURED_DEPTH,
-                                                  0.0,
-                                                  wellLogFile->depthUnit(),
-                                                  false );
-                    }
+                    validDepths.insert( std::make_pair( RiaDefines::MEASURED_DEPTH, measuredDepthValues ) );
+                }
+                if ( values.size() == tvdMslValues.size() )
+                {
+                    validDepths.insert( std::make_pair( RiaDefines::TRUE_VERTICAL_DEPTH, tvdMslValues ) );
+                }
+                if ( values.size() == tvdRkbValues.size() )
+                {
+                    validDepths.insert( std::make_pair( RiaDefines::TRUE_VERTICAL_DEPTH_RKB, tvdRkbValues ) );
+                }
+
+                this->setValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false );
+
+                QString errMsg;
+                if ( wellLogPlot && !this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
+                {
+                    QString depthTitle = wellLogPlot->depthAxisTitle();
+                    errMsg             = QString( "Display of %1 for LAS curves is not possible without %1 "
+                                      "values in the LAS-file or a well path to derive them from." )
+                                 .arg( depthTitle )
+                                 .arg( depthTitle );
+                }
+
+                bool showWarning = !RiaApplication::instance()->preferences()->showLasCurveWithoutTvdWarning();
+                if ( !errMsg.isEmpty() && showWarning )
+                {
+                    QString tmp = QString( "The LAS curve can not be displayed.\n%1\n" ).arg( errMsg );
+                    tmp += "Control display of this warning from \"Preferences->Show LAS curve without TVD "
+                           "warning\"";
+
+                    QMessageBox::warning( nullptr, "LAS curve without current depth type", tmp );
                 }
             }
 

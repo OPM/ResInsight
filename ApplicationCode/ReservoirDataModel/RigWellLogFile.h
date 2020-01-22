@@ -50,13 +50,16 @@ public:
 
     std::vector<double> depthValues() const;
     std::vector<double> tvdMslValues() const;
+    std::vector<double> tvdRkbValues() const;
+
     std::vector<double> values( const QString& name ) const;
 
     QString                   wellLogChannelUnitString( const QString&            wellLogChannelName,
                                                         RiaDefines::DepthUnitType displayDepthUnit ) const;
     RiaDefines::DepthUnitType depthUnit() const;
 
-    bool hasTvdChannel() const;
+    bool hasTvdMslChannel() const;
+    bool hasTvdRkbChannel() const;
 
 private:
     void    close();
@@ -66,4 +69,5 @@ private:
     QStringList  m_wellLogChannelNames;
     QString      m_depthLogName;
     QString      m_tvdMslLogName;
+    QString      m_tvdRkbLogName;
 };

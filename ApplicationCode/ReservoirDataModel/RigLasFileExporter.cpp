@@ -345,13 +345,16 @@ void RigLasFileExporter::wellPathsAndRkbDiff( std::vector<QString>* wellNames, s
 
     for ( auto metaData : lasFileDescriptions )
     {
-        QString wellName = metaData.wellName();
-        if ( uniqueWellNames.find( wellName ) == uniqueWellNames.end() )
+        if ( metaData.rkbDiff() != std::numeric_limits<double>::infinity() )
         {
-            uniqueWellNames.insert( wellName );
+            QString wellName = metaData.wellName();
+            if ( uniqueWellNames.find( wellName ) == uniqueWellNames.end() )
+            {
+                uniqueWellNames.insert( wellName );
 
-            wellNames->push_back( wellName );
-            rkbDiffs->push_back( metaData.rkbDiff() );
+                wellNames->push_back( wellName );
+                rkbDiffs->push_back( metaData.rkbDiff() );
+            }
         }
     }
 }
