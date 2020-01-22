@@ -47,11 +47,17 @@ QDateTime RiaDateStringParser::parseDateString( const std::string& dateString )
                    tryParseDayFirst( dateString, year, month, day ) ||
                    tryParseMonthFirst( dateString, year, month, day );
     }
-    else if ( !RiaStdStringTools::containsAlphabetic( dateString ) )
+    if ( !parsedOk )
     {
-        parsedOk = tryParseYearFirstNoSeparators( dateString, year, month, day ) ||
-                   tryParseDayFirstNoSeparators( dateString, year, month, day ) ||
-                   tryParseMonthFirstNoSeparators( dateString, year, month, day );
+        auto firstNumerical = dateString.find_first_of( "0123456789" );
+        if ( firstNumerical != std::string::npos )
+        {
+            std::string subString = dateString.substr( firstNumerical );
+
+            parsedOk = tryParseYearFirstNoSeparators( subString, year, month, day ) ||
+                       tryParseDayFirstNoSeparators( subString, year, month, day ) ||
+                       tryParseMonthFirstNoSeparators( subString, year, month, day );
+        }
     }
 
     QDateTime dt;
