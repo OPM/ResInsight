@@ -29,6 +29,7 @@
     <file>CreateGridCaseGroup16x16.png</file>
     <file>CrossSection16x16.png</file>
     <file>CrossSections16x16.png</file>
+    <file>CumulativePhaseDist16x16.png</file>
     <file>DownViewArrow.png</file>
     <file>EastViewArrow.png</file>
     <file>EclipseInput48x48.png</file>
@@ -80,6 +81,7 @@
     <file>MasterView16x16.png</file>
     <file>Minus.png</file>
     <file>NorthViewArrow.png</file>
+    <file>MultiPlot16x16.png</file>
     <file>ObservedCSVDataFile16x16.png</file>
     <file>ObservedDataFile16x16.png</file>
     <file>ObservedRFTDataFile16x16.png</file>
