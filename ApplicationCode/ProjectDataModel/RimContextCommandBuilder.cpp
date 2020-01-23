@@ -1125,9 +1125,6 @@ void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& me
     QDir dir( scriptCollection->directory );
     menuBuilder.subMenuStart( dir.dirName() );
 
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-    CVF_ASSERT( commandManager );
-
     for ( size_t i = 0; i < scriptCollection->calcScripts.size(); i++ )
     {
         RimCalcScript* calcScript = scriptCollection->calcScripts[i];
