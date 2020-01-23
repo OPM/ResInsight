@@ -660,6 +660,14 @@ void RimEclipseCase::createTimeStepFormatString()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimEclipseCase::reservoirBoundingBox()
+{
+    return activeCellsBoundingBox();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimEclipseCase::activeCellsBoundingBox() const
 {
     if ( m_rigEclipseCase.notNull() && m_rigEclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL ) )

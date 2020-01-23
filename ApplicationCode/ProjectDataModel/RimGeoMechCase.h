@@ -75,6 +75,7 @@ public:
     QStringList            timeStepStrings() const override;
     QString                timeStepName( int frameIdx ) const override;
 
+    cvf::BoundingBox reservoirBoundingBox() override;
     cvf::BoundingBox activeCellsBoundingBox() const override;
     cvf::BoundingBox allCellsBoundingBox() const override;
 

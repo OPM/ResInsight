@@ -85,10 +85,14 @@ public:
     grpc::Status
         GetCaseInfo( grpc::ServerContext* context, const rips::CaseRequest* request, rips::CaseInfo* reply ) override;
     grpc::Status
-                                           GetPdmObject( grpc::ServerContext* context, const rips::CaseRequest* request, rips::PdmObject* reply ) override;
-    grpc::Status                           GetCellInfoForActiveCells( grpc::ServerContext*           context,
-                                                                      const rips::CellInfoRequest*   request,
-                                                                      rips::CellInfoArray*           reply,
-                                                                      RiaActiveCellInfoStateHandler* stateHandler );
+                 GetPdmObject( grpc::ServerContext* context, const rips::CaseRequest* request, rips::PdmObject* reply ) override;
+    grpc::Status GetCellInfoForActiveCells( grpc::ServerContext*           context,
+                                            const rips::CellInfoRequest*   request,
+                                            rips::CellInfoArray*           reply,
+                                            RiaActiveCellInfoStateHandler* stateHandler );
+    grpc::Status GetReservoirBoundingBox( grpc::ServerContext*     context,
+                                          const rips::CaseRequest* request,
+                                          rips::BoundingBox*       reply );
+
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

@@ -14,6 +14,7 @@ service Case
 	rpc GetDaysSinceStart(CaseRequest) returns (DaysSinceStart) {}
 	rpc GetCaseInfo(CaseRequest) returns (CaseInfo) {}
 	rpc GetPdmObject(CaseRequest) returns (PdmObject) {}
+	rpc GetReservoirBoundingBox(CaseRequest) returns (BoundingBox) {}
 }
 
 message CaseRequest {
@@ -31,6 +32,16 @@ message CaseInfo
 message CaseInfoArray
 {
   repeated CaseInfo data = 1;
+}
+
+message BoundingBox
+{
+	double min_x = 1;
+	double max_x = 2;
+	double min_y = 3;
+	double max_y = 4;
+	double min_z = 5;
+	double max_z = 6;
 }
 
 message CaseGroup
