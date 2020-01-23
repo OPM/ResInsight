@@ -59,10 +59,18 @@ include (ResInsightVersion.cmake)
 find_package(Octave)
 
 ################################################################################
-# cotire 
+# cotire and CMake Unity Build
 # Fully automated CMake module for build speedup
 # https://github.com/sakra/cotire
 ################################################################################
+
+# CMAKE_UNITY_BUILD was introduced in CMake 3.16.2
+option(RESINSIGHT_ENABLE_UNITY_BUILD "Experimental speedup of compilation using CMake Unity Build" OFF)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_UNITY_BUILD)
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+  set(CAF_ENABLE_UNITY_BUILD true)
+  set(CVF_ENABLE_UNITY_BUILD true)
+endif()
 
 option(RESINSIGHT_ENABLE_COTIRE "Experimental speedup of compilation using cotire" OFF)
 mark_as_advanced(FORCE RESINSIGHT_ENABLE_COTIRE)

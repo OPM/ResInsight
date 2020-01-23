@@ -2,6 +2,12 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (ApplicationCode)
 
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+    message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+    set(CMAKE_UNITY_BUILD true)
+endif()
+
+
 if (CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations")
 endif()
@@ -455,40 +461,41 @@ target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
 
 #############################################################################
-# cotire
+# cotire and unity builds
 #############################################################################
+
+set( UNITY_EXCLUDE_FILES
+    # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
+    ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
+    
+    # multiple QRC files are not supported
+    qrc_cafAnimControl.cxx
+    qrc_ResInsight.cxx
+
+    # mix of cvf and Qt namespaces
+    ModelVisualization/GridBox/RivGridBoxGenerator.cpp
+    ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp
+
+    # exclude file using Eigen
+    ReservoirDataModel/RigCellGeometryTools.cpp
+    ReservoirDataModel/Completions/RigTransmissibilityCondenser.cpp
+    ReservoirDataModel/Completions/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
+    ReservoirDataModel/Completions/RigEclipseToStimPlanCalculator.cpp
+
+    # exclude file using SolveSpace
+    Application/Tools/WellPathTools/RiaSCurveCalculator.cpp
+
+    # QT 5
+    qrc_cafAnimControl.cpp
+    qrc_ResInsight.cpp
+    qrc_cafCommandFeatures.cpp
+    ProjectDataModel/RimContourMapView.cpp
+    Commands/CompletionExportCommands/RicExportFractureCompletionsImpl.cpp
+)
+
 if(RESINSIGHT_ENABLE_COTIRE)
 
-    set( COTIRE_EXCLUDE_FILES
-        # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
-        ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
-    
-        # multiple QRC files are not supported
-        qrc_cafAnimControl.cxx
-        qrc_ResInsight.cxx
-
-        # mix of cvf and Qt namespaces
-        ModelVisualization/GridBox/RivGridBoxGenerator.cpp
-        ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp
-
-        # exclude file using Eigen
-        ReservoirDataModel/RigCellGeometryTools.cpp
-        ReservoirDataModel/Completions/RigTransmissibilityCondenser.cpp
-        ReservoirDataModel/Completions/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
-        ReservoirDataModel/Completions/RigEclipseToStimPlanCalculator.cpp
-
-        # exclude file using SolveSpace
-        Application/Tools/WellPathTools/RiaSCurveCalculator.cpp
-
-        # QT 5
-        qrc_cafAnimControl.cpp
-        qrc_ResInsight.cpp
-        qrc_cafCommandFeatures.cpp
-        ProjectDataModel/RimContourMapView.cpp
-        Commands/CompletionExportCommands/RicExportFractureCompletionsImpl.cpp
-    )
-
-    foreach (fileToExclude ${COTIRE_EXCLUDE_FILES})
+    foreach (fileToExclude ${UNITY_EXCLUDE_FILES})
         set_source_files_properties (${fileToExclude} PROPERTIES COTIRE_EXCLUDED TRUE)
     endforeach(fileToExclude)
 
@@ -508,7 +515,11 @@ if(RESINSIGHT_ENABLE_COTIRE)
 
 endif()
 
-
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+    foreach (fileToExclude ${UNITY_EXCLUDE_FILES})
+        set_source_files_properties (${fileToExclude} PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
+    endforeach(fileToExclude)
+endif()
 
 #############################################################################
 # Copy Dlls on MSVC

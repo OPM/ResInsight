@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 2.8)
 
 project(LibGeometry)
 
+# CMake Unity Build
+if (CVF_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+  set(CMAKE_UNITY_BUILD true)
+endif()
 
 # Use our strict compile flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_STRICT_CXX_FLAGS}")
