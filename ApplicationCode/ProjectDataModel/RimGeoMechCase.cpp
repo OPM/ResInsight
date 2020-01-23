@@ -26,7 +26,9 @@
 #include "RicfCommandObject.h"
 #include "RifOdbReader.h"
 
+#include "RigFemPart.h"
 #include "RigFemPartCollection.h"
+#include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
@@ -52,8 +54,12 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
 
+#include "cvfVector3.h"
+
 #include <QFile>
 #include <QIcon>
+
+#include <array>
 
 CAF_PDM_SOURCE_INIT( RimGeoMechCase, "ResInsightGeoMechCase" );
 //--------------------------------------------------------------------------------------------------
@@ -439,6 +445,43 @@ QString RimGeoMechCase::timeStepName( int frameIdx ) const
     }
 
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimGeoMechCase::reservoirBoundingBox()
+{
+    cvf::BoundingBox boundingBox;
+
+    RigGeoMechCaseData* rigCaseData = this->geoMechData();
+    if ( rigCaseData && rigCaseData->femPartResults() && rigCaseData->femParts()->part( 0 ) )
+    {
+        RigFemPart*           femPart     = rigCaseData->femParts()->part( 0 );
+        const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
+
+        RigFemResultAddress       porBarAddr( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "" );
+        const std::vector<float>& resultValues = rigCaseData->femPartResults()->resultValues( porBarAddr, 0, 0 );
+
+        for ( int i = 0; i < femPart->elementCount(); ++i )
+        {
+            size_t resValueIdx = femPart->elementNodeResultIdx( (int)i, 0 );
+            CVF_ASSERT( resValueIdx < resultValues.size() );
+            double scalarValue   = resultValues[resValueIdx];
+            bool   validPorValue = scalarValue != std::numeric_limits<double>::infinity();
+
+            if ( validPorValue )
+            {
+                std::array<cvf::Vec3d, 8> hexCorners;
+                femPartGrid->cellCornerVertices( i, hexCorners.data() );
+                for ( size_t c = 0; c < 8; ++c )
+                {
+                    boundingBox.add( hexCorners[c] );
+                }
+            }
+        }
+    }
+    return boundingBox;
 }
 
 //--------------------------------------------------------------------------------------------------

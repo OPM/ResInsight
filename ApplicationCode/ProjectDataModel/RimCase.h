@@ -62,6 +62,7 @@ public:
     virtual QStringList            timeStepStrings() const            = 0;
     virtual QString                timeStepName( int frameIdx ) const = 0;
 
+    virtual cvf::BoundingBox reservoirBoundingBox()         = 0;
     virtual cvf::BoundingBox activeCellsBoundingBox() const = 0;
     virtual cvf::BoundingBox allCellsBoundingBox() const    = 0;
 

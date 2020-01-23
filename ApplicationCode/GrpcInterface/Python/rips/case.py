@@ -222,6 +222,19 @@ class Case(PdmObject):
         """
         return self.__case_stub.GetTimeSteps(self.__request).dates
 
+    def reservoir_boundingbox(self):
+        """Get the reservoir bounding box
+            Returns: A class with six double members: min_x, max_x, min_y, max_y, min_z, max_z
+        """
+        return self.__case_stub.GetReservoirBoundingBox(self.__request)
+
+    def reservoir_depth_range(self):
+        """Get the reservoir depth range
+            Returns: A tuple with two members. The first is the minimum depth, the second is the maximum depth
+        """
+        bbox = self.reservoir_boundingbox()
+        return -bbox.max_z, -bbox.min_z
+
     def days_since_start(self):
         """Get a list of decimal values representing days since the start of the simulation"""
         return self.__case_stub.GetDaysSinceStart(self.__request).day_decimals

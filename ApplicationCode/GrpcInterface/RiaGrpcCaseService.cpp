@@ -338,7 +338,7 @@ grpc::Status RiaGrpcCaseService::GetCaseInfo( grpc::ServerContext*     context,
         reply->set_type( caseType.toStdString() );
         return Status::OK;
     }
-    return Status( grpc::NOT_FOUND, "No cases found" );
+    return Status( grpc::NOT_FOUND, "Case not found" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -370,6 +370,28 @@ grpc::Status RiaGrpcCaseService::GetCellInfoForActiveCells( grpc::ServerContext*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcCaseService::GetReservoirBoundingBox( grpc::ServerContext*     context,
+                                                          const rips::CaseRequest* request,
+                                                          rips::BoundingBox*       reply )
+{
+    RimCase* rimCase = findCase( request->id() );
+    if ( rimCase )
+    {
+        cvf::BoundingBox boundingBox = rimCase->reservoirBoundingBox();
+        reply->set_min_x( boundingBox.min().x() );
+        reply->set_min_y( boundingBox.min().y() );
+        reply->set_min_z( boundingBox.min().z() );
+        reply->set_max_x( boundingBox.max().x() );
+        reply->set_max_y( boundingBox.max().y() );
+        reply->set_max_z( boundingBox.max().z() );
+        return Status::OK;
+    }
+    return Status( grpc::NOT_FOUND, "Case not found" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
 {
     typedef RiaGrpcCaseService Self;
@@ -392,7 +414,10 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
                                                     RiaActiveCellInfoStateHandler>( this,
                                                                                     &Self::GetCellInfoForActiveCells,
                                                                                     &Self::RequestGetCellInfoForActiveCells,
-                                                                                    new RiaActiveCellInfoStateHandler )};
+                                                                                    new RiaActiveCellInfoStateHandler ),
+            new RiaGrpcUnaryCallback<Self, CaseRequest, BoundingBox>( this,
+                                                                      &Self::GetReservoirBoundingBox,
+                                                                      &Self::RequestGetReservoirBoundingBox )};
 }
 
 static bool RiaGrpcCaseService_init = RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcCaseService>(

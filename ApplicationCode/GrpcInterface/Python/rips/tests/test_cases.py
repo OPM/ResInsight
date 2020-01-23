@@ -1,5 +1,6 @@
 import sys
 import os
+import math
 import pytest 
 import grpc
 import tempfile
@@ -22,6 +23,21 @@ def test_OneCase(rips_instance, initialize_test):
     assert(case.case_id == 0)
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
+
+def test_BoundingBox(rips_instance, initialize_test):
+    case = rips_instance.project.load_case(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID")
+    assert(case.name == "TEST10K_FLT_LGR_NNC")
+    boundingbox = case.reservoir_boundingbox()
+    assert(math.isclose(3382.90, boundingbox.min_x, abs_tol=1.0e-1))
+    assert(math.isclose(5850.48, boundingbox.max_x, abs_tol=1.0e-1))
+    assert(math.isclose(4157.45, boundingbox.min_y, abs_tol=1.0e-1))
+    assert(math.isclose(7354.93, boundingbox.max_y, abs_tol=1.0e-1))
+    assert(math.isclose(-4252.61, boundingbox.min_z, abs_tol=1.0e-1))
+    assert(math.isclose(-4103.60, boundingbox.max_z, abs_tol=1.0e-1))
+
+    min_depth, max_depth = case.reservoir_depth_range()
+    assert(math.isclose(4103.60, min_depth, abs_tol=1.0e-1))
+    assert(math.isclose(4252.61, max_depth, abs_tol=1.0e-1))
 
 def test_MultipleCases(rips_instance, initialize_test):
     case_paths = []

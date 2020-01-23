@@ -109,6 +109,7 @@ public:
     QString                timeStepName( int frameIdx ) const override;
     std::vector<QDateTime> timeStepDates() const override;
 
+    cvf::BoundingBox reservoirBoundingBox() override;
     cvf::BoundingBox activeCellsBoundingBox() const override;
     cvf::BoundingBox allCellsBoundingBox() const override;
     cvf::Vec3d       displayModelOffset() const override;
