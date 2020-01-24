@@ -175,6 +175,31 @@ double GeometryTools::signedAreaPlanarPolygon( const cvf::Vec3d& planeNormal, co
     return signedArea;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// This method below is more correct than the one above, both in naming and behaviour.
+/// Should be replaced, but is not done now to avoid possible sideeffects
+/// The difference is the sign of the area. The one below retuns correct sign according to the plane normal
+/// provided
+//--------------------------------------------------------------------------------------------------
+template <typename Vec3Type>
+double closestAxisSignedAreaPlanarPolygon( const cvf::Vec3d& planeNormal, const std::vector<Vec3Type>& polygon )
+{
+    int Z = cvf::GeometryTools::findClosestAxis( planeNormal );
+    int X = ( Z + 1 ) % 3;
+    int Y = ( Z + 2 ) % 3;
+
+    // Use Shoelace formula to calculate signed area.
+    // https://en.wikipedia.org/wiki/Shoelace_formula
+    double signedArea = 0.0;
+    for ( size_t i = 0; i < polygon.size(); ++i )
+    {
+        signedArea += ( polygon[( i + 1 ) % polygon.size()][X] + polygon[i][X] ) *
+                      ( polygon[( i + 1 ) % polygon.size()][Y] - polygon[i][Y] );
+    }
+
+    return ( planeNormal[Z] > 0 ) ? signedArea : -signedArea;
+}
+
 /*
    Determine the intersection point of two line segments
    From Paul Bourke, but modified to really handle coincident lines
