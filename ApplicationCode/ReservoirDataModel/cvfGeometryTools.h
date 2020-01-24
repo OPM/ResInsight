@@ -209,9 +209,16 @@ public:
     virtual bool calculateTriangles( std::vector<size_t>* triangles );
 
 protected:
-    bool isTriangleValid( std::list<size_t>::const_iterator u,
-                          std::list<size_t>::const_iterator v,
-                          std::list<size_t>::const_iterator w ) const;
+    enum TriangleStatus
+    {
+        INVALID_TRIANGLE,
+        NEAR_ZERO_AREA_TRIANGLE,
+        VALID_TRIANGLE
+    };
+    TriangleStatus calculateTriangleStatus( std::list<size_t>::const_iterator u,
+                                            std::list<size_t>::const_iterator v,
+                                            std::list<size_t>::const_iterator w ) const;
+
     bool isPointInsideTriangle( const cvf::Vec3d& A, const cvf::Vec3d& B, const cvf::Vec3d& C, const cvf::Vec3d& P ) const;
     double calculateProjectedPolygonArea() const;
 

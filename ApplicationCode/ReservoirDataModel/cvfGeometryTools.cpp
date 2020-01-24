@@ -880,12 +880,17 @@ bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices
         ++w; // v + 1;
         if ( w == m_polygonIndices.end() ) w = m_polygonIndices.begin(); // if (nv <= w) w = 0;
 
-        if ( isTriangleValid( u, v, w ) )
+        EarClipTesselator::TriangleStatus triStatus = calculateTriangleStatus( u, v, w );
+
+        if ( triStatus != INVALID_TRIANGLE )
         {
             // Indices of the vertices
-            triangleIndices->push_back( *u );
-            triangleIndices->push_back( *v );
-            triangleIndices->push_back( *w );
+            if ( triStatus == VALID_TRIANGLE )
+            {
+                triangleIndices->push_back( *u );
+                triangleIndices->push_back( *v );
+                triangleIndices->push_back( *w );
+            }
 
             // Remove v from remaining polygon
             m_polygonIndices.erase( v );
@@ -904,9 +909,9 @@ bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices
 /// Is this a valid triangle ? ( No points inside, and points not on a line. )
 //--------------------------------------------------------------------------------------------------
 
-bool EarClipTesselator::isTriangleValid( std::list<size_t>::const_iterator u,
-                                         std::list<size_t>::const_iterator v,
-                                         std::list<size_t>::const_iterator w ) const
+EarClipTesselator::TriangleStatus EarClipTesselator::calculateTriangleStatus( std::list<size_t>::const_iterator u,
+                                                                              std::list<size_t>::const_iterator v,
+                                                                              std::list<size_t>::const_iterator w ) const
 {
     CVF_ASSERT( m_X > -1 && m_Y > -1 );
 
@@ -914,9 +919,17 @@ bool EarClipTesselator::isTriangleValid( std::list<size_t>::const_iterator u,
     cvf::Vec3d B = ( *m_nodeCoords )[*v];
     cvf::Vec3d C = ( *m_nodeCoords )[*w];
 
-    if ( m_areaTolerance >
-         ( ( ( B[m_X] - A[m_X] ) * ( C[m_Y] - A[m_Y] ) ) - ( ( B[m_Y] - A[m_Y] ) * ( C[m_X] - A[m_X] ) ) ) )
-        return false;
+    double mainAxisProjectedArea = ( ( B[m_X] - A[m_X] ) * ( C[m_Y] - A[m_Y] ) ) -
+                                   ( ( B[m_Y] - A[m_Y] ) * ( C[m_X] - A[m_X] ) );
+    if ( -m_areaTolerance > mainAxisProjectedArea )
+    {
+        // Definite negative triangle
+        return INVALID_TRIANGLE;
+    }
+    else if ( fabs( mainAxisProjectedArea ) < m_areaTolerance )
+    {
+        return NEAR_ZERO_AREA_TRIANGLE;
+    }
 
     std::list<size_t>::const_iterator c;
     std::list<size_t>::const_iterator outside;
@@ -948,15 +961,16 @@ bool EarClipTesselator::isTriangleValid( std::list<size_t>::const_iterator u,
 
         cvf::Vec3d P = ( *m_nodeCoords )[*c];
 
-        if ( isPointInsideTriangle( A, B, C, P ) ) return false;
+        if ( isPointInsideTriangle( A, B, C, P ) ) return INVALID_TRIANGLE;
     }
 
-    return true;
+    return VALID_TRIANGLE;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Decides if a point P is inside of the triangle defined by A, B, C.
 /// By calculating the "double area" (cross product) of Corner to corner x Corner to point vectors
+/// If cross product is negative, the point is outside
 //--------------------------------------------------------------------------------------------------
 
 bool EarClipTesselator::isPointInsideTriangle( const cvf::Vec3d& A,
@@ -983,7 +997,8 @@ bool EarClipTesselator::isPointInsideTriangle( const cvf::Vec3d& A,
     double aCROSSbp = ax * bpy - ay * bpx;
     double cCROSSap = cx * apy - cy * apx;
     double bCROSScp = bx * cpy - by * cpx;
-    double tol      = 0;
+    double tol      = -m_areaTolerance;
+
     return ( ( aCROSSbp >= tol ) && ( bCROSScp >= tol ) && ( cCROSSap >= tol ) );
 };
 
