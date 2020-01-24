@@ -216,9 +216,17 @@ void RimPlot::onCurveSelected( QwtPlotCurve* curve, bool toggle )
 //--------------------------------------------------------------------------------------------------
 void RimPlot::onViewerDestroyed()
 {
-    m_showWindow = false;
-    updateConnectedEditors();
-    updateUiIconFromToggleField();
+    RimPlotWindow* parent = nullptr;
+    this->firstAncestorOfType( parent );
+
+    bool isIndependentPlot = parent == nullptr;
+    bool hasVisibleParent  = parent && parent->showWindow();
+    if ( isIndependentPlot || hasVisibleParent )
+    {
+        m_showWindow = false;
+        updateConnectedEditors();
+        updateUiIconFromToggleField();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
