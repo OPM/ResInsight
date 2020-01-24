@@ -130,6 +130,7 @@ void RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAddr, 
             wellBoreWallCurveData( resAddr, frameIndex, values );
             // Try to replace invalid values with Shale-values
             wellBoreFGShale( frameIndex, values );
+            values->front() = 1.0;
         }
         else if ( resAddr.fieldName == RiaDefines::wbsSFGResult().toStdString() )
         {
@@ -140,6 +141,7 @@ void RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAddr, 
                   resAddr.fieldName == RiaDefines::wbsSHResult().toStdString() )
         {
             wellPathScaledCurveData( resAddr, frameIndex, values );
+            values->front() = 1.0;
         }
         else if ( resAddr.fieldName == RiaDefines::wbsAzimuthResult().toStdString() ||
                   resAddr.fieldName == RiaDefines::wbsInclinationResult().toStdString() )
@@ -149,6 +151,7 @@ void RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAddr, 
         else if ( resAddr.fieldName == RiaDefines::wbsSHMkResult().toStdString() )
         {
             wellBoreSH_MatthewsKelly( frameIndex, values );
+            values->front() = 1.0;
         }
         else
         {
