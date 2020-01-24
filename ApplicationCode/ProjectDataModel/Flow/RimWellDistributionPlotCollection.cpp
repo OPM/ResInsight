@@ -164,6 +164,14 @@ void RimWellDistributionPlotCollection::zoomAll() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellDistributionPlotCollection::userDescriptionField()
+{
+    return &m_plotWindowTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::onLoadDataAndUpdate()
 {
     // cvf::Trace::show("RimWellDistributionPlotCollection::onLoadDataAndUpdate()");
