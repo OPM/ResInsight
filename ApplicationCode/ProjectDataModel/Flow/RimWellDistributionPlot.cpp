@@ -160,8 +160,8 @@ void RimWellDistributionPlot::updateLegend()
         return;
     }
 
-    // For now we always show the legend when in multiplot mode
-    bool doShowLegend = true;
+    // Hide the legend when in multiplot mode, as the legend is handeled by the multi plot grid layout
+    bool doShowLegend = false;
     if ( isMdiWindow() )
     {
         doShowLegend = m_showPlotLegends;
