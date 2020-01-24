@@ -98,7 +98,14 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
 
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
 
-    this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
+    if ( m_previewMode )
+    {
+        this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
+    }
+    else
+    {
+        this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+    }
 
     setFocusPolicy( Qt::StrongFocus );
 
@@ -460,15 +467,19 @@ void RiuMultiPlotPage::updateMarginsFromPageLayout()
 //--------------------------------------------------------------------------------------------------
 QSize RiuMultiPlotPage::sizeHint() const
 {
-    QPageLayout pageLayout = RiaApplication::instance()->preferences()->defaultPageLayout();
-    if ( m_plotDefinition )
+    if ( m_previewMode )
     {
-        pageLayout = m_plotDefinition->pageLayout();
-    }
+        QPageLayout pageLayout = RiaApplication::instance()->preferences()->defaultPageLayout();
+        if ( m_plotDefinition )
+        {
+            pageLayout = m_plotDefinition->pageLayout();
+        }
 
-    const int resolution = RiaGuiApplication::applicationResolution();
-    QRect     rect       = pageLayout.fullRectPixels( resolution );
-    return rect.size();
+        const int resolution = RiaGuiApplication::applicationResolution();
+        QRect     rect       = pageLayout.fullRectPixels( resolution );
+        return rect.size();
+    }
+    return QWidget::sizeHint();
 }
 //--------------------------------------------------------------------------------------------------
 ///
