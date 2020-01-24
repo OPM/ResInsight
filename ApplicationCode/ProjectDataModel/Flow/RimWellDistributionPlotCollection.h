@@ -58,6 +58,8 @@ public:
     QImage   snapshotWindowContent() override;
     void     zoomAll() override;
 
+    caf::PdmFieldHandle* userDescriptionField() override;
+
 private:
     // RimPlotWindow overrides
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

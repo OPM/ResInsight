@@ -19,10 +19,11 @@
 
 #pragma once
 
-#include "cafUiStyleSheet.h"
+#include "RiuInterfaceToViewWindow.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafUiStyleSheet.h"
 
 #include "qwt_plot.h"
 
@@ -52,7 +53,7 @@ class QWheelEvent;
 //
 //
 //==================================================================================================
-class RiuQwtPlotWidget : public QwtPlot
+class RiuQwtPlotWidget : public QwtPlot, public RiuInterfaceToViewWindow
 {
     Q_OBJECT
 
@@ -117,6 +118,8 @@ public:
     void renderTo( QPainter* painter, const QRect& targetRect, double scaling );
     void renderTo( QPaintDevice* painter, const QRect& targetRect );
     int  overlayMargins() const;
+
+    RimViewWindow* ownerViewWindow() const override;
 
 signals:
     void plotSelected( bool toggleSelection );

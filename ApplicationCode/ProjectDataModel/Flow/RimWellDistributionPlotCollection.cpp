@@ -164,6 +164,14 @@ void RimWellDistributionPlotCollection::zoomAll() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellDistributionPlotCollection::userDescriptionField()
+{
+    return &m_plotWindowTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::onLoadDataAndUpdate()
 {
     // cvf::Trace::show("RimWellDistributionPlotCollection::onLoadDataAndUpdate()");
@@ -323,7 +331,7 @@ void RimWellDistributionPlotCollection::fieldChangedByUi( const caf::PdmFieldHan
     if ( changedField == &m_case || changedField == &m_timeStepIndex || changedField == &m_wellName ||
          changedField == &m_groupSmallContributions || changedField == &m_smallContributionsRelativeThreshold ||
          changedField == &m_maximumTof || changedField == &m_showOil || changedField == &m_showGas ||
-         changedField == &m_showWater )
+         changedField == &m_showWater || changedField == &m_showWindow )
     {
         applyPlotParametersToContainedPlots();
         shouldRecalculatePlotData = true;
