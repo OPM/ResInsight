@@ -38,6 +38,11 @@ public:
     template <typename T>
     void                    firstAncestorOrThisOfType(T*& ancestor) const;
 
+    /// Traverses parents recursively and returns first parent of the requested type.
+    /// Does NOT check _this_ object
+    template <typename T>
+    void                    firstAncestorOfType(T*& ancestor) const;
+
     /// Calls firstAncestorOrThisOfType, and asserts that a valid object is found 
     template <typename T>
     void                    firstAncestorOrThisOfTypeAsserted(T*& ancestor) const;
@@ -137,36 +142,27 @@ void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
         return;
     }
 
-    // Search parents for first type match
+    this->firstAncestorOfType<T>(ancestor);
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObjectHandle::firstAncestorOfType(T*& ancestor) const
+{
+    ancestor = nullptr;
+    
+    // Search parents for first type match
     PdmObjectHandle* parent = nullptr;
     PdmFieldHandle* parentField = this->parentField();
     if (parentField) parent = parentField->ownerObject();
 
-    while (parent != nullptr)
+    if (parent != nullptr)
     {
-        T* objectOfType = dynamic_cast<T*>(parent);
-        if (objectOfType)
-        {
-            ancestor = objectOfType;
-            return;
-        }
-
-        // Get next level parent
-
-        PdmFieldHandle*  nextParentField = parent->parentField();
-        
-        if (nextParentField)
-        {
-            parent = nextParentField->ownerObject();
-        }
-        else
-        {
-            parent = nullptr;
-        }
+        parent->firstAncestorOrThisOfType<T>(ancestor);
     }
 }
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
