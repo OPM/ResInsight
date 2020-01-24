@@ -47,6 +47,9 @@
 #include "../cafHexInterpolator/cafHexInterpolator.h"
 #include "RivSectionFlattner.h"
 
+#include "RiaLogging.h"
+#include "clipper.hpp"
+
 cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimIntersection* intersection )
 {
     Rim3dView* rimView = nullptr;
@@ -132,6 +135,114 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+template <typename Vec3Type>
+double closestAxisSignedAreaPlanarPolygon( const cvf::Vec3d& planeNormal, const std::vector<Vec3Type>& polygon )
+{
+    int Z = cvf::GeometryTools::findClosestAxis( planeNormal );
+    int X = ( Z + 1 ) % 3;
+    int Y = ( Z + 2 ) % 3;
+
+    // Use Shoelace formula to calculate signed area.
+    // https://en.wikipedia.org/wiki/Shoelace_formula
+    double signedArea = 0.0;
+    for ( size_t i = 0; i < polygon.size(); ++i )
+    {
+        signedArea += ( polygon[( i + 1 ) % polygon.size()][X] + polygon[i][X] ) *
+                      ( polygon[( i + 1 ) % polygon.size()][Y] - polygon[i][Y] );
+    }
+
+    return ( planeNormal[Z] > 0 ) ? signedArea : -signedArea;
+}
+
+class ClipperInterface
+{
+public:
+    static ClipperLib::IntPoint toClipperPoint( const cvf::Vec3d& cvfPoint )
+    {
+        int xInt = cvfPoint.x() * clipperConversionFactor;
+        int yInt = cvfPoint.y() * clipperConversionFactor;
+        return ClipperLib::IntPoint( xInt, yInt, 0 );
+    }
+
+    static cvf::Vec3d fromClipperPoint( const ClipperLib::IntPoint& clipPoint )
+    {
+        return cvf::Vec3d( clipPoint.X, clipPoint.Y, 0.0 ) / clipperConversionFactor;
+    }
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    static std::vector<std::vector<cvf::Vec3d>>
+        subtractAndSimplifyPolygons( const std::vector<cvf::Vec3d>&              sourcePolygon,
+                                     const std::vector<std::vector<cvf::Vec3d>>& polygonsToSubtract )
+    {
+        ClipperLib::Paths unionOfPolygonsToSubtract;
+        {
+            ClipperLib::Clipper unionator;
+
+            for ( const auto& path : polygonsToSubtract )
+            {
+                ClipperLib::Path polyToSubtractPath;
+                for ( const auto& v : path )
+                {
+                    polyToSubtractPath.push_back( toClipperPoint( v ) );
+                }
+
+                unionator.AddPath( polyToSubtractPath, ClipperLib::ptSubject, true );
+            }
+
+            unionator.Execute( ClipperLib::ctUnion,
+                               unionOfPolygonsToSubtract,
+                               ClipperLib::pftEvenOdd,
+                               ClipperLib::pftEvenOdd );
+        }
+
+        ClipperLib::Path sourcePolygonPath;
+
+        for ( const auto& v : sourcePolygon )
+        {
+            sourcePolygonPath.push_back( toClipperPoint( v ) );
+        }
+
+        ClipperLib::Clipper subtractor;
+
+        subtractor.AddPath( sourcePolygonPath, ClipperLib::ptSubject, true );
+        subtractor.AddPaths( unionOfPolygonsToSubtract, ClipperLib::ptClip, true );
+
+        ClipperLib::Paths subtractionResultPaths;
+        subtractor.Execute( ClipperLib::ctDifference,
+                            subtractionResultPaths,
+                            ClipperLib::pftEvenOdd,
+                            ClipperLib::pftEvenOdd );
+
+        ClipperLib::CleanPolygons( subtractionResultPaths, 3 );
+
+        std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
+
+        // Convert back to std::vector<std::vector<cvf::Vec3d> >
+
+        for ( ClipperLib::Path pathInSol : subtractionResultPaths )
+        {
+            std::vector<cvf::Vec3d> clippedPolygon;
+            for ( ClipperLib::IntPoint IntPosition : pathInSol )
+            {
+                clippedPolygon.push_back( fromClipperPoint( IntPosition ) );
+            }
+
+            clippedPolygons.push_back( clippedPolygon );
+        }
+
+        return clippedPolygons;
+    }
+
+private:
+    static double clipperConversionFactor;
+};
+
+double ClipperInterface::clipperConversionFactor = 100; // For transform to clipper int
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 {
     if ( m_triangleVxes->size() ) return;
@@ -177,7 +288,7 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
         std::array<cvf::Vec3d, 8> cellCorners;
         std::array<size_t, 8>     cornerIndices;
 
-        size_t startOfGeneratedTrianglesForNativeTriangles = outputTriangleVertices.size();
+        size_t startOfGeneratedTrianglesForNativeTriangle = outputTriangleVertices.size();
 
         for ( size_t ticIdx = 0; ticIdx < triIntersectedCellCandidates.size(); ++ticIdx )
         {
@@ -253,7 +364,7 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 
         // Add triangles for the part of the native triangle outside any gridcells
 
-        if ( startOfGeneratedTrianglesForNativeTriangles == outputTriangleVertices.size() )
+        if ( startOfGeneratedTrianglesForNativeTriangle == outputTriangleVertices.size() )
         {
             // No triangles created, use the complete native triangle
             outputTriangleVertices.push_back( cvf::Vec3f( p0 - displayModelOffset ) );
@@ -268,9 +379,148 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
         }
         else
         {
-            // Todo:
+            // Use area to check if the native triangle was completely covered by the intersection triangles
+            double nativeTriangleArea         = 0.0;
+            double intersectionArea           = 0.0;
+            double minSignificantTriangleArea = 0.0;
+            {
+                std::vector<cvf::Vec3f> nativeTriangle = {cvf::Vec3f( p0 - displayModelOffset ),
+                                                          cvf::Vec3f( p1 - displayModelOffset ),
+                                                          cvf::Vec3f( p2 - displayModelOffset )};
+
+                nativeTriangleArea         = closestAxisSignedAreaPlanarPolygon( plane.normal(), nativeTriangle );
+                minSignificantTriangleArea = 1e-4 * nativeTriangleArea;
+
+                std::vector<cvf::Vec3f> intersectionTriangle( 3 );
+
+                for ( size_t tvxIdx = startOfGeneratedTrianglesForNativeTriangle; tvxIdx < outputTriangleVertices.size();
+                      tvxIdx += 3 )
+                {
+                    std::copy( outputTriangleVertices.begin() + tvxIdx,
+                               outputTriangleVertices.begin() + tvxIdx + 3,
+                               intersectionTriangle.begin() );
+                    intersectionArea += closestAxisSignedAreaPlanarPolygon( plane.normal(), intersectionTriangle );
+                }
+
+                // If we have covered enough, do not try to create triangles for the rest
+
+                if ( ( nativeTriangleArea - intersectionArea ) < minSignificantTriangleArea ) continue;
+            }
+
             // Subtract the created triangles from the native triangle
+            // We need to transform the triangles into x/y plane to do the polygon operation
+
+            // Find the local CS for the native triangle in display coords
+
+            cvf::Mat4d nativeTriangleCS;
+            {
+                cvf::Vec3d ez    = plane.normal().getNormalized();
+                cvf::Vec3d ex    = ( p1 - p0 ).getNormalized();
+                cvf::Vec3d ey    = ez ^ ex;
+                nativeTriangleCS = cvf::Mat4d::fromCoordSystemAxes( &ex, &ey, &ez );
+                nativeTriangleCS.setTranslation( p0 - displayModelOffset );
+            }
+
+            cvf::Mat4d invNativeTriangleCS = nativeTriangleCS.getInverted();
+
+            std::vector<std::vector<cvf::Vec3d>> polygonsToSubtract;
+            for ( size_t tvxIdx = startOfGeneratedTrianglesForNativeTriangle; tvxIdx < outputTriangleVertices.size();
+                  tvxIdx += 3 )
+            {
+                std::vector<cvf::Vec3d> triangle =
+                    {cvf::Vec3d( outputTriangleVertices[tvxIdx + 0] ).getTransformedPoint( invNativeTriangleCS ),
+                     cvf::Vec3d( outputTriangleVertices[tvxIdx + 1] ).getTransformedPoint( invNativeTriangleCS ),
+                     cvf::Vec3d( outputTriangleVertices[tvxIdx + 2] ).getTransformedPoint( invNativeTriangleCS )};
+                polygonsToSubtract.push_back( triangle );
+            }
+
+            std::vector<cvf::Vec3d> nativeTrianglePoly =
+                {( cvf::Vec3d( cvf::Vec3f( p0 - displayModelOffset ) ) ).getTransformedPoint( invNativeTriangleCS ),
+                 ( cvf::Vec3d( cvf::Vec3f( p1 - displayModelOffset ) ) ).getTransformedPoint( invNativeTriangleCS ),
+                 ( cvf::Vec3d( cvf::Vec3f( p2 - displayModelOffset ) ) ).getTransformedPoint( invNativeTriangleCS )};
+
+            std::vector<std::vector<cvf::Vec3d>> remainingPolygons;
+
+            remainingPolygons = ClipperInterface::subtractAndSimplifyPolygons( nativeTrianglePoly, polygonsToSubtract );
+
+            // Check for holes in solution
+            bool hasHoles = false;
+
+            for ( const auto& remainingPolygon : remainingPolygons )
+            {
+                double area = closestAxisSignedAreaPlanarPolygon( cvf::Vec3d::Z_AXIS, remainingPolygon );
+                if ( area < -minSignificantTriangleArea )
+                {
+                    hasHoles = true;
+                }
+            }
+
+            if ( hasHoles ) continue; // Cant tesselate polygons with holes
+
             // Add the remains
+
+            for ( const auto& remainingPolygon : remainingPolygons )
+            {
+                if ( remainingPolygon.empty() ) continue;
+
+                cvf::EarClipTesselator tess;
+                tess.setNormal( plane.normal() );
+                tess.setMinTriangleArea( minSignificantTriangleArea );
+                cvf::Vec3dArray cvfNodes( remainingPolygon );
+                tess.setGlobalNodeArray( cvfNodes );
+
+                std::vector<size_t> polyIndexes;
+                for ( size_t idx = 0; idx < remainingPolygon.size(); ++idx )
+                {
+                    polyIndexes.push_back( idx );
+                }
+                tess.setPolygonIndices( polyIndexes );
+
+                std::vector<size_t> triangleIndices;
+                bool                isTesselationOk = tess.calculateTriangles( &triangleIndices );
+
+                if ( !isTesselationOk )
+                {
+                    // continue;
+                    // CVF_ASSERT( false );
+                }
+
+                double tesselatedArea = 0;
+
+                for ( size_t idx = 0; idx < triangleIndices.size(); idx += 3 )
+                {
+                    cvf::Vec3f tp1(
+                        ( remainingPolygon[triangleIndices[idx + 0]] ).getTransformedPoint( nativeTriangleCS ) );
+                    cvf::Vec3f tp2(
+                        ( remainingPolygon[triangleIndices[idx + 1]] ).getTransformedPoint( nativeTriangleCS ) );
+                    cvf::Vec3f tp3(
+                        ( remainingPolygon[triangleIndices[idx + 2]] ).getTransformedPoint( nativeTriangleCS ) );
+
+                    outputTriangleVertices.push_back( tp1 );
+                    outputTriangleVertices.push_back( tp2 );
+                    outputTriangleVertices.push_back( tp3 );
+
+                    std::vector<cvf::Vec3f> nativeTriangle = {tp1, tp2, tp3};
+
+                    tesselatedArea += closestAxisSignedAreaPlanarPolygon( plane.normal(), nativeTriangle );
+
+                    m_triangleToCellIdxMap.push_back( cvf::UNDEFINED_SIZE_T );
+
+                    m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights() );
+                    m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights() );
+                    m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights() );
+                }
+
+                if ( ( tesselatedArea - 20 * minSignificantTriangleArea ) > ( nativeTriangleArea - intersectionArea ) )
+                {
+                    double overlapArea = tesselatedArea - ( nativeTriangleArea - intersectionArea );
+
+                    RiaLogging::debug( "Surface intersection triangularization overlap detected : " +
+                                       QString::number( overlapArea ) );
+
+                    // CVF_ASSERT( false );
+                }
+            }
         }
     }
 
