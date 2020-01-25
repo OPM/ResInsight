@@ -237,6 +237,9 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitField( &m_showLegendBackground, "showLegendBackground", true, "Show Box around Legends", "", "", "" );
     m_showLegendBackground.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitField( &m_enableFaultsByDefault, "enableFaultsByDefault", true, "Enable Faults By Default", "", "", "" );
+    m_enableFaultsByDefault.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File", "", "", "" );
     lastUsedProjectFileName.uiCapability()->setUiHidden( true );
 
@@ -435,7 +438,8 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
          field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
          field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
-         field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData )
+         field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
+         field == &m_enableFaultsByDefault )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -483,6 +487,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         viewsGroup->add( &m_navigationPolicy );
         viewsGroup->add( &m_defaultScaleFactorZ );
         viewsGroup->add( &m_showLegendBackground );
+        viewsGroup->add( &m_enableFaultsByDefault );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &ssihubAddress );
@@ -1026,4 +1031,12 @@ int RiaPreferences::defaultScaleFactorZ() const
 bool RiaPreferences::showLegendBackground() const
 {
     return m_showLegendBackground();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::enableFaultsByDefault() const
+{
+    return m_enableFaultsByDefault;
 }

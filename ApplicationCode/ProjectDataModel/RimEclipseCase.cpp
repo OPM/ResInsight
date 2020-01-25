@@ -48,6 +48,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimFormationNames.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
@@ -288,10 +289,13 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
     {
         rimEclipseView->cellResult()->setResultType( RiaDefines::DYNAMIC_NATIVE );
 
-        if ( RiaApplication::instance()->preferences()->loadAndShowSoil )
+        auto prefs = RiaApplication::instance()->preferences();
+        if ( prefs->loadAndShowSoil )
         {
             rimEclipseView->cellResult()->setResultVariable( "SOIL" );
         }
+
+        rimEclipseView->faultCollection()->showFaultCollection = prefs->enableFaultsByDefault();
 
         rimEclipseView->hasUserRequestedAnimation = true;
 

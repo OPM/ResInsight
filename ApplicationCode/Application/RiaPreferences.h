@@ -71,6 +71,8 @@ public:
     typedef caf::AppEnum<QPageSize::PageSizeId>    PageSizeEnum;
     typedef caf::AppEnum<QPageLayout::Orientation> PageOrientationEnum;
 
+    bool enableFaultsByDefault() const;
+
 public:
     RiaPreferences( void );
     ~RiaPreferences( void ) override;
@@ -212,6 +214,7 @@ private:
     caf::PdmField<caf::AppEnum<RiaGuiApplication::RINavigationPolicy>> m_navigationPolicy;
     caf::PdmField<int>                                                 m_defaultScaleFactorZ;
     caf::PdmField<bool>                                                m_showLegendBackground;
+    caf::PdmField<bool>                                                m_enableFaultsByDefault;
 
     QStringList m_tabNames;
 
