@@ -90,7 +90,7 @@ CAF_PDM_SOURCE_INIT( RiaPreferences, "RiaPreferences" );
 //--------------------------------------------------------------------------------------------------
 RiaPreferences::RiaPreferences( void )
 {
-    CAF_PDM_InitField( &navigationPolicy,
+    CAF_PDM_InitField( &m_navigationPolicy,
                        "navigationPolicy",
                        caf::AppEnum<RiaGuiApplication::RINavigationPolicy>( RiaGuiApplication::NAVIGATION_POLICY_RMS ),
                        "Navigation Mode",
@@ -151,7 +151,7 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitField( &ssihubAddress, "ssihubAddress", QString( "http://" ), "SSIHUB Address", "", "", "" );
     ssihubAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitFieldNoDefault( &defaultMeshModeType, "defaultMeshModeType", "Show Grid Lines", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_defaultMeshModeType, "defaultMeshModeType", "Show Grid Lines", "", "", "" );
     CAF_PDM_InitField( &defaultGridLineColors,
                        "defaultGridLineColors",
                        RiaColorTables::defaultGridLineColor(),
@@ -182,7 +182,7 @@ RiaPreferences::RiaPreferences( void )
                        "The viewer background color for new views",
                        "" );
 
-    CAF_PDM_InitField( &defaultScaleFactorZ, "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "" );
+    CAF_PDM_InitField( &m_defaultScaleFactorZ, "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "" );
 
     caf::AppEnum<RiaFontCache::FontSize> fontSize     = RiaFontCache::FONT_SIZE_8;
     caf::AppEnum<RiaFontCache::FontSize> plotFontSize = RiaFontCache::FONT_SIZE_10;
@@ -234,8 +234,8 @@ RiaPreferences::RiaPreferences( void )
                        "" );
     m_includeFractureDebugInfoFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &showLegendBackground, "showLegendBackground", true, "Show Box around Legends", "", "", "" );
-    showLegendBackground.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    CAF_PDM_InitField( &m_showLegendBackground, "showLegendBackground", true, "Show Box around Legends", "", "", "" );
+    m_showLegendBackground.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File", "", "", "" );
     lastUsedProjectFileName.uiCapability()->setUiHidden( true );
@@ -434,7 +434,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
          field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
          field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
-         field == &showLegendBackground || field == &m_showSummaryTimeAsLongString ||
+         field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
          field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
@@ -479,10 +479,10 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         fontGroup->add( &defaultPlotFontSize, false );
 
         caf::PdmUiGroup* viewsGroup = uiOrdering.addNewGroup( "3d Views" );
-        viewsGroup->add( &defaultMeshModeType );
-        viewsGroup->add( &navigationPolicy );
-        viewsGroup->add( &defaultScaleFactorZ );
-        viewsGroup->add( &showLegendBackground );
+        viewsGroup->add( &m_defaultMeshModeType );
+        viewsGroup->add( &m_navigationPolicy );
+        viewsGroup->add( &m_defaultScaleFactorZ );
+        viewsGroup->add( &m_showLegendBackground );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &ssihubAddress );
@@ -994,4 +994,36 @@ QPageLayout RiaPreferences::defaultPageLayout() const
 QMarginsF RiaPreferences::margins() const
 {
     return QMarginsF( m_pageLeftMargin, m_pageTopMargin, m_pageRightMargin, m_pageBottomMargin );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::MeshModeType RiaPreferences::defaultMeshModeType() const
+{
+    return m_defaultMeshModeType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaGuiApplication::RINavigationPolicy RiaPreferences::navigationPolicy() const
+{
+    return m_navigationPolicy();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferences::defaultScaleFactorZ() const
+{
+    return m_defaultScaleFactorZ();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showLegendBackground() const
+{
+    return m_showLegendBackground();
 }

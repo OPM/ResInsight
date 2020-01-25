@@ -1579,8 +1579,8 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
                         existingViewsWithCustomColors = true;
                     }
                     if ( m_preferences->defaultScaleFactorZ() != oldPreferences->defaultScaleFactorZ() &&
-                         rim3dView->scaleZ() != static_cast<double>( oldPreferences->defaultScaleFactorZ ) &&
-                         rim3dView->scaleZ() != static_cast<double>( m_preferences->defaultScaleFactorZ ) )
+                         rim3dView->scaleZ() != static_cast<double>( oldPreferences->defaultScaleFactorZ() ) &&
+                         rim3dView->scaleZ() != static_cast<double>( m_preferences->defaultScaleFactorZ() ) )
                     {
                         existingViewsWithCustomZScale = true;
                     }
