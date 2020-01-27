@@ -162,8 +162,6 @@ private:
     void createMainPlotWindow();
     void deleteMainPlotWindow();
 
-    void loadAndUpdatePlotData();
-
     void storeTreeViewState();
 
     bool notify( QObject*, QEvent* ) override;

@@ -32,10 +32,15 @@ def test_well_log_plots(rips_instance, initialize_test):
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
         for well_log_plot in well_log_plots:
             well_log_plot.set_depth_type("TRUE_VERTICAL_DEPTH_RKB")
-            well_log_plot.export_snapshot(tmpdirname)
+            if rips_instance.is_gui():
+                well_log_plot.export_snapshot(tmpdirname)
             well_log_plot.export_data_as_las(tmpdirname)
         files = os.listdir(tmpdirname)
-        assert(len(files) == 4)    
+        print (files)
+        if rips_instance.is_gui():
+            assert(len(files) == 4)
+        else:
+            assert(len(files) == 2)
     
     plots2 = project.plots()
     for plot2 in plots2:

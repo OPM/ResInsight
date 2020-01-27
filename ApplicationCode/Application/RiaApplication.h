@@ -223,6 +223,8 @@ protected:
     virtual void startMonitoringWorkProgress( caf::UiProcess* uiProcess ) {}
     virtual void stopMonitoringWorkProgress() {}
 
+    void loadAndUpdatePlotData();
+
 protected:
     cvf::ref<cvf::Font> m_defaultSceneFont;
     cvf::ref<cvf::Font> m_defaultAnnotationFont;
