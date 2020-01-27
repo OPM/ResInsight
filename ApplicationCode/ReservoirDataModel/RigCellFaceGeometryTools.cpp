@@ -183,8 +183,12 @@ std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const Rig
         const RigFault* fault = faults.at( faultIdx );
 
         const std::vector<RigFault::FaultFace>& faultFaces = fault->faultFaces();
-        for ( const auto& f : faultFaces )
+
+#pragma omp parallel for
+        for ( int faceIdx = 0; faceIdx < static_cast<int>( faultFaces.size() ); faceIdx++ )
         {
+            const RigFault::FaultFace& f = faultFaces[faceIdx];
+
             size_t                             sourceReservoirCellIndex = f.m_nativeReservoirCellIndex;
             cvf::StructGridInterface::FaceType sourceCellFace           = f.m_nativeFace;
 
@@ -300,8 +304,6 @@ std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const Rig
 
                 if ( foundOverlap )
                 {
-                    otherCellPairs.emplace( candidate );
-
                     RigConnection conn;
                     conn.m_c1GlobIdx = sourceReservoirCellIndex;
                     conn.m_c1Face    = sourceCellFace;
@@ -309,7 +311,11 @@ std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const Rig
 
                     conn.m_polygon = RigCellFaceGeometryTools::extractPolygon( mainGridNodes, polygon, intersections );
 
-                    otherConnections.emplace_back( conn );
+#pragma omp critical( critical_section_nnc_computations )
+                    {
+                        otherCellPairs.emplace( candidate );
+                        otherConnections.emplace_back( conn );
+                    }
                 }
             }
         }
