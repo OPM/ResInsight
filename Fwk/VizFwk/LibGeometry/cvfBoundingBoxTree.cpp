@@ -697,7 +697,10 @@ void AABBTree::leafBoundingBox(cvf::BoundingBox& bb, size_t iStartIdx, size_t iE
     for (i = iStartIdx; i <= iEndIdx; i++)
     {
         CVF_ASSERT(m_ppLeaves[i]);
-        bb.add(m_ppLeaves[i]->boundingBox());
+
+        // Avoid the add override for bounding box to avoid the expensive call isValid()
+        bb.add(m_ppLeaves[i]->boundingBox().min());
+        bb.add(m_ppLeaves[i]->boundingBox().max());
     }
 }
 
