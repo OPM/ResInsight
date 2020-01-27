@@ -1353,6 +1353,9 @@ int RiaApplication::launchUnitTests()
 
     testing::InitGoogleTest( &argc, argv );
 
+    // Use the gtest filter to execute a subset of tests
+    //::testing::GTEST_FLAG( filter ) = "RigReservoirTest.MSJ*";
+
     // Use this macro in main() to run all tests.  It returns 0 if all
     // tests are successful, or 1 otherwise.
     //
