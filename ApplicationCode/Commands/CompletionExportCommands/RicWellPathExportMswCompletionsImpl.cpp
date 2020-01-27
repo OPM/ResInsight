@@ -307,15 +307,18 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifTextDataTable
             double depth  = 0;
             double length = 0;
 
+            double midPointMD  = 0.5 * ( location->startMD() + location->endMD() );
+            double midPointTVD = 0.5 * ( location->startTVD() + location->endTVD() );
+
             if ( exportInfo.lengthAndDepthText() == QString( "INC" ) )
             {
-                depth  = location->endTVD() - prevTVD;
-                length = location->endMD() - prevMD;
+                depth  = midPointTVD - prevTVD;
+                length = midPointMD - prevMD;
             }
             else
             {
-                depth  = location->endTVD();
-                length = location->endMD();
+                depth  = midPointTVD;
+                length = midPointMD;
             }
 
             if ( location->subIndex() != cvf::UNDEFINED_SIZE_T )
@@ -333,8 +336,8 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsTable( RifTextDataTable
             formatter.add( exportInfo.linerDiameter() );
             formatter.add( exportInfo.roughnessFactor() );
             formatter.rowCompleted();
-            prevMD  = location->endMD();
-            prevTVD = location->endTVD();
+            prevMD  = midPointMD;
+            prevTVD = midPointTVD;
         }
     }
 
