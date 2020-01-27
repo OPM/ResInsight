@@ -515,6 +515,8 @@ bool AABBTree::buildTree()
 
 	if (m_iNumLeaves == 0) return true;
 
+    m_nodePool.resize(m_iNumLeaves);
+
 	// Then find the bounding box of all items in the tree
 	cvf::BoundingBox box;
 	leafBoundingBox(box, 0, m_iNumLeaves - 1);
