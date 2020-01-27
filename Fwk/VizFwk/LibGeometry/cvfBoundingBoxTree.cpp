@@ -516,8 +516,6 @@ bool AABBTree::buildTree()
 //--------------------------------------------------------------------------------------------------
 bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iToIdx)
 {
-    if (!pNode->boundingBox().isValid()) return false;
-
 	int iLongestAxis = largestComponent(pNode->boundingBox().extent());
 
 	double splitValue = pNode->boundingBox().center()[iLongestAxis];
@@ -532,7 +530,7 @@ bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iT
 	// Order the leaves according to the position of the center of each BB in comparison with longest axis of the BB
 	while (i < iMid)
 	{
-		if (!(m_ppLeaves[i]->boundingBox().isValid()) || m_ppLeaves[i]->boundingBox().center()[iLongestAxis] < splitValue)
+        if (m_ppLeaves[i]->boundingBox().center()[iLongestAxis] < splitValue)
 		{
 			// Ok, move on
 			i++;
@@ -875,7 +873,6 @@ bool BoundingBoxTreeImpl::createLeaves()
     size_t i;
     for (i = 0; i < m_boundingBoxes->size(); i++)
     {
-        if (!(*m_boundingBoxes)[i].isValid()) continue;
         size_t bbId = i;
         if (m_optionalBoundingBoxIds) bbId = (*m_optionalBoundingBoxIds)[i];
 
