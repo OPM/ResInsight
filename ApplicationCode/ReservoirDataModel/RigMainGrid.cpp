@@ -713,7 +713,7 @@ void RigMainGrid::buildCellSearchTree()
         size_t cellCount = m_cells.size();
 
         std::vector<cvf::BoundingBox> cellBoundingBoxes;
-        cellBoundingBoxes.resize( cellCount );
+        cellBoundingBoxes.reserve( cellCount );
 
         for ( size_t cIdx = 0; cIdx < cellCount; ++cIdx )
         {
@@ -721,7 +721,7 @@ void RigMainGrid::buildCellSearchTree()
 
             const std::array<size_t, 8>& cellIndices = m_cells[cIdx].cornerIndices();
 
-            cvf::BoundingBox& cellBB = cellBoundingBoxes[cIdx];
+            cvf::BoundingBox cellBB;
             cellBB.add( m_nodes[cellIndices[0]] );
             cellBB.add( m_nodes[cellIndices[1]] );
             cellBB.add( m_nodes[cellIndices[2]] );
@@ -730,7 +730,14 @@ void RigMainGrid::buildCellSearchTree()
             cellBB.add( m_nodes[cellIndices[5]] );
             cellBB.add( m_nodes[cellIndices[6]] );
             cellBB.add( m_nodes[cellIndices[7]] );
+
+            if ( cellBB.isValid() )
+            {
+                cellBoundingBoxes.push_back( cellBB );
+            }
         }
+
+        cellBoundingBoxes.shrink_to_fit();
 
         m_cellSearchTree = new cvf::BoundingBoxTree;
         m_cellSearchTree->buildTreeFromBoundingBoxes( cellBoundingBoxes, nullptr );
