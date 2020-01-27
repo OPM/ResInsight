@@ -71,6 +71,8 @@ public:
     typedef caf::AppEnum<QPageSize::PageSizeId>    PageSizeEnum;
     typedef caf::AppEnum<QPageLayout::Orientation> PageOrientationEnum;
 
+    bool enableFaultsByDefault() const;
+
 public:
     RiaPreferences( void );
     ~RiaPreferences( void ) override;
@@ -107,9 +109,13 @@ public:
     QPageLayout defaultPageLayout() const;
     QMarginsF   margins() const;
 
-public: // Pdm Fields
-    caf::PdmField<caf::AppEnum<RiaGuiApplication::RINavigationPolicy>> navigationPolicy;
+    // 3D view
+    RiaDefines::MeshModeType              defaultMeshModeType() const;
+    RiaGuiApplication::RINavigationPolicy navigationPolicy() const;
+    int                                   defaultScaleFactorZ() const;
+    bool                                  showLegendBackground() const;
 
+public: // Pdm Fields
     caf::PdmField<bool> enableGrpcServer;
     caf::PdmField<int>  defaultGrpcPortNumber;
 
@@ -124,9 +130,6 @@ public: // Pdm Fields
 
     caf::PdmField<QString> ssihubAddress;
 
-    caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>> defaultMeshModeType;
-
-    caf::PdmField<int>          defaultScaleFactorZ;
     caf::PdmField<cvf::Color3f> defaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultFaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultViewerBackgroundColor;
@@ -137,8 +140,6 @@ public: // Pdm Fields
     caf::PdmField<FontSizeType> defaultWellLabelFontSize;
     caf::PdmField<FontSizeType> defaultAnnotationFontSize;
     caf::PdmField<FontSizeType> defaultPlotFontSize;
-
-    caf::PdmField<bool> showLegendBackground;
 
     caf::PdmField<QString> lastUsedProjectFileName;
 
@@ -207,6 +208,13 @@ private:
     caf::PdmField<QString>       m_plotTemplateFolders;
     caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;
     caf::PdmField<caf::FilePath> m_defaultPlotTemplate;
+
+    // 3d view
+    caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>              m_defaultMeshModeType;
+    caf::PdmField<caf::AppEnum<RiaGuiApplication::RINavigationPolicy>> m_navigationPolicy;
+    caf::PdmField<int>                                                 m_defaultScaleFactorZ;
+    caf::PdmField<bool>                                                m_showLegendBackground;
+    caf::PdmField<bool>                                                m_enableFaultsByDefault;
 
     QStringList m_tabNames;
 

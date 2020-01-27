@@ -106,7 +106,7 @@ Rim3dView::Rim3dView( void )
 
     CAF_PDM_InitField( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "" );
 
-    double defaultScaleFactor = preferences->defaultScaleFactorZ;
+    double defaultScaleFactor = preferences->defaultScaleFactorZ();
     CAF_PDM_InitField( &scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "" );
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
