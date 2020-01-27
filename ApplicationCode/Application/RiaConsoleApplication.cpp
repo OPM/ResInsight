@@ -407,6 +407,7 @@ void RiaConsoleApplication::onProjectOpeningError( const QString& errMsg )
 //--------------------------------------------------------------------------------------------------
 void RiaConsoleApplication::onProjectOpened()
 {
+    loadAndUpdatePlotData();
     processEvents();
 }
 
