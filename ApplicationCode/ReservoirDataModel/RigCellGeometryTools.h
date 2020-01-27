@@ -53,7 +53,7 @@ public:
 
     static std::vector<std::vector<cvf::Vec3d>>
         subtractPolygons( const std::vector<cvf::Vec3d>&              sourcePolygon,
-                          const std::vector<std::vector<cvf::Vec3d>>& polygonToSubtract );
+                          const std::vector<std::vector<cvf::Vec3d>>& polygonsToSubtract );
 
     enum ZInterpolationType
     {

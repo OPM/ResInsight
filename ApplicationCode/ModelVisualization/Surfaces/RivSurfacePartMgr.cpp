@@ -111,7 +111,7 @@ void RivSurfacePartMgr::updateCellResultColor( size_t timeStepIndex )
                                                                                 m_intersectionFacesTextureCoords.p() );
     }
 
-    if ( m_nativeTrianglesPart.notNull() )
+    if ( false && m_nativeTrianglesPart.notNull() )
     {
         if ( !m_nativeVertexToCellIndexMap.size() )
         {
@@ -230,6 +230,8 @@ void RivSurfacePartMgr::appendIntersectionGeometryPartsToModel( cvf::ModelBasicL
         m_intersectionFaultGridLines->setTransform( scaleTransform );
         model->addPart( m_intersectionFaultGridLines.p() );
     }
+
+    appendNativeGeometryPartsToModel( model, scaleTransform );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,9 +243,12 @@ void RivSurfacePartMgr::applySingleColor()
         caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( m_surfaceInView->surface()->color() ), caf::PO_1 );
         cvf::ref<cvf::Effect>       eff = surfaceGen.generateCachedEffect();
 
+        caf::SurfaceEffectGenerator surfaceGenBehind( cvf::Color4f( m_surfaceInView->surface()->color() ), caf::PO_2 );
+        cvf::ref<cvf::Effect>       effBehind = surfaceGenBehind.generateCachedEffect();
+
         if ( m_nativeTrianglesPart.notNull() )
         {
-            m_nativeTrianglesPart->setEffect( eff.p() );
+            m_nativeTrianglesPart->setEffect( effBehind.p() );
         }
 
         if ( m_intersectionFaces.notNull() )

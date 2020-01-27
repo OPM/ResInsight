@@ -47,6 +47,9 @@
 #include "../cafHexInterpolator/cafHexInterpolator.h"
 #include "RivSectionFlattner.h"
 
+#include "RiaLogging.h"
+#include "clipper.hpp"
+
 cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimIntersection* intersection )
 {
     Rim3dView* rimView = nullptr;
@@ -177,8 +180,6 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
         std::array<cvf::Vec3d, 8> cellCorners;
         std::array<size_t, 8>     cornerIndices;
 
-        size_t startOfGeneratedTrianglesForNativeTriangles = outputTriangleVertices.size();
-
         for ( size_t ticIdx = 0; ticIdx < triIntersectedCellCandidates.size(); ++ticIdx )
         {
             size_t globalCellIdx = triIntersectedCellCandidates[ticIdx];
@@ -249,28 +250,6 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
                     m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights( cornerIndices, cornerWeights ) );
                 }
             }
-        }
-
-        // Add triangles for the part of the native triangle outside any gridcells
-
-        if ( startOfGeneratedTrianglesForNativeTriangles == outputTriangleVertices.size() )
-        {
-            // No triangles created, use the complete native triangle
-            outputTriangleVertices.push_back( cvf::Vec3f( p0 - displayModelOffset ) );
-            outputTriangleVertices.push_back( cvf::Vec3f( p1 - displayModelOffset ) );
-            outputTriangleVertices.push_back( cvf::Vec3f( p2 - displayModelOffset ) );
-
-            m_triangleToCellIdxMap.push_back( cvf::UNDEFINED_SIZE_T );
-
-            m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights() );
-            m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights() );
-            m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights() );
-        }
-        else
-        {
-            // Todo:
-            // Subtract the created triangles from the native triangle
-            // Add the remains
         }
     }
 
