@@ -46,7 +46,7 @@ RimWbsParameters::RimWbsParameters()
                              "PorePressureNonReservoirSource",
                              "Non-Reservoir Pore Pressure",
                              "",
-                             "Data source for Pore Pressure outside reservoir",
+                             "Data source for Non-Reservoir Pore Pressure",
                              "" );
     RICF_InitField( &m_userDefinedPPShale, "UserPPNonReservoir", 1.05, "  Multiplier of hydrostatic PP", "", "", "" );
 
