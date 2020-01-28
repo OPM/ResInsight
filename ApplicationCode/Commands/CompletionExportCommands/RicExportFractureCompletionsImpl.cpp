@@ -445,8 +445,10 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
     if ( resultCase )
     {
         std::vector<QDateTime> caseTimeSteps = resultCase->timeStepDates();
-        QDateTime              initialProductionDate;
-        QDateTime              currentDate;
+        if ( caseTimeSteps.empty() ) return;
+
+        QDateTime initialProductionDate;
+        QDateTime currentDate;
         if ( currentTimeStep < static_cast<int>( caseTimeSteps.size() ) )
         {
             currentDate = caseTimeSteps[currentTimeStep];

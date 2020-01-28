@@ -133,6 +133,25 @@ void RimEnsembleCurveSetCollection::reattachQwtCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RimEnsembleCurveSetCollection::findRimCurveFromQwtCurve( const QwtPlotCurve* qwtCurve ) const
+{
+    for ( RimEnsembleCurveSet* curveSet : m_curveSets )
+    {
+        for ( RimSummaryCurve* rimCurve : curveSet->curves() )
+        {
+            if ( rimCurve->qwtPlotCurve() == qwtCurve )
+            {
+                return rimCurve;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findRimCurveSetFromQwtCurve( const QwtPlotCurve* qwtCurve ) const
 {
     for ( RimEnsembleCurveSet* curveSet : m_curveSets )
@@ -283,16 +302,6 @@ RimSummaryPlotSourceStepping* RimEnsembleCurveSetCollection::sourceSteppingObjec
 void RimEnsembleCurveSetCollection::deleteAllCurveSets()
 {
     m_curveSets.deleteAllChildObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::setCurrentSummaryCurveSet( RimEnsembleCurveSet* curveSet )
-{
-    m_currentEnsembleCurveSet = curveSet;
-
-    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

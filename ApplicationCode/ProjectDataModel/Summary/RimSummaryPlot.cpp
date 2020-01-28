@@ -405,13 +405,11 @@ caf::PdmObject* RimSummaryPlot::findPdmObjectFromQwtCurve( const QwtPlotCurve* q
 
     if ( m_ensembleCurveSetCollection )
     {
-        RimEnsembleCurveSet* foundCurveSet = m_ensembleCurveSetCollection->findRimCurveSetFromQwtCurve( qwtCurve );
+        RimSummaryCurve* foundCurve = m_ensembleCurveSetCollection->findRimCurveFromQwtCurve( qwtCurve );
 
-        if ( foundCurveSet )
+        if ( foundCurve )
         {
-            m_ensembleCurveSetCollection->setCurrentSummaryCurveSet( foundCurveSet );
-
-            return foundCurveSet;
+            return foundCurve;
         }
     }
     return nullptr;
@@ -1214,7 +1212,7 @@ void RimSummaryPlot::deleteCurves( const std::vector<RimSummaryCurve*>& curves )
                         if ( curveSet->curves().empty() )
                         {
                             if ( curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::BY_ENSEMBLE_PARAM &&
-                                 m_plotWidget )
+                                 m_plotWidget && curveSet->legendFrame() )
                             {
                                 m_plotWidget->removeOverlayFrame( curveSet->legendFrame() );
                             }
@@ -2199,8 +2197,13 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
             errorCurveData.values  = errorValues;
         }
 
-        if ( casePosInList == cvf::UNDEFINED_SIZE_T )
+        if ( casePosInList == cvf::UNDEFINED_SIZE_T ||
+             curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
         {
+            // Create a section with separate time axis data if
+            // 1. Case is not referenced before, or
+            // 2. We have calculated data, and it we cannot assume identical time axis
+
             auto curveDataList = std::vector<CurveData>( {curveData} );
             if ( hasErrorData ) curveDataList.push_back( errorCurveData );
 
@@ -2210,6 +2213,8 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
         }
         else
         {
+            // Append curve data to previously created curvesdata object
+
             curvesData->allCurveData[casePosInList].push_back( curveData );
             if ( hasErrorData ) curvesData->allCurveData[casePosInList].push_back( errorCurveData );
         }

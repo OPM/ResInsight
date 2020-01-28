@@ -120,14 +120,27 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
             const std::vector<double>& srcVals = srcFrames[fIdx];
             std::vector<double>&       dstVals = diffResultFrames->at( fIdx );
 
+            // Clear the values, and resize with infinity as default value
+            dstVals.clear();
             dstVals.resize( srcVals.size(), std::numeric_limits<double>::infinity() );
         }
     }
 
     size_t baseFrameCount   = baseCaseResults->cellScalarResults( nativeAddress ).size();
     size_t sourceFrameCount = sourceCaseResults->cellScalarResults( nativeAddress ).size();
-    size_t maxFrameCount    = std::min( baseFrameCount, sourceFrameCount );
-    size_t maxGridCount     = std::min( baseMainGrid->gridCount(), sourceMainGrid->gridCount() );
+    size_t maxFrameCount    = 0;
+    if ( address.isTimeLapse() )
+    {
+        // We have one defined time step for base case, loop over all source time steps
+        maxFrameCount = sourceFrameCount;
+    }
+    else
+    {
+        // We compare cases, diff is computed time index by time index. Use minimum frame count.
+        maxFrameCount = std::min( baseFrameCount, sourceFrameCount );
+    }
+
+    size_t maxGridCount = std::min( baseMainGrid->gridCount(), sourceMainGrid->gridCount() );
 
     for ( size_t gridIdx = 0; gridIdx < maxGridCount; ++gridIdx )
     {

@@ -1241,7 +1241,7 @@ ecl_smspec_type * ecl_smspec_fread_alloc(const char *header_file, const char * k
          'YEARS' as basic time unit; that mode is not supported.
       */
 
-      util_abort("%s: Sorry the SMSPEC file seems to lack all time information, need either TIME, or DAY/MONTH/YEAR information. Can not proceed.",__func__);
+      ecl_smspec_free( ecl_smspec );
       return NULL;
     }
     return ecl_smspec;
