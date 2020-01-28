@@ -42,6 +42,7 @@ message PdmObject
 	string           class_keyword = 1;
 	uint64                 address = 2;
 	map<string, string> parameters = 3;
+	bool                   visible = 4;
 }
 
 message PdmObjectArray
