@@ -151,6 +151,7 @@ private:
     void updateSubPlotNames();
     void onPlotAdditionOrRemoval();
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
+    void doUpdateLayout() override;
 
 protected:
     caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
