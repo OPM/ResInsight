@@ -12,16 +12,16 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-HexGridIntersectionTools::ClipVx::ClipVx() 
-    : vx(cvf::Vec3d::ZERO), 
-      normDistFromEdgeVx1(HUGE_VAL), 
-      clippedEdgeVx1Id(-1), 
-      clippedEdgeVx2Id(-1),
-      isVxIdsNative(true),
-      derivedVxLevel(-1)
-{
-}
-
+//HexGridIntersectionTools::ClipVx::ClipVx() 
+//    : vx(cvf::Vec3d::ZERO), 
+//      normDistFromEdgeVx1(HUGE_VAL), 
+//      clippedEdgeVx1Id(-1), 
+//      clippedEdgeVx2Id(-1),
+//      isVxIdsNative(true),
+//      derivedVxLevel(-1)
+//{
+//}
+//
 
 //--------------------------------------------------------------------------------------------------
 /// Find intersection between a line segment and a plane
@@ -526,12 +526,12 @@ cvf::Plane createPlaneFromEdgeAndPointInNormalDirection(cvf::Vec3d ep1, cvf::Vec
 // This method will keep the faces provided, while added edges is marked with no face = 6
 //--------------------------------------------------------------------------------------------------
 void HexGridIntersectionTools::clipPlanarTrianglesWithInPlaneTriangle(const std::vector<cvf::Vec3d>& triangleVxes,
-                                                                     const std::vector<int>&    cellFaceForEachTriangleEdge,
-                                                                     const cvf::Vec3d&          tp1,
-                                                                     const cvf::Vec3d&          tp2,
-                                                                     const cvf::Vec3d&          tp3,
-                                                                     std::vector<cvf::Vec3d>*   clippedTriangleVxes,
-                                                                     std::vector<int>*          cellFaceForEachClippedTriangleEdge)
+                                                                      const std::vector<int>&    cellFaceForEachTriangleEdge,
+                                                                      const cvf::Vec3d&          tp1,
+                                                                      const cvf::Vec3d&          tp2,
+                                                                      const cvf::Vec3d&          tp3,
+                                                                      std::vector<cvf::Vec3d>*   clippedTriangleVxes,
+                                                                      std::vector<int>*          cellFaceForEachClippedTriangleEdge)
 {
     #define HT_NO_FACE 6
 
@@ -540,45 +540,56 @@ void HexGridIntersectionTools::clipPlanarTrianglesWithInPlaneTriangle(const std:
     // Creating a plane for each of the edges of the clipping triangle
     std::array<cvf::Plane, 3> clipTrianglePlanes;
 
-    clipTrianglePlanes[0] = createPlaneFromEdgeAndPointInNormalDirection (tp1, tp2, tp3);
-    clipTrianglePlanes[1] = createPlaneFromEdgeAndPointInNormalDirection (tp2, tp3, tp1);
-    clipTrianglePlanes[2] = createPlaneFromEdgeAndPointInNormalDirection (tp3, tp1, tp2);
+	clipTrianglePlanes[0] = createPlaneFromEdgeAndPointInNormalDirection ( tp1, tp2, tp3 );
+	clipTrianglePlanes[1] = createPlaneFromEdgeAndPointInNormalDirection ( tp2, tp3, tp1 );
+	clipTrianglePlanes[2] = createPlaneFromEdgeAndPointInNormalDirection ( tp3, tp1, tp2 );
 
+	#define reserveSize  60
 
-    for (size_t tIdx = 0; tIdx < triangleCount; ++tIdx)
+	std::vector<cvf::Vec3d>  currentInputTriangleVxes;
+	currentInputTriangleVxes.reserve(reserveSize);
+	std::vector<int> currentInputCellFaceForEachTriangleEdge;
+	currentInputCellFaceForEachTriangleEdge.reserve(reserveSize);
+	std::vector<cvf::Vec3d>  currentOutputTriangleVxes;
+	currentOutputTriangleVxes.reserve(reserveSize);
+	std::vector<int> currentOutputCellFaceForEachTriangleEdge;
+	currentOutputCellFaceForEachTriangleEdge.reserve(reserveSize);
+
+	for( size_t tIdx = 0; tIdx < triangleCount; ++tIdx )
     {
         size_t triVxIdx = tIdx * 3;
 
-        std::vector<cvf::Vec3d>  currentInputTriangleVxes;
-        std::vector<int> currentInputCellFaceForEachTriangleEdge;
-        std::vector<cvf::Vec3d>  currentOutputTriangleVxes;
-        std::vector<int> currentOutputCellFaceForEachTriangleEdge;
+		currentInputTriangleVxes.clear();
+        currentInputCellFaceForEachTriangleEdge.clear();
+        currentOutputTriangleVxes.clear();
+        currentOutputCellFaceForEachTriangleEdge.clear();
 
+        currentOutputTriangleVxes.push_back(triangleVxes[triVxIdx + 0]);
+        currentOutputTriangleVxes.push_back(triangleVxes[triVxIdx + 1]);
+        currentOutputTriangleVxes.push_back(triangleVxes[triVxIdx + 2]);
 
-        currentInputTriangleVxes.push_back(triangleVxes[triVxIdx + 0]);
-        currentInputTriangleVxes.push_back(triangleVxes[triVxIdx + 1]);
-        currentInputTriangleVxes.push_back(triangleVxes[triVxIdx + 2]);
+        currentOutputCellFaceForEachTriangleEdge.push_back(cellFaceForEachTriangleEdge[triVxIdx + 0]);
+        currentOutputCellFaceForEachTriangleEdge.push_back(cellFaceForEachTriangleEdge[triVxIdx + 1]);
+        currentOutputCellFaceForEachTriangleEdge.push_back(cellFaceForEachTriangleEdge[triVxIdx + 2]);
 
-        currentInputCellFaceForEachTriangleEdge.push_back(cellFaceForEachTriangleEdge[triVxIdx + 0]);
-        currentInputCellFaceForEachTriangleEdge.push_back(cellFaceForEachTriangleEdge[triVxIdx + 1]);
-        currentInputCellFaceForEachTriangleEdge.push_back(cellFaceForEachTriangleEdge[triVxIdx + 2]);
-
+		ClipVx newVx1;
+		newVx1.isVxIdsNative = false;
+		ClipVx newVx2;
+		newVx2.isVxIdsNative = false;
 
         for ( int planeIdx = 0; planeIdx < 3; ++planeIdx )
         {
-            size_t inTriangleCount = currentInputTriangleVxes.size()/3;
+			currentInputTriangleVxes.swap(currentOutputTriangleVxes);
+            currentInputCellFaceForEachTriangleEdge.swap(currentOutputCellFaceForEachTriangleEdge);
 
             currentOutputTriangleVxes.clear();
             currentOutputCellFaceForEachTriangleEdge.clear();
 
+            size_t inTriangleCount = currentInputTriangleVxes.size()/3;
+
             for ( size_t inTrIdx = 0; inTrIdx < inTriangleCount ; ++inTrIdx )
             {
                 size_t inTriVxIdx = inTrIdx * 3;
-
-                ClipVx newVx1;
-                newVx1.isVxIdsNative = false;
-                ClipVx newVx2;
-                newVx2.isVxIdsNative = false;
 
                 bool isMostVxesOnPositiveSide = false;
 
@@ -643,8 +654,6 @@ void HexGridIntersectionTools::clipPlanarTrianglesWithInPlaneTriangle(const std:
                 }
             }
 
-            currentInputTriangleVxes = currentOutputTriangleVxes;
-            currentInputCellFaceForEachTriangleEdge = currentOutputCellFaceForEachTriangleEdge;
         }
 
         // Append the result of the completely clipped triangle to the output
