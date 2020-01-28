@@ -62,8 +62,9 @@ public:
 
     const RigWellLogCurveData* curveData() const;
 
-    virtual QString wellName() const           = 0;
-    virtual QString wellLogChannelName() const = 0;
+    virtual QString wellName() const             = 0;
+    virtual QString wellLogChannelUiName() const = 0;
+    virtual QString wellLogChannelName() const;
     virtual QString wellDate() const
     {
         return "";

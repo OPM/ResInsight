@@ -47,7 +47,7 @@ public:
     RimEclipseResultCase* rimCase();
     int                   timeStep();
     QString               wellName() const override;
-    QString               wellLogChannelName() const override;
+    QString               wellLogChannelUiName() const override;
 
     void setGroupId( int groupId );
     int  groupId() const;

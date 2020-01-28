@@ -64,6 +64,7 @@ public:
 
     TrajectoryType trajectoryType() const;
     QString        wellName() const override;
+    QString        wellLogChannelUiName() const override;
     QString        wellLogChannelName() const override;
     QString        wellDate() const override;
     int            branchIndex() const;

@@ -139,7 +139,7 @@ QString RimWellLogRftCurve::wellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogRftCurve::wellLogChannelName() const
+QString RimWellLogRftCurve::wellLogChannelUiName() const
 {
     return m_wellLogChannelName().text();
 }
@@ -342,11 +342,11 @@ QString RimWellLogRftCurve::createCurveAutoName()
     {
         name.push_back( m_observedFmuRftData->name() );
     }
-    if ( wellLogChannelName() !=
+    if ( wellLogChannelUiName() !=
          caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text( RifEclipseRftAddress::NONE ) )
     {
         RifEclipseRftAddress::RftWellLogChannelType channelNameEnum =
-            caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::fromText( wellLogChannelName() );
+            caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::fromText( wellLogChannelUiName() );
         QString channelName = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelNameEnum );
         channelName         = RiaStatisticsTools::replacePercentileByPValueText( channelName );
         name.push_back( channelName );

@@ -454,10 +454,10 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<R
             if ( wellPathToApply() != nullptr )
             {
                 fileCurve->setWellPath( wellPathToApply() );
-                if ( !fileCurve->wellLogChannelName().isEmpty() )
+                if ( !fileCurve->wellLogChannelUiName().isEmpty() )
                 {
                     RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName(
-                        fileCurve->wellLogChannelName() );
+                        fileCurve->wellLogChannelUiName() );
                     fileCurve->setWellLogFile( logFile );
                     RimWellLogPlot* parentPlot = nullptr;
                     fileCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );

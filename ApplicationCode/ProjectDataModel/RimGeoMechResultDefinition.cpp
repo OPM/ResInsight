@@ -28,6 +28,7 @@
 #include "RigFemResultAddress.h"
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
+#include "RigWbsParameter.h"
 
 #include "RiaDefines.h"
 
@@ -622,6 +623,38 @@ QString RimGeoMechResultDefinition::resultFieldUiName() const
 QString RimGeoMechResultDefinition::resultComponentUiName() const
 {
     return m_resultComponentName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::resultVariableUiName() const
+{
+    QString name        = resultFieldName();
+    QString resCompName = resultComponentName();
+
+    if ( !resCompName.isEmpty() )
+    {
+        name += "." + resCompName;
+    }
+    return name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::resultVariableName() const
+{
+    if ( m_resultPositionType == RIG_WELLPATH_DERIVED )
+    {
+        RigWbsParameter param;
+        if ( RigWbsParameter::findParameter( resultFieldName(), &param ) )
+        {
+            QString lasName = param.sourceLabel( RigWbsParameter::LAS_FILE );
+            if ( !lasName.isEmpty() ) return lasName;
+        }
+    }
+    return resultVariableUiName();
 }
 
 //--------------------------------------------------------------------------------------------------
