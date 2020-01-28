@@ -138,6 +138,9 @@ protected:
     void applyPlotTitleToQwt();
     void applyAxisTitleToQwt( QwtPlot::Axis axis );
 
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
     virtual void selectPoint( QwtPlotCurve* curve, int pointNumber );
     virtual void clearPointSelection();
     virtual bool isZoomerActive() const;
