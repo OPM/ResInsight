@@ -184,7 +184,7 @@ RigWbsParameter RigWbsParameter::PP_NonReservoir()
 {
     return RigWbsParameter( "PP Non-Reservoir",
                             true,
-                            {{LAS_FILE, SourceAddress( "POR_NonReservoir" )},
+                            {{LAS_FILE, SourceAddress( "POR_NONRESERVOIR" )},
                              {HYDROSTATIC, SourceAddress( "Hydrostatic" )},
                              {USER_DEFINED, SourceAddress()}} );
 }
