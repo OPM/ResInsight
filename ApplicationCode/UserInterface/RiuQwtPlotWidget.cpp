@@ -76,7 +76,7 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     this->installEventFilter( this );
     this->canvas()->installEventFilter( this );
 
-    this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
+    this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -647,6 +647,22 @@ void RiuQwtPlotWidget::applyAxisTitleToQwt( QwtPlot::Axis axis )
             setMinimumWidth( defaultMinimumWidth() + axisExtent( axis ) );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize RiuQwtPlotWidget::sizeHint() const
+{
+    return QSize( 0, 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize RiuQwtPlotWidget::minimumSizeHint() const
+{
+    return QSize( 0, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
