@@ -153,24 +153,24 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
 	else if ( const RivReservoirSurfaceIntersectionSourceInfo* surfeIntersectSourceInfo = 
                 dynamic_cast<const RivReservoirSurfaceIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
-        RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView, 
-                                                 surfeIntersectSourceInfo, 
-                                                 firstPartTriangleIndex, 
-                                                 &gridLocalCellIndex, 
-                                                 &gridIndex );
+		RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
+												 surfeIntersectSourceInfo->intersection()->activeSeparateResultDefinition(),
+												 surfeIntersectSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
+												 &gridLocalCellIndex,
+												 &gridIndex );
 
-        intersectionHit         = true;
+		intersectionHit = true;
         intersectionTriangleHit = surfeIntersectSourceInfo->triangle( firstPartTriangleIndex );
 		sepInterResDef = surfeIntersectSourceInfo->intersection()->activeSeparateResultDefinition();
     }
     else if ( const RivExtrudedCurveIntersectionSourceInfo* intersectionSourceInfo = 
                 dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
-        RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView, 
-                                                 intersectionSourceInfo, 
-                                                 firstPartTriangleIndex, 
-                                                 &gridLocalCellIndex, 
-                                                 &gridIndex );
+		RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
+												 intersectionSourceInfo->intersection()->activeSeparateResultDefinition(),
+												 intersectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
+												 &gridLocalCellIndex,
+												 &gridIndex );
 
         intersectionHit         = true;
         intersectionTriangleHit = intersectionSourceInfo->triangle( firstPartTriangleIndex );
@@ -179,11 +179,11 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
     else if ( const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo = 
                 dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
-        RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
-                                                 intersectionBoxSourceInfo,
-                                                 firstPartTriangleIndex,
-                                                 &gridLocalCellIndex,
-                                                 &gridIndex );
+		RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
+												 intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition(),
+												 intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
+												 &gridLocalCellIndex,
+												 &gridIndex );
 
         intersectionHit         = true;
         intersectionTriangleHit = intersectionBoxSourceInfo->triangle( firstPartTriangleIndex );

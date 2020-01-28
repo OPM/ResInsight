@@ -306,16 +306,10 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             else if ( surfIntersectSourceInfo )
             {
                 findCellAndGridIndex( mainOrComparisonView,
-                                      surfIntersectSourceInfo,
-                                      firstPartTriangleIndex,
+                                      surfIntersectSourceInfo->intersection()->activeSeparateResultDefinition(),
+                                      surfIntersectSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
                                       &m_currentCellIndex,
                                       &m_currentGridIdx );
-
-                // findCellAndGridIndex( mainOrComparisonView,
-                //                       surfIntersectSourceInfo->intersection()->activeSeparateResultDefinition(),
-                //                       surfIntersectSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
-                //                       &m_currentCellIndex,
-                //                       &m_currentGridIdx );
 
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
 
@@ -331,10 +325,11 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             else if ( crossSectionSourceInfo )
             {
                 findCellAndGridIndex( mainOrComparisonView,
-                                      crossSectionSourceInfo,
-                                      firstPartTriangleIndex,
+                                      crossSectionSourceInfo->intersection()->activeSeparateResultDefinition(),
+                                      crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
                                       &m_currentCellIndex,
                                       &m_currentGridIdx );
+
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
 
                 RiuSelectionItem* selItem = new RiuGeneralSelectionItem( crossSectionSourceInfo->intersection() );
@@ -355,10 +350,11 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             else if ( intersectionBoxSourceInfo )
             {
                 findCellAndGridIndex( mainOrComparisonView,
-                                      intersectionBoxSourceInfo,
-                                      firstPartTriangleIndex,
+                                      intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition(),
+                                      intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
                                       &m_currentCellIndex,
                                       &m_currentGridIdx );
+
                 m_currentFaceIndex = cvf::StructGridInterface::NO_FACE;
 
                 RiuSelectionItem* selItem = new RiuGeneralSelectionItem( intersectionBoxSourceInfo->intersectionBox() );
@@ -1060,126 +1056,6 @@ void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                       m
     else
     {
         *cellIndex = globalCellIndex;
-        *gridIndex = 0;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                                       mainOrComparisonView,
-                                              const RivReservoirSurfaceIntersectionSourceInfo* crossSectionSourceInfo,
-                                              cvf::uint                                        firstPartTriangleIndex,
-                                              size_t*                                          cellIndex,
-                                              size_t*                                          gridIndex )
-{
-    CVF_ASSERT( cellIndex && gridIndex );
-    RimEclipseCase* eclipseCase = nullptr;
-
-    if ( RimIntersectionResultDefinition* sepInterResDef =
-             crossSectionSourceInfo->intersection()->activeSeparateResultDefinition() )
-    {
-        if ( sepInterResDef->isEclipseResultDefinition() )
-        {
-            eclipseCase = dynamic_cast<RimEclipseCase*>( sepInterResDef->activeCase() );
-        }
-    }
-    else
-    {
-        eclipseCase = dynamic_cast<RimEclipseCase*>( mainOrComparisonView->ownerCase() );
-    }
-
-    size_t globalCellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
-
-    if ( eclipseCase )
-    {
-        const RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[globalCellIndex];
-        *cellIndex          = cell.gridLocalCellIndex();
-        *gridIndex          = cell.hostGrid()->gridIndex();
-    }
-    else
-    {
-        *cellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
-        *gridIndex = 0;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                                    mainOrComparisonView,
-                                              const RivExtrudedCurveIntersectionSourceInfo* crossSectionSourceInfo,
-                                              cvf::uint                                     firstPartTriangleIndex,
-                                              size_t*                                       cellIndex,
-                                              size_t*                                       gridIndex )
-{
-    CVF_ASSERT( cellIndex && gridIndex );
-    RimEclipseCase* eclipseCase = nullptr;
-
-    if ( RimIntersectionResultDefinition* sepInterResDef =
-             crossSectionSourceInfo->intersection()->activeSeparateResultDefinition() )
-    {
-        if ( sepInterResDef->isEclipseResultDefinition() )
-        {
-            eclipseCase = dynamic_cast<RimEclipseCase*>( sepInterResDef->activeCase() );
-        }
-    }
-    else
-    {
-        eclipseCase = dynamic_cast<RimEclipseCase*>( mainOrComparisonView->ownerCase() );
-    }
-
-    size_t globalCellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
-
-    if ( eclipseCase )
-    {
-        const RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[globalCellIndex];
-        *cellIndex          = cell.gridLocalCellIndex();
-        *gridIndex          = cell.hostGrid()->gridIndex();
-    }
-    else
-    {
-        *cellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
-        *gridIndex = 0;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::findCellAndGridIndex( Rim3dView*                          mainOrComparisonView,
-                                              const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo,
-                                              cvf::uint                           firstPartTriangleIndex,
-                                              size_t*                             cellIndex,
-                                              size_t*                             gridIndex )
-{
-    CVF_ASSERT( cellIndex && gridIndex );
-    RimEclipseCase* eclipseCase = nullptr;
-
-    if ( RimIntersectionResultDefinition* sepInterResDef =
-             intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition() )
-    {
-        if ( sepInterResDef->isEclipseResultDefinition() )
-        {
-            eclipseCase = dynamic_cast<RimEclipseCase*>( sepInterResDef->activeCase() );
-        }
-    }
-    else
-    {
-        eclipseCase = dynamic_cast<RimEclipseCase*>( mainOrComparisonView->ownerCase() );
-    }
-
-    size_t globalCellIndex = intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
-
-    if ( eclipseCase )
-    {
-        const RigCell& cell = eclipseCase->mainGrid()->globalCellArray()[globalCellIndex];
-        *cellIndex          = cell.gridLocalCellIndex();
-        *gridIndex          = cell.hostGrid()->gridIndex();
-    }
-    else
-    {
-        *cellIndex = intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
         *gridIndex = 0;
     }
 }
