@@ -73,6 +73,19 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
 
     destination->set_class_keyword( source->xmlCapability()->classKeyword().toStdString() );
     destination->set_address( reinterpret_cast<uint64_t>( source ) );
+
+    bool visible = true;
+    if ( source->uiCapability() && source->uiCapability()->objectToggleField() )
+    {
+        const caf::PdmField<bool>* boolField = dynamic_cast<const caf::PdmField<bool>*>(
+            source->uiCapability()->objectToggleField() );
+        if ( boolField )
+        {
+            visible = boolField->value();
+        }
+    }
+    destination->set_visible( visible );
+
     std::vector<caf::PdmFieldHandle*> fields;
     source->fields( fields );
 
@@ -103,6 +116,20 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
 {
     CAF_ASSERT( source && destination && destination->xmlCapability() );
     CAF_ASSERT( source->class_keyword() == destination->xmlCapability()->classKeyword().toStdString() );
+
+    if ( destination->uiCapability() && destination->uiCapability()->objectToggleField() )
+    {
+        caf::PdmField<bool>* boolField = dynamic_cast<caf::PdmField<bool>*>(
+            destination->uiCapability()->objectToggleField() );
+        if ( boolField )
+        {
+            QVariant oldValue = boolField->toQVariant();
+            boolField->setValue( source->visible() );
+            QVariant newValue = boolField->toQVariant();
+            destination->uiCapability()->fieldChangedByUi( boolField, oldValue, newValue );
+        }
+    }
+
     std::vector<caf::PdmFieldHandle*> fields;
     destination->fields( fields );
 

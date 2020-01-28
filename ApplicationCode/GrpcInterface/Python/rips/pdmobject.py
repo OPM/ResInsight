@@ -69,6 +69,14 @@ class PdmObject:
         """Get the class keyword in the ResInsight Data Model for the given PdmObject"""
         return self._pb2_object.class_keyword
 
+    def set_visible(self, visible):
+        """Set the visibility of the object in the ResInsight project tree"""
+        self._pb2_object.visible = visible
+
+    def visible(self):
+        """Get the visibility of the object in the ResInsight project tree"""
+        return self._pb2_object.visible
+        
     def keywords(self):
         """Get a list of all parameter keywords available in the object"""
         list_of_keywords = []

@@ -25,3 +25,5 @@ if resinsight is not None:
         view.set_show_grid_box(False)
         new_view.set_background_color("#FFAA33")
         new_view.update()
+        view.set_visible(False)
+        view.update()
