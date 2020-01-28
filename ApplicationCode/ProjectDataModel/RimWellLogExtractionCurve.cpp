@@ -877,9 +877,9 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
         generatedCurveName.push_back( m_case->caseUserDescription() );
     }
 
-    if ( m_addPropertyToCurveName && !wellLogChannelName().isEmpty() )
+    if ( m_addPropertyToCurveName && !wellLogChannelUiName().isEmpty() )
     {
-        generatedCurveName.push_back( wellLogChannelName() );
+        generatedCurveName.push_back( wellLogChannelUiName() );
     }
 
     if ( m_addTimestepToCurveName || m_addDateToCurveName )
@@ -924,6 +924,27 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellLogExtractionCurve::wellLogChannelUiName() const
+{
+    RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
+
+    QString name;
+    if ( eclipseCase )
+    {
+        name = caf::Utils::makeValidFileBasename( m_eclipseResultDefinition->resultVariableUiShortName() );
+    }
+    else if ( geoMechCase )
+    {
+        name = m_geomResultDefinition->resultVariableUiName();
+    }
+
+    return name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogExtractionCurve::wellLogChannelName() const
 {
     RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
@@ -936,15 +957,7 @@ QString RimWellLogExtractionCurve::wellLogChannelName() const
     }
     else if ( geoMechCase )
     {
-        QString resCompName = m_geomResultDefinition->resultComponentUiName();
-        if ( resCompName.isEmpty() )
-        {
-            name = m_geomResultDefinition->resultFieldUiName();
-        }
-        else
-        {
-            name = m_geomResultDefinition->resultFieldUiName() + "." + resCompName;
-        }
+        name = caf::Utils::makeValidFileBasename( m_geomResultDefinition->resultVariableName() );
     }
 
     return name;

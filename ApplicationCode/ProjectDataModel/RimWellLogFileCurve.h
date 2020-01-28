@@ -49,7 +49,7 @@ public:
 
     // Overrides from RimWellLogPlotCurve
     QString wellName() const override;
-    QString wellLogChannelName() const override;
+    QString wellLogChannelUiName() const override;
 
     RimWellLogFile* wellLogFile() const;
 

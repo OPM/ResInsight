@@ -412,7 +412,7 @@ QString RimWellLogFileCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogFileCurve::wellLogChannelName() const
+QString RimWellLogFileCurve::wellLogChannelUiName() const
 {
     return m_wellLogChannnelName;
 }

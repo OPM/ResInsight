@@ -107,7 +107,7 @@ QString RimWellFlowRateCurve::wellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellFlowRateCurve::wellLogChannelName() const
+QString RimWellFlowRateCurve::wellLogChannelUiName() const
 {
     return "AccumulatedFlowRate";
 }

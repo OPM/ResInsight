@@ -59,7 +59,7 @@ public:
     ~RimWellLogRftCurve() override;
 
     QString wellName() const override;
-    QString wellLogChannelName() const override;
+    QString wellLogChannelUiName() const override;
 
     void                  setEclipseResultCase( RimEclipseResultCase* eclipseResultCase );
     RimEclipseResultCase* eclipseResultCase() const;

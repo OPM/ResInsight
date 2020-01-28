@@ -66,6 +66,8 @@ public:
 
     QString resultFieldUiName() const;
     QString resultComponentUiName() const;
+    QString resultVariableUiName() const;
+    QString resultVariableName() const;
 
     bool hasCategoryResult() const
     {

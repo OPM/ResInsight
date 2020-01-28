@@ -2290,9 +2290,9 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                 caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
 
                 std::vector<QString> sourceNames =
-                    RigWbsParameter::PP_Reservoir().allSourceLabels( "\n",
-                                                                     wbsPlot->userDefinedValue(
-                                                                         RigWbsParameter::PP_NonReservoir() ) );
+                    RigWbsParameter::PP_Reservoir().allSourceUiLabels( "\n",
+                                                                       wbsPlot->userDefinedValue(
+                                                                           RigWbsParameter::PP_NonReservoir() ) );
                 curveData.data = ppSourceRegions;
 
                 std::vector<QString>                   sourceNamesToPlot;
@@ -2316,9 +2316,9 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                 caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
 
                 std::vector<QString> sourceNames =
-                    RigWbsParameter::poissonRatio().allSourceLabels( "\n",
-                                                                     wbsPlot->userDefinedValue(
-                                                                         RigWbsParameter::poissonRatio() ) );
+                    RigWbsParameter::poissonRatio().allSourceUiLabels( "\n",
+                                                                       wbsPlot->userDefinedValue(
+                                                                           RigWbsParameter::poissonRatio() ) );
                 curveData.data = poissonSourceRegions;
 
                 std::vector<QString>                   sourceNamesToPlot;
@@ -2342,7 +2342,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                 caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
 
                 std::vector<QString> sourceNames =
-                    RigWbsParameter::UCS().allSourceLabels( "\n", wbsPlot->userDefinedValue( RigWbsParameter::UCS() ) );
+                    RigWbsParameter::UCS().allSourceUiLabels( "\n", wbsPlot->userDefinedValue( RigWbsParameter::UCS() ) );
 
                 curveData.data = ucsSourceRegions;
 
@@ -2374,11 +2374,11 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
 {
     m_wellPathAttributePlotObjects.clear();
 
-    if ( wellPathAttributeSource())
+    if ( wellPathAttributeSource() )
     {
         std::vector<const RimWellPathComponentInterface*> allWellPathComponents;
 
-        if ( wellPathAttributeSource()->wellPathGeometry() && (m_showWellPathAttributes || m_showWellPathCompletions ))
+        if ( wellPathAttributeSource()->wellPathGeometry() && ( m_showWellPathAttributes || m_showWellPathCompletions ) )
         {
             m_wellPathAttributePlotObjects.push_back( std::unique_ptr<RiuWellPathComponentPlotItem>(
                 new RiuWellPathComponentPlotItem( wellPathAttributeSource() ) ) );

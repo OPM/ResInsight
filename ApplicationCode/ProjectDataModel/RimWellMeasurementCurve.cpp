@@ -272,7 +272,7 @@ QString RimWellMeasurementCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellMeasurementCurve::wellLogChannelName() const
+QString RimWellMeasurementCurve::wellLogChannelUiName() const
 {
     // Does not really make sense for measurement curve.
     return QString( "" );

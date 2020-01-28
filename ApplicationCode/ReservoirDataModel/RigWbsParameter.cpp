@@ -119,13 +119,13 @@ void RigWbsParameter::setOptionsExclusive( bool exclusive )
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<QString>
-    RigWbsParameter::allSourceLabels( const QString& delimiter /*= " "*/,
-                                      double         userDefinedValue /*= std::numeric_limits<double>::infinity() */ )
+    RigWbsParameter::allSourceUiLabels( const QString& delimiter /*= " "*/,
+                                        double         userDefinedValue /*= std::numeric_limits<double>::infinity() */ )
 {
     std::vector<QString> allLabels;
     for ( size_t i = 0; i < SourceEnum::size(); ++i )
     {
-        allLabels.push_back( sourceLabel( SourceEnum::fromIndex( i ), delimiter, userDefinedValue ) );
+        allLabels.push_back( sourceUiLabel( SourceEnum::fromIndex( i ), delimiter, userDefinedValue ) );
     }
     return allLabels;
 }
@@ -133,9 +133,9 @@ std::vector<QString>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigWbsParameter::sourceLabel( Source         currentSource,
-                                      const QString& delimiter,
-                                      double         userDefinedValue /*= std::numeric_limits<double>::infinity() */ )
+QString RigWbsParameter::sourceUiLabel( Source         currentSource,
+                                        const QString& delimiter,
+                                        double         userDefinedValue /*= std::numeric_limits<double>::infinity() */ )
 {
     QString sourceLabel;
     if ( currentSource == USER_DEFINED )
@@ -148,6 +148,15 @@ QString RigWbsParameter::sourceLabel( Source         currentSource,
     }
     sourceLabel.replace( " ", delimiter );
     return sourceLabel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigWbsParameter::sourceLabel( Source source )
+{
+    SourceAddress addr = address( source );
+    return addr.primary;
 }
 
 //--------------------------------------------------------------------------------------------------
