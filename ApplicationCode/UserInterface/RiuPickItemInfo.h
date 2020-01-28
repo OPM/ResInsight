@@ -85,9 +85,14 @@ public:
         return m_globalRayOrigin;
     }
 
+    float polygonOffsetUnit() const;
+
+    bool operator<( const RiuPickItemInfo& other ) const;
+
     static RiuPickItemInfo              extractPickItemInfo( const cvf::HitItem* hitItem );
     static std::vector<RiuPickItemInfo> convertToPickItemInfos( const cvf::HitItemCollection& hitItems,
-                                                                const cvf::Vec3d&             globalRayOrigin );
+                                                                const cvf::Vec3d&             globalRayOrigin,
+                                                                double coincidentRayDistanceTolerance = 1e-3 );
 
 private:
     double             m_distanceAlongRay;
@@ -97,4 +102,6 @@ private:
     cvf::Vec3d         m_globalRayOrigin;
     const cvf::Object* m_sourceInfo;
     cvf::uint          m_faceIdx;
+
+    static double sm_rayDistanceTolerance;
 };

@@ -396,9 +396,12 @@ void RivSurfacePartMgr::generateNativePartGeometry()
     drawGeo->setVertexArray( cvfVertices.p() );
     drawGeo->computeNormals();
 
+    cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( m_surfaceInView );
+
     m_nativeTrianglesPart = new cvf::Part();
     m_nativeTrianglesPart->setName( "Native Reservoir Surface" );
     m_nativeTrianglesPart->setDrawable( drawGeo.p() );
+    m_nativeTrianglesPart->setSourceInfo( objectSourceInfo.p() );
 
     m_nativeVertexToCellIndexMap.clear();
 }
