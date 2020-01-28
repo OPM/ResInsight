@@ -184,7 +184,7 @@ std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const Rig
 
         const std::vector<RigFault::FaultFace>& faultFaces = fault->faultFaces();
 
-#pragma omp parallel for
+        // #pragma omp parallel for
         for ( int faceIdx = 0; faceIdx < static_cast<int>( faultFaces.size() ); faceIdx++ )
         {
             const RigFault::FaultFace& f = faultFaces[faceIdx];
