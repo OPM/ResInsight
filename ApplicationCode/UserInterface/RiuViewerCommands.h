@@ -32,9 +32,11 @@ class RimGeoMechView;
 class RimExtrudedCurveIntersection;
 class Rim3dView;
 class RiuViewer;
+class RivReservoirSurfaceIntersectionSourceInfo;
 class RivBoxIntersectionSourceInfo;
 class RivExtrudedCurveIntersectionSourceInfo;
 class RiuPickItemInfo;
+class RimIntersectionResultDefinition;
 
 class QMouseEvent;
 
@@ -73,16 +75,11 @@ public:
                                 const std::vector<RiuPickItemInfo>& pickItemInfos,
                                 size_t*                             indexToFirstNoneNncItem,
                                 size_t*                             indexToNncItemNearFirsItem );
-    static void findCellAndGridIndex( Rim3dView*                                    mainOrComparisonView,
-                                      const RivExtrudedCurveIntersectionSourceInfo* intersectionSourceInfo,
-                                      cvf::uint                                     firstPartTriangleIndex,
-                                      size_t*                                       cellIndex,
-                                      size_t*                                       gridIndex );
-    static void findCellAndGridIndex( Rim3dView*                          mainOrComparisonView,
-                                      const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo,
-                                      cvf::uint                           firstPartTriangleIndex,
-                                      size_t*                             cellIndex,
-                                      size_t*                             gridIndex );
+    static void findCellAndGridIndex( Rim3dView*                       mainOrComparisonView,
+                                      RimIntersectionResultDefinition* sepInterResDef,
+                                      size_t                           globalCellIndex,
+                                      size_t*                          cellIndex,
+                                      size_t*                          gridIndex );
 
 private:
     void ijkFromCellIndex( Rim3dView* mainOrComparisonView,

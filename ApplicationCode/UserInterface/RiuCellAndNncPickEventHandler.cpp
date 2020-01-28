@@ -29,6 +29,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimIntersectionResultDefinition.h"
+#include "RimSurfaceInView.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuViewerCommands.h"
@@ -37,6 +38,7 @@
 #include "RivExtrudedCurveIntersectionSourceInfo.h"
 #include "RivFemPartGeometryGenerator.h"
 #include "RivFemPickSourceInfo.h"
+#include "RivReservoirSurfaceIntersectionSourceInfo.h"
 #include "RivSourceInfo.h"
 
 #include "RigEclipseCaseData.h"
@@ -124,9 +126,10 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
     int                                gmFace             = -1;
     bool                               intersectionHit    = false;
     std::array<cvf::Vec3f, 3>          intersectionTriangleHit;
-    RimGeoMechResultDefinition*        geomResDef    = nullptr;
-    RimEclipseResultDefinition*        eclResDef     = nullptr;
-    size_t                             timestepIndex = cvf::UNDEFINED_SIZE_T;
+    RimGeoMechResultDefinition*        geomResDef     = nullptr;
+    RimEclipseResultDefinition*        eclResDef      = nullptr;
+    size_t                             timestepIndex  = cvf::UNDEFINED_SIZE_T;
+    RimIntersectionResultDefinition*   sepInterResDef = nullptr;
 
     // clang-format off
     if ( const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() ) )
@@ -147,59 +150,60 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
         gridLocalCellIndex = femSourceInfo->triangleToElmMapper()->elementIndex( firstPartTriangleIndex );
         gmFace    = femSourceInfo->triangleToElmMapper()->elementFace( firstPartTriangleIndex );
     }
+	else if ( const RivReservoirSurfaceIntersectionSourceInfo* surfeIntersectSourceInfo = 
+                dynamic_cast<const RivReservoirSurfaceIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
+    {
+		RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
+												 surfeIntersectSourceInfo->intersection()->activeSeparateResultDefinition(),
+												 surfeIntersectSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
+												 &gridLocalCellIndex,
+												 &gridIndex );
+
+		intersectionHit = true;
+        intersectionTriangleHit = surfeIntersectSourceInfo->triangle( firstPartTriangleIndex );
+		sepInterResDef = surfeIntersectSourceInfo->intersection()->activeSeparateResultDefinition();
+    }
     else if ( const RivExtrudedCurveIntersectionSourceInfo* intersectionSourceInfo = 
                 dynamic_cast<const RivExtrudedCurveIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
-        RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView, 
-                                                 intersectionSourceInfo, 
-                                                 firstPartTriangleIndex, 
-                                                 &gridLocalCellIndex, 
-                                                 &gridIndex );
+		RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
+												 intersectionSourceInfo->intersection()->activeSeparateResultDefinition(),
+												 intersectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
+												 &gridLocalCellIndex,
+												 &gridIndex );
 
         intersectionHit         = true;
         intersectionTriangleHit = intersectionSourceInfo->triangle( firstPartTriangleIndex );
-
-        if ( RimIntersectionResultDefinition* sepInterResDef = intersectionSourceInfo->intersection()->activeSeparateResultDefinition() )
-        {
-            if ( sepInterResDef->isEclipseResultDefinition() )
-            {
-                eclResDef = sepInterResDef->eclipseResultDefinition();
-            }
-            else
-            {
-                geomResDef = sepInterResDef->geoMechResultDefinition();
-            }
-
-            timestepIndex = sepInterResDef->timeStep();
-        }
+		sepInterResDef = intersectionSourceInfo->intersection()->activeSeparateResultDefinition();
     }
     else if ( const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo = 
                 dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
     {
-        RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
-                                                 intersectionBoxSourceInfo,
-                                                 firstPartTriangleIndex,
-                                                 &gridLocalCellIndex,
-                                                 &gridIndex );
+		RiuViewerCommands::findCellAndGridIndex( mainOrComparisonView,
+												 intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition(),
+												 intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex],
+												 &gridLocalCellIndex,
+												 &gridIndex );
 
         intersectionHit         = true;
         intersectionTriangleHit = intersectionBoxSourceInfo->triangle( firstPartTriangleIndex );
-
-        if ( RimIntersectionResultDefinition* sepInterResDef = intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition() )
-        {
-            if ( sepInterResDef->isEclipseResultDefinition() )
-            {
-                eclResDef = sepInterResDef->eclipseResultDefinition();
-            }
-            else
-            {
-                geomResDef = sepInterResDef->geoMechResultDefinition();
-            }
-
-            timestepIndex = sepInterResDef->timeStep();
-        }
+		sepInterResDef = intersectionBoxSourceInfo->intersectionBox()->activeSeparateResultDefinition();
     }
     // clang-format on
+
+    if ( sepInterResDef )
+    {
+        if ( sepInterResDef->isEclipseResultDefinition() )
+        {
+            eclResDef = sepInterResDef->eclipseResultDefinition();
+        }
+        else
+        {
+            geomResDef = sepInterResDef->geoMechResultDefinition();
+        }
+
+        timestepIndex = sepInterResDef->timeStep();
+    }
 
     if ( gridLocalCellIndex == cvf::UNDEFINED_SIZE_T )
     {
