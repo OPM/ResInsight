@@ -44,6 +44,8 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_wbsParameters, "WbsParameters", "Well Bore Stability Parameters", "", "", "" );
     m_wbsParameters = new RimWbsParameters;
+    m_wbsParameters.uiCapability()->setUiTreeHidden( true );
+    m_wbsParameters.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_nameConfig->setCustomName( "Well Bore Stability" );
     m_nameConfig->enableAllAutoNameTags( true );
