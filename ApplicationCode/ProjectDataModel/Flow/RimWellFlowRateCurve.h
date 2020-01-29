@@ -48,6 +48,7 @@ public:
     int                   timeStep();
     QString               wellName() const override;
     QString               wellLogChannelUiName() const override;
+    QString               wellLogChannelUnits() const override;
 
     void setGroupId( int groupId );
     int  groupId() const;

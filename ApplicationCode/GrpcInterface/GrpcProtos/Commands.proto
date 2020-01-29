@@ -321,6 +321,7 @@ message ExportWellLogPlotDataRequest
 	bool exportTvdRkb         = 5;
 	bool capitalizeFileNames  = 6;
 	double resampleInterval   = 7;
+	bool convertCurveUnits    = 8;
 }
 
 message ExportContourMapToTextRequest

@@ -66,6 +66,7 @@ RicfExportWellLogPlotData::RicfExportWellLogPlotData()
     RICF_InitField( &m_exportTvdRkb, "exportTvdRkb", false, "", "", "", "" );
     RICF_InitField( &m_capitalizeFileNames, "capitalizeFileNames", false, "", "", "", "" );
     RICF_InitField( &m_resampleInterval, "resampleInterval", 0.0, "", "", "", "" );
+    RICF_InitField( &m_convertCurveUnits, "convertCurveUnits", false, "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +109,8 @@ RicfCommandResponse RicfExportWellLogPlotData::execute()
                                                                      m_exportTvdRkb(),
                                                                      m_capitalizeFileNames(),
                                                                      true,
-                                                                     m_resampleInterval() );
+                                                                     m_resampleInterval(),
+                                                                     m_convertCurveUnits() );
                     if ( exportedFiles.empty() )
                     {
                         errorMessages << QString( "No files exported for '%1'" ).arg( plot->description() );

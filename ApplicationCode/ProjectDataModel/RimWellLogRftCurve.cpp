@@ -147,6 +147,14 @@ QString RimWellLogRftCurve::wellLogChannelUiName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellLogRftCurve::wellLogChannelUnits() const
+{
+    return RiaWellLogUnitTools::noUnitString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setEclipseResultCase( RimEclipseResultCase* eclipseResultCase )
 {
     m_eclipseResultCase = eclipseResultCase;

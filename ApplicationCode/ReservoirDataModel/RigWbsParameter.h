@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019- Ceetron Solutions AS
+//  Copyright (C) 2019- Equinor AS
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 
 #include "cafAppEnum.h"
 
+#include "RiaWellLogUnitTools.h"
 #include "RigFemResultAddress.h"
 
 #include <QString>
@@ -47,11 +48,16 @@ public:
 public:
     RigWbsParameter( const QString&      name                     = "",
                      bool                normalizeByHydroStaticPP = false,
-                     const SourceVector& validSources             = {} );
+                     const SourceVector& validSources             = {},
+                     bool                exclusiveOptions         = false );
+    RigWbsParameter( const RigWbsParameter& rhs );
+
+    RigWbsParameter& operator=( const RigWbsParameter& rhs );
 
     const QString&      name() const;
     std::vector<Source> sources() const;
     QString             addressString( Source source ) const;
+    QString             units( Source source ) const;
     RigFemResultAddress femAddress( Source source ) const;
     bool                normalizeByHydrostaticPP() const;
     bool                exclusiveOptions() const;
@@ -62,7 +68,6 @@ public:
     QString              sourceUiLabel( Source         currentSource,
                                         const QString& delimiter        = " ",
                                         double         userDefinedValue = std::numeric_limits<double>::infinity() );
-    QString              sourceLabel( Source currentSource );
 
     bool operator==( const RigWbsParameter& rhs ) const;
     bool operator<( const RigWbsParameter& rhs ) const;
@@ -88,14 +93,16 @@ private:
         RigFemResultPosEnum resType;
         QString             primary; // i.e. grid field name, las entry, etc.
         QString             secondary; // i.e. grid component name
-        SourceAddress( QString primary = "", QString secondary = "" )
+        QString             units; // The unit string
+        SourceAddress( QString primary = "", QString secondary = "", QString units = RiaWellLogUnitTools::noUnitString() )
             : primary( primary )
             , secondary( secondary )
+            , units( units )
         {
         }
     };
 
-    SourceAddress address( Source source ) const;
+    bool address( Source source, SourceAddress* sourceAddress ) const;
 
 private:
     QString                                       m_name;

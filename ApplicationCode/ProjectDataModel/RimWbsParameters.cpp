@@ -387,7 +387,7 @@ bool RimWbsParameters::hasLasFileWithChannel( const QString& channel ) const
 bool RimWbsParameters::hasElementPropertyEntry( const RigFemResultAddress& resAddr ) const
 {
     RigFemPartResultsCollection* femPartResults = nullptr;
-    if ( m_geoMechCase && m_timeStep > 0 )
+    if ( m_geoMechCase && m_geoMechCase->geoMechData() && m_timeStep > 0 )
     {
         femPartResults = m_geoMechCase->geoMechData()->femPartResults();
         if ( femPartResults )

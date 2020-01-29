@@ -60,6 +60,7 @@ public:
 
     QString wellName() const override;
     QString wellLogChannelUiName() const override;
+    QString wellLogChannelUnits() const override;
 
     void                  setEclipseResultCase( RimEclipseResultCase* eclipseResultCase );
     RimEclipseResultCase* eclipseResultCase() const;

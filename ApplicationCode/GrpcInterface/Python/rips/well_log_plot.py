@@ -21,7 +21,7 @@ class WellLogPlot(Plot):
                 return cls(pdm_object)
         return None            
 
-    def export_data_as_las(self, export_folder, file_prefix='', export_tvdrkb=False, capitalize_file_names=False, resample_interval=0.0):
+    def export_data_as_las(self, export_folder, file_prefix='', export_tvdrkb=False, capitalize_file_names=False, resample_interval=0.0, convert_to_standard_units=False):
         """ Export LAS file(s) for the current plot
         
         Arguments:
@@ -40,7 +40,8 @@ class WellLogPlot(Plot):
                                                                                            filePrefix=file_prefix,
                                                                                            exportTvdRkb=export_tvdrkb,
                                                                                            capitalizeFileNames=capitalize_file_names,
-                                                                                           resampleInterval=resample_interval))
+                                                                                           resampleInterval=resample_interval,
+                                                                                           convertCurveUnits=convert_to_standard_units)
         return res.exportWellLogPlotDataResult.exportedFiles
 
     def export_data_as_ascii(self, export_folder, file_prefix='', capitalize_file_names=False):

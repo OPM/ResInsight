@@ -66,6 +66,7 @@ public:
     QString        wellName() const override;
     QString        wellLogChannelUiName() const override;
     QString        wellLogChannelName() const override;
+    QString        wellLogChannelUnits() const override;
     QString        wellDate() const override;
     int            branchIndex() const;
     bool           branchDetection() const;
@@ -85,12 +86,6 @@ public:
     void setBranchIndex( int index );
 
     static void findAndLoadWbsParametersFromLasFiles( const RimWellPath*          wellPath,
-                                                      RigGeoMechWellLogExtractor* geomExtractor );
-
-    static void findAndLoadUcsFromLasFiles( const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor );
-
-    static void findAndLoadPorePressuresFromLasFiles( const RimWellPath*          wellPath,
-                                                      const RigWbsParameter&      parameter,
                                                       RigGeoMechWellLogExtractor* geomExtractor );
 
     void setAutoNameComponents( bool addCaseName, bool addProperty, bool addWellname, bool addTimeStep, bool addDate );

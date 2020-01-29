@@ -131,6 +131,7 @@ void RimWellBoreStabilityPlot::childFieldChangedByUi( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 void RimWellBoreStabilityPlot::initAfterRead()
 {
+    updateCommonDataSource();
     applyDataSource();
 }
 

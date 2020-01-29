@@ -281,6 +281,14 @@ QString RimWellMeasurementCurve::wellLogChannelUiName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellMeasurementCurve::wellLogChannelUnits() const
+{
+    return RiaWellLogUnitTools::noUnitString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellMeasurementCurve::wellName() const
 {
     if ( m_wellPath )

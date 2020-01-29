@@ -68,6 +68,8 @@ public:
     QString resultComponentUiName() const;
     QString resultVariableUiName() const;
     QString resultVariableName() const;
+    QString currentResultUnits() const;
+    QString defaultLasUnits() const;
 
     bool hasCategoryResult() const
     {
