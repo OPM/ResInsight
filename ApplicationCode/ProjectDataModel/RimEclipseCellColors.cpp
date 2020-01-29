@@ -143,11 +143,30 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
                 }
             }
 
-            // Not found ?
             if ( !found )
             {
                 RimRegularLegendConfig* newLegend = new RimRegularLegendConfig;
                 newLegend->resultVariableName     = resultVarNameOfNewLegend;
+
+                bool useLog = false;
+                {
+                    QStringList subStringsToMatch{"TRAN", "MULT", "PERM"};
+
+                    for ( const auto& s : subStringsToMatch )
+                    {
+                        if ( resultVarNameOfNewLegend.contains( s, Qt::CaseInsensitive ) )
+                        {
+                            useLog = true;
+                        }
+                    }
+                }
+
+                if ( useLog )
+                {
+                    newLegend->setMappingMode( RimRegularLegendConfig::LOG10_CONTINUOUS );
+                    newLegend->setTickNumberFormat( RimRegularLegendConfig::AUTO );
+                }
+
                 m_legendConfigData.push_back( newLegend );
 
                 this->m_legendConfigPtrField = newLegend;
