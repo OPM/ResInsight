@@ -1,4 +1,4 @@
-dist: xenial  # For 18.04, use bionic
+dist: bionic
 
 language: cpp
 
