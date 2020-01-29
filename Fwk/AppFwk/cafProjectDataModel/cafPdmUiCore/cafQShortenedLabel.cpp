@@ -79,10 +79,12 @@ QString QShortenedLabel::fullText() const
 //--------------------------------------------------------------------------------------------------
 QSize QShortenedLabel::minimumSizeHint() const
 {
-    int minimumWidth = 20;
+    const int minimumNumberOfCharacters = 10;
 
     QFontMetrics fontMetrics = QApplication::fontMetrics();
     QString fullLabelText = fullText();
+    QString shortenedText = fullLabelText.left(minimumNumberOfCharacters);
+    int minimumWidth = fontMetrics.width(shortenedText);
 
     if (!fullLabelText.isEmpty())
     {
@@ -101,7 +103,12 @@ QSize QShortenedLabel::minimumSizeHint() const
                 maxFirstWordWidth  = std::max(maxFirstWordWidth, wordWidth);
             }
         }
-        int minimumTextWidth = std::min(maxLineWidth, maxFirstWordWidth);
+        int minimumTextWidth = maxFirstWordWidth;
+
+        // Prefer the max line width if there's just one character between them
+        if (maxFirstWordWidth + fontMetrics.maxWidth() >= maxLineWidth)
+            minimumTextWidth = maxLineWidth;
+
         minimumWidth = std::max(minimumWidth, minimumTextWidth);
     }
     QSize minimumSize = QLabel::minimumSizeHint();
