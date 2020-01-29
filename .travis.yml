@@ -12,7 +12,7 @@ services:
     - xvfb
 
 env:
-    - QT_CI_PACKAGES=qt.qt5.5132.gcc_64,qt.qt5.5132.qtwebengine PATH="$TRAVIS_BUILD_DIR/Qt/5.13.2/gcc_64/bin:${PATH}"
+    - QT_CI_PACKAGES=qt.qt5.5132.gcc_64,qt.qt5.5132.qtscript PATH="$TRAVIS_BUILD_DIR/Qt/5.13.2/gcc_64/bin:${PATH}"
 
 script:
     - git clone https://github.com/benlau/qtci.git
