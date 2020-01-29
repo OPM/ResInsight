@@ -27,6 +27,8 @@
 #include "cvfRenderStatePolygonOffset.h"
 #include "cvfTransform.h"
 
+#include <cmath>
+
 double RiuPickItemInfo::sm_rayDistanceTolerance = 1e-5;
 
 //--------------------------------------------------------------------------------------------------
