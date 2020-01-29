@@ -92,6 +92,18 @@ public:
                                       std::vector<ClipVx>* triangleVxes,
                                       std::vector<int>* cellFaceForEachTriangleEdge);
 
+    static int planeHexIntersectionMCTet( const cvf::Plane& plane,
+                                          const cvf::Vec3d cell[8],
+                                          const size_t hexCornersIds[8],
+                                          std::vector<ClipVx>* triangleVxes,
+                                          std::vector<int>* cellFaceForEachTriangleEdge );
+    static cvf::uint planeMcTetIntersection( const cvf::Plane& plane,
+                                             const cvf::Vec3d hexCell[8],
+                                             const size_t hexCornersIds[8],
+                                             const double cornerDistToPlane[8],
+                                             const std::array<int, 4> & tetCell,
+                                             std::vector<ClipVx>* triangleVxes,
+                                             std::vector<int>* cellFaceForEachTriangleEdge );
 };
 
 }; // namespace caf

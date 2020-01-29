@@ -190,11 +190,12 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
             m_hexGrid->cellCornerIndices( globalCellIdx, &cornerIndices[0] );
 
             hexPlaneCutTriangleVxes.clear();
-            int triangleCount = caf::HexGridIntersectionTools::planeHexIntersectionMC( plane,
-                                                                                       &cellCorners[0],
-                                                                                       &cornerIndices[0],
-                                                                                       &hexPlaneCutTriangleVxes,
-                                                                                       &cellFaceForEachTriangleEdge );
+            cellFaceForEachTriangleEdge.clear();
+            int triangleCount = caf::HexGridIntersectionTools::planeHexIntersectionMCTet( plane,
+                                                                                          &cellCorners[0],
+                                                                                          &cornerIndices[0],
+                                                                                          &hexPlaneCutTriangleVxes,
+                                                                                          &cellFaceForEachTriangleEdge );
 
             if ( triangleCount == 0 ) continue;
 
