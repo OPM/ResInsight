@@ -18,17 +18,8 @@ script:
     - git clone https://github.com/benlau/qtci.git
     - source qtci/path.env
     - install-qt 5.13.2
-    
-     ############################################################################
-    # Build main and tests
-    ############################################################################
-     - mkdir -p build
-     - cd build
+    - mkdir -p build
+    - cd build
+    - cmake -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DRESINSIGHT_ENABLE_COTIRE=true .. 
+    - make -j8 ResInsight_unity
      
-     - cmake -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DRESINSIGHT_ENABLE_COTIRE=true .. 
-     
-     # Build the default target
-     #- make -j8
-     
-     # Build the target produced by Cotire
-     - make -j8 ResInsight_unity
