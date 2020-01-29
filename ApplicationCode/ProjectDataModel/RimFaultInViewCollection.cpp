@@ -348,7 +348,7 @@ bool RimFaultInViewCollection::isGridVisualizationMode() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimFaultInViewCollection::uiOrderingFaults( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     bool isGridVizMode = isGridVisualizationMode();
 
@@ -356,6 +356,23 @@ void RimFaultInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
     showFaultFaces.uiCapability()->setUiReadOnly( isGridVizMode );
     showOppositeFaultFaces.uiCapability()->setUiReadOnly( isGridVizMode );
 
+    caf::PdmUiGroup* ffviz = uiOrdering.addNewGroup( "Fault Face Visibility" );
+    ffviz->setCollapsedByDefault( true );
+    ffviz->add( &showFaultFaces );
+    ffviz->add( &showOppositeFaultFaces );
+    ffviz->add( &faultResult );
+
+    caf::PdmUiGroup* nncViz = uiOrdering.addNewGroup( "NNC Visibility" );
+    nncViz->setCollapsedByDefault( true );
+    nncViz->add( &showNNCs );
+    nncViz->add( &hideNncsWhenNoResultIsAvailable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
     caf::PdmUiGroup* labs = uiOrdering.addNewGroup( "Fault Labels" );
     labs->add( &showFaultLabel );
     labs->add( &faultLabelColor );
@@ -363,14 +380,7 @@ void RimFaultInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
     caf::PdmUiGroup* adv = uiOrdering.addNewGroup( "Fault Options" );
     adv->add( &m_showFaultsOutsideFilters );
 
-    caf::PdmUiGroup* ffviz = uiOrdering.addNewGroup( "Fault Face Visibility" );
-    ffviz->add( &showFaultFaces );
-    ffviz->add( &showOppositeFaultFaces );
-    ffviz->add( &faultResult );
-
-    caf::PdmUiGroup* nncViz = uiOrdering.addNewGroup( "NNC Visibility" );
-    nncViz->add( &showNNCs );
-    nncViz->add( &hideNncsWhenNoResultIsAvailable );
+    uiOrderingFaults( uiConfigName, uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------
