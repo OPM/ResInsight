@@ -1,37 +1,24 @@
-dist: bionic
-
 language: cpp
 
-compiler:
-  - gcc
+dist: bionic
 
 addons:
-  apt:
-    sources:
-    packages:
-      - cmake
-      - cmake-data
-      - libqt5opengl5
-      - qt5-qmake
-      - qt5-default
-      - libqt5opengl5-dev 
-      - qtbase5-dev 
-      - qtscript5-dev
-      
-before_script:
-    - git clone https://github.com/OPM/ResInsight.git
+    apt:
+        packages:
+            - libxkbcommon-x11-0
+            - libgl1-mesa-dev
+
+services: 
+    - xvfb
+
+env:
+    - QT_CI_PACKAGES=qt.qt5.5132.gcc_64,qt.qt5.5132.qtwebengine PATH="$TRAVIS_BUILD_DIR/Qt/5.13.2/gcc_64/bin:${PATH}"
 
 script:
-    ############################################################################
-    # Build main and tests
-    ############################################################################
-     - mkdir -p build
-     - cd build
-     
-     - cmake -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DRESINSIGHT_ENABLE_COTIRE=true .. 
-     
-     # Build the default target
-     #- make -j8
-     
-     # Build the target produced by Cotire
-     - make -j8 ResInsight_unity
+    - git clone https://github.com/benlau/qtci.git
+    - source qtci/path.env
+    - install-qt 5.13.2
+    - mkdir project/build && cd project/build
+    - qmake --version
+    - qmake .. && make && ./minimal
+
