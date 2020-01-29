@@ -88,6 +88,7 @@
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
+#include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
 
@@ -854,6 +855,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
     progress.setProgressDescription( "Loading results information" );
 
     m_project->updateConnectedEditors();
+    Riu3DMainWindowTools::setExpanded( riv );
 
     return true;
 }
