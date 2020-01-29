@@ -115,6 +115,14 @@ QString RimWellFlowRateCurve::wellLogChannelUiName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellFlowRateCurve::wellLogChannelUnits() const
+{
+    return RiaWellLogUnitTools::noUnitString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellFlowRateCurve::setGroupId( int groupId )
 {
     m_groupId = groupId;

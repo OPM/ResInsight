@@ -20,6 +20,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaWellLogUnitTools.h"
 #include "RimPlotCurve.h"
 
 #include "cvfObject.h"
@@ -47,24 +48,28 @@ public:
                              RiaDefines::DepthTypeEnum  depthType,
                              double                     rkbDiff,
                              RiaDefines::DepthUnitType  depthUnit,
-                             bool                       isExtractionCurve );
+                             bool                       isExtractionCurve,
+                             const QString&             xUnits = RiaWellLogUnitTools::noUnitString() );
     void setValuesWithMdAndTVD( const std::vector<double>& xValues,
                                 const std::vector<double>& measuredDepths,
                                 const std::vector<double>& tvDepths,
                                 double                     rkbDiff,
                                 RiaDefines::DepthUnitType  depthUnit,
-                                bool                       isExtractionCurve );
+                                bool                       isExtractionCurve,
+                                const QString&             xUnits = RiaWellLogUnitTools::noUnitString() );
     void setValuesAndDepths( const std::vector<double>&                                      xValues,
                              const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
                              double                                                          rkbDiff,
                              RiaDefines::DepthUnitType                                       depthUnit,
-                             bool                                                            isExtractionCurve );
+                             bool                                                            isExtractionCurve,
+                             const QString& xUnits = RiaWellLogUnitTools::noUnitString() );
 
     const RigWellLogCurveData* curveData() const;
 
     virtual QString wellName() const             = 0;
     virtual QString wellLogChannelUiName() const = 0;
     virtual QString wellLogChannelName() const;
+    virtual QString wellLogChannelUnits() const = 0;
     virtual QString wellDate() const
     {
         return "";

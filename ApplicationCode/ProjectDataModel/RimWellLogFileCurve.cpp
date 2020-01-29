@@ -57,7 +57,7 @@ RimWellLogFileCurve::RimWellLogFileCurve()
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path", "", "", "" );
     m_wellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogChannnelName, "CurveWellLogChannel", "Well Log Channel", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "CurveWellLogChannel", "Well Log Channel", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File", "", "", "" );
 
@@ -87,7 +87,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
             RigWellLogFile* wellLogFile = m_wellLogFile->wellLogFileData();
             if ( wellLogFile )
             {
-                std::vector<double> values              = wellLogFile->values( m_wellLogChannnelName );
+                std::vector<double> values              = wellLogFile->values( m_wellLogChannelName );
                 std::vector<double> measuredDepthValues = wellLogFile->depthValues();
                 std::vector<double> tvdMslValues        = wellLogFile->tvdMslValues();
                 std::vector<double> tvdRkbValues        = wellLogFile->tvdRkbValues();
@@ -201,7 +201,7 @@ RimWellPath* RimWellLogFileCurve::wellPath() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::setWellLogChannelName( const QString& name )
 {
-    m_wellLogChannnelName = name;
+    m_wellLogChannelName = name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,7 +225,7 @@ void RimWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         this->loadDataAndUpdate( true );
     }
-    else if ( changedField == &m_wellLogChannnelName )
+    else if ( changedField == &m_wellLogChannelName )
     {
         this->loadDataAndUpdate( true );
     }
@@ -246,7 +246,7 @@ void RimWellLogFileCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
     curveDataGroup->add( &m_wellPath );
     curveDataGroup->add( &m_wellLogFile );
-    curveDataGroup->add( &m_wellLogChannnelName );
+    curveDataGroup->add( &m_wellLogChannelName );
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
     RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
@@ -298,7 +298,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions( const 
         }
     }
 
-    if ( fieldNeedingOptions == &m_wellLogChannnelName )
+    if ( fieldNeedingOptions == &m_wellLogChannelName )
     {
         if ( m_wellPath() )
         {
@@ -372,9 +372,9 @@ QString RimWellLogFileCurve::createCurveAutoName()
         name.push_back( wellName() );
         name.push_back( "LAS" );
 
-        if ( !m_wellLogChannnelName().isEmpty() )
+        if ( !m_wellLogChannelName().isEmpty() )
         {
-            name.push_back( m_wellLogChannnelName );
+            name.push_back( m_wellLogChannelName );
             channelNameAvailable = true;
         }
 
@@ -387,8 +387,7 @@ QString RimWellLogFileCurve::createCurveAutoName()
                 RimWellLogPlot* wellLogPlot;
                 firstAncestorOrThisOfType( wellLogPlot );
                 CVF_ASSERT( wellLogPlot );
-                QString unitName = wellLogFile->wellLogChannelUnitString( m_wellLogChannnelName,
-                                                                          wellLogPlot->depthUnit() );
+                QString unitName = wellLogFile->wellLogChannelUnitString( m_wellLogChannelName, wellLogPlot->depthUnit() );
 
                 if ( !unitName.isEmpty() )
                 {
@@ -414,7 +413,19 @@ QString RimWellLogFileCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogFileCurve::wellLogChannelUiName() const
 {
-    return m_wellLogChannnelName;
+    return m_wellLogChannelName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogFileCurve::wellLogChannelUnits() const
+{
+    if ( m_wellLogFile && m_wellLogFile->wellLogFileData() )
+    {
+        return m_wellLogFile->wellLogFileData()->wellLogChannelUnitString( m_wellLogChannelName );
+    }
+    return RiaWellLogUnitTools::noUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------

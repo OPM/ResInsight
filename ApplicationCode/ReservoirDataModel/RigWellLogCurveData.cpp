@@ -20,8 +20,8 @@
 #include "RigWellLogCurveData.h"
 
 #include "RiaCurveDataTools.h"
-
 #include "RiaEclipseUnitTools.h"
+#include "RiaWellLogUnitTools.h"
 
 #include "cvfAssert.h"
 #include "cvfMath.h"
@@ -35,6 +35,7 @@ RigWellLogCurveData::RigWellLogCurveData()
 {
     m_isExtractionCurve = false;
     m_depthUnit         = RiaDefines::UNIT_METER;
+    m_xUnitString       = RiaWellLogUnitTools::noUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,9 +96,42 @@ void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>&        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigWellLogCurveData::xValues() const
+void RigWellLogCurveData::setXUnits( const QString& xUnitString )
+{
+    m_xUnitString = xUnitString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogCurveData::xValues() const
 {
     return m_xValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogCurveData::xValues( const QString& units ) const
+{
+    std::vector<double> convertedValues;
+    if ( units != m_xUnitString && RiaWellLogUnitTools::convertValues( depths( RiaDefines::TRUE_VERTICAL_DEPTH_RKB ),
+                                                                       m_xValues,
+                                                                       &convertedValues,
+                                                                       m_xUnitString,
+                                                                       units ) )
+    {
+        return convertedValues;
+    }
+    return m_xValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigWellLogCurveData::xUnits() const
+{
+    return m_xUnitString;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -192,7 +226,9 @@ std::vector<double> RigWellLogCurveData::depthPlotValues( RiaDefines::DepthTypeE
         }
         else
         {
-            std::vector<double> convertedValues = convertDepthValues( destinationDepthUnit, depthValues );
+            std::vector<double> convertedValues = RiaWellLogUnitTools().convertDepths( depthValues,
+                                                                                       m_depthUnit,
+                                                                                       destinationDepthUnit );
             RiaCurveDataTools::getValuesByIntervals( convertedValues, m_intervalsOfContinousValidValues, &filteredValues );
         }
     }
@@ -414,53 +450,4 @@ bool RigWellLogCurveData::calculateDepthRange( RiaDefines::DepthTypeEnum depthTy
 RiaDefines::DepthUnitType RigWellLogCurveData::depthUnit() const
 {
     return m_depthUnit;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::convertFromMeterToFeet( const std::vector<double>& valuesInMeter )
-{
-    std::vector<double> valuesInFeet( valuesInMeter.size() );
-
-    for ( size_t i = 0; i < valuesInMeter.size(); i++ )
-    {
-        valuesInFeet[i] = valuesInMeter[i] * RiaEclipseUnitTools::feetPerMeter();
-    }
-
-    return valuesInFeet;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::convertFromFeetToMeter( const std::vector<double>& valuesInFeet )
-{
-    std::vector<double> valuesInMeter( valuesInFeet.size() );
-
-    for ( size_t i = 0; i < valuesInFeet.size(); i++ )
-    {
-        valuesInMeter[i] = valuesInFeet[i] / RiaEclipseUnitTools::feetPerMeter();
-    }
-
-    return valuesInMeter;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::convertDepthValues( RiaDefines::DepthUnitType  destinationDepthUnit,
-                                                             const std::vector<double>& values ) const
-{
-    CVF_ASSERT( destinationDepthUnit != m_depthUnit );
-
-    if ( destinationDepthUnit == RiaDefines::UNIT_METER && m_depthUnit == RiaDefines::UNIT_FEET )
-    {
-        return convertFromFeetToMeter( values );
-    }
-    else if ( destinationDepthUnit == RiaDefines::UNIT_FEET && m_depthUnit == RiaDefines::UNIT_METER )
-    {
-        return convertFromMeterToFeet( values );
-    }
-    return values;
 }

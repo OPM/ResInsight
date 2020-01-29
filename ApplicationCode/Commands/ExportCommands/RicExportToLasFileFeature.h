@@ -42,7 +42,8 @@ public:
                                                   bool                  exportTvdRkb,
                                                   bool                  capitalizeFileNames,
                                                   bool                  alwaysOverwrite,
-                                                  double                resampleInterval );
+                                                  double                resampleInterval,
+                                                  bool                  convertCurveUnits );
 
     static std::vector<QString> exportToLasFiles( const QString&                exportFolder,
                                                   const QString&                filePrefix,
@@ -51,7 +52,8 @@ public:
                                                   const std::vector<double>&    rkbDiffs,
                                                   bool                          capitalizeFileNames,
                                                   bool                          alwaysOverwrite,
-                                                  double                        resampleInterval );
+                                                  double                        resampleInterval,
+                                                  bool                          convertCurveUnits );
 
 protected:
     // Overrides

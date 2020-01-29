@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -43,6 +44,14 @@ class RicExportToLasFileResampleUi : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class CurveUnitConversion
+    {
+        EXPORT_NORMALIZED,
+        EXPORT_WITH_STANDARD_UNITS
+    };
+    using CurveUnitConversionEnum = caf::AppEnum<CurveUnitConversion>;
+
+public:
     RicExportToLasFileResampleUi( void );
     ~RicExportToLasFileResampleUi() override;
 
@@ -53,10 +62,12 @@ public:
     caf::PdmField<bool>   activateResample;
     caf::PdmField<double> resampleInterval;
 
-    caf::PdmField<bool> exportTvdrkb;
+    caf::PdmField<bool>                    exportTvdrkb;
+    caf::PdmField<CurveUnitConversionEnum> curveUnitConversion;
 
     void tvdrkbDiffForWellPaths( std::vector<double>* rkbDiffs );
     void setRkbDiffs( const std::vector<QString>& wellNames, const std::vector<double>& rkbDiffs );
+    void setUnitConversionOptionEnabled( bool enabled );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
@@ -73,4 +84,6 @@ private:
 
 private:
     caf::PdmChildArrayField<RicExportToLasFileObj*> m_tvdrkbOffsets;
+
+    bool m_enableCurveUnitConversion;
 };

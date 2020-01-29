@@ -85,7 +85,8 @@ public:
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
     static std::vector<std::pair<double, double>> findMdAndChannelValuesForWellPath( const RimWellPath* wellPath,
-                                                                                     const QString&     channelName );
+                                                                                     const QString&     channelName,
+                                                                                     QString* unitString = nullptr );
 
 private:
     void setupBeforeSave() override;

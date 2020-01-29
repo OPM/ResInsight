@@ -24,6 +24,7 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogTrack.h"
 #include "RimWellRftPlot.h"
 
 #include "cafSelectionManager.h"
@@ -57,26 +58,25 @@ std::vector<RimWellLogCurve*> RicWellLogPlotCurveFeatureImpl::selectedWellLogCur
             caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( selectedItem );
             if ( objHandle )
             {
-                std::vector<RimWellLogCurve*> childCurves;
-                objHandle->descendantsIncludingThisOfType( childCurves );
-
-                for ( RimWellLogCurve* curve : childCurves )
+                std::vector<RimWellLogTrack*> childTracks;
+                objHandle->descendantsIncludingThisOfType( childTracks );
+                for ( auto track : childTracks )
                 {
-                    if ( !uniqueCurves.count( curve ) )
+                    if ( track->showWindow() )
                     {
-                        uniqueCurves.insert( curve );
-                        allCurves.push_back( curve );
+                        for ( RimWellLogCurve* curve : track->visibleCurves() )
+                        {
+                            if ( !uniqueCurves.count( curve ) )
+                            {
+                                uniqueCurves.insert( curve );
+                                allCurves.push_back( curve );
+                            }
+                        }
                     }
                 }
             }
         }
     }
-
-    // Sort by curve name in a way that retains the original order of equivalent items
-    // This way we have a completely deterministic order
-    std::stable_sort( allCurves.begin(), allCurves.end(), []( const RimWellLogCurve* lhs, const RimWellLogCurve* rhs ) {
-        return lhs->curveName() < rhs->curveName();
-    } );
 
     return allCurves;
 }

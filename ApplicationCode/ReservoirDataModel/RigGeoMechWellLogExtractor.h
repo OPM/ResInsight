@@ -65,12 +65,14 @@ public:
                                     std::vector<double>* values,
                                     const double         smoothingTreshold );
 
-    void curveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
+    QString curveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
     const RigGeoMechCaseData* caseData();
 
     void setWbsLasValues( const RigWbsParameter& parameter, const std::vector<std::pair<double, double>>& values );
     void setWbsParametersSource( RigWbsParameter parameter, WbsParameterSource source );
     void setWbsUserDefinedValue( RigWbsParameter parameter, double userDefinedValue );
+
+    static QString parameterInputUnits( const RigWbsParameter& parameter );
 
     std::vector<double> porePressureSourceRegions( int frameIndex );
     std::vector<double> poissonSourceRegions( int frameIndex );
@@ -117,8 +119,8 @@ private:
                                                             const caf::Ten3d& wellPathTensor );
 
     cvf::Vec3f cellCentroid( size_t intersectionIdx ) const;
-    double     getWellLogSegmentValue( size_t                                        intersectionIdx,
-                                       const std::vector<std::pair<double, double>>& wellLogValues ) const;
+    double     getWellLogIntersectionValue( size_t                                        intersectionIdx,
+                                            const std::vector<std::pair<double, double>>& wellLogValues ) const;
 
     static double pascalToBar( double pascalValue );
 
@@ -147,6 +149,7 @@ private:
 
     std::vector<unsigned char> determineFilteringOrSmoothing( const std::vector<double>& porePressures );
 
+    double hydroStaticPorePressureForIntersection( size_t intersectionIdx ) const;
     double hydroStaticPorePressureForSegment( size_t intersectionIdx ) const;
 
     static bool isValid( double value );
@@ -156,9 +159,9 @@ private:
     cvf::ref<RigGeoMechCaseData> m_caseData;
 
     std::map<RigWbsParameter, std::vector<std::pair<double, double>>> m_lasFileValues;
-
-    std::map<RigWbsParameter, WbsParameterSource> m_parameterSources;
-    std::map<RigWbsParameter, double>             m_userDefinedValues;
+    std::map<RigWbsParameter, QString>                                m_lasFileInputUnits;
+    std::map<RigWbsParameter, WbsParameterSource>                     m_parameterSources;
+    std::map<RigWbsParameter, double>                                 m_userDefinedValues;
 
     static const double UNIT_WEIGHT_OF_WATER;
 };

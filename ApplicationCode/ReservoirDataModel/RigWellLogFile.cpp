@@ -263,6 +263,21 @@ QString RigWellLogFile::wellLogChannelUnitString( const QString&            well
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RigWellLogFile::wellLogChannelUnitString( const QString& wellLogChannelName ) const
+{
+    QString unit;
+
+    NRLib::LasWell* lasWell = dynamic_cast<NRLib::LasWell*>( m_wellLogFile );
+    if ( lasWell )
+    {
+        return QString::fromStdString( lasWell->unitName( wellLogChannelName.toStdString() ) );
+    }
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigWellLogFile::hasTvdMslChannel() const
 {
     return !m_tvdMslLogName.isEmpty();

@@ -50,6 +50,7 @@ public:
     // Overrides from RimWellLogPlotCurve
     QString wellName() const override;
     QString wellLogChannelUiName() const override;
+    QString wellLogChannelUnits() const override;
 
     RimWellLogFile* wellLogFile() const;
 
@@ -73,6 +74,6 @@ protected:
 protected:
     caf::PdmPtrField<RimWellPath*>    m_wellPath;
     caf::PdmPtrField<RimWellLogFile*> m_wellLogFile;
-    caf::PdmField<QString>            m_wellLogChannnelName;
+    caf::PdmField<QString>            m_wellLogChannelName;
     caf::PdmField<QString>            m_wellLogChannnelUnit;
 };

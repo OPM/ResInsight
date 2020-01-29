@@ -69,4 +69,5 @@ private:
     caf::PdmField<bool>             m_exportTvdRkb;
     caf::PdmField<bool>             m_capitalizeFileNames;
     caf::PdmField<double>           m_resampleInterval;
+    caf::PdmField<bool>             m_convertCurveUnits;
 };

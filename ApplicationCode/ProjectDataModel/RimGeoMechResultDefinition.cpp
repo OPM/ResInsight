@@ -650,11 +650,49 @@ QString RimGeoMechResultDefinition::resultVariableName() const
         RigWbsParameter param;
         if ( RigWbsParameter::findParameter( resultFieldName(), &param ) )
         {
-            QString lasName = param.sourceLabel( RigWbsParameter::LAS_FILE );
+            QString lasName = param.addressString( RigWbsParameter::LAS_FILE );
             if ( !lasName.isEmpty() ) return lasName;
         }
     }
     return resultVariableUiName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::currentResultUnits() const
+{
+    if ( this->resultFieldName() == "SE" || this->resultFieldName() == "ST" || this->resultFieldName() == "POR-Bar" ||
+         this->resultFieldName() == "SM" || this->resultFieldName() == "SEM" || this->resultFieldName() == "Q" )
+    {
+        return "Bar";
+    }
+    else if ( this->resultFieldName() == "MODULUS" )
+    {
+        return "GPa";
+    }
+    return RiaWellLogUnitTools::noUnitString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::defaultLasUnits() const
+{
+    QString units;
+    if ( m_resultPositionType == RIG_WELLPATH_DERIVED )
+    {
+        RigWbsParameter param;
+        if ( RigWbsParameter::findParameter( resultFieldName(), &param ) )
+        {
+            units = param.units( RigWbsParameter::LAS_FILE );
+        }
+    }
+    if ( units.isEmpty() )
+    {
+        units = currentResultUnits();
+    }
+    return units;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -742,15 +780,10 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
         legendTitle += ", " + this->resultComponentUiName();
     }
 
-    if ( this->resultFieldName() == "SE" || this->resultFieldName() == "ST" || this->resultFieldName() == "POR-Bar" ||
-         this->resultFieldName() == "SM" || this->resultFieldName() == "SEM" || this->resultFieldName() == "Q" )
+    QString unitString = currentResultUnits();
+    if ( unitString != RiaWellLogUnitTools::noUnitString() )
     {
-        legendTitle += " [Bar]";
-    }
-
-    if ( this->resultFieldName() == "MODULUS" )
-    {
-        legendTitle += " [GPa]";
+        legendTitle += QString( " [%1]" ).arg( unitString );
     }
 
     if ( !this->diffResultUiShortName().isEmpty() )

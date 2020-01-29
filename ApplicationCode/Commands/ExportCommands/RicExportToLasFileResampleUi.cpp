@@ -24,6 +24,20 @@
 
 #include <cmath>
 
+namespace caf
+{
+template <>
+void RicExportToLasFileResampleUi::CurveUnitConversionEnum::setUp()
+{
+    addItem( RicExportToLasFileResampleUi::CurveUnitConversion::EXPORT_NORMALIZED, "NORMALIZED", "Current Plot Units" );
+    addItem( RicExportToLasFileResampleUi::CurveUnitConversion::EXPORT_WITH_STANDARD_UNITS,
+             "STANDARD_UNITS",
+             "Convert to Standard Import Units" );
+    setDefault( RicExportToLasFileResampleUi::CurveUnitConversion::EXPORT_WITH_STANDARD_UNITS );
+}
+
+} // End namespace caf
+
 CAF_PDM_SOURCE_INIT( RicExportToLasFileObj, "RicExportToLasFileObj" );
 
 //--------------------------------------------------------------------------------------------------
@@ -42,6 +56,7 @@ CAF_PDM_SOURCE_INIT( RicExportToLasFileResampleUi, "RicExportToLasFileResampleUi
 ///
 //--------------------------------------------------------------------------------------------------
 RicExportToLasFileResampleUi::RicExportToLasFileResampleUi( void )
+    : m_enableCurveUnitConversion( false )
 {
     CAF_PDM_InitObject( "Resample LAS curves for export", "", "", "" );
 
@@ -49,6 +64,7 @@ RicExportToLasFileResampleUi::RicExportToLasFileResampleUi( void )
     exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &filePrefix, "FilePrefix", QString( "" ), "File Prefix", "", "", "" );
     CAF_PDM_InitField( &capitalizeFileName, "CapitalizeFileName", false, "Capitalize File Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &curveUnitConversion, "CurveUnitConversion", "Curve Units", "", "", "" );
 
     CAF_PDM_InitField( &activateResample, "ActivateResample", false, "Resample Curve Data", "", "", "" );
     activateResample.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -106,6 +122,14 @@ void RicExportToLasFileResampleUi::setRkbDiffs( const std::vector<QString>& well
     }
 
     updateFieldVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicExportToLasFileResampleUi::setUnitConversionOptionEnabled( bool enabled )
+{
+    m_enableCurveUnitConversion = enabled;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,6 +196,12 @@ void RicExportToLasFileResampleUi::defineUiOrdering( QString uiConfigName, caf::
     uiOrdering.add( &exportFolder );
     uiOrdering.add( &filePrefix );
     uiOrdering.add( &capitalizeFileName );
+
+    if ( m_enableCurveUnitConversion )
+    {
+        uiOrdering.add( &curveUnitConversion );
+    }
+
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Resampling" );
 
@@ -188,4 +218,6 @@ void RicExportToLasFileResampleUi::defineUiOrdering( QString uiConfigName, caf::
     {
         group->add( &obj->tvdrkbOffset );
     }
+
+    uiOrdering.skipRemainingFields( true );
 }

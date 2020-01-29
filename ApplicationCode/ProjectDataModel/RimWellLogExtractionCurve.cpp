@@ -20,8 +20,10 @@
 #include "RimWellLogExtractionCurve.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaSimWellBranchTools.h"
 
+#include "RiaWellLogUnitTools.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
@@ -450,6 +452,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     double              rkbDiff = 0.0;
 
     RiaDefines::DepthUnitType depthUnit = RiaDefines::UNIT_METER;
+    QString                   xUnits    = RiaWellLogUnitTools::noUnitString();
 
     if ( eclExtractor.notNull() && eclipseCase )
     {
@@ -498,7 +501,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
         }
 
         m_geomResultDefinition->loadResult();
-        geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values );
+        xUnits = geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values );
         if ( performDataSmoothing )
         {
             geomExtractor->performCurveDataSmoothing( m_timeStep,
@@ -518,7 +521,8 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
                                       RiaDefines::MEASURED_DEPTH,
                                       0.0,
                                       depthUnit,
-                                      !performDataSmoothing );
+                                      !performDataSmoothing,
+                                      xUnits );
         }
         else
         {
@@ -527,7 +531,8 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
                                          tvDepthValues,
                                          rkbDiff,
                                          depthUnit,
-                                         !performDataSmoothing );
+                                         !performDataSmoothing,
+                                         xUnits );
         }
     }
 }
@@ -541,88 +546,27 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimW
     auto allParams = RigWbsParameter::allParameters();
     for ( const RigWbsParameter& parameter : allParams )
     {
-        if ( parameter == RigWbsParameter::PP_Reservoir() || parameter == RigWbsParameter::PP_NonReservoir() )
-        {
-            findAndLoadPorePressuresFromLasFiles( wellPath, parameter, geomExtractor );
-        }
-        else if ( parameter == RigWbsParameter::UCS() )
-        {
-            findAndLoadUcsFromLasFiles( wellPath, geomExtractor );
-        }
-        else
-        {
-            // Generic LAS
-            QString lasAddress = parameter.addressString( RigWbsParameter::LAS_FILE );
+        QString lasAddress = parameter.addressString( RigWbsParameter::LAS_FILE );
 
-            std::vector<std::pair<double, double>> lasFileValues =
-                RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, lasAddress );
-            if ( !lasFileValues.empty() )
+        QString                                lasUnits;
+        std::vector<std::pair<double, double>> lasFileValues =
+            RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, lasAddress, &lasUnits );
+        if ( !lasFileValues.empty() )
+        {
+            QString extractorUnits = geomExtractor->parameterInputUnits( parameter );
+
+            if ( RiaWellLogUnitTools::convertValues( &lasFileValues, lasUnits, extractorUnits, wellPath->wellPathGeometry() ) )
             {
                 geomExtractor->setWbsLasValues( parameter, lasFileValues );
             }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::findAndLoadUcsFromLasFiles( const RimWellPath*          wellPath,
-                                                            RigGeoMechWellLogExtractor* geomExtractor )
-{
-    {
-        QString lasAddress = RigWbsParameter::UCS().addressString( RigWbsParameter::LAS_FILE );
-        std::vector<std::pair<double, double>> logFileUcs = RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath,
-                                                                                                               lasAddress );
-        if ( !logFileUcs.empty() )
-        {
-            // TODO: UCS is typically in MPa, but not necessarily.
-            // We need to at least give a warning if the units don't match
-            // ... and preferable do a conversion.
-            for ( auto& ucsValue : logFileUcs )
+            else
             {
-                ucsValue.second *= 10.0; // MPa -> Bar
+                QString errMsg = QString( "Could not convert units of LAS-channel %1 from %2 to %3" )
+                                     .arg( lasAddress )
+                                     .arg( lasUnits )
+                                     .arg( extractorUnits );
+                RiaLogging::error( errMsg );
             }
-            geomExtractor->setWbsLasValues( RigWbsParameter::UCS(), logFileUcs );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::findAndLoadPorePressuresFromLasFiles( const RimWellPath*          wellPath,
-                                                                      const RigWbsParameter&      parameter,
-                                                                      RigGeoMechWellLogExtractor* geomExtractor )
-{
-    {
-        std::vector<std::pair<double, double>> logFileMudWeights =
-            RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath,
-                                                               parameter.addressString( RigWbsParameter::LAS_FILE ) );
-        if ( !logFileMudWeights.empty() )
-        {
-            std::vector<std::pair<double, double>> porePressuresBar;
-            porePressuresBar.reserve( logFileMudWeights.size() );
-
-            for ( auto& mudWeight : logFileMudWeights )
-            {
-                // Log file mud weights come in SG units (g / cm^3).
-                // We need SI as input (kg / m^3), so multiply by 1000:
-                double mudWeightsSI = mudWeight.second * 1000.0;
-                // To get specific mudWeight (N / m^3):
-                double specificMudWeight = mudWeightsSI * 9.81;
-
-                double     md    = mudWeight.first;
-                cvf::Vec3d point = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( md );
-                double     depth = -point.z() + wellPath->wellPathGeometry()->rkbDiff();
-
-                // Pore pressure in pascal
-                double ppPascal = specificMudWeight * depth;
-
-                // Pore pressure in bar
-                porePressuresBar.emplace_back( mudWeight.first, ppPascal * 1.0e-5 );
-            }
-            geomExtractor->setWbsLasValues( parameter, porePressuresBar );
         }
     }
 }
@@ -958,6 +902,27 @@ QString RimWellLogExtractionCurve::wellLogChannelName() const
     else if ( geoMechCase )
     {
         name = caf::Utils::makeValidFileBasename( m_geomResultDefinition->resultVariableName() );
+    }
+
+    return name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogExtractionCurve::wellLogChannelUnits() const
+{
+    RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
+
+    QString name;
+    if ( eclipseCase )
+    {
+        name = RiaWellLogUnitTools::noUnitString();
+    }
+    else if ( geoMechCase )
+    {
+        name = m_geomResultDefinition->defaultLasUnits();
     }
 
     return name;
