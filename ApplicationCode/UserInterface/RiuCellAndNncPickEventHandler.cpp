@@ -116,6 +116,12 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                 }
             }
         }
+
+        if ( !firstHitPart && firstNncHitPart )
+        {
+            // This happen if we only have NNC geometry in the scene
+            firstHitPart = firstNncHitPart;
+        }
     }
 
     if ( !firstHitPart ) return false;
@@ -207,8 +213,22 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
 
     if ( gridLocalCellIndex == cvf::UNDEFINED_SIZE_T )
     {
-        Riu3dSelectionManager::instance()->deleteAllItems();
-        return false;
+        if ( nncIndex != cvf::UNDEFINED_SIZE_T && dynamic_cast<RimEclipseView*>( mainOrComparisonView ) )
+        {
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
+            if ( eclipseView )
+            {
+                RigMainGrid*         mainGrid = eclipseView->eclipseCase()->eclipseCaseData()->mainGrid();
+                const RigConnection& nncConn  = mainGrid->nncData()->connections()[nncIndex];
+
+                mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( nncConn.m_c1GlobIdx, &gridLocalCellIndex );
+            }
+        }
+        else
+        {
+            Riu3dSelectionManager::instance()->deleteAllItems();
+            return false;
+        }
     }
 
     bool appendToSelection = false;
@@ -287,14 +307,29 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                     if (gridLocalCellIndex == c1LocalIdx && gridIndex == c1GridIdx)
                     {
                         gridLocalCellIndex = c2LocalIdx;
-                        gridIndex = c2GridIdx;
-                        face = cvf::StructGridInterface::oppositeFace(face);
+                        gridIndex = c2GridIdx; 
+                        
+                        if (face == cvf::StructGridInterface::NO_FACE)
+                        {
+                            face = nncConn.m_c1Face;
+                        }
+                        else
+                        {
+                            face = cvf::StructGridInterface::oppositeFace(face);
+                        }
                     }
                     else if (gridLocalCellIndex == c2LocalIdx && gridIndex == c2GridIdx)
                     {
                         gridLocalCellIndex = c1LocalIdx;
                         gridIndex = c1GridIdx;
-                        face = cvf::StructGridInterface::oppositeFace(face);
+                        if (face == cvf::StructGridInterface::NO_FACE)
+                        {
+                            face = cvf::StructGridInterface::oppositeFace(nncConn.m_c1Face);
+                        }
+                        else
+                        {
+                            face = cvf::StructGridInterface::oppositeFace(face);
+                        }
                     }
                     else
                     {
