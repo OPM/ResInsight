@@ -157,6 +157,7 @@ private:
     RigFemScalarResultFrames* calculateGamma( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateFormationIndices( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateStressGradient( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* calculateNodalGradient( int partIndex, const RigFemResultAddress& resVarAddr );
 
     const RigFormationNames* activeFormationNames() const;
 

@@ -39,5 +39,4 @@ private:
     RigHexGradientTools();
 
     static double forwardFD( const std::array<double, 8>& values, int from, int to );
-    static double backwardFD( const std::array<double, 8>& values, int from, int to );
 };

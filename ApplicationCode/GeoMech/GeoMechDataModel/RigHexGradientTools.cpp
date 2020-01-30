@@ -29,13 +29,13 @@ std::array<cvf::Vec3d, 8> RigHexGradientTools::gradients( const std::array<cvf::
     //
     std::array<cvf::Vec3d, 8> gradientsUVW;
     gradientsUVW[0] = cvf::Vec3d( forwardFD( values, 0, 1 ), forwardFD( values, 0, 3 ), forwardFD( values, 0, 4 ) );
-    gradientsUVW[1] = cvf::Vec3d( backwardFD( values, 0, 1 ), forwardFD( values, 1, 2 ), forwardFD( values, 1, 5 ) );
-    gradientsUVW[2] = cvf::Vec3d( backwardFD( values, 3, 2 ), backwardFD( values, 1, 2 ), forwardFD( values, 2, 6 ) );
-    gradientsUVW[3] = cvf::Vec3d( forwardFD( values, 3, 2 ), backwardFD( values, 0, 3 ), forwardFD( values, 3, 7 ) );
-    gradientsUVW[4] = cvf::Vec3d( forwardFD( values, 4, 5 ), forwardFD( values, 4, 7 ), backwardFD( values, 0, 4 ) );
-    gradientsUVW[5] = cvf::Vec3d( backwardFD( values, 4, 5 ), forwardFD( values, 5, 6 ), backwardFD( values, 1, 5 ) );
-    gradientsUVW[6] = cvf::Vec3d( backwardFD( values, 7, 6 ), backwardFD( values, 5, 6 ), backwardFD( values, 2, 6 ) );
-    gradientsUVW[7] = cvf::Vec3d( forwardFD( values, 7, 6 ), backwardFD( values, 4, 7 ), backwardFD( values, 3, 7 ) );
+    gradientsUVW[1] = cvf::Vec3d( forwardFD( values, 0, 1 ), forwardFD( values, 1, 2 ), forwardFD( values, 1, 5 ) );
+    gradientsUVW[2] = cvf::Vec3d( forwardFD( values, 3, 2 ), forwardFD( values, 1, 2 ), forwardFD( values, 2, 6 ) );
+    gradientsUVW[3] = cvf::Vec3d( forwardFD( values, 2, 3 ), forwardFD( values, 0, 3 ), forwardFD( values, 3, 7 ) );
+    gradientsUVW[4] = cvf::Vec3d( forwardFD( values, 4, 5 ), forwardFD( values, 4, 7 ), forwardFD( values, 0, 4 ) );
+    gradientsUVW[5] = cvf::Vec3d( forwardFD( values, 4, 5 ), forwardFD( values, 5, 6 ), forwardFD( values, 1, 5 ) );
+    gradientsUVW[6] = cvf::Vec3d( forwardFD( values, 7, 6 ), forwardFD( values, 5, 6 ), forwardFD( values, 2, 6 ) );
+    gradientsUVW[7] = cvf::Vec3d( forwardFD( values, 7, 6 ), forwardFD( values, 4, 7 ), forwardFD( values, 3, 7 ) );
 
     std::array<cvf::Vec3d, 8> NC;
     NC[0] = {-1, -1, -1};
@@ -53,7 +53,8 @@ std::array<cvf::Vec3d, 8> RigHexGradientTools::gradients( const std::array<cvf::
     {
         bool       isInvertPossible = false;
         cvf::Mat3d jacobian         = caf::HexInterpolator::jacobi( hexCorners, NC[i] );
-        gradientsXYZ[i]             = gradientsUVW[i].getTransformedVector( jacobian.getInverted( &isInvertPossible ) );
+        // jacobian.transpose();
+        gradientsXYZ[i] = gradientsUVW[i].getTransformedVector( jacobian.getInverted( &isInvertPossible ) );
     }
 
     return gradientsXYZ;
@@ -66,12 +67,4 @@ double RigHexGradientTools::forwardFD( const std::array<double, 8>& values, int 
 {
     double h = 2.0;
     return ( values[to] - values[from] ) / h;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RigHexGradientTools::backwardFD( const std::array<double, 8>& values, int from, int to )
-{
-    return forwardFD( values, to, from );
 }
