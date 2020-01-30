@@ -52,6 +52,9 @@ public:
 
     static std::shared_ptr<RifCaseRealizationReader> createReaderFromFileName( const QString& fileName );
 
+    static QString parametersFileName();
+    static QString runSpecificationFileName();
+
 protected:
     QFile* openFile();
     void   closeFile();
