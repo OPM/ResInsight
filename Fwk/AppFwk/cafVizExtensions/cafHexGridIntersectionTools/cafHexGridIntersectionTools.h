@@ -5,6 +5,8 @@
 #include "cvfVector3.h"
 
 #include <vector>
+#include <array>
+#include <cmath>
 
 namespace cvf {
     class Plane;
