@@ -152,6 +152,25 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
     const std::vector<unsigned>&   nativeTriangleIndices = m_usedSurfaceData->triangleIndices();
     cvf::Vec3d                     displayModelOffset    = m_hexGrid->displayOffset();
 
+    // Loop local memory allocation.
+    // Must be thread private in omp paralellization
+
+    std::vector<caf::HexGridIntersectionTools::ClipVx> hexPlaneCutTriangleVxes;
+    hexPlaneCutTriangleVxes.reserve( 2 * 6 * 3 );
+
+    std::vector<int> cellFaceForEachTriangleEdge;
+    cellFaceForEachTriangleEdge.reserve( 2 * 6 * 3 );
+
+    std::vector<cvf::Vec3d> cellCutTriangles;
+    cellCutTriangles.reserve( 2 * 6 * 3 );
+
+    std::vector<cvf::Vec3d> clippedTriangleVxes;
+    clippedTriangleVxes.reserve( 2 * 6 * 3 );
+
+    std::vector<int> cellFaceForEachClippedTriangleEdge;
+    cellFaceForEachClippedTriangleEdge.reserve( 2 * 6 * 3 );
+    // End loop local mamory
+
     for ( size_t ntVxIdx = 0; ntVxIdx < nativeTriangleIndices.size(); ntVxIdx += 3 )
     {
         cvf::Vec3d p0 = nativeVertices[nativeTriangleIndices[ntVxIdx + 0]];
@@ -171,12 +190,6 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
         cvf::Plane plane;
         plane.setFromPoints( p0, p1, p2 );
 
-        std::vector<caf::HexGridIntersectionTools::ClipVx> hexPlaneCutTriangleVxes;
-        hexPlaneCutTriangleVxes.reserve( 5 * 3 );
-
-        std::vector<int> cellFaceForEachTriangleEdge;
-        cellFaceForEachTriangleEdge.reserve( 5 * 3 );
-
         std::array<cvf::Vec3d, 8> cellCorners;
         std::array<size_t, 8>     cornerIndices;
 
@@ -186,11 +199,13 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 
             if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
 
+            hexPlaneCutTriangleVxes.clear();
+            cellFaceForEachTriangleEdge.clear();
+            cellCutTriangles.clear();
+
             m_hexGrid->cellCornerVertices( globalCellIdx, &cellCorners[0] );
             m_hexGrid->cellCornerIndices( globalCellIdx, &cornerIndices[0] );
 
-            hexPlaneCutTriangleVxes.clear();
-            cellFaceForEachTriangleEdge.clear();
             int triangleCount = caf::HexGridIntersectionTools::planeHexIntersectionMCTet( plane,
                                                                                           &cellCorners[0],
                                                                                           &cornerIndices[0],
@@ -199,14 +214,13 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 
             if ( triangleCount == 0 ) continue;
 
-            std::vector<cvf::Vec3d> cellCutTriangles;
             for ( const auto& clipVx : hexPlaneCutTriangleVxes )
             {
                 cellCutTriangles.push_back( clipVx.vx );
             }
 
-            std::vector<cvf::Vec3d> clippedTriangleVxes;
-            std::vector<int>        cellFaceForEachClippedTriangleEdge;
+            clippedTriangleVxes.clear();
+            cellFaceForEachClippedTriangleEdge.clear();
 
             caf::HexGridIntersectionTools::clipPlanarTrianglesWithInPlaneTriangle( cellCutTriangles,
                                                                                    cellFaceForEachTriangleEdge,
@@ -248,7 +262,8 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
                     cvf::Vec3d cvx = clippedTriangleVxes[triVxIdx + i];
 
                     std::array<double, 8> cornerWeights = caf::HexInterpolator::vertexWeights( cellCorners, cvx );
-                    m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights( cornerIndices, cornerWeights ) );
+                    m_triVxToCellCornerWeights.emplace_back(
+                        RivIntersectionVertexWeights( cornerIndices, cornerWeights ) );
                 }
             }
         }
