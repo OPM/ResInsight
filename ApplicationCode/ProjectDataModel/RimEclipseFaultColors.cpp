@@ -22,6 +22,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimFaultInViewCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -121,6 +122,13 @@ void RimEclipseFaultColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 {
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup( "Result" );
     m_customFaultResultColors->uiOrdering( uiConfigName, *group1 );
+
+    RimEclipseView* eclipseView = nullptr;
+    this->firstAncestorOfType( eclipseView );
+    if ( eclipseView )
+    {
+        eclipseView->faultCollection()->uiOrderingFaults( uiConfigName, uiOrdering );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

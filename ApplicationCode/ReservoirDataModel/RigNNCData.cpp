@@ -83,7 +83,21 @@ void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid* mainGrid )
 
     std::vector<RigConnection> otherConnections = RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections );
 
-    m_connections.insert( m_connections.end(), otherConnections.begin(), otherConnections.end() );
+    if ( !otherConnections.empty() )
+    {
+        m_connections.insert( m_connections.end(), otherConnections.begin(), otherConnections.end() );
+
+        // Transmissibility values from Eclipse has been read into propertyNameCombTrans in
+        // RifReaderEclipseOutput::transferStaticNNCData(). Initialize computed NNCs with zero transmissibility
+        auto it = m_connectionResults.find( RiaDefines::propertyNameCombTrans() );
+        if ( it != m_connectionResults.end() )
+        {
+            if ( !it->second.empty() )
+            {
+                it->second[0].resize( m_connections.size(), 0.0 );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

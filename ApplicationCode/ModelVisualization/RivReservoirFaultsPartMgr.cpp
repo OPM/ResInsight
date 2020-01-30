@@ -154,8 +154,8 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
         {
             if ( faultCollection->showNNCs() )
             {
-                bool showNncs             = true;
-                bool showAllenNncGeometry = false;
+                bool showNncs           = true;
+                bool showCompleteNncGeo = false;
 
                 if ( faultCollection->hideNncsWhenNoResultIsAvailable() )
                 {
@@ -171,7 +171,23 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
 
                     if ( eclipseResultAddress.m_resultCatType == RiaDefines::ALLEN_DIAGRAMS )
                     {
-                        showAllenNncGeometry = true;
+                        showCompleteNncGeo = true;
+                    }
+
+                    {
+                        QStringList stringsToMatch{RiaDefines::combinedRiTranResultName(),
+                                                   RiaDefines::combinedRiMultResultName(),
+                                                   RiaDefines::combinedRiAreaNormTranResultName(),
+                                                   RiaDefines::combinedTransmissibilityResultName(),
+                                                   RiaDefines::combinedMultResultName()};
+
+                        for ( const auto& s : stringsToMatch )
+                        {
+                            if ( eclipseResultAddress.m_resultName.contains( s, Qt::CaseInsensitive ) )
+                            {
+                                showCompleteNncGeo = true;
+                            }
+                        }
                     }
 
                     RigMainGrid* mainGrid = m_reservoirView->mainGrid();
@@ -183,7 +199,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
 
                 if ( showNncs )
                 {
-                    if ( showAllenNncGeometry )
+                    if ( showCompleteNncGeo )
                     {
                         rivFaultPart->appendCompleteNNCFacesToModel( &parts );
                     }

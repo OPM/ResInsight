@@ -79,6 +79,8 @@ public:
 
     caf::PdmChildField<RimNoCommonAreaNncCollection*> noCommonAreaNnncCollection;
 
+    void uiOrderingFaults( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
 private:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                            const QVariant&            oldValue,

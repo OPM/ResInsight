@@ -1100,6 +1100,7 @@ QString RimEclipseView::createAutoName() const
 void RimEclipseView::onUpdateDisplayModelVisibility()
 {
     faultCollection()->updateConnectedEditors();
+    m_faultResultSettings->updateConnectedEditors();
 
     // This is required to update the read-only state of simulation wells
     // when a range filter is manipulated and visible simulation wells might change

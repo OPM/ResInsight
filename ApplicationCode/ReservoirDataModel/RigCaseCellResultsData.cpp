@@ -2348,12 +2348,13 @@ double riMult( double transResults, double riTransResults )
 {
     if ( transResults == HUGE_VAL || riTransResults == HUGE_VAL ) return HUGE_VAL;
 
-    // To make 0.0 values give 1.0 in mult value
-    if ( cvf::Math::abs( riTransResults ) < 1e-12 )
+    const double epsilon = 1e-9;
+
+    if ( cvf::Math::abs( riTransResults ) < epsilon )
     {
-        if ( cvf::Math::abs( transResults ) < 1e-12 )
+        if ( cvf::Math::abs( transResults ) < epsilon )
         {
-            return 1.0;
+            return 0.0;
         }
 
         return HUGE_VAL;
