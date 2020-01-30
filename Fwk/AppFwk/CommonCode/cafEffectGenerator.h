@@ -67,6 +67,7 @@ enum PolygonOffset
     PO_NONE,        // No polygon offset
     PO_1,           // 'Normal' positive polygon offset, equal to configurePolygonPositiveOffset(), ie factor=unit=1.0
     PO_2,           // More positive offset
+    PO_POS_LARGE,   // Super high poly offset for special circumstances
     PO_NEG_LARGE    // Currently, a large negative offset
 };
 
