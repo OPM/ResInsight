@@ -29,6 +29,7 @@
 #include <QString>
 
 #include <map>
+#include <string>
 #include <vector>
 
 class RifGeoMechReaderInterface;
@@ -174,6 +175,9 @@ private:
     RigStatisticsDataCache*          statistics( const RigFemResultAddress& resVarAddr );
     std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache>> m_resultStatistics;
+
+    static std::vector<std::string> getStressComponentNames();
+    static std::vector<std::string> getStressGradientComponentNames();
 };
 
 class RigFemPart;

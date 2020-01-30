@@ -346,15 +346,18 @@ std::map<std::string, std::vector<std::string>>
         if ( activeFormationNames() ) fieldCompNames["Active Formation Names"];
     }
 
+    const std::vector<std::string> stressComponentNames         = getStressComponentNames();
+    const std::vector<std::string> stressGradientComponentNames = getStressGradientComponentNames();
+
     if ( m_readerInterface.notNull() )
     {
         if ( resPos == RIG_NODAL )
         {
             fieldCompNames = m_readerInterface->scalarNodeFieldAndComponentNames();
             fieldCompNames["POR-Bar"];
-            fieldCompNames["PORG"].push_back( "X" );
-            fieldCompNames["PORG"].push_back( "Y" );
-            fieldCompNames["PORG"].push_back( "Z" );
+            fieldCompNames["POR_GRADIENTS"].push_back( "X" );
+            fieldCompNames["POR_GRADIENTS"].push_back( "Y" );
+            fieldCompNames["POR_GRADIENTS"].push_back( "Z" );
             fieldCompNames[FIELD_NAME_COMPACTION];
         }
         else if ( resPos == RIG_ELEMENT_NODAL )
@@ -366,15 +369,10 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["SE"].push_back( "DSM" );
             fieldCompNames["SE"].push_back( "FOS" );
 
-            fieldCompNames["SE"].push_back( "S11" );
-            fieldCompNames["SE"].push_back( "S22" );
-            fieldCompNames["SE"].push_back( "S33" );
-            fieldCompNames["SE"].push_back( "S12" );
-            fieldCompNames["SE"].push_back( "S13" );
-            fieldCompNames["SE"].push_back( "S23" );
-            fieldCompNames["SE"].push_back( "S1" );
-            fieldCompNames["SE"].push_back( "S2" );
-            fieldCompNames["SE"].push_back( "S3" );
+            for ( auto& s : stressComponentNames )
+            {
+                fieldCompNames["SE"].push_back( s );
+            }
 
             fieldCompNames["SE"].push_back( "S1inc" );
             fieldCompNames["SE"].push_back( "S1azi" );
@@ -383,18 +381,18 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["SE"].push_back( "S3inc" );
             fieldCompNames["SE"].push_back( "S3azi" );
 
+            for ( auto& s : stressGradientComponentNames )
+            {
+                fieldCompNames["SE_GRADIENTS"].push_back( s );
+            }
+
             fieldCompNames["ST"].push_back( "STM" );
             fieldCompNames["ST"].push_back( "Q" );
 
-            fieldCompNames["ST"].push_back( "S11" );
-            fieldCompNames["ST"].push_back( "S22" );
-            fieldCompNames["ST"].push_back( "S33" );
-            fieldCompNames["ST"].push_back( "S12" );
-            fieldCompNames["ST"].push_back( "S13" );
-            fieldCompNames["ST"].push_back( "S23" );
-            fieldCompNames["ST"].push_back( "S1" );
-            fieldCompNames["ST"].push_back( "S2" );
-            fieldCompNames["ST"].push_back( "S3" );
+            for ( auto& s : stressComponentNames )
+            {
+                fieldCompNames["ST"].push_back( s );
+            }
 
             fieldCompNames["ST"].push_back( "S1inc" );
             fieldCompNames["ST"].push_back( "S1azi" );
@@ -403,15 +401,10 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["ST"].push_back( "S3inc" );
             fieldCompNames["ST"].push_back( "S3azi" );
 
-            fieldCompNames["SG"].push_back( "S11-x" );
-            fieldCompNames["SG"].push_back( "S11-y" );
-            fieldCompNames["SG"].push_back( "S11-z" );
-            fieldCompNames["SG"].push_back( "S22-x" );
-            fieldCompNames["SG"].push_back( "S22-y" );
-            fieldCompNames["SG"].push_back( "S22-z" );
-            fieldCompNames["SG"].push_back( "S33-x" );
-            fieldCompNames["SG"].push_back( "S33-y" );
-            fieldCompNames["SG"].push_back( "S33-z" );
+            for ( auto& s : stressGradientComponentNames )
+            {
+                fieldCompNames["ST_GRADIENTS"].push_back( s );
+            }
 
             fieldCompNames["Gamma"].push_back( "Gamma1" );
             fieldCompNames["Gamma"].push_back( "Gamma2" );
@@ -998,26 +991,31 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSTM( i
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradient( int                        partIndex,
                                                                                 const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == "SG" );
+    CVF_ASSERT( resVarAddr.fieldName == "ST_GRADIENTS" || resVarAddr.fieldName == "SE_GRADIENTS" );
 
     caf::ProgressInfo frameCountProgress( this->frameCount() * 2, "" );
     frameCountProgress.setProgressDescription(
         "Calculating gradient: " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
 
-    QString origComponentName = QString::fromStdString( resVarAddr.componentName );
-    QString componentName     = origComponentName.left( origComponentName.lastIndexOf( QChar( '-' ) ) );
+    QString origFieldName = QString::fromStdString( resVarAddr.fieldName );
+    // Strip away "_GRADIENTS" to underlying field data
+    QString underlyingFieldName = origFieldName.left( origFieldName.lastIndexOf( QChar( '_' ) ) );
+    QString origComponentName   = QString::fromStdString( resVarAddr.componentName );
+    QString componentName       = origComponentName.left( origComponentName.lastIndexOf( QChar( '-' ) ) );
 
     RigFemScalarResultFrames* inputResultFrames =
         this->findOrLoadScalarResult( partIndex,
-                                      RigFemResultAddress( resVarAddr.resultPosType, "ST", componentName.toStdString() ) );
+                                      RigFemResultAddress( resVarAddr.resultPosType,
+                                                           underlyingFieldName.toStdString(),
+                                                           componentName.toStdString() ) );
 
     RigFemScalarResultFrames* dataFramesX = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-x" ) );
+        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-X" ) );
     RigFemScalarResultFrames* dataFramesY = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-y" ) );
+        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-Y" ) );
     RigFemScalarResultFrames* dataFramesZ = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-z" ) );
+        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-Z" ) );
     frameCountProgress.incrementProgress();
 
     const RigFemPart*              femPart      = m_femParts->part( partIndex );
@@ -1087,7 +1085,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradient( 
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradient( int                        partIndex,
                                                                                const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == "PORG" );
+    CVF_ASSERT( resVarAddr.fieldName == "POR_GRADIENTS" );
     CVF_ASSERT( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" );
 
     caf::ProgressInfo frameCountProgress( this->frameCount() * 5, "" );
@@ -2359,14 +2357,17 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
         return calculateMeanStressSTM( partIndex, resVarAddr );
     }
 
-    // TODO: handle more cases..
-    if ( resVarAddr.fieldName == "SG" && ( resVarAddr.componentName == "S11-x" || resVarAddr.componentName == "S11-y" ||
-                                           resVarAddr.componentName == "S11-z" || resVarAddr.componentName == "S22-x" ||
-                                           resVarAddr.componentName == "S22-y" || resVarAddr.componentName == "S22-z" ||
-                                           resVarAddr.componentName == "S33-x" || resVarAddr.componentName == "S33-y" ||
-                                           resVarAddr.componentName == "S33-z" ) )
+    if ( resVarAddr.fieldName == "ST_GRADIENTS" || resVarAddr.fieldName == "SE_GRADIENTS" )
     {
-        return calculateStressGradient( partIndex, resVarAddr );
+        const std::vector<std::string> allowedComponentNames = getStressGradientComponentNames();
+
+        for ( auto& allowedComponentName : allowedComponentNames )
+        {
+            if ( resVarAddr.componentName == allowedComponentName )
+            {
+                return calculateStressGradient( partIndex, resVarAddr );
+            }
+        }
     }
 
     if ( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SEM" )
@@ -2387,7 +2388,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
             return calculateEnIpPorBarResult( partIndex, resVarAddr );
     }
 
-    if ( resVarAddr.fieldName == "PORG" &&
+    if ( resVarAddr.fieldName == "POR_GRADIENTS" &&
          ( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" ) )
     {
         return calculateNodalGradient( partIndex, resVarAddr );
@@ -3274,4 +3275,32 @@ void findReferenceElementForNode( const RigFemPart& part, size_t nodeIdx, size_t
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RigFemPartResultsCollection::getStressComponentNames()
+{
+    return {"S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3"};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RigFemPartResultsCollection::getStressGradientComponentNames()
+{
+    std::vector<std::string> directions           = {"X", "Y", "Z"};
+    std::vector<std::string> stressComponentNames = getStressComponentNames();
+
+    std::vector<std::string> stressGradientComponentNames;
+    for ( auto& s : stressComponentNames )
+    {
+        for ( auto& d : directions )
+        {
+            stressGradientComponentNames.push_back( s + "-" + d );
+        }
+    }
+
+    return stressGradientComponentNames;
 }
