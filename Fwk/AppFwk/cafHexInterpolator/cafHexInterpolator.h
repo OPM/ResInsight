@@ -285,6 +285,7 @@ private:
         {
             cvf::Vec3d Pm = interpolateInNormElm(normPoint, hexCorners);
             cvf::Vec3d Pdiff = Pm - P;
+            if (Pdiff.lengthSquared() < 1e-3) break;
 
             cvf::Mat3d J_inv = jacobi(hexCorners, normPoint) ;
             bool inversionOk = J_inv.invert();
@@ -321,44 +322,44 @@ private:
         double C6_x = hexCorners[6][0]; double C6_y = hexCorners[6][1]; double C6_z = hexCorners[6][2];
         double C7_x = hexCorners[7][0]; double C7_y = hexCorners[7][1]; double C7_z = hexCorners[7][2];
 
-        double dN0_di = k_1_8 * (- 1 + j + k - jk);
-        double dN1_di = k_1_8 * (+ 1 - j - k + jk);
-        double dN2_di = k_1_8 * (+ 1 + j - k - jk);
-        double dN3_di = k_1_8 * (- 1 - j + k + jk);
-        double dN4_di = k_1_8 * (- 1 + j - k + jk);
-        double dN5_di = k_1_8 * (+ 1 - j + k - jk);
-        double dN6_di = k_1_8 * (+ 1 + j + k + jk);
-        double dN7_di = k_1_8 * (- 1 - j - k - jk);
+        double dN0_di = (- 1 + j + k - jk);
+        double dN1_di = (+ 1 - j - k + jk);
+        double dN2_di = (+ 1 + j - k - jk);
+        double dN3_di = (- 1 - j + k + jk);
+        double dN4_di = (- 1 + j - k + jk);
+        double dN5_di = (+ 1 - j + k - jk);
+        double dN6_di = (+ 1 + j + k + jk);
+        double dN7_di = (- 1 - j - k - jk);
 
-        double dN0_dj = k_1_8 * (- 1 + i + k - ik);
-        double dN1_dj = k_1_8 * (- 1 - i + k + ik);
-        double dN2_dj = k_1_8 * (+ 1 + i - k - ik);
-        double dN3_dj = k_1_8 * (+ 1 - i - k + ik);
-        double dN4_dj = k_1_8 * (- 1 + i - k + ik);
-        double dN5_dj = k_1_8 * (- 1 - i - k - ik);
-        double dN6_dj = k_1_8 * (+ 1 + i + k + ik);
-        double dN7_dj = k_1_8 * (+ 1 - i + k - ik);
+        double dN0_dj = (- 1 + i + k - ik);
+        double dN1_dj = (- 1 - i + k + ik);
+        double dN2_dj = (+ 1 + i - k - ik);
+        double dN3_dj = (+ 1 - i - k + ik);
+        double dN4_dj = (- 1 + i - k + ik);
+        double dN5_dj = (- 1 - i - k - ik);
+        double dN6_dj = (+ 1 + i + k + ik);
+        double dN7_dj = (+ 1 - i + k - ik);
 
-        double dN0_dk = k_1_8 * (- 1 + i + j - ij);
-        double dN1_dk = k_1_8 * (- 1 - i + j + ij);
-        double dN2_dk = k_1_8 * (- 1 - i - j - ij);
-        double dN3_dk = k_1_8 * (- 1 + i - j + ij);
-        double dN4_dk = k_1_8 * (+ 1 - i - j + ij);
-        double dN5_dk = k_1_8 * (+ 1 + i - j - ij);
-        double dN6_dk = k_1_8 * (+ 1 + i + j + ij);
-        double dN7_dk = k_1_8 * (+ 1 - i + j - ij);
+        double dN0_dk = (- 1 + i + j - ij);
+        double dN1_dk = (- 1 - i + j + ij);
+        double dN2_dk = (- 1 - i - j - ij);
+        double dN3_dk = (- 1 + i - j + ij);
+        double dN4_dk = (+ 1 - i - j + ij);
+        double dN5_dk = (+ 1 + i - j - ij);
+        double dN6_dk = (+ 1 + i + j + ij);
+        double dN7_dk = (+ 1 - i + j - ij);
 
-        double dx_di = (dN0_di) * C0_x + (dN1_di) * C1_x + (dN2_di) * C2_x + (dN3_di) * C3_x + (dN4_di) * C4_x + (dN5_di) * C5_x + (dN6_di) * C6_x  + (dN7_di) * C7_x;
-        double dx_dj = (dN0_dj) * C0_x + (dN1_dj) * C1_x + (dN2_dj) * C2_x + (dN3_dj) * C3_x + (dN4_dj) * C4_x + (dN5_dj) * C5_x + (dN6_dj) * C6_x  + (dN7_dj) * C7_x;
-        double dx_dk = (dN0_dk) * C0_x + (dN1_dk) * C1_x + (dN2_dk) * C2_x + (dN3_dk) * C3_x + (dN4_dk) * C4_x + (dN5_dk) * C5_x + (dN6_dk) * C6_x  + (dN7_dk) * C7_x;
+        double dx_di = k_1_8 * ( (dN0_di) * C0_x + (dN1_di) * C1_x + (dN2_di) * C2_x + (dN3_di) * C3_x + (dN4_di) * C4_x + (dN5_di) * C5_x + (dN6_di) * C6_x  + (dN7_di) * C7_x );
+        double dx_dj = k_1_8 * ( (dN0_dj) * C0_x + (dN1_dj) * C1_x + (dN2_dj) * C2_x + (dN3_dj) * C3_x + (dN4_dj) * C4_x + (dN5_dj) * C5_x + (dN6_dj) * C6_x  + (dN7_dj) * C7_x );
+        double dx_dk = k_1_8 * ( (dN0_dk) * C0_x + (dN1_dk) * C1_x + (dN2_dk) * C2_x + (dN3_dk) * C3_x + (dN4_dk) * C4_x + (dN5_dk) * C5_x + (dN6_dk) * C6_x  + (dN7_dk) * C7_x );
 
-        double dy_di = (dN0_di) * C0_y + (dN1_di) * C1_y + (dN2_di) * C2_y + (dN3_di) * C3_y + (dN4_di) * C4_y + (dN5_di) * C5_y + (dN6_di) * C6_y  + (dN7_di) * C7_y;
-        double dy_dj = (dN0_dj) * C0_y + (dN1_dj) * C1_y + (dN2_dj) * C2_y + (dN3_dj) * C3_y + (dN4_dj) * C4_y + (dN5_dj) * C5_y + (dN6_dj) * C6_y  + (dN7_dj) * C7_y;
-        double dy_dk = (dN0_dk) * C0_y + (dN1_dk) * C1_y + (dN2_dk) * C2_y + (dN3_dk) * C3_y + (dN4_dk) * C4_y + (dN5_dk) * C5_y + (dN6_dk) * C6_y  + (dN7_dk) * C7_y;
+        double dy_di = k_1_8 * ( (dN0_di) * C0_y + (dN1_di) * C1_y + (dN2_di) * C2_y + (dN3_di) * C3_y + (dN4_di) * C4_y + (dN5_di) * C5_y + (dN6_di) * C6_y  + (dN7_di) * C7_y );
+        double dy_dj = k_1_8 * ( (dN0_dj) * C0_y + (dN1_dj) * C1_y + (dN2_dj) * C2_y + (dN3_dj) * C3_y + (dN4_dj) * C4_y + (dN5_dj) * C5_y + (dN6_dj) * C6_y  + (dN7_dj) * C7_y );
+        double dy_dk = k_1_8 * ( (dN0_dk) * C0_y + (dN1_dk) * C1_y + (dN2_dk) * C2_y + (dN3_dk) * C3_y + (dN4_dk) * C4_y + (dN5_dk) * C5_y + (dN6_dk) * C6_y  + (dN7_dk) * C7_y );
         
-        double dz_di = (dN0_di) * C0_z + (dN1_di) * C1_z + (dN2_di) * C2_z + (dN3_di) * C3_z + (dN4_di) * C4_z + (dN5_di) * C5_z + (dN6_di) * C6_z  + (dN7_di) * C7_z;
-        double dz_dj = (dN0_dj) * C0_z + (dN1_dj) * C1_z + (dN2_dj) * C2_z + (dN3_dj) * C3_z + (dN4_dj) * C4_z + (dN5_dj) * C5_z + (dN6_dj) * C6_z  + (dN7_dj) * C7_z;
-        double dz_dk = (dN0_dk) * C0_z + (dN1_dk) * C1_z + (dN2_dk) * C2_z + (dN3_dk) * C3_z + (dN4_dk) * C4_z + (dN5_dk) * C5_z + (dN6_dk) * C6_z  + (dN7_dk) * C7_z;
+        double dz_di = k_1_8 * ( (dN0_di) * C0_z + (dN1_di) * C1_z + (dN2_di) * C2_z + (dN3_di) * C3_z + (dN4_di) * C4_z + (dN5_di) * C5_z + (dN6_di) * C6_z  + (dN7_di) * C7_z );
+        double dz_dj = k_1_8 * ( (dN0_dj) * C0_z + (dN1_dj) * C1_z + (dN2_dj) * C2_z + (dN3_dj) * C3_z + (dN4_dj) * C4_z + (dN5_dj) * C5_z + (dN6_dj) * C6_z  + (dN7_dj) * C7_z );
+        double dz_dk = k_1_8 * ( (dN0_dk) * C0_z + (dN1_dk) * C1_z + (dN2_dk) * C2_z + (dN3_dk) * C3_z + (dN4_dk) * C4_z + (dN5_dk) * C5_z + (dN6_dk) * C6_z  + (dN7_dk) * C7_z );
     
         // Do not know which ordering ends up as correct
 
