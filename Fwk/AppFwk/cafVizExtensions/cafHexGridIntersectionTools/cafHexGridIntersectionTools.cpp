@@ -544,7 +544,7 @@ void HexGridIntersectionTools::clipPlanarTrianglesWithInPlaneTriangle(const std:
     clipTrianglePlanes[1] = createPlaneFromEdgeAndPointInNormalDirection ( tp2, tp3, tp1 );
     clipTrianglePlanes[2] = createPlaneFromEdgeAndPointInNormalDirection ( tp3, tp1, tp2 );
 
-    #define reserveSize  60
+    #define reserveSize  100
 
     std::vector<cvf::Vec3d>  currentInputTriangleVxes;
     currentInputTriangleVxes.reserve(reserveSize);
