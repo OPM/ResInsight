@@ -243,7 +243,8 @@ void RivSurfacePartMgr::applySingleColor()
         caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( m_surfaceInView->surface()->color() ), caf::PO_1 );
         cvf::ref<cvf::Effect>       eff = surfaceGen.generateCachedEffect();
 
-        caf::SurfaceEffectGenerator surfaceGenBehind( cvf::Color4f( m_surfaceInView->surface()->color() ), caf::PO_2 );
+        caf::SurfaceEffectGenerator surfaceGenBehind( cvf::Color4f( m_surfaceInView->surface()->color() ),
+                                                      caf::PO_POS_LARGE );
         cvf::ref<cvf::Effect>       effBehind = surfaceGenBehind.generateCachedEffect();
 
         if ( m_nativeTrianglesPart.notNull() )
@@ -301,7 +302,7 @@ void RivSurfacePartMgr::generatePartGeometry()
             }
 
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName( "Reservoir Surface" );
+            part->setName( "Intersected Reservoir Surface" );
             part->setDrawable( geo.p() );
 
             // Set mapping from triangle face index to cell index

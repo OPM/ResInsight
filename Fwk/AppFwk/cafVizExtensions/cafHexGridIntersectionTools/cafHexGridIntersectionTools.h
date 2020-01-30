@@ -5,6 +5,8 @@
 #include "cvfVector3.h"
 
 #include <vector>
+#include <array>
+#include <cmath>
 
 namespace cvf {
     class Plane;
@@ -25,10 +27,18 @@ public:
 
     //--------------------------------------------------------------------------------------------------
     /// 
-    //--------------------------------------------------------------------------------------------------
-    struct ClipVx
-    {
-        ClipVx();
+	//--------------------------------------------------------------------------------------------------
+	struct ClipVx
+	{
+		ClipVx()
+		: vx( cvf::Vec3d::ZERO ),
+			normDistFromEdgeVx1( HUGE_VAL ),
+			clippedEdgeVx1Id( -1 ),
+			clippedEdgeVx2Id( -1 ),
+			isVxIdsNative( true ),
+			derivedVxLevel( -1 )
+		{
+		}
 
         cvf::Vec3d  vx;
 
@@ -84,6 +94,18 @@ public:
                                       std::vector<ClipVx>* triangleVxes,
                                       std::vector<int>* cellFaceForEachTriangleEdge);
 
+    static int planeHexIntersectionMCTet( const cvf::Plane& plane,
+                                          const cvf::Vec3d cell[8],
+                                          const size_t hexCornersIds[8],
+                                          std::vector<ClipVx>* triangleVxes,
+                                          std::vector<int>* cellFaceForEachTriangleEdge );
+    static cvf::uint planeMcTetIntersection( const cvf::Plane& plane,
+                                             const cvf::Vec3d hexCell[8],
+                                             const size_t hexCornersIds[8],
+                                             const double cornerDistToPlane[8],
+                                             const std::array<int, 4> & tetCell,
+                                             std::vector<ClipVx>* triangleVxes,
+                                             std::vector<int>* cellFaceForEachTriangleEdge );
 };
 
 }; // namespace caf
