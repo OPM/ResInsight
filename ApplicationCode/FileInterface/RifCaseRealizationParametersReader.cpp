@@ -245,6 +245,8 @@ void RifCaseRealizationRunspecificationReader::parse()
     auto             file = openFile();
     QXmlStreamReader xml( file );
 
+    QStringList errors;
+
     QString paramName;
 
     while ( !xml.atEnd() )
@@ -269,30 +271,24 @@ void RifCaseRealizationRunspecificationReader::parse()
 
                 if ( paramName.isEmpty() ) continue;
 
-                if ( RiaStdStringTools::startsWithAlphabetic( paramStrValue.toStdString() ) )
+                if ( RiaStdStringTools::isNumber( paramStrValue.toStdString(), QLocale::c().decimalPoint().toLatin1() ) )
                 {
-                    m_parameters->addParameter( paramName, paramStrValue );
+                    bool   parseOk = true;
+                    double value   = QLocale::c().toDouble( paramStrValue, &parseOk );
+                    if ( parseOk )
+                    {
+                        m_parameters->addParameter( paramName, value );
+                    }
+                    else
+                    {
+                        errors << QString(
+                                      "RifCaseRealizationRunspecificationReader: Invalid number format in line %1" )
+                                      .arg( xml.lineNumber() );
+                    }
                 }
                 else
                 {
-                    if ( !RiaStdStringTools::isNumber( paramStrValue.toStdString(),
-                                                       QLocale::c().decimalPoint().toLatin1() ) )
-                    {
-                        throw FileParseException(
-                            QString( "RifEnsembleParametersReader: Invalid number format in line %1" )
-                                .arg( xml.lineNumber() ) );
-                    }
-
-                    bool   parseOk = true;
-                    double value   = QLocale::c().toDouble( paramStrValue, &parseOk );
-                    if ( !parseOk )
-                    {
-                        throw FileParseException(
-                            QString( "RifEnsembleParametersReader: Invalid number format in line %1" )
-                                .arg( xml.lineNumber() ) );
-                    }
-
-                    m_parameters->addParameter( paramName, value );
+                    m_parameters->addParameter( paramName, paramStrValue );
                 }
             }
         }
@@ -306,6 +302,11 @@ void RifCaseRealizationRunspecificationReader::parse()
     }
 
     closeFile();
+
+    for ( const auto& s : errors )
+    {
+        RiaLogging::warning( s );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
