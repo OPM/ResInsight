@@ -29,12 +29,6 @@
 #include <functional>
 
 //--------------------------------------------------------------------------------------------------
-/// Constants
-//--------------------------------------------------------------------------------------------------
-#define PARAMETERS_FILE_NAME "parameters.txt"
-#define RUNSPEC_FILE_NAME "runspecification.xml"
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RifCaseRealizationReader::RifCaseRealizationReader( const QString& fileName )
@@ -67,11 +61,11 @@ std::shared_ptr<RifCaseRealizationReader> RifCaseRealizationReader::createReader
 {
     std::shared_ptr<RifCaseRealizationReader> reader;
 
-    if ( fileName.endsWith( PARAMETERS_FILE_NAME ) )
+    if ( fileName.endsWith( parametersFileName() ) )
     {
         reader.reset( new RifCaseRealizationParametersReader( fileName ) );
     }
-    else if ( fileName.endsWith( RUNSPEC_FILE_NAME ) )
+    else if ( fileName.endsWith( runSpecificationFileName() ) )
     {
         reader.reset( new RifCaseRealizationRunspecificationReader( fileName ) );
     }
@@ -111,6 +105,22 @@ void RifCaseRealizationReader::closeFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RifCaseRealizationReader::parametersFileName()
+{
+    return "parameters.txt";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifCaseRealizationReader::runSpecificationFileName()
+{
+    return "runspecification.xml";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifCaseRealizationParametersReader::RifCaseRealizationParametersReader( const QString& fileName )
     : RifCaseRealizationReader( fileName )
 {
@@ -136,6 +146,8 @@ void RifCaseRealizationParametersReader::parse()
     int          lineNo     = 0;
     QTextStream* dataStream = openDataStream();
 
+    QStringList errors;
+
     try
     {
         while ( !dataStream->atEnd() )
@@ -147,34 +159,30 @@ void RifCaseRealizationParametersReader::parse()
 
             if ( cols.size() != 2 )
             {
-                throw FileParseException(
-                    QString( "RifEnsembleParametersReader: Invalid file format in line %1" ).arg( lineNo ) );
+                errors << QString( "RifEnsembleParametersReader: Invalid file format in line %1" ).arg( lineNo );
+
+                continue;
             }
 
             QString& name     = cols[0];
             QString& strValue = cols[1];
 
-            if ( RiaStdStringTools::startsWithAlphabetic( strValue.toStdString() ) )
+            if ( RiaStdStringTools::isNumber( strValue.toStdString(), QLocale::c().decimalPoint().toLatin1() ) )
             {
-                m_parameters->addParameter( name, strValue );
+                bool   parseOk = true;
+                double value   = QLocale::c().toDouble( strValue, &parseOk );
+                if ( parseOk )
+                {
+                    m_parameters->addParameter( name, value );
+                }
+                else
+                {
+                    errors << QString( "RifEnsembleParametersReader: Invalid number format in line %1" ).arg( lineNo );
+                }
             }
             else
             {
-                if ( !RiaStdStringTools::isNumber( strValue.toStdString(), QLocale::c().decimalPoint().toLatin1() ) )
-                {
-                    throw FileParseException(
-                        QString( "RifEnsembleParametersReader: Invalid number format in line %1" ).arg( lineNo ) );
-                }
-
-                bool   parseOk = true;
-                double value   = QLocale::c().toDouble( strValue, &parseOk );
-                if ( !parseOk )
-                {
-                    throw FileParseException(
-                        QString( "RifEnsembleParametersReader: Invalid number format in line %1" ).arg( lineNo ) );
-                }
-
-                m_parameters->addParameter( name, value );
+                m_parameters->addParameter( name, strValue );
             }
         }
 
@@ -184,6 +192,11 @@ void RifCaseRealizationParametersReader::parse()
     {
         closeDataStream();
         throw;
+    }
+
+    for ( const auto& s : errors )
+    {
+        RiaLogging::warning( s );
     }
 }
 
@@ -232,6 +245,8 @@ void RifCaseRealizationRunspecificationReader::parse()
     auto             file = openFile();
     QXmlStreamReader xml( file );
 
+    QStringList errors;
+
     QString paramName;
 
     while ( !xml.atEnd() )
@@ -256,30 +271,24 @@ void RifCaseRealizationRunspecificationReader::parse()
 
                 if ( paramName.isEmpty() ) continue;
 
-                if ( RiaStdStringTools::startsWithAlphabetic( paramStrValue.toStdString() ) )
+                if ( RiaStdStringTools::isNumber( paramStrValue.toStdString(), QLocale::c().decimalPoint().toLatin1() ) )
                 {
-                    m_parameters->addParameter( paramName, paramStrValue );
+                    bool   parseOk = true;
+                    double value   = QLocale::c().toDouble( paramStrValue, &parseOk );
+                    if ( parseOk )
+                    {
+                        m_parameters->addParameter( paramName, value );
+                    }
+                    else
+                    {
+                        errors << QString(
+                                      "RifCaseRealizationRunspecificationReader: Invalid number format in line %1" )
+                                      .arg( xml.lineNumber() );
+                    }
                 }
                 else
                 {
-                    if ( !RiaStdStringTools::isNumber( paramStrValue.toStdString(),
-                                                       QLocale::c().decimalPoint().toLatin1() ) )
-                    {
-                        throw FileParseException(
-                            QString( "RifEnsembleParametersReader: Invalid number format in line %1" )
-                                .arg( xml.lineNumber() ) );
-                    }
-
-                    bool   parseOk = true;
-                    double value   = QLocale::c().toDouble( paramStrValue, &parseOk );
-                    if ( !parseOk )
-                    {
-                        throw FileParseException(
-                            QString( "RifEnsembleParametersReader: Invalid number format in line %1" )
-                                .arg( xml.lineNumber() ) );
-                    }
-
-                    m_parameters->addParameter( paramName, value );
+                    m_parameters->addParameter( paramName, paramStrValue );
                 }
             }
         }
@@ -293,6 +302,11 @@ void RifCaseRealizationRunspecificationReader::parse()
     }
 
     closeFile();
+
+    for ( const auto& s : errors )
+    {
+        RiaLogging::warning( s );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,8 +330,8 @@ QString RifCaseRealizationParametersFileLocator::locate( const QString& modelPat
         QStringList files = qdir.entryList( QDir::Files | QDir::NoDotAndDotDot );
         for ( const QString& file : files )
         {
-            if ( QString::compare( file, PARAMETERS_FILE_NAME, Qt::CaseInsensitive ) == 0 ||
-                 QString::compare( file, RUNSPEC_FILE_NAME, Qt::CaseInsensitive ) == 0 )
+            if ( QString::compare( file, RifCaseRealizationReader::parametersFileName(), Qt::CaseInsensitive ) == 0 ||
+                 QString::compare( file, RifCaseRealizationReader::runSpecificationFileName(), Qt::CaseInsensitive ) == 0 )
             {
                 return qdir.absoluteFilePath( file );
             }
