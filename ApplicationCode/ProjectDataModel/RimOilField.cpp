@@ -28,11 +28,8 @@
 #include "RimGeoMechModels.h"
 #include "RimMeasurement.h"
 #include "RimObservedDataCollection.h"
-#include "RimObservedSummaryData.h"
-#include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSurfaceCollection.h"
-#include "RimValveTemplateCollection.h"
 #include "RimWellPathCollection.h"
 
 CAF_PDM_SOURCE_INIT( RimOilField, "ResInsightOilField" );
@@ -126,73 +123,6 @@ RimValveTemplateCollection* RimOilField::valveTemplateCollection()
 const RimValveTemplateCollection* RimOilField::valveTemplateCollection() const
 {
     return completionTemplateCollection()->valveTemplateCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOilField::uniqueShortNameForCase( RimSummaryCase* summaryCase )
-{
-    std::set<QString> allAutoShortNames;
-
-    std::vector<RimSummaryCase*>         allCases          = summaryCaseMainCollection->allSummaryCases();
-    std::vector<RimObservedSummaryData*> observedDataCases = observedDataCollection->allObservedSummaryData();
-
-    for ( auto observedData : observedDataCases )
-    {
-        allCases.push_back( observedData );
-    }
-
-    for ( RimSummaryCase* sumCase : allCases )
-    {
-        if ( sumCase && sumCase != summaryCase )
-        {
-            allAutoShortNames.insert( sumCase->shortName() );
-        }
-    }
-
-    bool foundUnique = false;
-
-    QString caseName = summaryCase->caseName();
-    QString shortName;
-
-    if ( caseName.size() > 2 )
-    {
-        QString candidate;
-        candidate += caseName[0];
-
-        for ( int i = 1; i < caseName.size(); ++i )
-        {
-            if ( allAutoShortNames.count( candidate + caseName[i] ) == 0 )
-            {
-                shortName   = candidate + caseName[i];
-                foundUnique = true;
-                break;
-            }
-        }
-    }
-    else
-    {
-        shortName = caseName.left( 2 );
-        if ( allAutoShortNames.count( shortName ) == 0 )
-        {
-            foundUnique = true;
-        }
-    }
-
-    int autoNumber = 0;
-
-    while ( !foundUnique )
-    {
-        QString candidate = shortName + QString::number( autoNumber++ );
-        if ( allAutoShortNames.count( candidate ) == 0 )
-        {
-            shortName   = candidate;
-            foundUnique = true;
-        }
-    }
-
-    return shortName;
 }
 
 //--------------------------------------------------------------------------------------------------

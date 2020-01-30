@@ -2107,7 +2107,7 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
         if ( isObservedCurve && ( curveType & CURVE_TYPE_OBSERVED ) == 0 ) continue;
         if ( !isObservedCurve && ( curveType & CURVE_TYPE_GRID ) == 0 ) continue;
 
-        QString curveCaseName = curve->summaryCaseY()->caseName();
+        QString curveCaseName = curve->summaryCaseY()->displayCaseName();
 
         size_t casePosInList = cvf::UNDEFINED_SIZE_T;
         for ( size_t i = 0; i < curvesData->caseNames.size(); i++ )

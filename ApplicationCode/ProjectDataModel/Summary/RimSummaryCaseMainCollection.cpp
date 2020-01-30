@@ -544,13 +544,13 @@ QString RimSummaryCaseMainCollection::uniqueShortNameForCase( RimSummaryCase* su
     {
         if ( sumCase && sumCase != summaryCase )
         {
-            allAutoShortNames.insert( sumCase->shortName() );
+            allAutoShortNames.insert( sumCase->displayCaseName() );
         }
     }
 
     bool foundUnique = false;
 
-    QString caseName = summaryCase->caseName();
+    QString caseName = summaryCase->nativeCaseName();
     QString shortName;
 
     if ( caseName.size() > 2 )

@@ -385,7 +385,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
 
         for ( RimSummaryCase* rimCase : cases )
         {
-            options.push_back( caf::PdmOptionItemInfo( rimCase->caseName(), rimCase ) );
+            options.push_back( caf::PdmOptionItemInfo( rimCase->displayCaseName(), rimCase ) );
         }
 
         if ( options.size() > 0 )
@@ -794,12 +794,12 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
     {
         return QString( "%1.%2.%3" )
             .arg( QString::fromStdString( addressUiText ) )
-            .arg( m_yValuesSummaryCase->caseName() )
+            .arg( m_yValuesSummaryCase->nativeCaseName() )
             .arg( group->name() );
     }
     else
     {
-        return QString( "%1.%2" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->caseName() );
+        return QString( "%1.%2" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->nativeCaseName() );
     }
 }
 

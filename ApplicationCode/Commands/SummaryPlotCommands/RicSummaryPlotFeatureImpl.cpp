@@ -748,7 +748,7 @@ std::set<RifEclipseSummaryAddress>
             if ( !usedFilters[cfIdx] )
             {
                 RiaLogging::warning( "Vector filter \"" + summaryAddressFilters[static_cast<int>( cfIdx )] +
-                                     "\" did not match anything in case: \"" + sumCase->caseName() + "\"" );
+                                     "\" did not match anything in case: \"" + sumCase->nativeCaseName() + "\"" );
             }
         }
     }
@@ -780,7 +780,7 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
         if ( !usedFilters[cfIdx] )
         {
             RiaLogging::warning( "Vector filter \"" + curveFilters[static_cast<int>( cfIdx )] +
-                                 "\" did not match anything in case: \"" + summaryCase->caseName() + "\"" );
+                                 "\" did not match anything in case: \"" + summaryCase->nativeCaseName() + "\"" );
         }
     }
 

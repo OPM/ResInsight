@@ -244,7 +244,7 @@ bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
     {
         if ( addr1.summaryCase() && addr2.summaryCase() )
         {
-            if ( addr1.summaryCase()->caseName() == addr2.summaryCase()->caseName() )
+            if ( addr1.summaryCase()->displayCaseName() == addr2.summaryCase()->displayCaseName() )
             {
                 if ( addr1.ensemble() && addr2.ensemble() )
                 {
@@ -252,7 +252,7 @@ bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
                 }
                 return addr1.ensemble() < addr2.ensemble();
             }
-            return addr1.summaryCase()->caseName() < addr2.summaryCase()->caseName();
+            return addr1.summaryCase()->displayCaseName() < addr2.summaryCase()->displayCaseName();
         }
         return addr1.summaryCase() < addr2.summaryCase();
     }

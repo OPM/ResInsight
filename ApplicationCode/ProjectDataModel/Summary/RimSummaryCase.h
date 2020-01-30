@@ -45,8 +45,8 @@ public:
     ~RimSummaryCase() override;
 
     virtual QString summaryHeaderFilename() const;
-    virtual QString caseName() const = 0;
-    QString         shortName() const;
+    QString         displayCaseName() const;
+    QString         nativeCaseName() const;
 
     RiaEclipseUnitTools::UnitSystemType unitsSystem();
 
@@ -58,10 +58,7 @@ public:
     virtual void                       createRftReaderInterface() {}
     virtual RifSummaryReaderInterface* summaryReader() = 0;
     virtual RifReaderRftInterface*     rftReader();
-    virtual QString                    errorMessagesFromReader()
-    {
-        return QString();
-    }
+    virtual QString                    errorMessagesFromReader();
 
     virtual void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) = 0;
 
@@ -83,6 +80,13 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void updateTreeItemName();
 
+    virtual QString caseName() const = 0;
+
+private:
+    void           initAfterRead() override;
+    static QString uniqueShortNameForCase( RimSummaryCase* summaryCase );
+
+protected:
     caf::PdmField<QString>       m_shortName;
     caf::PdmField<bool>          m_useAutoShortName;
     caf::PdmField<caf::FilePath> m_summaryHeaderFilename;
@@ -91,7 +95,4 @@ protected:
     std::shared_ptr<RigCaseRealizationParameters> m_crlParameters;
 
     static const QString DEFAULT_DISPLAY_NAME;
-
-private:
-    void initAfterRead() override;
 };

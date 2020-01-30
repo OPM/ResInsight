@@ -22,6 +22,7 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RimMainPlotCollection.h"
+#include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCaseCollection.h"
@@ -30,6 +31,7 @@
 
 #include "cvfAssert.h"
 
+#include "RimObservedSummaryData.h"
 #include <QFileInfo>
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
@@ -181,6 +183,14 @@ RifReaderRftInterface* RimSummaryCase::rftReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimSummaryCase::errorMessagesFromReader()
+{
+    return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     updateTreeItemName();
@@ -191,8 +201,8 @@ void RimSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateTreeItemName()
 {
-    if ( caseName() != shortName() )
-        this->setUiName( caseName() + " (" + shortName() + ")" );
+    if ( caseName() != displayCaseName() )
+        this->setUiName( caseName() + " (" + displayCaseName() + ")" );
     else
         this->setUiName( caseName() );
 }
@@ -200,9 +210,17 @@ void RimSummaryCase::updateTreeItemName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCase::shortName() const
+QString RimSummaryCase::displayCaseName() const
 {
     return m_shortName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCase::nativeCaseName() const
+{
+    return caseName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,15 +247,82 @@ void RimSummaryCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimSummaryCase::uniqueShortNameForCase( RimSummaryCase* summaryCase )
+{
+    RimOilField* oilField = nullptr;
+    summaryCase->firstAncestorOrThisOfType( oilField );
+    CVF_ASSERT( oilField );
+
+    std::set<QString> allAutoShortNames;
+
+    std::vector<RimSummaryCase*>         allCases          = oilField->summaryCaseMainCollection->allSummaryCases();
+    std::vector<RimObservedSummaryData*> observedDataCases = oilField->observedDataCollection->allObservedSummaryData();
+
+    for ( auto observedData : observedDataCases )
+    {
+        allCases.push_back( observedData );
+    }
+
+    for ( RimSummaryCase* sumCase : allCases )
+    {
+        if ( sumCase && sumCase != summaryCase )
+        {
+            allAutoShortNames.insert( sumCase->displayCaseName() );
+        }
+    }
+
+    bool foundUnique = false;
+
+    QString caseName = summaryCase->caseName();
+    QString shortName;
+
+    if ( caseName.size() > 2 )
+    {
+        QString candidate;
+        candidate += caseName[0];
+
+        for ( int i = 1; i < caseName.size(); ++i )
+        {
+            if ( allAutoShortNames.count( candidate + caseName[i] ) == 0 )
+            {
+                shortName   = candidate + caseName[i];
+                foundUnique = true;
+                break;
+            }
+        }
+    }
+    else
+    {
+        shortName = caseName.left( 2 );
+        if ( allAutoShortNames.count( shortName ) == 0 )
+        {
+            foundUnique = true;
+        }
+    }
+
+    int autoNumber = 0;
+
+    while ( !foundUnique )
+    {
+        QString candidate = shortName + QString::number( autoNumber++ );
+        if ( allAutoShortNames.count( candidate ) == 0 )
+        {
+            shortName   = candidate;
+            foundUnique = true;
+        }
+    }
+
+    return shortName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateAutoShortName()
 {
     if ( m_useAutoShortName )
     {
-        RimOilField* oilField = nullptr;
-        this->firstAncestorOrThisOfType( oilField );
-        CVF_ASSERT( oilField );
-
-        m_shortName = oilField->uniqueShortNameForCase( this );
+        m_shortName = RimSummaryCase::uniqueShortNameForCase( this );
     }
     else if ( m_shortName() == DEFAULT_DISPLAY_NAME )
     {

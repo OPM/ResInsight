@@ -184,8 +184,8 @@ void RimDerivedEnsembleCase::calculate( const RifEclipseSummaryAddress& address 
 //--------------------------------------------------------------------------------------------------
 QString RimDerivedEnsembleCase::caseName() const
 {
-    auto case1Name = m_summaryCase1->caseName();
-    auto case2Name = m_summaryCase2->caseName();
+    auto case1Name = m_summaryCase1->displayCaseName();
+    auto case2Name = m_summaryCase2->displayCaseName();
 
     if ( case1Name == case2Name )
         return case1Name;

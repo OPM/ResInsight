@@ -116,7 +116,7 @@ QString RiaSummaryCurveDefinition::curveDefinitionText() const
 {
     QString caseName;
     if ( summaryCase() )
-        caseName = summaryCase()->caseName();
+        caseName = summaryCase()->displayCaseName();
     else if ( ensemble() )
         caseName = ensemble()->name();
 
@@ -176,11 +176,11 @@ bool RiaSummaryCurveDefinition::operator<( const RiaSummaryCurveDefinition& othe
 
         if ( m_summaryCase )
         {
-            summaryCaseName = m_summaryCase->caseName();
+            summaryCaseName = m_summaryCase->displayCaseName();
         }
         if ( other.summaryCase() )
         {
-            otherSummaryCaseName = other.summaryCase()->caseName();
+            otherSummaryCaseName = other.summaryCase()->displayCaseName();
         }
 
         // First check if names are different to ensure stable alphabetic sort

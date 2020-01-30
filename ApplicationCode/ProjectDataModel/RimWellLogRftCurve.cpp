@@ -336,7 +336,7 @@ QString RimWellLogRftCurve::createCurveAutoName()
     }
     else if ( m_summaryCase )
     {
-        name.push_back( m_summaryCase->caseName() );
+        name.push_back( m_summaryCase->displayCaseName() );
     }
     else if ( m_observedFmuRftData )
     {
