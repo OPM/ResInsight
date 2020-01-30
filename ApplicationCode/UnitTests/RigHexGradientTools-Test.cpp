@@ -25,7 +25,7 @@
 #include "cvfMatrix4.h"
 
 //--------------------------------------------------------------------------------------------------
-///
+/// GTEST_FILTER="Test_RigHexGradientTools*"
 //--------------------------------------------------------------------------------------------------
 TEST( RigHexGradientTools, GradientsForIdentityElement )
 {
@@ -45,9 +45,9 @@ TEST( RigHexGradientTools, GradientsForIdentityElement )
 
     for ( int i = 0; i < 8; i++ )
     {
-        EXPECT_EQ( 0.0, gradients[i].x() );
-        EXPECT_EQ( 0.0, gradients[i].y() );
-        EXPECT_EQ( 0.0, gradients[i].z() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[i].x() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[i].y() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[i].z() );
     }
 }
 
@@ -75,9 +75,9 @@ TEST( RigHexGradientTools, GradientsForScaledIdentityElement )
 
     for ( int i = 0; i < 8; i++ )
     {
-        EXPECT_EQ( 0.0, gradients[i].x() );
-        EXPECT_EQ( 0.0, gradients[i].y() );
-        EXPECT_EQ( 0.0, gradients[i].z() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[i].x() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[i].y() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[i].z() );
     }
 }
 
@@ -105,9 +105,9 @@ TEST( RigHexGradientTools, GradientsForTranslatedIdentityElement )
 
     for ( int i = 0; i < 8; i++ )
     {
-        EXPECT_EQ( 0.0, gradients[i].x() );
-        EXPECT_EQ( 0.0, gradients[i].y() );
-        EXPECT_EQ( 0.0, gradients[i].z() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[i].x() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[i].y() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[i].z() );
     }
 }
 
@@ -136,9 +136,9 @@ TEST( RigHexGradientTools, GradientsForRotatedIdentityElement )
 
     for ( int i = 0; i < 8; i++ )
     {
-        EXPECT_EQ( 0.0, gradients[i].x() );
-        EXPECT_EQ( 0.0, gradients[i].y() );
-        EXPECT_EQ( 0.0, gradients[i].z() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[i].x() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[i].y() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[i].z() );
     }
 }
 
@@ -164,29 +164,29 @@ TEST( RigHexGradientTools, GradientsForElement )
 
     // The adjacent corners should a non-zero gradient in the direction
     // towards the first corner
-    EXPECT_EQ( -0.5, gradients[0].x() );
-    EXPECT_EQ( -0.5, gradients[0].y() );
-    EXPECT_EQ( -0.5, gradients[0].z() );
+    EXPECT_DOUBLE_EQ( -0.5, gradients[0].x() );
+    EXPECT_DOUBLE_EQ( -0.5, gradients[0].y() );
+    EXPECT_DOUBLE_EQ( -0.5, gradients[0].z() );
 
-    EXPECT_EQ( 0.5, gradients[1].x() );
-    EXPECT_EQ( 0.0, gradients[1].y() );
-    EXPECT_EQ( 0.0, gradients[1].z() );
+    EXPECT_DOUBLE_EQ( -0.5, gradients[1].x() );
+    EXPECT_DOUBLE_EQ( 0.0, gradients[1].y() );
+    EXPECT_DOUBLE_EQ( 0.0, gradients[1].z() );
 
-    EXPECT_EQ( 0.0, gradients[3].x() );
-    EXPECT_EQ( 0.5, gradients[3].y() );
-    EXPECT_EQ( 0.0, gradients[3].z() );
+    EXPECT_DOUBLE_EQ( 0.0, gradients[3].x() );
+    EXPECT_DOUBLE_EQ( -0.5, gradients[3].y() );
+    EXPECT_DOUBLE_EQ( 0.0, gradients[3].z() );
 
-    EXPECT_EQ( 0.0, gradients[4].x() );
-    EXPECT_EQ( 0.0, gradients[4].y() );
-    EXPECT_EQ( 0.5, gradients[4].z() );
+    EXPECT_DOUBLE_EQ( 0.0, gradients[4].x() );
+    EXPECT_DOUBLE_EQ( 0.0, gradients[4].y() );
+    EXPECT_DOUBLE_EQ( -0.5, gradients[4].z() );
 
     // Non-adjacent should be unaffected
     std::array<int, 4> independentCorners = {2, 5, 7, 6};
     for ( auto c : independentCorners )
     {
-        EXPECT_EQ( 0.0, gradients[c].x() );
-        EXPECT_EQ( 0.0, gradients[c].y() );
-        EXPECT_EQ( 0.0, gradients[c].z() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[c].x() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[c].y() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[c].z() );
     }
 }
 
@@ -212,29 +212,29 @@ TEST( RigHexGradientTools, GradientsForLongElement )
 
     // The adjacent corners should a non-zero gradient in the direction
     // towards the first corner
-    EXPECT_EQ( -1.0 / 3.0, gradients[0].x() );
-    EXPECT_EQ( -0.5, gradients[0].y() );
-    EXPECT_EQ( -0.5, gradients[0].z() );
+    EXPECT_DOUBLE_EQ( -1.0 / 3.0, gradients[0].x() );
+    EXPECT_DOUBLE_EQ( -0.5, gradients[0].y() );
+    EXPECT_DOUBLE_EQ( -0.5, gradients[0].z() );
 
-    EXPECT_EQ( 1.0 / 3.0, gradients[1].x() );
-    EXPECT_EQ( 0.0, gradients[1].y() );
-    EXPECT_EQ( 0.0, gradients[1].z() );
+    EXPECT_DOUBLE_EQ( -1.0 / 3.0, gradients[1].x() );
+    EXPECT_DOUBLE_EQ( 0.0, gradients[1].y() );
+    EXPECT_DOUBLE_EQ( 0.0, gradients[1].z() );
 
-    EXPECT_EQ( 0.0, gradients[3].x() );
-    EXPECT_EQ( 0.5, gradients[3].y() );
-    EXPECT_EQ( 0.0, gradients[3].z() );
+    EXPECT_DOUBLE_EQ( 0.0, gradients[3].x() );
+    EXPECT_DOUBLE_EQ( -0.5, gradients[3].y() );
+    EXPECT_DOUBLE_EQ( 0.0, gradients[3].z() );
 
-    EXPECT_EQ( 0.0, gradients[4].x() );
-    EXPECT_EQ( 0.0, gradients[4].y() );
-    EXPECT_EQ( 0.5, gradients[4].z() );
+    EXPECT_DOUBLE_EQ( 0.0, gradients[4].x() );
+    EXPECT_DOUBLE_EQ( 0.0, gradients[4].y() );
+    EXPECT_DOUBLE_EQ( -0.5, gradients[4].z() );
 
     // Non-adjacent should be unaffected
     std::array<int, 4> independentCorners = {2, 5, 7, 6};
     for ( auto c : independentCorners )
     {
-        EXPECT_EQ( 0.0, gradients[c].x() );
-        EXPECT_EQ( 0.0, gradients[c].y() );
-        EXPECT_EQ( 0.0, gradients[c].z() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[c].x() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[c].y() );
+        EXPECT_DOUBLE_EQ( 0.0, gradients[c].z() );
     }
 }
 
@@ -274,8 +274,8 @@ TEST( RigHexGradientTools, GenerateJacobianForIdentity )
         {
             for ( int row = 0; row < 3; row++ )
             {
-                EXPECT_EQ( expectedJacobian.rowCol( row, col ), actualJacobian.rowCol( row, col ) );
-                EXPECT_EQ( identityMat.rowCol( row, col ), actualJacobian.rowCol( row, col ) );
+                EXPECT_DOUBLE_EQ( expectedJacobian.rowCol( row, col ), actualJacobian.rowCol( row, col ) );
+                EXPECT_DOUBLE_EQ( identityMat.rowCol( row, col ), actualJacobian.rowCol( row, col ) );
             }
         }
     }
@@ -325,8 +325,8 @@ TEST( RigHexGradientTools, GenerateJacobianForIdentityScaled )
         {
             for ( int row = 0; row < 3; row++ )
             {
-                EXPECT_EQ( expectedJacobian.rowCol( row, col ), actualJacobian.rowCol( row, col ) );
-                EXPECT_EQ( identityMat.rowCol( row, col ) * scale, actualJacobian.rowCol( row, col ) );
+                EXPECT_DOUBLE_EQ( expectedJacobian.rowCol( row, col ), actualJacobian.rowCol( row, col ) );
+                EXPECT_DOUBLE_EQ( identityMat.rowCol( row, col ) * scale, actualJacobian.rowCol( row, col ) );
             }
         }
     }
@@ -366,9 +366,133 @@ TEST( RigHexGradientTools, GenerateJacobianForLongElement )
     {
         for ( int row = 0; row < 3; row++ )
         {
-            EXPECT_EQ( expectedJacobian.rowCol( row, col ), actualJacobian.rowCol( row, col ) );
+            EXPECT_DOUBLE_EQ( expectedJacobian.rowCol( row, col ), actualJacobian.rowCol( row, col ) );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigHexGradientTools, GradientsForRotatedElement )
+{
+    // Try a more complex element
+    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                            cvf::Vec3d( -1.0, -1.0, 1.0 ),
+                                            cvf::Vec3d( 1.0, -1.0, 1.0 ),
+                                            cvf::Vec3d( 1.0, 1.0, 1.0 ),
+                                            cvf::Vec3d( -1.0, 1.0, 1.0 )};
+
+    cvf::Vec3d corner0( -1.0, -1.0, -1.0 );
+
+    cvf::Mat4d rot = cvf::Mat4d::fromRotation( {1, 0, 0}, cvf::PI_D / 2.0 );
+    for ( auto& v : hexCorners )
+        v.transformPoint( rot );
+
+    EXPECT_DOUBLE_EQ( 1.0, hexCorners[0].y() );
+    EXPECT_DOUBLE_EQ( -1.0, hexCorners[4].z() );
+
+    // Set a higher value in the first corner
+    std::array<double, 8> cornerValues = {2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+
+    std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
+
+    EXPECT_NEAR( -0.5, gradients[0].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.5, gradients[0].y(), 1.0e-10 );
+    EXPECT_NEAR( -0.5, gradients[0].z(), 1.0e-10 );
+
+    EXPECT_NEAR( -0.5, gradients[1].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[1].y(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[1].z(), 1.0e-10 );
+
+    EXPECT_NEAR( 0.0, gradients[2].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[2].y(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[2].z(), 1.0e-10 );
+
+    EXPECT_NEAR( 0.0, gradients[3].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[3].y(), 1.0e-10 );
+    EXPECT_NEAR( -0.5, gradients[3].z(), 1.0e-10 );
+
+    EXPECT_NEAR( 0.0, gradients[4].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.5, gradients[4].y(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[4].z(), 1.0e-10 );
+
+    EXPECT_NEAR( 0.0, gradients[5].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[5].y(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[5].z(), 1.0e-10 );
+
+    EXPECT_NEAR( 0.0, gradients[6].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[6].y(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[6].z(), 1.0e-10 );
+
+    EXPECT_NEAR( 0.0, gradients[7].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[7].y(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[7].z(), 1.0e-10 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigHexGradientTools, GradientsForRotatedAndStretchedElement )
+{
+    // Try a more complex element
+    std::array<cvf::Vec3d, 8> hexCorners = {cvf::Vec3d( -1.0, -1.0, -1.0 ),
+                                            cvf::Vec3d( 1.0, -1.0, -1.0 ),
+                                            cvf::Vec3d( 1.0, 1.0, -1.0 ),
+                                            cvf::Vec3d( -1.0, 1.0, -1.0 ),
+                                            cvf::Vec3d( -1.0, -1.0, 3.0 ),
+                                            cvf::Vec3d( 1.0, -1.0, 3.0 ),
+                                            cvf::Vec3d( 1.0, 1.0, 3.0 ),
+                                            cvf::Vec3d( -1.0, 1.0, 3.0 )};
+
+    cvf::Vec3d corner0( -1.0, -1.0, -1.0 );
+
+    cvf::Mat4d rot = cvf::Mat4d::fromRotation( {1, 0, 0}, cvf::PI_D / 2.0 );
+    for ( auto& v : hexCorners )
+        v.transformPoint( rot );
+
+    EXPECT_DOUBLE_EQ( 1.0, hexCorners[0].y() );
+    EXPECT_DOUBLE_EQ( -1.0, hexCorners[4].z() );
+
+    // Set a higher value in the first corner
+    std::array<double, 8> cornerValues = {2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+
+    std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
+
+    EXPECT_NEAR( -0.5, gradients[0].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.25, gradients[0].y(), 1.0e-10 );
+    EXPECT_NEAR( -0.5, gradients[0].z(), 1.0e-10 );
+
+    EXPECT_NEAR( -0.5, gradients[1].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[1].y(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[1].z(), 1.0e-10 );
+
+    EXPECT_NEAR( 0.0, gradients[2].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[2].y(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[2].z(), 1.0e-10 );
+
+    EXPECT_NEAR( 0.0, gradients[3].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[3].y(), 1.0e-10 );
+    EXPECT_NEAR( -0.5, gradients[3].z(), 1.0e-10 );
+
+    EXPECT_NEAR( 0.0, gradients[4].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.25, gradients[4].y(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[4].z(), 1.0e-10 );
+
+    EXPECT_NEAR( 0.0, gradients[5].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[5].y(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[5].z(), 1.0e-10 );
+
+    EXPECT_NEAR( 0.0, gradients[6].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[6].y(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[6].z(), 1.0e-10 );
+
+    EXPECT_NEAR( 0.0, gradients[7].x(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[7].y(), 1.0e-10 );
+    EXPECT_NEAR( 0.0, gradients[7].z(), 1.0e-10 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -418,7 +542,7 @@ TEST( RigHexGradientTools, GenerateJacobianForRotatedElement )
     {
         for ( int col = 0; col < 3; col++ )
         {
-            EXPECT_EQ( expectedJacobian.rowCol( row, col ), actualJacobian.rowCol( row, col ) );
+            EXPECT_DOUBLE_EQ( expectedJacobian.rowCol( row, col ), actualJacobian.rowCol( row, col ) );
         }
     }
 }

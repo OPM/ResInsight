@@ -53,7 +53,7 @@ std::array<cvf::Vec3d, 8> RigHexGradientTools::gradients( const std::array<cvf::
     {
         bool       isInvertPossible = false;
         cvf::Mat3d jacobian         = caf::HexInterpolator::jacobi( hexCorners, NC[i] );
-        // jacobian.transpose();
+        jacobian.transpose();
         gradientsXYZ[i] = gradientsUVW[i].getTransformedVector( jacobian.getInverted( &isInvertPossible ) );
     }
 
