@@ -239,8 +239,10 @@ QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreatePlotWidget()
 {
     if ( m_summaryCurveCreator )
     {
-        // TODO: Rename previewPlot()->createViewWidget to getOrCreateViewWidget
-        return m_summaryCurveCreator->previewPlot()->createPlotWidget( this->widget() );
+        auto widget = m_summaryCurveCreator->previewPlot()->createPlotWidget( this->widget() );
+        widget->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
+
+        return widget;
     }
 
     return nullptr;
