@@ -90,8 +90,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
                        "",
                        "" );
 
-    m_showPlotLegends = false;
-    m_showWindow      = false;
+    m_showWindow = false;
 
     setAsPlotMdiWindow();
 
