@@ -716,6 +716,12 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData,
                 infoText += QString( "%1<br>" ).arg( diffResString );
             }
 
+            const RimSimWellInViewCollection* wellCollection = eclipseView->wellCollection();
+            if ( wellCollection && wellCollection->isActive() && wellCollection->isWellDisksVisible() )
+            {
+                infoText += QString( "<b>Well Disk Property:</b> %1<br>" ).arg( wellCollection->wellDiskPropertyUiText() );
+            }
+
             if ( eclipseView->cellResult()->hasDualPorFractureResult() )
             {
                 QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText(
