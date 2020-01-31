@@ -152,6 +152,8 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
     const std::vector<unsigned>&   nativeTriangleIndices = m_usedSurfaceData->triangleIndices();
     cvf::Vec3d                     displayModelOffset    = m_hexGrid->displayOffset();
 
+    m_triVxToCellCornerWeights.reserve( nativeTriangleIndices.size() * 24 );
+
     // Loop local memory allocation.
     // Must be thread private in omp paralellization
 
@@ -229,13 +231,10 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
                                                                                    p2,
                                                                                    &clippedTriangleVxes,
                                                                                    &cellFaceForEachClippedTriangleEdge );
+            if ( clippedTriangleVxes.empty() ) continue;
 
-            size_t clippedTriangleCount = clippedTriangleVxes.size() / 3;
-
-            for ( uint clippTrIdx = 0; clippTrIdx < clippedTriangleCount; ++clippTrIdx )
+            for ( uint triVxIdx = 0; triVxIdx < clippedTriangleVxes.size(); triVxIdx += 3 )
             {
-                uint triVxIdx = clippTrIdx * 3;
-
                 // Accumulate triangle vertices
 
                 cvf::Vec3d point0( clippedTriangleVxes[triVxIdx + 0] - displayModelOffset );
