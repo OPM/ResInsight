@@ -144,7 +144,9 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 
     MeshLinesAccumulator meshAcc( m_hexGrid.p() );
 
-    cvf::BoundingBox gridBBox = m_hexGrid->boundingBox();
+    cvf::BoundingBox    gridBBox = m_hexGrid->boundingBox();
+    std::vector<size_t> cellDummy;
+    m_hexGrid->findIntersectingCells( cvf::BoundingBox( cvf::Vec3d::ZERO, cvf::Vec3d::ZERO ), &cellDummy );
 
     m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
 
@@ -154,115 +156,141 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 
     m_triVxToCellCornerWeights.reserve( nativeTriangleIndices.size() * 24 );
 
-    // Loop local memory allocation.
-    // Must be thread private in omp paralellization
-
-    std::vector<caf::HexGridIntersectionTools::ClipVx> hexPlaneCutTriangleVxes;
-    hexPlaneCutTriangleVxes.reserve( 2 * 6 * 3 );
-
-    std::vector<int> cellFaceForEachTriangleEdge;
-    cellFaceForEachTriangleEdge.reserve( 2 * 6 * 3 );
-
-    std::vector<cvf::Vec3d> cellCutTriangles;
-    cellCutTriangles.reserve( 2 * 6 * 3 );
-
-    std::vector<cvf::Vec3d> clippedTriangleVxes;
-    clippedTriangleVxes.reserve( 2 * 6 * 3 );
-
-    std::vector<int> cellFaceForEachClippedTriangleEdge;
-    cellFaceForEachClippedTriangleEdge.reserve( 2 * 6 * 3 );
-    // End loop local mamory
-
-    for ( size_t ntVxIdx = 0; ntVxIdx < nativeTriangleIndices.size(); ntVxIdx += 3 )
+#pragma omp parallel num_threads( 6 ) // More threads have nearly no effect
     {
-        cvf::Vec3d p0 = nativeVertices[nativeTriangleIndices[ntVxIdx + 0]];
-        cvf::Vec3d p1 = nativeVertices[nativeTriangleIndices[ntVxIdx + 1]];
-        cvf::Vec3d p2 = nativeVertices[nativeTriangleIndices[ntVxIdx + 2]];
+        // Loop local memory allocation.
+        // Must be thread private in omp paralellization
+        std::vector<caf::HexGridIntersectionTools::ClipVx> hexPlaneCutTriangleVxes;
+        hexPlaneCutTriangleVxes.reserve( 2 * 6 * 3 );
 
-        cvf::BoundingBox triangleBBox;
-        triangleBBox.add( p0 );
-        triangleBBox.add( p1 );
-        triangleBBox.add( p2 );
+        std::vector<int> cellFaceForEachTriangleEdge;
+        cellFaceForEachTriangleEdge.reserve( 2 * 6 * 3 );
 
-        cvf::Vec3d maxHeightVec;
+        std::vector<cvf::Vec3d> cellCutTriangles;
+        cellCutTriangles.reserve( 2 * 6 * 3 );
 
-        std::vector<size_t> triIntersectedCellCandidates;
-        m_hexGrid->findIntersectingCells( triangleBBox, &triIntersectedCellCandidates );
+        std::vector<cvf::Vec3d> clippedTriangleVxes;
+        clippedTriangleVxes.reserve( 2 * 6 * 3 );
 
-        cvf::Plane plane;
-        plane.setFromPoints( p0, p1, p2 );
+        std::vector<int> cellFaceForEachClippedTriangleEdge;
+        cellFaceForEachClippedTriangleEdge.reserve( 2 * 6 * 3 );
 
-        std::array<cvf::Vec3d, 8> cellCorners;
-        std::array<size_t, 8>     cornerIndices;
+        // End loop local memory
 
-        for ( size_t ticIdx = 0; ticIdx < triIntersectedCellCandidates.size(); ++ticIdx )
+#pragma omp for // default scheduling absolutely best
+        for ( int ntVxIdx = 0; ntVxIdx < nativeTriangleIndices.size(); ntVxIdx += 3 )
         {
-            size_t globalCellIdx = triIntersectedCellCandidates[ticIdx];
+            cvf::Vec3d p0 = nativeVertices[nativeTriangleIndices[ntVxIdx + 0]];
+            cvf::Vec3d p1 = nativeVertices[nativeTriangleIndices[ntVxIdx + 1]];
+            cvf::Vec3d p2 = nativeVertices[nativeTriangleIndices[ntVxIdx + 2]];
 
-            if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
+            cvf::BoundingBox triangleBBox;
+            triangleBBox.add( p0 );
+            triangleBBox.add( p1 );
+            triangleBBox.add( p2 );
 
-            hexPlaneCutTriangleVxes.clear();
-            cellFaceForEachTriangleEdge.clear();
-            cellCutTriangles.clear();
+            cvf::Vec3d maxHeightVec;
 
-            m_hexGrid->cellCornerVertices( globalCellIdx, &cellCorners[0] );
-            m_hexGrid->cellCornerIndices( globalCellIdx, &cornerIndices[0] );
+            std::vector<size_t> triIntersectedCellCandidates;
+            m_hexGrid->findIntersectingCells( triangleBBox, &triIntersectedCellCandidates );
 
-            int triangleCount = caf::HexGridIntersectionTools::planeHexIntersectionMCTet( plane,
-                                                                                          &cellCorners[0],
-                                                                                          &cornerIndices[0],
-                                                                                          &hexPlaneCutTriangleVxes,
-                                                                                          &cellFaceForEachTriangleEdge );
+            cvf::Plane plane;
+            plane.setFromPoints( p0, p1, p2 );
 
-            if ( triangleCount == 0 ) continue;
+            std::array<cvf::Vec3d, 8> cellCorners;
+            std::array<size_t, 8>     cornerIndices;
 
-            for ( const auto& clipVx : hexPlaneCutTriangleVxes )
+            for ( size_t ticIdx = 0; ticIdx < triIntersectedCellCandidates.size(); ++ticIdx )
             {
-                cellCutTriangles.push_back( clipVx.vx );
-            }
+                size_t globalCellIdx = triIntersectedCellCandidates[ticIdx];
 
-            clippedTriangleVxes.clear();
-            cellFaceForEachClippedTriangleEdge.clear();
+                if ( !m_hexGrid->useCell( globalCellIdx ) ) continue;
 
-            caf::HexGridIntersectionTools::clipPlanarTrianglesWithInPlaneTriangle( cellCutTriangles,
-                                                                                   cellFaceForEachTriangleEdge,
-                                                                                   p0,
-                                                                                   p1,
-                                                                                   p2,
-                                                                                   &clippedTriangleVxes,
-                                                                                   &cellFaceForEachClippedTriangleEdge );
-            if ( clippedTriangleVxes.empty() ) continue;
+                hexPlaneCutTriangleVxes.clear();
+                cellFaceForEachTriangleEdge.clear();
+                cellCutTriangles.clear();
 
-            for ( uint triVxIdx = 0; triVxIdx < clippedTriangleVxes.size(); triVxIdx += 3 )
-            {
-                // Accumulate triangle vertices
+                m_hexGrid->cellCornerVertices( globalCellIdx, &cellCorners[0] );
+                m_hexGrid->cellCornerIndices( globalCellIdx, &cornerIndices[0] );
 
-                cvf::Vec3d point0( clippedTriangleVxes[triVxIdx + 0] - displayModelOffset );
-                cvf::Vec3d point1( clippedTriangleVxes[triVxIdx + 1] - displayModelOffset );
-                cvf::Vec3d point2( clippedTriangleVxes[triVxIdx + 2] - displayModelOffset );
+                int triangleCount = caf::HexGridIntersectionTools::planeHexIntersectionMCTet( plane,
+                                                                                              &cellCorners[0],
+                                                                                              &cornerIndices[0],
+                                                                                              &hexPlaneCutTriangleVxes,
+                                                                                              &cellFaceForEachTriangleEdge );
 
-                outputTriangleVertices.emplace_back( point0 );
-                outputTriangleVertices.emplace_back( point1 );
-                outputTriangleVertices.emplace_back( point2 );
+                if ( triangleCount == 0 ) continue;
 
-                // Accumulate mesh lines
-
-                meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 0, globalCellIdx, point0, point1 );
-                meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 1, globalCellIdx, point1, point2 );
-                meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 2, globalCellIdx, point2, point0 );
-
-                // Mapping to cell index
-
-                m_triangleToCellIdxMap.push_back( globalCellIdx );
-
-                // Interpolation from nodes
-                for ( int i = 0; i < 3; ++i )
+                for ( const auto& clipVx : hexPlaneCutTriangleVxes )
                 {
-                    cvf::Vec3d cvx = clippedTriangleVxes[triVxIdx + i];
+                    cellCutTriangles.push_back( clipVx.vx );
+                }
 
-                    std::array<double, 8> cornerWeights = caf::HexInterpolator::vertexWeights( cellCorners, cvx );
-                    m_triVxToCellCornerWeights.emplace_back(
-                        RivIntersectionVertexWeights( cornerIndices, cornerWeights ) );
+                clippedTriangleVxes.clear();
+                cellFaceForEachClippedTriangleEdge.clear();
+
+                caf::HexGridIntersectionTools::clipPlanarTrianglesWithInPlaneTriangle( cellCutTriangles,
+                                                                                       cellFaceForEachTriangleEdge,
+                                                                                       p0,
+                                                                                       p1,
+                                                                                       p2,
+                                                                                       &clippedTriangleVxes,
+                                                                                       &cellFaceForEachClippedTriangleEdge );
+                if ( clippedTriangleVxes.empty() ) continue;
+
+                for ( uint triVxIdx = 0; triVxIdx < clippedTriangleVxes.size(); triVxIdx += 3 )
+                {
+                    // Accumulate triangle vertices
+
+                    cvf::Vec3d point0( clippedTriangleVxes[triVxIdx + 0] - displayModelOffset );
+                    cvf::Vec3d point1( clippedTriangleVxes[triVxIdx + 1] - displayModelOffset );
+                    cvf::Vec3d point2( clippedTriangleVxes[triVxIdx + 2] - displayModelOffset );
+
+                    // Interpolation from nodes
+
+                    std::array<double, 8> cornerWeights0 =
+                        caf::HexInterpolator::vertexWeights( cellCorners, clippedTriangleVxes[triVxIdx + 0] );
+                    std::array<double, 8> cornerWeights1 =
+                        caf::HexInterpolator::vertexWeights( cellCorners, clippedTriangleVxes[triVxIdx + 1] );
+                    std::array<double, 8> cornerWeights2 =
+                        caf::HexInterpolator::vertexWeights( cellCorners, clippedTriangleVxes[triVxIdx + 2] );
+
+#pragma omp critical
+                    {
+                        outputTriangleVertices.emplace_back( point0 );
+                        outputTriangleVertices.emplace_back( point1 );
+                        outputTriangleVertices.emplace_back( point2 );
+
+                        // Accumulate mesh lines
+
+                        meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge,
+                                                     triVxIdx + 0,
+                                                     globalCellIdx,
+                                                     point0,
+                                                     point1 );
+                        meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge,
+                                                     triVxIdx + 1,
+                                                     globalCellIdx,
+                                                     point1,
+                                                     point2 );
+                        meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge,
+                                                     triVxIdx + 2,
+                                                     globalCellIdx,
+                                                     point2,
+                                                     point0 );
+
+                        // Mapping to cell index
+
+                        m_triangleToCellIdxMap.push_back( globalCellIdx );
+
+                        // Interpolation from nodes
+                        m_triVxToCellCornerWeights.emplace_back(
+                            RivIntersectionVertexWeights( cornerIndices, cornerWeights0 ) );
+                        m_triVxToCellCornerWeights.emplace_back(
+                            RivIntersectionVertexWeights( cornerIndices, cornerWeights1 ) );
+                        m_triVxToCellCornerWeights.emplace_back(
+                            RivIntersectionVertexWeights( cornerIndices, cornerWeights2 ) );
+                    }
                 }
             }
         }
