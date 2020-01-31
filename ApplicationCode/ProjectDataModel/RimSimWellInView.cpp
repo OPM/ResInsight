@@ -32,7 +32,6 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimGridSummaryCase.h"
 #include "RimIntersectionCollection.h"
 #include "RimPropertyFilterCollection.h"
 #include "RimSimWellFracture.h"
@@ -41,15 +40,9 @@
 #include "RimSimWellInViewTools.h"
 #include "RimWellDiskConfig.h"
 
-#include "RiaSummaryTools.h"
-#include "RiaTimeHistoryCurveResampler.h"
-
 #include "RiuMainWindow.h"
 
 #include "RivReservoirViewPartMgr.h"
-
-#include "RifEclipseSummaryAddress.h"
-#include "RifSummaryReaderInterface.h"
 
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfMath.h"
@@ -594,6 +587,14 @@ bool RimSimWellInView::isUsingCellCenterForPipe() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigWellDiskData RimSimWellInView::wellDiskData() const
+{
+    return m_wellDiskData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSimWellInView::setSimWellData( RigSimWellData* simWellData, size_t resultWellIndex )
 {
     m_simWellData     = simWellData;
@@ -624,6 +625,9 @@ size_t RimSimWellInView::resultWellIndex() const
     return m_resultWellIndex;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig, bool* isOk )
 {
     const RimEclipseView* reservoirView = nullptr;
@@ -644,116 +648,65 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
 
     RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( this );
 
-    m_isSingleProperty = wellDiskConfig.isSingleProperty();
     if ( wellDiskConfig.isSingleProperty() )
     {
-        m_singleProperty = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getSingleProperty(), currentDate, isOk );
+        double singleProperty = RimSimWellInViewTools::extractValueForTimeStep( gridSummaryCase,
+                                                                                name(),
+                                                                                wellDiskConfig.getSingleProperty(),
+                                                                                currentDate,
+                                                                                isOk );
         if ( !( *isOk ) )
         {
             m_isValidDisk = false;
             return -1.0;
         }
 
-        m_total = m_singleProperty;
+        m_wellDiskData.setSinglePropertyValue( singleProperty );
     }
     else
     {
         m_isInjector = RimSimWellInViewTools::gridSummaryCaseForWell( this );
 
-        m_oil = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getOilProperty(), currentDate, isOk );
+        double oil = RimSimWellInViewTools::extractValueForTimeStep( gridSummaryCase,
+                                                                     name(),
+                                                                     wellDiskConfig.getOilProperty(),
+                                                                     currentDate,
+                                                                     isOk );
         if ( !( *isOk ) )
         {
             m_isValidDisk = false;
             return -1.0;
         }
 
-        m_gas = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getGasProperty(), currentDate, isOk ) / 1000.0;
+        double gas = RimSimWellInViewTools::extractValueForTimeStep( gridSummaryCase,
+                                                                     name(),
+                                                                     wellDiskConfig.getGasProperty(),
+                                                                     currentDate,
+                                                                     isOk ) /
+                     1000.0;
         if ( !( *isOk ) )
         {
             m_isValidDisk = false;
             return -1.0;
         }
 
-        m_water = extractValueForTimeStep( gridSummaryCase, wellDiskConfig.getWaterProperty(), currentDate, isOk );
+        double water = RimSimWellInViewTools::extractValueForTimeStep( gridSummaryCase,
+                                                                       name(),
+                                                                       wellDiskConfig.getWaterProperty(),
+                                                                       currentDate,
+                                                                       isOk );
         if ( !( *isOk ) )
         {
             m_isValidDisk = false;
             return -1.0;
         }
 
-        m_total = m_oil + m_gas + m_water;
+        m_wellDiskData.setOilGasWater( oil, gas, water );
     }
 
     m_isValidDisk = true;
-    return m_total;
-}
 
-double RimSimWellInView::extractValueForTimeStep( RimGridSummaryCase* gridSummaryCase,
-                                                  const std::string&  vectorName,
-                                                  const QDateTime&    currentDate,
-                                                  bool*               isOk )
-{
-    if ( vectorName.empty() )
-    {
-        *isOk = true;
-        return 0.0;
-    }
-
-    RifEclipseSummaryAddress addr( RifEclipseSummaryAddress::SUMMARY_WELL,
-                                   vectorName,
-                                   -1,
-                                   -1,
-                                   "",
-                                   name().toStdString(),
-                                   -1,
-                                   "",
-                                   -1,
-                                   -1,
-                                   -1,
-                                   -1,
-                                   false,
-                                   -1 );
-
-    RifSummaryReaderInterface* reader = gridSummaryCase->summaryReader();
-    if ( !gridSummaryCase->summaryReader()->hasAddress( addr ) )
-    {
-        // TODO: better error handling
-        std::cerr << "ERROR: no address found for well " << name().toStdString() << " " << vectorName << std::endl;
-        *isOk = false;
-        return 0.0;
-    }
-
-    std::vector<double> values;
-    reader->values( addr, &values );
-    std::vector<time_t> timeSteps = reader->timeSteps( addr );
-
-    RiaTimeHistoryCurveResampler resampler;
-    resampler.setCurveData( values, timeSteps );
-    if ( RiaSummaryTools::hasAccumulatedData( addr ) )
-    {
-        resampler.resampleAndComputePeriodEndValues( DateTimePeriod::DAY );
-    }
-    else
-    {
-        resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DAY );
-    }
-
-    // Find the data point which best matches the selected time step
-    std::vector<time_t> resampledTimeSteps = resampler.resampledTimeSteps();
-    std::vector<double> resampledValues    = resampler.resampledValues();
-    for ( unsigned int i = 0; i < resampledTimeSteps.size(); i++ )
-    {
-        QDateTime t = QDateTime::fromTime_t( resampledTimeSteps[i] );
-        if ( t > currentDate )
-        {
-            *isOk = true;
-            return resampledValues[i];
-        }
-    }
-
-    std::cerr << "ERROR: no resampled value found for well " << name().toStdString() << " " << vectorName << std::endl;
-    *isOk = false;
-    return -1;
+    return m_wellDiskData.total();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -763,7 +716,7 @@ void RimSimWellInView::scaleDisk( double minValue, double maxValue )
 {
     if ( m_isValidDisk )
     {
-        m_diskScale = 1.0 + ( m_total - minValue ) / ( maxValue - minValue );
+        m_diskScale = 1.0 + ( m_wellDiskData.total() - minValue ) / ( maxValue - minValue );
     }
     else
     {
@@ -774,57 +727,9 @@ void RimSimWellInView::scaleDisk( double minValue, double maxValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimSimWellInView::oil() const
-{
-    return m_oil;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimSimWellInView::gas() const
-{
-    return m_gas;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimSimWellInView::water() const
-{
-    return m_water;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimSimWellInView::total() const
-{
-    return m_total;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isValidDisk() const
 {
     return m_isValidDisk;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSimWellInView::isSingleProperty() const
-{
-    return m_isSingleProperty;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimSimWellInView::singleProperty() const
-{
-    return m_singleProperty;
 }
 
 //--------------------------------------------------------------------------------------------------

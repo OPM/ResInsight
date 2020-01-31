@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2019-     Equinor ASA
-
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
@@ -18,27 +18,29 @@
 
 #pragma once
 
-#include <string>
-
-class QString;
-class QDateTime;
-
-class RimSimWellInView;
-class RimGridSummaryCase;
-
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimSimWellInViewTools
+class RigWellDiskData
 {
 public:
-    static RimGridSummaryCase* gridSummaryCaseForWell( RimSimWellInView* well );
-    static bool                isInjector( RimSimWellInView* well );
+    RigWellDiskData();
 
-    static double extractValueForTimeStep( RimGridSummaryCase* gridSummaryCase,
-                                           const QString&      wellName,
-                                           const std::string&  vectorName,
-                                           const QDateTime&    currentDate,
-                                           bool*               isOk );
+    void setSinglePropertyValue( double value );
+    void setOilGasWater( double oil, double gas, double water );
+
+    double total() const;
+    double oil() const;
+    double gas() const;
+    double water() const;
+    double singlePropertyValue() const;
+    bool   isSingleProperty() const;
+
+private:
+    bool   m_isSingleProperty;
+    double m_singlePropertyValue;
+    double m_oilValue;
+    double m_waterValue;
+    double m_gasValue;
 };

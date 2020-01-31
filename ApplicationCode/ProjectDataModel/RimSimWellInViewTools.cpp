@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,6 +19,11 @@
 #include "RimSimWellInViewTools.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryTools.h"
+#include "RiaTimeHistoryCurveResampler.h"
+
+#include "RifEclipseSummaryAddress.h"
+#include "RifSummaryReaderInterface.h"
 
 #include "RigSimWellData.h"
 
@@ -88,4 +91,77 @@ bool RimSimWellInViewTools::isInjector( RimSimWellInView* well )
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSimWellInViewTools::extractValueForTimeStep( RimGridSummaryCase* gridSummaryCase,
+                                                       const QString&      wellName,
+                                                       const std::string&  vectorName,
+                                                       const QDateTime&    currentDate,
+                                                       bool*               isOk )
+
+{
+    if ( vectorName.empty() )
+    {
+        *isOk = true;
+        return 0.0;
+    }
+
+    RifEclipseSummaryAddress addr( RifEclipseSummaryAddress::SUMMARY_WELL,
+                                   vectorName,
+                                   -1,
+                                   -1,
+                                   "",
+                                   wellName.toStdString(),
+                                   -1,
+                                   "",
+                                   -1,
+                                   -1,
+                                   -1,
+                                   -1,
+                                   false,
+                                   -1 );
+
+    RifSummaryReaderInterface* reader = gridSummaryCase->summaryReader();
+    if ( !gridSummaryCase->summaryReader()->hasAddress( addr ) )
+    {
+        // TODO: better error handling
+        std::cerr << "ERROR: no address found for well " << wellName.toStdString() << " " << vectorName << std::endl;
+        *isOk = false;
+        return 0.0;
+    }
+
+    std::vector<double> values;
+    reader->values( addr, &values );
+    std::vector<time_t> timeSteps = reader->timeSteps( addr );
+
+    RiaTimeHistoryCurveResampler resampler;
+    resampler.setCurveData( values, timeSteps );
+    if ( RiaSummaryTools::hasAccumulatedData( addr ) )
+    {
+        resampler.resampleAndComputePeriodEndValues( DateTimePeriod::DAY );
+    }
+    else
+    {
+        resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DAY );
+    }
+
+    // Find the data point which best matches the selected time step
+    std::vector<time_t> resampledTimeSteps = resampler.resampledTimeSteps();
+    std::vector<double> resampledValues    = resampler.resampledValues();
+    for ( unsigned int i = 0; i < resampledTimeSteps.size(); i++ )
+    {
+        QDateTime t = QDateTime::fromTime_t( resampledTimeSteps[i] );
+        if ( t > currentDate )
+        {
+            *isOk = true;
+            return resampledValues[i];
+        }
+    }
+
+    std::cerr << "ERROR: no resampled value found for well " << wellName.toStdString() << " " << vectorName << std::endl;
+    *isOk = false;
+    return -1;
 }

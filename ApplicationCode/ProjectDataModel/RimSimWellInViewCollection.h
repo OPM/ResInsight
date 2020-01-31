@@ -136,10 +136,10 @@ public:
 
     caf::PdmField<bool> isAutoDetectingBranches;
 
-    caf::PdmField<QString> wellDiskQuantity;
-    WellDiskPropertyType   wellDiskPropertyType() const;
-    QString                wellDiskPropertyUiText() const;
-    bool                   isWellDisksVisible() const;
+    QString wellDiskPropertyUiText() const;
+    bool    isWellDisksVisible() const;
+    bool    showWellDiskLabelBackground() const;
+    bool    showWellDiskQuantityLables() const;
 
     caf::PdmChildArrayField<RimSimWellInView*> wells;
 
@@ -195,7 +195,12 @@ private:
 
     caf::PdmField<bool> m_showWellCommunicationLines;
 
-    caf::PdmField<caf::AppEnum<WellDiskPropertyType>> m_wellDiskPropertyType;
+    // Well Discs
+    caf::PdmField<caf::AppEnum<WellDiskPropertyType>>       m_wellDiskPropertyType;
+    caf::PdmField<caf::AppEnum<WellDiskPropertyConfigType>> m_wellDiskPropertyConfigType;
+    caf::PdmField<QString>                                  m_wellDiskQuantity;
+    caf::PdmField<bool>                                     m_wellDiskShowQuantityLabels;
+    caf::PdmField<bool>                                     m_wellDiskshowLabelsBackground;
 
     // Obsolete fields
     caf::PdmField<WellVisibilityEnum>       obsoleteField_wellPipeVisibility;

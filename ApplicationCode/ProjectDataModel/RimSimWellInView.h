@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RigWellDiskData.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -32,13 +34,10 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
-class QDateTime;
-
 class RigSimWellData;
 class RigWellResultFrame;
 struct RigWellResultPoint;
 
-class RimGridSummaryCase;
 class RimSimWellFractureCollection;
 class RigWellPath;
 class RimWellDiskConfig;
@@ -65,14 +64,9 @@ public:
     bool isWellSpheresVisible( size_t frameIndex ) const;
     bool isUsingCellCenterForPipe() const;
 
-    double oil() const;
-    double gas() const;
-    double water() const;
-    bool   isSingleProperty() const;
-    double singleProperty() const;
-    double total() const;
-    bool   isValidDisk() const;
-    double diskScale() const;
+    RigWellDiskData wellDiskData() const;
+    bool            isValidDisk() const;
+    double          diskScale() const;
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
@@ -124,21 +118,12 @@ private:
 
     bool intersectsWellCellsFilteredCells( const RigWellResultFrame& wrsf, size_t frameIndex ) const;
 
-    double extractValueForTimeStep( RimGridSummaryCase* gridSummaryCase,
-                                    const std::string&  vectorName,
-                                    const QDateTime&    currentDate,
-                                    bool*               isOk );
-
 private:
     cvf::ref<RigSimWellData> m_simWellData;
     size_t                   m_resultWellIndex;
-    double                   m_oil;
-    double                   m_gas;
-    double                   m_water;
-    double                   m_singleProperty;
-    double                   m_total;
     bool                     m_isInjector;
-    bool                     m_isSingleProperty;
-    bool                     m_isValidDisk;
-    double                   m_diskScale;
+
+    RigWellDiskData m_wellDiskData;
+    bool            m_isValidDisk;
+    double          m_diskScale;
 };

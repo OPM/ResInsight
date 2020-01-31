@@ -18,17 +18,17 @@
 
 #pragma once
 
-#include "cafPdmPointer.h"
-#include "cvfObject.h"
-
 #include "RigWellResultPoint.h"
+
+#include "cafPdmPointer.h"
+
+#include "cvfObject.h"
+#include "cvfString.h"
 
 namespace cvf
 {
 class Part;
 class ModelBasicList;
-class Transform;
-class Font;
 class Effect;
 class ShaderProgram;
 class Color4f;
@@ -52,16 +52,16 @@ public:
     void appendDynamicGeometryPartsToModel( cvf::ModelBasicList*              model,
                                             size_t                            frameIndex,
                                             const caf::DisplayCoordTransform* displayXf );
-    void appendFlattenedDynamicGeometryPartsToModel( cvf::ModelBasicList*              model,
-                                                     size_t                            frameIndex,
-                                                     const caf::DisplayCoordTransform* displayXf,
-                                                     double                            xOffset );
 
 private:
-    void                        buildWellDiskParts( size_t                            frameIndex,
-                                                    const caf::DisplayCoordTransform* displayXf,
-                                                    bool                              doFlatten,
-                                                    double                            xOffset );
+    void buildWellDiskParts( size_t frameIndex, const caf::DisplayCoordTransform* displayXf );
+
+    std::pair<cvf::String, cvf::Vec3f> createTextAndLocation( const double aggregatedFraction,
+                                                              cvf::Vec3d   diskPosition,
+                                                              double       ijScaleFactor,
+                                                              const double fraction,
+                                                              int          precision );
+
     void                        clearAllGeometry();
     Rim3dView*                  viewWithSettings();
     RimSimWellInViewCollection* simWellInViewCollection();
@@ -75,7 +75,6 @@ private:
     cvf::ref<cvf::Part> m_wellDiskLabelPart;
     cvf::ref<cvf::Part> m_wellDiskInjectorPart;
 
-    bool                         m_useShaders;
     cvf::ref<cvf::ShaderProgram> m_shaderProg;
     cvf::ref<cvf::Effect>        m_fixedFuncEffect;
     cvf::ref<cvf::Effect>        m_shaderEffect;

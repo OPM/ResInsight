@@ -118,14 +118,14 @@ void createDisc( double radius, size_t numSlices, cvf::GeometryBuilder* builder 
             verts.add( points[i + 1] );
     }
 
-    unsigned int baseNodeIdx = builder->addVertices( verts );
+    cvf::uint baseNodeIdx = builder->addVertices( verts );
 
     // Build the triangles for each slice
-    for ( size_t i = 0; i < numSlices; i++ )
+    for ( cvf::uint i = 0; i < static_cast<cvf::uint>( numSlices ); i++ )
     {
-        unsigned int v1 = baseNodeIdx + ( i * 3 ) + 0;
-        unsigned int v2 = baseNodeIdx + ( i * 3 ) + 1;
-        unsigned int v3 = baseNodeIdx + ( i * 3 ) + 2;
+        cvf::uint v1 = baseNodeIdx + ( i * 3 ) + 0;
+        cvf::uint v2 = baseNodeIdx + ( i * 3 ) + 1;
+        cvf::uint v3 = baseNodeIdx + ( i * 3 ) + 2;
 
         builder->addTriangle( v1, v2, v3 );
     }
