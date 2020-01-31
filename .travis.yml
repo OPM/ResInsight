@@ -22,6 +22,6 @@ script:
     - install-qt 5.13.2
     - mkdir -p build
     - cd build
-    - cmake -DOpenGL_GL_PREFERENCE=GLVND -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/Qt/5.13.2/gcc_64 -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DRESINSIGHT_ENABLE_COTIRE=true .. 
+    - cmake -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/Qt/5.13.2/gcc_64 -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DRESINSIGHT_ENABLE_COTIRE=true .. 
     - make -j8 ResInsight_unity
      
