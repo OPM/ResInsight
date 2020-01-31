@@ -1333,7 +1333,7 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForSources( QList<caf::PdmOpt
                 // Top level cases
                 for ( const auto& sumCase : sumCaseMainColl->topLevelSummaryCases() )
                 {
-                    options.push_back( caf::PdmOptionItemInfo( sumCase->caseName(), sumCase ) );
+                    options.push_back( caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase ) );
                 }
             }
 
@@ -1368,7 +1368,7 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForSources( QList<caf::PdmOpt
 
                     for ( const auto& sumCase : sumCaseColl->allSummaryCases() )
                     {
-                        auto optionItem = caf::PdmOptionItemInfo( sumCase->caseName(), sumCase );
+                        auto optionItem = caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase );
                         optionItem.setLevel( 1 );
                         options.push_back( optionItem );
                     }

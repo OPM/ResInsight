@@ -57,8 +57,6 @@ public:
     RimValveTemplateCollection*       valveTemplateCollection();
     const RimValveTemplateCollection* valveTemplateCollection() const;
 
-    QString uniqueShortNameForCase( RimSummaryCase* summaryCase );
-
     caf::PdmChildField<RimEclipseCaseCollection*>        analysisModels;
     caf::PdmChildField<RimGeoMechModels*>                geoMechModels;
     caf::PdmChildField<RimWellPathCollection*>           wellPathCollection;

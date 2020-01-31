@@ -84,7 +84,7 @@ public:
             sumCurve = dynamic_cast<RimSummaryCurve*>( riuCurve->ownerRimCurve() );
         }
 
-        return sumCurve && sumCurve->summaryCaseY() ? sumCurve->summaryCaseY()->caseName() : "";
+        return sumCurve && sumCurve->summaryCaseY() ? sumCurve->summaryCaseY()->displayCaseName() : "";
     }
 };
 static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
