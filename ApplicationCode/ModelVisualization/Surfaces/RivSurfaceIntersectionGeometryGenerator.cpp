@@ -155,11 +155,12 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
     cvf::Vec3d                     displayModelOffset    = m_hexGrid->displayOffset();
 
     m_triVxToCellCornerWeights.reserve( nativeTriangleIndices.size() * 24 );
+    outputTriangleVertices.reserve( nativeTriangleIndices.size() * 24 );
 
 #pragma omp parallel num_threads( 6 ) // More threads have nearly no effect
     {
         // Loop local memory allocation.
-        // Must be thread private in omp paralellization
+        // Must be thread private in omp parallelization
         std::vector<caf::HexGridIntersectionTools::ClipVx> hexPlaneCutTriangleVxes;
         hexPlaneCutTriangleVxes.reserve( 2 * 6 * 3 );
 
