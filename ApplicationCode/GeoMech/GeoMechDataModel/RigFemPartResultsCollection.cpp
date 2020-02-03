@@ -1136,6 +1136,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradients( 
 
         int elementCount = femPart->elementCount();
 
+#pragma omp parallel for schedule( dynamic )
         for ( long nodeIdx = 0; nodeIdx < static_cast<long>( nodeCount ); nodeIdx++ )
         {
             const std::vector<int> elements = femPart->elementsUsingNode( nodeIdx );
