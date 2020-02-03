@@ -41,7 +41,11 @@ RiaCurveDataTools::CurveIntervals RiaCurveDataTools::calculateIntervalsOfValidVa
         {
             if ( startIdx >= 0 )
             {
-                intervals.push_back( std::make_pair( startIdx, vIdx - 1 ) );
+                size_t endIdx = vIdx - 1;
+                if ( endIdx > startIdx )
+                {
+                    intervals.push_back( std::make_pair( startIdx, endIdx ) );
+                }
                 startIdx = -1;
             }
         }
