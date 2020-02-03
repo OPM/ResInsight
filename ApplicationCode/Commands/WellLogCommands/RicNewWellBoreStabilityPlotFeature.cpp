@@ -192,7 +192,7 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
 void RicNewWellBoreStabilityPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Well Bore Stability Plot" );
-    actionToSetup->setIcon( QIcon( ":/WellLogPlot16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/WellBoreStability16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

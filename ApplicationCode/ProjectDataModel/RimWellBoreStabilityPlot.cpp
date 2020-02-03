@@ -40,7 +40,7 @@ CAF_PDM_SOURCE_INIT( RimWellBoreStabilityPlot, "WellBoreStabilityPlot" );
 //--------------------------------------------------------------------------------------------------
 RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
 {
-    CAF_PDM_InitObject( "Well Bore Stability Plot", ":/WellLogPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Well Bore Stability Plot", ":/WellBoreStability16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wbsParameters, "WbsParameters", "Well Bore Stability Parameters", "", "", "" );
     m_wbsParameters = new RimWbsParameters;
