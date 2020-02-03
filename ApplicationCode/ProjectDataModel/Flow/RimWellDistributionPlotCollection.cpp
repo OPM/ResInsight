@@ -58,7 +58,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 {
     // cvf::Trace::show("RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()");
 
-    CAF_PDM_InitObject( "Cumulative Phase Distribution Plot", "", "", "" );
+    CAF_PDM_InitObject( "Cumulative Phase Distribution Plot", ":/CumulativePhaseDist16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
     CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step", "", "", "" );
