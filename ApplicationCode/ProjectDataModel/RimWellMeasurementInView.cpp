@@ -58,6 +58,12 @@ RimWellMeasurementInView::RimWellMeasurementInView()
     CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells", "", "", "" );
     m_wells.uiCapability()->setAutoAddingOptionFromValue( false );
     m_wells.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_wells.xmlCapability()->disableIO();
+
+    // The m_wells field does not serialize in a suitable format, so we work around it by
+    // serializing to a pipe-delimited string.
+    CAF_PDM_InitFieldNoDefault( &m_wellsSerialized, "WellsSerialized", "WellsSerialized", "", "", "" );
+    m_wellsSerialized.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_lowerBound, "LowerBound", -HUGE_VAL, "Min", "", "", "" );
     m_lowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -145,10 +151,23 @@ void RimWellMeasurementInView::fieldChangedByUi( const caf::PdmFieldHandle* chan
                                                  const QVariant&            oldValue,
                                                  const QVariant&            newValue )
 {
+    if ( changedField == &m_wells )
+    {
+        m_wellsSerialized = convertToSerializableString( m_wells.v() );
+    }
+
     updateLegendData();
     RimGridView* rimGridView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( rimGridView );
     rimGridView->scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementInView::initAfterRead()
+{
+    m_wells = convertFromSerializableString( m_wellsSerialized );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -385,6 +404,8 @@ void RimWellMeasurementInView::setAllWellsSelected()
         {
             m_wells.v().push_back( wellName );
         }
+
+        m_wellsSerialized = convertToSerializableString( m_wells.v() );
     }
 }
 
@@ -410,4 +431,22 @@ void RimWellMeasurementInView::setAllQualitiesSelected()
             m_qualityFilter.v().push_back( quality );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellMeasurementInView::convertToSerializableString( const std::vector<QString>& strings )
+{
+    QStringList stringList = QVector<QString>::fromStdVector( strings ).toList();
+    return stringList.join( '|' );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimWellMeasurementInView::convertFromSerializableString( const QString& string )
+{
+    QStringList stringList = string.split( '|' );
+    return stringList.toVector().toStdVector();
 }
