@@ -30,6 +30,7 @@
 
 class RimEclipseView;
 class RimSimWellInView;
+class RimWellDiskConfig;
 
 //==================================================================================================
 ///
@@ -91,6 +92,20 @@ public:
         WELLPIPE_COLOR_UNIFORM
     };
 
+    enum WellDiskPropertyType
+    {
+        PROPERTY_TYPE_PREDEFINED,
+        PROPERTY_TYPE_SINGLE
+    };
+
+    enum WellDiskPropertyConfigType
+    {
+        PRODUCTION_RATES,
+        INJECTION_RATES,
+        CUMULATIVE_PRODUCTION_RATES,
+        CUMULATIVE_INJECTION_RATES
+    };
+
     typedef caf::AppEnum<RimSimWellInViewCollection::WellPipeColors> WellPipeColorsEnum;
 
     caf::PdmField<bool> isActive;
@@ -121,6 +136,11 @@ public:
 
     caf::PdmField<bool> isAutoDetectingBranches;
 
+    caf::PdmField<QString> wellDiskQuantity;
+    WellDiskPropertyType   wellDiskPropertyType() const;
+    QString                wellDiskPropertyUiText() const;
+    bool                   isWellDisksVisible() const;
+
     caf::PdmChildArrayField<RimSimWellInView*> wells;
 
     RimSimWellInView* findWell( QString name );
@@ -136,6 +156,8 @@ public:
 
     static void updateWellAllocationPlots();
 
+    void updateWellDisks();
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
@@ -143,12 +165,17 @@ protected:
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly );
+
     caf::PdmFieldHandle* objectToggleField() override;
     void                 initAfterRead() override;
 
 private:
     void calculateWellGeometryVisibility( size_t frameIndex );
     void updateStateFromEnabledChildCount( size_t showLabelCount, caf::PdmField<caf::Tristate>* fieldToUpdate );
+    void updateWellDisks( const RimWellDiskConfig& wellDiskConfig );
+    RimWellDiskConfig getActiveWellDiskConfig() const;
 
 private:
     RimEclipseView*                      m_reservoirView;
@@ -162,10 +189,13 @@ private:
     caf::PdmField<caf::Tristate> m_showWellHead;
     caf::PdmField<caf::Tristate> m_showWellPipe;
     caf::PdmField<caf::Tristate> m_showWellSpheres;
+    caf::PdmField<caf::Tristate> m_showWellDisks;
     caf::PdmField<caf::Tristate> m_showWellCells;
     caf::PdmField<caf::Tristate> m_showWellCellFence;
 
     caf::PdmField<bool> m_showWellCommunicationLines;
+
+    caf::PdmField<caf::AppEnum<WellDiskPropertyType>> m_wellDiskPropertyType;
 
     // Obsolete fields
     caf::PdmField<WellVisibilityEnum>       obsoleteField_wellPipeVisibility;

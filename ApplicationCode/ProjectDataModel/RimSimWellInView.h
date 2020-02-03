@@ -32,12 +32,16 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
+class QDateTime;
+
 class RigSimWellData;
 class RigWellResultFrame;
 struct RigWellResultPoint;
 
+class RimGridSummaryCase;
 class RimSimWellFractureCollection;
 class RigWellPath;
+class RimWellDiskConfig;
 
 //==================================================================================================
 ///
@@ -61,6 +65,15 @@ public:
     bool isWellSpheresVisible( size_t frameIndex ) const;
     bool isUsingCellCenterForPipe() const;
 
+    double oil() const;
+    double gas() const;
+    double water() const;
+    bool   isSingleProperty() const;
+    double singleProperty() const;
+    double total() const;
+    bool   isValidDisk() const;
+    double diskScale() const;
+
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
 
@@ -83,6 +96,7 @@ public:
     caf::PdmField<bool> showWellHead;
     caf::PdmField<bool> showWellPipe;
     caf::PdmField<bool> showWellSpheres;
+    caf::PdmField<bool> showWellDisks;
 
     caf::PdmField<double> wellHeadScaleFactor;
     caf::PdmField<double> pipeScaleFactor;
@@ -93,6 +107,9 @@ public:
     caf::PdmField<bool> showWellCellFence;
 
     caf::PdmChildField<RimSimWellFractureCollection*> simwellFractureCollection;
+
+    double calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig, bool* isOk );
+    void   scaleDisk( double minValue, double maxValue );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
@@ -107,7 +124,21 @@ private:
 
     bool intersectsWellCellsFilteredCells( const RigWellResultFrame& wrsf, size_t frameIndex ) const;
 
+    double extractValueForTimeStep( RimGridSummaryCase* gridSummaryCase,
+                                    const std::string&  vectorName,
+                                    const QDateTime&    currentDate,
+                                    bool*               isOk );
+
 private:
     cvf::ref<RigSimWellData> m_simWellData;
     size_t                   m_resultWellIndex;
+    double                   m_oil;
+    double                   m_gas;
+    double                   m_water;
+    double                   m_singleProperty;
+    double                   m_total;
+    bool                     m_isInjector;
+    bool                     m_isSingleProperty;
+    bool                     m_isValidDisk;
+    double                   m_diskScale;
 };
