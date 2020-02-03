@@ -1181,9 +1181,13 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradient( i
 
             if ( nValidElements > 0 )
             {
-                dstFrameDataX[nodeIdx] = result.x() / static_cast<double>( nValidElements );
-                dstFrameDataY[nodeIdx] = result.y() / static_cast<double>( nValidElements );
-                dstFrameDataZ[nodeIdx] = result.z() / static_cast<double>( nValidElements );
+                // Round very small values to zero to avoid ugly coloring when gradients
+                // are dominated by floating point math artifacts.
+                double epsilon = 1.0e-6;
+                result /= static_cast<double>( nValidElements );
+                dstFrameDataX[nodeIdx] = std::abs( result.x() ) > epsilon ? result.x() : 0.0;
+                dstFrameDataY[nodeIdx] = std::abs( result.y() ) > epsilon ? result.y() : 0.0;
+                dstFrameDataZ[nodeIdx] = std::abs( result.z() ) > epsilon ? result.z() : 0.0;
             }
         }
 
