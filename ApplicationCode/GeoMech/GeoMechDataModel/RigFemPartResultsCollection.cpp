@@ -988,8 +988,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSTM( i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradient( int                        partIndex,
-                                                                                const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradients( int                        partIndex,
+                                                                                 const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( resVarAddr.fieldName == "ST_GRADIENTS" || resVarAddr.fieldName == "SE_GRADIENTS" );
 
@@ -1082,8 +1082,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradient( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradient( int                        partIndex,
-                                                                               const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradients( int                        partIndex,
+                                                                                const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( resVarAddr.fieldName == "POR_GRADIENTS" );
     CVF_ASSERT( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" );
@@ -2388,7 +2388,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
         {
             if ( resVarAddr.componentName == allowedComponentName )
             {
-                return calculateStressGradient( partIndex, resVarAddr );
+                return calculateStressGradients( partIndex, resVarAddr );
             }
         }
     }
@@ -2414,7 +2414,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
     if ( resVarAddr.fieldName == "POR_GRADIENTS" &&
          ( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" ) )
     {
-        return calculateNodalGradient( partIndex, resVarAddr );
+        return calculateNodalGradients( partIndex, resVarAddr );
     }
 
     if ( ( resVarAddr.fieldName == "NE" ) && ( resVarAddr.componentName == "E11" || resVarAddr.componentName == "E22" ||
