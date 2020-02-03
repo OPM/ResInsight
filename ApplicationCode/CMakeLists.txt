@@ -7,7 +7,6 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
     set(CMAKE_UNITY_BUILD true)
 endif()
 
-
 if (CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations")
 endif()
@@ -386,6 +385,16 @@ if (RESINSIGHT_ENABLE_GRPC)
 endif(RESINSIGHT_ENABLE_GRPC)
 
 add_executable( ResInsight ${EXE_FILES})
+
+option(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS "Use Precompiled Headers" OFF)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
+if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
+    message("Precompiled Headers is enabled on : ${PROJECT_NAME}")
+    target_precompile_headers(ResInsight PRIVATE pch.h)
+
+    set_source_files_properties(${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+endif()
+
 
 if (MSVC) 
     # The following warnings are supposed to be used in ResInsight, but temporarily disabled to avoid too much noise
