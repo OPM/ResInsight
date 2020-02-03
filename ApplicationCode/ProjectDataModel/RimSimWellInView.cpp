@@ -37,6 +37,8 @@
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimSimWellInViewTools.h"
+#include "RimWellDiskConfig.h"
 
 #include "RiuMainWindow.h"
 
@@ -67,6 +69,7 @@ RimSimWellInView::RimSimWellInView()
     CAF_PDM_InitField( &showWellHead, "ShowWellHead", true, "Well Head", "", "", "" );
     CAF_PDM_InitField( &showWellPipe, "ShowWellPipe", true, "Pipe", "", "", "" );
     CAF_PDM_InitField( &showWellSpheres, "ShowWellSpheres", false, "Spheres", "", "", "" );
+    CAF_PDM_InitField( &showWellDisks, "ShowWellDisks", false, "Disks", "", "", "" );
 
     CAF_PDM_InitField( &wellHeadScaleFactor, "WellHeadScaleFactor", 1.0, "Well Head Scale", "", "", "" );
     CAF_PDM_InitField( &pipeScaleFactor, "WellPipeRadiusScale", 1.0, "Pipe Radius Scale", "", "", "" );
@@ -113,7 +116,7 @@ void RimSimWellInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( reservoirView )
     {
         if ( &showWellLabel == changedField || &showWellHead == changedField || &showWellPipe == changedField ||
-             &showWellSpheres == changedField || &wellPipeColor == changedField )
+             &showWellSpheres == changedField || &showWellDisks == changedField || &wellPipeColor == changedField )
         {
             reservoirView->scheduleCreateDisplayModelAndRedraw();
             schedule2dIntersectionViewUpdate();
@@ -401,6 +404,7 @@ void RimSimWellInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     appearanceGroup->add( &showWellHead );
     appearanceGroup->add( &showWellPipe );
     appearanceGroup->add( &showWellSpheres );
+    appearanceGroup->add( &showWellDisks );
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Well Cells and Fence" );
     filterGroup->add( &showWellCells );
@@ -583,6 +587,14 @@ bool RimSimWellInView::isUsingCellCenterForPipe() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigWellDiskData RimSimWellInView::wellDiskData() const
+{
+    return m_wellDiskData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSimWellInView::setSimWellData( RigSimWellData* simWellData, size_t resultWellIndex )
 {
     m_simWellData     = simWellData;
@@ -611,6 +623,128 @@ const RigSimWellData* RimSimWellInView::simWellData() const
 size_t RimSimWellInView::resultWellIndex() const
 {
     return m_resultWellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig, bool* isOk )
+{
+    const RimEclipseView* reservoirView = nullptr;
+    this->firstAncestorOrThisOfType( reservoirView );
+    if ( !reservoirView ) return false;
+
+    size_t                 timeStep      = static_cast<size_t>( reservoirView->currentTimeStep() );
+    std::vector<QDateTime> caseTimeSteps = reservoirView->eclipseCase()->timeStepDates();
+    QDateTime              currentDate;
+    if ( timeStep < caseTimeSteps.size() )
+    {
+        currentDate = caseTimeSteps[timeStep];
+    }
+    else
+    {
+        currentDate = caseTimeSteps.back();
+    }
+
+    RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( this );
+
+    if ( wellDiskConfig.isSingleProperty() )
+    {
+        double singleProperty = RimSimWellInViewTools::extractValueForTimeStep( gridSummaryCase,
+                                                                                name(),
+                                                                                wellDiskConfig.getSingleProperty(),
+                                                                                currentDate,
+                                                                                isOk );
+        if ( !( *isOk ) )
+        {
+            m_isValidDisk = false;
+            return -1.0;
+        }
+
+        m_wellDiskData.setSinglePropertyValue( singleProperty );
+    }
+    else
+    {
+        m_isInjector = RimSimWellInViewTools::gridSummaryCaseForWell( this );
+
+        double oil = RimSimWellInViewTools::extractValueForTimeStep( gridSummaryCase,
+                                                                     name(),
+                                                                     wellDiskConfig.getOilProperty(),
+                                                                     currentDate,
+                                                                     isOk );
+        if ( !( *isOk ) )
+        {
+            m_isValidDisk = false;
+            return -1.0;
+        }
+
+        double gas = RimSimWellInViewTools::extractValueForTimeStep( gridSummaryCase,
+                                                                     name(),
+                                                                     wellDiskConfig.getGasProperty(),
+                                                                     currentDate,
+                                                                     isOk ) /
+                     1000.0;
+        if ( !( *isOk ) )
+        {
+            m_isValidDisk = false;
+            return -1.0;
+        }
+
+        double water = RimSimWellInViewTools::extractValueForTimeStep( gridSummaryCase,
+                                                                       name(),
+                                                                       wellDiskConfig.getWaterProperty(),
+                                                                       currentDate,
+                                                                       isOk );
+        if ( !( *isOk ) )
+        {
+            m_isValidDisk = false;
+            return -1.0;
+        }
+
+        m_wellDiskData.setOilGasWater( oil, gas, water );
+    }
+
+    m_isValidDisk = true;
+
+    return m_wellDiskData.total();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSimWellInView::scaleDisk( double minValue, double maxValue )
+{
+    if ( m_isValidDisk )
+    {
+        m_diskScale = 1.0 + ( m_wellDiskData.total() - minValue ) / ( maxValue - minValue );
+    }
+    else
+    {
+        m_diskScale = 1.0;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSimWellInView::isValidDisk() const
+{
+    return m_isValidDisk;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSimWellInView::diskScale() const
+{
+    if ( m_isValidDisk )
+    {
+        return m_diskScale;
+    }
+    else
+    {
+        return 1.0;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

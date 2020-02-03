@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RigWellDiskData.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -38,6 +40,7 @@ struct RigWellResultPoint;
 
 class RimSimWellFractureCollection;
 class RigWellPath;
+class RimWellDiskConfig;
 
 //==================================================================================================
 ///
@@ -61,6 +64,10 @@ public:
     bool isWellSpheresVisible( size_t frameIndex ) const;
     bool isUsingCellCenterForPipe() const;
 
+    RigWellDiskData wellDiskData() const;
+    bool            isValidDisk() const;
+    double          diskScale() const;
+
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
 
@@ -83,6 +90,7 @@ public:
     caf::PdmField<bool> showWellHead;
     caf::PdmField<bool> showWellPipe;
     caf::PdmField<bool> showWellSpheres;
+    caf::PdmField<bool> showWellDisks;
 
     caf::PdmField<double> wellHeadScaleFactor;
     caf::PdmField<double> pipeScaleFactor;
@@ -93,6 +101,9 @@ public:
     caf::PdmField<bool> showWellCellFence;
 
     caf::PdmChildField<RimSimWellFractureCollection*> simwellFractureCollection;
+
+    double calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig, bool* isOk );
+    void   scaleDisk( double minValue, double maxValue );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
@@ -110,4 +121,9 @@ private:
 private:
     cvf::ref<RigSimWellData> m_simWellData;
     size_t                   m_resultWellIndex;
+    bool                     m_isInjector;
+
+    RigWellDiskData m_wellDiskData;
+    bool            m_isValidDisk;
+    double          m_diskScale;
 };

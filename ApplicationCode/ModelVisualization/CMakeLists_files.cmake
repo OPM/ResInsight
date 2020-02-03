@@ -55,6 +55,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RivPolylinesAnnotationSourceInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RivPolylineGenerator.h
 ${CMAKE_CURRENT_LIST_DIR}/RivMeasurementPartMgr.h
 ${CMAKE_CURRENT_LIST_DIR}/RivTextLabelSourceInfo.h
+${CMAKE_CURRENT_LIST_DIR}/RivDiskGeometryGenerator.h
+${CMAKE_CURRENT_LIST_DIR}/RivWellDiskPartMgr.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -108,6 +110,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RivPolylinesAnnotationSourceInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivPolylineGenerator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivMeasurementPartMgr.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RivTextLabelSourceInfo.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivDiskGeometryGenerator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RivWellDiskPartMgr.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

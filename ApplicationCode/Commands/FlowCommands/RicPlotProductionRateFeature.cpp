@@ -34,6 +34,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
+#include "RimSimWellInViewTools.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
@@ -58,7 +59,7 @@ bool RicPlotProductionRateFeature::isCommandEnabled()
 
     for ( RimSimWellInView* well : collection )
     {
-        RimGridSummaryCase* gridSummaryCase = RicPlotProductionRateFeature::gridSummaryCaseForWell( well );
+        RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( well );
         if ( gridSummaryCase )
         {
             return true;
@@ -90,12 +91,12 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
 
     for ( RimSimWellInView* well : collection )
     {
-        RimGridSummaryCase* gridSummaryCase = RicPlotProductionRateFeature::gridSummaryCaseForWell( well );
+        RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( well );
         if ( !gridSummaryCase ) continue;
 
         QString description = "Well Production Rates : ";
 
-        if ( isInjector( well ) )
+        if ( RimSimWellInViewTools::isInjector( well ) )
         {
             description = "Well Injection Rates : ";
         }
@@ -103,7 +104,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
         description += well->name();
         RimSummaryPlot* plot = summaryPlotColl->createNamedSummaryPlot( description );
 
-        if ( isInjector( well ) )
+        if ( RimSimWellInViewTools::isInjector( well ) )
         {
             // Left Axis
 
@@ -237,63 +238,6 @@ void RicPlotProductionRateFeature::setupActionLook( QAction* actionToSetup )
 {
     // actionToSetup->setIcon(QIcon(":/WellAllocPlot16x16.png"));
     actionToSetup->setText( "Plot Production Rates" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimGridSummaryCase* RicPlotProductionRateFeature::gridSummaryCaseForWell( RimSimWellInView* well )
-{
-    RimProject* project = RiaApplication::instance()->project();
-    if ( !project ) return nullptr;
-
-    RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField()
-                                                    ? project->activeOilField()->summaryCaseMainCollection()
-                                                    : nullptr;
-    if ( !sumCaseColl ) return nullptr;
-
-    RimEclipseResultCase* eclCase = nullptr;
-    well->firstAncestorOrThisOfType( eclCase );
-    if ( eclCase )
-    {
-        RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>(
-            sumCaseColl->findSummaryCaseFromEclipseResultCase( eclCase ) );
-        if ( gridSummaryCase )
-        {
-            return gridSummaryCase;
-        }
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicPlotProductionRateFeature::isInjector( RimSimWellInView* well )
-{
-    RigSimWellData* wRes = well->simWellData();
-    if ( wRes )
-    {
-        Rim3dView* rimView = nullptr;
-        well->firstAncestorOrThisOfTypeAsserted( rimView );
-
-        int currentTimeStep = rimView->currentTimeStep();
-
-        if ( wRes->hasWellResult( currentTimeStep ) )
-        {
-            const RigWellResultFrame& wrf = wRes->wellResultFrame( currentTimeStep );
-
-            if ( wrf.m_productionType == RigWellResultFrame::OIL_INJECTOR ||
-                 wrf.m_productionType == RigWellResultFrame::GAS_INJECTOR ||
-                 wrf.m_productionType == RigWellResultFrame::WATER_INJECTOR )
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
