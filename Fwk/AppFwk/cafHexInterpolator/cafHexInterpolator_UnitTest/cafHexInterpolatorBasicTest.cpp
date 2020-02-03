@@ -47,7 +47,7 @@ class HexInterpolatorTester
 };
 }
 
-void testHex(const std::array<cvf::Vec3d, 8>& hexCorners, double tolerance = 1e-6)
+void testHex(const std::array<cvf::Vec3d, 8>& hexCorners, double tolerance = 1e-4)
 {
     double result = 0.0;
     result = caf::HexInterpolator::interpolateHex(hexCorners, {0.0,1.0,2.0,3.0,4.0,5.0,6.0,7.0 }, hexCorners[0]);
