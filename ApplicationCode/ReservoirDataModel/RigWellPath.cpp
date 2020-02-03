@@ -77,6 +77,10 @@ double RigWellPath::rkbDiff() const
 
             return diff;
         }
+        else if ( cvf::Math::abs( m_wellPathPoints[0].z() ) < epsilon )
+        {
+            return m_measuredDepths[0]; // Assume a vertical drop before the first md point.
+        }
     }
     return HUGE_VAL;
 }

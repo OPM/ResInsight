@@ -178,8 +178,15 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
 
     if ( !wellPath->wellPathGeometry() )
     {
-        RiaLogging::warning( QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" )
-                                 .arg( wellPath->name() ) );
+        RiaLogging::error( QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" )
+                               .arg( wellPath->name() ) );
+        return;
+    }
+    if ( wellPath->wellPathGeometry()->rkbDiff() == HUGE_VAL )
+    {
+        RiaLogging::error( QString( "The well path %1 has no datum elevation and we cannot estimate TVDRKB. Cannot "
+                                    "create a Well Bore Stability Plot" )
+                               .arg( wellPath->name() ) );
         return;
     }
 

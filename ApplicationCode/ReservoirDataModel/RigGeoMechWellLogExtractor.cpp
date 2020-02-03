@@ -23,6 +23,7 @@
 #include "RigGeoMechWellLogExtractor.h"
 
 #include "RiaDefines.h"
+#include "RiaLogging.h"
 #include "RiaWeightedMeanCalculator.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
@@ -126,6 +127,13 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
 
     if ( resAddr.resultPosType == RIG_WELLPATH_DERIVED )
     {
+        if ( m_wellPath->rkbDiff() == HUGE_VAL )
+        {
+            RiaLogging::error( "Well path has an invalid datum elevation and we cannot estimate TVDRKB. No well bore "
+                               "stability curves created." );
+            return "";
+        }
+
         if ( resAddr.fieldName == RiaDefines::wbsFGResult().toStdString() )
         {
             wellBoreWallCurveData( resAddr, frameIndex, values );
