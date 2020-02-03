@@ -1117,6 +1117,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradient( i
     float             inf     = std::numeric_limits<float>::infinity();
 
     const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
+    size_t                         nodeCount  = femPart->nodes().nodeIds.size();
 
     int frameCount = srcDataFrames->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
@@ -1135,36 +1136,54 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradient( i
 
         int elementCount = femPart->elementCount();
 
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
+        for ( long nodeIdx = 0; nodeIdx < static_cast<long>( nodeCount ); nodeIdx++ )
         {
-            RigElementType elmType = femPart->elementType( elmIdx );
+            const std::vector<int> elements = femPart->elementsUsingNode( nodeIdx );
 
-            if ( !( elmType == HEX8P ) ) continue;
-
-            // Find the corner coordinates and values for the node
-            std::array<cvf::Vec3d, 8> hexCorners;
-            std::array<double, 8>     cornerValues;
-
-            int elmNodeCount = RigFemTypes::elmentNodeCount( elmType );
-            for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+            // Compute the average of the elements contributing to this node
+            cvf::Vec3d result         = cvf::Vec3d::ZERO;
+            int        nValidElements = 0;
+            for ( int elmIdx : elements )
             {
-                size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                int    nodeIdx      = femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
+                RigElementType elmType = femPart->elementType( elmIdx );
+                if ( elmType == HEX8P )
+                {
+                    // Find the corner coordinates and values for the node
+                    std::array<cvf::Vec3d, 8> hexCorners;
+                    std::array<double, 8>     cornerValues;
 
-                cornerValues[elmNodIdx] = srcFrameData[nodeIdx];
-                hexCorners[elmNodIdx]   = cvf::Vec3d( nodeCoords[nodeIdx] );
+                    int elmNodeCount = RigFemTypes::elmentNodeCount( elmType );
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                    {
+                        size_t elmNodResIdx   = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        size_t resultValueIdx = femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
+
+                        cornerValues[elmNodIdx] = srcFrameData[resultValueIdx];
+                        hexCorners[elmNodIdx]   = cvf::Vec3d( nodeCoords[resultValueIdx] );
+                    }
+
+                    std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
+
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                    {
+                        size_t elmNodResIdx   = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        size_t resultValueIdx = femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
+                        // Only use the gradient for particular corner corresponding to the node
+                        if ( static_cast<size_t>( nodeIdx ) == resultValueIdx )
+                        {
+                            result.add( gradients[elmNodIdx] );
+                        }
+                    }
+
+                    nValidElements++;
+                }
             }
 
-            std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
-
-            for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+            if ( nValidElements > 0 )
             {
-                size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                int    nodeIdx      = femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
-
-                dstFrameDataX[nodeIdx] = gradients[elmNodIdx].x();
-                dstFrameDataY[nodeIdx] = gradients[elmNodIdx].y();
-                dstFrameDataZ[nodeIdx] = gradients[elmNodIdx].z();
+                dstFrameDataX[nodeIdx] = result.x() / static_cast<double>( nValidElements );
+                dstFrameDataY[nodeIdx] = result.y() / static_cast<double>( nValidElements );
+                dstFrameDataZ[nodeIdx] = result.z() / static_cast<double>( nValidElements );
             }
         }
 
