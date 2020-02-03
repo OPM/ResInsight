@@ -596,7 +596,7 @@ QList<caf::PdmOptionItemInfo>
             RimGridSummaryCase* summaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( wells[0] );
 
             std::set<std::string> summaries;
-            if ( summaryCase )
+            if ( summaryCase && summaryCase->summaryReader() )
             {
                 auto addresses = summaryCase->summaryReader()->allResultAddresses();
                 for ( auto addr : addresses )

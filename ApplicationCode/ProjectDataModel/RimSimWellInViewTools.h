@@ -25,6 +25,7 @@ class QDateTime;
 
 class RimSimWellInView;
 class RimGridSummaryCase;
+class RifSummaryReaderInterface;
 
 //==================================================================================================
 ///
@@ -36,9 +37,9 @@ public:
     static RimGridSummaryCase* gridSummaryCaseForWell( RimSimWellInView* well );
     static bool                isInjector( RimSimWellInView* well );
 
-    static double extractValueForTimeStep( RimGridSummaryCase* gridSummaryCase,
-                                           const QString&      wellName,
-                                           const std::string&  vectorName,
-                                           const QDateTime&    currentDate,
-                                           bool*               isOk );
+    static double extractValueForTimeStep( RifSummaryReaderInterface* summaryReader,
+                                           const QString&             wellName,
+                                           const std::string&         vectorName,
+                                           const QDateTime&           currentDate,
+                                           bool*                      isOk );
 };

@@ -36,6 +36,8 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 
+#include "cvfAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -96,13 +98,15 @@ bool RimSimWellInViewTools::isInjector( RimSimWellInView* well )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimSimWellInViewTools::extractValueForTimeStep( RimGridSummaryCase* gridSummaryCase,
-                                                       const QString&      wellName,
-                                                       const std::string&  vectorName,
-                                                       const QDateTime&    currentDate,
-                                                       bool*               isOk )
+double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface* summaryReader,
+                                                       const QString&             wellName,
+                                                       const std::string&         vectorName,
+                                                       const QDateTime&           currentDate,
+                                                       bool*                      isOk )
 
 {
+    CVF_ASSERT( summaryReader );
+
     if ( vectorName.empty() )
     {
         *isOk = true;
@@ -124,8 +128,7 @@ double RimSimWellInViewTools::extractValueForTimeStep( RimGridSummaryCase* gridS
                                    false,
                                    -1 );
 
-    RifSummaryReaderInterface* reader = gridSummaryCase->summaryReader();
-    if ( !gridSummaryCase->summaryReader()->hasAddress( addr ) )
+    if ( !summaryReader->hasAddress( addr ) )
     {
         // TODO: better error handling
         std::cerr << "ERROR: no address found for well " << wellName.toStdString() << " " << vectorName << std::endl;
@@ -134,8 +137,8 @@ double RimSimWellInViewTools::extractValueForTimeStep( RimGridSummaryCase* gridS
     }
 
     std::vector<double> values;
-    reader->values( addr, &values );
-    std::vector<time_t> timeSteps = reader->timeSteps( addr );
+    summaryReader->values( addr, &values );
+    std::vector<time_t> timeSteps = summaryReader->timeSteps( addr );
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( values, timeSteps );

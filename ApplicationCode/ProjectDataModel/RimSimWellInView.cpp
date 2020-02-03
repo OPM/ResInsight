@@ -32,6 +32,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimGridSummaryCase.h"
 #include "RimIntersectionCollection.h"
 #include "RimPropertyFilterCollection.h"
 #include "RimSimWellFracture.h"
@@ -646,11 +647,24 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
         currentDate = caseTimeSteps.back();
     }
 
-    RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( this );
+    RifSummaryReaderInterface* summaryReader = nullptr;
+    {
+        RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( this );
+        if ( gridSummaryCase )
+        {
+            summaryReader = gridSummaryCase->summaryReader();
+        }
+    }
+
+    if ( !summaryReader )
+    {
+        m_isValidDisk = false;
+        return -1.0;
+    }
 
     if ( wellDiskConfig.isSingleProperty() )
     {
-        double singleProperty = RimSimWellInViewTools::extractValueForTimeStep( gridSummaryCase,
+        double singleProperty = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
                                                                                 name(),
                                                                                 wellDiskConfig.getSingleProperty(),
                                                                                 currentDate,
@@ -667,7 +681,7 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
     {
         m_isInjector = RimSimWellInViewTools::gridSummaryCaseForWell( this );
 
-        double oil = RimSimWellInViewTools::extractValueForTimeStep( gridSummaryCase,
+        double oil = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
                                                                      name(),
                                                                      wellDiskConfig.getOilProperty(),
                                                                      currentDate,
@@ -678,7 +692,7 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
             return -1.0;
         }
 
-        double gas = RimSimWellInViewTools::extractValueForTimeStep( gridSummaryCase,
+        double gas = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
                                                                      name(),
                                                                      wellDiskConfig.getGasProperty(),
                                                                      currentDate,
@@ -690,7 +704,7 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
             return -1.0;
         }
 
-        double water = RimSimWellInViewTools::extractValueForTimeStep( gridSummaryCase,
+        double water = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
                                                                        name(),
                                                                        wellDiskConfig.getWaterProperty(),
                                                                        currentDate,
