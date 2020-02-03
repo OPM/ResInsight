@@ -63,6 +63,6 @@ void RicShowCumulativePhasePlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicShowCumulativePhasePlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    // actionToSetup->setIcon(QIcon(":/new_icon16x16.png"));
+    actionToSetup->setIcon( QIcon( ":/CumulativePhaseDist16x16.png" ) );
     actionToSetup->setText( "Show Cumulative Phase Distribution Plot" );
 }
