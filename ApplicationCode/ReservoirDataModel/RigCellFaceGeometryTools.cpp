@@ -178,13 +178,14 @@ std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const Rig
     std::set<CellPair> otherCellPairs;
 
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
+
     for ( size_t faultIdx = 0; faultIdx < faults.size(); faultIdx++ )
     {
         const RigFault* fault = faults.at( faultIdx );
 
         const std::vector<RigFault::FaultFace>& faultFaces = fault->faultFaces();
 
-        // #pragma omp parallel for
+#pragma omp parallel for
         for ( int faceIdx = 0; faceIdx < static_cast<int>( faultFaces.size() ); faceIdx++ )
         {
             const RigFault::FaultFace& f = faultFaces[faceIdx];
@@ -282,11 +283,6 @@ std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const Rig
                     continue;
                 }
 
-                if ( otherCellPairs.count( candidate ) > 0 )
-                {
-                    continue;
-                }
-
                 std::vector<size_t>     polygon;
                 std::vector<cvf::Vec3d> intersections;
 
@@ -313,8 +309,11 @@ std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const Rig
 
 #pragma omp critical( critical_section_nnc_computations )
                     {
-                        otherCellPairs.emplace( candidate );
-                        otherConnections.emplace_back( conn );
+                        auto itBoolPair = otherCellPairs.insert( candidate );
+                        if ( itBoolPair.second )
+                        {
+                            otherConnections.emplace_back( conn );
+                        }
                     }
                 }
             }
