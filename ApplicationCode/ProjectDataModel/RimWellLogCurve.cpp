@@ -175,33 +175,42 @@ void RimWellLogCurve::updateZoomInParentPlot()
 {
     const double eps = 1.0e-8;
 
-    RimWellLogPlot* wellLogPlot;
-    firstAncestorOrThisOfType( wellLogPlot );
-    if ( wellLogPlot )
-    {
-        double minPlotDepth, maxPlotDepth;
-        wellLogPlot->availableDepthRange( &minPlotDepth, &maxPlotDepth );
+    RimWellLogTrack* wellLogTrack;
+    firstAncestorOrThisOfType( wellLogTrack );
 
-        bool updatePlotZoom = false;
-        if ( minPlotDepth == std::numeric_limits<double>::infinity() ||
-             maxPlotDepth == -std::numeric_limits<double>::infinity() )
+    if ( wellLogTrack )
+    {
+        wellLogTrack->setAutoScaleXIfNecessary();
+
+        RimWellLogPlot* wellLogPlot;
+        wellLogTrack->firstAncestorOrThisOfType( wellLogPlot );
+
+        if ( wellLogPlot )
         {
-            updatePlotZoom = true;
-        }
-        else
-        {
-            double plotRange = std::abs( maxPlotDepth - minPlotDepth );
-            double minCurveDepth, maxCurveDepth;
-            m_curveData->calculateDepthRange( wellLogPlot->depthType(),
-                                              wellLogPlot->depthUnit(),
-                                              &minCurveDepth,
-                                              &maxCurveDepth );
-            updatePlotZoom = minCurveDepth < minPlotDepth - eps * plotRange ||
-                             maxCurveDepth > maxPlotDepth + eps * plotRange;
-        }
-        if ( updatePlotZoom )
-        {
-            wellLogPlot->setAutoScaleDepthEnabled( true );
+            double minPlotDepth, maxPlotDepth;
+            wellLogPlot->availableDepthRange( &minPlotDepth, &maxPlotDepth );
+
+            bool updateDepthZoom = false;
+            if ( minPlotDepth == std::numeric_limits<double>::infinity() ||
+                 maxPlotDepth == -std::numeric_limits<double>::infinity() )
+            {
+                updateDepthZoom = true;
+            }
+            else
+            {
+                double plotRange = std::abs( maxPlotDepth - minPlotDepth );
+                double minCurveDepth, maxCurveDepth;
+                m_curveData->calculateDepthRange( wellLogPlot->depthType(),
+                                                  wellLogPlot->depthUnit(),
+                                                  &minCurveDepth,
+                                                  &maxCurveDepth );
+                updateDepthZoom = minCurveDepth < minPlotDepth - eps * plotRange ||
+                                  maxCurveDepth > maxPlotDepth + eps * plotRange;
+            }
+            if ( updateDepthZoom )
+            {
+                wellLogPlot->setAutoScaleDepthEnabled( true );
+            }
             wellLogPlot->updateZoom();
         }
     }
@@ -243,5 +252,19 @@ void RimWellLogCurve::calculateCurveDataXRange()
             m_curveDataXRange.first  = std::min( m_curveDataXRange.first, xValue );
             m_curveDataXRange.second = std::max( m_curveDataXRange.second, xValue );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                        const QVariant&            oldValue,
+                                        const QVariant&            newValue )
+{
+    RimPlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
+    if ( changedField == &m_showCurve )
+    {
+        updateZoomInParentPlot();
     }
 }
