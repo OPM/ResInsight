@@ -19,13 +19,94 @@
 
 #include "RiuWellLogTrack.h"
 
+#include "RimWellLogCurve.h"
+#include "RimWellLogExtractionCurve.h"
 #include "RimWellLogTrack.h"
+
+#include "RiuQwtCurvePointTracker.h"
+#include "RiuRimQwtPlotCurve.h"
 
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
 #include "qwt_scale_widget.h"
 
 #include <QWheelEvent>
+
+class RiuWellLogCurvePointTracker : public RiuQwtCurvePointTracker
+{
+public:
+    RiuWellLogCurvePointTracker( QwtPlot* plot, IPlotCurveInfoTextProvider* curveInfoTextProvider )
+        : RiuQwtCurvePointTracker( plot, false, curveInfoTextProvider )
+    {
+    }
+
+protected:
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    QwtText trackerText( const QPoint& pos ) const override
+    {
+        QwtText txt;
+
+        if ( m_plot )
+        {
+            QwtPlot::Axis relatedYAxis = QwtPlot::yLeft;
+            QwtPlot::Axis relatedXAxis = QwtPlot::xTop;
+
+            QString curveInfoText;
+            QString depthAxisValueString;
+            QString xAxisValueString;
+            QPointF closestPoint = closestCurvePoint( pos,
+                                                      &curveInfoText,
+                                                      &xAxisValueString,
+                                                      &depthAxisValueString,
+                                                      &relatedXAxis,
+                                                      &relatedYAxis );
+            if ( !closestPoint.isNull() )
+            {
+                QString str = QString( "depth = %1, value = %2" ).arg( depthAxisValueString ).arg( xAxisValueString );
+
+                if ( !curveInfoText.isEmpty() )
+                {
+                    str = QString( "%1: " ).arg( curveInfoText ) + str;
+                }
+
+                txt.setText( str );
+            }
+
+            updateClosestCurvePointMarker( closestPoint, relatedXAxis, relatedYAxis );
+        }
+
+        return txt;
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class WellLogCurveInfoTextProvider : public IPlotCurveInfoTextProvider
+{
+public:
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    QString curveInfoText( QwtPlotCurve* curve ) override
+    {
+        RiuRimQwtPlotCurve* riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>( curve );
+        RimWellLogCurve*    wlCurve  = nullptr;
+        if ( riuCurve )
+        {
+            wlCurve = dynamic_cast<RimWellLogCurve*>( riuCurve->ownerRimCurve() );
+            if ( wlCurve )
+            {
+                return QString( "%1" ).arg( wlCurve->curveName() );
+            }
+        }
+
+        return "";
+    }
+};
+static WellLogCurveInfoTextProvider wellLogCurveInfoTextProvider;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,6 +118,8 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nu
     setAxisEnabled( QwtPlot::yRight, false );
     setAxisEnabled( QwtPlot::xTop, true );
     setAxisEnabled( QwtPlot::xBottom, false );
+
+    new RiuWellLogCurvePointTracker( this, &wellLogCurveInfoTextProvider );
 }
 
 //--------------------------------------------------------------------------------------------------
