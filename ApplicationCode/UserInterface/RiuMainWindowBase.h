@@ -90,6 +90,7 @@ protected:
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
     void addViewerToMdiArea( QMdiArea* mdiArea, QWidget* viewer, const QPoint& subWindowPos, const QSize& subWindowSize );
+    void slotRefreshHelpActions();
 
 protected:
     caf::PdmUiTreeView* m_projectTreeView;
