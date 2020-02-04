@@ -157,39 +157,39 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
                 bool showNncs           = true;
                 bool showCompleteNncGeo = false;
 
-                if ( faultCollection->hideNncsWhenNoResultIsAvailable() )
+                RigEclipseResultAddress eclipseResultAddress;
+                if ( faultResultColors->showCustomFaultResult() )
                 {
-                    RigEclipseResultAddress eclipseResultAddress;
-                    if ( faultResultColors->showCustomFaultResult() )
-                    {
-                        eclipseResultAddress = faultResultColors->customFaultResult()->eclipseResultAddress();
-                    }
-                    else
-                    {
-                        eclipseResultAddress = cellResultColors->eclipseResultAddress();
-                    }
+                    eclipseResultAddress = faultResultColors->customFaultResult()->eclipseResultAddress();
+                }
+                else
+                {
+                    eclipseResultAddress = cellResultColors->eclipseResultAddress();
+                }
 
-                    if ( eclipseResultAddress.m_resultCatType == RiaDefines::ALLEN_DIAGRAMS )
-                    {
-                        showCompleteNncGeo = true;
-                    }
+                if ( eclipseResultAddress.m_resultCatType == RiaDefines::ALLEN_DIAGRAMS )
+                {
+                    showCompleteNncGeo = true;
+                }
 
-                    {
-                        QStringList stringsToMatch{RiaDefines::combinedRiTranResultName(),
-                                                   RiaDefines::combinedRiMultResultName(),
-                                                   RiaDefines::combinedRiAreaNormTranResultName(),
-                                                   RiaDefines::combinedTransmissibilityResultName(),
-                                                   RiaDefines::combinedMultResultName()};
+                {
+                    QStringList stringsToMatch{RiaDefines::combinedRiTranResultName(),
+                                               RiaDefines::combinedRiMultResultName(),
+                                               RiaDefines::combinedRiAreaNormTranResultName(),
+                                               RiaDefines::combinedTransmissibilityResultName(),
+                                               RiaDefines::combinedMultResultName()};
 
-                        for ( const auto& s : stringsToMatch )
+                    for ( const auto& s : stringsToMatch )
+                    {
+                        if ( eclipseResultAddress.m_resultName.contains( s, Qt::CaseInsensitive ) )
                         {
-                            if ( eclipseResultAddress.m_resultName.contains( s, Qt::CaseInsensitive ) )
-                            {
-                                showCompleteNncGeo = true;
-                            }
+                            showCompleteNncGeo = true;
                         }
                     }
+                }
 
+                if ( faultCollection->hideNncsWhenNoResultIsAvailable() )
+                {
                     RigMainGrid* mainGrid = m_reservoirView->mainGrid();
                     if ( !( mainGrid && mainGrid->nncData()->hasScalarValues( eclipseResultAddress ) ) )
                     {
