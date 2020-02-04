@@ -542,6 +542,9 @@ void RiuMainWindow::createMenus()
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpSummaryCommandLineFeature" ) );
     helpMenu->addSeparator();
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpOpenUsersGuideFeature" ) );
+    helpMenu->addAction( cmdFeatureMgr->action( "RicSearchHelpFeature" ) );
+
+    connect( helpMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshHelpActions() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

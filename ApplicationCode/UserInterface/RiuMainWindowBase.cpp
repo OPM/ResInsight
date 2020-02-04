@@ -30,6 +30,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiTreeView.h"
 
+#include "cafCmdFeatureManager.h"
 #include <QDockWidget>
 #include <QMdiArea>
 #include <QMdiSubWindow>
@@ -389,4 +390,12 @@ void RiuMainWindowBase::addViewerToMdiArea( QMdiArea*     mdiArea,
             tileSubWindows();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::slotRefreshHelpActions()
+{
+    caf::CmdFeatureManager::instance()->action( "RicSearchHelpFeature" );
 }
