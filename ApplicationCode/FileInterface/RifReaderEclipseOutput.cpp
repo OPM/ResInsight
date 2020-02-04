@@ -133,6 +133,7 @@ bool transferGridCellData( RigMainGrid*         mainGrid,
 
     int               progTicks           = 100;
     int               cellsPrProgressTick = std::max( 1, cellCount / progTicks );
+    size_t            maxProgressCell     = static_cast<size_t>( cellsPrProgressTick * progTicks );
     caf::ProgressInfo progInfo( progTicks, "" );
 
     size_t computedCellCount = 0;
@@ -205,7 +206,8 @@ bool transferGridCellData( RigMainGrid*         mainGrid,
 #pragma omp critical
         {
             computedCellCount++;
-            if ( computedCellCount % cellsPrProgressTick == 0 ) progInfo.incrementProgress();
+            if ( computedCellCount <= maxProgressCell && computedCellCount % cellsPrProgressTick == 0 )
+                progInfo.incrementProgress();
         }
     }
     return true;
