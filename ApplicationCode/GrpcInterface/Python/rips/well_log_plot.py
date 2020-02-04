@@ -41,7 +41,7 @@ class WellLogPlot(Plot):
                                                                                            exportTvdRkb=export_tvdrkb,
                                                                                            capitalizeFileNames=capitalize_file_names,
                                                                                            resampleInterval=resample_interval,
-                                                                                           convertCurveUnits=convert_to_standard_units)
+                                                                                           convertCurveUnits=convert_to_standard_units))
         return res.exportWellLogPlotDataResult.exportedFiles
 
     def export_data_as_ascii(self, export_folder, file_prefix='', capitalize_file_names=False):
