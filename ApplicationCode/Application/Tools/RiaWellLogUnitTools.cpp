@@ -299,7 +299,7 @@ std::vector<double> RiaWellLogUnitTools::convertBarToNormalizedByPP( const std::
 std::vector<double> RiaWellLogUnitTools::multiply( const std::vector<double>& valuesIn, double factor )
 {
     std::vector<double> valuesOut( valuesIn.size(), std::numeric_limits<double>::infinity() );
-    for ( size_t i = 0; i < 100; ++i )
+    for ( size_t i = 0; i < valuesIn.size(); ++i )
     {
         valuesOut[i] = valuesIn[i] * factor;
     }
