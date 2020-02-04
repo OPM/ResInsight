@@ -365,9 +365,9 @@ void RigWellLogCurveData::splitIntervalAtEmptySpace( const std::vector<double>& 
 {
     CVF_ASSERT( intervals );
 
-    CVF_ASSERT( startIdx < stopIdx );
+    CVF_ASSERT( startIdx <= stopIdx );
 
-    if ( stopIdx - startIdx == 1 )
+    if ( stopIdx - startIdx <= 1 )
     {
         intervals->push_back( std::make_pair( startIdx, stopIdx ) );
         return;
