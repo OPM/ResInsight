@@ -151,6 +151,11 @@ void AppEnum<RiuPlotAnnotationTool::RegionDisplay>::setUp()
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellLogTrack::RimWellLogTrack()
+    : m_availableXRangeMin( RI_LOGPLOTTRACK_MINX_DEFAULT )
+    , m_availableXRangeMax( RI_LOGPLOTTRACK_MAXX_DEFAULT )
+    , m_availableDepthRangeMin( RI_LOGPLOTTRACK_MINX_DEFAULT )
+    , m_availableDepthRangeMax( RI_LOGPLOTTRACK_MAXX_DEFAULT )
+
 {
     CAF_PDM_InitObject( "Track", ":/WellLogTrack16x16.png", "", "" );
 
@@ -163,12 +168,12 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitField( &m_visibleXRangeMin, "VisibleXRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min", "", "", "" );
     CAF_PDM_InitField( &m_visibleXRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max", "", "", "" );
-    CAF_PDM_InitField( &m_visibleYRangeMin, "VisibleYRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min", "", "", "" );
-    CAF_PDM_InitField( &m_visibleYRangeMax, "VisibleYRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max", "", "", "" );
-    m_visibleYRangeMin.uiCapability()->setUiHidden( true );
-    m_visibleYRangeMin.xmlCapability()->disableIO();
-    m_visibleYRangeMax.uiCapability()->setUiHidden( true );
-    m_visibleYRangeMax.xmlCapability()->disableIO();
+    CAF_PDM_InitField( &m_visibleDepthRangeMin, "VisibleYRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min", "", "", "" );
+    CAF_PDM_InitField( &m_visibleDepthRangeMax, "VisibleYRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max", "", "", "" );
+    m_visibleDepthRangeMin.uiCapability()->setUiHidden( true );
+    m_visibleDepthRangeMin.xmlCapability()->disableIO();
+    m_visibleDepthRangeMax.uiCapability()->setUiHidden( true );
+    m_visibleDepthRangeMax.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_isAutoScaleXEnabled, "AutoScaleX", true, "Auto Scale", "", "", "" );
     m_isAutoScaleXEnabled.uiCapability()->setUiHidden( true );
@@ -344,11 +349,6 @@ void RimWellLogTrack::calculateXZoomRange()
             stCurve->updateStackedPlotData();
     }
 
-    if ( !m_isAutoScaleXEnabled() )
-    {
-        return;
-    }
-
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
 
@@ -387,11 +387,8 @@ void RimWellLogTrack::calculateXZoomRange()
         std::tie( minValue, maxValue ) = adjustXRange( minValue, maxValue, m_minorTickInterval() );
     }
 
-    m_visibleXRangeMin = minValue;
-    m_visibleXRangeMax = maxValue;
-
-    computeAndSetXRangeMinForLogarithmicScale();
-    updateEditors();
+    m_availableXRangeMin = minValue;
+    m_availableXRangeMax = maxValue;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,8 +439,8 @@ void RimWellLogTrack::calculateYZoomRange()
         }
     }
 
-    m_visibleYRangeMin = minDepth;
-    m_visibleYRangeMax = maxDepth;
+    m_availableDepthRangeMin = minDepth;
+    m_availableDepthRangeMax = maxDepth;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -453,9 +450,15 @@ void RimWellLogTrack::updateXZoom()
 {
     if ( !m_plotWidget ) return;
 
+    calculateXZoomRange();
+
     if ( m_isAutoScaleXEnabled )
     {
-        calculateXZoomRange();
+        m_visibleXRangeMin = m_availableXRangeMin;
+        m_visibleXRangeMax = m_availableXRangeMax;
+
+        computeAndSetXRangeMinForLogarithmicScale();
+        updateEditors();
     }
 
     updateXAxisAndGridTickIntervals();
@@ -479,7 +482,7 @@ void RimWellLogTrack::updateYZoom()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisRange( QwtPlot::yLeft, m_visibleYRangeMin(), m_visibleYRangeMax() );
+    m_plotWidget->setAxisRange( QwtPlot::yLeft, m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -554,7 +557,6 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         if ( m_isAutoScaleXEnabled() )
         {
-            calculateXZoomRange();
             updateXZoom();
             m_plotWidget->scheduleReplot();
         }
@@ -568,7 +570,6 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         }
         m_explicitTickIntervals.uiCapability()->setUiHidden( m_isLogarithmicScaleEnabled() );
 
-        calculateXZoomRange();
         updateXZoom();
         m_plotWidget->scheduleReplot();
     }
@@ -863,10 +864,10 @@ void RimWellLogTrack::updateZoomFromQwt()
     QwtInterval xInterval     = m_plotWidget->axisRange( QwtPlot::xTop );
     QwtInterval depthInterval = m_plotWidget->axisRange( QwtPlot::yLeft );
 
-    m_visibleXRangeMin = xInterval.minValue();
-    m_visibleXRangeMax = xInterval.maxValue();
-    m_visibleYRangeMin = depthInterval.minValue();
-    m_visibleYRangeMax = depthInterval.maxValue();
+    m_visibleXRangeMin     = xInterval.minValue();
+    m_visibleXRangeMax     = xInterval.maxValue();
+    m_visibleDepthRangeMin = depthInterval.minValue();
+    m_visibleDepthRangeMax = depthInterval.maxValue();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1048,8 +1049,8 @@ void RimWellLogTrack::deleteAllCurves()
 void RimWellLogTrack::availableXAxisRange( double* minX, double* maxX )
 {
     calculateXZoomRange();
-    *minX = m_visibleXRangeMin;
-    *maxX = m_visibleXRangeMax;
+    *minX = m_availableXRangeMin;
+    *maxX = m_availableXRangeMax;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1058,8 +1059,28 @@ void RimWellLogTrack::availableXAxisRange( double* minX, double* maxX )
 void RimWellLogTrack::availableDepthRange( double* minimumDepth, double* maximumDepth )
 {
     calculateYZoomRange();
-    *minimumDepth = m_visibleYRangeMin;
-    *maximumDepth = m_visibleYRangeMax;
+    *minimumDepth = m_availableDepthRangeMin;
+    *maximumDepth = m_availableDepthRangeMax;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::visibleXAxisRange( double* minX, double* maxX )
+{
+    CAF_ASSERT( minX && maxX );
+    *minX = m_visibleXRangeMin;
+    *maxX = m_visibleXRangeMax;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::visibleDepthRange( double* minDepth, double* maxDepth )
+{
+    CAF_ASSERT( minDepth && maxDepth );
+    *minDepth = m_visibleDepthRangeMin;
+    *maxDepth = m_visibleDepthRangeMax;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1176,9 +1197,36 @@ void RimWellLogTrack::setAutoScaleXEnabled( bool enabled )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Empty implementation as Well Log Tracks always has depth set by Well Log Plot
+///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setAutoScaleYEnabled( bool enabled ) {}
+void RimWellLogTrack::setAutoScaleYEnabled( bool enabled )
+{
+    if ( enabled )
+    {
+        m_visibleDepthRangeMin = m_availableDepthRangeMin;
+        m_visibleDepthRangeMax = m_availableDepthRangeMax;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAutoScaleXIfNecessary()
+{
+    calculateXZoomRange();
+    // If the new range is larger than the existing
+    if ( m_availableXRangeMin < m_visibleXRangeMin || m_availableXRangeMax > m_visibleXRangeMax )
+    {
+        setAutoScaleXEnabled( true );
+    }
+    // If the new range is much smaller than the existing
+    if ( std::abs( m_availableXRangeMax - m_availableXRangeMin ) <
+         0.1 * std::abs( m_visibleXRangeMax - m_visibleXRangeMin ) )
+    {
+        setAutoScaleXEnabled( true );
+    }
+    updateXZoom();
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1391,8 +1439,8 @@ void RimWellLogTrack::setVisibleXRange( double minValue, double maxValue )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setVisibleYRange( double minValue, double maxValue )
 {
-    m_visibleYRangeMin = minValue;
-    m_visibleYRangeMax = maxValue;
+    m_visibleDepthRangeMin = minValue;
+    m_visibleDepthRangeMax = maxValue;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1543,8 +1591,6 @@ void RimWellLogTrack::zoomAll()
 {
     setAutoScaleXEnabled( true );
     setAutoScaleYEnabled( true );
-    calculateXZoomRange();
-    calculateYZoomRange();
     updateZoomInQwt();
 }
 

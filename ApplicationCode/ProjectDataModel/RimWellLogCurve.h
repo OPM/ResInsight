@@ -80,6 +80,7 @@ protected:
     void updateLegendsInPlot() override;
     void setOverrideCurveDataXRange( double minimumValue, double maximumValue );
     void calculateCurveDataXRange();
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
 private:
     cvf::ref<RigWellLogCurveData> m_curveData;

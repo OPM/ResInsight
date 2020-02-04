@@ -140,9 +140,13 @@ public:
 
     void setAutoScaleXEnabled( bool enabled ) override;
     void setAutoScaleYEnabled( bool enabled ) override;
+    void setAutoScaleXIfNecessary();
 
     void availableXAxisRange( double* minX, double* maxX );
     void availableDepthRange( double* minimumDepth, double* maximumDepth );
+
+    void visibleXAxisRange( double* minX, double* maxX );
+    void visibleDepthRange( double* minimumDepth, double* maximumDepth );
 
     void setVisibleXRange( double minValue, double maxValue );
     void setVisibleYRange( double minValue, double maxValue );
@@ -283,8 +287,8 @@ private:
     caf::PdmChildArrayField<RimWellLogCurve*> m_curves;
     caf::PdmField<double>                     m_visibleXRangeMin;
     caf::PdmField<double>                     m_visibleXRangeMax;
-    caf::PdmField<double>                     m_visibleYRangeMin;
-    caf::PdmField<double>                     m_visibleYRangeMax;
+    caf::PdmField<double>                     m_visibleDepthRangeMin;
+    caf::PdmField<double>                     m_visibleDepthRangeMax;
 
     caf::PdmField<bool>                         m_isAutoScaleXEnabled;
     caf::PdmField<bool>                         m_isLogarithmicScaleEnabled;
@@ -326,4 +330,9 @@ private:
 
     QPointer<RiuWellLogTrack>              m_plotWidget;
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
+
+    double m_availableXRangeMin;
+    double m_availableXRangeMax;
+    double m_availableDepthRangeMin;
+    double m_availableDepthRangeMax;
 };
