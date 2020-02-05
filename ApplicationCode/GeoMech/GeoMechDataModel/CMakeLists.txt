@@ -33,9 +33,11 @@ add_library( ${PROJECT_NAME}
 	RigFemResultAddress.h
 	RigFemResultPosEnum.h
 	RimFemResultObserver.h
-    RimFemResultObserver.cpp
-    RimGeoMechGeometrySelectionItem.h
-    RimGeoMechGeometrySelectionItem.cpp
+	RimFemResultObserver.cpp
+	RigHexGradientTools.h
+	RigHexGradientTools.cpp
+	RimGeoMechGeometrySelectionItem.h
+	RimGeoMechGeometrySelectionItem.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

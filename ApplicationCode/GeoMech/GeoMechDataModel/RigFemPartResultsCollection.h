@@ -29,6 +29,7 @@
 #include <QString>
 
 #include <map>
+#include <string>
 #include <vector>
 
 class RifGeoMechReaderInterface;
@@ -156,6 +157,8 @@ private:
     RigFemScalarResultFrames* calculateST_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateGamma( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateFormationIndices( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* calculateStressGradients( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* calculateNodalGradients( int partIndex, const RigFemResultAddress& resVarAddr );
 
     const RigFormationNames* activeFormationNames() const;
 
@@ -172,6 +175,9 @@ private:
     RigStatisticsDataCache*          statistics( const RigFemResultAddress& resVarAddr );
     std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache>> m_resultStatistics;
+
+    static std::vector<std::string> getStressComponentNames();
+    static std::vector<std::string> getStressGradientComponentNames();
 };
 
 class RigFemPart;

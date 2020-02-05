@@ -220,6 +220,85 @@ public:
         return interpolationCoeffs(pointInNormElm);
     }
 
+
+    static cvf::Mat3d jacobi(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::Vec3d & pointInNormalizedElement) 
+    {
+        const double k_1_8 = 0.125;
+
+        double i = pointInNormalizedElement[0];
+        double j = pointInNormalizedElement[1];
+        double k = pointInNormalizedElement[2];
+
+        double ij = i*j;
+        double ik = i*k;
+        double jk = j*k;
+
+        double C0_x = hexCorners[0][0]; double C0_y = hexCorners[0][1]; double C0_z = hexCorners[0][2];
+        double C1_x = hexCorners[1][0]; double C1_y = hexCorners[1][1]; double C1_z = hexCorners[1][2];
+        double C2_x = hexCorners[2][0]; double C2_y = hexCorners[2][1]; double C2_z = hexCorners[2][2];
+        double C3_x = hexCorners[3][0]; double C3_y = hexCorners[3][1]; double C3_z = hexCorners[3][2];
+        double C4_x = hexCorners[4][0]; double C4_y = hexCorners[4][1]; double C4_z = hexCorners[4][2];
+        double C5_x = hexCorners[5][0]; double C5_y = hexCorners[5][1]; double C5_z = hexCorners[5][2];
+        double C6_x = hexCorners[6][0]; double C6_y = hexCorners[6][1]; double C6_z = hexCorners[6][2];
+        double C7_x = hexCorners[7][0]; double C7_y = hexCorners[7][1]; double C7_z = hexCorners[7][2];
+
+        double dN0_di = (- 1 + j + k - jk);
+        double dN1_di = (+ 1 - j - k + jk);
+        double dN2_di = (+ 1 + j - k - jk);
+        double dN3_di = (- 1 - j + k + jk);
+        double dN4_di = (- 1 + j - k + jk);
+        double dN5_di = (+ 1 - j + k - jk);
+        double dN6_di = (+ 1 + j + k + jk);
+        double dN7_di = (- 1 - j - k - jk);
+
+        double dN0_dj = (- 1 + i + k - ik);
+        double dN1_dj = (- 1 - i + k + ik);
+        double dN2_dj = (+ 1 + i - k - ik);
+        double dN3_dj = (+ 1 - i - k + ik);
+        double dN4_dj = (- 1 + i - k + ik);
+        double dN5_dj = (- 1 - i - k - ik);
+        double dN6_dj = (+ 1 + i + k + ik);
+        double dN7_dj = (+ 1 - i + k - ik);
+
+        double dN0_dk = (- 1 + i + j - ij);
+        double dN1_dk = (- 1 - i + j + ij);
+        double dN2_dk = (- 1 - i - j - ij);
+        double dN3_dk = (- 1 + i - j + ij);
+        double dN4_dk = (+ 1 - i - j + ij);
+        double dN5_dk = (+ 1 + i - j - ij);
+        double dN6_dk = (+ 1 + i + j + ij);
+        double dN7_dk = (+ 1 - i + j - ij);
+
+        double dx_di = k_1_8 * ( (dN0_di) * C0_x + (dN1_di) * C1_x + (dN2_di) * C2_x + (dN3_di) * C3_x + (dN4_di) * C4_x + (dN5_di) * C5_x + (dN6_di) * C6_x  + (dN7_di) * C7_x );
+        double dx_dj = k_1_8 * ( (dN0_dj) * C0_x + (dN1_dj) * C1_x + (dN2_dj) * C2_x + (dN3_dj) * C3_x + (dN4_dj) * C4_x + (dN5_dj) * C5_x + (dN6_dj) * C6_x  + (dN7_dj) * C7_x );
+        double dx_dk = k_1_8 * ( (dN0_dk) * C0_x + (dN1_dk) * C1_x + (dN2_dk) * C2_x + (dN3_dk) * C3_x + (dN4_dk) * C4_x + (dN5_dk) * C5_x + (dN6_dk) * C6_x  + (dN7_dk) * C7_x );
+
+        double dy_di = k_1_8 * ( (dN0_di) * C0_y + (dN1_di) * C1_y + (dN2_di) * C2_y + (dN3_di) * C3_y + (dN4_di) * C4_y + (dN5_di) * C5_y + (dN6_di) * C6_y  + (dN7_di) * C7_y );
+        double dy_dj = k_1_8 * ( (dN0_dj) * C0_y + (dN1_dj) * C1_y + (dN2_dj) * C2_y + (dN3_dj) * C3_y + (dN4_dj) * C4_y + (dN5_dj) * C5_y + (dN6_dj) * C6_y  + (dN7_dj) * C7_y );
+        double dy_dk = k_1_8 * ( (dN0_dk) * C0_y + (dN1_dk) * C1_y + (dN2_dk) * C2_y + (dN3_dk) * C3_y + (dN4_dk) * C4_y + (dN5_dk) * C5_y + (dN6_dk) * C6_y  + (dN7_dk) * C7_y );
+        
+        double dz_di = k_1_8 * ( (dN0_di) * C0_z + (dN1_di) * C1_z + (dN2_di) * C2_z + (dN3_di) * C3_z + (dN4_di) * C4_z + (dN5_di) * C5_z + (dN6_di) * C6_z  + (dN7_di) * C7_z );
+        double dz_dj = k_1_8 * ( (dN0_dj) * C0_z + (dN1_dj) * C1_z + (dN2_dj) * C2_z + (dN3_dj) * C3_z + (dN4_dj) * C4_z + (dN5_dj) * C5_z + (dN6_dj) * C6_z  + (dN7_dj) * C7_z );
+        double dz_dk = k_1_8 * ( (dN0_dk) * C0_z + (dN1_dk) * C1_z + (dN2_dk) * C2_z + (dN3_dk) * C3_z + (dN4_dk) * C4_z + (dN5_dk) * C5_z + (dN6_dk) * C6_z  + (dN7_dk) * C7_z );
+    
+        // Do not know which ordering ends up as correct
+
+        #if 1 // Use literature jacobi ordering
+        return cvf::Mat3d(
+            dx_di, dx_dj, dx_dk,
+            dy_di, dy_dj, dy_dk,
+            dz_di, dz_dj, dz_dk
+            );
+        #else // use NTNU ordering
+        return cvf::Mat3d(
+            dx_di, dy_di, dz_di,
+            dx_dj, dy_dj, dz_dj,
+            dx_dk, dy_dk, dz_dk
+            );
+        #endif
+    }
+
+    
 private:
     
     static double interpolateInNormElm( const cvf::Vec3d & pointInNormElm, const std::array<double, 8>& values)
@@ -299,83 +378,6 @@ private:
         }
 
         return normPoint;
-    }
-
-    static cvf::Mat3d jacobi(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::Vec3d & pointInNormalizedElement) 
-    {
-        const double k_1_8 = 0.125;
-
-        double i = pointInNormalizedElement[0];
-        double j = pointInNormalizedElement[1];
-        double k = pointInNormalizedElement[2];
-
-        double ij = i*j;
-        double ik = i*k;
-        double jk = j*k;
-
-        double C0_x = hexCorners[0][0]; double C0_y = hexCorners[0][1]; double C0_z = hexCorners[0][2];
-        double C1_x = hexCorners[1][0]; double C1_y = hexCorners[1][1]; double C1_z = hexCorners[1][2];
-        double C2_x = hexCorners[2][0]; double C2_y = hexCorners[2][1]; double C2_z = hexCorners[2][2];
-        double C3_x = hexCorners[3][0]; double C3_y = hexCorners[3][1]; double C3_z = hexCorners[3][2];
-        double C4_x = hexCorners[4][0]; double C4_y = hexCorners[4][1]; double C4_z = hexCorners[4][2];
-        double C5_x = hexCorners[5][0]; double C5_y = hexCorners[5][1]; double C5_z = hexCorners[5][2];
-        double C6_x = hexCorners[6][0]; double C6_y = hexCorners[6][1]; double C6_z = hexCorners[6][2];
-        double C7_x = hexCorners[7][0]; double C7_y = hexCorners[7][1]; double C7_z = hexCorners[7][2];
-
-        double dN0_di = (- 1 + j + k - jk);
-        double dN1_di = (+ 1 - j - k + jk);
-        double dN2_di = (+ 1 + j - k - jk);
-        double dN3_di = (- 1 - j + k + jk);
-        double dN4_di = (- 1 + j - k + jk);
-        double dN5_di = (+ 1 - j + k - jk);
-        double dN6_di = (+ 1 + j + k + jk);
-        double dN7_di = (- 1 - j - k - jk);
-
-        double dN0_dj = (- 1 + i + k - ik);
-        double dN1_dj = (- 1 - i + k + ik);
-        double dN2_dj = (+ 1 + i - k - ik);
-        double dN3_dj = (+ 1 - i - k + ik);
-        double dN4_dj = (- 1 + i - k + ik);
-        double dN5_dj = (- 1 - i - k - ik);
-        double dN6_dj = (+ 1 + i + k + ik);
-        double dN7_dj = (+ 1 - i + k - ik);
-
-        double dN0_dk = (- 1 + i + j - ij);
-        double dN1_dk = (- 1 - i + j + ij);
-        double dN2_dk = (- 1 - i - j - ij);
-        double dN3_dk = (- 1 + i - j + ij);
-        double dN4_dk = (+ 1 - i - j + ij);
-        double dN5_dk = (+ 1 + i - j - ij);
-        double dN6_dk = (+ 1 + i + j + ij);
-        double dN7_dk = (+ 1 - i + j - ij);
-
-        double dx_di = k_1_8 * ( (dN0_di) * C0_x + (dN1_di) * C1_x + (dN2_di) * C2_x + (dN3_di) * C3_x + (dN4_di) * C4_x + (dN5_di) * C5_x + (dN6_di) * C6_x  + (dN7_di) * C7_x );
-        double dx_dj = k_1_8 * ( (dN0_dj) * C0_x + (dN1_dj) * C1_x + (dN2_dj) * C2_x + (dN3_dj) * C3_x + (dN4_dj) * C4_x + (dN5_dj) * C5_x + (dN6_dj) * C6_x  + (dN7_dj) * C7_x );
-        double dx_dk = k_1_8 * ( (dN0_dk) * C0_x + (dN1_dk) * C1_x + (dN2_dk) * C2_x + (dN3_dk) * C3_x + (dN4_dk) * C4_x + (dN5_dk) * C5_x + (dN6_dk) * C6_x  + (dN7_dk) * C7_x );
-
-        double dy_di = k_1_8 * ( (dN0_di) * C0_y + (dN1_di) * C1_y + (dN2_di) * C2_y + (dN3_di) * C3_y + (dN4_di) * C4_y + (dN5_di) * C5_y + (dN6_di) * C6_y  + (dN7_di) * C7_y );
-        double dy_dj = k_1_8 * ( (dN0_dj) * C0_y + (dN1_dj) * C1_y + (dN2_dj) * C2_y + (dN3_dj) * C3_y + (dN4_dj) * C4_y + (dN5_dj) * C5_y + (dN6_dj) * C6_y  + (dN7_dj) * C7_y );
-        double dy_dk = k_1_8 * ( (dN0_dk) * C0_y + (dN1_dk) * C1_y + (dN2_dk) * C2_y + (dN3_dk) * C3_y + (dN4_dk) * C4_y + (dN5_dk) * C5_y + (dN6_dk) * C6_y  + (dN7_dk) * C7_y );
-        
-        double dz_di = k_1_8 * ( (dN0_di) * C0_z + (dN1_di) * C1_z + (dN2_di) * C2_z + (dN3_di) * C3_z + (dN4_di) * C4_z + (dN5_di) * C5_z + (dN6_di) * C6_z  + (dN7_di) * C7_z );
-        double dz_dj = k_1_8 * ( (dN0_dj) * C0_z + (dN1_dj) * C1_z + (dN2_dj) * C2_z + (dN3_dj) * C3_z + (dN4_dj) * C4_z + (dN5_dj) * C5_z + (dN6_dj) * C6_z  + (dN7_dj) * C7_z );
-        double dz_dk = k_1_8 * ( (dN0_dk) * C0_z + (dN1_dk) * C1_z + (dN2_dk) * C2_z + (dN3_dk) * C3_z + (dN4_dk) * C4_z + (dN5_dk) * C5_z + (dN6_dk) * C6_z  + (dN7_dk) * C7_z );
-    
-        // Do not know which ordering ends up as correct
-
-        #if 1 // Use literature jacobi ordering
-        return cvf::Mat3d(
-            dx_di, dx_dj, dx_dk,
-            dy_di, dy_dj, dy_dk,
-            dz_di, dz_dj, dz_dk
-            );
-        #else // use NTNU ordering
-        return cvf::Mat3d(
-            dx_di, dy_di, dz_di,
-            dx_dj, dy_dj, dz_dj,
-            dx_dk, dy_dk, dz_dk
-            );
-        #endif
     }
 };
 
