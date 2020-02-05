@@ -738,18 +738,29 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
         advancedGroup->add( &wellHeadPosition );
     }
 
-    caf::PdmUiGroup* wellDiskGroup = uiOrdering.addNewGroup( "Well Disk" );
-    wellDiskGroup->add( &m_wellDiskPropertyType );
-    if ( m_wellDiskPropertyType() == PROPERTY_TYPE_PREDEFINED )
     {
-        wellDiskGroup->add( &m_wellDiskPropertyConfigType );
+        caf::PdmUiGroup* wellDiskGroup = uiOrdering.addNewGroup( "Disks" );
+
+        wellDiskGroup->add( &m_wellDiskPropertyType );
+        if ( m_wellDiskPropertyType() == PROPERTY_TYPE_PREDEFINED )
+        {
+            wellDiskGroup->add( &m_wellDiskPropertyConfigType );
+        }
+        else
+        {
+            wellDiskGroup->add( &m_wellDiskQuantity );
+        }
+        wellDiskGroup->add( &m_wellDiskShowQuantityLabels );
+        wellDiskGroup->add( &m_wellDiskshowLabelsBackground );
+
+        bool isReadOnly = m_showWellDisks().isFalse();
+
+        m_wellDiskPropertyType.uiCapability()->setUiReadOnly( isReadOnly );
+        m_wellDiskPropertyConfigType.uiCapability()->setUiReadOnly( isReadOnly );
+        m_wellDiskQuantity.uiCapability()->setUiReadOnly( isReadOnly );
+        m_wellDiskShowQuantityLabels.uiCapability()->setUiReadOnly( isReadOnly );
+        m_wellDiskshowLabelsBackground.uiCapability()->setUiReadOnly( isReadOnly );
     }
-    else
-    {
-        wellDiskGroup->add( &m_wellDiskQuantity );
-    }
-    wellDiskGroup->add( &m_wellDiskShowQuantityLabels );
-    wellDiskGroup->add( &m_wellDiskshowLabelsBackground );
 
     RimEclipseResultCase* ownerCase = nullptr;
     firstAncestorOrThisOfType( ownerCase );

@@ -429,7 +429,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
         auto textColor = simWellInViewCollection()->wellLabelColor();
         drawableText->setTextColor( textColor );
 
-        auto bgColor = RiaColorTools::contrastColor( textColor );
+        auto bgColor = RiaColorTools::contrastColor( textColor, true );
         drawableText->setBackgroundColor( bgColor );
 
         cvf::String cvfString = cvfqt::Utils::toString( labelText );
