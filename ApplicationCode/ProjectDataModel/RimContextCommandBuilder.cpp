@@ -207,6 +207,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicSaveEclipseResultAsInputPropertyFeature";
             menuBuilder << "RicExportContourMapToTextFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
+            menuBuilder << "RicAddEclipseInputPropertyFeature";
         }
         else if ( dynamic_cast<RimEclipseContourMapViewCollection*>( firstUiItem ) )
         {
@@ -269,6 +270,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicExportEclipseInputGridFeature";
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
             menuBuilder << "RicCreateGridCrossPlotFeature";
+            menuBuilder << "RicAddEclipseInputPropertyFeature";
         }
         else if ( dynamic_cast<RimEclipseInputProperty*>( firstUiItem ) )
         {

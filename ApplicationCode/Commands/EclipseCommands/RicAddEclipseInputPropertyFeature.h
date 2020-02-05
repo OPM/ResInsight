@@ -21,8 +21,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimEclipseInputPropertyCollection;
-class QStringList;
+class RimEclipseCase;
 
 //==================================================================================================
 ///
@@ -38,7 +37,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    RimEclipseInputPropertyCollection* selectedInputPropertyCollection() const;
-    static void                        addEclipseInputProperty( const QStringList&                 fileNames,
-                                                                RimEclipseInputPropertyCollection* inputPropertyCollection );
+    RimEclipseCase* getEclipseCase() const;
 };
