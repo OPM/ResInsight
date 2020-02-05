@@ -65,6 +65,16 @@ RimWellMeasurementInView::RimWellMeasurementInView()
     CAF_PDM_InitFieldNoDefault( &m_wellsSerialized, "WellsSerialized", "WellsSerialized", "", "", "" );
     m_wellsSerialized.uiCapability()->setUiHidden( true );
 
+    // Keep track of the wells which has a given measurement in order to automatically select
+    // new wells when they appear in new measurements
+    CAF_PDM_InitFieldNoDefault( &m_availableWellsSerialized,
+                                "AvailableWellsSerialized",
+                                "AvailableWellsSerialized",
+                                "",
+                                "",
+                                "" );
+    // m_availableWellsSerialized.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitField( &m_lowerBound, "LowerBound", -HUGE_VAL, "Min", "", "", "" );
     m_lowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
@@ -324,6 +334,9 @@ QList<caf::PdmOptionItemInfo>
             {
                 options.push_back( caf::PdmOptionItemInfo( wellName, wellName ) );
             }
+
+            selectNewWells( wellsWithMeasurementKind );
+            setAvailableWells( wellsWithMeasurementKind );
         }
     }
     else if ( fieldNeedingOptions == &m_qualityFilter )
@@ -449,4 +462,44 @@ std::vector<QString> RimWellMeasurementInView::convertFromSerializableString( co
 {
     QStringList stringList = string.split( '|' );
     return stringList.toVector().toStdVector();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementInView::selectNewWells( const std::set<QString>& wells )
+{
+    // Check if there are new wells on the measurement kind
+    std::set<QString> currentAvailableWells = getAvailableWells();
+    std::set<QString> newWells;
+    std::set_difference( wells.begin(),
+                         wells.end(),
+                         currentAvailableWells.begin(),
+                         currentAvailableWells.end(),
+                         std::inserter( newWells, newWells.end() ) );
+
+    // Select the new wells
+    for ( const QString& newWell : newWells )
+    {
+        m_wells.v().push_back( newWell );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementInView::setAvailableWells( const std::set<QString>& wells )
+{
+    std::vector<QString> v( wells.begin(), wells.end() );
+    m_availableWellsSerialized = convertToSerializableString( v );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QString> RimWellMeasurementInView::getAvailableWells() const
+{
+    std::vector<QString> v = convertFromSerializableString( m_availableWellsSerialized );
+    std::set<QString>    s( v.begin(), v.end() );
+    return s;
 }

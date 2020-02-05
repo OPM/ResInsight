@@ -87,6 +87,11 @@ private:
     caf::PdmField<double>                       m_upperBound;
     caf::PdmField<std::vector<int>>             m_qualityFilter;
     caf::PdmField<QString>                      m_wellsSerialized;
+    caf::PdmField<QString>                      m_availableWellsSerialized;
+
+    void              selectNewWells( const std::set<QString>& wells );
+    void              setAvailableWells( const std::set<QString>& wells );
+    std::set<QString> getAvailableWells() const;
 
     double m_minimumResultValue;
     double m_maximumResultValue;
