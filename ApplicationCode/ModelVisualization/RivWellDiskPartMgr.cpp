@@ -192,7 +192,8 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
 
     int numberPrecision = 2;
 
-    double accumulatedPropertyValue = 0.0;
+    double       accumulatedPropertyValue = 0.0;
+    const double valueThresholdForLabel   = 1e-6;
 
     QString         labelText = m_rimWell->name();
     RigWellDiskData diskData  = m_rimWell->wellDiskData();
@@ -210,7 +211,9 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
         if ( simWellInViewCollection()->showWellDiskQuantityLables() )
         {
             const double singleProperty = diskData.singlePropertyValue();
-            labelText += QString( "\n%2" ).arg( singleProperty, 0, 'g', numberPrecision );
+            if ( singleProperty > valueThresholdForLabel )
+
+                labelText += QString( "\n%2" ).arg( singleProperty, 0, 'g', numberPrecision );
         }
     }
     else
@@ -226,17 +229,18 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
 
         accumulatedPropertyValue = total;
 
-        const double threshold = 1e-6;
-        if ( total > threshold )
+        if ( total > valueThresholdForLabel )
         {
             double aggregatedFraction = 0.0;
 
+            if ( oilFraction > valueThresholdForLabel )
             {
                 auto p = createTextAndLocation( oilFraction / 2.0, diskPosition, ijScaleFactor, oil, numberPrecision );
                 labelsWithPosition.push_back( p );
                 aggregatedFraction += oilFraction;
             }
 
+            if ( gasFraction > valueThresholdForLabel )
             {
                 auto p = createTextAndLocation( aggregatedFraction + gasFraction / 2.0,
                                                 diskPosition,
@@ -247,6 +251,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
                 aggregatedFraction += gasFraction;
             }
 
+            if ( waterFraction > valueThresholdForLabel )
             {
                 auto p = createTextAndLocation( aggregatedFraction + waterFraction / 2.0,
                                                 diskPosition,
@@ -288,8 +293,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
     }
     geo1->setColorArray( colorArray.p() );
 
-    double threshold = 0.1;
-    if ( accumulatedPropertyValue > threshold )
+    if ( accumulatedPropertyValue > valueThresholdForLabel )
     {
         {
             cvf::ref<cvf::Part> part = new cvf::Part;
