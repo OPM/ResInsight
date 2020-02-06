@@ -106,13 +106,17 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
         {
             targetPointInDomain = wellPathSourceInfo->closestPointOnCenterLine( firstPickItem.faceIdx(),
                                                                                 intersectionPointInDomain );
-
             double md = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
             doSetAzimuthAndInclination =
                 calculateAzimuthAndInclinationAtMd( md,
                                                     wellPathSourceInfo->wellPath()->wellPathGeometry(),
                                                     &azimuth,
                                                     &inclination );
+            double rkbDiff = wellPathSourceInfo->wellPath()->wellPathGeometry()->rkbDiff();
+            if ( m_geometryToAddTargetsTo->airGap() == 0.0 && rkbDiff != std::numeric_limits<double>::infinity() )
+            {
+                m_geometryToAddTargetsTo->setAirGap( rkbDiff );
+            }
         }
         else if ( isGridSourceObject( firstPickItem.sourceInfo() ) )
         {
