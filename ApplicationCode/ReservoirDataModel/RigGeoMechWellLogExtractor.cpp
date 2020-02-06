@@ -217,7 +217,7 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
             }
         }
     }
-    return RiaWellLogUnitTools::noUnitString();
+    return RiaWellLogUnitTools::sg_emwUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -754,7 +754,7 @@ QString RigGeoMechWellLogExtractor::parameterInputUnits( const RigWbsParameter& 
     {
         return RiaWellLogUnitTools::barUnitString();
     }
-    return RiaWellLogUnitTools::noUnitString();
+    return RiaWellLogUnitTools::sg_emwUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------
