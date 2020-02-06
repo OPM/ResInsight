@@ -36,6 +36,7 @@
 #include "RiuViewerCommands.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
@@ -52,7 +53,7 @@ void caf::AppEnum<RimWellPathGeometryDef::WellStartType>::setUp()
     addItem( RimWellPathGeometryDef::START_FROM_OTHER_WELL, "START_FROM_OTHER_WELL", "Branch" );
     addItem( RimWellPathGeometryDef::START_AT_AUTO_SURFACE, "START_AT_AUTO_SURFACE", "Auto Surface" );
 
-    setDefault( RimWellPathGeometryDef::START_AT_FIRST_TARGET );
+    setDefault( RimWellPathGeometryDef::START_AT_SURFACE );
 }
 } // namespace caf
 
@@ -75,8 +76,9 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_mdrkbAtFirstTarget, "MdrkbAtFirstTarget", 0.0, "MDRKB at First Target", "", "", "" );
-
+    CAF_PDM_InitField( &m_airGap, "AirGap", 0.0, "Air Gap", "", "", "" );
+    m_airGap.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_mdAtFirstTarget, "MdAtFirstTarget", 0.0, "MD at First Target", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_wellTargets, "WellPathTargets", "Well Targets", "", "", "" );
     m_wellTargets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     // m_wellTargets.uiCapability()->setUiTreeHidden(true);
@@ -97,14 +99,12 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
                        "" );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_referencePointXyz_OBSOLETE );
 
-    /// To be removed ?
-
     CAF_PDM_InitFieldNoDefault( &m_wellStartType, "WellStartType", "Start Type", "", "", "" );
     m_wellStartType.xmlCapability()->disableIO();
+
+    /// To be removed ?
     CAF_PDM_InitFieldNoDefault( &m_parentWell, "ParentWell", "Parent Well", "", "", "" );
     m_parentWell.xmlCapability()->disableIO();
-    CAF_PDM_InitField( &m_kickoffDepthOrMD, "KickoffDepthOrMD", 100.0, "Kickoff Depth", "", "", "" );
-    m_kickoffDepthOrMD.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,9 +135,25 @@ void RimWellPathGeometryDef::setReferencePointXyz( const cvf::Vec3d& refPointXyz
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimWellPathGeometryDef::airGap() const
+{
+    return m_airGap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::setAirGap( double airGap )
+{
+    m_airGap = airGap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimWellPathGeometryDef::mdrkbAtFirstTarget() const
 {
-    return m_mdrkbAtFirstTarget;
+    return m_mdAtFirstTarget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,7 +161,7 @@ double RimWellPathGeometryDef::mdrkbAtFirstTarget() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGeometryDef::setMdrkbAtFirstTarget( double mdrkb )
 {
-    m_mdrkbAtFirstTarget = mdrkb;
+    m_mdAtFirstTarget = mdrkb;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,6 +181,37 @@ cvf::ref<RigWellPath> RimWellPathGeometryDef::createWellPathGeometry()
                                         false,
                                         &( wellPathGeometry->m_wellPathPoints ),
                                         &( wellPathGeometry->m_measuredDepths ) );
+
+    if ( m_airGap != 0.0 )
+    {
+        wellPathGeometry->setDatumElevation( m_airGap );
+    }
+
+    if ( m_wellStartType == START_AT_SURFACE && !wellPathGeometry->m_wellPathPoints.empty() )
+    {
+        cvf::Vec3d mslPoint = wellPathGeometry->m_wellPathPoints.front();
+        mslPoint.z()        = 0.0;
+        double depthDiff    = mslPoint.z() - wellPathGeometry->m_wellPathPoints.front().z();
+        if ( std::abs( depthDiff ) > 1.0e-8 )
+        {
+            CAF_ASSERT( wellPathGeometry->m_wellPathPoints.size() == wellPathGeometry->m_measuredDepths.size() );
+
+            std::vector<cvf::Vec3d> newPoints;
+            newPoints.reserve( wellPathGeometry->m_wellPathPoints.size() + 1 );
+            std::vector<double> newMds;
+            newMds.reserve( wellPathGeometry->m_measuredDepths.size() + 1 );
+
+            newPoints.push_back( mslPoint );
+            newMds.push_back( 0.0 );
+            for ( size_t i = 0; i < wellPathGeometry->m_wellPathPoints.size(); ++i )
+            {
+                newPoints.push_back( wellPathGeometry->m_wellPathPoints[i] );
+                newMds.push_back( wellPathGeometry->m_measuredDepths[i] + depthDiff );
+            }
+            wellPathGeometry->m_wellPathPoints.swap( newPoints );
+            wellPathGeometry->m_measuredDepths.swap( newMds );
+        }
+    }
 
     return wellPathGeometry;
 }
@@ -312,6 +359,8 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_wellStartType )
     {
+        options.push_back( caf::PdmOptionItemInfo( "Start at Surface", RimWellPathGeometryDef::START_AT_SURFACE ) );
+
         options.push_back(
             caf::PdmOptionItemInfo( "Start at First Target", RimWellPathGeometryDef::START_AT_FIRST_TARGET ) );
     }
@@ -344,21 +393,12 @@ void RimWellPathGeometryDef::fieldChangedByUi( const caf::PdmFieldHandle* change
 void RimWellPathGeometryDef::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_wellStartType );
-    if ( m_wellStartType == START_FROM_OTHER_WELL )
-    {
-        uiOrdering.add( &m_parentWell );
-        m_kickoffDepthOrMD.uiCapability()->setUiName( "Measured Depth" );
-        uiOrdering.add( &m_kickoffDepthOrMD );
-    }
-
-    if ( m_wellStartType == START_AT_SURFACE )
-    {
-        m_kickoffDepthOrMD.uiCapability()->setUiName( "Kick-Off Depth" );
-        uiOrdering.add( &m_kickoffDepthOrMD );
-    }
-
     uiOrdering.add( &m_referencePointUtmXyd );
-    uiOrdering.add( &m_mdrkbAtFirstTarget );
+    uiOrdering.add( &m_airGap );
+    if ( m_wellStartType == START_AT_FIRST_TARGET )
+    {
+        uiOrdering.add( &m_mdAtFirstTarget );
+    }
     uiOrdering.add( &m_wellTargets );
     uiOrdering.add( &m_pickPointsEnabled );
     uiOrdering.skipRemainingFields( true );
@@ -498,6 +538,16 @@ void RimWellPathGeometryDef::defineEditorAttribute( const caf::PdmFieldHandle* f
             uiDisplayStringAttr->m_displayString = QString::number( m_referencePointUtmXyd()[0], 'f', 2 ) + " " +
                                                    QString::number( m_referencePointUtmXyd()[1], 'f', 2 ) + " " +
                                                    QString::number( m_referencePointUtmXyd()[2], 'f', 2 );
+        }
+    }
+
+    if ( field == &m_airGap )
+    {
+        auto uiDoubleValueEditorAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
+        if ( uiDoubleValueEditorAttr )
+        {
+            uiDoubleValueEditorAttr->m_decimals  = 2;
+            uiDoubleValueEditorAttr->m_validator = new QDoubleValidator( 0.0, std::numeric_limits<double>::max(), 2 );
         }
     }
 }
