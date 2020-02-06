@@ -32,10 +32,12 @@ public:
     static const double UNIT_WEIGHT_OF_WATER;
 
     static QString noUnitString();
+    static QString sg_emwUnitString();
     static QString barUnitString();
     static QString barX100UnitString();
     static QString MPaUnitString();
     static QString gPerCm3UnitString();
+    static QString pascalUnitString();
 
 public:
     static std::vector<double> convertDepths( const std::vector<double>& depthsIn,
