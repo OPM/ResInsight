@@ -30,6 +30,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmProxyValueField.h"
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"
@@ -83,6 +84,9 @@ public:
 
     void                            setUnitSystem( RiaEclipseUnitTools::UnitSystem unitSystem );
     RiaEclipseUnitTools::UnitSystem unitSystem() const;
+
+    double airGap() const;
+    double datumElevation() const;
 
     RigWellPath*       wellPathGeometry();
     const RigWellPath* wellPathGeometry() const;
@@ -150,8 +154,9 @@ protected:
 
     // Fields
 protected:
-    caf::PdmField<double>  m_datumElevation;
-    caf::PdmField<QString> m_name;
+    caf::PdmProxyValueField<double> m_airGap;
+    caf::PdmProxyValueField<double> m_datumElevation;
+    caf::PdmField<QString>          m_name;
 
 private:
     caf::PdmField<QString> m_simWellName;

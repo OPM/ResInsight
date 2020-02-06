@@ -80,7 +80,14 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
         if ( modeledWellPath )
         {
             useMdRkb = true;
-            rkb      = modeledWellPath->geometryDefinition()->mdrkbAtFirstTarget();
+            if ( modeledWellPath->geometryDefinition()->airGap() != 0.0 )
+            {
+                rkb = modeledWellPath->geometryDefinition()->airGap();
+            }
+            else
+            {
+                rkb = modeledWellPath->geometryDefinition()->mdrkbAtFirstTarget();
+            }
         }
     }
 

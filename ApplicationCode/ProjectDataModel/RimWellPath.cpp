@@ -80,9 +80,13 @@ RimWellPath::RimWellPath()
     m_name.uiCapability()->setUiHidden( true );
     m_name.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_airGap, "AirGap", "Air Gap", "", "", "" );
+    m_airGap.registerGetMethod( this, &RimWellPath::airGap );
+    m_airGap.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_datumElevation, "DatumElevation", "Datum Elevation", "", "", "" );
+    m_datumElevation.registerGetMethod( this, &RimWellPath::datumElevation );
     m_datumElevation.uiCapability()->setUiReadOnly( true );
-    m_datumElevation.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_unitSystem, "UnitSystem", "Unit System", "", "", "" );
     m_unitSystem.uiCapability()->setUiReadOnly( true );
@@ -565,18 +569,16 @@ void RimWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
 
     caf::PdmUiGroup* ssihubGroup = uiOrdering.addNewGroup( "Well Info" );
 
-    ssihubGroup->add( &m_datumElevation );
-    ssihubGroup->add( &m_unitSystem );
+    if ( m_wellPath.notNull() && m_wellPath->rkbDiff() > 0.0 )
+    {
+        ssihubGroup->add( &m_airGap );
+    }
 
     if ( m_wellPath.notNull() && m_wellPath->hasDatumElevation() )
     {
-        m_datumElevation = m_wellPath->datumElevation();
-        m_datumElevation.uiCapability()->setUiHidden( false );
+        ssihubGroup->add( &m_datumElevation );
     }
-    else
-    {
-        m_datumElevation.uiCapability()->setUiHidden( true );
-    }
+    ssihubGroup->add( &m_unitSystem );
 
     caf::PdmUiGroup* formationFileInfoGroup = uiOrdering.addNewGroup( "Well Picks" );
     formationFileInfoGroup->add( &m_wellPathFormationFilePath );
@@ -670,6 +672,30 @@ void RimWellPath::setUnitSystem( RiaEclipseUnitTools::UnitSystem unitSystem )
 RiaEclipseUnitTools::UnitSystem RimWellPath::unitSystem() const
 {
     return m_unitSystem();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::airGap() const
+{
+    if ( m_wellPath.notNull() && m_wellPath->rkbDiff() > 0.0 )
+    {
+        return m_wellPath->rkbDiff();
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::datumElevation() const
+{
+    if ( m_wellPath.notNull() && m_wellPath->hasDatumElevation() )
+    {
+        return m_wellPath->datumElevation();
+    }
+    return 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------

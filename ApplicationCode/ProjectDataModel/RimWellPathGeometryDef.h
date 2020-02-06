@@ -52,6 +52,8 @@ public:
     cvf::Vec3d referencePointXyz() const;
     void       setReferencePointXyz( const cvf::Vec3d& refPointXyz );
 
+    double airGap() const;
+    void   setAirGap( double airGap );
     double mdrkbAtFirstTarget() const;
     void   setMdrkbAtFirstTarget( double mdrkb );
 
@@ -100,16 +102,16 @@ private:
     caf::PdmField<cvf::Vec3d> m_referencePointUtmXyd;
     caf::PdmField<cvf::Vec3d> m_referencePointXyz_OBSOLETE;
 
-    caf::PdmField<double>                       m_mdrkbAtFirstTarget;
+    caf::PdmField<double> m_airGap;
+
+    caf::PdmField<double>                       m_mdAtFirstTarget;
     caf::PdmChildArrayField<RimWellPathTarget*> m_wellTargets;
 
     caf::PdmField<bool> m_pickPointsEnabled;
 
-    // TODO: Unused for now. Remove when dust settles
-
     caf::PdmField<caf::AppEnum<WellStartType>> m_wellStartType;
-    caf::PdmField<double>                      m_kickoffDepthOrMD;
-    caf::PdmPtrField<RimWellPath*>             m_parentWell;
+    // TODO: Unused for now. Remove when dust settles
+    caf::PdmPtrField<RimWellPath*> m_parentWell;
 
     std::shared_ptr<RicCreateWellTargetsPickEventHandler> m_pickTargetsEventHandler;
 };
