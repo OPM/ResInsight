@@ -27,12 +27,25 @@
 const double RiaWellLogUnitTools::GRAVITY_ACCEL        = 9.81;
 const double RiaWellLogUnitTools::UNIT_WEIGHT_OF_WATER = RiaWellLogUnitTools::GRAVITY_ACCEL * 1000.0; // N / m^3
 
+bool stringsMatch( const QString& lhs, const QString& rhs )
+{
+    return QString::compare( lhs, rhs, Qt::CaseInsensitive ) == 0;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QString RiaWellLogUnitTools::noUnitString()
 {
     return "NO_UNIT";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaWellLogUnitTools::sg_emwUnitString()
+{
+    return "sg_EMW";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,6 +83,14 @@ QString RiaWellLogUnitTools::gPerCm3UnitString()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaWellLogUnitTools::pascalUnitString()
+{
+    return "pascal";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RiaWellLogUnitTools::convertDepths( const std::vector<double>& depthsIn,
                                                         RiaDefines::DepthUnitType  unitsIn,
                                                         RiaDefines::DepthUnitType  unitsOut )
@@ -96,67 +117,83 @@ bool RiaWellLogUnitTools::convertValues( const std::vector<double>& tvdRKBs,
 {
     CAF_ASSERT( valuesOut );
 
-    if ( unitsIn == unitsOut )
+    if ( stringsMatch( unitsIn, unitsOut ) )
     {
         *valuesOut = valuesIn;
         return true;
     }
 
-    if ( unitsIn == gPerCm3UnitString() && unitsOut == barUnitString() )
+    if ( stringsMatch( unitsIn, gPerCm3UnitString() ) && stringsMatch( unitsOut, barUnitString() ) )
     {
         *valuesOut = convertGpcm3ToBar( tvdRKBs, valuesIn );
         return true;
     }
-    else if ( unitsIn == barUnitString() && unitsOut == gPerCm3UnitString() )
+    else if ( stringsMatch( unitsOut, barUnitString() ) && stringsMatch( unitsOut, gPerCm3UnitString() ) )
     {
         *valuesOut = convertBarToGpcm3( tvdRKBs, valuesIn );
         return true;
     }
-    else if ( unitsIn == RiaWellLogUnitTools::noUnitString() && unitsOut == gPerCm3UnitString() )
+    else if ( ( stringsMatch( unitsIn, noUnitString() ) || stringsMatch( unitsIn, sg_emwUnitString() ) ) &&
+              stringsMatch( unitsOut, gPerCm3UnitString() ) )
     {
         *valuesOut = convertNormalizedByPPToBar( tvdRKBs, valuesIn );
         *valuesOut = convertBarToGpcm3( tvdRKBs, *valuesOut );
+        return true;
     }
-    else if ( unitsIn == gPerCm3UnitString() && unitsOut == RiaWellLogUnitTools::noUnitString() )
+    else if ( stringsMatch( unitsIn, gPerCm3UnitString() ) &&
+              ( stringsMatch( unitsOut, noUnitString() ) || stringsMatch( unitsOut, sg_emwUnitString() ) ) )
     {
         *valuesOut = convertGpcm3ToBar( tvdRKBs, valuesIn );
         *valuesOut = convertBarToNormalizedByPP( tvdRKBs, *valuesOut );
+        return true;
     }
-    else if ( unitsIn == MPaUnitString() && unitsOut == barUnitString() )
-
+    else if ( stringsMatch( unitsIn, MPaUnitString() ) && stringsMatch( unitsOut, barUnitString() ) )
     {
         *valuesOut = multiply( valuesIn, 1.0 / MPaPerBar() );
         return true;
     }
-    else if ( unitsIn == barX100UnitString() && unitsOut == MPaUnitString() )
+    else if ( stringsMatch( unitsIn, barX100UnitString() ) && stringsMatch( unitsOut, MPaUnitString() ) )
     {
         *valuesOut = multiply( valuesIn, 100.0 );
         *valuesOut = multiply( *valuesOut, MPaPerBar() );
         return true;
     }
-    else if ( unitsIn == barX100UnitString() && unitsOut == barUnitString() )
+    else if ( stringsMatch( unitsIn, barX100UnitString() ) && stringsMatch( unitsOut, barUnitString() ) )
     {
         *valuesOut = multiply( valuesIn, 100 );
         return true;
     }
-    else if ( unitsIn == barUnitString() && unitsOut == MPaUnitString() )
+    else if ( stringsMatch( unitsIn, barUnitString() ) && stringsMatch( unitsOut, MPaUnitString() ) )
     {
         *valuesOut = multiply( valuesIn, MPaPerBar() );
         return true;
     }
-    else if ( unitsIn == barUnitString() && unitsOut == barX100UnitString() )
+    else if ( stringsMatch( unitsIn, barUnitString() ) && stringsMatch( unitsOut, barX100UnitString() ) )
     {
         *valuesOut = multiply( valuesIn, 1.0 / 100.0 );
         return true;
     }
-    else if ( unitsIn == RiaWellLogUnitTools::noUnitString() && unitsOut == barUnitString() )
+    else if ( ( stringsMatch( unitsIn, noUnitString() ) || stringsMatch( unitsIn, sg_emwUnitString() ) ) &&
+              stringsMatch( unitsOut, barUnitString() ) )
     {
         *valuesOut = convertNormalizedByPPToBar( tvdRKBs, valuesIn );
         return true;
     }
-    else if ( unitsIn == barUnitString() && unitsOut == RiaWellLogUnitTools::noUnitString() )
+    else if ( stringsMatch( unitsIn, barUnitString() ) &&
+              ( stringsMatch( unitsOut, noUnitString() ) || stringsMatch( unitsOut, sg_emwUnitString() ) ) )
     {
         *valuesOut = convertBarToNormalizedByPP( tvdRKBs, valuesIn );
+        return true;
+    }
+    else if ( stringsMatch( unitsIn, pascalUnitString() ) && stringsMatch( unitsOut, barUnitString() ) )
+    {
+        *valuesOut = multiply( valuesIn, 1.0 / pascalPerBar() );
+        return true;
+    }
+    else if ( stringsMatch( unitsIn, barUnitString() ) && stringsMatch( unitsOut, pascalUnitString() ) )
+    {
+        *valuesOut = multiply( valuesIn, pascalPerBar() );
+        return true;
     }
     return false;
 }
