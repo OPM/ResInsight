@@ -78,6 +78,12 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi(const QString& uiConfigName)
     if (uiObject)
     {
         uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
+        if (m_attributes.m_validator)
+        {
+            m_lineEdit->setValidator(m_attributes.m_validator);
+        }
+
+
     }
 
     bool    valueOk = false;

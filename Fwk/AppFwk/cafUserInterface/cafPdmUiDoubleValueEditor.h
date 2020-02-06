@@ -38,6 +38,7 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
+#include <QDoubleValidator>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -66,8 +67,9 @@ public:
     }
 
 public:
-    int          m_decimals;
-    NumberFormat m_numberFormat;
+    int                        m_decimals;
+    NumberFormat               m_numberFormat;
+    QPointer<QDoubleValidator> m_validator;
 };
 
 //==================================================================================================
