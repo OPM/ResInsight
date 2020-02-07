@@ -2324,13 +2324,15 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         const std::vector<std::pair<double, double>> waterAndRockIntervals = waterAndRockRegions( plot->depthType(),
                                                                                                   extractor );
         m_annotationTool->attachNamedRegions( m_plotWidget,
-                                              {"Water", ""},
+                                              {"Surface", "Seabed"},
                                               xRange,
                                               waterAndRockIntervals,
                                               m_regionAnnotationDisplay(),
                                               waterAndRockColors,
                                               ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
-                                              m_showRegionLabels() );
+                                              m_showRegionLabels(),
+                                              RiuPlotAnnotationTool::LEFT_COLUMN,
+                                              {Qt::SolidPattern, Qt::Dense6Pattern} );
 
         if ( m_formationSource == CASE )
         {
