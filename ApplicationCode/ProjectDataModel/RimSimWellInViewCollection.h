@@ -158,8 +158,9 @@ public:
 
     static void updateWellAllocationPlots();
 
-    void setDefaultSourceCaseForWellDisks();
-    void updateWellDisks();
+    void   setDefaultSourceCaseForWellDisks();
+    void   updateWellDisks();
+    double wellDiskScaleFactor() const;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
@@ -205,6 +206,7 @@ private:
     caf::PdmField<QString>                                  m_wellDiskQuantity;
     caf::PdmField<bool>                                     m_wellDiskShowQuantityLabels;
     caf::PdmField<bool>                                     m_wellDiskshowLabelsBackground;
+    caf::PdmField<double>                                   m_wellDiskScaleFactor;
 
     // Obsolete fields
     caf::PdmField<WellVisibilityEnum>       obsoleteField_wellPipeVisibility;

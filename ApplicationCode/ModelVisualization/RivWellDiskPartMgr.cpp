@@ -113,6 +113,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
     textPosition.z() += 0.1;
 
     double ijScaleFactor = arrowLength / 6;
+    ijScaleFactor *= simWellInViewCollection()->wellDiskScaleFactor();
 
     cvf::ref<cvf::DrawableGeo> geo1 = new cvf::DrawableGeo;
     {

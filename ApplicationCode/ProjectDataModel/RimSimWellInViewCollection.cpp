@@ -279,6 +279,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
                        "",
                        "",
                        "" );
+    CAF_PDM_InitField( &m_wellDiskScaleFactor, "WellDiskScaleFactor", 1.0, "Scale Factor", "", "", "" );
 
     CAF_PDM_InitField( &obsoleteField_wellPipeVisibility,
                        "GlobalWellPipeVisibility",
@@ -506,7 +507,8 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         }
         else if ( &m_wellDiskQuantity == changedField || &m_wellDiskPropertyType == changedField ||
                   &m_wellDiskPropertyConfigType == changedField || &m_wellDiskshowLabelsBackground == changedField ||
-                  &m_wellDiskShowQuantityLabels == changedField || &m_wellDiskSummaryCase == changedField )
+                  &m_wellDiskShowQuantityLabels == changedField || &m_wellDiskSummaryCase == changedField ||
+                  &m_wellDiskScaleFactor == changedField )
         {
             RimWellDiskConfig wellDiskConfig = getActiveWellDiskConfig();
             updateWellDisks( wellDiskConfig );
@@ -781,6 +783,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
         }
         wellDiskGroup->add( &m_wellDiskShowQuantityLabels );
         wellDiskGroup->add( &m_wellDiskshowLabelsBackground );
+        wellDiskGroup->add( &m_wellDiskScaleFactor );
 
         bool isReadOnly = m_showWellDisks().isFalse();
 
@@ -790,6 +793,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
         m_wellDiskQuantity.uiCapability()->setUiReadOnly( isReadOnly );
         m_wellDiskShowQuantityLabels.uiCapability()->setUiReadOnly( isReadOnly );
         m_wellDiskshowLabelsBackground.uiCapability()->setUiReadOnly( isReadOnly );
+        m_wellDiskScaleFactor.uiCapability()->setUiReadOnly( isReadOnly );
     }
 
     RimEclipseResultCase* ownerCase = nullptr;
@@ -1068,6 +1072,14 @@ void RimSimWellInViewCollection::updateWellDisks( const RimWellDiskConfig& wellD
             w->scaleDisk( minValue, maxValue );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSimWellInViewCollection::wellDiskScaleFactor() const
+{
+    return m_wellDiskScaleFactor();
 }
 
 //--------------------------------------------------------------------------------------------------
