@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWellMeasurementCollection.h"
 
+#include "RigWellLogCurveData.h"
+
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimWellLogTrack.h"
@@ -54,26 +56,47 @@ RimWellMeasurementCollection::~RimWellMeasurementCollection() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCollection::updateAllReferringTracksAndCurves()
+void RimWellMeasurementCollection::updateAllCurves()
 {
-    std::vector<RimWellLogTrack*> wellLogTracks;
-
-    this->objectsWithReferringPtrFieldsOfType( wellLogTracks );
-    for ( RimWellLogTrack* track : wellLogTracks )
-    {
-        track->loadDataAndUpdate();
-    }
-    this->updateConnectedEditors();
-
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted( proj );
     RimMainPlotCollection* plotCollection = proj->mainPlotCollection();
 
     std::vector<RimWellMeasurementCurve*> measurementCurves;
     plotCollection->descendantsIncludingThisOfType( measurementCurves );
+
     for ( auto curve : measurementCurves )
     {
         curve->loadDataAndUpdate( true );
+    }
+
+    this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementCollection::deleteAllEmptyCurves()
+{
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimMainPlotCollection* plotCollection = proj->mainPlotCollection();
+
+    std::vector<RimWellMeasurementCurve*> measurementCurves;
+    plotCollection->descendantsIncludingThisOfType( measurementCurves );
+
+    for ( auto curve : measurementCurves )
+    {
+        if ( curve->curveData()->xValues().empty() )
+        {
+            RimWellLogTrack* track = nullptr;
+            curve->firstAncestorOrThisOfTypeAsserted( track );
+
+            track->removeCurve( curve );
+            delete curve;
+            curve = nullptr;
+            track->updateLayout();
+        }
     }
 }
 
@@ -111,7 +134,7 @@ void RimWellMeasurementCollection::insertMeasurement( RimWellMeasurement* insert
         m_measurements.push_back( measurement );
 
     addFilePath( measurement->filePath() );
-    this->updateAllReferringTracksAndCurves();
+    this->updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,7 +144,7 @@ void RimWellMeasurementCollection::appendMeasurement( RimWellMeasurement* measur
 {
     m_measurements.push_back( measurement );
     addFilePath( measurement->filePath() );
-    this->updateAllReferringTracksAndCurves();
+    this->updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,7 +155,7 @@ void RimWellMeasurementCollection::deleteMeasurement( RimWellMeasurement* measur
     m_measurements.removeChildObject( measurementToDelete );
     delete measurementToDelete;
 
-    this->updateAllReferringTracksAndCurves();
+    this->updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,7 +164,7 @@ void RimWellMeasurementCollection::deleteMeasurement( RimWellMeasurement* measur
 void RimWellMeasurementCollection::deleteAllMeasurements()
 {
     m_measurements.deleteAllChildObjects();
-    this->updateAllReferringTracksAndCurves();
+    this->updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -247,5 +270,5 @@ void RimWellMeasurementCollection::removeMeasurementsForFilePath( RimWellMeasure
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted( proj );
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
-    this->updateAllReferringTracksAndCurves();
+    this->updateAllCurves();
 }

@@ -33,6 +33,7 @@ class RicWellMeasurementImportTools
 public:
     static void importWellMeasurementsFromFiles( const std::vector<RimWellMeasurementFilePath*>& filePaths );
     static void removeWellMeasurementsFromFiles( const std::vector<RimWellMeasurementFilePath*>& filePaths );
+    static void deleteAllEmptyMeasurementCurves();
 
     static void importWellMeasurementsFromFiles( const QStringList& filePaths, RimWellPathCollection* wellPathCollection );
 

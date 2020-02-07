@@ -144,6 +144,21 @@ void RicWellMeasurementImportTools::removeWellMeasurementsFromFiles( const std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicWellMeasurementImportTools::deleteAllEmptyMeasurementCurves()
+{
+    RiaApplication* app = RiaApplication::instance();
+
+    std::vector<RimWellMeasurementCollection*> measurementCollections;
+    app->project()->descendantsIncludingThisOfType( measurementCollections );
+    for ( auto measurementCollection : measurementCollections )
+    {
+        measurementCollection->deleteAllEmptyCurves();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellPathCollection* RicWellMeasurementImportTools::selectedWellPathCollection()
 {
     std::vector<RimWellPathCollection*> objects;

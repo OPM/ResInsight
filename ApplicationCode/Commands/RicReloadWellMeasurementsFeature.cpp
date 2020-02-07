@@ -53,6 +53,7 @@ void RicReloadWellMeasurementsFeature::onActionTriggered( bool isChecked )
 
     RicWellMeasurementImportTools::removeWellMeasurementsFromFiles( filePaths );
     RicWellMeasurementImportTools::importWellMeasurementsFromFiles( filePaths );
+    RicWellMeasurementImportTools::deleteAllEmptyMeasurementCurves();
 }
 
 //--------------------------------------------------------------------------------------------------

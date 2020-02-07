@@ -187,7 +187,7 @@ void RimWellMeasurement::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 
     RimWellMeasurementCollection* wellMeasurementCollection;
     this->firstAncestorOrThisOfTypeAsserted( wellMeasurementCollection );
-    wellMeasurementCollection->updateAllReferringTracksAndCurves();
+    wellMeasurementCollection->updateAllCurves();
 }
 
 //--------------------------------------------------------------------------------------------------

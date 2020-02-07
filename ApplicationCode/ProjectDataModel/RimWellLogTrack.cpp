@@ -1026,7 +1026,7 @@ void RimWellLogTrack::insertCurve( RimWellLogCurve* curve, size_t index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::takeOutCurve( RimWellLogCurve* curve )
+void RimWellLogTrack::removeCurve( RimWellLogCurve* curve )
 {
     size_t index = m_curves.index( curve );
     if ( index < m_curves.size() )
@@ -2583,4 +2583,12 @@ void RimWellLogTrack::removeRegionAnnotations()
     {
         m_annotationTool->detachAllAnnotations();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::doUpdateLayout()
+{
+    m_plotWidget->scheduleReplot();
 }
