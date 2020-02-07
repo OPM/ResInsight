@@ -17,9 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimWellMeasurementCollection.h"
 
+#include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimWellLogTrack.h"
 #include "RimWellMeasurement.h"
+#include "RimWellMeasurementCurve.h"
 #include "RimWellMeasurementFilePath.h"
 
 #include "cafPdmUiTableViewEditor.h"
@@ -52,7 +54,7 @@ RimWellMeasurementCollection::~RimWellMeasurementCollection() {}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCollection::updateAllReferringTracks()
+void RimWellMeasurementCollection::updateAllReferringTracksAndCurves()
 {
     std::vector<RimWellLogTrack*> wellLogTracks;
 
@@ -62,6 +64,17 @@ void RimWellMeasurementCollection::updateAllReferringTracks()
         track->loadDataAndUpdate();
     }
     this->updateConnectedEditors();
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimMainPlotCollection* plotCollection = proj->mainPlotCollection();
+
+    std::vector<RimWellMeasurementCurve*> measurementCurves;
+    plotCollection->descendantsIncludingThisOfType( measurementCurves );
+    for ( auto curve : measurementCurves )
+    {
+        curve->loadDataAndUpdate( true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +111,7 @@ void RimWellMeasurementCollection::insertMeasurement( RimWellMeasurement* insert
         m_measurements.push_back( measurement );
 
     addFilePath( measurement->filePath() );
-    this->updateAllReferringTracks();
+    this->updateAllReferringTracksAndCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +121,7 @@ void RimWellMeasurementCollection::appendMeasurement( RimWellMeasurement* measur
 {
     m_measurements.push_back( measurement );
     addFilePath( measurement->filePath() );
-    this->updateAllReferringTracks();
+    this->updateAllReferringTracksAndCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,7 +132,7 @@ void RimWellMeasurementCollection::deleteMeasurement( RimWellMeasurement* measur
     m_measurements.removeChildObject( measurementToDelete );
     delete measurementToDelete;
 
-    this->updateAllReferringTracks();
+    this->updateAllReferringTracksAndCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +141,7 @@ void RimWellMeasurementCollection::deleteMeasurement( RimWellMeasurement* measur
 void RimWellMeasurementCollection::deleteAllMeasurements()
 {
     m_measurements.deleteAllChildObjects();
-    this->updateAllReferringTracks();
+    this->updateAllReferringTracksAndCurves();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,5 +247,5 @@ void RimWellMeasurementCollection::removeMeasurementsForFilePath( RimWellMeasure
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted( proj );
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
-    this->updateAllReferringTracks();
+    this->updateAllReferringTracksAndCurves();
 }
