@@ -86,8 +86,6 @@ void RivWellPathsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList
                                                              double                            characteristicCellSize,
                                                              const cvf::BoundingBox&           wellPathClipBoundingBox )
 {
-    if ( !isWellPathVisible() ) return;
-
     createPartManagersIfRequired();
 
     for ( auto& partMgr : m_wellPathsPartMgrs )

@@ -48,6 +48,7 @@ class RimWellPathCollection;
 class Rim3dView;
 class Riv3dWellLogPlanePartMgr;
 class RivWellConnectionFactorPartMgr;
+class RimWellMeasurementInView;
 
 class QDateTime;
 
@@ -126,6 +127,9 @@ private:
     void                          clearAllBranchData();
     inline RimWellPathCollection* wellPathCollection() const;
     inline double wellPathRadius( double characteristicCellSize, RimWellPathCollection* wellPathCollection );
+    double        wellMeasurementRadius( double                          characteristicCellSize,
+                                         const RimWellPathCollection*    wellPathCollection,
+                                         const RimWellMeasurementInView* wellMeasurementInView );
 
     bool isWellPathWithinBoundingBox( const cvf::BoundingBox& wellPathClipBoundingBox ) const;
 

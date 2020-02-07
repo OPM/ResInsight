@@ -54,6 +54,7 @@ public:
 
     void             rangeValues( double* lowerBound, double* upperBound ) const;
     std::vector<int> qualityFilter() const;
+    double           radiusScaleFactor() const;
 
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
@@ -62,6 +63,7 @@ protected:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
+    void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                            const QVariant&            oldValue,
                            const QVariant&            newValue ) override;
@@ -76,12 +78,22 @@ protected:
                                            const QString&                          measurementKind );
 
 private:
+    static QString              convertToSerializableString( const std::vector<QString>& strings );
+    static std::vector<QString> convertFromSerializableString( const QString& string );
+
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
     caf::PdmField<QString>                      m_measurementKind;
     caf::PdmField<std::vector<QString>>         m_wells;
     caf::PdmField<double>                       m_lowerBound;
     caf::PdmField<double>                       m_upperBound;
     caf::PdmField<std::vector<int>>             m_qualityFilter;
+    caf::PdmField<QString>                      m_wellsSerialized;
+    caf::PdmField<QString>                      m_availableWellsSerialized;
+    caf::PdmField<double>                       m_radiusScaleFactor;
+
+    void              selectNewWells( const std::set<QString>& wells );
+    void              setAvailableWells( const std::set<QString>& wells );
+    std::set<QString> getAvailableWells() const;
 
     double m_minimumResultValue;
     double m_maximumResultValue;

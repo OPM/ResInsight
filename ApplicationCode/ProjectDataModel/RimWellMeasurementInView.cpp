@@ -33,6 +33,7 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -58,6 +59,22 @@ RimWellMeasurementInView::RimWellMeasurementInView()
     CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells", "", "", "" );
     m_wells.uiCapability()->setAutoAddingOptionFromValue( false );
     m_wells.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_wells.xmlCapability()->disableIO();
+
+    // The m_wells field does not serialize in a suitable format, so we work around it by
+    // serializing to a pipe-delimited string.
+    CAF_PDM_InitFieldNoDefault( &m_wellsSerialized, "WellsSerialized", "WellsSerialized", "", "", "" );
+    m_wellsSerialized.uiCapability()->setUiHidden( true );
+
+    // Keep track of the wells which has a given measurement in order to automatically select
+    // new wells when they appear in new measurements
+    CAF_PDM_InitFieldNoDefault( &m_availableWellsSerialized,
+                                "AvailableWellsSerialized",
+                                "AvailableWellsSerialized",
+                                "",
+                                "",
+                                "" );
+    // m_availableWellsSerialized.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_lowerBound, "LowerBound", -HUGE_VAL, "Min", "", "", "" );
     m_lowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -68,6 +85,9 @@ RimWellMeasurementInView::RimWellMeasurementInView()
     CAF_PDM_InitFieldNoDefault( &m_qualityFilter, "QualityFilter", "Quality Filter", "", "", "" );
     m_qualityFilter.uiCapability()->setAutoAddingOptionFromValue( false );
     m_qualityFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_radiusScaleFactor, "RadiusScaleFactor", 2.5, "Radius Scale", "", "", "" );
+    m_radiusScaleFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     this->setName( "Well Measurement" );
 
@@ -110,6 +130,8 @@ void RimWellMeasurementInView::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     uiOrdering.add( &m_qualityFilter );
 
+    uiOrdering.add( &m_radiusScaleFactor );
+
     uiOrdering.skipRemainingFields();
 }
 
@@ -128,13 +150,22 @@ void RimWellMeasurementInView::defineEditorAttribute( const caf::PdmFieldHandle*
     if ( field == &m_lowerBound || field == &m_upperBound )
     {
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( !myAttr )
+        if ( myAttr )
         {
-            return;
+            myAttr->m_minimum = m_minimumResultValue;
+            myAttr->m_maximum = m_maximumResultValue;
         }
+    }
 
-        myAttr->m_minimum = m_minimumResultValue;
-        myAttr->m_maximum = m_maximumResultValue;
+    if ( field == &m_radiusScaleFactor )
+    {
+        caf::PdmUiDoubleValueEditorAttribute* uiDoubleValueEditorAttr =
+            dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
+        if ( uiDoubleValueEditorAttr )
+        {
+            uiDoubleValueEditorAttr->m_decimals  = 2;
+            uiDoubleValueEditorAttr->m_validator = new QDoubleValidator( 0.001, 100.0, 2 );
+        }
     }
 }
 
@@ -145,10 +176,23 @@ void RimWellMeasurementInView::fieldChangedByUi( const caf::PdmFieldHandle* chan
                                                  const QVariant&            oldValue,
                                                  const QVariant&            newValue )
 {
+    if ( changedField == &m_wells )
+    {
+        m_wellsSerialized = convertToSerializableString( m_wells.v() );
+    }
+
     updateLegendData();
     RimGridView* rimGridView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( rimGridView );
     rimGridView->scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementInView::initAfterRead()
+{
+    m_wells = convertFromSerializableString( m_wellsSerialized );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,6 +349,9 @@ QList<caf::PdmOptionItemInfo>
             {
                 options.push_back( caf::PdmOptionItemInfo( wellName, wellName ) );
             }
+
+            selectNewWells( wellsWithMeasurementKind );
+            setAvailableWells( wellsWithMeasurementKind );
         }
     }
     else if ( fieldNeedingOptions == &m_qualityFilter )
@@ -385,6 +432,8 @@ void RimWellMeasurementInView::setAllWellsSelected()
         {
             m_wells.v().push_back( wellName );
         }
+
+        m_wellsSerialized = convertToSerializableString( m_wells.v() );
     }
 }
 
@@ -410,4 +459,70 @@ void RimWellMeasurementInView::setAllQualitiesSelected()
             m_qualityFilter.v().push_back( quality );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellMeasurementInView::convertToSerializableString( const std::vector<QString>& strings )
+{
+    QStringList stringList = QVector<QString>::fromStdVector( strings ).toList();
+    return stringList.join( '|' );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimWellMeasurementInView::convertFromSerializableString( const QString& string )
+{
+    QStringList stringList = string.split( '|' );
+    return stringList.toVector().toStdVector();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementInView::selectNewWells( const std::set<QString>& wells )
+{
+    // Check if there are new wells on the measurement kind
+    std::set<QString> currentAvailableWells = getAvailableWells();
+    std::set<QString> newWells;
+    std::set_difference( wells.begin(),
+                         wells.end(),
+                         currentAvailableWells.begin(),
+                         currentAvailableWells.end(),
+                         std::inserter( newWells, newWells.end() ) );
+
+    // Select the new wells
+    for ( const QString& newWell : newWells )
+    {
+        m_wells.v().push_back( newWell );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellMeasurementInView::setAvailableWells( const std::set<QString>& wells )
+{
+    std::vector<QString> v( wells.begin(), wells.end() );
+    m_availableWellsSerialized = convertToSerializableString( v );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QString> RimWellMeasurementInView::getAvailableWells() const
+{
+    std::vector<QString> v = convertFromSerializableString( m_availableWellsSerialized );
+    std::set<QString>    s( v.begin(), v.end() );
+    return s;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellMeasurementInView::radiusScaleFactor() const
+{
+    return m_radiusScaleFactor;
 }
