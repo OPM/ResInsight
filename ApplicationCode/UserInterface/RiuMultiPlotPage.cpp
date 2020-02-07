@@ -175,7 +175,7 @@ void RiuMultiPlotPage::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
     int               legendColumns = 1;
     if ( m_plotDefinition->legendsHorizontal() )
     {
-        legendColumns = 4; // unlimited
+        legendColumns = 0; // unlimited
     }
     legend->setMaxColumns( legendColumns );
     legend->horizontalScrollBar()->setVisible( false );
@@ -618,7 +618,7 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
                 int legendColumns = 1;
                 if ( m_plotDefinition->legendsHorizontal() )
                 {
-                    legendColumns = 4; // unlimited
+                    legendColumns = 0; // unlimited
                 }
                 legends[visibleIndex]->setMaxColumns( legendColumns );
                 QFont legendFont = legends[visibleIndex]->font();
