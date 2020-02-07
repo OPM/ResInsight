@@ -66,7 +66,7 @@ RimWbsParameters::RimWbsParameters()
                              "K0SHSource",
                              "K0_SH",
                              "",
-                             "SH in Shale (Matthews & Kelly) = K0_SH * (OBG0-PP0) + PP0 + DF * (PP-PP0)\nK0_SH = "
+                             "SH from Matthews & Kelly = K0_SH * (OBG0-PP0) + PP0 + DF * (PP-PP0)\nK0_SH = "
                              "(SH - PP)/(OBG-PP)",
                              "" );
 
