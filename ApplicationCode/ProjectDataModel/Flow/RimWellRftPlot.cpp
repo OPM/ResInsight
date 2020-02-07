@@ -734,7 +734,7 @@ void RimWellRftPlot::deleteCurvesAssosicatedWithObservedData( const RimObservedF
                 RimWellLogRftCurve* rftCurve = dynamic_cast<RimWellLogRftCurve*>( curve );
                 if ( rftCurve && rftCurve->observedFmuRftData() == observedFmuRftData )
                 {
-                    track->takeOutCurve( rftCurve );
+                    track->removeCurve( rftCurve );
                     delete rftCurve;
                 }
             }

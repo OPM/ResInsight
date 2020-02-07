@@ -54,7 +54,7 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
         curve->firstAncestorOrThisOfType( wellLogPlotTrack );
         if ( wellLogPlotTrack )
         {
-            wellLogPlotTrack->takeOutCurve( curve );
+            wellLogPlotTrack->removeCurve( curve );
             wellLogPlotTrack->updateConnectedEditors();
             srcTracks.insert( wellLogPlotTrack );
             RimWellLogPlot* plot;

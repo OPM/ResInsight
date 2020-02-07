@@ -54,7 +54,7 @@ void RicDeleteWellMeasurementFilePathFeature::onActionTriggered( bool isChecked 
 
     wellMeasurementCollection->removeMeasurementsForFilePath( filePath );
     wellMeasurementCollection->removeFilePath( filePath );
-
+    wellMeasurementCollection->deleteAllEmptyCurves();
     wellMeasurementCollection->uiCapability()->updateConnectedEditors();
 }
 

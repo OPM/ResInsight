@@ -38,7 +38,8 @@ public:
 
     std::vector<RimWellMeasurement*> measurements() const;
 
-    void updateAllReferringTracksAndCurves();
+    void updateAllCurves();
+    void deleteAllEmptyCurves();
     void insertMeasurement( RimWellMeasurement* insertBefore, RimWellMeasurement* measurement );
     void appendMeasurement( RimWellMeasurement* measurement );
     void deleteMeasurement( RimWellMeasurement* measurementToDelete );

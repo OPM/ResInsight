@@ -103,7 +103,7 @@ public:
 
     void addCurve( RimWellLogCurve* curve );
     void insertCurve( RimWellLogCurve* curve, size_t index );
-    void takeOutCurve( RimWellLogCurve* curve );
+    void removeCurve( RimWellLogCurve* curve );
     void deleteAllCurves();
 
     size_t curveIndex( RimWellLogCurve* curve );
@@ -281,6 +281,7 @@ private:
     RimWellLogPlot* parentWellLogPlot() const;
 
     void handleWheelEvent( QWheelEvent* event ) override;
+    void doUpdateLayout() override;
 
     std::vector<std::pair<double, double>> waterAndRockRegions( RiaDefines::DepthTypeEnum  depthType,
                                                                 const RigWellLogExtractor* extractor ) const;
