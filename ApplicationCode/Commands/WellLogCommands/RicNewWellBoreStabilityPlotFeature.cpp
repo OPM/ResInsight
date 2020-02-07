@@ -42,8 +42,10 @@
 #include "RimWellLogTrack.h"
 #include "RimWellLogWbsCurve.h"
 #include "RimWellMeasurement.h"
+#include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementCurve.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "RicWellLogTools.h"
 #include "RiuPlotMainWindowTools.h"
@@ -313,7 +315,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     stabilityCurvesTrack->setFormationCase( geoMechCase );
     stabilityCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
     stabilityCurvesTrack->setAnnotationDisplay( RiuPlotAnnotationTool::LIGHT_LINES );
-    stabilityCurvesTrack->setShowRegionLabels( true );
+    stabilityCurvesTrack->setShowRegionLabels( false );
 
     std::vector<QString> resultNames = RiaDefines::wbsDerivedResultNames();
 
@@ -344,12 +346,23 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         curve->setSmoothingThreshold( 0.002 );
     }
 
-    for ( QString measurementKind : RimWellMeasurement::measurementKindsForWellBoreStability() )
+    RimWellPathCollection* wellPathCollection = nullptr;
+    wellPath->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
+
+    const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
+    for ( QString wbsMeasurementKind : RimWellMeasurement::measurementKindsForWellBoreStability() )
     {
-        RimWellMeasurementCurve* curve = RicWellLogTools::addWellMeasurementCurve( stabilityCurvesTrack,
-                                                                                   wellPath,
-                                                                                   measurementKind );
-        curve->loadDataAndUpdate( false );
+        for ( RimWellMeasurement* measurement : measurementCollection->measurements() )
+        {
+            if ( measurement->wellName() == wellPath->name() && measurement->kind() == wbsMeasurementKind )
+            {
+                RimWellMeasurementCurve* curve = RicWellLogTools::addWellMeasurementCurve( stabilityCurvesTrack,
+                                                                                           wellPath,
+                                                                                           wbsMeasurementKind );
+                curve->loadDataAndUpdate( false );
+                break; // Only one per measurement kind
+            }
+        }
     }
 
     stabilityCurvesTrack->setAutoScaleXEnabled( true );
