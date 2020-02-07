@@ -214,7 +214,7 @@ void RicNewWellBoreStabilityPlotFeature::createFormationTrack( RimWellBoreStabil
     formationTrack->setFormationCase( geoMechCase );
     formationTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
     formationTrack->setVisibleXRange( 0.0, 0.0 );
-    formationTrack->setColSpan( RimPlot::ONE );
+    formationTrack->setColSpan( RimPlot::TWO );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,9 +229,11 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellBoreStabi
     casingShoeTrack->setFormationWellPath( wellPath );
     casingShoeTrack->setFormationCase( geoMechCase );
     casingShoeTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
-    casingShoeTrack->setAnnotationDisplay( RiuPlotAnnotationTool::DARK_LINES );
+    casingShoeTrack->setAnnotationDisplay( RiuPlotAnnotationTool::COLOR_SHADING_AND_LINES );
     casingShoeTrack->setShowRegionLabels( false );
     casingShoeTrack->setShowWellPathAttributes( true );
+    casingShoeTrack->setShowBothSidesOfWell( false );
+    casingShoeTrack->setAnnotationTransparency( 90 );
     casingShoeTrack->setWellPathAttributesSource( wellPath );
     casingShoeTrack->setVisibleXRange( 0.0, 0.0 );
     casingShoeTrack->setAutoScaleXEnabled( true );
@@ -303,7 +305,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
 
                                                                                                   plot );
     stabilityCurvesTrack->setVisibleXRange( 0.0, 2.5 );
-    stabilityCurvesTrack->setColSpan( RimPlot::FIVE );
+    stabilityCurvesTrack->setColSpan( RimPlot::SIX );
     stabilityCurvesTrack->setAutoScaleXEnabled( true );
     stabilityCurvesTrack->setTickIntervals( 0.5, 0.1 );
     stabilityCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
