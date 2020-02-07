@@ -394,10 +394,13 @@ bool RiaGuiApplication::useShaders() const
 {
     if ( !m_preferences->useShaders() ) return false;
 
-    bool isShadersSupported = caf::Viewer::isShadersSupported();
-    if ( !isShadersSupported ) return false;
+    bool isShadersSupported = true;
+    if ( platformName() != "offscreen" ) // Avoid opengl access if we are in qt offscreen mode
+    {
+        isShadersSupported = caf::Viewer::isShadersSupported();
+    }
 
-    return true;
+    return isShadersSupported;
 }
 
 //--------------------------------------------------------------------------------------------------
