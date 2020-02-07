@@ -154,6 +154,7 @@ private:
     void highlightCurve( const QwtPlotCurve* closestCurve );
     void resetCurveHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
+    void recalculateAxisExtents( QwtPlot::Axis axis );
 
     caf::UiStyleSheet createPlotStyleSheet() const;
     caf::UiStyleSheet createCanvasStyleSheet() const;

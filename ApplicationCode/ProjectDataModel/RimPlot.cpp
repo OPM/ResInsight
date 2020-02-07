@@ -20,6 +20,7 @@ void RimPlot::RowOrColSpanEnum::setUp()
     addItem( RimPlot::THREE, "THREE", "3" );
     addItem( RimPlot::FOUR, "FOUR", "4" );
     addItem( RimPlot::FIVE, "FIVE", "5" );
+    addItem( RimPlot::SIX, "SIX", "6" );
     setDefault( RimPlot::ONE );
 }
 } // namespace caf
