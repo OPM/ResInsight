@@ -853,18 +853,21 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
 
     if ( m_rimWellPath.isNull() ) return;
 
-    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return;
-
-    if ( wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON &&
-         m_rimWellPath->showWellPath() == false )
-    {
-        return;
-    }
+    bool showWellPath = ( wellPathCollection->isActive() &&
+                          ( ( wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_OFF ) ||
+                            ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_ON &&
+                              m_rimWellPath->showWellPath() ) ) );
 
     if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return;
 
-    appendPerforationsToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize, false );
-    appendVirtualTransmissibilitiesToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize );
+    if ( showWellPath )
+    {
+        // Only show perforations and virtual transmissibilities when well path is shown
+        appendPerforationsToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize, false );
+        appendVirtualTransmissibilitiesToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize );
+    }
+
+    // Well measurements visibility is independent of well path visibility
     appendWellMeasurementsToModel( model, displayCoordTransform, characteristicCellSize );
 
     RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
