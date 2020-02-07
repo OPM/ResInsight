@@ -44,7 +44,8 @@ public:
         DARK_LINES              = 0x01,
         COLORED_LINES           = 0x02,
         COLOR_SHADING           = 0x04,
-        COLOR_SHADING_AND_LINES = 0x05
+        COLOR_SHADING_AND_LINES = 0x05,
+        LIGHT_LINES             = 0x08,
     };
     enum TrackSpan
     {

@@ -53,6 +53,7 @@ class RimWellLogPlotCollection;
 class RigGeoMechWellLogExtractor;
 class RigResultAccessor;
 class RigFemResultAddress;
+class RigWellLogExtractor;
 
 class QwtPlotCurve;
 
@@ -163,6 +164,7 @@ public:
 
     void setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType annotationType );
     void setAnnotationDisplay( RiuPlotAnnotationTool::RegionDisplay annotationDisplay );
+    void setAnnotationTransparency( int percent );
 
     RiuPlotAnnotationTool::RegionAnnotationType annotationType() const;
     RiuPlotAnnotationTool::RegionDisplay        annotationDisplay() const;
@@ -173,6 +175,7 @@ public:
 
     bool showWellPathAttributes() const;
     void setShowWellPathAttributes( bool on );
+    void setShowBothSidesOfWell( bool on );
     void setWellPathAttributesSource( RimWellPath* wellPath );
 
     RimWellPath* wellPathAttributeSource() const;
@@ -278,6 +281,9 @@ private:
     RimWellLogPlot* parentWellLogPlot() const;
 
     void handleWheelEvent( QWheelEvent* event ) override;
+
+    std::vector<std::pair<double, double>> waterAndRockRegions( RiaDefines::DepthTypeEnum  depthType,
+                                                                const RigWellLogExtractor* extractor ) const;
 
 private:
     QString m_xAxisTitle;

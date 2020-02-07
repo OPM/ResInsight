@@ -58,9 +58,9 @@ public:
     RigWellLogExtractor( const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName );
     ~RigWellLogExtractor() override;
 
-    const std::vector<double>& cellIntersectionMDs();
-    const std::vector<double>& cellIntersectionTVDs();
-    const std::vector<size_t>& intersectedCellsGlobIdx();
+    const std::vector<double>& cellIntersectionMDs() const;
+    const std::vector<double>& cellIntersectionTVDs() const;
+    const std::vector<size_t>& intersectedCellsGlobIdx() const;
 
     const RigWellPath* wellPathData() const;
 
