@@ -117,7 +117,7 @@ void RivReservoirSimWellsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelB
     // Well disks
     if ( m_reservoirView->wellCollection()->wells.size() != m_wellDiskPartMgrs.size() )
     {
-        clearGeometryCache();
+        m_wellDiskPartMgrs.clear();
 
         for ( size_t i = 0; i < m_reservoirView->wellCollection()->wells.size(); ++i )
         {
