@@ -146,6 +146,7 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             setSymbol( getSymbolForMeasurementKind( m_measurementKind() ) );
             setColor( getColorForMeasurementKind( measurementKind() ) );
+            setSymbolEdgeColor( getColorForMeasurementKind( measurementKind() ) );
             setLineStyle( RiuQwtPlotCurve::STYLE_NONE );
 
             RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
