@@ -54,6 +54,7 @@ public:
 
     void             rangeValues( double* lowerBound, double* upperBound ) const;
     std::vector<int> qualityFilter() const;
+    double           radiusScaleFactor() const;
 
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
@@ -88,6 +89,7 @@ private:
     caf::PdmField<std::vector<int>>             m_qualityFilter;
     caf::PdmField<QString>                      m_wellsSerialized;
     caf::PdmField<QString>                      m_availableWellsSerialized;
+    caf::PdmField<double>                       m_radiusScaleFactor;
 
     void              selectNewWells( const std::set<QString>& wells );
     void              setAvailableWells( const std::set<QString>& wells );

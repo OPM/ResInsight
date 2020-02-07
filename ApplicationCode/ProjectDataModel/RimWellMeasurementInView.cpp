@@ -33,6 +33,7 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -85,6 +86,9 @@ RimWellMeasurementInView::RimWellMeasurementInView()
     m_qualityFilter.uiCapability()->setAutoAddingOptionFromValue( false );
     m_qualityFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitField( &m_radiusScaleFactor, "RadiusScaleFactor", 2.5, "Radius Scale", "", "", "" );
+    m_radiusScaleFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
     this->setName( "Well Measurement" );
 
     m_minimumResultValue = cvf::UNDEFINED_DOUBLE;
@@ -126,6 +130,8 @@ void RimWellMeasurementInView::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     uiOrdering.add( &m_qualityFilter );
 
+    uiOrdering.add( &m_radiusScaleFactor );
+
     uiOrdering.skipRemainingFields();
 }
 
@@ -144,13 +150,22 @@ void RimWellMeasurementInView::defineEditorAttribute( const caf::PdmFieldHandle*
     if ( field == &m_lowerBound || field == &m_upperBound )
     {
         caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( !myAttr )
+        if ( myAttr )
         {
-            return;
+            myAttr->m_minimum = m_minimumResultValue;
+            myAttr->m_maximum = m_maximumResultValue;
         }
+    }
 
-        myAttr->m_minimum = m_minimumResultValue;
-        myAttr->m_maximum = m_maximumResultValue;
+    if ( field == &m_radiusScaleFactor )
+    {
+        caf::PdmUiDoubleValueEditorAttribute* uiDoubleValueEditorAttr =
+            dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
+        if ( uiDoubleValueEditorAttr )
+        {
+            uiDoubleValueEditorAttr->m_decimals  = 2;
+            uiDoubleValueEditorAttr->m_validator = new QDoubleValidator( 0.001, 100.0, 2 );
+        }
     }
 }
 
@@ -502,4 +517,12 @@ std::set<QString> RimWellMeasurementInView::getAvailableWells() const
     std::vector<QString> v = convertFromSerializableString( m_availableWellsSerialized );
     std::set<QString>    s( v.begin(), v.end() );
     return s;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellMeasurementInView::radiusScaleFactor() const
+{
+    return m_radiusScaleFactor;
 }

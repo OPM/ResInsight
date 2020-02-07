@@ -304,6 +304,10 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
                 double startMD        = wellMeasurement->MD() - wellPathRadius * 0.5;
                 double endMD          = wellMeasurement->MD() + wellPathRadius * 0.5;
 
+                double wellMeasurementRadius = this->wellMeasurementRadius( characteristicCellSize,
+                                                                            this->wellPathCollection(),
+                                                                            wellMeasurementInView );
+
                 std::vector<cvf::Vec3d> displayCoords;
                 displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
                     m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( startMD ) ) );
@@ -315,10 +319,10 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
                     m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( endMD ) ) );
 
                 std::vector<double> radii;
-                radii.push_back( wellPathRadius );
-                radii.push_back( wellPathRadius * 2.5 );
-                radii.push_back( wellPathRadius * 2.5 );
-                radii.push_back( wellPathRadius );
+                radii.push_back( std::min( wellPathRadius, wellMeasurementRadius ) );
+                radii.push_back( wellMeasurementRadius );
+                radii.push_back( wellMeasurementRadius );
+                radii.push_back( std::min( wellPathRadius, wellMeasurementRadius ) );
 
                 cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( wellMeasurement );
 
@@ -933,5 +937,16 @@ RimWellPathCollection* RivWellPathPartMgr::wellPathCollection() const
 double RivWellPathPartMgr::wellPathRadius( double characteristicCellSize, RimWellPathCollection* wellPathCollection )
 {
     return wellPathCollection->wellPathRadiusScaleFactor() * m_rimWellPath->wellPathRadiusScaleFactor() *
+           characteristicCellSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RivWellPathPartMgr::wellMeasurementRadius( double                          characteristicCellSize,
+                                                  const RimWellPathCollection*    wellPathCollection,
+                                                  const RimWellMeasurementInView* wellMeasurementInView )
+{
+    return wellPathCollection->wellPathRadiusScaleFactor() * wellMeasurementInView->radiusScaleFactor() *
            characteristicCellSize;
 }
