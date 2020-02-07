@@ -18,6 +18,7 @@
 
 #include "RimDerivedSummaryCase.h"
 
+#include "RiaApplication.h"
 #include "RiaCurveMerger.h"
 #include "RiaLogging.h"
 
@@ -25,7 +26,6 @@
 
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
-#include "cvfAssert.h"
 
 namespace caf
 {
