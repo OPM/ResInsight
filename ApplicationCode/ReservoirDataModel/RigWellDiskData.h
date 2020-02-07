@@ -31,10 +31,18 @@ public:
     void setOilGasWater( double oil, double gas, double water );
 
     double total() const;
+
     double oil() const;
+    double oilSigned() const;
+
     double gas() const;
+    double gasSigned() const;
+
     double water() const;
+    double waterSigned() const;
+
     double singlePropertyValue() const;
+    double singlePropertyValueSigned() const;
     bool   isSingleProperty() const;
 
 private:

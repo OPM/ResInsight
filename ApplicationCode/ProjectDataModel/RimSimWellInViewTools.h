@@ -19,6 +19,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 class QString;
 class QDateTime;
@@ -26,6 +27,7 @@ class QDateTime;
 class RimSimWellInView;
 class RimGridSummaryCase;
 class RifSummaryReaderInterface;
+class RimSummaryCase;
 
 //==================================================================================================
 ///
@@ -34,8 +36,9 @@ class RifSummaryReaderInterface;
 class RimSimWellInViewTools
 {
 public:
-    static RimGridSummaryCase* gridSummaryCaseForWell( RimSimWellInView* well );
-    static bool                isInjector( RimSimWellInView* well );
+    static RimGridSummaryCase*          gridSummaryCaseForWell( RimSimWellInView* well );
+    static std::vector<RimSummaryCase*> summaryCases();
+    static bool                         isInjector( RimSimWellInView* well );
 
     static double extractValueForTimeStep( RifSummaryReaderInterface* summaryReader,
                                            const QString&             wellName,

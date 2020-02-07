@@ -210,10 +210,11 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
 
         if ( simWellInViewCollection()->showWellDiskQuantityLables() )
         {
-            const double singleProperty = diskData.singlePropertyValue();
-            if ( singleProperty > valueThresholdForLabel )
-
+            if ( diskData.singlePropertyValue() > valueThresholdForLabel )
+            {
+                const double singleProperty = diskData.singlePropertyValueSigned();
                 labelText += QString( "\n%2" ).arg( singleProperty, 0, 'g', numberPrecision );
+            }
         }
     }
     else
@@ -235,7 +236,11 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
 
             if ( oilFraction > valueThresholdForLabel )
             {
-                auto p = createTextAndLocation( oilFraction / 2.0, diskPosition, ijScaleFactor, oil, numberPrecision );
+                auto p = createTextAndLocation( oilFraction / 2.0,
+                                                diskPosition,
+                                                ijScaleFactor,
+                                                diskData.oilSigned(),
+                                                numberPrecision );
                 labelsWithPosition.push_back( p );
                 aggregatedFraction += oilFraction;
             }
@@ -245,7 +250,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
                 auto p = createTextAndLocation( aggregatedFraction + gasFraction / 2.0,
                                                 diskPosition,
                                                 ijScaleFactor,
-                                                gas,
+                                                diskData.gasSigned(),
                                                 numberPrecision );
                 labelsWithPosition.push_back( p );
                 aggregatedFraction += gasFraction;
@@ -256,7 +261,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
                 auto p = createTextAndLocation( aggregatedFraction + waterFraction / 2.0,
                                                 diskPosition,
                                                 ijScaleFactor,
-                                                water,
+                                                diskData.waterSigned(),
                                                 numberPrecision );
 
                 labelsWithPosition.push_back( p );

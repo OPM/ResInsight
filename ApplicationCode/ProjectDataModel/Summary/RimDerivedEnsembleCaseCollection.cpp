@@ -20,8 +20,8 @@
 
 #include "SummaryPlotCommands/RicNewDerivedEnsembleFeature.h"
 
-#include "RimDerivedEnsembleCase.h"
 #include "RimDerivedEnsembleCaseCollection.h"
+#include "RimDerivedSummaryCase.h"
 #include "RimProject.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -31,17 +31,6 @@
 #include <cafPdmUiPushButtonEditor.h>
 
 #include <cmath>
-
-namespace caf
-{
-template <>
-void caf::AppEnum<DerivedEnsembleOperator>::setUp()
-{
-    addItem( DERIVED_ENSEMBLE_SUB, "Sub", "-" );
-    addItem( DERIVED_ENSEMBLE_ADD, "Add", "+" );
-    setDefault( DERIVED_ENSEMBLE_SUB );
-}
-} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimDerivedEnsembleCaseCollection, "RimDerivedEnsembleCaseCollection" );
 
@@ -150,6 +139,7 @@ void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
 
         auto derivedCase = firstCaseNotInUse();
         derivedCase->setSummaryCases( sumCase1, sumCase2 );
+        derivedCase->setOperator( m_operator() );
         derivedCase->createSummaryReaderInterface();
         derivedCase->setCaseRealizationParameters( crp );
         derivedCase->setInUse( true );
@@ -326,12 +316,12 @@ void RimDerivedEnsembleCaseCollection::setAllCasesNotInUse()
 //--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCaseCollection::deleteCasesNoInUse()
 {
-    std::vector<RimDerivedEnsembleCase*> inactiveCases;
-    auto                                 allCases = allDerivedCases( false );
+    std::vector<RimDerivedSummaryCase*> inactiveCases;
+    auto                                allCases = allDerivedCases( false );
     std::copy_if( allCases.begin(),
                   allCases.end(),
                   std::back_inserter( inactiveCases ),
-                  []( RimDerivedEnsembleCase* derCase ) { return !derCase->isInUse(); } );
+                  []( RimDerivedSummaryCase* derCase ) { return !derCase->isInUse(); } );
 
     for ( auto derCase : inactiveCases )
     {
@@ -343,10 +333,10 @@ void RimDerivedEnsembleCaseCollection::deleteCasesNoInUse()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimDerivedEnsembleCase* RimDerivedEnsembleCaseCollection::firstCaseNotInUse()
+RimDerivedSummaryCase* RimDerivedEnsembleCaseCollection::firstCaseNotInUse()
 {
     auto allCases = allDerivedCases( false );
-    auto itr      = std::find_if( allCases.begin(), allCases.end(), []( RimDerivedEnsembleCase* derCase ) {
+    auto itr      = std::find_if( allCases.begin(), allCases.end(), []( RimDerivedSummaryCase* derCase ) {
         return !derCase->isInUse();
     } );
     if ( itr != allCases.end() )
@@ -355,7 +345,7 @@ RimDerivedEnsembleCase* RimDerivedEnsembleCaseCollection::firstCaseNotInUse()
     }
 
     // If no active case was found, add a new case to the collection
-    auto newCase = new RimDerivedEnsembleCase();
+    auto newCase = new RimDerivedSummaryCase();
     m_cases.push_back( newCase );
     return newCase;
 }
@@ -363,12 +353,12 @@ RimDerivedEnsembleCase* RimDerivedEnsembleCaseCollection::firstCaseNotInUse()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimDerivedEnsembleCase*> RimDerivedEnsembleCaseCollection::allDerivedCases( bool activeOnly ) const
+std::vector<RimDerivedSummaryCase*> RimDerivedEnsembleCaseCollection::allDerivedCases( bool activeOnly ) const
 {
-    std::vector<RimDerivedEnsembleCase*> activeCases;
+    std::vector<RimDerivedSummaryCase*> activeCases;
     for ( auto sumCase : RimSummaryCaseCollection::allSummaryCases() )
     {
-        auto derivedCase = dynamic_cast<RimDerivedEnsembleCase*>( sumCase );
+        auto derivedCase = dynamic_cast<RimDerivedSummaryCase*>( sumCase );
         if ( derivedCase && ( !activeOnly || derivedCase->isInUse() ) )
         {
             activeCases.push_back( derivedCase );
@@ -382,7 +372,7 @@ std::vector<RimDerivedEnsembleCase*> RimDerivedEnsembleCaseCollection::allDerive
 //--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCaseCollection::updateAutoName()
 {
-    QString op = caf::AppEnum<DerivedEnsembleOperator>::uiText( m_operator() );
+    QString op = caf::AppEnum<DerivedSummaryOperator>::uiText( m_operator() );
 
     auto derivedEnsemble1 = dynamic_cast<RimDerivedEnsembleCaseCollection*>( m_ensemble1() );
     auto derivedEnsemble2 = dynamic_cast<RimDerivedEnsembleCaseCollection*>( m_ensemble2() );

@@ -257,6 +257,8 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     m_showWellCellFence.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     m_showWellCellFence.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_wellDiskSummaryCase, "WellDiskSummaryCase", "Summary Case", "", "", "" );
+
     CAF_PDM_InitField( &m_wellDiskQuantity, "WellDiskQuantity", QString( "WOPT" ), "Disk Quantity", "", "", "" );
     m_wellDiskQuantity.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_wellDiskQuantity.uiCapability()->setAutoAddingOptionFromValue( false );
@@ -504,7 +506,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         }
         else if ( &m_wellDiskQuantity == changedField || &m_wellDiskPropertyType == changedField ||
                   &m_wellDiskPropertyConfigType == changedField || &m_wellDiskshowLabelsBackground == changedField ||
-                  &m_wellDiskShowQuantityLabels == changedField )
+                  &m_wellDiskShowQuantityLabels == changedField || &m_wellDiskSummaryCase == changedField )
         {
             RimWellDiskConfig wellDiskConfig = getActiveWellDiskConfig();
             updateWellDisks( wellDiskConfig );
@@ -587,14 +589,13 @@ QList<caf::PdmOptionItemInfo>
     RimSimWellInViewCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                        bool*                      useOptionsOnly )
 {
+    QList<caf::PdmOptionItemInfo> options;
+
     if ( fieldNeedingOptions == &m_wellDiskQuantity )
     {
-        QList<caf::PdmOptionItemInfo> options;
-        if ( !wells.empty() )
+        auto summaryCase = m_wellDiskSummaryCase();
+        if ( summaryCase )
         {
-            // Assume that the wells share the grid summary case
-            RimGridSummaryCase* summaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( wells[0] );
-
             std::set<std::string> summaries;
             if ( summaryCase && summaryCase->summaryReader() )
             {
@@ -631,11 +632,18 @@ QList<caf::PdmOptionItemInfo>
         }
 
         if ( useOptionsOnly ) *useOptionsOnly = true;
-
-        return options;
+    }
+    else if ( fieldNeedingOptions == &m_wellDiskSummaryCase )
+    {
+        auto cases = RimSimWellInViewTools::summaryCases();
+        for ( auto c : cases )
+        {
+            auto optionItem = caf::PdmOptionItemInfo( c->displayCaseName(), c );
+            options.push_back( optionItem );
+        }
     }
 
-    return QList<caf::PdmOptionItemInfo>();
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -671,6 +679,21 @@ void RimSimWellInViewCollection::updateWellAllocationPlots()
     for ( auto wap : wellAllocationPlots )
     {
         wap->loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSimWellInViewCollection::setDefaultSourceCaseForWellDisks()
+{
+    if ( m_wellDiskSummaryCase == nullptr && !wells.empty() )
+    {
+        RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( wells[0] );
+        if ( gridSummaryCase )
+        {
+            m_wellDiskSummaryCase = gridSummaryCase;
+        }
     }
 }
 
@@ -741,6 +764,12 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
     {
         caf::PdmUiGroup* wellDiskGroup = uiOrdering.addNewGroup( "Disks" );
 
+        if ( !m_wellDiskSummaryCase() )
+        {
+            setDefaultSourceCaseForWellDisks();
+        }
+        wellDiskGroup->add( &m_wellDiskSummaryCase );
+
         wellDiskGroup->add( &m_wellDiskPropertyType );
         if ( m_wellDiskPropertyType() == PROPERTY_TYPE_PREDEFINED )
         {
@@ -757,6 +786,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
 
         m_wellDiskPropertyType.uiCapability()->setUiReadOnly( isReadOnly );
         m_wellDiskPropertyConfigType.uiCapability()->setUiReadOnly( isReadOnly );
+        m_wellDiskSummaryCase.uiCapability()->setUiReadOnly( isReadOnly );
         m_wellDiskQuantity.uiCapability()->setUiReadOnly( isReadOnly );
         m_wellDiskShowQuantityLabels.uiCapability()->setUiReadOnly( isReadOnly );
         m_wellDiskshowLabelsBackground.uiCapability()->setUiReadOnly( isReadOnly );
@@ -1046,6 +1076,9 @@ void RimSimWellInViewCollection::updateWellDisks( const RimWellDiskConfig& wellD
 RimWellDiskConfig RimSimWellInViewCollection::getActiveWellDiskConfig() const
 {
     RimWellDiskConfig wellDiskConfig;
+
+    wellDiskConfig.setSourceCase( m_wellDiskSummaryCase() );
+
     if ( m_wellDiskPropertyType() == RimSimWellInViewCollection::PROPERTY_TYPE_PREDEFINED )
     {
         WellDiskPropertyConfigType configType = m_wellDiskPropertyConfigType();

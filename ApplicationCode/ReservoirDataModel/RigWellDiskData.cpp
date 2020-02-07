@@ -58,11 +58,11 @@ double RigWellDiskData::total() const
 {
     if ( m_isSingleProperty )
     {
-        return m_singlePropertyValue;
+        return singlePropertyValue();
     }
     else
     {
-        return m_oilValue + m_gasValue + m_waterValue;
+        return oil() + gas() + water();
     }
 }
 
@@ -70,6 +70,14 @@ double RigWellDiskData::total() const
 ///
 //--------------------------------------------------------------------------------------------------
 double RigWellDiskData::oil() const
+{
+    return std::fabs( m_oilValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigWellDiskData::oilSigned() const
 {
     return m_oilValue;
 }
@@ -79,6 +87,14 @@ double RigWellDiskData::oil() const
 //--------------------------------------------------------------------------------------------------
 double RigWellDiskData::gas() const
 {
+    return std::fabs( m_gasValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigWellDiskData::gasSigned() const
+{
     return m_gasValue;
 }
 
@@ -87,6 +103,14 @@ double RigWellDiskData::gas() const
 //--------------------------------------------------------------------------------------------------
 double RigWellDiskData::water() const
 {
+    return std::fabs( m_waterValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigWellDiskData::waterSigned() const
+{
     return m_waterValue;
 }
 
@@ -94,6 +118,14 @@ double RigWellDiskData::water() const
 ///
 //--------------------------------------------------------------------------------------------------
 double RigWellDiskData::singlePropertyValue() const
+{
+    return std::fabs( m_singlePropertyValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigWellDiskData::singlePropertyValueSigned() const
 {
     return m_singlePropertyValue;
 }

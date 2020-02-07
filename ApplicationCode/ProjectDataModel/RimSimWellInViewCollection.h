@@ -26,11 +26,13 @@
 #include "cafPdmFieldCvfColor.h" // Include to make Pdm work for cvf::Color
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmPtrField.h"
 #include "cafTristate.h"
 
 class RimEclipseView;
 class RimSimWellInView;
 class RimWellDiskConfig;
+class RimSummaryCase;
 
 //==================================================================================================
 ///
@@ -156,6 +158,7 @@ public:
 
     static void updateWellAllocationPlots();
 
+    void setDefaultSourceCaseForWellDisks();
     void updateWellDisks();
 
 protected:
@@ -198,6 +201,7 @@ private:
     // Well Discs
     caf::PdmField<caf::AppEnum<WellDiskPropertyType>>       m_wellDiskPropertyType;
     caf::PdmField<caf::AppEnum<WellDiskPropertyConfigType>> m_wellDiskPropertyConfigType;
+    caf::PdmPtrField<RimSummaryCase*>                       m_wellDiskSummaryCase;
     caf::PdmField<QString>                                  m_wellDiskQuantity;
     caf::PdmField<bool>                                     m_wellDiskShowQuantityLabels;
     caf::PdmField<bool>                                     m_wellDiskshowLabelsBackground;

@@ -195,7 +195,7 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
 
     if ( m_isEnsemble && m_cases.size() != caseCountBeforeRemove )
     {
-        if ( dynamic_cast<RimDerivedEnsembleCase*>( summaryCase ) == nullptr )
+        if ( dynamic_cast<RimDerivedSummaryCase*>( summaryCase ) == nullptr )
             calculateEnsembleParametersIntersectionHash();
     }
 }
