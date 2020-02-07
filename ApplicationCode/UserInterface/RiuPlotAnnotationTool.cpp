@@ -97,12 +97,23 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
 
         QColor lineColor( 0, 0, 0, 0 );
         QColor textColor( 0, 0, 0, 255 );
-        if ( regionDisplay & DARK_LINES || regionDisplay & COLORED_LINES )
+        if ( regionDisplay & DARK_LINES || regionDisplay & COLORED_LINES || regionDisplay & LIGHT_LINES )
         {
             cvf::Color3ub cvfColor = catMapper.mapToColor( static_cast<double>( i ) );
             QColor        cycledColor( cvfColor.r(), cvfColor.g(), cvfColor.b() );
 
-            lineColor = regionDisplay & DARK_LINES ? QColor( 0, 0, 100 ) : cycledColor;
+            if ( regionDisplay & DARK_LINES )
+            {
+                lineColor = QColor( 50, 50, 100 );
+            }
+            else if ( regionDisplay & LIGHT_LINES )
+            {
+                lineColor = QColor( 200, 200, 200 );
+            }
+            else
+            {
+                lineColor = cycledColor;
+            }
             textColor = lineColor;
         }
         Qt::Alignment horizontalAlignment = trackTextAlignment( trackSpan );

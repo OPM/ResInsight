@@ -139,6 +139,7 @@ template <>
 void AppEnum<RiuPlotAnnotationTool::RegionDisplay>::setUp()
 {
     addItem( RiuPlotAnnotationTool::DARK_LINES, "DARK_LINES", "Dark Lines" );
+    addItem( RiuPlotAnnotationTool::LIGHT_LINES, "LIGHT_LINES", "Light Lines" );
     addItem( RiuPlotAnnotationTool::COLORED_LINES, "COLORED_LINES", "Colored Lines" );
     addItem( RiuPlotAnnotationTool::COLOR_SHADING, "COLOR_SHADING", "Color Shading" );
     addItem( RiuPlotAnnotationTool::COLOR_SHADING_AND_LINES, "SHADING_AND_LINES", "Color Shading and Lines" );
@@ -1490,6 +1491,14 @@ void RimWellLogTrack::setAnnotationDisplay( RiuPlotAnnotationTool::RegionDisplay
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAnnotationTransparency( int percent )
+{
+    m_colorShadingTransparency = percent;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuPlotAnnotationTool::RegionAnnotationType RimWellLogTrack::annotationType() const
 {
     return m_regionAnnotationType();
@@ -1533,6 +1542,14 @@ bool RimWellLogTrack::showWellPathAttributes() const
 void RimWellLogTrack::setShowWellPathAttributes( bool on )
 {
     m_showWellPathAttributes = on;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setShowBothSidesOfWell( bool on )
+{
+    m_showWellPathComponentsBothSides = on;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1838,6 +1855,40 @@ void RimWellLogTrack::handleWheelEvent( QWheelEvent* event )
                                                                          : -RI_SCROLLWHEEL_PANFACTOR );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( RiaDefines::DepthTypeEnum  depthType,
+                                                                             const RigWellLogExtractor* extractor ) const
+{
+    if ( depthType == RiaDefines::MEASURED_DEPTH )
+    {
+        double waterStartMD = 0.0;
+        if ( extractor->wellPathData()->rkbDiff() != std::numeric_limits<double>::infinity() )
+        {
+            waterStartMD += extractor->wellPathData()->rkbDiff();
+        }
+        double waterEndMD = extractor->cellIntersectionMDs().front();
+        double rockEndMD  = extractor->cellIntersectionMDs().back();
+        return {{waterStartMD, waterEndMD}, {waterEndMD, rockEndMD}};
+    }
+    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+    {
+        double waterStartTVD = 0.0;
+        double waterEndTVD   = extractor->cellIntersectionTVDs().front();
+        double rockEndTVD    = extractor->cellIntersectionTVDs().back();
+        return {{waterStartTVD, waterEndTVD}, {waterEndTVD, rockEndTVD}};
+    }
+    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+    {
+        double waterStartTVDRKB = extractor->wellPathData()->rkbDiff();
+        double waterEndTVDRKB   = extractor->cellIntersectionTVDs().front() + extractor->wellPathData()->rkbDiff();
+        double rockEndTVDRKB    = extractor->cellIntersectionTVDs().back() + extractor->wellPathData()->rkbDiff();
+        return {{waterStartTVDRKB, waterEndTVDRKB}, {waterEndTVDRKB, rockEndTVDRKB}};
+    }
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2174,17 +2225,43 @@ void RimWellLogTrack::updateRegionAnnotationsOnPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateFormationNamesOnPlot()
 {
-    std::vector<QString> formationNamesToPlot;
-
     RimWellLogPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
 
-    if ( m_formationSource == CASE )
+    if ( m_formationSource() == WELL_PICK_FILTER )
     {
-        if ( ( m_formationSimWellName == QString( "None" ) && m_formationWellPathForSourceCase == nullptr ) ||
-             m_formationCase == nullptr )
-            return;
+        if ( m_formationWellPathForSourceWellPath == nullptr ) return;
 
+        if ( !( plot->depthType() == RiaDefines::MEASURED_DEPTH || plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH ||
+                plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) )
+        {
+            return;
+        }
+
+        std::vector<double> yValues;
+
+        const RigWellPathFormations* formations = m_formationWellPathForSourceWellPath->formationsGeometry();
+        if ( !formations ) return;
+
+        std::vector<QString> formationNamesToPlot;
+        formations->depthAndFormationNamesUpToLevel( m_formationLevel(),
+                                                     &formationNamesToPlot,
+                                                     &yValues,
+                                                     m_showformationFluids(),
+                                                     plot->depthType() );
+
+        if ( plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+        {
+            for ( double& depthValue : yValues )
+            {
+                depthValue += m_formationWellPathForSourceWellPath->wellPathGeometry()->rkbDiff();
+            }
+        }
+
+        m_annotationTool->attachWellPicks( m_plotWidget, formationNamesToPlot, yValues );
+    }
+    else
+    {
         RimMainPlotCollection* mainPlotCollection;
         this->firstAncestorOrThisOfTypeAsserted( mainPlotCollection );
 
@@ -2194,6 +2271,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
         RigEclipseWellLogExtractor* eclWellLogExtractor     = nullptr;
         RigGeoMechWellLogExtractor* geoMechWellLogExtractor = nullptr;
+        RigWellLogExtractor*        extractor               = nullptr;
 
         if ( m_formationTrajectoryType == SIMULATION_WELL )
         {
@@ -2222,6 +2300,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                                   RiaDefines::activeFormationNamesResultName() ) );
 
             curveData = RimWellLogTrack::curveSamplingPointData( eclWellLogExtractor, resultAccessor.p() );
+            extractor = eclWellLogExtractor;
         }
         else
         {
@@ -2235,60 +2314,52 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                                  RigFemResultAddress( RIG_FORMATION_NAMES,
                                                                                       activeFormationNamesResultName,
                                                                                       "" ) );
+            extractor = geoMechWellLogExtractor;
         }
 
-        std::vector<std::pair<double, double>> yValues;
-        std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( m_formationCase );
+        // Attach water and rock base formations
+        const std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
 
-        RimWellLogTrack::findRegionNamesToPlot( curveData,
-                                                formationNamesVector,
-                                                plot->depthType(),
-                                                &formationNamesToPlot,
-                                                &yValues );
-
-        std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
-
-        caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
-
+        const caf::ColorTable                        waterAndRockColors = RiaColorTables::waterAndRockPaletteColors();
+        const std::vector<std::pair<double, double>> waterAndRockIntervals    = waterAndRockRegions( plot->depthType(),
+                                                                                                  extractor );
+        int                                          waterAndRockTransparency = m_colorShadingTransparency / 2;
         m_annotationTool->attachNamedRegions( m_plotWidget,
-                                              formationNamesToPlot,
+                                              {"Water", ""},
                                               xRange,
-                                              yValues,
+                                              waterAndRockIntervals,
                                               m_regionAnnotationDisplay(),
-                                              colorTable,
-                                              ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
+                                              waterAndRockColors,
+                                              ( ( 100 - waterAndRockTransparency ) * 255 ) / 100,
                                               m_showRegionLabels() );
-    }
-    else if ( m_formationSource() == WELL_PICK_FILTER )
-    {
-        if ( m_formationWellPathForSourceWellPath == nullptr ) return;
 
-        if ( !( plot->depthType() == RiaDefines::MEASURED_DEPTH || plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH ||
-                plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) )
+        if ( m_formationSource == CASE )
         {
-            return;
+            if ( ( m_formationSimWellName == QString( "None" ) && m_formationWellPathForSourceCase == nullptr ) ||
+                 m_formationCase == nullptr )
+                return;
+
+            std::vector<std::pair<double, double>> yValues;
+            std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( m_formationCase );
+
+            std::vector<QString> formationNamesToPlot;
+            RimWellLogTrack::findRegionNamesToPlot( curveData,
+                                                    formationNamesVector,
+                                                    plot->depthType(),
+                                                    &formationNamesToPlot,
+                                                    &yValues );
+
+            caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
+
+            m_annotationTool->attachNamedRegions( m_plotWidget,
+                                                  formationNamesToPlot,
+                                                  xRange,
+                                                  yValues,
+                                                  m_regionAnnotationDisplay(),
+                                                  colorTable,
+                                                  ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
+                                                  m_showRegionLabels() );
         }
-
-        std::vector<double> yValues;
-
-        const RigWellPathFormations* formations = m_formationWellPathForSourceWellPath->formationsGeometry();
-        if ( !formations ) return;
-
-        formations->depthAndFormationNamesUpToLevel( m_formationLevel(),
-                                                     &formationNamesToPlot,
-                                                     &yValues,
-                                                     m_showformationFluids(),
-                                                     plot->depthType() );
-
-        if ( plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
-        {
-            for ( double& depthValue : yValues )
-            {
-                depthValue += m_formationWellPathForSourceWellPath->wellPathGeometry()->rkbDiff();
-            }
-        }
-
-        m_annotationTool->attachWellPicks( m_plotWidget, formationNamesToPlot, yValues );
     }
 }
 
