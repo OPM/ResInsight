@@ -2321,16 +2321,15 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         const std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
 
         const caf::ColorTable                        waterAndRockColors = RiaColorTables::waterAndRockPaletteColors();
-        const std::vector<std::pair<double, double>> waterAndRockIntervals    = waterAndRockRegions( plot->depthType(),
+        const std::vector<std::pair<double, double>> waterAndRockIntervals = waterAndRockRegions( plot->depthType(),
                                                                                                   extractor );
-        int                                          waterAndRockTransparency = m_colorShadingTransparency / 2;
         m_annotationTool->attachNamedRegions( m_plotWidget,
                                               {"Water", ""},
                                               xRange,
                                               waterAndRockIntervals,
                                               m_regionAnnotationDisplay(),
                                               waterAndRockColors,
-                                              ( ( 100 - waterAndRockTransparency ) * 255 ) / 100,
+                                              ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
                                               m_showRegionLabels() );
 
         if ( m_formationSource == CASE )

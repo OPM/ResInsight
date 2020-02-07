@@ -53,7 +53,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* w
     , m_showLabel( false )
 {
     CVF_ASSERT( wellPath && wellPath->wellPathGeometry() );
-    double wellStart = wellPath->wellPathGeometry()->measureDepths().front();
+    double wellStart = 0.0;
     double wellEnd   = wellPath->wellPathGeometry()->measureDepths().back();
     m_startMD        = wellStart;
     m_endMD          = wellEnd;
@@ -335,14 +335,33 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
 
     if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH || m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
     {
-        cvf::Vec3d startPoint = m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_startMD );
-        cvf::Vec3d endPoint   = m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_endMD );
-        startDepth            = -startPoint.z();
-        endDepth              = -endPoint.z();
-        if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+        endDepth       = -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_endMD ).z();
+        double rkbDiff = m_wellPath->wellPathGeometry()->rkbDiff();
+        if ( rkbDiff == std::numeric_limits<double>::infinity() )
         {
-            startDepth += m_wellPath->wellPathGeometry()->rkbDiff();
-            endDepth += m_wellPath->wellPathGeometry()->rkbDiff();
+            rkbDiff = 0.0;
+        }
+
+        if ( m_componentType == RiaDefines::WELL_PATH )
+        {
+            startDepth = 0.0;
+            if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+            {
+                startDepth -= rkbDiff;
+            }
+            else if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+            {
+                endDepth += m_wellPath->wellPathGeometry()->rkbDiff();
+            }
+        }
+        else
+        {
+            startDepth = -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_startMD ).z();
+            if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+            {
+                startDepth += m_wellPath->wellPathGeometry()->rkbDiff();
+                endDepth += m_wellPath->wellPathGeometry()->rkbDiff();
+            }
         }
     }
     return std::make_pair( startDepth, endDepth );
