@@ -49,6 +49,7 @@ ${CMAKE_CURRENT_LIST_DIR}/SolveSpaceSolver-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaPolyArcLineSampler-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifTextDataTableFormatter-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedMean-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaMedianCalculator-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedGeometricMeanCalculator-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWeightedHarmonicMeanCalculator-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaCellDividingTools-Test.cpp

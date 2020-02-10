@@ -95,7 +95,9 @@ private:
                                                     const QVariant&            oldValue,
                                                     const QVariant&            newValue ) override;
     void                          initAfterRead() override;
-
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
     // Metadata and option build tools
 
     std::map<std::string, std::vector<std::string>> getResultMetaDataForUIFieldSetting();
