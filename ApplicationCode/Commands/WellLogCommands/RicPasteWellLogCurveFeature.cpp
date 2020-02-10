@@ -21,6 +21,7 @@
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 
+#include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFileCurve.h"
@@ -55,6 +56,20 @@ bool RicPasteWellLogCurveFeature::isCommandEnabled()
         return false;
     }
 
+    RimWellBoreStabilityPlot* wbsPlotToPasteInto = nullptr;
+    wellLogTrack->firstAncestorOrThisOfType( wbsPlotToPasteInto );
+
+    std::vector<caf::PdmPointer<RimWellLogCurve>> sourceObjects = RicPasteWellLogCurveFeature::curves();
+
+    for ( size_t i = 0; i < sourceObjects.size(); i++ )
+    {
+        RimWellBoreStabilityPlot* originalWbsPlot = nullptr;
+        sourceObjects[i]->firstAncestorOrThisOfType( originalWbsPlot );
+        if ( originalWbsPlot && originalWbsPlot != wbsPlotToPasteInto )
+        {
+            return false;
+        }
+    }
     return RicPasteWellLogCurveFeature::curves().size() > 0;
 }
 
@@ -76,10 +91,20 @@ void RicPasteWellLogCurveFeature::onActionTriggered( bool isChecked )
         return;
     }
 
+    RimWellBoreStabilityPlot* wbsPlotToPasteInto = nullptr;
+    wellLogTrack->firstAncestorOrThisOfType( wbsPlotToPasteInto );
+
     std::vector<caf::PdmPointer<RimWellLogCurve>> sourceObjects = RicPasteWellLogCurveFeature::curves();
 
     for ( size_t i = 0; i < sourceObjects.size(); i++ )
     {
+        RimWellBoreStabilityPlot* originalWbsPlot = nullptr;
+        sourceObjects[i]->firstAncestorOrThisOfType( originalWbsPlot );
+        if ( originalWbsPlot && originalWbsPlot != wbsPlotToPasteInto )
+        {
+            continue;
+        }
+
         RimWellLogFileCurve* fileCurve = dynamic_cast<RimWellLogFileCurve*>( sourceObjects[i].p() );
         if ( fileCurve )
         {
