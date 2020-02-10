@@ -85,6 +85,7 @@ private:
     caf::PdmField<ParameterSourceEnum> m_K0FGSource;
     caf::PdmField<ParameterSourceEnum> m_K0SHSource;
     caf::PdmField<ParameterSourceEnum> m_FGShaleSource;
+    caf::PdmField<ParameterSourceEnum> m_waterDensitySource;
 
     caf::PdmField<double> m_userDefinedPPShale;
     caf::PdmField<double> m_userDefinedPoissionRatio;
@@ -93,6 +94,7 @@ private:
     caf::PdmField<double> m_userDefinedK0FG;
     caf::PdmField<double> m_userDefinedK0SH;
     caf::PdmField<double> m_FGShaleMultiplier;
+    caf::PdmField<double> m_userDefinedDensity;
 
     caf::PdmPtrField<RimGeoMechCase*> m_geoMechCase;
     caf::PdmPtrField<RimWellPath*>    m_wellPath;
