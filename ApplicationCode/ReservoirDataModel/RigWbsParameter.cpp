@@ -336,11 +336,9 @@ RigWbsParameter RigWbsParameter::FG_Shale()
 {
     RigWbsParameter param( "FG Shale",
                            false,
-                           {
-                               {DERIVED_FROM_K0FG, SourceAddress()},
-                               {PROPORTIONAL_TO_SH, SourceAddress()},
-                               {LAS_FILE, SourceAddress( "FG_SHALE_INP" )},
-                           } );
+                           {{DERIVED_FROM_K0FG, SourceAddress()},
+                            {PROPORTIONAL_TO_SH, SourceAddress()},
+                            {LAS_FILE, SourceAddress( "FG_SHALE_INP" )}} );
     param.setOptionsExclusive( true );
     return param;
 }
@@ -348,9 +346,28 @@ RigWbsParameter RigWbsParameter::FG_Shale()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigWbsParameter RigWbsParameter::waterDensity()
+{
+    RigWbsParameter param( "Density of Sea Water", false, {{USER_DEFINED, SourceAddress()}} );
+    return param;
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<RigWbsParameter> RigWbsParameter::allParameters()
 {
-    return {PP_Reservoir(), PP_NonReservoir(), poissonRatio(), UCS(), OBG(), OBG0(), SH(), DF(), K0_FG(), K0_SH(), FG_Shale()};
+    return {PP_Reservoir(),
+            PP_NonReservoir(),
+            poissonRatio(),
+            UCS(),
+            OBG(),
+            OBG0(),
+            SH(),
+            DF(),
+            K0_FG(),
+            K0_SH(),
+            FG_Shale(),
+            waterDensity()};
 }
 
 //--------------------------------------------------------------------------------------------------

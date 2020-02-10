@@ -51,6 +51,9 @@ class BoundingBox;
 class RigGeoMechWellLogExtractor : public RigWellLogExtractor
 {
 public:
+    static const double PURE_WATER_DENSITY_GCM3;
+    static const double GRAVITY_ACCEL;
+
     using WbsParameterSource     = RigWbsParameter::Source;
     using WbsParameterSourceEnum = RigWbsParameter::SourceEnum;
 
@@ -132,14 +135,6 @@ private:
     static void initializeResultValues( std::vector<float>& resultValues, size_t resultCount );
     static void initializeResultValues( std::vector<caf::Ten3d>& resultValues, size_t resultCount );
 
-    void filterShortSegments( std::vector<double>*               xValues,
-                              std::vector<double>*               yValues,
-                              std::vector<unsigned char>*        filterSegments,
-                              std::vector<std::vector<double>*>& vectorOfDependentValues );
-    void filterColinearSegments( std::vector<double>*               xValues,
-                                 std::vector<double>*               yValues,
-                                 std::vector<unsigned char>*        filterSegments,
-                                 std::vector<std::vector<double>*>& vectorOfDependentValues );
     void smoothSegments( std::vector<double>*              mds,
                          std::vector<double>*              tvds,
                          std::vector<double>*              values,
@@ -149,8 +144,12 @@ private:
 
     std::vector<unsigned char> determineFilteringOrSmoothing( const std::vector<double>& porePressures );
 
-    double hydroStaticPorePressureForIntersection( size_t intersectionIdx ) const;
-    double hydroStaticPorePressureForSegment( size_t intersectionIdx ) const;
+    double hydroStaticPorePressureForIntersection( size_t intersectionIdx,
+                                                   double waterDensityGCM3 = PURE_WATER_DENSITY_GCM3 ) const;
+    double hydroStaticPorePressureForSegment( size_t intersectionIdx,
+                                              double waterDensityGCM3 = PURE_WATER_DENSITY_GCM3 ) const;
+
+    double wbsCurveValuesAtMsl() const;
 
     static bool isValid( double value );
     static bool isValid( float value );
@@ -162,6 +161,4 @@ private:
     std::map<RigWbsParameter, QString>                                m_lasFileInputUnits;
     std::map<RigWbsParameter, WbsParameterSource>                     m_parameterSources;
     std::map<RigWbsParameter, double>                                 m_userDefinedValues;
-
-    static const double UNIT_WEIGHT_OF_WATER;
 };

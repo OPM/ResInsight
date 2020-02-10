@@ -83,6 +83,7 @@ public:
     static RigWbsParameter K0_FG();
     static RigWbsParameter K0_SH();
     static RigWbsParameter FG_Shale();
+    static RigWbsParameter waterDensity();
 
     static std::set<RigWbsParameter> allParameters();
     static bool                      findParameter( QString parameterName, RigWbsParameter* foundParam = nullptr );

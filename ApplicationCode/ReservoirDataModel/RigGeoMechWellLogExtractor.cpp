@@ -47,7 +47,8 @@
 
 #include <type_traits>
 
-const double RigGeoMechWellLogExtractor::UNIT_WEIGHT_OF_WATER = 9.81 * 1000.0; // N / m^3
+const double RigGeoMechWellLogExtractor::PURE_WATER_DENSITY_GCM3 = 1.0; // g / cm^3
+const double RigGeoMechWellLogExtractor::GRAVITY_ACCEL           = 9.81; // m / s^2
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -96,12 +97,7 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
 #pragma omp parallel for
     for ( int64_t i = 0; i < int64_t( m_intersections.size() ); ++i )
     {
-        cvf::Vec3f centroid = cellCentroid( i );
-
-        double trueVerticalDepth = -centroid.z();
-
-        double effectiveDepthMeters       = trueVerticalDepth + wellPathData()->rkbDiff();
-        double hydroStaticPorePressureBar = pascalToBar( effectiveDepthMeters * UNIT_WEIGHT_OF_WATER );
+        double hydroStaticPorePressureBar = hydroStaticPorePressureForSegment( i );
         interfaceShValuesDbl[i]           = interfaceShValues[i] / hydroStaticPorePressureBar;
         interfacePorePressuresDbl[i]      = interfacePorePressures[i];
     }
@@ -139,7 +135,7 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
             wellBoreWallCurveData( resAddr, frameIndex, values );
             // Try to replace invalid values with Shale-values
             wellBoreFGShale( frameIndex, values );
-            values->front() = 1.0;
+            values->front() = wbsCurveValuesAtMsl();
         }
         else if ( resAddr.fieldName == RiaDefines::wbsSFGResult().toStdString() )
         {
@@ -150,7 +146,7 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
                   resAddr.fieldName == RiaDefines::wbsSHResult().toStdString() )
         {
             wellPathScaledCurveData( resAddr, frameIndex, values );
-            values->front() = 1.0;
+            values->front() = wbsCurveValuesAtMsl();
         }
         else if ( resAddr.fieldName == RiaDefines::wbsAzimuthResult().toStdString() ||
                   resAddr.fieldName == RiaDefines::wbsInclinationResult().toStdString() )
@@ -160,7 +156,7 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
         else if ( resAddr.fieldName == RiaDefines::wbsSHMkResult().toStdString() )
         {
             wellBoreSH_MatthewsKelly( frameIndex, values );
-            values->front() = 1.0;
+            values->front() = wbsCurveValuesAtMsl();
         }
         else
         {
@@ -274,6 +270,8 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
 
     std::vector<double> unscaledValues( m_intersections.size(), std::numeric_limits<double>::infinity() );
 
+    double waterDensityGCM3 = m_userDefinedValues[RigWbsParameter::waterDensity()];
+
 #pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
     {
@@ -316,7 +314,8 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
             }
             else if ( *it == RigWbsParameter::HYDROSTATIC && isPPresult )
             {
-                unscaledValues[intersectionIdx]         = hydroStaticPorePressureForIntersection( intersectionIdx );
+                unscaledValues[intersectionIdx]         = hydroStaticPorePressureForIntersection( intersectionIdx,
+                                                                                          waterDensityGCM3 );
                 finalSourcesPerSegment[intersectionIdx] = RigWbsParameter::HYDROSTATIC;
                 break;
             }
@@ -482,6 +481,8 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         std::vector<WbsParameterSource> ppShaleSources =
             calculateWbsParameterForAllSegments( RigWbsParameter::PP_NonReservoir(), 0, &ppShaleValues );
 
+        double waterDensityGCM3 = m_userDefinedValues[RigWbsParameter::waterDensity()];
+
 #pragma omp parallel for
         for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
         {
@@ -499,7 +500,8 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
                 }
                 else
                 {
-                    ( *values )[intersectionIdx] = hydroStaticPorePressureForIntersection( intersectionIdx );
+                    ( *values )[intersectionIdx] = hydroStaticPorePressureForIntersection( intersectionIdx,
+                                                                                           waterDensityGCM3 );
                     sources[intersectionIdx]     = RigWbsParameter::HYDROSTATIC;
                 }
             }
@@ -1267,11 +1269,12 @@ std::vector<unsigned char>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigGeoMechWellLogExtractor::hydroStaticPorePressureForIntersection( size_t intersectionIdx ) const
+double RigGeoMechWellLogExtractor::hydroStaticPorePressureForIntersection( size_t intersectionIdx,
+                                                                           double waterDensityGCM3 ) const
 {
     double trueVerticalDepth             = m_intersectionTVDs[intersectionIdx];
     double effectiveDepthMeters          = trueVerticalDepth + wellPathData()->rkbDiff();
-    double hydroStaticPorePressurePascal = effectiveDepthMeters * UNIT_WEIGHT_OF_WATER;
+    double hydroStaticPorePressurePascal = effectiveDepthMeters * GRAVITY_ACCEL * waterDensityGCM3 * 1000;
     double hydroStaticPorePressureBar    = pascalToBar( hydroStaticPorePressurePascal );
     return hydroStaticPorePressureBar;
 }
@@ -1279,14 +1282,36 @@ double RigGeoMechWellLogExtractor::hydroStaticPorePressureForIntersection( size_
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigGeoMechWellLogExtractor::hydroStaticPorePressureForSegment( size_t intersectionIdx ) const
+double RigGeoMechWellLogExtractor::hydroStaticPorePressureForSegment( size_t intersectionIdx, double waterDensityGCM3 ) const
 {
     cvf::Vec3f centroid                      = cellCentroid( intersectionIdx );
     double     trueVerticalDepth             = -centroid.z();
     double     effectiveDepthMeters          = trueVerticalDepth + wellPathData()->rkbDiff();
-    double     hydroStaticPorePressurePascal = effectiveDepthMeters * UNIT_WEIGHT_OF_WATER;
+    double     hydroStaticPorePressurePascal = effectiveDepthMeters * GRAVITY_ACCEL * waterDensityGCM3 * 1000;
     double     hydroStaticPorePressureBar    = pascalToBar( hydroStaticPorePressurePascal );
     return hydroStaticPorePressureBar;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigGeoMechWellLogExtractor::wbsCurveValuesAtMsl() const
+{
+    double waterDensityGCM3 = m_userDefinedValues.at( RigWbsParameter::waterDensity() );
+    double waterDepth       = std::abs( wellPathData()->wellPathPoints().front().z() );
+
+    double rkbDiff = wellPathData()->rkbDiff();
+    if ( rkbDiff == std::numeric_limits<double>::infinity() )
+    {
+        rkbDiff = 0.0;
+    }
+
+    if ( waterDepth + rkbDiff < 1.0e-8 )
+    {
+        return waterDensityGCM3;
+    }
+
+    return waterDensityGCM3 * waterDepth / ( waterDepth + rkbDiff );
 }
 
 //--------------------------------------------------------------------------------------------------

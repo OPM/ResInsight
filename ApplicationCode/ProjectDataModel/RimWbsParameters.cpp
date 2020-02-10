@@ -78,6 +78,9 @@ RimWbsParameters::RimWbsParameters()
                              "FG in shale = K0_FG * (OBG0-PP0)\nK0_FG = (FG-PP)/(OBG-PP)",
                              "" );
 
+    RICF_InitFieldNoDefault( &m_waterDensitySource, "WaterDensitySource", "Water Density", "", "", "" );
+    m_waterDensitySource.uiCapability()->setUiHidden( true );
+
     RICF_InitField( &m_userDefinedPoissionRatio,
                     "UserPoissonRatio",
                     0.35,
@@ -100,6 +103,8 @@ RimWbsParameters::RimWbsParameters()
                     "FG in Shale = Multiplier * SH",
                     "" );
 
+    RICF_InitField( &m_userDefinedDensity, "WaterDensity", 1.03, "Density of Sea Water [g/cm^3]", "", "Units: g/cm^3", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_geoMechCase, "GeoMechCase", "GeoMechCase", "", "", "" );
     m_geoMechCase.uiCapability()->setUiHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "WellPath", "", "", "" );
@@ -115,7 +120,8 @@ RimWbsParameters::RimWbsParameters()
                                {RigWbsParameter::DF(), &m_DFSource},
                                {RigWbsParameter::K0_FG(), &m_K0FGSource},
                                {RigWbsParameter::K0_SH(), &m_K0SHSource},
-                               {RigWbsParameter::FG_Shale(), &m_FGShaleSource}};
+                               {RigWbsParameter::FG_Shale(), &m_FGShaleSource},
+                               {RigWbsParameter::waterDensity(), &m_waterDensitySource}};
 
     m_userDefinedValueFields = {{RigWbsParameter::PP_NonReservoir(), &m_userDefinedPPShale},
                                 {RigWbsParameter::poissonRatio(), &m_userDefinedPoissionRatio},
@@ -123,7 +129,8 @@ RimWbsParameters::RimWbsParameters()
                                 {RigWbsParameter::DF(), &m_userDefinedDF},
                                 {RigWbsParameter::K0_FG(), &m_userDefinedK0FG},
                                 {RigWbsParameter::K0_SH(), &m_userDefinedK0SH},
-                                {RigWbsParameter::FG_Shale(), &m_FGShaleMultiplier}};
+                                {RigWbsParameter::FG_Shale(), &m_FGShaleMultiplier},
+                                {RigWbsParameter::waterDensity(), &m_userDefinedDensity}};
 
     for ( auto parameterFieldPair : m_parameterSourceFields )
     {
@@ -341,6 +348,7 @@ void RimWbsParameters::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimWbsParameters::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_userDefinedDensity );
     uiOrdering.add( &m_porePressureSource );
     uiOrdering.add( &m_porePressureNonReservoirSource );
     if ( m_porePressureNonReservoirSource == RigWbsParameter::USER_DEFINED )
