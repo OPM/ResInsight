@@ -99,6 +99,15 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
+    CAF_PDM_InitField( &m_normalizeByHydrostaticPressure,
+                       "NormalizeByHSP",
+                       false,
+                       "Normalize by Hydrostatic Pressure",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_normalizationRkbDiff, "NormalizationRkbDiff", -1.0, "Air Gap", "", "", "" );
+
     CAF_PDM_InitField( &m_compactionRefLayerUiField,
                        "CompactionRefLayerUi",
                        RigFemResultAddress::noCompactionValue(),
@@ -137,6 +146,13 @@ void RimGeoMechResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
         valueLabel += QString( " (%1)" ).arg( diffResultUiName() );
     }
     m_resultVariableUiField.uiCapability()->setUiName( valueLabel );
+
+    if ( normalizableResultSelected() )
+    {
+        caf::PdmUiGroup* normalizationGroup = uiOrdering.addNewGroup( "Result Normalization" );
+        normalizationGroup->add( &m_normalizeByHydrostaticPressure );
+        normalizationGroup->add( &m_normalizationRkbDiff );
+    }
 
     if ( m_resultPositionTypeUiField() != RIG_FORMATION_NAMES )
     {
@@ -731,6 +747,25 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName( QString resultFi
     if ( resultFieldName == "UCS" ) newName = "UCS bar/ 100";
 
     return newName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechResultDefinition::normalizableResultSelected() const
+{
+    if ( m_resultPositionType == RIG_NODAL )
+    {
+        return m_resultFieldName == "POR-Bar";
+    }
+    else if ( m_resultPositionType == RIG_ELEMENT_NODAL && ( m_resultFieldName == "ST" || m_resultFieldName == "SE" ) )
+    {
+        static const std::set<QString> validComponents =
+            {"S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3", "Q", "STM", "SEM"};
+        return validComponents.count( m_resultComponentName );
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
