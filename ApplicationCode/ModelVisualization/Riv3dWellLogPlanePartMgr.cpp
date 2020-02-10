@@ -71,33 +71,38 @@ void Riv3dWellLogPlanePartMgr::appendPlaneToModel( cvf::ModelBasicList*         
 
     if ( m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves().empty() ) return;
 
-    if ( isStaticResult )
+    std::set<Rim3dWellLogCurve::DrawPlane> drawPlanes;
+    for ( Rim3dWellLogCurve* rim3dWellLogCurve : m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves() )
     {
-        std::set<Rim3dWellLogCurve::DrawPlane> drawPlanes;
-        for ( Rim3dWellLogCurve* rim3dWellLogCurve : m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves() )
+        if ( rim3dWellLogCurve->showInView( m_gridView ) )
         {
-            if ( rim3dWellLogCurve->showInView( m_gridView ) )
-            {
-                drawPlanes.insert( rim3dWellLogCurve->drawPlane() );
-            }
+            drawPlanes.insert( rim3dWellLogCurve->drawPlane() );
         }
-        for ( Rim3dWellLogCurve::DrawPlane drawPlane : drawPlanes )
+    }
+    for ( Rim3dWellLogCurve::DrawPlane drawPlane : drawPlanes )
+    {
+        auto it = m_3dWellLogDrawSurfaceGeometryGenerators.find( drawPlane );
+        if ( it == m_3dWellLogDrawSurfaceGeometryGenerators.end() )
         {
             m_3dWellLogDrawSurfaceGeometryGenerators[drawPlane] = new Riv3dWellLogDrawSurfaceGenerator( m_wellPath.p() );
             appendDrawSurfaceToModel( model, displayCoordTransform, wellPathClipBoundingBox, drawPlane, planeWidth() );
         }
     }
+
     for ( Rim3dWellLogCurve* rim3dWellLogCurve : m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves() )
     {
         if ( rim3dWellLogCurve->showInView( m_gridView ) &&
              rim3dWellLogCurve->isShowingTimeDependentResult() != isStaticResult )
         {
-            append3dWellLogCurveToModel( model,
-                                         displayCoordTransform,
-                                         wellPathClipBoundingBox,
-                                         rim3dWellLogCurve,
-                                         m_3dWellLogDrawSurfaceGeometryGenerators[rim3dWellLogCurve->drawPlane()]
-                                             ->vertices() );
+            auto it = m_3dWellLogDrawSurfaceGeometryGenerators.find( rim3dWellLogCurve->drawPlane() );
+            if ( it != m_3dWellLogDrawSurfaceGeometryGenerators.end() )
+            {
+                append3dWellLogCurveToModel( model,
+                                             displayCoordTransform,
+                                             wellPathClipBoundingBox,
+                                             rim3dWellLogCurve,
+                                             it->second->vertices() );
+            }
         }
     }
 }
