@@ -20,6 +20,10 @@
 
 #include "RimGeoMechResultDefinition.h"
 
+#include "RiaApplication.h"
+#include "RiaDefines.h"
+#include "RiaMedianCalculator.h"
+
 #include "RifGeoMechReaderInterface.h"
 
 #include "RigFemPartCollection.h"
@@ -29,8 +33,7 @@
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
 #include "RigWbsParameter.h"
-
-#include "RiaDefines.h"
+#include "RigWellPath.h"
 
 #include "Rim3dWellLogCurve.h"
 #include "RimGeoMechCase.h"
@@ -39,10 +42,15 @@
 #include "RimGeoMechView.h"
 #include "RimIntersectionCollection.h"
 #include "RimPlotCurve.h"
+#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimViewLinker.h"
+#include "RimWellPath.h"
 
+#include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiListEditor.h"
+
+#include <QDoubleValidator>
 
 namespace caf
 {
@@ -107,13 +115,15 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
                        "",
                        "" );
     CAF_PDM_InitField( &m_normalizationRkbDiff, "NormalizationRkbDiff", -1.0, "Air Gap", "", "", "" );
+    m_normalizationRkbDiff.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_compactionRefLayerUiField,
                        "CompactionRefLayerUi",
                        RigFemResultAddress::noCompactionValue(),
                        "Compaction Ref Layer",
                        "",
-                       "The compaction is calculated with reference to this layer. Default layer is the topmost layer "
+                       "The compaction is calculated with reference to this layer. Default layer is the topmost "
+                       "layer "
                        "with POR",
                        "" );
     m_compactionRefLayerUiField.xmlCapability()->disableIO();
@@ -151,7 +161,10 @@ void RimGeoMechResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
     {
         caf::PdmUiGroup* normalizationGroup = uiOrdering.addNewGroup( "Result Normalization" );
         normalizationGroup->add( &m_normalizeByHydrostaticPressure );
-        normalizationGroup->add( &m_normalizationRkbDiff );
+        if ( m_normalizeByHydrostaticPressure )
+        {
+            normalizationGroup->add( &m_normalizationRkbDiff );
+        }
     }
 
     if ( m_resultPositionTypeUiField() != RIG_FORMATION_NAMES )
@@ -325,6 +338,29 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
             m_resultVariableUiField = "";
         }
     }
+    if ( &m_normalizeByHydrostaticPressure == changedField && m_normalizationRkbDiff < 0.0 )
+    {
+        RiaMedianCalculator<double> rkbDiffCalc;
+        for ( auto wellPath : RiaApplication::instance()->project()->allWellPaths() )
+        {
+            if ( wellPath->wellPathGeometry() )
+            {
+                double rkbDiff = wellPath->wellPathGeometry()->rkbDiff();
+                if ( rkbDiff > 0.0 )
+                {
+                    rkbDiffCalc.add( rkbDiff );
+                }
+            }
+        }
+        if ( rkbDiffCalc.valid() )
+        {
+            m_normalizationRkbDiff = rkbDiffCalc.median();
+        }
+        else
+        {
+            m_normalizationRkbDiff = 0.0;
+        }
+    }
 
     // Get the possible property filter owner
     RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>( this->parentField()->ownerObject() );
@@ -490,6 +526,24 @@ void RimGeoMechResultDefinition::initAfterRead()
     m_compactionRefLayerUiField = m_compactionRefLayer;
 
     m_timeLapseBaseTimestep.uiCapability()->setUiReadOnly( resultPositionType() == RIG_WELLPATH_DERIVED );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultDefinition::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                        QString                    uiConfigName,
+                                                        caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_normalizationRkbDiff )
+    {
+        auto attr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
+        if ( attr )
+        {
+            attr->m_decimals  = 2;
+            attr->m_validator = new QDoubleValidator( 0.0, std::numeric_limits<double>::max(), 2 );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
