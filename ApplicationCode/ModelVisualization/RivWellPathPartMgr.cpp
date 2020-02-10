@@ -874,14 +874,17 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
     // Well measurements visibility is independent of well path visibility
     appendWellMeasurementsToModel( model, displayCoordTransform, characteristicCellSize );
 
-    RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
-    if ( !gridView ) return;
-
-    if ( m_3dWellLogPlanePartMgr.isNull() )
+    if ( showWellPath )
     {
-        m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr( m_rimWellPath, gridView );
+        RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
+        if ( !gridView ) return;
+
+        if ( m_3dWellLogPlanePartMgr.isNull() )
+        {
+            m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr( m_rimWellPath, gridView );
+        }
+        m_3dWellLogPlanePartMgr->appendPlaneToModel( model, displayCoordTransform, wellPathClipBoundingBox, false );
     }
-    m_3dWellLogPlanePartMgr->appendPlaneToModel( model, displayCoordTransform, wellPathClipBoundingBox, false );
 }
 
 //--------------------------------------------------------------------------------------------------
