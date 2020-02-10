@@ -69,6 +69,28 @@ RimGridSummaryCase* RimSimWellInViewTools::gridSummaryCaseForWell( RimSimWellInV
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RimSimWellInViewTools::summaryCases()
+{
+    std::vector<RimSummaryCase*> cases;
+
+    RimProject* project = RiaApplication::instance()->project();
+    if ( project )
+    {
+        RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField()
+                                                        ? project->activeOilField()->summaryCaseMainCollection()
+                                                        : nullptr;
+        if ( sumCaseColl )
+        {
+            cases = sumCaseColl->allSummaryCases();
+        }
+    }
+
+    return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimSimWellInViewTools::isInjector( RimSimWellInView* well )
 {
     RigSimWellData* wRes = well->simWellData();

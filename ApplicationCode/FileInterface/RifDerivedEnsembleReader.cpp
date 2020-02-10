@@ -18,17 +18,12 @@
 
 #include "RifDerivedEnsembleReader.h"
 
-#include "RimDerivedEnsembleCase.h"
+#include "RimDerivedSummaryCase.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t> RifDerivedEnsembleReader::EMPTY_TIME_STEPS_VECTOR;
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDerivedEnsembleCase*    derivedCase,
+RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDerivedSummaryCase*     derivedCase,
                                                     RifSummaryReaderInterface* sourceSummaryReader1 )
 {
     CVF_ASSERT( derivedCase );
@@ -48,11 +43,17 @@ RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDerivedEnsembleCase*    d
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifDerivedEnsembleReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    if ( !resultAddress.isValid() ) return EMPTY_TIME_STEPS_VECTOR;
+    if ( !resultAddress.isValid() )
+    {
+        static std::vector<time_t> empty;
+        return empty;
+    }
+
     if ( m_derivedCase->needsCalculation( resultAddress ) )
     {
         m_derivedCase->calculate( resultAddress );
     }
+
     return m_derivedCase->timeSteps( resultAddress );
 }
 
@@ -89,4 +90,19 @@ std::string RifDerivedEnsembleReader::unitName( const RifEclipseSummaryAddress& 
 RiaEclipseUnitTools::UnitSystem RifDerivedEnsembleReader::unitSystem() const
 {
     return RiaEclipseUnitTools::UNITS_UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifDerivedEnsembleReader::updateData( RimSummaryCase* sumCase1, RimSummaryCase* sumCase2 )
+{
+    m_allErrorAddresses.clear();
+    m_allResultAddresses.clear();
+
+    if ( sumCase1 && sumCase1->summaryReader() )
+    {
+        m_allErrorAddresses  = sumCase1->summaryReader()->allErrorAddresses();
+        m_allResultAddresses = sumCase1->summaryReader()->allResultAddresses();
+    }
 }

@@ -28,55 +28,63 @@
 class RifEclipseSummaryAddress;
 class RifSummaryReaderInterface;
 class RifDerivedEnsembleReader;
-class RimDerivedEnsembleCaseCollection;
 
 //==================================================================================================
 ///
 //==================================================================================================
-enum DerivedEnsembleOperator
+enum class DerivedSummaryOperator
 {
-    DERIVED_ENSEMBLE_SUB,
-    DERIVED_ENSEMBLE_ADD
+    DERIVED_OPERATOR_SUB,
+    DERIVED_OPERATOR_ADD
 };
 
 //==================================================================================================
 //
 //==================================================================================================
-
-class RimDerivedEnsembleCase : public RimSummaryCase
+class RimDerivedSummaryCase : public RimSummaryCase
 {
     CAF_PDM_HEADER_INIT;
 
-    static const std::vector<time_t> EMPTY_TIME_STEPS_VECTOR;
-    static const std::vector<double> EMPTY_VALUES_VECTOR;
-
 public:
-    RimDerivedEnsembleCase();
-    ~RimDerivedEnsembleCase() override;
+    RimDerivedSummaryCase();
+    ~RimDerivedSummaryCase() override;
 
-    void                       setInUse( bool inUse );
-    bool                       isInUse() const;
-    void                       setSummaryCases( RimSummaryCase* sumCase1, RimSummaryCase* sumCase2 );
+    void setInUse( bool inUse );
+    bool isInUse() const;
+    void setSummaryCases( RimSummaryCase* sumCase1, RimSummaryCase* sumCase2 );
+    void setOperator( DerivedSummaryOperator oper );
+
     bool                       needsCalculation( const RifEclipseSummaryAddress& address ) const;
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& address ) const;
     const std::vector<double>& values( const RifEclipseSummaryAddress& address ) const;
 
     void calculate( const RifEclipseSummaryAddress& address );
 
-    QString                    caseName() const override;
     void                       createSummaryReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
-    RimDerivedEnsembleCaseCollection* parentEnsemble() const;
+protected:
+    QString caseName() const override;
 
 private:
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
     void clearData( const RifEclipseSummaryAddress& address );
 
+private:
+    caf::PdmPtrField<RimSummaryCase*>                   m_summaryCase1;
+    caf::PdmPtrField<RimSummaryCase*>                   m_summaryCase2;
+    caf::PdmField<caf::AppEnum<DerivedSummaryOperator>> m_operator;
+
+    bool                                      m_inUse;
     std::unique_ptr<RifDerivedEnsembleReader> m_reader;
 
-    bool                                                                                    m_inUse;
-    caf::PdmPtrField<RimSummaryCase*>                                                       m_summaryCase1;
-    caf::PdmPtrField<RimSummaryCase*>                                                       m_summaryCase2;
-    std::map<RifEclipseSummaryAddress, std::pair<std::vector<time_t>, std::vector<double>>> m_data;
+    std::map<RifEclipseSummaryAddress, std::pair<std::vector<time_t>, std::vector<double>>> m_dataCache;
 };

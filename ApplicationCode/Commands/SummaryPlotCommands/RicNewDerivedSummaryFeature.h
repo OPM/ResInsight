@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2020 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,37 +18,18 @@
 
 #pragma once
 
+#include "cafCmdFeature.h"
+
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RigWellDiskData
+class RicNewDerivedSummaryFeature : public caf::CmdFeature
 {
-public:
-    RigWellDiskData();
+    CAF_CMD_HEADER_INIT;
 
-    void setSinglePropertyValue( double value );
-    void setOilGasWater( double oil, double gas, double water );
-
-    double total() const;
-
-    double oil() const;
-    double oilSigned() const;
-
-    double gas() const;
-    double gasSigned() const;
-
-    double water() const;
-    double waterSigned() const;
-
-    double singlePropertyValue() const;
-    double singlePropertyValueSigned() const;
-    bool   isSingleProperty() const;
-
-private:
-    bool   m_isSingleProperty;
-    double m_singlePropertyValue;
-    double m_oilValue;
-    double m_waterValue;
-    double m_gasValue;
+protected:
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

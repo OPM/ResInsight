@@ -649,10 +649,9 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
 
     RifSummaryReaderInterface* summaryReader = nullptr;
     {
-        RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( this );
-        if ( gridSummaryCase )
+        if ( wellDiskConfig.sourceCase() )
         {
-            summaryReader = gridSummaryCase->summaryReader();
+            summaryReader = wellDiskConfig.sourceCase()->summaryReader();
         }
     }
 

@@ -20,6 +20,8 @@
 
 #include <string>
 
+class RimSummaryCase;
+
 //==================================================================================================
 ///
 ///
@@ -43,10 +45,14 @@ public:
     void        setWaterProperty( const std::string& waterProperty );
     std::string getWaterProperty() const;
 
+    RimSummaryCase* sourceCase() const;
+    void            setSourceCase( RimSummaryCase* summaryCase );
+
 private:
-    bool        m_isSingleProperty;
-    std::string m_singleProperty;
-    std::string m_oilProperty;
-    std::string m_gasProperty;
-    std::string m_waterProperty;
+    bool            m_isSingleProperty;
+    std::string     m_singleProperty;
+    std::string     m_oilProperty;
+    std::string     m_gasProperty;
+    std::string     m_waterProperty;
+    RimSummaryCase* m_summaryCase;
 };
