@@ -225,6 +225,9 @@ protected:
 
     void loadAndUpdatePlotData();
 
+    friend class RiaRegressionTestRunner;
+    void resetProject();
+
 protected:
     cvf::ref<cvf::Font> m_defaultSceneFont;
     cvf::ref<cvf::Font> m_defaultAnnotationFont;

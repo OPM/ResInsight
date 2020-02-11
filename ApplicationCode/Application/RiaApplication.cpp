@@ -1669,3 +1669,23 @@ void RiaApplication::loadAndUpdatePlotData()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::resetProject()
+{
+    if ( m_project.notNull() )
+    {
+        delete m_project.p();
+        m_project = nullptr;
+    }
+
+    if ( m_preferences )
+    {
+        delete m_preferences;
+        m_preferences = nullptr;
+    }
+
+    initialize();
+}

@@ -168,6 +168,8 @@ void RiaRegressionTestRunner::runRegressionTest()
     timeStamp.start();
     logInfoTextWithTimeInSeconds( timeStamp, "Starting regression tests\n" );
 
+    RiaApplication* app = RiaApplication::instance();
+
     for ( const QFileInfo& folderFileInfo : folderList )
     {
         QDir testCaseFolder( folderFileInfo.filePath() );
@@ -194,8 +196,6 @@ void RiaRegressionTestRunner::runRegressionTest()
             {
                 logInfoTextWithTimeInSeconds( timeStamp, "Initializing test :" + testCaseFolder.absolutePath() );
 
-                RiaApplication* app = RiaApplication::instance();
-
                 app->loadProject( testCaseFolder.filePath( projectFileName ) );
 
                 // Wait until all command objects have completed
@@ -219,6 +219,9 @@ void RiaRegressionTestRunner::runRegressionTest()
                                    "/" + regTestProjectName + ".rsp" );
             }
         }
+
+        // Do a complete reset of project settings to avoid transfer of settings to next regression test
+        app->resetProject();
 
         QDir baseDir( testCaseFolder.filePath( baseFolderName ) );
         QDir genDir( testCaseFolder.filePath( generatedFolderName ) );
