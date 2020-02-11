@@ -1,27 +1,25 @@
+dist: xenial  # For 18.04, use bionic
+
 language: cpp
 
-dist: bionic
+compiler:
+  - gcc
 
 addons:
-    apt:
-        packages:
-            - libxkbcommon-x11-0
-            - libgl1-mesa-dev
-            - mesa-common-dev
-            - libglfw3-dev
-            - libglu1-mesa-dev
-
-cache: ccache
-
-env:
-    - QT_CI_PACKAGES=qt.qt5.5132.gcc_64,qt.qt5.5132.qtscript PATH="$TRAVIS_BUILD_DIR/Qt/5.13.2/gcc_64/bin:${PATH}"
-
+  apt:
+    sources:
+    packages:
+      - cmake
+      - cmake-data
+      - libqt5opengl5
+      - qt5-qmake
+      - qt5-default
+      - libqt5opengl5-dev 
+      - qtbase5-dev 
+      - qtscript5-dev
+      
 script:
-    - git clone https://github.com/benlau/qtci.git
-    - source qtci/path.env
-    - install-qt 5.13.2
-    - mkdir -p build
-    - cd build
-    - cmake -DCMAKE_PREFIX_PATH=$TRAVIS_BUILD_DIR/Qt/5.13.2/gcc_64 -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DRESINSIGHT_ENABLE_COTIRE=true .. 
-    - make -j8 ResInsight_unity
-     
+     - mkdir -p build
+     - cd build
+     - cmake -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DRESINSIGHT_ENABLE_COTIRE=true .. 
+     - make -j8 ResInsight_unity
