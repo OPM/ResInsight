@@ -21,6 +21,7 @@
 #include "WellPathCommands/PointTangentManipulator/RicWellPathGeometry3dEditor.h"
 #include "WellPathCommands/RicCreateWellTargetsPickEventHandler.h"
 
+#include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaJCurveCalculator.h"
 #include "RiaLogging.h"
@@ -31,6 +32,7 @@
 #include "RigWellPath.h"
 
 #include "RimModeledWellPath.h"
+#include "RimProject.h"
 #include "RimWellPathTarget.h"
 
 #include "RiuViewerCommands.h"
@@ -100,7 +102,6 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_referencePointXyz_OBSOLETE );
 
     CAF_PDM_InitFieldNoDefault( &m_wellStartType, "WellStartType", "Start Type", "", "", "" );
-    m_wellStartType.xmlCapability()->disableIO();
 
     /// To be removed ?
     CAF_PDM_InitFieldNoDefault( &m_parentWell, "ParentWell", "Parent Well", "", "", "" );
@@ -577,5 +578,10 @@ void RimWellPathGeometryDef::initAfterRead()
         m_referencePointUtmXyd = cvf::Vec3d( m_referencePointXyz_OBSOLETE().x(),
                                              m_referencePointXyz_OBSOLETE().y(),
                                              -m_referencePointXyz_OBSOLETE().z() );
+    }
+
+    if ( RiaApplication::instance()->project()->isProjectFileVersionEqualOrOlderThan( "2019.12.1" ) )
+    {
+        m_wellStartType = START_AT_FIRST_TARGET;
     }
 }
