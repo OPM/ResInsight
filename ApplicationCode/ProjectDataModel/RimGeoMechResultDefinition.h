@@ -118,7 +118,7 @@ private:
     caf::PdmField<int>                               m_timeLapseBaseTimestep;
     caf::PdmField<int>                               m_compactionRefLayer;
     caf::PdmField<bool>                              m_normalizeByHydrostaticPressure;
-    caf::PdmField<double>                            m_normalizationRkbDiff;
+    caf::PdmField<double>                            m_normalizationAirGap;
 
     // UI Fields only
     friend class RimGeoMechPropertyFilter; // Property filter needs the ui fields

@@ -114,8 +114,8 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
                        "",
                        "",
                        "" );
-    CAF_PDM_InitField( &m_normalizationRkbDiff, "NormalizationRkbDiff", -1.0, "Air Gap", "", "", "" );
-    m_normalizationRkbDiff.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_normalizationAirGap, "NormalizationAirGap", -1.0, "Air Gap", "", "", "" );
+    m_normalizationAirGap.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_compactionRefLayerUiField,
                        "CompactionRefLayerUi",
@@ -163,7 +163,7 @@ void RimGeoMechResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
         normalizationGroup->add( &m_normalizeByHydrostaticPressure );
         if ( m_normalizeByHydrostaticPressure )
         {
-            normalizationGroup->add( &m_normalizationRkbDiff );
+            normalizationGroup->add( &m_normalizationAirGap );
         }
     }
 
@@ -338,28 +338,33 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
             m_resultVariableUiField = "";
         }
     }
-    if ( &m_normalizeByHydrostaticPressure == changedField && m_normalizationRkbDiff < 0.0 )
+    if ( &m_normalizeByHydrostaticPressure == changedField && m_normalizationAirGap < 0.0 )
     {
-        RiaMedianCalculator<double> rkbDiffCalc;
+        RiaMedianCalculator<double> airGapCalc;
         for ( auto wellPath : RiaApplication::instance()->project()->allWellPaths() )
         {
             if ( wellPath->wellPathGeometry() )
             {
-                double rkbDiff = wellPath->wellPathGeometry()->rkbDiff();
-                if ( rkbDiff > 0.0 )
+                double airGap = wellPath->wellPathGeometry()->rkbDiff();
+                if ( airGap > 0.0 )
                 {
-                    rkbDiffCalc.add( rkbDiff );
+                    airGapCalc.add( airGap );
                 }
             }
         }
-        if ( rkbDiffCalc.valid() )
+        if ( airGapCalc.valid() )
         {
-            m_normalizationRkbDiff = rkbDiffCalc.median();
+            m_normalizationAirGap = airGapCalc.median();
         }
         else
         {
-            m_normalizationRkbDiff = 0.0;
+            m_normalizationAirGap = 0.0;
         }
+    }
+
+    if ( m_normalizeByHydrostaticPressure && m_normalizationAirGap >= 0.0 )
+    {
+        m_geomCase->geoMechData()->femPartResults()->setNormalizationAirGap( m_normalizationAirGap );
     }
 
     // Get the possible property filter owner
@@ -372,7 +377,8 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
     this->firstAncestorOrThisOfType( rim3dWellLogCurve );
 
     if ( &m_resultVariableUiField == changedField || &m_compactionRefLayerUiField == changedField ||
-         &m_timeLapseBaseTimestep == changedField )
+         &m_timeLapseBaseTimestep == changedField || &m_normalizeByHydrostaticPressure == changedField ||
+         &m_normalizationAirGap == changedField )
     {
         QStringList fieldComponentNames = m_resultVariableUiField().split( QRegExp( "\\s+" ) );
         if ( fieldComponentNames.size() > 0 )
@@ -535,7 +541,7 @@ void RimGeoMechResultDefinition::defineEditorAttribute( const caf::PdmFieldHandl
                                                         QString                    uiConfigName,
                                                         caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_normalizationRkbDiff )
+    if ( field == &m_normalizationAirGap )
     {
         auto attr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
         if ( attr )
@@ -604,7 +610,8 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
                                     m_timeLapseBaseTimestep(),
                                     resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION
                                         ? m_compactionRefLayer()
-                                        : RigFemResultAddress::noCompactionValue() );
+                                        : RigFemResultAddress::noCompactionValue(),
+                                    m_normalizeByHydrostaticPressure );
     }
 }
 
@@ -808,18 +815,7 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName( QString resultFi
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechResultDefinition::normalizableResultSelected() const
 {
-    if ( m_resultPositionType == RIG_NODAL )
-    {
-        return m_resultFieldName == "POR-Bar";
-    }
-    else if ( m_resultPositionType == RIG_ELEMENT_NODAL && ( m_resultFieldName == "ST" || m_resultFieldName == "SE" ) )
-    {
-        static const std::set<QString> validComponents =
-            {"S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3", "Q", "STM", "SEM"};
-        return validComponents.count( m_resultComponentName );
-    }
-
-    return false;
+    return RigFemPartResultsCollection::isNormalizableResult( this->resultAddress() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -827,11 +823,12 @@ bool RimGeoMechResultDefinition::normalizableResultSelected() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& resultAddress )
 {
-    m_resultPositionType    = resultAddress.resultPosType;
-    m_resultFieldName       = QString::fromStdString( resultAddress.fieldName );
-    m_resultComponentName   = QString::fromStdString( resultAddress.componentName );
-    m_timeLapseBaseTimestep = resultAddress.timeLapseBaseFrameIdx;
-    m_compactionRefLayer    = resultAddress.refKLayerIndex;
+    m_resultPositionType             = resultAddress.resultPosType;
+    m_resultFieldName                = QString::fromStdString( resultAddress.fieldName );
+    m_resultComponentName            = QString::fromStdString( resultAddress.componentName );
+    m_timeLapseBaseTimestep          = resultAddress.timeLapseBaseFrameIdx;
+    m_compactionRefLayer             = resultAddress.refKLayerIndex;
+    m_normalizeByHydrostaticPressure = resultAddress.normalizedByHydrostaticPressure;
 
     m_resultPositionTypeUiField = m_resultPositionType;
     m_resultVariableUiField     = composeFieldCompString( m_resultFieldName(), m_resultComponentName() );
