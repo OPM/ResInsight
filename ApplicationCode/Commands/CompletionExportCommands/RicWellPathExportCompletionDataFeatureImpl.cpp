@@ -523,45 +523,56 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
         }
     }
 
-    RiaWeightedMeanCalculator<double> dFactorCalculator;
+    double combinedTrans   = 0.0;
+    double combinedKh      = 0.0;
+    double combinedDFactor = 0.0;
 
-    double combinedTrans = 0.0;
-    double combinedKh    = 0.0;
-
-    for ( const RigCompletionData& completion : completions )
+    if ( completions.size() == 1 )
     {
-        resultCompletion.m_metadata.reserve( resultCompletion.m_metadata.size() + completion.m_metadata.size() );
-        resultCompletion.m_metadata.insert( resultCompletion.m_metadata.end(),
-                                            completion.m_metadata.begin(),
-                                            completion.m_metadata.end() );
-
-        if ( completion.wellName() != firstCompletion.wellName() )
-        {
-            QString errorMessage = QString( "Cannot combine completions of different types in same cell %1" )
-                                       .arg( cellIndexIJK.oneBasedLocalCellIndexString() );
-            RiaLogging::error( errorMessage );
-            resultCompletion.addMetadata( "ERROR", errorMessage );
-            return resultCompletion; // Returning empty completion, should not be exported
-        }
-
-        if ( completion.transmissibility() == HUGE_VAL )
-        {
-            QString errorMessage = QString( "Transmissibility calculation has failed for cell %1" )
-                                       .arg( cellIndexIJK.oneBasedLocalCellIndexString() );
-            RiaLogging::error( errorMessage );
-            resultCompletion.addMetadata( "ERROR", errorMessage );
-            return resultCompletion; // Returning empty completion, should not be exported
-        }
-
-        combinedTrans = combinedTrans + completion.transmissibility();
-        combinedKh    = combinedKh + completion.kh();
-
-        dFactorCalculator.addValueAndWeight( completion.dFactor(), completion.transmissibility() );
+        resultCompletion.m_metadata = completions[0].m_metadata;
+        combinedTrans               = completions[0].transmissibility();
+        combinedKh                  = completions[0].kh();
+        combinedDFactor             = completions[0].dFactor();
     }
+    else
+    {
+        RiaWeightedMeanCalculator<double> dFactorCalculator;
 
-    // Arithmetic MEAN dFactor weighted by Tj/SumTj from the completions
-    // Note : Divide by n is intentional, based on input from @hhgs in mail dated 18.01.2020
-    double combinedDFactor = dFactorCalculator.weightedMean() / completions.size();
+        for ( const RigCompletionData& completion : completions )
+        {
+            resultCompletion.m_metadata.reserve( resultCompletion.m_metadata.size() + completion.m_metadata.size() );
+            resultCompletion.m_metadata.insert( resultCompletion.m_metadata.end(),
+                                                completion.m_metadata.begin(),
+                                                completion.m_metadata.end() );
+
+            if ( completion.wellName() != firstCompletion.wellName() )
+            {
+                QString errorMessage = QString( "Cannot combine completions of different types in same cell %1" )
+                                           .arg( cellIndexIJK.oneBasedLocalCellIndexString() );
+                RiaLogging::error( errorMessage );
+                resultCompletion.addMetadata( "ERROR", errorMessage );
+                return resultCompletion; // Returning empty completion, should not be exported
+            }
+
+            if ( completion.transmissibility() == HUGE_VAL )
+            {
+                QString errorMessage = QString( "Transmissibility calculation has failed for cell %1" )
+                                           .arg( cellIndexIJK.oneBasedLocalCellIndexString() );
+                RiaLogging::error( errorMessage );
+                resultCompletion.addMetadata( "ERROR", errorMessage );
+                return resultCompletion; // Returning empty completion, should not be exported
+            }
+
+            combinedTrans = combinedTrans + completion.transmissibility();
+            combinedKh    = combinedKh + completion.kh();
+
+            dFactorCalculator.addValueAndWeight( completion.dFactor(), completion.transmissibility() );
+        }
+
+        // Arithmetic MEAN dFactor weighted by Tj/SumTj from the completions
+        // Note : Divide by n is intentional, based on input from @hhgs in mail dated 18.01.2020
+        combinedDFactor = dFactorCalculator.weightedMean() / completions.size();
+    }
 
     if ( settings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES )
     {
