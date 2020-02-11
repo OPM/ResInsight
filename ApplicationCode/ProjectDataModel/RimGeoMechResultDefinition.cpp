@@ -56,6 +56,7 @@ void caf::AppEnum<RigFemResultPosEnum>::setUp()
     addItem( RIG_FORMATION_NAMES, "FORMATION_NAMES", "Formation Names" );
     addItem( RIG_ELEMENT, "ELEMENT", "Element" );
     addItem( RIG_WELLPATH_DERIVED, "WELLPATH_DERIVED", "Well Path Derived" );
+    addItem( RIG_DIFFERENTIALS, "DIFFERENTIALS", "Differentials" );
     setDefault( RIG_NODAL );
 }
 } // namespace caf
@@ -192,7 +193,8 @@ QList<caf::PdmOptionItemInfo>
                                                             RIG_INTEGRATION_POINT,
                                                             RIG_ELEMENT_NODAL_FACE,
                                                             RIG_FORMATION_NAMES,
-                                                            RIG_ELEMENT};
+                                                            RIG_ELEMENT,
+                                                            RIG_DIFFERENTIALS};
             if ( m_addWellPathDerivedResults )
             {
                 optionItems.push_back( RIG_WELLPATH_DERIVED );
@@ -509,13 +511,31 @@ void RimGeoMechResultDefinition::setAddWellPathDerivedResults( bool addWellPathD
 //--------------------------------------------------------------------------------------------------
 RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
 {
-    return RigFemResultAddress( resultPositionType(),
-                                resultFieldName().toStdString(),
-                                resultComponentName().toStdString(),
-                                m_timeLapseBaseTimestep(),
-                                resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION
-                                    ? m_compactionRefLayer()
-                                    : RigFemResultAddress::noCompactionValue() );
+    // Convert differentials to their underlying position type
+    if ( resultPositionType() == RIG_DIFFERENTIALS )
+    {
+        RigFemResultPosEnum resultPositionType = RIG_ELEMENT_NODAL;
+        if ( resultFieldName().toStdString() == "POR-Bar" )
+        {
+            resultPositionType = RIG_NODAL;
+        }
+
+        return RigFemResultAddress( resultPositionType,
+                                    resultFieldName().toStdString(),
+                                    resultComponentName().toStdString(),
+                                    m_timeLapseBaseTimestep(),
+                                    RigFemResultAddress::noCompactionValue() );
+    }
+    else
+    {
+        return RigFemResultAddress( resultPositionType(),
+                                    resultFieldName().toStdString(),
+                                    resultComponentName().toStdString(),
+                                    m_timeLapseBaseTimestep(),
+                                    resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION
+                                        ? m_compactionRefLayer()
+                                        : RigFemResultAddress::noCompactionValue() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

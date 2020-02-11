@@ -289,7 +289,9 @@ void RiuFemResultTextBuilder::appendTextFromResultColors( RigGeoMechCaseData*   
                 {
                     float scalarValue = std::numeric_limits<float>::infinity();
                     int   nodeIdx     = elmentConn[lNodeIdx];
-                    if ( resultDefinition->resultPositionType() == RIG_NODAL )
+                    if ( resultDefinition->resultPositionType() == RIG_NODAL ||
+                         ( resultDefinition->resultPositionType() == RIG_DIFFERENTIALS &&
+                           resultDefinition->resultFieldName() == "POR-Bar" ) )
                     {
                         scalarValue = scalarResults[nodeIdx];
                     }

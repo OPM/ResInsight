@@ -834,6 +834,10 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData, R
                 case RIG_ELEMENT:
                     resultPos = "Element";
                     break;
+
+                case RIG_DIFFERENTIALS:
+                    resultPos = "Differentials";
+                    break;
                 default:
                     break;
             }
