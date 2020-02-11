@@ -604,14 +604,20 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
     }
     else
     {
-        return RigFemResultAddress( resultPositionType(),
-                                    resultFieldName().toStdString(),
-                                    resultComponentName().toStdString(),
-                                    m_timeLapseBaseTimestep(),
-                                    resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION
-                                        ? m_compactionRefLayer()
-                                        : RigFemResultAddress::noCompactionValue(),
-                                    m_normalizeByHydrostaticPressure );
+        RigFemResultAddress address( resultPositionType(),
+                                     resultFieldName().toStdString(),
+                                     resultComponentName().toStdString(),
+                                     m_timeLapseBaseTimestep(),
+                                     resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION
+                                         ? m_compactionRefLayer()
+                                         : RigFemResultAddress::noCompactionValue(),
+                                     m_normalizeByHydrostaticPressure );
+        if ( !RigFemPartResultsCollection::isNormalizableResult( address ) )
+        {
+            address.normalizedByHydrostaticPressure = false;
+        }
+
+        return address;
     }
 }
 

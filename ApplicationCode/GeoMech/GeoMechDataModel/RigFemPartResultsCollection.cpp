@@ -736,7 +736,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
         frameCountProgress.incrementProgress();
 
         calculateGammaFromFrames( partIndex, srcDataFrames, srcPORDataFrames, dstDataFrames, &frameCountProgress );
-        if ( resVarAddr.normalizeByHydrostaticPressure() )
+        if ( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) )
         {
             dstDataFrames = calculateNormalizedResult( partIndex, resVarAddr );
         }
@@ -1235,6 +1235,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNormalizedResult
         if ( !dstDataFrames ) return nullptr;
     }
 
+    frameCountProgress.setProgressDescription( "Normalizing Result" );
     frameCountProgress.setNextProgressIncrement( 1u );
 
     const RigFemPart*              femPart      = m_femParts->part( partIndex );
@@ -2404,7 +2405,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
         return calculateTimeLapseResult( partIndex, resVarAddr );
     }
 
-    if ( resVarAddr.normalizeByHydrostaticPressure() )
+    if ( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) )
     {
         return calculateNormalizedResult( partIndex, resVarAddr );
     }
@@ -3028,7 +3029,7 @@ std::vector<RigFemResultAddress>
 std::set<RigFemResultAddress> RigFemPartResultsCollection::normalizedResults()
 {
     std::set<std::string> validFields     = {"SE", "ST"};
-    std::set<std::string> validComponents = {"S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3", "Q"};
+    std::set<std::string> validComponents = {"S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3"};
 
     std::set<RigFemResultAddress> results;
     for ( auto field : validFields )
@@ -3047,6 +3048,9 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::normalizedResults()
         RigFemResultAddress( RIG_ELEMENT_NODAL, "SE", "SEM", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
     results.insert(
         RigFemResultAddress( RIG_ELEMENT_NODAL, "ST", "STM", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+    results.insert(
+        RigFemResultAddress( RIG_ELEMENT_NODAL, "ST", "Q", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+
     results.insert( RigFemResultAddress( RIG_NODAL, "POR-Bar", "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
     results.insert(
         RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
