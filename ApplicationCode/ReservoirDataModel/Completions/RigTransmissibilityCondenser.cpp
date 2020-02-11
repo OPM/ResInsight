@@ -38,7 +38,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigTransmissibilityCondenser::RigTransmissibilityCondenser() {}
+RigTransmissibilityCondenser::RigTransmissibilityCondenser()
+    : m_transmissibilityThreshold( 1.0e-9 )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -49,6 +52,7 @@ RigTransmissibilityCondenser::RigTransmissibilityCondenser( const RigTransmissib
     , m_externalCellAddrSet( copyFrom.m_externalCellAddrSet )
     , m_TiiInv( copyFrom.m_TiiInv )
     , m_Tie( copyFrom.m_Tie )
+    , m_transmissibilityThreshold( copyFrom.m_transmissibilityThreshold )
 {
 }
 
@@ -62,7 +66,25 @@ RigTransmissibilityCondenser& RigTransmissibilityCondenser::operator=( const Rig
     m_externalCellAddrSet         = rhs.m_externalCellAddrSet;
     m_TiiInv                      = rhs.m_TiiInv;
     m_Tie                         = rhs.m_Tie;
+    m_transmissibilityThreshold   = rhs.m_transmissibilityThreshold;
+
     return *this;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigTransmissibilityCondenser::setTransmissibilityThreshold( double threshold )
+{
+    m_transmissibilityThreshold = threshold;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigTransmissibilityCondenser::transmissibilityThreshold() const
+{
+    return m_transmissibilityThreshold;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +94,7 @@ void RigTransmissibilityCondenser::addNeighborTransmissibility( CellAddress cell
                                                                 CellAddress cell2,
                                                                 double      transmissibility )
 {
-    if ( transmissibility < 1e-9 ) return;
+    if ( transmissibility < m_transmissibilityThreshold ) return;
 
     m_condensedTransmissibilities.clear();
     m_externalCellAddrSet.clear();
@@ -261,10 +283,15 @@ std::map<size_t, double> RigTransmissibilityCondenser::calculateEffectiveMatrixT
             auto fictitiousFractureToWellIt = ficticuousFractureToWellTransMap.find( globalMatrixCellIdx );
             CVF_ASSERT( fictitiousFractureToWellIt != ficticuousFractureToWellTransMap.end() );
             double fictitiousFractureToWellTrans = fictitiousFractureToWellIt->second;
+
             // T^dp_mw
-            effectiveMatrixToWellTrans[globalMatrixCellIdx] =
+            double transmissibilityValue =
                 RigFractureTransmissibilityEquations::effectiveMatrixToWellTransPDDHC( lumpedOriginalMatrixToFractureT,
                                                                                        fictitiousFractureToWellTrans );
+            if ( transmissibilityValue > m_transmissibilityThreshold )
+            {
+                effectiveMatrixToWellTrans[globalMatrixCellIdx] = transmissibilityValue;
+            }
         }
     }
     return effectiveMatrixToWellTrans;

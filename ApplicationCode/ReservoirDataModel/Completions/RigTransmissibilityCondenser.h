@@ -86,6 +86,9 @@ public:
         }
     };
 
+    void   setTransmissibilityThreshold( double threshold );
+    double transmissibilityThreshold() const;
+
     void addNeighborTransmissibility( CellAddress cell1, CellAddress cell2, double transmissibility );
 
     std::set<CellAddress> externalCells();
@@ -119,4 +122,7 @@ protected:
 
     Eigen::MatrixXd m_TiiInv;
     Eigen::MatrixXd m_Tie;
+
+private:
+    double m_transmissibilityThreshold;
 };

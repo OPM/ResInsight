@@ -288,6 +288,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
     std::vector<std::vector<RigCompletionData>> sharedComplForFracture( fractures.size() );
 
+    const double transmissibilityThreshold = 1e-9;
+
 #pragma omp parallel for
     for ( int i = 0; i < (int)fractures.size(); i++ )
     {
@@ -309,6 +311,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         }
 
         RigTransmissibilityCondenser transCondenser;
+        transCondenser.setTransmissibilityThreshold( transmissibilityThreshold );
 
         //////
         // Calculate Matrix To Fracture Trans
@@ -689,7 +692,10 @@ std::map<size_t, double> RicExportFractureCompletionsImpl::calculateMatrixToWell
                                                                       RigTransmissibilityCondenser::CellAddress::WELL,
                                                                       1} );
 
-            matrixToWellTransmissibilities.insert( std::make_pair( externalCell.m_globalCellIdx, trans ) );
+            if ( trans > transCondenser.transmissibilityThreshold() )
+            {
+                matrixToWellTransmissibilities.insert( std::make_pair( externalCell.m_globalCellIdx, trans ) );
+            }
         }
     }
     return matrixToWellTransmissibilities;
