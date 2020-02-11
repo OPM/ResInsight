@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimEnsembleCurveFilter.h"
+
+#include "RiaCurveDataTools.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryCase.h"
@@ -38,7 +40,7 @@ CAF_PDM_SOURCE_INIT( RimEnsembleCurveFilter, "RimEnsembleCurveFilter" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilter::RimEnsembleCurveFilter()
-    : m_lowerLimit( DOUBLE_INF )
+    : m_lowerLimit( -DOUBLE_INF )
     , m_upperLimit( DOUBLE_INF )
 {
     CAF_PDM_InitObject( "Ensemble Curve Filter", ":/EnsembleCurveSet16x16.png", "", "" );
@@ -49,10 +51,10 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     CAF_PDM_InitFieldNoDefault( &m_ensembleParameterName, "EnsembleParameter", "Ensemble Parameter", "", "", "" );
     m_ensembleParameterName.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_minValue, "MinValue", "Min", "", "", "" );
+    CAF_PDM_InitField( &m_minValue, "MinValue", m_lowerLimit, "Min", "", "", "" );
     m_minValue.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_maxValue, "MaxValue", "Max", "", "", "" );
+    CAF_PDM_InitField( &m_maxValue, "MaxValue", m_upperLimit, "Max", "", "", "" );
     m_maxValue.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_categories, "Categories", "Categories", "", "", "" );
@@ -366,8 +368,8 @@ void RimEnsembleCurveFilter::setInitialValues( bool forceDefault )
     auto eParam = selectedEnsembleParameter();
     if ( eParam.isValid() && eParam.isNumeric() )
     {
-        m_lowerLimit = eParam.minValue;
-        m_upperLimit = eParam.maxValue;
+        if ( RiaCurveDataTools::isValidValue( eParam.minValue, false ) ) m_lowerLimit = eParam.minValue;
+        if ( RiaCurveDataTools::isValidValue( eParam.maxValue, false ) ) m_upperLimit = eParam.maxValue;
 
         if ( forceDefault || !( m_minValue >= m_lowerLimit && m_minValue <= m_upperLimit ) ) m_minValue = m_lowerLimit;
         if ( forceDefault || !( m_maxValue >= m_lowerLimit && m_maxValue <= m_upperLimit ) ) m_maxValue = m_upperLimit;
