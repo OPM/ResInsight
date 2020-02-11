@@ -1205,6 +1205,8 @@ void RiaApplication::applyPreferences()
         this->project()->updateConnectedEditors();
     }
 
+    caf::ProgressInfoStatic::setEnabled( m_preferences->showProgressBar() );
+
     m_preferences->writePreferencesToApplicationStore();
 }
 
