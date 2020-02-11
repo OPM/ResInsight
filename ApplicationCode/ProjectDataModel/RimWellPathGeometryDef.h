@@ -100,7 +100,6 @@ private:
 
 private:
     caf::PdmField<cvf::Vec3d> m_referencePointUtmXyd;
-    caf::PdmField<cvf::Vec3d> m_referencePointXyz_OBSOLETE;
 
     caf::PdmField<double> m_airGap;
 
@@ -110,8 +109,6 @@ private:
     caf::PdmField<bool> m_pickPointsEnabled;
 
     caf::PdmField<caf::AppEnum<WellStartType>> m_wellStartType;
-    // TODO: Unused for now. Remove when dust settles
-    caf::PdmPtrField<RimWellPath*> m_parentWell;
 
     std::shared_ptr<RicCreateWellTargetsPickEventHandler> m_pickTargetsEventHandler;
 };

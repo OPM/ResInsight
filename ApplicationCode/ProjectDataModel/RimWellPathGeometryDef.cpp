@@ -83,7 +83,6 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     CAF_PDM_InitField( &m_mdAtFirstTarget, "MdAtFirstTarget", 0.0, "MD at First Target", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_wellTargets, "WellPathTargets", "Well Targets", "", "", "" );
     m_wellTargets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
-    // m_wellTargets.uiCapability()->setUiTreeHidden(true);
     m_wellTargets.uiCapability()->setUiTreeChildrenHidden( true );
     m_wellTargets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_wellTargets.uiCapability()->setCustomContextMenuEnabled( true );
@@ -91,21 +90,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     CAF_PDM_InitField( &m_pickPointsEnabled, "m_pickPointsEnabled", false, "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_pickPointsEnabled );
 
-    // Temp conversion field.
-    CAF_PDM_InitField( &m_referencePointXyz_OBSOLETE,
-                       "ReferencePos",
-                       cvf::Vec3d( 0, 0, 0 ),
-                       "UTM Reference Point",
-                       "",
-                       "",
-                       "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_referencePointXyz_OBSOLETE );
-
     CAF_PDM_InitFieldNoDefault( &m_wellStartType, "WellStartType", "Start Type", "", "", "" );
-
-    /// To be removed ?
-    CAF_PDM_InitFieldNoDefault( &m_parentWell, "ParentWell", "Parent Well", "", "", "" );
-    m_parentWell.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -571,15 +556,6 @@ void RimWellPathGeometryDef::defineObjectEditorAttribute( QString uiConfigName, 
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGeometryDef::initAfterRead()
 {
-    // To be removed before release 2018.11
-
-    if ( m_referencePointXyz_OBSOLETE != cvf::Vec3d::ZERO && m_referencePointUtmXyd == cvf::Vec3d::ZERO )
-    {
-        m_referencePointUtmXyd = cvf::Vec3d( m_referencePointXyz_OBSOLETE().x(),
-                                             m_referencePointXyz_OBSOLETE().y(),
-                                             -m_referencePointXyz_OBSOLETE().z() );
-    }
-
     if ( RiaApplication::instance()->project()->isProjectFileVersionEqualOrOlderThan( "2019.12.1" ) )
     {
         m_wellStartType = START_AT_FIRST_TARGET;
