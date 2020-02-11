@@ -101,8 +101,9 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         femPartResult->initResultSteps( filteredStepNames );
     }
 
-    m_cohesion         = 10.0;
-    m_frictionAngleRad = cvf::Math::toRadians( 30.0 );
+    m_cohesion            = 10.0;
+    m_frictionAngleRad    = cvf::Math::toRadians( 30.0 );
+    m_normalizationAirGap = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -735,6 +736,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
         frameCountProgress.incrementProgress();
 
         calculateGammaFromFrames( partIndex, srcDataFrames, srcPORDataFrames, dstDataFrames, &frameCountProgress );
+        if ( resVarAddr.normalizeByHydrostaticPressure() )
+        {
+            dstDataFrames = calculateNormalizedResult( partIndex, resVarAddr );
+        }
 
         return dstDataFrames;
     }
@@ -1201,6 +1206,77 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradients( 
     RigFemScalarResultFrames* requestedGradient = this->findOrLoadScalarResult( partIndex, resVarAddr );
     CVF_ASSERT( requestedGradient );
     return requestedGradient;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNormalizedResult( int                        partIndex,
+                                                                                  const RigFemResultAddress& resVarAddr )
+{
+    CVF_ASSERT( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) );
+
+    RigFemResultAddress unscaledResult             = resVarAddr;
+    unscaledResult.normalizedByHydrostaticPressure = false;
+
+    caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "Calculating Normalized Result" );
+
+    RigFemScalarResultFrames* srcDataFrames = nullptr;
+    RigFemScalarResultFrames* dstDataFrames = nullptr;
+
+    {
+        auto task     = frameCountProgress.task( "Loading Unscaled Result", this->frameCount() );
+        srcDataFrames = this->findOrLoadScalarResult( partIndex, unscaledResult );
+        if ( !srcDataFrames ) return nullptr;
+    }
+    {
+        auto task     = frameCountProgress.task( "Creating Space for Normalized Result", this->frameCount() );
+        dstDataFrames = m_femPartResults[partIndex]->createScalarResult( RigFemResultAddress( resVarAddr ) );
+        if ( !dstDataFrames ) return nullptr;
+    }
+
+    frameCountProgress.setNextProgressIncrement( 1u );
+
+    const RigFemPart*              femPart      = m_femParts->part( partIndex );
+    float                          inf          = std::numeric_limits<float>::infinity();
+    int                            elmNodeCount = femPart->elementCount();
+    const std::vector<cvf::Vec3f>& nodeCoords   = femPart->nodes().coordinates;
+
+    int frameCount = srcDataFrames->frameCount();
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
+        std::vector<float>&       dstFrameData = dstDataFrames->frameData( fIdx );
+
+        size_t resultCount = srcFrameData.size();
+        dstFrameData.resize( resultCount );
+
+        if ( resVarAddr.resultPosType == RIG_ELEMENT_NODAL )
+        {
+#pragma omp parallel for schedule( dynamic )
+            for ( int elmNodeResIdx = 0; elmNodeResIdx < resultCount; ++elmNodeResIdx )
+            {
+                const int        nodeIdx             = femPart->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
+                const cvf::Vec3f node                = nodeCoords[nodeIdx];
+                double           tvdRKB              = std::abs( node.z() ) + m_normalizationAirGap;
+                double           hydrostaticPressure = RiaWellLogUnitTools::hydrostaticPorePressureBar( tvdRKB );
+                dstFrameData[elmNodeResIdx]          = srcFrameData[elmNodeResIdx] / hydrostaticPressure;
+            }
+        }
+        else if ( resVarAddr.resultPosType == RIG_NODAL )
+        {
+#pragma omp parallel for schedule( dynamic )
+            for ( int nodeResIdx = 0; nodeResIdx < resultCount; ++nodeResIdx )
+            {
+                const cvf::Vec3f node                = nodeCoords[nodeResIdx];
+                double           tvdRKB              = std::abs( node.z() ) + m_normalizationAirGap;
+                double           hydrostaticPressure = RiaWellLogUnitTools::hydrostaticPorePressureBar( tvdRKB );
+                dstFrameData[nodeResIdx]             = srcFrameData[nodeResIdx] / hydrostaticPressure;
+            }
+        }
+        frameCountProgress.incrementProgress();
+    }
+    return dstDataFrames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2328,6 +2404,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
         return calculateTimeLapseResult( partIndex, resVarAddr );
     }
 
+    if ( resVarAddr.normalizeByHydrostaticPressure() )
+    {
+        return calculateNormalizedResult( partIndex, resVarAddr );
+    }
+
     if ( resVarAddr.resultPosType == RIG_ELEMENT_NODAL_FACE )
     {
         if ( resVarAddr.componentName == "Pazi" || resVarAddr.componentName == "Pinc" )
@@ -2939,6 +3020,69 @@ std::vector<RigFemResultAddress>
     }
 
     return addresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RigFemResultAddress> RigFemPartResultsCollection::normalizedResults()
+{
+    std::set<std::string> validFields     = {"SE", "ST"};
+    std::set<std::string> validComponents = {"S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3", "Q"};
+
+    std::set<RigFemResultAddress> results;
+    for ( auto field : validFields )
+    {
+        for ( auto component : validComponents )
+        {
+            results.insert( RigFemResultAddress( RIG_ELEMENT_NODAL,
+                                                 field,
+                                                 component,
+                                                 RigFemResultAddress::allTimeLapsesValue(),
+                                                 -1,
+                                                 true ) );
+        }
+    }
+    results.insert(
+        RigFemResultAddress( RIG_ELEMENT_NODAL, "SE", "SEM", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+    results.insert(
+        RigFemResultAddress( RIG_ELEMENT_NODAL, "ST", "STM", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+    results.insert( RigFemResultAddress( RIG_NODAL, "POR-Bar", "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+    results.insert(
+        RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+
+    return results;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigFemPartResultsCollection::isNormalizableResult( const RigFemResultAddress& result )
+{
+    for ( auto normRes : normalizedResults() )
+    {
+        if ( normRes.resultPosType == result.resultPosType && normRes.fieldName == result.fieldName &&
+             normRes.componentName == result.componentName )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::setNormalizationAirGap( double normalizationAirGap )
+{
+    if ( std::abs( m_normalizationAirGap - normalizationAirGap ) > 1.0e-8 )
+    {
+        for ( auto result : normalizedResults() )
+        {
+            this->deleteResult( result );
+        }
+    }
+    m_normalizationAirGap = normalizationAirGap;
 }
 
 //--------------------------------------------------------------------------------------------------

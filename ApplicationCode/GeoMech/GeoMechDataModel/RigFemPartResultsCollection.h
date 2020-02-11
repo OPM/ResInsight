@@ -121,6 +121,10 @@ public:
 
     static std::vector<RigFemResultAddress> tensorComponentAddresses( const RigFemResultAddress& resVarAddr );
     static std::vector<RigFemResultAddress> tensorPrincipalComponentAdresses( const RigFemResultAddress& resVarAddr );
+    static std::set<RigFemResultAddress>    normalizedResults();
+    static bool                             isNormalizableResult( const RigFemResultAddress& result );
+
+    void setNormalizationAirGap( double normalizationAirGap );
 
 private:
     RigFemScalarResultFrames* findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
@@ -159,6 +163,7 @@ private:
     RigFemScalarResultFrames* calculateFormationIndices( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateStressGradients( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateNodalGradients( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* calculateNormalizedResult( int partIndex, const RigFemResultAddress& resVarAddr );
 
     const RigFormationNames* activeFormationNames() const;
 
@@ -171,6 +176,7 @@ private:
 
     double m_cohesion;
     double m_frictionAngleRad;
+    double m_normalizationAirGap;
 
     RigStatisticsDataCache*          statistics( const RigFemResultAddress& resVarAddr );
     std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
