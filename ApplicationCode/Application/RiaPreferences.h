@@ -102,6 +102,7 @@ public:
     void        setDefaultPlotTemplatePath( const QString& templatePath );
     bool        showSummaryTimeAsLongString() const;
     bool        useMultipleThreadsWhenReadingSummaryData() const;
+    bool        showProgressBar() const;
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
@@ -197,6 +198,7 @@ private:
     caf::PdmField<QString> m_timeFormat;
     caf::PdmField<bool>    m_showSummaryTimeAsLongString;
     caf::PdmField<bool>    m_useMultipleThreadsWhenLoadingSummaryData;
+    caf::PdmField<bool>    m_showProgressBar;
 
     caf::PdmField<PageSizeEnum>        m_pageSize;
     caf::PdmField<PageOrientationEnum> m_pageOrientation;

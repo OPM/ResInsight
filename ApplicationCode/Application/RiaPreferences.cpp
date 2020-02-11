@@ -338,6 +338,9 @@ RiaPreferences::RiaPreferences( void )
     m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_timeFormat = RiaQDateTimeTools::supportedTimeFormats().front();
 
+    CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar", "", "", "" );
+    m_showProgressBar.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)", "", "", "" );
     m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_searchPlotTemplateFoldersRecursively,
@@ -439,7 +442,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
          field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
          field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
-         field == &m_enableFaultsByDefault )
+         field == &m_enableFaultsByDefault || field == &m_showProgressBar )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -588,6 +591,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             group->add( &m_showHud );
         }
 
+        uiOrdering.add( &m_showProgressBar );
         uiOrdering.add( &m_showProjectChangedDialog );
         uiOrdering.add( &m_showTestToolbar );
         uiOrdering.add( &m_includeFractureDebugInfoFile );
@@ -959,6 +963,14 @@ bool RiaPreferences::showSummaryTimeAsLongString() const
 bool RiaPreferences::useMultipleThreadsWhenReadingSummaryData() const
 {
     return m_useMultipleThreadsWhenLoadingSummaryData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showProgressBar() const
+{
+    return m_showProgressBar;
 }
 
 //--------------------------------------------------------------------------------------------------

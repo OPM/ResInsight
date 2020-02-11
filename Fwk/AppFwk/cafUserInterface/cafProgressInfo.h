@@ -87,6 +87,7 @@ public:
     static void setNextProgressIncrement(size_t nextStepSize);
     static bool isRunning();
     static void finished();
+    static void setEnabled(bool enable);
 
 private:
     static bool isUpdatePossible();
