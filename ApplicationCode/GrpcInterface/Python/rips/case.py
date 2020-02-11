@@ -17,12 +17,12 @@ import rips.generated.PdmObject_pb2 as PdmObject_pb2
 import rips.generated.Properties_pb2 as Properties_pb2
 import rips.generated.Properties_pb2_grpc as Properties_pb2_grpc
 
-
 from rips.grid import Grid
 from rips.pdmobject import PdmObject
 from rips.view import View
 from rips.contour_map import ContourMap, ContourMapType
 from rips.well_bore_stability_plot import WellBoreStabilityPlot, WbsParameters
+from rips.simulation_well import SimulationWell
 
 class Case(PdmObject):
     """ResInsight case class
@@ -808,3 +808,15 @@ class Case(PdmObject):
 
         res = self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
                                                                                          applyToCaseId=self.case_id))
+
+    def simulation_wells(self):
+        """Get a list of all simulation wells for a case
+
+        Returns:
+            A list of rips SimulationWell objects
+        """
+        pdm_objects = self.descendants("Well")
+        wells  = []
+        for pdm_object in pdm_objects:
+            wells.append(SimulationWell(pdm_object.get_value("WellName"), self.case_id, pdm_object))
+        return wells

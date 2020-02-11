@@ -6,6 +6,7 @@ set ( SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCallbacks.inl
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCaseService.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcSimulationWellService.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridService.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectService.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.h
@@ -18,6 +19,7 @@ set ( SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCaseService.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcSimulationWellService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcGridService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcProjectService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.cpp
@@ -81,6 +83,7 @@ set(PROTO_FILES
     "Definitions"
 	"PdmObject"
     "Case"
+    "SimulationWell"
     "Project"
     "Commands"
     "App"
