@@ -210,7 +210,10 @@ public:
         : m_count( 8 )
         , m_vxIds( vxIds )
     {
-        std::copy( explicitWeights.begin(), explicitWeights.end(), m_weights.begin() );
+        for ( size_t i = 0; i < 8; ++i )
+        {
+            m_weights[i] = static_cast<float>( explicitWeights[i] );
+        }
     }
 
     int size() const
