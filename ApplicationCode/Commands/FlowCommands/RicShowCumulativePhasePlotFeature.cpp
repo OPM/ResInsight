@@ -18,7 +18,14 @@
 
 #include "RicShowCumulativePhasePlotFeature.h"
 
+#include "RiaApplication.h"
+
+#include "RimEclipseResultCase.h"
+#include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellDistributionPlotCollection.h"
 
@@ -33,9 +40,12 @@ CAF_CMD_SOURCE_INIT( RicShowCumulativePhasePlotFeature, "RicShowCumulativePhaseP
 //--------------------------------------------------------------------------------------------------
 bool RicShowCumulativePhasePlotFeature::isCommandEnabled()
 {
-    RimWellAllocationPlot* plot = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellAllocationPlot>();
+    auto plot = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellAllocationPlot>();
+    if ( plot != nullptr ) return true;
 
-    return plot != nullptr;
+    auto simWell = caf::SelectionManager::instance()->selectedItemOfType<RimSimWellInView>();
+
+    return simWell != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,19 +53,40 @@ bool RicShowCumulativePhasePlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowCumulativePhasePlotFeature::onActionTriggered( bool isChecked )
 {
-    RimWellAllocationPlot* plot = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellAllocationPlot>();
+    RimEclipseResultCase* eclipseResultCase = nullptr;
+    int                   timeStep          = 0;
+    QString               wellName;
 
-    if ( !plot ) return;
+    {
+        auto plot = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellAllocationPlot>();
 
-    RimFlowPlotCollection* flowPlotColl = nullptr;
-    plot->firstAncestorOrThisOfType( flowPlotColl );
+        if ( plot )
+        {
+            eclipseResultCase = getDataFromWellAllocation( plot, wellName, timeStep );
+        }
+    }
 
+    {
+        auto simWell = caf::SelectionManager::instance()->selectedItemOfType<RimSimWellInView>();
+        if ( simWell )
+        {
+            eclipseResultCase = getDataFromSimWell( simWell, wellName, timeStep );
+        }
+    }
+
+    RimProject* proj = RiaApplication::instance()->project();
+    if ( !proj ) return;
+
+    RimFlowPlotCollection* flowPlotColl = proj->mainPlotCollection()->flowPlotCollection();
     if ( !flowPlotColl ) return;
 
     RimWellDistributionPlotCollection* wdp = flowPlotColl->wellDistributionPlotCollection();
-    wdp->setData( plot->rimCase(), plot->wellName(), plot->timeStep() );
-    wdp->setShowWindow( true );
-    wdp->loadDataAndUpdate();
+    if ( wdp && eclipseResultCase )
+    {
+        wdp->setData( eclipseResultCase, wellName, timeStep );
+        wdp->setShowWindow( true );
+        wdp->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,4 +96,52 @@ void RicShowCumulativePhasePlotFeature::setupActionLook( QAction* actionToSetup 
 {
     actionToSetup->setIcon( QIcon( ":/CumulativePhaseDist16x16.png" ) );
     actionToSetup->setText( "Show Cumulative Phase Distribution Plot" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseResultCase* RicShowCumulativePhasePlotFeature::getDataFromSimWell( RimSimWellInView* simWell,
+                                                                             QString&          wellName,
+                                                                             int&              timeStepIndex )
+{
+    RimEclipseResultCase* resultCase = nullptr;
+
+    if ( simWell )
+    {
+        wellName = simWell->name();
+
+        RimEclipseView* eclView = nullptr;
+        simWell->firstAncestorOfType( eclView );
+
+        if ( eclView )
+        {
+            timeStepIndex = eclView->currentTimeStep();
+        }
+
+        simWell->firstAncestorOfType( resultCase );
+    }
+
+    return resultCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseResultCase* RicShowCumulativePhasePlotFeature::getDataFromWellAllocation( RimWellAllocationPlot* wap,
+                                                                                    QString&               wellName,
+                                                                                    int& timeStepIndex )
+{
+    RimEclipseResultCase* resultCase = nullptr;
+
+    if ( wap )
+    {
+        wellName = wap->wellName();
+
+        timeStepIndex = wap->timeStep();
+
+        resultCase = wap->rimCase();
+    }
+
+    return resultCase;
 }

@@ -567,6 +567,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
                 menuBuilder << "RicPlotProductionRateFeature";
                 menuBuilder << "RicShowWellAllocationPlotFeature";
+                menuBuilder << "RicShowCumulativePhasePlotFeature";
 
                 menuBuilder.subMenuEnd();
 

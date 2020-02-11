@@ -20,6 +20,10 @@
 
 #include "cafCmdFeature.h"
 
+class RimSimWellInView;
+class RimEclipseResultCase;
+class RimWellAllocationPlot;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -32,4 +36,9 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    static RimEclipseResultCase* getDataFromSimWell( RimSimWellInView* simWell, QString& wellName, int& timeStepIndex );
+    static RimEclipseResultCase*
+        getDataFromWellAllocation( RimWellAllocationPlot* wap, QString& wellName, int& timeStepIndex );
 };

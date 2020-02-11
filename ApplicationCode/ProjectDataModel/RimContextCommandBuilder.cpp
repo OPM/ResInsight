@@ -730,6 +730,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicPlotProductionRateFeature";
             menuBuilder << "RicShowWellAllocationPlotFeature";
+            menuBuilder << "RicShowCumulativePhasePlotFeature";
             menuBuilder.subMenuEnd();
 
             menuBuilder << "RicExportCompletionsForVisibleSimWellsFeature";
