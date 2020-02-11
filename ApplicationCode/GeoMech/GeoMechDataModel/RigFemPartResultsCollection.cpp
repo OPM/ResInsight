@@ -355,9 +355,6 @@ std::map<std::string, std::vector<std::string>>
         {
             fieldCompNames = m_readerInterface->scalarNodeFieldAndComponentNames();
             fieldCompNames["POR-Bar"];
-            fieldCompNames["POR_GRADIENTS"].push_back( "X" );
-            fieldCompNames["POR_GRADIENTS"].push_back( "Y" );
-            fieldCompNames["POR_GRADIENTS"].push_back( "Z" );
             fieldCompNames[FIELD_NAME_COMPACTION];
         }
         else if ( resPos == RIG_ELEMENT_NODAL )
@@ -381,11 +378,6 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["SE"].push_back( "S3inc" );
             fieldCompNames["SE"].push_back( "S3azi" );
 
-            for ( auto& s : stressGradientComponentNames )
-            {
-                fieldCompNames["SE_GRADIENTS"].push_back( s );
-            }
-
             fieldCompNames["ST"].push_back( "STM" );
             fieldCompNames["ST"].push_back( "Q" );
 
@@ -400,11 +392,6 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["ST"].push_back( "S2azi" );
             fieldCompNames["ST"].push_back( "S3inc" );
             fieldCompNames["ST"].push_back( "S3azi" );
-
-            for ( auto& s : stressGradientComponentNames )
-            {
-                fieldCompNames["ST_GRADIENTS"].push_back( s );
-            }
 
             fieldCompNames["Gamma"].push_back( "Gamma1" );
             fieldCompNames["Gamma"].push_back( "Gamma2" );
@@ -534,6 +521,23 @@ std::map<std::string, std::vector<std::string>>
             for ( const RigWbsParameter& parameter : wbsParameters )
             {
                 fieldCompNames[parameter.name().toStdString()];
+            }
+        }
+        else if ( resPos == RIG_DIFFERENTIALS )
+        {
+            fieldCompNames["POR-Bar"];
+            fieldCompNames["POR-Bar"].push_back( "X" );
+            fieldCompNames["POR-Bar"].push_back( "Y" );
+            fieldCompNames["POR-Bar"].push_back( "Z" );
+
+            for ( auto& s : stressGradientComponentNames )
+            {
+                fieldCompNames["SE"].push_back( s );
+            }
+
+            for ( auto& s : stressGradientComponentNames )
+            {
+                fieldCompNames["ST"].push_back( s );
             }
         }
     }
@@ -991,23 +995,22 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSTM( i
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradients( int                        partIndex,
                                                                                  const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == "ST_GRADIENTS" || resVarAddr.fieldName == "SE_GRADIENTS" );
+    CVF_ASSERT( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" );
 
     caf::ProgressInfo frameCountProgress( this->frameCount() * 2, "" );
     frameCountProgress.setProgressDescription(
         "Calculating gradient: " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
 
-    QString origFieldName = QString::fromStdString( resVarAddr.fieldName );
-    // Strip away "_GRADIENTS" to underlying field data
-    QString underlyingFieldName = origFieldName.left( origFieldName.lastIndexOf( QChar( '_' ) ) );
-    QString origComponentName   = QString::fromStdString( resVarAddr.componentName );
-    QString componentName       = origComponentName.left( origComponentName.lastIndexOf( QChar( '-' ) ) );
+    QString origFieldName     = QString::fromStdString( resVarAddr.fieldName );
+    QString origComponentName = QString::fromStdString( resVarAddr.componentName );
+    // Split out the direction of the component name: SE-X => SE
+    QString componentName = origComponentName.left( origComponentName.lastIndexOf( QChar( '-' ) ) );
 
     RigFemScalarResultFrames* inputResultFrames =
         this->findOrLoadScalarResult( partIndex,
                                       RigFemResultAddress( resVarAddr.resultPosType,
-                                                           underlyingFieldName.toStdString(),
+                                                           resVarAddr.fieldName,
                                                            componentName.toStdString() ) );
 
     RigFemScalarResultFrames* dataFramesX = m_femPartResults[partIndex]->createScalarResult(
@@ -1085,7 +1088,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradients(
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradients( int                        partIndex,
                                                                                 const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == "POR_GRADIENTS" );
+    CVF_ASSERT( resVarAddr.fieldName == "POR-Bar" );
     CVF_ASSERT( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" );
 
     caf::ProgressInfo frameCountProgress( this->frameCount() * 5, "" );
@@ -2381,7 +2384,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
         return calculateMeanStressSTM( partIndex, resVarAddr );
     }
 
-    if ( resVarAddr.fieldName == "ST_GRADIENTS" || resVarAddr.fieldName == "SE_GRADIENTS" )
+    if ( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" )
     {
         const std::vector<std::string> allowedComponentNames = getStressGradientComponentNames();
 
@@ -2407,15 +2410,18 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
     if ( resVarAddr.fieldName == "POR-Bar" )
     {
         if ( resVarAddr.resultPosType == RIG_NODAL )
-            return calculateBarConvertedResult( partIndex, resVarAddr, "POR" );
+        {
+            if ( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" )
+            {
+                return calculateNodalGradients( partIndex, resVarAddr );
+            }
+            else
+            {
+                return calculateBarConvertedResult( partIndex, resVarAddr, "POR" );
+            }
+        }
         else
             return calculateEnIpPorBarResult( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.fieldName == "POR_GRADIENTS" &&
-         ( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" ) )
-    {
-        return calculateNodalGradients( partIndex, resVarAddr );
     }
 
     if ( ( resVarAddr.fieldName == "NE" ) && ( resVarAddr.componentName == "E11" || resVarAddr.componentName == "E22" ||
