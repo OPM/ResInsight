@@ -119,7 +119,6 @@ void RimWellMeasurementInView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 void RimWellMeasurementInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimCheckableNamedObject::defineUiOrdering( uiConfigName, uiOrdering );
-    uiOrdering.add( &m_wells );
 
     if ( !hasCategoryResult() )
     {
@@ -128,8 +127,8 @@ void RimWellMeasurementInView::defineUiOrdering( QString uiConfigName, caf::PdmU
         filterGroup.add( &m_upperBound );
     }
 
+    uiOrdering.add( &m_wells );
     uiOrdering.add( &m_qualityFilter );
-
     uiOrdering.add( &m_radiusScaleFactor );
 
     uiOrdering.skipRemainingFields();
