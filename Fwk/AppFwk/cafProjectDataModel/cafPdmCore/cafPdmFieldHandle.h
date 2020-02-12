@@ -23,7 +23,7 @@ public:
     virtual ~PdmFieldHandle();
 
     QString          keyword() const                                { return m_keyword; }
-
+    bool             matchesKeyword(const QString& keyword) const;
     PdmObjectHandle* ownerObject()                                  { return m_ownerObject; }
 
     // Child objects
@@ -39,7 +39,10 @@ public:
     void             addCapability(PdmFieldCapability* capability, bool takeOwnership) { m_capabilities.push_back(std::make_pair(capability, takeOwnership)); }
 
     template <typename CapabilityType>
-    CapabilityType*  capability();
+    CapabilityType*        capability();
+    template <typename CapabilityType>
+    const CapabilityType*  capability() const;
+
 
     PdmUiFieldHandle*  uiCapability();
     PdmXmlFieldHandle* xmlCapability();
@@ -50,6 +53,8 @@ protected:
 private:
     PDM_DISABLE_COPY_AND_ASSIGN(PdmFieldHandle);
     
+    bool matchesKeywordAlias(const QString& keyword) const;
+
     friend class PdmObjectHandle;   // Give access to m_ownerObject and set Keyword
     void             setKeyword(const QString& keyword);
     PdmObjectHandle* m_ownerObject;
@@ -69,6 +74,20 @@ CapabilityType* PdmFieldHandle::capability()
     for (size_t i = 0; i < m_capabilities.size(); ++i)
     {
         CapabilityType* capability = dynamic_cast<CapabilityType*>(m_capabilities[i].first);
+        if (capability) return capability;
+    }
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename CapabilityType>
+const CapabilityType* PdmFieldHandle::capability() const
+{
+    for (size_t i = 0; i < m_capabilities.size(); ++i)
+    {
+        const CapabilityType* capability = dynamic_cast<CapabilityType*>(m_capabilities[i].first);
         if (capability) return capability;
     }
     return NULL;
