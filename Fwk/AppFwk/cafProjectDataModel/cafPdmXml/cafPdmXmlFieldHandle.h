@@ -2,6 +2,7 @@
 
 #include "cafPdmFieldCapability.h"
 #include <QString>
+#include <vector>
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -39,6 +40,9 @@ public:
 
     QString         childClassKeyword();
 
+    void registerKeywordAlias(const QString& alias);
+    bool matchesKeywordAlias(const QString& keyword) const;
+
     virtual void    readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory)  = 0;
     virtual void    writeFieldData(QXmlStreamWriter& xmlStream) const = 0;
 
@@ -51,9 +55,10 @@ protected:
     QString         m_childClassKeyword; ///< Must be set in constructor of derived XmlFieldHandle
 
 private:
-    bool            m_isIOReadable;
-    bool            m_isIOWritable;
-    bool            m_isCopyable;
+    bool                 m_isIOReadable;
+    bool                 m_isIOWritable;
+    bool                 m_isCopyable;
+    std::vector<QString> m_keywordAliases;
 
     PdmFieldHandle* m_owner;
 };
