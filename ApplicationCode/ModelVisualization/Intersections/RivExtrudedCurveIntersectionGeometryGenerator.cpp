@@ -386,21 +386,9 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
 
                     // Accumulate mesh lines
 
-                    meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge,
-                                                 triVxIdx + 0,
-                                                 globalCellIdx,
-                                                 point0,
-                                                 point1 );
-                    meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge,
-                                                 triVxIdx + 1,
-                                                 globalCellIdx,
-                                                 point1,
-                                                 point2 );
-                    meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge,
-                                                 triVxIdx + 2,
-                                                 globalCellIdx,
-                                                 point2,
-                                                 point0 );
+                    meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 0, globalCellIdx, point0, point1 );
+                    meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 1, globalCellIdx, point1, point2 );
+                    meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 2, globalCellIdx, point2, point0 );
 
                     // Mapping to cell index
 
@@ -412,24 +400,22 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                         caf::HexGridIntersectionTools::ClipVx cvx = clippedTriangleVxes[triVxIdx + i];
                         if ( cvx.isVxIdsNative )
                         {
-                            m_triVxToCellCornerWeights.push_back(
-                                RivIntersectionVertexWeights( cvx.clippedEdgeVx1Id,
-                                                              cvx.clippedEdgeVx2Id,
-                                                              cvx.normDistFromEdgeVx1 ) );
+                            m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights( cvx.clippedEdgeVx1Id,
+                                                                                                cvx.clippedEdgeVx2Id,
+                                                                                                cvx.normDistFromEdgeVx1 ) );
                         }
                         else
                         {
                             caf::HexGridIntersectionTools::ClipVx cvx1 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx1Id];
                             caf::HexGridIntersectionTools::ClipVx cvx2 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx2Id];
 
-                            m_triVxToCellCornerWeights.push_back(
-                                RivIntersectionVertexWeights( cvx1.clippedEdgeVx1Id,
-                                                              cvx1.clippedEdgeVx2Id,
-                                                              cvx1.normDistFromEdgeVx1,
-                                                              cvx2.clippedEdgeVx1Id,
-                                                              cvx2.clippedEdgeVx2Id,
-                                                              cvx2.normDistFromEdgeVx1,
-                                                              cvx.normDistFromEdgeVx1 ) );
+                            m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights( cvx1.clippedEdgeVx1Id,
+                                                                                                cvx1.clippedEdgeVx2Id,
+                                                                                                cvx1.normDistFromEdgeVx1,
+                                                                                                cvx2.clippedEdgeVx1Id,
+                                                                                                cvx2.clippedEdgeVx2Id,
+                                                                                                cvx2.normDistFromEdgeVx1,
+                                                                                                cvx.normDistFromEdgeVx1 ) );
                         }
                     }
                 }
@@ -522,8 +508,7 @@ cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::create
         displayCoords.push_back( transform->translateToDisplayCoord( pt ) );
     }
 
-    return RivPolylineGenerator::createLineAlongPolylineDrawable(
-        std::vector<std::vector<cvf::Vec3d>>( {displayCoords} ) );
+    return RivPolylineGenerator::createLineAlongPolylineDrawable( std::vector<std::vector<cvf::Vec3d>>( {displayCoords} ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -548,8 +533,7 @@ cvf::ref<cvf::DrawableGeo> RivExtrudedCurveIntersectionGeometryGenerator::create
         displayCoords.push_back( transform->translateToDisplayCoord( pt ) );
     }
 
-    return RivPolylineGenerator::createPointsFromPolylineDrawable(
-        std::vector<std::vector<cvf::Vec3d>>( {displayCoords} ) );
+    return RivPolylineGenerator::createPointsFromPolylineDrawable( std::vector<std::vector<cvf::Vec3d>>( {displayCoords} ) );
 }
 
 //--------------------------------------------------------------------------------------------------

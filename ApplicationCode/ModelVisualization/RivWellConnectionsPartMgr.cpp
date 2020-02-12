@@ -67,8 +67,8 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
          RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
         return;
 
-    bool   isProducer = ( m_rimWell->simWellData()->wellResultFrame( frameIndex ).m_productionType ==
-                        RigWellResultFrame::PRODUCER );
+    bool isProducer =
+        ( m_rimWell->simWellData()->wellResultFrame( frameIndex ).m_productionType == RigWellResultFrame::PRODUCER );
     double pipeRadius = m_rimWell->pipeRadius();
 
     cvf::Vec3d                           wellHeadTop;
@@ -136,8 +136,8 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
              RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE )
             continue;
 
-        bool isOtherProducer = ( otherWell->simWellData()->wellResultFrame( frameIndex ).m_productionType ==
-                                 RigWellResultFrame::PRODUCER );
+        bool isOtherProducer =
+            ( otherWell->simWellData()->wellResultFrame( frameIndex ).m_productionType == RigWellResultFrame::PRODUCER );
 
         {
             std::string otherWellName   = otherWell->name().toStdString();
@@ -173,10 +173,10 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
 
         std::pair<double, double> injProdFluxPair =
             flowResults->injectorProducerPairFluxes( injectorName, producerName, static_cast<int>( frameIndex ) );
-        std::pair<double, double> injProdFluxPairXF = flowResults->injectorProducerPairFluxes( crossFlowInjectorName,
-                                                                                               crossFlowProducerName,
-                                                                                               static_cast<int>(
-                                                                                                   frameIndex ) );
+        std::pair<double, double> injProdFluxPairXF =
+            flowResults->injectorProducerPairFluxes( crossFlowInjectorName,
+                                                     crossFlowProducerName,
+                                                     static_cast<int>( frameIndex ) );
 
         const double fluxThreshold = 0.0; // Todo : Needs threshold in Gui
 
@@ -199,8 +199,8 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
         {
             cvf::Vec3f startPoint = cvf::Vec3f( 0.5 * ( wellHeadTop + otherWellHeadTop ) );
             if ( m_useCurvedArrows ) startPoint.z() = mainArrowZHeight;
-            cvf::Vec3f   endPoint = cvf::Vec3f( wellHeadTop +
-                                              ( 3 * pipeRadius * ( otherWellHeadTop - wellHeadTop ).getNormalized() ) );
+            cvf::Vec3f endPoint =
+                cvf::Vec3f( wellHeadTop + ( 3 * pipeRadius * ( otherWellHeadTop - wellHeadTop ).getNormalized() ) );
             cvf::Color4f arrowColor( otherWell->wellPipeColor() );
 
             if ( fabs( injProdFluxPair.first ) > fluxThreshold && fabs( injProdFluxPair.second ) > fluxThreshold )

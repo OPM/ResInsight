@@ -46,10 +46,7 @@ void RicHoloLensCreateSessionFeature::onActionTriggered( bool isChecked )
 {
     RicHoloLensCreateSessionUi createSessionUi;
 
-    caf::PdmUiPropertyViewDialog propertyDialog( RiuMainWindow::instance(),
-                                                 &createSessionUi,
-                                                 "HoloLens - Create Session",
-                                                 "" );
+    caf::PdmUiPropertyViewDialog propertyDialog( RiuMainWindow::instance(), &createSessionUi, "HoloLens - Create Session", "" );
     propertyDialog.resize( QSize( 400, 330 ) );
 
     {

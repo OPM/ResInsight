@@ -359,8 +359,8 @@ void RivWellPathPartMgr::appendImportedFishbonesToModel( cvf::ModelBasicList*   
     {
         if ( !fbWellPath->isChecked() ) continue;
 
-        std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords(
-            fbWellPath->coordinates() );
+        std::vector<cvf::Vec3d> displayCoords =
+            displayCoordTransform->transformToDisplayCoords( fbWellPath->coordinates() );
 
         cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( fbWellPath );
 
@@ -469,10 +469,7 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
             cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( perforation );
 
             cvf::Collection<cvf::Part> parts;
-            geoGenerator.cylinderWithCenterLineParts( &parts,
-                                                      perfIntervalCLDiplayCS,
-                                                      cvf::Color3f::GREEN,
-                                                      perforationRadius );
+            geoGenerator.cylinderWithCenterLineParts( &parts, perfIntervalCLDiplayCS, cvf::Color3f::GREEN, perforationRadius );
             for ( auto part : parts )
             {
                 part->setSourceInfo( objectSourceInfo.p() );
@@ -610,11 +607,12 @@ void RivWellPathPartMgr::appendVirtualTransmissibilitiesToModel( cvf::ModelBasic
     eclView->firstAncestorOrThisOfType( eclipseCase );
     if ( !eclipseCase ) return;
 
-    const RigVirtualPerforationTransmissibilities* trans = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
+    const RigVirtualPerforationTransmissibilities* trans =
+        eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
     if ( trans )
     {
-        m_wellConnectionFactorPartMgr = new RivWellConnectionFactorPartMgr( m_rimWellPath,
-                                                                            eclView->virtualPerforationResult() );
+        m_wellConnectionFactorPartMgr =
+            new RivWellConnectionFactorPartMgr( m_rimWellPath, eclView->virtualPerforationResult() );
 
         m_wellConnectionFactorPartMgr->appendDynamicGeometryPartsToModel( model, timeStepIndex );
     }
@@ -732,8 +730,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     cvf::Vec3d textPosition = cvfCoords->get( 0 );
     textPosition.z() += 2.2 * characteristicCellSize;
 
-    if ( wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() &&
-         !m_rimWellPath->name().isEmpty() )
+    if ( wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty() )
     {
         cvf::Font* font = RiaGuiApplication::instance()->defaultWellLabelFont();
 

@@ -56,12 +56,8 @@ protected:
             QString curveInfoText;
             QString depthAxisValueString;
             QString xAxisValueString;
-            QPointF closestPoint = closestCurvePoint( pos,
-                                                      &curveInfoText,
-                                                      &xAxisValueString,
-                                                      &depthAxisValueString,
-                                                      &relatedXAxis,
-                                                      &relatedYAxis );
+            QPointF closestPoint =
+                closestCurvePoint( pos, &curveInfoText, &xAxisValueString, &depthAxisValueString, &relatedXAxis, &relatedYAxis );
             if ( !closestPoint.isNull() )
             {
                 QString str = QString( "depth = %1, value = %2" ).arg( depthAxisValueString ).arg( xAxisValueString );

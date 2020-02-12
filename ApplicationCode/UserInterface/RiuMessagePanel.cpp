@@ -45,9 +45,7 @@ RiuMessagePanel::RiuMessagePanel( QDockWidget* parent )
     m_textEdit->setLineWrapMode( QPlainTextEdit::NoWrap );
     m_textEdit->setContextMenuPolicy( Qt::CustomContextMenu );
 
-    connect( m_textEdit,
-             SIGNAL( customContextMenuRequested( const QPoint& ) ),
-             SLOT( slotShowContextMenu( const QPoint& ) ) );
+    connect( m_textEdit, SIGNAL( customContextMenuRequested( const QPoint& ) ), SLOT( slotShowContextMenu( const QPoint& ) ) );
 
     layout->addWidget( m_textEdit );
 }

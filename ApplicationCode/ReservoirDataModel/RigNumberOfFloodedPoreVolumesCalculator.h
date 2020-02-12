@@ -33,8 +33,7 @@ class RigConnection;
 class RigNumberOfFloodedPoreVolumesCalculator
 {
 public:
-    explicit RigNumberOfFloodedPoreVolumesCalculator( RimEclipseCase*             caseToApply,
-                                                      const std::vector<QString>& tracerNames );
+    explicit RigNumberOfFloodedPoreVolumesCalculator( RimEclipseCase* caseToApply, const std::vector<QString>& tracerNames );
 
     // Used to "steal" the data from this one using swap
 

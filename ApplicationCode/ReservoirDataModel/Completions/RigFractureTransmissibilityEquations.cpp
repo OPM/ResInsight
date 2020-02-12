@@ -67,8 +67,7 @@ double RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans( doub
         ro = wellRadius * 1.01;
     }
 
-    double Tc = 2 * cvf::PI_D * cDarcyForRelevantUnit * fractureCellConductivity /
-                ( log( ro / wellRadius ) + skinFactor );
+    double Tc = 2 * cvf::PI_D * cDarcyForRelevantUnit * fractureCellConductivity / ( log( ro / wellRadius ) + skinFactor );
 
     CVF_TIGHT_ASSERT( Tc > 0 );
     return Tc;
@@ -197,7 +196,7 @@ double RigFractureTransmissibilityEquations::centerToEdgeFractureCellTrans( doub
                                                                             double sideLengthNormalTrans,
                                                                             double cDarcyForRelevantUnit )
 {
-    double transmissibility = cDarcyForRelevantUnit * conductivity * sideLengthNormalTrans /
-                              ( sideLengthParallellTrans / 2 );
+    double transmissibility =
+        cDarcyForRelevantUnit * conductivity * sideLengthNormalTrans / ( sideLengthParallellTrans / 2 );
     return transmissibility;
 }

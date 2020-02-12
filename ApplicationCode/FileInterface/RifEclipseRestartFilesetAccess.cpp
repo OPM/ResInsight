@@ -84,7 +84,8 @@ void RifEclipseRestartFilesetAccess::setRestartFiles( const QStringList& fileSet
     m_ecl_files.clear();
 
     m_fileNames = fileSet;
-    m_fileNames.sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual time stored on file.
+    m_fileNames.sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual
+                        // time stored on file.
 
     for ( int i = 0; i < m_fileNames.size(); i++ )
     {
@@ -275,9 +276,9 @@ void RifEclipseRestartFilesetAccess::openTimeStep( size_t timeStep )
 
     if ( m_ecl_files[timeStep] == nullptr )
     {
-        int            index    = static_cast<int>( timeStep );
-        ecl_file_type* ecl_file = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( m_fileNames[index] ).data(),
-                                                 ECL_FILE_CLOSE_STREAM );
+        int            index = static_cast<int>( timeStep );
+        ecl_file_type* ecl_file =
+            ecl_file_open( RiaStringEncodingTools::toNativeEncoded( m_fileNames[index] ).data(), ECL_FILE_CLOSE_STREAM );
 
         m_ecl_files[timeStep] = ecl_file;
 

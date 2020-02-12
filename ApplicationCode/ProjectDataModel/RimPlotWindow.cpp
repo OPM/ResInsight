@@ -49,13 +49,7 @@ RimPlotWindow::RimPlotWindow()
     CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", true, "Legend Orientation", "", "", "" );
     m_plotLegendsHorizontal.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     int defaultFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
-    CAF_PDM_InitField( &m_legendFontSize,
-                       "LegendFontSize",
-                       std::max( 8, defaultFontSize - 2 ),
-                       "Legend Font Size",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_legendFontSize, "LegendFontSize", std::max( 8, defaultFontSize - 2 ), "Legend Font Size", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

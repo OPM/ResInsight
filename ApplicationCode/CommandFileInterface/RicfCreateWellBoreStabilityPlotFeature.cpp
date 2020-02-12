@@ -96,11 +96,9 @@ RicfCommandResponse RicfCreateWellBoreStabilityPlotFeature::execute()
             return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
         }
 
-        RimWellBoreStabilityPlot* wbsPlot = RicNewWellBoreStabilityPlotFeature::createPlot( chosenCase,
-                                                                                            chosenWellPath,
-                                                                                            m_timeStep(),
-                                                                                            m_wbsParameters() );
-        RicfCommandResponse       response;
+        RimWellBoreStabilityPlot* wbsPlot =
+            RicNewWellBoreStabilityPlotFeature::createPlot( chosenCase, chosenWellPath, m_timeStep(), m_wbsParameters() );
+        RicfCommandResponse response;
         response.setResult( new RicfCreateWbsPlotResult( wbsPlot->id() ) );
         return response;
     }

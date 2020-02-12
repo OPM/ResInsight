@@ -71,10 +71,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivGridPartMgr::RivGridPartMgr( RivCellSetEnum     cellSetType,
-                                RimEclipseCase*    eclipseCase,
-                                const RigGridBase* grid,
-                                size_t             gridIdx )
+RivGridPartMgr::RivGridPartMgr( RivCellSetEnum cellSetType, RimEclipseCase* eclipseCase, const RigGridBase* grid, size_t gridIdx )
     : m_surfaceGenerator( grid, RiaRegressionTestRunner::instance()->useOpenMPForGeometryCreation() )
     , m_gridIdx( gridIdx )
     , m_grid( grid )

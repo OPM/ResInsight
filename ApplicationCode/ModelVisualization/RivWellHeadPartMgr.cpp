@@ -178,8 +178,8 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t                            f
         }
     }
 
-    double arrowLength = characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() *
-                         m_rimWell->wellHeadScaleFactor();
+    double arrowLength =
+        characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
 
     if ( wellResultFrame.m_isOpen )
     {

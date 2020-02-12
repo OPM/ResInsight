@@ -38,9 +38,7 @@ void RimEclipseInputProperty::ResolveStateEnum::setUp()
 {
     addItem( RimEclipseInputProperty::UNKNOWN, "UNKNOWN", "Unknown" );
     addItem( RimEclipseInputProperty::FILE_MISSING, "FILE_MISSING", "No data loaded, can't find the file" );
-    addItem( RimEclipseInputProperty::KEYWORD_NOT_IN_FILE,
-             "KEYWORD_NOT_IN_FILE",
-             "No data loaded, can't find the keyword" );
+    addItem( RimEclipseInputProperty::KEYWORD_NOT_IN_FILE, "KEYWORD_NOT_IN_FILE", "No data loaded, can't find the keyword" );
     addItem( RimEclipseInputProperty::RESOLVED_NOT_SAVED, "RESOLVED_NOT_SAVED", "Ok, but not saved" );
     addItem( RimEclipseInputProperty::RESOLVED, "RESOLVED", "Loaded, Ok" );
     setDefault( RimEclipseInputProperty::UNKNOWN );

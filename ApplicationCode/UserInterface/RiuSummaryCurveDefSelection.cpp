@@ -442,8 +442,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::allCurveDefi
                 {
                     if ( selectedAddressesFromUi.count( addressFromSource ) > 0 )
                     {
-                        curveDefinitions.insert(
-                            RiaSummaryCurveDefinition( caseFromSource, addressFromSource, ensemble ) );
+                        curveDefinitions.insert( RiaSummaryCurveDefinition( caseFromSource, addressFromSource, ensemble ) );
                     }
                 }
             }
@@ -775,8 +774,7 @@ void RiuSummaryCurveDefSelection::fieldChangedByUi( const caf::PdmFieldHandle* c
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RiuSummaryCurveDefSelection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly )
+    RiuSummaryCurveDefSelection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -803,8 +801,8 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword( "Sources",
-                                                                       RiuSummaryCurveDefinitionKeywords::sources() );
+    caf::PdmUiGroup* sourcesGroup =
+        uiOrdering.addNewGroupWithKeyword( "Sources", RiuSummaryCurveDefinitionKeywords::sources() );
     sourcesGroup->add( &m_selectedSources );
 
     caf::PdmUiGroup* itemTypesGroup =
@@ -945,8 +943,8 @@ void RiuSummaryCurveDefSelection::defineUiOrdering( QString uiConfigName, caf::P
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_IMPORTED][0]->pdmField();
     }
 
-    caf::PdmUiGroup* summariesGroup = uiOrdering.addNewGroupWithKeyword( "Summaries",
-                                                                         RiuSummaryCurveDefinitionKeywords::summaries() );
+    caf::PdmUiGroup* summariesGroup =
+        uiOrdering.addNewGroupWithKeyword( "Summaries", RiuSummaryCurveDefinitionKeywords::summaries() );
     if ( summaryiesField )
     {
         summariesGroup->add( summaryiesField );
@@ -1202,10 +1200,7 @@ void RiuSummaryCurveDefSelection::buildAddressListForCategoryRecursively(
 
         if ( ( *identifierAndFieldItr )->summaryIdentifier() != RifEclipseSummaryAddress::INPUT_VECTOR_NAME )
         {
-            buildAddressListForCategoryRecursively( category,
-                                                    std::next( identifierAndFieldItr, 1 ),
-                                                    identifierPath,
-                                                    addressSet );
+            buildAddressListForCategoryRecursively( category, std::next( identifierAndFieldItr, 1 ), identifierPath, addressSet );
         }
         else
         {
@@ -1419,9 +1414,8 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForCategories( QList<caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::appendOptionItemsForSubCategoriesAndVectors(
-    QList<caf::PdmOptionItemInfo>& options,
-    SummaryIdentifierAndField*     identifierAndField ) const
+void RiuSummaryCurveDefSelection::appendOptionItemsForSubCategoriesAndVectors( QList<caf::PdmOptionItemInfo>& options,
+                                                                               SummaryIdentifierAndField* identifierAndField ) const
 {
     if ( identifierAndField == nullptr ) return;
 
@@ -1529,8 +1523,8 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForSubCategoriesAndVectors(
 
             if ( isVectorField )
             {
-                std::string longVectorName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName(
-                    itemName );
+                std::string longVectorName =
+                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( itemName );
 
                 if ( longVectorName.empty() )
                 {

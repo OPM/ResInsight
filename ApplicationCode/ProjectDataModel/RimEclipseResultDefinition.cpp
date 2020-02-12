@@ -166,30 +166,18 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     m_flowSolutionUiField.uiCapability()->setUiHidden( true ); // For now since there are only one to choose from
 
     CAF_PDM_InitField( &m_syncInjectorToProducerSelection, "MSyncSelectedInjProd", false, "Add Communicators ->", "", "", "" );
-    m_syncInjectorToProducerSelection.uiCapability()->setUiEditorTypeName(
-        caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_syncInjectorToProducerSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_syncProducerToInjectorSelection, "MSyncSelectedProdInj", false, "<- Add Communicators", "", "", "" );
-    m_syncProducerToInjectorSelection.uiCapability()->setUiEditorTypeName(
-        caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_syncProducerToInjectorSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedInjectorTracersUiField,
-                                "MSelectedInjectorTracers",
-                                "Injector Tracers",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedInjectorTracersUiField, "MSelectedInjectorTracers", "Injector Tracers", "", "", "" );
     m_selectedInjectorTracersUiField.xmlCapability()->disableIO();
     m_selectedInjectorTracersUiField.uiCapability()->setUiEditorTypeName(
         caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedInjectorTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedProducerTracersUiField,
-                                "MSelectedProducerTracers",
-                                "Producer Tracers",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedProducerTracersUiField, "MSelectedProducerTracers", "Producer Tracers", "", "", "" );
     m_selectedProducerTracersUiField.xmlCapability()->disableIO();
     m_selectedProducerTracersUiField.uiCapability()->setUiEditorTypeName(
         caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -621,8 +609,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimEclipseResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                       bool*                      useOptionsOnly )
+    RimEclipseResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -942,8 +929,8 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
                 {
                     for ( const QString& tracerName : tracerNames )
                     {
-                        RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusInTimeStep( tracerName,
-                                                                                                        timeStep );
+                        RimFlowDiagSolution::TracerStatusType status =
+                            flowSol->tracerStatusInTimeStep( tracerName, timeStep );
                         if ( status == RimFlowDiagSolution::INJECTOR )
                         {
                             selTracerNames.insert( tracerName.toStdString() );
@@ -955,8 +942,8 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
                 {
                     for ( const QString& tracerName : tracerNames )
                     {
-                        RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusInTimeStep( tracerName,
-                                                                                                        timeStep );
+                        RimFlowDiagSolution::TracerStatusType status =
+                            flowSol->tracerStatusInTimeStep( tracerName, timeStep );
                         if ( status == RimFlowDiagSolution::PRODUCER )
                         {
                             selTracerNames.insert( tracerName.toStdString() );
@@ -1028,9 +1015,9 @@ QString RimEclipseResultDefinition::diffResultUiName() const
         if ( gridCellResults )
         {
             stepDates = gridCellResults->timeStepDates();
-            diffResult += QString( "<b>Base Time Step</b>: %1" )
-                              .arg( stepDates[m_timeLapseBaseTimestep()].toString(
-                                  RiaQDateTimeTools::dateFormatString() ) );
+            diffResult +=
+                QString( "<b>Base Time Step</b>: %1" )
+                    .arg( stepDates[m_timeLapseBaseTimestep()].toString( RiaQDateTimeTools::dateFormatString() ) );
         }
     }
     if ( isCaseDiffResult() )
@@ -1383,8 +1370,7 @@ bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isCompletionTypeSelected() const
 {
-    return ( m_resultType() == RiaDefines::DYNAMIC_NATIVE &&
-             m_resultVariable() == RiaDefines::completionTypeResultName() );
+    return ( m_resultType() == RiaDefines::DYNAMIC_NATIVE && m_resultVariable() == RiaDefines::completionTypeResultName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1519,8 +1505,8 @@ void RimEclipseResultDefinition::defineEditorAttribute( const caf::PdmFieldHandl
         }
         else if ( field == &m_syncInjectorToProducerSelection || field == &m_syncProducerToInjectorSelection )
         {
-            caf::PdmUiToolButtonEditorAttribute* toolButtonAttr = dynamic_cast<caf::PdmUiToolButtonEditorAttribute*>(
-                attribute );
+            caf::PdmUiToolButtonEditorAttribute* toolButtonAttr =
+                dynamic_cast<caf::PdmUiToolButtonEditorAttribute*>( attribute );
             if ( toolButtonAttr )
             {
                 toolButtonAttr->m_sizePolicy.setHorizontalPolicy( QSizePolicy::MinimumExpanding );
@@ -1771,20 +1757,14 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
             RigFlowDiagResultAddress resAddr         = this->flowDiagResAddress();
 
             flowResultsData->minMaxScalarValues( resAddr, currentTimeStep, &globalMin, &globalMax );
-            flowResultsData->posNegClosestToZero( resAddr,
-                                                  currentTimeStep,
-                                                  &globalPosClosestToZero,
-                                                  &globalNegClosestToZero );
+            flowResultsData->posNegClosestToZero( resAddr, currentTimeStep, &globalPosClosestToZero, &globalNegClosestToZero );
 
             double localMin, localMax;
             double localPosClosestToZero, localNegClosestToZero;
             if ( this->hasDynamicResult() )
             {
                 flowResultsData->minMaxScalarValues( resAddr, currentTimeStep, &localMin, &localMax );
-                flowResultsData->posNegClosestToZero( resAddr,
-                                                      currentTimeStep,
-                                                      &localPosClosestToZero,
-                                                      &localNegClosestToZero );
+                flowResultsData->posNegClosestToZero( resAddr, currentTimeStep, &localPosClosestToZero, &localNegClosestToZero );
             }
             else
             {
@@ -1931,10 +1911,10 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                             cvf::Color3f formationColor1 = cvf::Color3f( formationColorMapper->mapToColor( frmIdx1 ) );
                             cvf::Color3f formationColor2 = cvf::Color3f( formationColorMapper->mapToColor( frmIdx2 ) );
 
-                            cvf::Color3ub blendColor = cvf::Color3ub(
-                                cvf::Color3f( 0.5f * ( formationColor1.r() + formationColor2.r() ),
-                                              0.5f * ( formationColor1.g() + formationColor2.g() ),
-                                              0.5f * ( formationColor1.b() + formationColor2.b() ) ) );
+                            cvf::Color3ub blendColor =
+                                cvf::Color3ub( cvf::Color3f( 0.5f * ( formationColor1.r() + formationColor2.r() ),
+                                                             0.5f * ( formationColor1.g() + formationColor2.g() ),
+                                                             0.5f * ( formationColor1.b() + formationColor2.b() ) ) );
                             categories.emplace_back( std::make_tuple( frmName1 + "-" + frmName2, combIndex, blendColor ) );
                         }
 
@@ -1952,8 +1932,8 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                 else if ( this->resultType() == RiaDefines::DYNAMIC_NATIVE &&
                           this->resultVariable() == RiaDefines::completionTypeResultName() )
                 {
-                    const std::vector<int>& visibleCategories = cellResultsData->uniqueCellScalarValues(
-                        this->eclipseResultAddress() );
+                    const std::vector<int>& visibleCategories =
+                        cellResultsData->uniqueCellScalarValues( this->eclipseResultAddress() );
 
                     std::vector<RiaDefines::WellPathComponentType> supportedCompletionTypes = {RiaDefines::WELL_PATH,
                                                                                                RiaDefines::FISHBONES,
@@ -1968,10 +1948,9 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                         if ( std::find( visibleCategories.begin(), visibleCategories.end(), completionType ) !=
                              visibleCategories.end() )
                         {
-                            QString categoryText = caf::AppEnum<RiaDefines::WellPathComponentType>::uiText(
-                                completionType );
-                            categories.push_back(
-                                std::make_tuple( categoryText, completionType, colors[completionType] ) );
+                            QString categoryText =
+                                caf::AppEnum<RiaDefines::WellPathComponentType>::uiText( completionType );
+                            categories.push_back( std::make_tuple( categoryText, completionType, colors[completionType] ) );
                         }
                     }
 

@@ -102,8 +102,8 @@ bool VdePacketDirectory::getPacketsAsCombinedBuffer( const std::vector<int>& pac
         }
 
         const VdeArrayDataPacket& packet = *it->second;
-        *combinedPacketArr += QByteArray::fromRawData( packet.fullPacketRawPtr(),
-                                                       static_cast<int>( packet.fullPacketSize() ) );
+        *combinedPacketArr +=
+            QByteArray::fromRawData( packet.fullPacketRawPtr(), static_cast<int>( packet.fullPacketSize() ) );
     }
 
     return true;

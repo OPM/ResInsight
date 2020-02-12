@@ -55,9 +55,7 @@ public:
 class RivEclipseIntersectionGrid : public RivIntersectionHexGridInterface
 {
 public:
-    RivEclipseIntersectionGrid( const RigMainGrid*       mainGrid,
-                                const RigActiveCellInfo* activeCellInfo,
-                                bool                     showInactiveCells );
+    RivEclipseIntersectionGrid( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, bool showInactiveCells );
 
     cvf::Vec3d       displayOffset() const override;
     cvf::BoundingBox boundingBox() const override;
@@ -205,8 +203,7 @@ public:
         m_weights[1] = ( (float)( normDistFromE1V1 ) );
     }
 
-    explicit RivIntersectionVertexWeights( const std::array<size_t, 8>& vxIds,
-                                           const std::array<double, 8>& explicitWeights )
+    explicit RivIntersectionVertexWeights( const std::array<size_t, 8>& vxIds, const std::array<double, 8>& explicitWeights )
         : m_count( 8 )
         , m_vxIds( vxIds )
     {

@@ -921,8 +921,8 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
 
         if ( axisProperties->isLogarithmicScaleEnabled )
         {
-            QwtLogScaleEngine* currentScaleEngine = dynamic_cast<QwtLogScaleEngine*>(
-                m_plotWidget->axisScaleEngine( axisProperties->qwtPlotAxisType() ) );
+            QwtLogScaleEngine* currentScaleEngine =
+                dynamic_cast<QwtLogScaleEngine*>( m_plotWidget->axisScaleEngine( axisProperties->qwtPlotAxisType() ) );
             if ( !currentScaleEngine )
             {
                 m_plotWidget->setAxisScaleEngine( axisProperties->qwtPlotAxisType(), new QwtLogScaleEngine );
@@ -950,8 +950,8 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
         }
         else
         {
-            QwtLinearScaleEngine* currentScaleEngine = dynamic_cast<QwtLinearScaleEngine*>(
-                m_plotWidget->axisScaleEngine( axisProperties->qwtPlotAxisType() ) );
+            QwtLinearScaleEngine* currentScaleEngine =
+                dynamic_cast<QwtLinearScaleEngine*>( m_plotWidget->axisScaleEngine( axisProperties->qwtPlotAxisType() ) );
             if ( !currentScaleEngine )
             {
                 m_plotWidget->setAxisScaleEngine( axisProperties->qwtPlotAxisType(), new QwtLinearScaleEngine );

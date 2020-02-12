@@ -64,7 +64,8 @@ bool RicNewDerivedEnsembleFeature::showWarningDialogWithQuestion()
 //--------------------------------------------------------------------------------------------------
 bool RicNewDerivedEnsembleFeature::isCommandEnabled()
 {
-    std::vector<RimSummaryCaseMainCollection*> mainColls = caf::selectedObjectsByTypeStrict<RimSummaryCaseMainCollection*>();
+    std::vector<RimSummaryCaseMainCollection*> mainColls =
+        caf::selectedObjectsByTypeStrict<RimSummaryCaseMainCollection*>();
     std::vector<RimSummaryCaseCollection*> ensembles = caf::selectedObjectsByTypeStrict<RimSummaryCaseCollection*>();
 
     return mainColls.size() == 1 || ensembles.size() == 1 || ensembles.size() == 2;
@@ -80,9 +81,7 @@ void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
         auto project  = RiaApplication::instance()->project();
         auto mainColl = project->firstSummaryCaseMainCollection();
 
-        auto newColl     = mainColl->addCaseCollection( {}, "", true, []() {
-            return new RimDerivedEnsembleCaseCollection();
-        } );
+        auto newColl = mainColl->addCaseCollection( {}, "", true, []() { return new RimDerivedEnsembleCaseCollection(); } );
         auto newEnsemble = dynamic_cast<RimDerivedEnsembleCaseCollection*>( newColl );
 
         {

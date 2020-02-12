@@ -146,11 +146,10 @@ private:
                                              std::shared_ptr<RicMswSegment>        location,
                                              bool*                                 foundSubGridIntersections );
 
-    static std::vector<RigCompletionData>
-        generatePerforationIntersections( const RimWellPath*            wellPath,
-                                          const RimPerforationInterval* perforationInterval,
-                                          int                           timeStep,
-                                          RimEclipseCase*               eclipseCase );
+    static std::vector<RigCompletionData> generatePerforationIntersections( const RimWellPath*            wellPath,
+                                                                            const RimPerforationInterval* perforationInterval,
+                                                                            int                           timeStep,
+                                                                            RimEclipseCase*               eclipseCase );
 
     static void assignPerforationIntersections( const std::vector<RigCompletionData>& completionData,
                                                 std::shared_ptr<RicMswCompletion>     perforationCompletion,

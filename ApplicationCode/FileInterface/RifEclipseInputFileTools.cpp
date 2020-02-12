@@ -152,11 +152,11 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
     bool allKwReadOk = true;
 
     fseek( gridFilePointer, specgridPos, SEEK_SET );
-    allKwReadOk = allKwReadOk &&
-                  nullptr !=
-                      ( specGridKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
-                                                                           false,
-                                                                           ecl_type_create_from_type( ECL_INT_TYPE ) ) );
+    allKwReadOk =
+        allKwReadOk &&
+        nullptr != ( specGridKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
+                                                                        false,
+                                                                        ecl_type_create_from_type( ECL_INT_TYPE ) ) );
     progress.setProgress( 1 );
 
     fseek( gridFilePointer, zcornPos, SEEK_SET );
@@ -179,11 +179,11 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
     if ( actnumPos >= 0 )
     {
         fseek( gridFilePointer, actnumPos, SEEK_SET );
-        allKwReadOk = allKwReadOk &&
-                      nullptr !=
-                          ( actNumKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
-                                                                             false,
-                                                                             ecl_type_create_from_type( ECL_INT_TYPE ) ) );
+        allKwReadOk =
+            allKwReadOk &&
+            nullptr != ( actNumKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
+                                                                          false,
+                                                                          ecl_type_create_from_type( ECL_INT_TYPE ) ) );
         progress.setProgress( 4 );
     }
 
@@ -191,9 +191,8 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
     if ( mapaxesPos >= 0 )
     {
         fseek( gridFilePointer, mapaxesPos, SEEK_SET );
-        mapAxesKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer,
-                                                          false,
-                                                          ecl_type_create_from_type( ECL_FLOAT_TYPE ) );
+        mapAxesKw =
+            ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer, false, ecl_type_create_from_type( ECL_FLOAT_TYPE ) );
     }
 
     if ( !allKwReadOk )
@@ -508,10 +507,8 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
             {
                 resultValuesInt.push_back( static_cast<int>( val ) );
             }
-            ecl_kw = ecl_kw_alloc_new( keyword.toLatin1().data(),
-                                       (int)resultValuesInt.size(),
-                                       ECL_INT,
-                                       resultValuesInt.data() );
+            ecl_kw =
+                ecl_kw_alloc_new( keyword.toLatin1().data(), (int)resultValuesInt.size(), ECL_INT, resultValuesInt.data() );
         }
         else
         {
@@ -683,8 +680,7 @@ void RifEclipseInputFileTools::saveFault( QTextStream&                          
         }
         else
         {
-            faultCellAndFaces.push_back(
-                std::make_tuple( shifted_i, shifted_j, shifted_k, faultCellAndFace.m_nativeFace ) );
+            faultCellAndFaces.push_back( std::make_tuple( shifted_i, shifted_j, shifted_k, faultCellAndFace.m_nativeFace ) );
         }
     }
 
@@ -757,8 +753,7 @@ void RifEclipseInputFileTools::saveFaults( QTextStream&       stream,
 //--------------------------------------------------------------------------------------------------
 /// Read known properties from the input file
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QString> RifEclipseInputFileTools::readProperties( const QString&      fileName,
-                                                                     RigEclipseCaseData* caseData )
+std::map<QString, QString> RifEclipseInputFileTools::readProperties( const QString& fileName, RigEclipseCaseData* caseData )
 {
     CVF_ASSERT( caseData );
 
@@ -1018,7 +1013,8 @@ void RifEclipseInputFileTools::parseAndReadPathAliasKeyword( const QString&     
                         // Replace tab with space to be able to split the string using space as splitter
                         line.replace( "\t", " " );
 
-                        // Remove character ' used to mark start and end of fault name, possibly also around face definition; 'I+'
+                        // Remove character ' used to mark start and end of fault name, possibly also around face
+                        // definition; 'I+'
                         line.remove( "'" );
 
                         QStringList entries = line.split( " ", QString::SkipEmptyParts );

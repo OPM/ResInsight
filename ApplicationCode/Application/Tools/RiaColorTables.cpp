@@ -576,8 +576,7 @@ caf::ColorTable RiaColorTables::createBrightnessBasedColorTable( cvf::Color3ub b
         for ( int i = 0; i < brightnessLevelCount; ++i )
         {
             float brightness = static_cast<float>( i ) / static_cast<float>( brightnessLevelCount - 1 );
-            colors.push_back(
-                cvf::Color3ub( RiaColorTools::fromQColorTo3f( QColor::fromHslF( hueF, satF, brightness ) ) ) );
+            colors.push_back( cvf::Color3ub( RiaColorTools::fromQColorTo3f( QColor::fromHslF( hueF, satF, brightness ) ) ) );
         }
     }
     return caf::ColorTable( colors );

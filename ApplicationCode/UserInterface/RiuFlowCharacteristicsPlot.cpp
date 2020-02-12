@@ -240,9 +240,8 @@ void RiuFlowCharacteristicsPlot::addFlowCapStorageCapCurve( const QDateTime&    
 {
     CVF_ASSERT( !m_dateToColorMap.empty() );
 
-    RiuQwtPlotCurve* plotCurve = createEmptyCurve( m_flowCapVsStorageCapPlot,
-                                                   dateTime.toString(),
-                                                   m_dateToColorMap[dateTime] );
+    RiuQwtPlotCurve* plotCurve =
+        createEmptyCurve( m_flowCapVsStorageCapPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
     plotCurve->setSamplesFromXValuesAndYValues( xVals, yVals, false );
     m_flowCapVsStorageCapPlot->replot();
 }

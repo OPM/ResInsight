@@ -66,8 +66,7 @@ void RicPasteFeatureImpl::referencesFromClipboard( std::vector<QString>& referen
     QClipboard* clipboard = QApplication::clipboard();
     if ( !clipboard ) return;
 
-    const MimeDataWithReferences* mimeDataReferences = dynamic_cast<const MimeDataWithReferences*>(
-        clipboard->mimeData() );
+    const MimeDataWithReferences* mimeDataReferences = dynamic_cast<const MimeDataWithReferences*>( clipboard->mimeData() );
     if ( !mimeDataReferences ) return;
 
     referenceList = mimeDataReferences->references();

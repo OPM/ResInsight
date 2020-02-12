@@ -75,13 +75,7 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
                     "" );
 
     RICF_InitField( &m_performTransScaling, "performTransScaling", false, "Perform Transmissibility Scaling", "", "", "" );
-    RICF_InitField( &m_transScalingTimeStep,
-                    "transScalingTimeStep",
-                    0,
-                    "Transmissibility Scaling Pressure Time Step",
-                    "",
-                    "",
-                    "" );
+    RICF_InitField( &m_transScalingTimeStep, "transScalingTimeStep", 0, "Transmissibility Scaling Pressure Time Step", "", "", "" );
     RICF_InitField( &m_transScalingInitialWBHP,
                     "transScalingWBHPFromSummary",
                     RicExportCompletionDataSettingsUi::TransScalingWBHPSource(),
@@ -89,13 +83,7 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
                     "",
                     "",
                     "" );
-    RICF_InitField( &m_transScalingWBHP,
-                    "transScalingWBHP",
-                    200.0,
-                    "Transmissibility Scaling Constant WBHP Value",
-                    "",
-                    "",
-                    "" );
+    RICF_InitField( &m_transScalingWBHP, "transScalingWBHP", 200.0, "Transmissibility Scaling Constant WBHP Value", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,8 +156,8 @@ RicfCommandResponse RicfExportWellPathCompletions::execute()
     {
         for ( const QString& wellPathName : m_wellPathNames() )
         {
-            RimWellPath* wellPath = RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPathByName(
-                wellPathName );
+            RimWellPath* wellPath =
+                RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPathByName( wellPathName );
             if ( wellPath )
             {
                 wellPaths.push_back( wellPath );

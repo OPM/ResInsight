@@ -78,9 +78,7 @@ public:
     std::vector<RimBoxIntersection*>           intersectionBoxes() const;
 
 protected:
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle* objectToggleField() override;
 
 private:

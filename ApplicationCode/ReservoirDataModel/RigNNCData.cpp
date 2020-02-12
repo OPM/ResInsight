@@ -48,11 +48,8 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
         std::vector<cvf::Vec3d>            connectionIntersections;
         cvf::StructGridInterface::FaceType connectionFace = cvf::StructGridInterface::NO_FACE;
 
-        connectionFace = RigCellFaceGeometryTools::calculateCellFaceOverlap( c1,
-                                                                             c2,
-                                                                             mainGrid,
-                                                                             &connectionPolygon,
-                                                                             &connectionIntersections );
+        connectionFace =
+            RigCellFaceGeometryTools::calculateCellFaceOverlap( c1, c2, mainGrid, &connectionPolygon, &connectionIntersections );
 
         if ( connectionFace != cvf::StructGridInterface::NO_FACE )
         {
@@ -60,9 +57,8 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
 
             m_connections[cnIdx].m_c1Face = connectionFace;
 
-            m_connections[cnIdx].m_polygon = RigCellFaceGeometryTools::extractPolygon( mainGrid.nodes(),
-                                                                                       connectionPolygon,
-                                                                                       connectionIntersections );
+            m_connections[cnIdx].m_polygon =
+                RigCellFaceGeometryTools::extractPolygon( mainGrid.nodes(), connectionPolygon, connectionIntersections );
 
             // Add to search map, possibly not needed
             // m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c1GlobIdx][connectionFace].push_back(cnIdx);
@@ -179,8 +175,7 @@ const std::vector<double>* RigNNCData::staticConnectionScalarResultByName( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>>& RigNNCData::makeDynamicConnectionScalarResult( QString nncDataType,
-                                                                                 size_t  timeStepCount )
+std::vector<std::vector<double>>& RigNNCData::makeDynamicConnectionScalarResult( QString nncDataType, size_t timeStepCount )
 {
     auto& results = m_connectionResults[nncDataType];
     results.resize( timeStepCount );
@@ -245,8 +240,7 @@ const std::vector<std::vector<double>>* RigNNCData::dynamicConnectionScalarResul
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>* RigNNCData::dynamicConnectionScalarResultByName( const QString& nncDataType,
-                                                                            size_t         timeStep ) const
+const std::vector<double>* RigNNCData::dynamicConnectionScalarResultByName( const QString& nncDataType, size_t timeStep ) const
 {
     auto it = m_connectionResults.find( nncDataType );
     if ( it != m_connectionResults.end() )
@@ -262,8 +256,7 @@ const std::vector<double>* RigNNCData::dynamicConnectionScalarResultByName( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>>& RigNNCData::makeGeneratedConnectionScalarResult( QString nncDataType,
-                                                                                   size_t  timeStepCount )
+std::vector<std::vector<double>>& RigNNCData::makeGeneratedConnectionScalarResult( QString nncDataType, size_t timeStepCount )
 {
     auto& results = m_connectionResults[nncDataType];
     results.resize( timeStepCount );
@@ -335,8 +328,7 @@ std::vector<std::vector<double>>* RigNNCData::generatedConnectionScalarResult( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double>* RigNNCData::generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr,
-                                                                  size_t                         timeStep )
+std::vector<double>* RigNNCData::generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr, size_t timeStep )
 {
     QString nncDataType = getNNCDataTypeFromScalarResultIndex( resVarAddr );
     if ( nncDataType.isNull() ) return nullptr;

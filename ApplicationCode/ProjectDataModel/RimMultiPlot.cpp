@@ -511,9 +511,7 @@ caf::PdmFieldHandle* RimMultiPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                     const QVariant&            oldValue,
-                                     const QVariant&            newValue )
+void RimMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 

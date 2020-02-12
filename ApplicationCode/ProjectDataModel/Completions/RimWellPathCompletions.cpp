@@ -450,9 +450,8 @@ void RimWellPathCompletions::defineEditorAttribute( const caf::PdmFieldHandle* f
     else if ( field == &m_fluidInPlaceRegion && lineEditorAttr )
     {
         // Any integer
-        QIntValidator* validator  = new QIntValidator( -std::numeric_limits<int>::max(),
-                                                      std::numeric_limits<int>::max(),
-                                                      nullptr );
+        QIntValidator* validator =
+            new QIntValidator( -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), nullptr );
         lineEditorAttr->validator = validator;
     }
 }

@@ -147,8 +147,8 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuSummaryQwtPlot* 
     {
         if ( m_axisProperties->isLogarithmicScaleEnabled )
         {
-            QwtLogScaleEngine* currentScaleEngine = dynamic_cast<QwtLogScaleEngine*>(
-                qwtPlot->axisScaleEngine( m_axisProperties->qwtPlotAxisType() ) );
+            QwtLogScaleEngine* currentScaleEngine =
+                dynamic_cast<QwtLogScaleEngine*>( qwtPlot->axisScaleEngine( m_axisProperties->qwtPlotAxisType() ) );
             if ( !currentScaleEngine )
             {
                 qwtPlot->setAxisScaleEngine( m_axisProperties->qwtPlotAxisType(), new QwtLogScaleEngine );
@@ -157,8 +157,8 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuSummaryQwtPlot* 
         }
         else
         {
-            QwtLinearScaleEngine* currentScaleEngine = dynamic_cast<QwtLinearScaleEngine*>(
-                qwtPlot->axisScaleEngine( m_axisProperties->qwtPlotAxisType() ) );
+            QwtLinearScaleEngine* currentScaleEngine =
+                dynamic_cast<QwtLinearScaleEngine*>( qwtPlot->axisScaleEngine( m_axisProperties->qwtPlotAxisType() ) );
             QwtDateScaleEngine* dateScaleEngine = dynamic_cast<QwtDateScaleEngine*>( currentScaleEngine );
             if ( !currentScaleEngine || dateScaleEngine )
             {
@@ -212,8 +212,8 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
             {
                 if ( m_axisProperties->showDescription() )
                 {
-                    quantityNameForDisplay = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName(
-                        quantityName );
+                    quantityNameForDisplay =
+                        RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( quantityName );
                 }
 
                 if ( m_axisProperties->showAcronym() )

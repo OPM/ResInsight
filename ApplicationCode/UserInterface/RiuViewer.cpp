@@ -436,8 +436,7 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
             }
 
             {
-                m_shortInfoLabelCompView->setText( "<center>" + compView->ownerCase()->caseUserDescription() +
-                                                   "</center>" );
+                m_shortInfoLabelCompView->setText( "<center>" + compView->ownerCase()->caseUserDescription() + "</center>" );
                 QPoint topLeft = QPoint( compViewItemsXPos, yPos );
                 m_shortInfoLabelCompView->resize( columnWidth, m_shortInfoLabelCompView->sizeHint().height() );
                 m_shortInfoLabelCompView->render( painter, topLeft );
@@ -768,8 +767,7 @@ void RiuViewer::updateLegendLayout()
             {
                 int legendWidth = prefSize.x();
                 legend->setLayoutFixedPosition( cvf::Vec2i( xPos, yPos ) );
-                legend->setRenderSize(
-                    cvf::Vec2ui( legendWidth, viewPortHeight - 2 * border - 2 * edgeAxisBorderHeight ) );
+                legend->setRenderSize( cvf::Vec2ui( legendWidth, viewPortHeight - 2 * border - 2 * edgeAxisBorderHeight ) );
                 xPos += legendWidth + border;
             }
             else
@@ -1464,10 +1462,7 @@ void RiuViewer::updateOverlayItemsStyle()
     QColor progressColor( Qt::green );
     progressColor.setAlphaF( 0.8f );
     backgroundColor.setAlphaF( 0.8f );
-    m_animationProgress->setTextBackgroundAndProgressColor( contrastColor,
-                                                            backgroundColor,
-                                                            backgroundFrameColor,
-                                                            progressColor );
+    m_animationProgress->setTextBackgroundAndProgressColor( contrastColor, backgroundColor, backgroundFrameColor, progressColor );
     m_animationProgressCompView->setTextBackgroundAndProgressColor( contrastColor,
                                                                     backgroundColor,
                                                                     backgroundFrameColor,

@@ -55,13 +55,12 @@ static void        sortStringsByLength( QStringList& strings, bool ascending = t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicRecursiveFileSearchDialogResult
-    RicRecursiveFileSearchDialog::runRecursiveSearchDialog( QWidget*           parent,
-                                                            const QString&     caption,
-                                                            const QString&     dir,
-                                                            const QString&     pathFilter,
-                                                            const QString&     fileNameFilter,
-                                                            const QStringList& fileExtensions )
+RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSearchDialog( QWidget*       parent,
+                                                                                           const QString& caption,
+                                                                                           const QString& dir,
+                                                                                           const QString& pathFilter,
+                                                                                           const QString& fileNameFilter,
+                                                                                           const QStringList& fileExtensions )
 {
     RicRecursiveFileSearchDialog dialog( parent );
 
@@ -501,10 +500,8 @@ void RicRecursiveFileSearchDialog::updateEffectiveFilter()
         pathFilterText = pathFilterText + "...";
     }
 
-    QString effFilterText = QString( "%1%2/%3" )
-                                .arg( rootDirWithEndSeparator() )
-                                .arg( pathFilterText )
-                                .arg( createFileNameFilterList().join( "|" ) );
+    QString effFilterText =
+        QString( "%1%2/%3" ).arg( rootDirWithEndSeparator() ).arg( pathFilterText ).arg( createFileNameFilterList().join( "|" ) );
 
     effFilterText = RiaFilePathTools::removeDuplicatePathSeparators( effFilterText );
 

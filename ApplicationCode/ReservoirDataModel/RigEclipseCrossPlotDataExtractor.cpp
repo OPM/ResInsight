@@ -33,14 +33,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseCrossPlotResult
-    RigEclipseCrossPlotDataExtractor::extract( RigEclipseCaseData*            caseData,
-                                               int                            resultTimeStep,
-                                               const RigEclipseResultAddress& xAddress,
-                                               const RigEclipseResultAddress& yAddress,
-                                               RigGridCrossPlotCurveGrouping  groupingType,
-                                               const RigEclipseResultAddress& groupAddress,
-                                               std::map<int, cvf::UByteArray> timeStepCellVisibilityMap )
+RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract( RigEclipseCaseData*            caseData,
+                                                                     int                            resultTimeStep,
+                                                                     const RigEclipseResultAddress& xAddress,
+                                                                     const RigEclipseResultAddress& yAddress,
+                                                                     RigGridCrossPlotCurveGrouping  groupingType,
+                                                                     const RigEclipseResultAddress& groupAddress,
+                                                                     std::map<int, cvf::UByteArray> timeStepCellVisibilityMap )
 {
     RigEclipseCrossPlotResult result;
 

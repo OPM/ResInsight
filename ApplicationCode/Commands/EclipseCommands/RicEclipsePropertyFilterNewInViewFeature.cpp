@@ -69,8 +69,8 @@ void RicEclipsePropertyFilterNewInViewFeature::onActionTriggered( bool isChecked
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
     if ( !eclView ) return;
 
-    RicEclipsePropertyFilterNewExec* filterExec = new RicEclipsePropertyFilterNewExec(
-        eclView->eclipsePropertyFilterCollection() );
+    RicEclipsePropertyFilterNewExec* filterExec =
+        new RicEclipsePropertyFilterNewExec( eclView->eclipsePropertyFilterCollection() );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( filterExec );
 }
 

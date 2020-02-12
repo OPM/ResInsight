@@ -94,8 +94,8 @@ public:
     }
 };
 
-static bool RiaGetNNCConnections_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetNNCConnections>(
-    RiaGetNNCConnections::commandName() );
+static bool RiaGetNNCConnections_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetNNCConnections>( RiaGetNNCConnections::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -118,9 +118,9 @@ public:
 
         QString propertyName = args[2];
 
-        RigMainGrid*                            mainGrid  = rimCase->eclipseCaseData()->mainGrid();
-        const std::vector<std::vector<double>>* nncValues = mainGrid->nncData()->dynamicConnectionScalarResultByName(
-            propertyName );
+        RigMainGrid*                            mainGrid = rimCase->eclipseCaseData()->mainGrid();
+        const std::vector<std::vector<double>>* nncValues =
+            mainGrid->nncData()->dynamicConnectionScalarResultByName( propertyName );
 
         if ( nncValues == nullptr )
         {
@@ -182,8 +182,8 @@ public:
     }
 };
 
-static bool RiaGetDynamicNNCValues_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetDynamicNNCValues>(
-    RiaGetDynamicNNCValues::commandName() );
+static bool RiaGetDynamicNNCValues_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetDynamicNNCValues>( RiaGetDynamicNNCValues::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -228,8 +228,8 @@ public:
     }
 };
 
-static bool RiaGetStaticNNCValues_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetStaticNNCValues>(
-    RiaGetStaticNNCValues::commandName() );
+static bool RiaGetStaticNNCValues_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetStaticNNCValues>( RiaGetStaticNNCValues::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -300,8 +300,8 @@ public:
     }
 };
 
-static bool RiaGetNNCPropertyNames_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetNNCPropertyNames>(
-    RiaGetNNCPropertyNames::commandName() );
+static bool RiaGetNNCPropertyNames_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetNNCPropertyNames>( RiaGetNNCPropertyNames::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -480,20 +480,19 @@ public:
 
         size_t                            connectionCountFromOctave = m_bytesPerTimeStepToRead / sizeof( double );
         size_t                            connectionCount           = nncData->connections().size();
-        std::vector<std::vector<double>>* resultsToAdd              = nncData->generatedConnectionScalarResultByName(
-            m_currentPropertyName );
+        std::vector<std::vector<double>>* resultsToAdd =
+            nncData->generatedConnectionScalarResultByName( m_currentPropertyName );
 
         if ( connectionCountFromOctave != connectionCount )
         {
-            server->showErrorMessage(
-                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                RiaSocketServer::tr(
-                    "The number of connections in the data coming from octave does not match the case: '%1'\n" )
-                    .arg( m_currentReservoir->caseUserDescription() ) +
-                RiaSocketServer::tr( "   Octave: %1\n" ).arg( connectionCountFromOctave ) +
-                RiaSocketServer::tr( "  %1: Connection count: %2" )
-                    .arg( m_currentReservoir->caseUserDescription() )
-                    .arg( connectionCount ) );
+            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                                      RiaSocketServer::tr( "The number of connections in the data coming from octave "
+                                                           "does not match the case: '%1'\n" )
+                                          .arg( m_currentReservoir->caseUserDescription() ) +
+                                      RiaSocketServer::tr( "   Octave: %1\n" ).arg( connectionCountFromOctave ) +
+                                      RiaSocketServer::tr( "  %1: Connection count: %2" )
+                                          .arg( m_currentReservoir->caseUserDescription() )
+                                          .arg( connectionCount ) );
 
             connectionCountFromOctave        = 0;
             m_invalidConnectionCountDetected = true;
@@ -546,8 +545,8 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>( m_currentReservoir );
                 if ( inputRes )
                 {
-                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty(
-                        m_currentPropertyName );
+                    RimEclipseInputProperty* inputProperty =
+                        inputRes->inputPropertyCollection()->findInputProperty( m_currentPropertyName );
                     if ( !inputProperty )
                     {
                         inputProperty                 = new RimEclipseInputProperty;
@@ -560,8 +559,8 @@ public:
                     inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
                 }
 
-                if ( m_currentEclResultAddress
-                         .isValid() && // Will never be valid because it is never set. What is correct behaviour ?
+                if ( m_currentEclResultAddress.isValid() && // Will never be valid because it is never set. What is
+                                                            // correct behaviour ?
                      m_currentReservoir->eclipseCaseData() &&
                      m_currentReservoir->eclipseCaseData()->results( m_porosityModelEnum ) )
                 {
@@ -607,5 +606,5 @@ private:
     bool m_invalidConnectionCountDetected;
 };
 
-static bool RiaSetNNCProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaSetNNCProperty>(
-    RiaSetNNCProperty::commandName() );
+static bool RiaSetNNCProperty_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaSetNNCProperty>( RiaSetNNCProperty::commandName() );

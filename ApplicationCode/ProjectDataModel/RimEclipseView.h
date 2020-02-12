@@ -133,9 +133,7 @@ public:
     void calculateVisibleWellCellsIncFence( cvf::UByteArray* visibleCells, RigGridBase* grid );
 
     // Overridden PDM methods:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void updateIconStateForFilterCollections();
 
     void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;

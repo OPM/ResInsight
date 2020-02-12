@@ -113,9 +113,7 @@ RimWellLogPlot::RimWellLogPlot()
     m_plots.uiCapability()->setUiHidden( true );
 
     m_availableDepthUnits = {RiaDefines::UNIT_METER, RiaDefines::UNIT_FEET};
-    m_availableDepthTypes = {RiaDefines::MEASURED_DEPTH,
-                             RiaDefines::TRUE_VERTICAL_DEPTH,
-                             RiaDefines::TRUE_VERTICAL_DEPTH_RKB};
+    m_availableDepthTypes = {RiaDefines::MEASURED_DEPTH, RiaDefines::TRUE_VERTICAL_DEPTH, RiaDefines::TRUE_VERTICAL_DEPTH_RKB};
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
@@ -338,10 +336,7 @@ void RimWellLogPlot::updateZoom()
 
     if ( m_viewer )
     {
-        m_viewer->updateVerticalScrollBar( m_minVisibleDepth(),
-                                           m_maxVisibleDepth(),
-                                           m_minAvailableDepth,
-                                           m_maxAvailableDepth );
+        m_viewer->updateVerticalScrollBar( m_minVisibleDepth(), m_maxVisibleDepth(), m_minAvailableDepth, m_maxAvailableDepth );
     }
 }
 

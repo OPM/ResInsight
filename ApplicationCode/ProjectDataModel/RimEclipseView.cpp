@@ -511,9 +511,8 @@ void RimEclipseView::onCreateDisplayModel()
 
         std::set<RivCellSetEnum> faultGeometryTypesToAppend = allVisibleFaultGeometryTypes();
         RivCellSetEnum           faultLabelType =
-            m_reservoirGridPartManager
-                ->geometryTypeForFaultLabels( faultGeometryTypesToAppend,
-                                              faultCollection()->isShowingFaultsAndFaultsOutsideFilters() );
+            m_reservoirGridPartManager->geometryTypeForFaultLabels( faultGeometryTypesToAppend,
+                                                                    faultCollection()->isShowingFaultsAndFaultsOutsideFilters() );
 
         for ( size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx )
         {
@@ -677,8 +676,7 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
         else
         {
             m_reservoirGridPartManager->ensureDynamicGeometryPartsCreated( PROPERTY_FILTERED, m_currentTimeStep );
-            m_reservoirGridPartManager->ensureDynamicGeometryPartsCreated( PROPERTY_FILTERED_WELL_CELLS,
-                                                                           m_currentTimeStep );
+            m_reservoirGridPartManager->ensureDynamicGeometryPartsCreated( PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep );
         }
 
         setVisibleGridParts( geometriesToRecolor );
@@ -700,9 +698,8 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
         }
 
         RivCellSetEnum faultLabelType =
-            m_reservoirGridPartManager
-                ->geometryTypeForFaultLabels( faultGeometryTypesToAppend,
-                                              faultCollection()->isShowingFaultsAndFaultsOutsideFilters() );
+            m_reservoirGridPartManager->geometryTypeForFaultLabels( faultGeometryTypesToAppend,
+                                                                    faultCollection()->isShowingFaultsAndFaultsOutsideFilters() );
         if ( faultLabelType == PROPERTY_FILTERED )
         {
             m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel( frameParts.p(),
@@ -715,16 +712,16 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
         }
 
         // Set the transparency on all the Wellcell parts before setting the result color
-        float opacity = static_cast<float>(
-            1 - cvf::Math::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
+        float opacity =
+            static_cast<float>( 1 - cvf::Math::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
         m_reservoirGridPartManager->updateCellColor( PROPERTY_FILTERED_WELL_CELLS,
                                                      m_currentTimeStep,
                                                      cvf::Color4f( cvf::Color3f( cvf::Color3::WHITE ), opacity ) );
 
         if ( this->showInactiveCells() )
         {
-            if ( this->rangeFilterCollection()
-                     ->hasActiveFilters() ) // Wells not considered, because we do not have a INACTIVE_WELL_CELLS group yet.
+            if ( this->rangeFilterCollection()->hasActiveFilters() ) // Wells not considered, because we do not have a
+                                                                     // INACTIVE_WELL_CELLS group yet.
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel( frameParts.p(),
                                                                               RANGE_FILTERED_INACTIVE,
@@ -1023,8 +1020,8 @@ void RimEclipseView::updateStaticCellColors( RivCellSetEnum geometryType )
 //--------------------------------------------------------------------------------------------------
 cvf::Color4f RimEclipseView::colorFromCellCategory( RivCellSetEnum geometryType ) const
 {
-    float opacity = static_cast<float>(
-        1 - cvf::Math::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
+    float opacity =
+        static_cast<float>( 1 - cvf::Math::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
     cvf::Color4f color( cvf::Color3::ORANGE );
 
     switch ( geometryType )
@@ -2042,9 +2039,8 @@ void RimEclipseView::calculateCurrentTotalCellVisibility( cvf::UByteArray* total
 
         for ( size_t gpIdx = 0; gpIdx < m_visibleGridParts.size(); ++gpIdx )
         {
-            const cvf::UByteArray* visibility = m_reservoirGridPartManager->cellVisibility( m_visibleGridParts[gpIdx],
-                                                                                            gridIdx,
-                                                                                            timeStep );
+            const cvf::UByteArray* visibility =
+                m_reservoirGridPartManager->cellVisibility( m_visibleGridParts[gpIdx], gridIdx, timeStep );
 
             for ( int lcIdx = 0; lcIdx < gridCellCount; ++lcIdx )
             {

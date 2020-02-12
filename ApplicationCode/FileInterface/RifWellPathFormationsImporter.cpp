@@ -40,8 +40,8 @@ cvf::ref<RigWellPathFormations> RifWellPathFormationsImporter::readWellPathForma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigWellPathFormations> RifWellPathFormationsImporter::reloadWellPathFormations( const QString& formationFilePath,
-                                                                                         const QString& wellName )
+cvf::ref<RigWellPathFormations>
+    RifWellPathFormationsImporter::reloadWellPathFormations( const QString& formationFilePath, const QString& wellName )
 {
     m_fileNameToWellPathFormationMap.erase( formationFilePath );
 

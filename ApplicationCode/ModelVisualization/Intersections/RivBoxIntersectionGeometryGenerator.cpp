@@ -147,14 +147,11 @@ public:
     {
         std::array<cvf::Plane, 6> boxPlanes;
 
-        boxPlanes[FaceType::POS_I].setFromPointAndNormal( m_origin.translation() + m_size,
-                                                          cvf::Vec3d( m_origin.col( 0 ) ) );
+        boxPlanes[FaceType::POS_I].setFromPointAndNormal( m_origin.translation() + m_size, cvf::Vec3d( m_origin.col( 0 ) ) );
         boxPlanes[FaceType::NEG_I].setFromPointAndNormal( m_origin.translation(), -cvf::Vec3d( m_origin.col( 0 ) ) );
-        boxPlanes[FaceType::POS_J].setFromPointAndNormal( m_origin.translation() + m_size,
-                                                          cvf::Vec3d( m_origin.col( 1 ) ) );
+        boxPlanes[FaceType::POS_J].setFromPointAndNormal( m_origin.translation() + m_size, cvf::Vec3d( m_origin.col( 1 ) ) );
         boxPlanes[FaceType::NEG_J].setFromPointAndNormal( m_origin.translation(), -cvf::Vec3d( m_origin.col( 1 ) ) );
-        boxPlanes[FaceType::POS_K].setFromPointAndNormal( m_origin.translation() + m_size,
-                                                          cvf::Vec3d( m_origin.col( 2 ) ) );
+        boxPlanes[FaceType::POS_K].setFromPointAndNormal( m_origin.translation() + m_size, cvf::Vec3d( m_origin.col( 2 ) ) );
         boxPlanes[FaceType::NEG_K].setFromPointAndNormal( m_origin.translation(), -cvf::Vec3d( m_origin.col( 2 ) ) );
 
         return boxPlanes;
@@ -421,14 +418,13 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays()
 
                         if ( cvx1.isVxIdsNative && cvx2.isVxIdsNative )
                         {
-                            m_triVxToCellCornerWeights.push_back(
-                                RivIntersectionVertexWeights( cvx1.clippedEdgeVx1Id,
-                                                              cvx1.clippedEdgeVx2Id,
-                                                              cvx1.normDistFromEdgeVx1,
-                                                              cvx2.clippedEdgeVx1Id,
-                                                              cvx2.clippedEdgeVx2Id,
-                                                              cvx2.normDistFromEdgeVx1,
-                                                              cvx.normDistFromEdgeVx1 ) );
+                            m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights( cvx1.clippedEdgeVx1Id,
+                                                                                                cvx1.clippedEdgeVx2Id,
+                                                                                                cvx1.normDistFromEdgeVx1,
+                                                                                                cvx2.clippedEdgeVx1Id,
+                                                                                                cvx2.clippedEdgeVx2Id,
+                                                                                                cvx2.normDistFromEdgeVx1,
+                                                                                                cvx.normDistFromEdgeVx1 ) );
                         }
                         else
                         {

@@ -113,8 +113,8 @@ void RimCellEdgeColors::loadResult()
         RigEclipseResultAddress resultAddr = m_singleVarEdgeResultColors->eclipseResultAddress();
         for ( int cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx )
         {
-            m_resultNameToAddressPairs[cubeFaceIdx] = std::make_pair( m_singleVarEdgeResultColors->resultVariable(),
-                                                                      resultAddr );
+            m_resultNameToAddressPairs[cubeFaceIdx] =
+                std::make_pair( m_singleVarEdgeResultColors->resultVariable(), resultAddr );
         }
     }
     else
@@ -472,9 +472,7 @@ void RimCellEdgeColors::minMaxCellEdgeValues( double& min, double& max )
 
                 {
                     double cMin, cMax;
-                    m_reservoirView->currentGridCellResults()->minMaxCellScalarValues( resultAddresses[faceIdx],
-                                                                                       cMin,
-                                                                                       cMax );
+                    m_reservoirView->currentGridCellResults()->minMaxCellScalarValues( resultAddresses[faceIdx], cMin, cMax );
 
                     globalMin = CVF_MIN( globalMin, cMin );
                     globalMax = CVF_MAX( globalMax, cMax );

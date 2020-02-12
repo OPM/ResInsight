@@ -84,12 +84,7 @@ RimGeoMechCase::RimGeoMechCase( void )
                        "Used to calculate the SE:SFI result",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNames,
-                                "ElementPropertyFileNames",
-                                "Element Property Files",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNames, "ElementPropertyFileNames", "Element Property Files", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNameIndexUiSelection,
                                 "ElementPropertyFileNameIndexUiSelection",

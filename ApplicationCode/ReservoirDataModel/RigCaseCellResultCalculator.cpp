@@ -111,9 +111,9 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
 
     // Initialize difference result with infinity for correct number of time steps and values per time step
     {
-        const std::vector<std::vector<double>>& srcFrames  = sourceCaseResults->cellScalarResults( nativeAddress );
-        std::vector<std::vector<double>>* diffResultFrames = sourceCaseResults->modifiableCellScalarResultTimesteps(
-            address );
+        const std::vector<std::vector<double>>& srcFrames = sourceCaseResults->cellScalarResults( nativeAddress );
+        std::vector<std::vector<double>>*       diffResultFrames =
+            sourceCaseResults->modifiableCellScalarResultTimesteps( address );
         diffResultFrames->resize( srcFrames.size() );
         for ( size_t fIdx = 0; fIdx < srcFrames.size(); ++fIdx )
         {
@@ -162,11 +162,7 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
             }
 
             cvf::ref<RigResultAccessor> baseResultAccessor =
-                RigResultAccessorFactory::createFromResultAddress( baseCase,
-                                                                   gridIdx,
-                                                                   porosityModel,
-                                                                   baseFrameIdx,
-                                                                   nativeAddress );
+                RigResultAccessorFactory::createFromResultAddress( baseCase, gridIdx, porosityModel, baseFrameIdx, nativeAddress );
 
             for ( size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++ )
             {

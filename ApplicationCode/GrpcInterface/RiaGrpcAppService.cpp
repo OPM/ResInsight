@@ -45,9 +45,8 @@ grpc::Status RiaGrpcAppService::Exit( grpc::ServerContext* context, const rips::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcAppService::GetRuntimeInfo( grpc::ServerContext* context,
-                                                const rips::Empty*   request,
-                                                rips::RuntimeInfo*   reply )
+grpc::Status
+    RiaGrpcAppService::GetRuntimeInfo( grpc::ServerContext* context, const rips::Empty* request, rips::RuntimeInfo* reply )
 {
     rips::ApplicationTypeEnum appType = rips::CONSOLE_APPLICATION;
     if ( RiaGuiApplication::isRunning() )
@@ -72,5 +71,5 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcAppService::createCallbacks()
                                                                             &Self::RequestGetRuntimeInfo )};
 }
 
-static bool RiaGrpcAppInfoService_init = RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcAppService>(
-    typeid( RiaGrpcAppService ).hash_code() );
+static bool RiaGrpcAppInfoService_init =
+    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcAppService>( typeid( RiaGrpcAppService ).hash_code() );

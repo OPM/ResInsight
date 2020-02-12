@@ -54,10 +54,10 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
     const std::vector<RimWellPath*>&      wellPaths,
     const std::vector<RimSimWellInView*>& simWells )
 {
-    RiaApplication* app        = RiaApplication::instance();
-    RimProject*     project    = app->project();
-    QString         defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder(
-        "COMPLETIONS" );
+    RiaApplication* app     = RiaApplication::instance();
+    RimProject*     project = app->project();
+    QString         defaultDir =
+        RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "COMPLETIONS" );
 
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
 

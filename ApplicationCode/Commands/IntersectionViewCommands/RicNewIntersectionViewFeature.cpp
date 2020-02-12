@@ -64,11 +64,10 @@ void RicNewIntersectionViewFeature::onActionTriggered( bool isChecked )
         {
             if ( intersection->direction() != RimExtrudedCurveIntersection::CS_VERTICAL )
             {
-                QString text =
-                    QString(
-                        "The intersection view only supports vertical intersections.\n"
-                        "The intersection '%1' is not vertical but a converted version will be shown in the view ." )
-                        .arg( intersection->name() );
+                QString text = QString( "The intersection view only supports vertical intersections.\n"
+                                        "The intersection '%1' is not vertical but a converted version will be shown "
+                                        "in the view ." )
+                                   .arg( intersection->name() );
 
                 QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "New Intersection View", text );
             }
@@ -111,8 +110,8 @@ std::set<RimExtrudedCurveIntersection*> RicNewIntersectionViewFeature::selectedI
     RiuGeneralSelectionItem* generalSelectionItem = static_cast<RiuGeneralSelectionItem*>( selItem );
     if ( generalSelectionItem )
     {
-        RimExtrudedCurveIntersection* intersection = dynamic_cast<RimExtrudedCurveIntersection*>(
-            generalSelectionItem->m_object );
+        RimExtrudedCurveIntersection* intersection =
+            dynamic_cast<RimExtrudedCurveIntersection*>( generalSelectionItem->m_object );
         if ( intersection )
         {
             objects.insert( intersection );

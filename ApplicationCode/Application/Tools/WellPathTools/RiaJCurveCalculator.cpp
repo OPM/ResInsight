@@ -59,8 +59,7 @@ RiaJCurveCalculator::RiaJCurveCalculator( cvf::Vec3d p1, double azi1, double inc
         m_curveStatus = FAILED_RADIUS_TOO_LARGE;
 
         RiaArcCurveCalculator arc( p1, t1, p2 );
-        if ( arc.curveStatus() == RiaArcCurveCalculator::OK ||
-             arc.curveStatus() == RiaArcCurveCalculator::OK_STRAIGHT_LINE )
+        if ( arc.curveStatus() == RiaArcCurveCalculator::OK || arc.curveStatus() == RiaArcCurveCalculator::OK_STRAIGHT_LINE )
         {
             m_c1               = arc.center();
             m_n1               = arc.normal();

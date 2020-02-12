@@ -72,8 +72,8 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
 
     RiaGuiApplication::clearAllSelections();
 
-    const QStringList fileNames = RicImportGeneralDataFeature::getEclipseFileNamesWithDialog(
-        RiaDefines::ECLIPSE_RESULT_GRID );
+    const QStringList fileNames =
+        RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ECLIPSE_RESULT_GRID );
     if ( fileNames.isEmpty() ) return;
 
     const QString fileName = fileNames[0];
@@ -101,8 +101,8 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
         RimSummaryCaseMainCollection* sumCaseColl = RiaSummaryTools::summaryCaseMainCollection();
         if ( sumCaseColl )
         {
-            RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>(
-                sumCaseColl->findSummaryCaseFromEclipseResultCase( selectedCase ) );
+            RimGridSummaryCase* gridSummaryCase =
+                dynamic_cast<RimGridSummaryCase*>( sumCaseColl->findSummaryCaseFromEclipseResultCase( selectedCase ) );
             if ( gridSummaryCase )
             {
                 gridSummaryCase->setAssociatedEclipseCase( selectedCase );

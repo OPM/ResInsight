@@ -37,7 +37,8 @@ CAF_CMD_SOURCE_INIT( RicNewDerivedSummaryFeature, "RicNewDerivedSummaryFeature" 
 //--------------------------------------------------------------------------------------------------
 bool RicNewDerivedSummaryFeature::isCommandEnabled()
 {
-    std::vector<RimSummaryCaseMainCollection*> mainColls = caf::selectedObjectsByTypeStrict<RimSummaryCaseMainCollection*>();
+    std::vector<RimSummaryCaseMainCollection*> mainColls =
+        caf::selectedObjectsByTypeStrict<RimSummaryCaseMainCollection*>();
 
     return mainColls.size() == 1;
 }

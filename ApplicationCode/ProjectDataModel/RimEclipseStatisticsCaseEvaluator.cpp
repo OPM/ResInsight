@@ -205,7 +205,8 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                 }
 
                 // Build data access objects for destination scalar results
-                // Find the created result container, if any, and put its resultAccessor into the enum indexed destination collection
+                // Find the created result container, if any, and put its resultAccessor into the enum indexed
+                // destination collection
 
                 cvf::Collection<RigResultModifier> destinationDataAccessList;
                 std::vector<QString>               statisticalResultNames( STAT_PARAM_COUNT );
@@ -222,12 +223,13 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 
                 for ( size_t stIdx = 0; stIdx < statisticalResultNames.size(); ++stIdx )
                 {
-                    cvf::ref<RigResultModifier> resultModifier = RigResultModifierFactory::
-                        createResultModifier( m_destinationCase,
-                                              grid->gridIndex(),
-                                              poroModel,
-                                              dataAccessTimeStepIndex,
-                                              RigEclipseResultAddress( resultType, statisticalResultNames[stIdx] ) );
+                    cvf::ref<RigResultModifier> resultModifier =
+                        RigResultModifierFactory::createResultModifier( m_destinationCase,
+                                                                        grid->gridIndex(),
+                                                                        poroModel,
+                                                                        dataAccessTimeStepIndex,
+                                                                        RigEclipseResultAddress( resultType,
+                                                                                                 statisticalResultNames[stIdx] ) );
                     destinationDataAccessList.push_back( resultModifier.p() );
                 }
 

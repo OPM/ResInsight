@@ -94,8 +94,7 @@ RicImportGeneralDataFeature::OpenCaseResults
             return OpenCaseResults();
         }
         results.eclipseSummaryFiles = eclipseSummaryFiles;
-        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ECLIPSE_SUMMARY_FILE ),
-                                                                defaultDir );
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ECLIPSE_SUMMARY_FILE ), defaultDir );
     }
     return results;
 }
@@ -191,10 +190,8 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectory( defaultDirectoryLabel( fileTypes ) );
 
-    QStringList fileNames = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                           "Import Data File",
-                                                           defaultDir,
-                                                           fullPattern );
+    QStringList fileNames =
+        QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(), "Import Data File", defaultDir, fullPattern );
     return fileNames;
 }
 

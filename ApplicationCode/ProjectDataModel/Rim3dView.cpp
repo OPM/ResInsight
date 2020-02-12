@@ -712,9 +712,9 @@ void Rim3dView::setupBeforeSave()
 {
     if ( m_viewer )
     {
-        hasUserRequestedAnimation =
-            m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The variable is updated as we go,
-                                           // and store the user intentions. But I guess that in practice...
+        hasUserRequestedAnimation = m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The
+                                                                   // variable is updated as we go, and store the user
+                                                                   // intentions. But I guess that in practice...
         m_cameraPosition        = m_viewer->mainCamera()->viewMatrix();
         m_cameraPointOfInterest = m_viewer->pointOfInterest();
     }
@@ -801,9 +801,7 @@ caf::PdmFieldHandle* Rim3dView::backgroundColorField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                  const QVariant&            oldValue,
-                                  const QVariant&            newValue )
+void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
 

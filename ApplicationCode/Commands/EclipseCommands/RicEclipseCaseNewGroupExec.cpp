@@ -60,8 +60,7 @@ void RicEclipseCaseNewGroupExec::redo()
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT( proj );
 
-    RimEclipseCaseCollection* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels()
-                                                                      : nullptr;
+    RimEclipseCaseCollection* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels() : nullptr;
 
     if ( analysisModels )
     {

@@ -49,9 +49,7 @@ public:
     ~RimFishboneWellPath() override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void setCoordinates( std::vector<cvf::Vec3d> coordinates );
     void setMeasuredDepths( std::vector<double> measuredDepths );

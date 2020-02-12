@@ -75,11 +75,10 @@ public:
 
     bool isUsingGlobalActiveIndex( const RigEclipseResultAddress& resVarAddr ) const;
 
-    static const std::vector<double>*
-        getResultIndexableStaticResult( RigActiveCellInfo*      actCellInfo,
-                                        RigCaseCellResultsData* gridCellResults,
-                                        QString                 porvResultName,
-                                        std::vector<double>&    activeCellsResultsTempContainer );
+    static const std::vector<double>* getResultIndexableStaticResult( RigActiveCellInfo*      actCellInfo,
+                                                                      RigCaseCellResultsData* gridCellResults,
+                                                                      QString                 porvResultName,
+                                                                      std::vector<double>& activeCellsResultsTempContainer );
     // Statistic values of the results
 
     void recalculateStatistics( const RigEclipseResultAddress& resVarAddr );
@@ -88,8 +87,7 @@ public:
     void posNegClosestToZero( const RigEclipseResultAddress& resVarAddr, double& pos, double& neg );
     void posNegClosestToZero( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& pos, double& neg );
     const std::vector<size_t>& cellScalarValuesHistogram( const RigEclipseResultAddress& resVarAddr );
-    const std::vector<size_t>& cellScalarValuesHistogram( const RigEclipseResultAddress& resVarAddr,
-                                                          size_t                         timeStepIndex );
+    const std::vector<size_t>& cellScalarValuesHistogram( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
     void p10p90CellScalarValues( const RigEclipseResultAddress& resVarAddr, double& p10, double& p90 );
     void p10p90CellScalarValues( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& p10, double& p90 );
     void meanCellScalarValues( const RigEclipseResultAddress& resVarAddr, double& meanValue );
@@ -148,9 +146,8 @@ public:
 
 private:
     size_t findOrLoadKnownScalarResult( const RigEclipseResultAddress& resVarAddr );
-    size_t findOrLoadKnownScalarResultByResultTypeOrder(
-        const RigEclipseResultAddress&                resVarAddr,
-        const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder );
+    size_t findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress&                resVarAddr,
+                                                         const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder );
 
     size_t findOrLoadKnownScalarResultForTimeStep( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
     size_t findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored );
@@ -200,8 +197,8 @@ private:
     cvf::cref<RigFormationNames>  m_activeFormationNamesData;
     cvf::ref<RigAllenDiagramData> m_allenDiagramData;
 
-    std::vector<std::vector<std::vector<double>>>
-                                            m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep
+    std::vector<std::vector<std::vector<double>>> m_cellScalarResults; ///< Scalar results on the complete reservoir for
+                                                                       ///< each Result index (ResultVariable) and timestep
     cvf::Collection<RigStatisticsDataCache> m_statisticsDataCache;
     std::vector<RigEclipseResultInfo>       m_resultInfos;
 

@@ -81,8 +81,8 @@ public:
     }
 };
 
-static bool RiaGetWellNames_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellNames>(
-    RiaGetWellNames::commandName() );
+static bool RiaGetWellNames_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellNames>( RiaGetWellNames::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -124,9 +124,8 @@ public:
 
         if ( currentWellResult.isNull() )
         {
-            server->showErrorMessage(
-                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                RiaSocketServer::tr( "Could not find the well with name : \"%1\"" ).arg( wellName ) );
+            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                                      RiaSocketServer::tr( "Could not find the well with name : \"%1\"" ).arg( wellName ) );
 
             return true;
         }
@@ -220,8 +219,8 @@ public:
     }
 };
 
-static bool RiaGetWellStatus_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellStatus>(
-    RiaGetWellStatus::commandName() );
+static bool RiaGetWellStatus_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellStatus>( RiaGetWellStatus::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -260,9 +259,8 @@ public:
 
         if ( currentWellResult.isNull() )
         {
-            server->showErrorMessage(
-                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                RiaSocketServer::tr( "Could not find the well with name : \"%1\"" ).arg( wellName ) );
+            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                                      RiaSocketServer::tr( "Could not find the well with name : \"%1\"" ).arg( wellName ) );
 
             socketStream << (quint64)0;
             return true;
@@ -340,5 +338,5 @@ public:
     }
 };
 
-static bool RiaGetWellCells_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellCells>(
-    RiaGetWellCells::commandName() );
+static bool RiaGetWellCells_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellCells>( RiaGetWellCells::commandName() );

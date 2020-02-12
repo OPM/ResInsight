@@ -50,9 +50,7 @@ private:
     virtual RimIntersectionResultsDefinitionCollection* findSeparateResultsCollection() override;
 
     caf::PdmFieldHandle* userDescriptionField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     virtual void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     caf::PdmProxyValueField<QString> m_name;

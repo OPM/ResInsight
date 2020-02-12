@@ -100,13 +100,7 @@ RimWellPath::RimWellPath()
     m_showWellPath.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_wellPathRadiusScaleFactor, "WellPathRadiusScale", 1.0, "Well Path Radius Scale", "", "", "" );
-    CAF_PDM_InitField( &m_wellPathColor,
-                       "WellPathColor",
-                       cvf::Color3f( 0.999f, 0.333f, 0.999f ),
-                       "Well Path Color",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_wellPathColor, "WellPathColor", cvf::Color3f( 0.999f, 0.333f, 0.999f ), "Well Path Color", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_completions, "Completions", "Completions", "", "", "" );
     m_completions = new RimWellPathCompletions;
@@ -349,9 +343,7 @@ const RigWellPath* RimWellPath::wellPathGeometry() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                    const QVariant&            oldValue,
-                                    const QVariant&            newValue )
+void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted( proj );

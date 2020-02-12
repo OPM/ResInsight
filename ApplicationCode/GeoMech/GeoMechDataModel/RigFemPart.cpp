@@ -147,7 +147,8 @@ void RigFemPart::calculateElmNeighbors()
 {
     // Calculate elm neighbors: elmIdxs matching each face of the element
 
-    RigFemFaceComparator fComp; // Outside loop to avoid memory alloc/dealloc. Rember to set as private in opm parallelization
+    RigFemFaceComparator fComp; // Outside loop to avoid memory alloc/dealloc. Rember to set as private in opm
+                                // parallelization
     std::vector<int> candidates; //
 
     m_elmNeighbors.resize( this->elementCount() );
@@ -228,10 +229,9 @@ void RigFemPart::calculateElmNeighbors()
                 bool isNeighborFound = false;
                 for ( int nbcFaceIdx = 0; nbcFaceIdx < nbcFaceCount; ++nbcFaceIdx )
                 {
-                    int        nbcFaceNodeCount    = 0;
-                    const int* nbcLocalFaceIndices = RigFemTypes::localElmNodeIndicesForFace( nbcElmType,
-                                                                                              nbcFaceIdx,
-                                                                                              &nbcFaceNodeCount );
+                    int        nbcFaceNodeCount = 0;
+                    const int* nbcLocalFaceIndices =
+                        RigFemTypes::localElmNodeIndicesForFace( nbcElmType, nbcFaceIdx, &nbcFaceNodeCount );
 
                     // Compare faces
                     if ( fComp.isSameButOposite( nbcElmNodes, nbcLocalFaceIndices, nbcFaceNodeCount ) )
@@ -416,9 +416,7 @@ size_t RigFemPart::elementNodeResultCount() const
 //--------------------------------------------------------------------------------------------------
 /// Generate a sensible index into the result vector based on which result position type is used.
 //--------------------------------------------------------------------------------------------------
-size_t RigFemPart::resultValueIdxFromResultPosType( RigFemResultPosEnum resultPosType,
-                                                    int                 elementIdx,
-                                                    int                 elmLocalNodeIdx ) const
+size_t RigFemPart::resultValueIdxFromResultPosType( RigFemResultPosEnum resultPosType, int elementIdx, int elmLocalNodeIdx ) const
 {
     if ( resultPosType == RIG_ELEMENT || resultPosType == RIG_FORMATION_NAMES )
     {

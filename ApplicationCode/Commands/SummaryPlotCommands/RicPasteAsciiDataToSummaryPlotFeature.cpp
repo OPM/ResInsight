@@ -51,8 +51,8 @@ CAF_CMD_SOURCE_INIT( RicPasteAsciiDataToSummaryPlotFeature, "RicPasteAsciiDataTo
 //--------------------------------------------------------------------------------------------------
 bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     if ( !destinationObject ) return false;
 
@@ -71,8 +71,8 @@ bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     RimSummaryPlot* summaryPlot = nullptr;
     destinationObject->firstAncestorOrThisOfType( summaryPlot );
 
@@ -254,8 +254,8 @@ RicPasteAsciiDataToSummaryPlotFeature::CurveType
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicPasteAsciiDataToSummaryPlotFeature::createSummaryPlotAndAddToPlotCollection(
-    RimSummaryPlotCollection* plotCollection )
+RimSummaryPlot*
+    RicPasteAsciiDataToSummaryPlotFeature::createSummaryPlotAndAddToPlotCollection( RimSummaryPlotCollection* plotCollection )
 {
     QString name = QString( "Summary Plot %1" ).arg( plotCollection->summaryPlots.size() + 1 );
 

@@ -79,8 +79,7 @@ bool RiaSummaryCurveDefinition::isEnsembleCurve() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition& curveDefinition,
-                                              std::vector<double>*             values )
+void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition& curveDefinition, std::vector<double>* values )
 {
     CVF_ASSERT( values );
 

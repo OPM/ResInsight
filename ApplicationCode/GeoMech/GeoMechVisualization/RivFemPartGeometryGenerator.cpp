@@ -203,10 +203,9 @@ void RivFemPartGeometryGenerator::computeArrays()
                     continue; // Invisible face
                 }
 
-                int        faceNodeCount              = 0;
-                const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( eType,
-                                                                                                 lfIdx,
-                                                                                                 &faceNodeCount );
+                int        faceNodeCount = 0;
+                const int* localElmNodeIndicesForFace =
+                    RigFemTypes::localElmNodeIndicesForFace( eType, lfIdx, &faceNodeCount );
                 if ( faceNodeCount == 4 )
                 {
                     cvf::Vec3f quadVxs0( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] ) -

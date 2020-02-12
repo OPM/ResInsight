@@ -59,8 +59,8 @@ bool RicIntersectionPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& e
 
             cvf::ref<caf::DisplayCoordTransform> transForm = gridView->displayCoordTransform();
 
-            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(
-                eventObject.m_pickItemInfos.front().globalPickedPoint() );
+            cvf::Vec3d domainCoord =
+                transForm->transformToDomainCoord( eventObject.m_pickItemInfos.front().globalPickedPoint() );
 
             if ( intersection->inputPolyLineFromViewerEnabled() )
             {

@@ -57,7 +57,5 @@ public:
 
     // PdmObject Overrides
     caf::PdmFieldHandle* userDescriptionField() override { return &resultName; }
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 };

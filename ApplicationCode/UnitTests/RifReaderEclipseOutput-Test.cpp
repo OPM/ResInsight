@@ -203,7 +203,8 @@ TEST( RigReservoirTest, Test10k_ReadThenWriteToECL )
 
     QString dataFilePath = dataDir.absoluteFilePath("TEST10K_FLT_LGR_NNC_OUT_FROM_RES.VARS");
 
-    QStringList allStaticResults = resultCase->eclipseCaseData()->results(MATRIX_MODEL)->resultNames(RiaDefines::STATIC_NATIVE);
+    QStringList allStaticResults =
+    resultCase->eclipseCaseData()->results(MATRIX_MODEL)->resultNames(RiaDefines::STATIC_NATIVE);
 
     std::vector<QString> keywords;
     for (QString keyword : allStaticResults)

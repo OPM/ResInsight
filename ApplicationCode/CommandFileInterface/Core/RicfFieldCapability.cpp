@@ -182,9 +182,7 @@ void RicfFieldReader<cvf::Color3f>::readFieldData( cvf::Color3f& fieldValue,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldWriter<cvf::Color3f>::writeFieldData( const cvf::Color3f& fieldValue,
-                                                    QTextStream&        outputStream,
-                                                    bool                quoteStrings )
+void RicfFieldWriter<cvf::Color3f>::writeFieldData( const cvf::Color3f& fieldValue, QTextStream& outputStream, bool quoteStrings )
 {
     QColor  qColor           = RiaColorTools::toQColor( fieldValue );
     QString fieldStringValue = qColor.name();

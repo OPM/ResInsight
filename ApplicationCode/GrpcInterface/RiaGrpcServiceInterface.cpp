@@ -66,8 +66,7 @@ size_t RiaGrpcServiceInterface::numberOfMessagesForByteCount( size_t messageSize
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHandle* source,
-                                                          rips::PdmObject*            destination )
+void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHandle* source, rips::PdmObject* destination )
 {
     CAF_ASSERT( source && destination && source->xmlCapability() );
 
@@ -77,8 +76,8 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
     bool visible = true;
     if ( source->uiCapability() && source->uiCapability()->objectToggleField() )
     {
-        const caf::PdmField<bool>* boolField = dynamic_cast<const caf::PdmField<bool>*>(
-            source->uiCapability()->objectToggleField() );
+        const caf::PdmField<bool>* boolField =
+            dynamic_cast<const caf::PdmField<bool>*>( source->uiCapability()->objectToggleField() );
         if ( boolField )
         {
             visible = boolField->value();
@@ -111,16 +110,15 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject* source,
-                                                          caf::PdmObjectHandle*  destination )
+void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination )
 {
     CAF_ASSERT( source && destination && destination->xmlCapability() );
     CAF_ASSERT( source->class_keyword() == destination->xmlCapability()->classKeyword().toStdString() );
 
     if ( destination->uiCapability() && destination->uiCapability()->objectToggleField() )
     {
-        caf::PdmField<bool>* boolField = dynamic_cast<caf::PdmField<bool>*>(
-            destination->uiCapability()->objectToggleField() );
+        caf::PdmField<bool>* boolField =
+            dynamic_cast<caf::PdmField<bool>*>( destination->uiCapability()->objectToggleField() );
         if ( boolField )
         {
             QVariant oldValue = boolField->toQVariant();

@@ -111,8 +111,7 @@ void RivAnnotationsPartMgr::createAnnotationPartManagers()
             m_reachCircleAnnotationPartMgrs.push_back( apm );
         }
     }
-    if ( m_polylineAnnotationPartMgrs.size() !=
-         userDefinedPolylineAnnotations.size() + polylineFromFileAnnotations.size() )
+    if ( m_polylineAnnotationPartMgrs.size() != userDefinedPolylineAnnotations.size() + polylineFromFileAnnotations.size() )
     {
         for ( auto annotation : userDefinedPolylineAnnotations )
         {

@@ -101,7 +101,8 @@ std::vector<RimWellPath*> RicExportCompletionsForVisibleWellPathsFeature::visibl
     std::vector<RimWellPath*> wellPaths;
 
     {
-        auto measurementColl = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellMeasurementCollection>();
+        auto measurementColl =
+            caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellMeasurementCollection>();
         if ( measurementColl ) return wellPaths;
     }
 

@@ -139,8 +139,7 @@ double RimPerforationInterval::diameter( RiaEclipseUnitTools::UnitSystem unitSys
     {
         return RiaEclipseUnitTools::feetToMeter( m_diameter() );
     }
-    else if ( unitSystem == RiaEclipseUnitTools::UNITS_FIELD &&
-              wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC )
+    else if ( unitSystem == RiaEclipseUnitTools::UNITS_FIELD && wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::meterToFeet( m_diameter() );
     }
@@ -327,8 +326,7 @@ void RimPerforationInterval::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPerforationInterval::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                   QString                 uiConfigName /*= ""*/ )
+void RimPerforationInterval::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     this->setName( QString( "%1 - %2" ).arg( m_startMD ).arg( m_endMD ) );
 }

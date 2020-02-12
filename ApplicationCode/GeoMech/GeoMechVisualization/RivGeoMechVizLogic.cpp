@@ -243,8 +243,7 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
 
         else if ( pMgrKey.geometryType() == ALL_CELLS )
         {
-            RivFemElmVisibilityCalculator::computeAllVisible( elmVisibility.p(),
-                                                              caseData->femParts()->part( femPartIdx ) );
+            RivFemElmVisibilityCalculator::computeAllVisible( elmVisibility.p(), caseData->femParts()->part( femPartIdx ) );
         }
         else
         {

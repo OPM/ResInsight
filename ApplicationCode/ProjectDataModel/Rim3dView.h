@@ -188,8 +188,7 @@ protected:
 
     RimWellPathCollection* wellPathCollection() const;
 
-    void addWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
-                              const cvf::BoundingBox& wellPathClipBoundingBox );
+    void addWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox );
     void addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
                                      const cvf::BoundingBox& wellPathClipBoundingBox );
     void addAnnotationsToModel( cvf::ModelBasicList* annotationsModel );
@@ -227,9 +226,7 @@ protected:
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* backgroundColorField();
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -291,7 +288,8 @@ private:
 private:
     QPointer<RiuViewer> m_viewer;
     QPointer<RiuViewer> m_overrideViewer;
-    bool                m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw; // To avoid infinite recursion if comparison views are pointing to each other.
+    bool m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw; // To avoid infinite recursion if comparison views
+                                                                   // are pointing to each other.
 
     // Fields
     caf::PdmField<int>                     m_id;

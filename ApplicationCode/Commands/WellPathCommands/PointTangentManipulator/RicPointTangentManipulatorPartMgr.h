@@ -83,10 +83,7 @@ private:
 
     void addHandlePart( cvf::DrawableGeo* geo, const cvf::Color4f& color, HandleType handleId, const cvf::String& partName );
 
-    void addActiveModePart( cvf::DrawableGeo*   geo,
-                            const cvf::Color4f& color,
-                            HandleType          handleId,
-                            const cvf::String&  partName );
+    void addActiveModePart( cvf::DrawableGeo* geo, const cvf::Color4f& color, HandleType handleId, const cvf::String& partName );
 
     static cvf::ref<cvf::DrawableGeo> createTriangelDrawableGeo( cvf::Vec3fArray* triangleVertexArray );
     static cvf::ref<cvf::DrawableGeo> createIndexedTriangelDrawableGeo( cvf::Vec3fArray* triangleVertexArray,

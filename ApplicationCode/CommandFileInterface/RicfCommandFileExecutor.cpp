@@ -169,7 +169,8 @@ std::vector<RicfCommandObject*>
     //
     // The reason for this is based on two requirements
     //   1. Ability to aggregate info from multiple replaceCase() statements in a command file
-    //   2. Improve performance, as a replace case is implemented by reading a project file from XML and replace file paths
+    //   2. Improve performance, as a replace case is implemented by reading a project file from XML and replace file
+    //   paths
     //      during project loading
 
     std::vector<RicfCommandObject*> executableCommands;

@@ -70,13 +70,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     CAF_PDM_InitObject( "Well Targets", ":/WellTargets.png", "", "" );
 
     this->setUi3dEditorTypeName( RicWellPathGeometry3dEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_referencePointUtmXyd,
-                       "ReferencePosUtmXyd",
-                       cvf::Vec3d( 0, 0, 0 ),
-                       "UTM Reference Point",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_referencePointUtmXyd, "ReferencePosUtmXyd", cvf::Vec3d( 0, 0, 0 ), "UTM Reference Point", "", "", "" );
 
     CAF_PDM_InitField( &m_airGap, "AirGap", 0.0, "Air Gap", "", "", "" );
     m_airGap.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
@@ -253,8 +247,7 @@ std::pair<RimWellPathTarget*, RimWellPathTarget*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathGeometryDef::insertTarget( const RimWellPathTarget* targetToInsertBefore,
-                                           RimWellPathTarget*       targetToInsert )
+void RimWellPathGeometryDef::insertTarget( const RimWellPathTarget* targetToInsertBefore, RimWellPathTarget* targetToInsert )
 {
     size_t index = m_wellTargets.index( targetToInsertBefore );
     if ( index < m_wellTargets.size() )
@@ -432,7 +425,8 @@ RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator()
     }
 
     RiaLineArcWellPathCalculator wellPathCalculator( referencePointXyz(), targetDatas );
-    const std::vector<RiaLineArcWellPathCalculator::WellTargetStatus>& targetStatuses = wellPathCalculator.targetStatuses();
+    const std::vector<RiaLineArcWellPathCalculator::WellTargetStatus>& targetStatuses =
+        wellPathCalculator.targetStatuses();
 
     for ( size_t tIdx = 0; tIdx < wellTargets.size(); ++tIdx )
     {

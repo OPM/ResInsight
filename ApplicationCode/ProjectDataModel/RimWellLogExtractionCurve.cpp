@@ -163,9 +163,7 @@ RimWellPath* RimWellLogExtractionCurve::wellPath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::setFromSimulationWellName( const QString& simWellName,
-                                                           int            branchIndex,
-                                                           bool           branchDetection )
+void RimWellLogExtractionCurve::setFromSimulationWellName( const QString& simWellName, int branchIndex, bool branchDetection )
 {
     m_trajectoryType  = SIMULATION_WELL;
     m_simWellName     = simWellName;
@@ -261,8 +259,8 @@ void RimWellLogExtractionCurve::clampTimestep()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::clampBranchIndex()
 {
-    int branchCount = static_cast<int>(
-        RiaSimWellBranchTools::simulationWellBranches( m_simWellName, m_branchDetection ).size() );
+    int branchCount =
+        static_cast<int>( RiaSimWellBranchTools::simulationWellBranches( m_simWellName, m_branchDetection ).size() );
     if ( branchCount > 0 )
     {
         if ( m_branchIndex >= branchCount )
@@ -628,8 +626,7 @@ void RimWellLogExtractionCurve::clearGeneratedSimWellPaths()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimWellLogExtractionCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                      bool*                      useOptionsOnly )
+    RimWellLogExtractionCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -834,9 +831,8 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
         {
             if ( eclipseCase->eclipseCaseData() )
             {
-                maxTimeStep = eclipseCase->eclipseCaseData()
-                                  ->results( m_eclipseResultDefinition->porosityModel() )
-                                  ->maxTimeStepCount();
+                maxTimeStep =
+                    eclipseCase->eclipseCaseData()->results( m_eclipseResultDefinition->porosityModel() )->maxTimeStepCount();
             }
         }
         else if ( geomCase )

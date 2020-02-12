@@ -231,8 +231,8 @@ void RicSummaryCurveCreator::fieldChangedByUi( const caf::PdmFieldHandle* change
         m_applyButtonField = false;
         m_okButtonField    = false;
 
-        caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>(
-            m_targetPlot->uiCapability()->objectToggleField() );
+        caf::PdmField<bool>* field =
+            dynamic_cast<caf::PdmField<bool>*>( m_targetPlot->uiCapability()->objectToggleField() );
         field->setValueWithFieldChanged( true );
 
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
@@ -289,8 +289,8 @@ QList<caf::PdmOptionItemInfo>
 void RicSummaryCurveCreator::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     // Appearance settings
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroupWithKeyword( "Curve Appearance Assignment",
-                                                                          RiuSummaryCurveDefinitionKeywords::appearance() );
+    caf::PdmUiGroup* appearanceGroup =
+        uiOrdering.addNewGroupWithKeyword( "Curve Appearance Assignment", RiuSummaryCurveDefinitionKeywords::appearance() );
 
     caf::PdmUiGroup* appearanceSubGroup = appearanceGroup->addNewGroup( "Appearance Type Assignment" );
     appearanceSubGroup->setCollapsedByDefault( true );
@@ -393,8 +393,7 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
             std::vector<RiaCurveSetDefinition> allCurveSetDefinitionsVector =
                 m_summaryCurveSelectionEditor->summaryAddressSelection()->allCurveSetDefinitionsFromSelections();
             std::set<RiaCurveSetDefinition> allCurveSetDefinitions =
-                std::set<RiaCurveSetDefinition>( allCurveSetDefinitionsVector.begin(),
-                                                 allCurveSetDefinitionsVector.end() );
+                std::set<RiaCurveSetDefinition>( allCurveSetDefinitionsVector.begin(), allCurveSetDefinitionsVector.end() );
             std::vector<RimEnsembleCurveSet*> currentCurveSetsInPreviewPlot = m_previewPlot->curveSets();
             std::set<RiaCurveSetDefinition>   currentCurveSetDefs;
 
@@ -493,12 +492,10 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
 
                 // Set single curve set color
                 auto   allCurveSets = m_previewPlot->ensembleCurveSetCollection()->curveSets();
-                size_t colorIndex   = std::count_if( allCurveSets.begin(),
-                                                   allCurveSets.end(),
-                                                   []( RimEnsembleCurveSet* curveSet ) {
-                                                       return curveSet->colorMode() ==
-                                                              RimEnsembleCurveSet::ColorMode::SINGLE_COLOR;
-                                                   } );
+                size_t colorIndex =
+                    std::count_if( allCurveSets.begin(), allCurveSets.end(), []( RimEnsembleCurveSet* curveSet ) {
+                        return curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::SINGLE_COLOR;
+                    } );
                 curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex ) );
 
                 // Add curve to plot
@@ -759,11 +756,7 @@ void RicSummaryCurveCreator::initCurveAppearanceCalculator( RimSummaryCurveAppea
         RimSummaryCurveAppearanceCalculator::CurveAppearanceType gropAppearance;
         RimSummaryCurveAppearanceCalculator::CurveAppearanceType regiAppearance;
 
-        curveAppearanceCalc.getDimensions( &caseAppearance,
-                                           &variAppearance,
-                                           &wellAppearance,
-                                           &gropAppearance,
-                                           &regiAppearance );
+        curveAppearanceCalc.getDimensions( &caseAppearance, &variAppearance, &wellAppearance, &gropAppearance, &regiAppearance );
 
         m_caseAppearanceType     = caseAppearance;
         m_variableAppearanceType = variAppearance;

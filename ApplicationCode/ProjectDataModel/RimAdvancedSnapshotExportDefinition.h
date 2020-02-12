@@ -74,9 +74,7 @@ private:
 
     void getTimeStepStrings( QList<caf::PdmOptionItemInfo>& options );
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     QList<caf::PdmOptionItemInfo> toOptionList( const QStringList& varList );
 };

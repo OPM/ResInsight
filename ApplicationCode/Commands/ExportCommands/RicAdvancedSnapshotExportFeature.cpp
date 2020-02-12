@@ -86,8 +86,8 @@ void RicAdvancedSnapshotExportFeature::onActionTriggered( bool isChecked )
         }
 
         {
-            QString fallbackFolderName = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath(
-                "snapshots" );
+            QString fallbackFolderName =
+                RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "snapshots" );
             QString folderName =
                 RiaApplication::instance()->lastUsedDialogDirectoryWithFallback( "ADVANCED_SNAPSHOT_EXPORT",
                                                                                  fallbackFolderName );
@@ -157,8 +157,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
             if ( geomCase && sourceGeoMechView )
             {
                 RimGeoMechView* copyOfGeoMechView = dynamic_cast<RimGeoMechView*>(
-                    sourceGeoMechView->xmlCapability()->copyByXmlSerialization(
-                        caf::PdmDefaultObjectFactory::instance() ) );
+                    sourceGeoMechView->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
                 CVF_ASSERT( copyOfGeoMechView );
 
                 geomCase->geoMechViews().push_back( copyOfGeoMechView );

@@ -349,8 +349,8 @@ std::vector<LocationForNewFracture> RiuCreateMultipleFractionsUi::locationsForNe
                     }
                     else
                     {
-                        double spacing  = std::max( options[i - 1].uiOption->minimumSpacing(),
-                                                   option.uiOption->minimumSpacing() );
+                        double spacing =
+                            std::max( options[i - 1].uiOption->minimumSpacing(), option.uiOption->minimumSpacing() );
                         fracMdCandidate = lastFracMd - spacing;
                     }
 
@@ -358,8 +358,7 @@ std::vector<LocationForNewFracture> RiuCreateMultipleFractionsUi::locationsForNe
 
                     while ( fracMdCandidate > option.endMd )
                     {
-                        items.push_back(
-                            LocationForNewFracture( option.uiOption->fractureTemplate(), w, fracMdCandidate ) );
+                        items.push_back( LocationForNewFracture( option.uiOption->fractureTemplate(), w, fracMdCandidate ) );
                         lastFracMd = fracMdCandidate;
                         fracMdCandidate -= option.uiOption->minimumSpacing();
                         fractureCountForWell++;

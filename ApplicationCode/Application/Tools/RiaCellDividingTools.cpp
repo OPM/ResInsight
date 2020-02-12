@@ -53,10 +53,8 @@ std::vector<std::vector<cvf::Vec3d>> calcFacePoints( const std::vector<cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RiaCellDividingTools::createHexCornerCoords( std::array<cvf::Vec3d, 8> mainCellCorners,
-                                                                     size_t                    nx,
-                                                                     size_t                    ny,
-                                                                     size_t                    nz )
+std::vector<cvf::Vec3d>
+    RiaCellDividingTools::createHexCornerCoords( std::array<cvf::Vec3d, 8> mainCellCorners, size_t nx, size_t ny, size_t nz )
 {
     std::array<std::pair<size_t, size_t>, 12> edgeCorners = {
         std::make_pair( 0, 1 ),

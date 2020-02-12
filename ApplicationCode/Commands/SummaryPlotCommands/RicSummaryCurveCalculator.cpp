@@ -176,8 +176,7 @@ void RicSummaryCurveCalculator::defineUiOrdering( QString uiConfigName, caf::Pdm
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicSummaryCurveCalculator::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                      bool*                      useOptionsOnly )
+    RicSummaryCurveCalculator::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_currentCalculation )

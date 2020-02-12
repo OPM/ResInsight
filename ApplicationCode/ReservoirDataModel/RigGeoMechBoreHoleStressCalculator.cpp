@@ -171,9 +171,9 @@ double RigGeoMechBoreHoleStressCalculator::sigmaTMinOfMin( double wellPressure, 
         double        sigma_theta = stressComponentsForAngle[1] - wellPressure;
         const double& sigma_z     = stressComponentsForAngle[2];
         double        tauSqrx4    = std::pow( stressComponentsForAngle[3], 2 ) * 4.0;
-        double        sigma_t_min = 0.5 * ( ( sigma_z + sigma_theta ) -
-                                     std::sqrt( std::pow( sigma_z - sigma_theta, 2 ) + tauSqrx4 ) ) -
-                             m_porePressure;
+        double        sigma_t_min =
+            0.5 * ( ( sigma_z + sigma_theta ) - std::sqrt( std::pow( sigma_z - sigma_theta, 2 ) + tauSqrx4 ) ) -
+            m_porePressure;
         if ( sigma_t_min < sigma_t_min_min )
         {
             sigma_t_min_min = sigma_t_min;
@@ -197,11 +197,9 @@ double RigGeoMechBoreHoleStressCalculator::stassiDalia( double wellPressure, dou
         double        tauSqrx4    = std::pow( stressComponentsForAngle[3], 2 ) * 4.0;
 
         double sigma_1 = wellPressure - m_porePressure;
-        double sigma_2 = 0.5 * ( ( sigma_z + sigma_theta ) +
-                                 std::sqrt( std::pow( sigma_z - sigma_theta, 2 ) + tauSqrx4 ) ) -
+        double sigma_2 = 0.5 * ( ( sigma_z + sigma_theta ) + std::sqrt( std::pow( sigma_z - sigma_theta, 2 ) + tauSqrx4 ) ) -
                          m_porePressure;
-        double sigma_3 = 0.5 * ( ( sigma_z + sigma_theta ) -
-                                 std::sqrt( std::pow( sigma_z - sigma_theta, 2 ) + tauSqrx4 ) ) -
+        double sigma_3 = 0.5 * ( ( sigma_z + sigma_theta ) - std::sqrt( std::pow( sigma_z - sigma_theta, 2 ) + tauSqrx4 ) ) -
                          m_porePressure;
 
         double stassiDalia = std::pow( sigma_1 - sigma_2, 2 ) + std::pow( sigma_2 - sigma_3, 2 ) +

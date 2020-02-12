@@ -218,8 +218,7 @@ void RimUserDefinedPolylinesAnnotation::defineUiOrdering( QString uiConfigName, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimUserDefinedPolylinesAnnotation::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                              QString                 uiConfigName )
+void RimUserDefinedPolylinesAnnotation::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
     uiTreeOrdering.skipRemainingChildren( true );
 }

@@ -44,7 +44,6 @@ class RiaGrpcAppService : public rips::App::AsyncService, public RiaGrpcServiceI
 public:
     grpc::Status GetVersion( grpc::ServerContext* context, const rips::Empty* request, rips::Version* reply ) override;
     grpc::Status Exit( grpc::ServerContext* context, const rips::Empty* request, rips::Empty* reply ) override;
-    grpc::Status
-                                           GetRuntimeInfo( grpc::ServerContext* context, const rips::Empty* request, rips::RuntimeInfo* reply ) override;
+    grpc::Status GetRuntimeInfo( grpc::ServerContext* context, const rips::Empty* request, rips::RuntimeInfo* reply ) override;
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

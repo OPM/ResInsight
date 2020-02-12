@@ -79,9 +79,9 @@ bool RicPolylineTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEvent
     {
         Rim3dView* rimView = eventObject.m_view;
 
-        auto firstPickItem       = eventObject.m_pickItemInfos.front();
-        auto targetPointInDomain = rimView->displayCoordTransform()->transformToDomainCoord(
-            firstPickItem.globalPickedPoint() );
+        auto firstPickItem = eventObject.m_pickItemInfos.front();
+        auto targetPointInDomain =
+            rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
 
         auto* newTarget = new RimPolylineTarget();
         newTarget->setAsPointTargetXYD(

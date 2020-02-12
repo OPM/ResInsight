@@ -61,7 +61,8 @@ QString RimTools::getCacheRootDirectoryPathFromProject()
 //--------------------------------------------------------------------------------------------------
 ///  Relocate the supplied file name, based on the search path as follows:
 ///  fileName, newProjectPath/fileNameWoPath, relocatedPath/fileNameWoPath
-///  If the file is not found in any of the positions, the fileName is returned but converted to Qt Style path separators: "/"
+///  If the file is not found in any of the positions, the fileName is returned but converted to Qt Style path
+///  separators: "/"
 ///
 ///  The relocatedPath is found in this way:
 ///  use the start of newProjectPath
@@ -88,9 +89,9 @@ QString RimTools::relocateFile( const QString&        originalFileName,
     bool isWindowsPath = false;
     if ( originalFileName.count( "/" ) )
         isWindowsPath = false; // "/" are not allowed in a windows path
-    else if ( originalFileName.count( "\\" ) &&
-              !caf::Utils::fileExists(
-                  originalFileName ) ) // To make sure we do not convert single linux files containing "\"
+    else if ( originalFileName.count( "\\" ) && !caf::Utils::fileExists( originalFileName ) ) // To make sure we do not
+                                                                                              // convert single linux
+                                                                                              // files containing "\"
     {
         isWindowsPath = true;
     }
@@ -164,7 +165,8 @@ QString RimTools::relocateFile( const QString&        originalFileName,
         pathEndsDiffer = true;
     }
 
-    // If the path starts are equal, try to substitute it in the referenced file, with the corresponding new project path start
+    // If the path starts are equal, try to substitute it in the referenced file, with the corresponding new project
+    // path start
 
     if ( pathStartsAreEqual )
     {

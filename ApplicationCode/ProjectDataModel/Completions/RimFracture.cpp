@@ -206,9 +206,7 @@ std::vector<size_t> RimFracture::getPotentiallyFracturedCells( const RigMainGrid
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                    const QVariant&            oldValue,
-                                    const QVariant&            newValue )
+void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_fractureTemplate )
     {
@@ -584,8 +582,8 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions( const caf::Pdm
             RimFractureTemplate* fracTemplate = fractureTemplate();
             if ( dynamic_cast<RimStimPlanFractureTemplate*>( fracTemplate ) )
             {
-                RimStimPlanFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(
-                    fracTemplate );
+                RimStimPlanFractureTemplate* fracTemplateStimPlan =
+                    dynamic_cast<RimStimPlanFractureTemplate*>( fracTemplate );
                 std::vector<double> timeValues = fracTemplateStimPlan->timeSteps();
                 int                 index      = 0;
                 for ( double value : timeValues )
@@ -630,8 +628,7 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
         {
             m_uiWellPathAzimuth.uiCapability()->setUiHidden( false );
             m_uiWellFractureAzimuthDiff.uiCapability()->setUiHidden( false );
-            if ( wellFractureAzimuthDiff() < 10 ||
-                 ( wellFractureAzimuthDiff() > 170 && wellFractureAzimuthDiff() < 190 ) ||
+            if ( wellFractureAzimuthDiff() < 10 || ( wellFractureAzimuthDiff() > 170 && wellFractureAzimuthDiff() < 190 ) ||
                  wellFractureAzimuthDiff() > 350 )
             {
                 m_wellFractureAzimuthAngleWarning.uiCapability()->setUiHidden( false );

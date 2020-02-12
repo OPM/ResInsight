@@ -244,8 +244,7 @@ WellFractureIntersectionData
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimEllipseFractureTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                       bool*                      useOptionsOnly )
+    RimEllipseFractureTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -386,8 +385,7 @@ void RimEllipseFractureTemplate::onLoadDataAndUpdateGeometryHasChanged()
     this->firstAncestorOrThisOfType( eclipseCase );
     if ( eclipseCase )
     {
-        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
-            eclipseCase );
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( eclipseCase );
     }
     else
     {

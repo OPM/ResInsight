@@ -120,7 +120,8 @@ void EnsembleParameter::sortByBinnedVariation( std::vector<NameParameterPair>& p
         nameParamPair.second.variationBin = binNumber;
     }
 
-    // Sort by variation bin (highest first) but keep name as sorting parameter when parameters have the same variation index
+    // Sort by variation bin (highest first) but keep name as sorting parameter when parameters have the same variation
+    // index
     std::stable_sort( parameterVector.begin(),
                       parameterVector.end(),
                       [&bins]( const NameParameterPair& lhs, const NameParameterPair& rhs ) {

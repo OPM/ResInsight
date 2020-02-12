@@ -73,10 +73,10 @@ public:
     double                fromTimeTToDisplayUnitScale();
     double                fromDaysToDisplayUnitScale();
 
-    RiaQDateTimeTools::DateFormatComponents dateComponents(
-        RiaQDateTimeTools::DateFormatComponents fallback = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED ) const;
-    RiaQDateTimeTools::TimeFormatComponents timeComponents(
-        RiaQDateTimeTools::TimeFormatComponents fallback = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED ) const;
+    RiaQDateTimeTools::DateFormatComponents
+        dateComponents( RiaQDateTimeTools::DateFormatComponents fallback = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED ) const;
+    RiaQDateTimeTools::TimeFormatComponents
+        timeComponents( RiaQDateTimeTools::TimeFormatComponents fallback = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED ) const;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
@@ -99,9 +99,7 @@ public:
     void setVisibleDateTimeMax( const QDateTime& dateTime );
 
 protected:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     caf::PdmFieldHandle*          objectToggleField() override;

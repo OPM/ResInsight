@@ -169,8 +169,8 @@ void RiuGeoMechXfTensorResultAccessor::calculateInterpolatedValue( const cvf::Ve
         return;
     }
 
-    cvf::Mat3f triangleXf = cvf::GeometryTools::computePlaneHorizontalRotationMx( triangle[1] - triangle[0],
-                                                                                  triangle[2] - triangle[0] );
+    cvf::Mat3f triangleXf =
+        cvf::GeometryTools::computePlaneHorizontalRotationMx( triangle[1] - triangle[0], triangle[2] - triangle[0] );
 
     for ( int triangleVxIdx = 0; triangleVxIdx < 3; ++triangleVxIdx )
     {
@@ -218,8 +218,8 @@ float RiuGeoMechXfTensorResultAccessor::calculateElmNodeValue( const std::array<
 {
     if ( tens11->size() == 0 ) return std::numeric_limits<float>::infinity();
 
-    cvf::Mat3f triangleXf = cvf::GeometryTools::computePlaneHorizontalRotationMx( triangle[1] - triangle[0],
-                                                                                  triangle[2] - triangle[0] );
+    cvf::Mat3f triangleXf =
+        cvf::GeometryTools::computePlaneHorizontalRotationMx( triangle[1] - triangle[0], triangle[2] - triangle[0] );
 
     float ipT11 = ( *tens11 )[globalElmNodeResIndex];
     float ipT22 = ( *tens22 )[globalElmNodeResIndex];

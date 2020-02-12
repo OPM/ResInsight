@@ -77,9 +77,8 @@ void RicSummaryCurveCreatorSplitterUi::updateFromDefaultSources( const std::vect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiOrdering(
-    const caf::PdmUiOrdering& topLevelUiOrdering,
-    const QString&            uiConfigName )
+void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiOrdering,
+                                                                                        const QString& uiConfigName )
 {
     const std::vector<caf::PdmUiItem*>& topLevelUiItems = topLevelUiOrdering.uiItems();
     if ( m_summaryCurveCreator->isCloseButtonPressed() )
@@ -95,16 +94,14 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiOr
 
     m_firstRowLayout->addWidget( addrWidget );
 
-    caf::PdmUiGroup* appearanceGroup    = findGroupByKeyword( topLevelUiItems,
-                                                           RiuSummaryCurveDefinitionKeywords::appearance(),
-                                                           uiConfigName );
-    auto             appearanceGroupBox = createGroupBoxWithContent( appearanceGroup, uiConfigName );
+    caf::PdmUiGroup* appearanceGroup =
+        findGroupByKeyword( topLevelUiItems, RiuSummaryCurveDefinitionKeywords::appearance(), uiConfigName );
+    auto appearanceGroupBox = createGroupBoxWithContent( appearanceGroup, uiConfigName );
     m_lowerLeftLayout->insertWidget( 0, appearanceGroupBox );
 
-    caf::PdmUiGroup* nameConfigGroup    = findGroupByKeyword( topLevelUiItems,
-                                                           RiuSummaryCurveDefinitionKeywords::nameConfig(),
-                                                           uiConfigName );
-    auto             nameConfigGroupBox = createGroupBoxWithContent( nameConfigGroup, uiConfigName );
+    caf::PdmUiGroup* nameConfigGroup =
+        findGroupByKeyword( topLevelUiItems, RiuSummaryCurveDefinitionKeywords::nameConfig(), uiConfigName );
+    auto nameConfigGroupBox = createGroupBoxWithContent( nameConfigGroup, uiConfigName );
     m_lowerLeftLayout->insertWidget( 1, nameConfigGroupBox );
 
     QMinimizePanel* curveGroup = getOrCreateCurveTreeGroup();
@@ -306,8 +303,8 @@ void RicSummaryCurveCreatorSplitterUi::configureAndUpdateFields( int            
 
                     if ( fieldEditorWidget )
                     {
-                        fieldEditorWidget->setParent(
-                            this->widget() ); // To make sure this widget has the current group box as parent.
+                        fieldEditorWidget->setParent( this->widget() ); // To make sure this widget has the current
+                                                                        // group box as parent.
 
                         layout->insertWidget( currentWidgetIndex++, fieldEditorWidget );
                     }

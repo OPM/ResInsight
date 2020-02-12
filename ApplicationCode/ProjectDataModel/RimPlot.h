@@ -89,9 +89,7 @@ public:
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     static void attachPlotWidgetSignals( RimPlot* plot, RiuQwtPlotWidget* plotWidget );
     QWidget*    createViewWidget( QWidget* parent = nullptr ) final;

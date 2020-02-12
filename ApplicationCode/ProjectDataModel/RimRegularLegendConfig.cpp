@@ -136,13 +136,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     CAF_PDM_InitObject( "Color Legend", ":/Legend.png", "", "" );
     CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Show Legend", "", "", "" );
     m_showLegend.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitField( &m_numLevels,
-                       "NumberOfLevels",
-                       8,
-                       "Number of Levels",
-                       "",
-                       "A hint on how many tick marks you whish.",
-                       "" );
+    CAF_PDM_InitField( &m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.", "" );
     CAF_PDM_InitField( &m_precision,
                        "Precision",
                        4,
@@ -992,7 +986,8 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_mappingMode )
     {
-        // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
+        // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of
+        // this type
         std::vector<MappingType> mappingTypes;
         if ( !isAllenDiagram )
         {
@@ -1018,7 +1013,8 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_colorRangeMode )
     {
-        // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
+        // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of
+        // this type
         std::vector<ColorRangesType> rangeTypes;
         if ( !isAllenDiagram )
         {

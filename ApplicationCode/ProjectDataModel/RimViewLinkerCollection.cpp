@@ -50,8 +50,7 @@ RimViewLinkerCollection::~RimViewLinkerCollection( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinkerCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                    QString                 uiConfigName /*= ""*/ )
+void RimViewLinkerCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     RimViewLinker* childObject = viewLinker();
     if ( childObject )

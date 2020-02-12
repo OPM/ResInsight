@@ -147,7 +147,8 @@ QString Rim3dWellLogFileCurve::createAutoName() const
                 /*   RimWellLogPlot* wellLogPlot;
                    firstAncestorOrThisOfType(wellLogPlot);
                    CVF_ASSERT(wellLogPlot);
-                   QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannelName, wellLogPlot->depthUnit());
+                   QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannelName,
+                   wellLogPlot->depthUnit());
 
                    if (!unitName.isEmpty())
                    {

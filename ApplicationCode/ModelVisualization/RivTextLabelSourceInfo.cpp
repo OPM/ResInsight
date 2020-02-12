@@ -21,9 +21,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivTextLabelSourceInfo::RivTextLabelSourceInfo( caf::PdmObject*    pdmObject,
-                                                const cvf::String& text,
-                                                const cvf::Vec3f&  position )
+RivTextLabelSourceInfo::RivTextLabelSourceInfo( caf::PdmObject* pdmObject, const cvf::String& text, const cvf::Vec3f& position )
     : RivObjectSourceInfo( pdmObject )
     , m_text( text )
     , m_positionDisplayCoord( position )

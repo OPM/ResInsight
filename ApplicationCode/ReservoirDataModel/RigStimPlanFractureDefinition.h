@@ -93,8 +93,7 @@ public:
     const std::vector<std::vector<double>>&
         getDataAtTimeIndex( const QString& resultName, const QString& unit, size_t timeStepIndex ) const;
 
-    std::vector<double>
-        fractureGridResults( const QString& resultName, const QString& unitName, size_t timeStepIndex ) const;
+    std::vector<double> fractureGridResults( const QString& resultName, const QString& unitName, size_t timeStepIndex ) const;
 
     void appendDataToResultStatistics( const QString&     resultName,
                                        const QString&     unit,
@@ -104,12 +103,11 @@ public:
     QStringList conductivityResultNames() const;
 
 private:
-    bool   timeStepExists( double timeStepValue ) const;
-    size_t getTimeStepIndex( double timeStepValue ) const;
-    size_t resultIndex( const QString& resultName, const QString& unit ) const;
-    void   generateXsFromFileXs( bool xMirrorMode );
-    std::vector<std::vector<double>>
-                        generateDataLayoutFromFileDataLayout( std::vector<std::vector<double>> rawXYData ) const;
+    bool                             timeStepExists( double timeStepValue ) const;
+    size_t                           getTimeStepIndex( double timeStepValue ) const;
+    size_t                           resultIndex( const QString& resultName, const QString& unit ) const;
+    void                             generateXsFromFileXs( bool xMirrorMode );
+    std::vector<std::vector<double>> generateDataLayoutFromFileDataLayout( std::vector<std::vector<double>> rawXYData ) const;
     std::vector<double> adjustedYCoordsAroundWellPathPosition( double wellPathIntersectionAtFractureDepth ) const;
     bool                numberOfParameterValuesOK( std::vector<std::vector<double>> propertyValuesAtTimestep ) const;
     double              minY() const;

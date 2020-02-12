@@ -112,9 +112,8 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
                                                                                  &errMsg );
         if ( !isOk )
         {
-            QString fullError = QString( "Failed to exported current result to %1. Error was: %2" )
-                                    .arg( exportSettings.fileName )
-                                    .arg( errMsg );
+            QString fullError =
+                QString( "Failed to exported current result to %1. Error was: %2" ).arg( exportSettings.fileName ).arg( errMsg );
             RiaLogging::error( fullError );
         }
     }

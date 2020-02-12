@@ -112,9 +112,7 @@ caf::PdmFieldHandle* RimSurface::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                   const QVariant&            oldValue,
-                                   const QVariant&            newValue )
+void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_surfaceDefinitionFilePath )
     {

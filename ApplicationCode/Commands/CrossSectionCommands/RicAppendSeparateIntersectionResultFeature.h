@@ -30,8 +30,7 @@ class RimIntersectionResultsDefinitionCollection;
 class RicAppendSeparateIntersectionResultFeatureCmd : public caf::CmdExecuteCommand
 {
 public:
-    explicit RicAppendSeparateIntersectionResultFeatureCmd(
-        RimIntersectionResultsDefinitionCollection* intersectionCollection );
+    explicit RicAppendSeparateIntersectionResultFeatureCmd( RimIntersectionResultsDefinitionCollection* intersectionCollection );
     ~RicAppendSeparateIntersectionResultFeatureCmd() override;
 
     QString name() override;

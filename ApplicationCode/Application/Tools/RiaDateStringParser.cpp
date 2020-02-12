@@ -44,8 +44,7 @@ QDateTime RiaDateStringParser::parseDateString( const std::string& dateString )
     if ( hasSeparators( dateString ) )
     {
         parsedOk = tryParseYearFirst( dateString, year, month, day ) ||
-                   tryParseDayFirst( dateString, year, month, day ) ||
-                   tryParseMonthFirst( dateString, year, month, day );
+                   tryParseDayFirst( dateString, year, month, day ) || tryParseMonthFirst( dateString, year, month, day );
     }
     if ( !parsedOk )
     {

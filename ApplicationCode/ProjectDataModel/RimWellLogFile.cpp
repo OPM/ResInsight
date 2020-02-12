@@ -169,10 +169,9 @@ bool RimWellLogFile::readFile( QString* errorMessage )
     }
     else if ( !isDateValid( m_date() ) )
     {
-        *errorMessage =
-            QString(
-                "The LAS-file '%1' contains no recognizable date. Please assign a date in the LAS-file property panel" )
-                .arg( m_name() );
+        *errorMessage = QString( "The LAS-file '%1' contains no recognizable date. Please assign a date in the "
+                                 "LAS-file property panel" )
+                            .arg( m_name() );
 
         m_date = DEFAULT_DATE_TIME;
     }

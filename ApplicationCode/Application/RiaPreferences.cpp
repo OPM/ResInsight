@@ -187,13 +187,7 @@ RiaPreferences::RiaPreferences( void )
     caf::AppEnum<RiaFontCache::FontSize> fontSize     = RiaFontCache::FONT_SIZE_8;
     caf::AppEnum<RiaFontCache::FontSize> plotFontSize = RiaFontCache::FONT_SIZE_10;
     CAF_PDM_InitField( &defaultSceneFontSize, "defaultSceneFontSizePt", fontSize, "Viewer Font Size", "", "", "" );
-    CAF_PDM_InitField( &defaultAnnotationFontSize,
-                       "defaultAnnotationFontSizePt",
-                       fontSize,
-                       "Annotation Font Size",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", fontSize, "Annotation Font Size", "", "", "" );
     CAF_PDM_InitField( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", fontSize, "Well Label Font Size", "", "", "" );
     CAF_PDM_InitField( &defaultPlotFontSize, "defaultPlotFontSizePt", plotFontSize, "Plot Font Size", "", "", "" );
 
@@ -378,13 +372,7 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitField( &m_pageLeftMargin, "pageLeftMargin", defaultMarginSize( m_pageSize() ), "Left Margin", "", "", "" );
     CAF_PDM_InitField( &m_pageTopMargin, "pageTopMargin", defaultMarginSize( m_pageSize() ), "Top Margin", "", "", "" );
     CAF_PDM_InitField( &m_pageRightMargin, "pageRightMargin", defaultMarginSize( m_pageSize() ), "Right Margin", "", "", "" );
-    CAF_PDM_InitField( &m_pageBottomMargin,
-                       "pageBottomMargin",
-                       defaultMarginSize( m_pageSize() ),
-                       "Bottom Margin",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_pageBottomMargin, "pageBottomMargin", defaultMarginSize( m_pageSize() ), "Bottom Margin", "", "", "" );
 
     caf::AppEnum<RiaFontCache::FontSize> invalidFontSize = RiaFontCache::INVALID;
     CAF_PDM_InitField( &m_defaultSceneFontSize_OBSOLETE, "fontSizeInScene", invalidFontSize, "Viewer Font Size", "", "", "" );
@@ -632,9 +620,9 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
     {
         for ( auto dateFormat : RiaQDateTimeTools::supportedDateFormats() )
         {
-            QDate   exampleDate    = QDate( 2019, 8, 16 );
-            QString fullDateFormat = RiaQDateTimeTools::dateFormatString( dateFormat,
-                                                                          RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+            QDate   exampleDate = QDate( 2019, 8, 16 );
+            QString fullDateFormat =
+                RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
             QString uiText = QString( "%1 (%2)" ).arg( fullDateFormat ).arg( exampleDate.toString( fullDateFormat ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( dateFormat ) ) );

@@ -320,8 +320,7 @@ std::set<QDateTime> RifReaderEclipseRft::availableTimeSteps( const QString& well
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseRftAddress::RftWellLogChannelType>
-    RifReaderEclipseRft::availableWellLogChannels( const QString& wellName )
+std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderEclipseRft::availableWellLogChannels( const QString& wellName )
 {
     if ( !m_ecl_rft_file )
     {

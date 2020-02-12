@@ -163,9 +163,8 @@ void RifSummaryCaseRestartSelector::determineFilesToImport( const std::vector<Ri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser(
-    const std::vector<RifSummaryCaseFileImportInfo>& initialFiles,
-    bool                                             enableApplyToAllField )
+void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser( const std::vector<RifSummaryCaseFileImportInfo>& initialFiles,
+                                                                        bool enableApplyToAllField )
 {
     RicSummaryCaseRestartDialogResult lastResult;
 
@@ -246,8 +245,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs(
-    const std::vector<RifSummaryCaseFileImportInfo>& initialFiles )
+void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std::vector<RifSummaryCaseFileImportInfo>& initialFiles )
 {
     RicSummaryCaseRestartDialogResult lastResult;
 
@@ -290,8 +288,8 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs(
                 m_summaryFileInfos.push_back( RifSummaryCaseFileResultInfo( initialSummaryFile, false ) );
                 bool                            hasWarnings = false;
                 RifReaderEclipseSummary         reader;
-                std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles( initialSummaryFile,
-                                                                                           &hasWarnings );
+                std::vector<RifRestartFileInfo> restartFileInfos =
+                    reader.getRestartFiles( initialSummaryFile, &hasWarnings );
                 for ( const auto& rfi : restartFileInfos )
                 {
                     RifSummaryCaseFileResultInfo resultFileInfo( RiaFilePathTools::toInternalSeparator( rfi.fileName ),
@@ -312,9 +310,9 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs(
             if ( defaultGridImportMode == RicSummaryCaseRestartDialog::SEPARATE_CASES )
             {
                 RifReaderEclipseSummary         reader;
-                bool                            hasWarnings      = false;
-                std::vector<RifRestartFileInfo> restartFileInfos = reader.getRestartFiles( initialSummaryFile,
-                                                                                           &hasWarnings );
+                bool                            hasWarnings = false;
+                std::vector<RifRestartFileInfo> restartFileInfos =
+                    reader.getRestartFiles( initialSummaryFile, &hasWarnings );
                 for ( const auto& rfi : restartFileInfos )
                 {
                     QString gridFileName = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( rfi.fileName );

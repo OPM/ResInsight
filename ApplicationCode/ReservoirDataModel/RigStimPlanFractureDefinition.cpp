@@ -339,9 +339,8 @@ cvf::ref<RigFractureGrid>
                                                        double         wellPathIntersectionAtFractureDepth,
                                                        RiaEclipseUnitTools::UnitSystem requiredUnitSet ) const
 {
-    std::vector<std::vector<double>> conductivityValues = conductivityValuesAtTimeStep( resultName,
-                                                                                        activeTimeStepIndex,
-                                                                                        requiredUnitSet );
+    std::vector<std::vector<double>> conductivityValues =
+        conductivityValuesAtTimeStep( resultName, activeTimeStepIndex, requiredUnitSet );
     if ( conductivityValues.empty() )
     {
         return nullptr;
@@ -352,8 +351,7 @@ cvf::ref<RigFractureGrid>
 
     bool wellCenterStimPlanCellFound = false;
 
-    std::vector<double> yCoordsAtNodes = this->adjustedYCoordsAroundWellPathPosition(
-        wellPathIntersectionAtFractureDepth );
+    std::vector<double> yCoordsAtNodes = this->adjustedYCoordsAroundWellPathPosition( wellPathIntersectionAtFractureDepth );
     std::vector<double> xCoordsAtNodes = this->m_Xs;
 
     std::vector<double> xCoords;
@@ -426,9 +424,8 @@ std::vector<double> RigStimPlanFractureDefinition::fractureGridResults( const QS
                                                                         size_t         timeStepIndex ) const
 {
     std::vector<double>                     fractureGridResults;
-    const std::vector<std::vector<double>>& resultValuesAtTimeStep = this->getDataAtTimeIndex( resultName,
-                                                                                               unitName,
-                                                                                               timeStepIndex );
+    const std::vector<std::vector<double>>& resultValuesAtTimeStep =
+        this->getDataAtTimeIndex( resultName, unitName, timeStepIndex );
 
     for ( int i = 0; i < static_cast<int>( xCount() ) - 2; i++ )
     {

@@ -63,15 +63,15 @@ RiaSCurveCalculator::RiaSCurveCalculator( cvf::Vec3d p1, cvf::Vec3d q1, cvf::Vec
     bool isOk         = true;
     m_isCalculationOK = true;
 
-    Vec3d tq1q2 = ( q2 - q1 ).getNormalized(
-        &isOk ); // !ok means the control points are in the same place. Could fallback to use only one circle segment + one line.
+    Vec3d tq1q2 = ( q2 - q1 ).getNormalized( &isOk ); // !ok means the control points are in the same place. Could
+                                                      // fallback to use only one circle segment + one line.
     m_isCalculationOK = m_isCalculationOK && isOk;
-    Vec3d t1          = ( q1 - p1 ).getNormalized(
-        &isOk ); // !ok means no tangent specified. Could fallback to use only one circle segment + one line.
+    Vec3d t1 = ( q1 - p1 ).getNormalized( &isOk ); // !ok means no tangent specified. Could fallback to use only one
+                                                   // circle segment + one line.
     m_isCalculationOK = m_isCalculationOK && isOk;
-    Vec3d t2          = ( p2 - q2 ).getNormalized(
-        &isOk ); // !ok means no tangent specified. Could fallback to use only one circle segment + one line or only one
-                 // straight line if both tangents are missing
+    Vec3d t2 = ( p2 - q2 ).getNormalized( &isOk ); // !ok means no tangent specified. Could fallback to use only one
+                                                   // circle segment + one line or only one straight line if both
+                                                   // tangents are missing
     m_isCalculationOK = m_isCalculationOK && isOk;
 
     if ( !m_isCalculationOK )
@@ -130,8 +130,8 @@ RiaSCurveCalculator::RiaSCurveCalculator( cvf::Vec3d p1, cvf::Vec3d q1, cvf::Vec
     m_firstArcEndpoint    = q1 + ( q1 - p1 ).length() * tq1q2;
     m_secondArcStartpoint = q2 - ( q2 - p2 ).length() * tq1q2;
 
-    if ( ( ( q1 - p1 ).length() + ( q2 - p2 ).length() ) >
-         ( q2 - q1 ).length() ) // first arc end and second arc start is overlapping
+    if ( ( ( q1 - p1 ).length() + ( q2 - p2 ).length() ) > ( q2 - q1 ).length() ) // first arc end and second arc start
+                                                                                  // is overlapping
     {
         m_ctrlPpointCurveStatus = FAILED_ARC_OVERLAP;
         m_isCalculationOK       = false;

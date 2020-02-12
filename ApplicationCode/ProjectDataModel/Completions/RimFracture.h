@@ -105,9 +105,7 @@ public:
 
     std::vector<size_t> getPotentiallyFracturedCells( const RigMainGrid* mainGrid ) const;
 
-    void       fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                 const QVariant&            oldValue,
-                                 const QVariant&            newValue ) override;
+    void       fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     cvf::Vec3d fracturePosition() const;
 
     virtual void   updateAzimuthBasedOnWellAzimuthAngle() = 0;

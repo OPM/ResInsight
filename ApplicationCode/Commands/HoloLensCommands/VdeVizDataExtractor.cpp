@@ -89,9 +89,10 @@ void VdeVizDataExtractor::extractViewContents( QString*            modelMetaJson
         {
             const float* floatArr        = reinterpret_cast<const float*>( mesh->vertexArr->ptr() );
             const size_t arrElementCount = 3 * mesh->vertexArr->size();
-            arrayIdsThisMesh.vertexArrId = m_cachingIdFactory->getOrCreateIdForFloatArr( VdeCachingHashedIdFactory::VertexArr,
-                                                                                         floatArr,
-                                                                                         arrElementCount );
+            arrayIdsThisMesh.vertexArrId =
+                m_cachingIdFactory->getOrCreateIdForFloatArr( VdeCachingHashedIdFactory::VertexArr,
+                                                              floatArr,
+                                                              arrElementCount );
 
             if ( !packetDirectory->lookupPacket( arrayIdsThisMesh.vertexArrId ) )
             {
@@ -100,8 +101,9 @@ void VdeVizDataExtractor::extractViewContents( QString*            modelMetaJson
                     VdeArrayDataPacket::fromFloat32Arr( arrayIdsThisMesh.vertexArrId, floatArr, arrElementCount );
 
                 // Debug testing of decoding
-                // debugComparePackets(*dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(),
-                // dataPacket->fullPacketSize(), nullptr));
+                // debugComparePackets(*dataPacket,
+                // VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(), dataPacket->fullPacketSize(),
+                // nullptr));
 
                 packetDirectory->addPacket( std::move( dataPacket ) );
             }
@@ -109,9 +111,8 @@ void VdeVizDataExtractor::extractViewContents( QString*            modelMetaJson
         {
             const unsigned int* uintArr         = mesh->connArr.data();
             const size_t        arrElementCount = mesh->connArr.size();
-            arrayIdsThisMesh.connArrId = m_cachingIdFactory->getOrCreateIdForUint32Arr( VdeCachingHashedIdFactory::ConnArr,
-                                                                                        uintArr,
-                                                                                        arrElementCount );
+            arrayIdsThisMesh.connArrId =
+                m_cachingIdFactory->getOrCreateIdForUint32Arr( VdeCachingHashedIdFactory::ConnArr, uintArr, arrElementCount );
 
             if ( !packetDirectory->lookupPacket( arrayIdsThisMesh.connArrId ) )
             {
@@ -120,8 +121,9 @@ void VdeVizDataExtractor::extractViewContents( QString*            modelMetaJson
                     VdeArrayDataPacket::fromUint32Arr( arrayIdsThisMesh.connArrId, uintArr, arrElementCount );
 
                 // Debug testing of decoding
-                // debugComparePackets(*dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(),
-                // dataPacket->fullPacketSize(), nullptr));
+                // debugComparePackets(*dataPacket,
+                // VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(), dataPacket->fullPacketSize(),
+                // nullptr));
 
                 packetDirectory->addPacket( std::move( dataPacket ) );
             }
@@ -144,7 +146,8 @@ void VdeVizDataExtractor::extractViewContents( QString*            modelMetaJson
                         VdeArrayDataPacket::fromFloat32Arr( arrayIdsThisMesh.texCoordsArrId, floatArr, arrElementCount );
 
                     // Debug testing of decoding
-                    // debugComparePackets(*dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(),
+                    // debugComparePackets(*dataPacket,
+                    // VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(),
                     // dataPacket->fullPacketSize(), nullptr));
 
                     packetDirectory->addPacket( std::move( dataPacket ) );
@@ -168,7 +171,8 @@ void VdeVizDataExtractor::extractViewContents( QString*            modelMetaJson
                                                                   byteArr->size() );
 
                     // Debug testing of decoding
-                    // debugComparePackets(*dataPacket, VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(),
+                    // debugComparePackets(*dataPacket,
+                    // VdeArrayDataPacket::fromRawPacketBuffer(dataPacket->fullPacketRawPtr(),
                     // dataPacket->fullPacketSize(), nullptr));
 
                     packetDirectory->addPacket( std::move( dataPacket ) );
@@ -182,8 +186,8 @@ void VdeVizDataExtractor::extractViewContents( QString*            modelMetaJson
     const int fillPacketDir_ms = static_cast<int>( tim.lapTime() * 1000 );
 
     // Extract any exportable labels present in the view
-    const std::vector<std::pair<cvf::Vec3f, cvf::String>> labelAndPositionsArr = RicHoloLensExportImpl::labelsForExport(
-        m_view );
+    const std::vector<std::pair<cvf::Vec3f, cvf::String>> labelAndPositionsArr =
+        RicHoloLensExportImpl::labelsForExport( m_view );
 
     // Actually create the JSON containing model meta data
     *modelMetaJsonStr = createModelMetaJsonString( meshArr, allMeshesArrayIdsArr, labelAndPositionsArr );
@@ -200,16 +204,16 @@ void VdeVizDataExtractor::extractViewContents( QString*            modelMetaJson
 
     allReferencedArrayIds->assign( referencedIdsSet.begin(), referencedIdsSet.end() );
 
-    RiaLogging::debug(
-        QString(
-            "HoloLens: Extracted %1 meshes (total of %2 primitives) in %3ms  (buildMeshes=%4ms, fillPacketDir=%5ms)" )
-            .arg( meshCount )
-            .arg( totNumPrimitives )
-            .arg( static_cast<int>( tim.time() * 1000 ) )
-            .arg( buildMeshes_ms )
-            .arg( fillPacketDir_ms ) );
+    RiaLogging::debug( QString( "HoloLens: Extracted %1 meshes (total of %2 primitives) in %3ms  (buildMeshes=%4ms, "
+                                "fillPacketDir=%5ms)" )
+                           .arg( meshCount )
+                           .arg( totNumPrimitives )
+                           .arg( static_cast<int>( tim.time() * 1000 ) )
+                           .arg( buildMeshes_ms )
+                           .arg( fillPacketDir_ms ) );
 
-    // cvf::Trace::show("Total number of primitives extracted: %d in %dms", totNumPrimitives, static_cast<int>(tim.time()*1000));
+    // cvf::Trace::show("Total number of primitives extracted: %d in %dms", totNumPrimitives,
+    // static_cast<int>(tim.time()*1000));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,8 +266,7 @@ std::unique_ptr<VdeMesh> VdeVizDataExtractor::createMeshFromExportPart( const Vd
     if ( primType != cvf::PT_TRIANGLES && primType != cvf::PT_LINES )
     {
         RiaLogging::debug(
-            QString( "Currently only triangle and line primitive sets are supported (saw primitive type: %1)" )
-                .arg( primType ) );
+            QString( "Currently only triangle and line primitive sets are supported (saw primitive type: %1)" ).arg( primType ) );
         return nullptr;
     }
 
@@ -346,7 +349,8 @@ std::unique_ptr<VdeMesh> VdeVizDataExtractor::createMeshFromExportPart( const Vd
             mesh->cullFaceModeStr = "none";
     }
 
-    // cvf::Trace::show("createMeshFromExportPart(): numFaces=%d, time=%dms", faceCount, static_cast<int>(tim.time()*1000));
+    // cvf::Trace::show("createMeshFromExportPart(): numFaces=%d, time=%dms", faceCount,
+    // static_cast<int>(tim.time()*1000));
 
     return mesh;
 }
@@ -354,10 +358,9 @@ std::unique_ptr<VdeMesh> VdeVizDataExtractor::createMeshFromExportPart( const Vd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString VdeVizDataExtractor::createModelMetaJsonString(
-    const std::vector<std::unique_ptr<VdeMesh>>&           meshArr,
-    const std::vector<VdeMeshArrayIds>&                    meshContentIdsArr,
-    const std::vector<std::pair<cvf::Vec3f, cvf::String>>& labelAndPositionsArr )
+QString VdeVizDataExtractor::createModelMetaJsonString( const std::vector<std::unique_ptr<VdeMesh>>& meshArr,
+                                                        const std::vector<VdeMeshArrayIds>&          meshContentIdsArr,
+                                                        const std::vector<std::pair<cvf::Vec3f, cvf::String>>& labelAndPositionsArr )
 {
     QVariantList jsonMeshMetaList;
     for ( size_t i = 0; i < meshArr.size(); i++ )

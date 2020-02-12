@@ -176,7 +176,8 @@ private:
 
     // A map containing the intersection data. The addressing is :
     // ( when leastVxIdxEdge1 < leastVxIdxEdge2 )
-    // leastVxIdxEdge1, largestVxIdxEdge1, leastVxIdxEdge2, largestVxIdxEdge2, { vxIdxIntersection, fractionAlongEdg1, fractionAlonEdge2 }
+    // leastVxIdxEdge1, largestVxIdxEdge1, leastVxIdxEdge2, largestVxIdxEdge2, { vxIdxIntersection, fractionAlongEdg1,
+    // fractionAlonEdge2 }
 
     std::vector<std::map<IndexType, std::map<IndexType, std::map<IndexType, IntersectData>>>> m_edgeIntsectMap;
 };

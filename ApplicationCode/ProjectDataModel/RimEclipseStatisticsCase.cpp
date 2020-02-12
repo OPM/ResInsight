@@ -88,12 +88,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
 
     RICF_InitFieldNoDefault( &m_selectedFractureDynamicProperties, "FractureDynamicPropertiesToCalculate", "", "", "", "" );
     RICF_InitFieldNoDefault( &m_selectedFractureStaticProperties, "FractureStaticPropertiesToCalculate", "", "", "", "" );
-    RICF_InitFieldNoDefault( &m_selectedFractureGeneratedProperties,
-                             "FractureGeneratedPropertiesToCalculate",
-                             "",
-                             "",
-                             "",
-                             "" );
+    RICF_InitFieldNoDefault( &m_selectedFractureGeneratedProperties, "FractureGeneratedPropertiesToCalculate", "", "", "", "" );
     RICF_InitFieldNoDefault( &m_selectedFractureInputProperties, "FractureInputPropertiesToCalculate", "", "", "", "" );
 
     m_selectedDynamicProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -687,7 +682,8 @@ void RimEclipseStatisticsCase::updateSelectionListVisibilities()
     bool isLocked = hasComputedStatistics();
     m_resultType.uiCapability()->setUiHidden( isLocked );
     m_porosityModel.uiCapability()->setUiHidden(
-        isLocked ); // || !caseGroup()->mainCase()->reservoirData()->results(RiaDefines::FRACTURE_MODEL)->resultCount()
+        isLocked ); // ||
+                    // !caseGroup()->mainCase()->reservoirData()->results(RiaDefines::FRACTURE_MODEL)->resultCount()
 
     m_selectedDynamicProperties.uiCapability()->setUiHidden(
         isLocked || !( m_porosityModel() == RiaDefines::MATRIX_MODEL && m_resultType() == RiaDefines::DYNAMIC_NATIVE ) );

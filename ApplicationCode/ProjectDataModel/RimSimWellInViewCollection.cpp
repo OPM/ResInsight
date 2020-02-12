@@ -96,9 +96,7 @@ namespace caf
 template <>
 void RimSimWellInViewCollection::WellHeadPositionEnum::setUp()
 {
-    addItem( RimSimWellInViewCollection::WELLHEAD_POS_ACTIVE_CELLS_BB,
-             "WELLHEAD_POS_ACTIVE_CELLS_BB",
-             "Top of Active Cells" );
+    addItem( RimSimWellInViewCollection::WELLHEAD_POS_ACTIVE_CELLS_BB, "WELLHEAD_POS_ACTIVE_CELLS_BB", "Top of Active Cells" );
     addItem( RimSimWellInViewCollection::WELLHEAD_POS_TOP_COLUMN, "WELLHEAD_POS_TOP_COLUMN", "Top of Active Cell Column" );
     setDefault( RimSimWellInViewCollection::WELLHEAD_POS_TOP_COLUMN );
 }
@@ -213,13 +211,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 
     CAF_PDM_InitField( &pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe Vertex Count", "", "", "" );
     pipeCrossSectionVertexCount.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitField( &wellPipeCoordType,
-                       "WellPipeCoordType",
-                       WellPipeCoordEnum( WELLPIPE_INTERPOLATED ),
-                       "Type",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &wellPipeCoordType, "WellPipeCoordType", WellPipeCoordEnum( WELLPIPE_INTERPOLATED ), "Type", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_showWellCells, "ShowWellCellsTristate", "Show Well Cells", "", "", "" );
     m_showWellCells.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
@@ -264,12 +256,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     m_wellDiskQuantity.uiCapability()->setAutoAddingOptionFromValue( false );
 
     CAF_PDM_InitFieldNoDefault( &m_wellDiskPropertyType, "WellDiskPropertyType", "Property Type", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellDiskPropertyConfigType,
-                                "WellDiskPropertyConfigType",
-                                "Property Config Type",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellDiskPropertyConfigType, "WellDiskPropertyConfigType", "Property Config Type", "", "", "" );
 
     CAF_PDM_InitField( &m_wellDiskShowQuantityLabels, "WellDiskShowQuantityLabels", true, "Show Quantity Labels", "", "", "" );
     CAF_PDM_InitField( &m_wellDiskshowLabelsBackground,
@@ -523,8 +510,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         else if ( &pipeCrossSectionVertexCount == changedField || &pipeScaleFactor == changedField ||
                   &wellHeadScaleFactor == changedField || &m_showWellHead == changedField ||
                   &isAutoDetectingBranches == changedField || &wellHeadPosition == changedField ||
-                  &wellLabelColor == changedField || &wellPipeCoordType == changedField ||
-                  &m_showWellPipe == changedField )
+                  &wellLabelColor == changedField || &wellPipeCoordType == changedField || &m_showWellPipe == changedField )
         {
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
@@ -588,8 +574,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimSimWellInViewCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                       bool*                      useOptionsOnly )
+    RimSimWellInViewCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -615,8 +600,8 @@ QList<caf::PdmOptionItemInfo>
             {
                 QString displayName;
 
-                std::string longVectorName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName(
-                    itemName );
+                std::string longVectorName =
+                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( itemName );
 
                 if ( longVectorName.empty() )
                 {

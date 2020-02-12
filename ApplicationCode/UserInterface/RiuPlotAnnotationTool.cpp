@@ -121,12 +121,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
             textColor = lineColor;
         }
         Qt::Alignment horizontalAlignment = trackTextAlignment( trackSpan );
-        RiuPlotAnnotationTool::horizontalDashedLine( line,
-                                                     name,
-                                                     yPositions[i].first,
-                                                     lineColor,
-                                                     textColor,
-                                                     horizontalAlignment );
+        RiuPlotAnnotationTool::horizontalDashedLine( line, name, yPositions[i].first, lineColor, textColor, horizontalAlignment );
         line->attach( m_plot );
         m_markers.push_back( std::move( line ) );
 

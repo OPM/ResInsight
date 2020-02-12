@@ -82,8 +82,7 @@ public:
     grpc::Status GetDaysSinceStart( grpc::ServerContext*     context,
                                     const rips::CaseRequest* request,
                                     rips::DaysSinceStart*    reply ) override;
-    grpc::Status
-        GetCaseInfo( grpc::ServerContext* context, const rips::CaseRequest* request, rips::CaseInfo* reply ) override;
+    grpc::Status GetCaseInfo( grpc::ServerContext* context, const rips::CaseRequest* request, rips::CaseInfo* reply ) override;
     grpc::Status
                  GetPdmObject( grpc::ServerContext* context, const rips::CaseRequest* request, rips::PdmObject* reply ) override;
     grpc::Status GetCellInfoForActiveCells( grpc::ServerContext*           context,

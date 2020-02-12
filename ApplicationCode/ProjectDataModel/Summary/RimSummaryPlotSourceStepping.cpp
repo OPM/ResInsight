@@ -850,8 +850,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
 
             if ( analyzer.wellCompletions( m_wellName().toStdString() ).size() == 1 )
             {
-                QString txt = QString::fromStdString(
-                    *( analyzer.wellCompletions( m_wellName().toStdString() ).begin() ) );
+                QString txt = QString::fromStdString( *( analyzer.wellCompletions( m_wellName().toStdString() ).begin() ) );
                 m_completion = txt;
                 m_completion.uiCapability()->setUiHidden( false );
 

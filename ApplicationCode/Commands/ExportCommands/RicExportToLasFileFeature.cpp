@@ -141,8 +141,8 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
     std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
     if ( curves.size() == 0 ) return;
 
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder(
-        "WELL_LOGS_DIR" );
+    QString defaultDir =
+        RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "WELL_LOGS_DIR" );
 
     RigLasFileExporter           lasExporter( curves );
     RicExportToLasFileResampleUi featureUi;

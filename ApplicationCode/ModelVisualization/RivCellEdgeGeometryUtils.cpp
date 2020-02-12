@@ -97,8 +97,8 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo( size_t          
 
     if ( opacityLevel < 1.0f )
     {
-        isWellPipeVisible = &(
-            cellResultColors->reservoirView()->wellCollection()->resultWellGeometryVisibilities( timeStepIndex ) );
+        isWellPipeVisible =
+            &( cellResultColors->reservoirView()->wellCollection()->resultWellGeometryVisibilities( timeStepIndex ) );
         gridCellToWellindexMap = eclipseCase->gridCellToResultWellIndex( gridIndex );
     }
 
@@ -138,7 +138,8 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo( size_t          
                         {
                             if ( !( *isWellPipeVisible )[wellIndex] )
                             {
-                                cellColorTextureCoord += 2.0f; // The shader must interpret values in the range 2-3 as "opaque"
+                                cellColorTextureCoord += 2.0f; // The shader must interpret values in the range 2-3 as
+                                                               // "opaque"
                             }
                         }
                     }
@@ -159,9 +160,9 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo( size_t          
         {
             float edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
 
-            double scalarValue = cellEdgeResultAccessor->cellFaceScalar( cellIndex,
-                                                                         static_cast<cvf::StructGridInterface::FaceType>(
-                                                                             cubeFaceIdx ) );
+            double scalarValue =
+                cellEdgeResultAccessor->cellFaceScalar( cellIndex,
+                                                        static_cast<cvf::StructGridInterface::FaceType>( cubeFaceIdx ) );
 
             if ( !hideScalarValue( scalarValue, ignoredScalarValue, 1e-2 ) )
             {
@@ -180,8 +181,8 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo( size_t          
     geo->setVertexAttribute( new cvf::Vec2fVertexAttribute( "a_localCoord", localCoords.p() ) );
     geo->setVertexAttribute( new cvf::FloatVertexAttribute( "a_colorCell", cellColorTextureCoordArray.p() ) );
 
-    cvf::ref<cvf::IntVertexAttributeDirect> faceIntAttribute = new cvf::IntVertexAttributeDirect( "a_face",
-                                                                                                  faceIndexArray.p() );
+    cvf::ref<cvf::IntVertexAttributeDirect> faceIntAttribute =
+        new cvf::IntVertexAttributeDirect( "a_face", faceIndexArray.p() );
     geo->setVertexAttribute( faceIntAttribute.p() );
 
     geo->setVertexAttribute( new cvf::FloatVertexAttribute( "a_colorPosI", cellEdgeColorTextureCoordsArrays.at( 0 ) ) );
@@ -194,21 +195,19 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo( size_t          
 
 bool RivCellEdgeGeometryUtils::hideScalarValue( double scalarValue, double scalarValueToHide, double tolerance )
 {
-    return ( scalarValue == HUGE_VAL ||
-             cvf::Math::abs( scalarValue - scalarValueToHide ) <= scalarValueToHide * tolerance );
+    return ( scalarValue == HUGE_VAL || cvf::Math::abs( scalarValue - scalarValueToHide ) <= scalarValueToHide * tolerance );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(
-    size_t                                     timeStepIndex,
-    RimEclipseCellColors*                      cellResultColors,
-    RimCellEdgeColors*                         cellEdgeResultColors,
-    const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
-    cvf::DrawableGeo*                          geo,
-    size_t                                     gridIndex,
-    float                                      opacityLevel )
+void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo( size_t                timeStepIndex,
+                                                                       RimEclipseCellColors* cellResultColors,
+                                                                       RimCellEdgeColors*    cellEdgeResultColors,
+                                                                       const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
+                                                                       cvf::DrawableGeo*                          geo,
+                                                                       size_t gridIndex,
+                                                                       float  opacityLevel )
 {
     RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
     CVF_ASSERT( eclipseCase != nullptr );
@@ -273,9 +272,9 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(
         {
             float edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
 
-            double scalarValue = cellEdgeResultAccessor->cellFaceScalar( cellIndex,
-                                                                         static_cast<cvf::StructGridInterface::FaceType>(
-                                                                             cubeFaceIdx ) );
+            double scalarValue =
+                cellEdgeResultAccessor->cellFaceScalar( cellIndex,
+                                                        static_cast<cvf::StructGridInterface::FaceType>( cubeFaceIdx ) );
 
             if ( !hideScalarValue( scalarValue, ignoredScalarValue, 1e-2 ) )
             {
@@ -294,8 +293,8 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(
     geo->setVertexAttribute( new cvf::Vec2fVertexAttribute( "a_localCoord", localCoords.p() ) );
     geo->setVertexAttribute( new cvf::Vec2fVertexAttribute( "a_cellTextureCoord", vCellColorTextureCoordArray.p() ) );
 
-    cvf::ref<cvf::IntVertexAttributeDirect> faceIntAttribute = new cvf::IntVertexAttributeDirect( "a_face",
-                                                                                                  faceIndexArray.p() );
+    cvf::ref<cvf::IntVertexAttributeDirect> faceIntAttribute =
+        new cvf::IntVertexAttributeDirect( "a_face", faceIndexArray.p() );
     geo->setVertexAttribute( faceIntAttribute.p() );
 
     geo->setVertexAttribute( new cvf::FloatVertexAttribute( "a_colorPosI", cellEdgeColorTextureCoordsArrays.at( 0 ) ) );
@@ -309,12 +308,11 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor>
-    RivCellEdgeGeometryUtils::createCellEdgeResultAccessor( RimEclipseCellColors* cellResultColors,
-                                                            RimCellEdgeColors*    cellEdgeResultColors,
-                                                            size_t                timeStepIndex,
-                                                            RigEclipseCaseData*   eclipseCase,
-                                                            const RigGridBase*    grid )
+cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccessor( RimEclipseCellColors* cellResultColors,
+                                                                                    RimCellEdgeColors* cellEdgeResultColors,
+                                                                                    size_t             timeStepIndex,
+                                                                                    RigEclipseCaseData* eclipseCase,
+                                                                                    const RigGridBase*  grid )
 {
     cvf::ref<RigCellEdgeResultAccessor> cellEdgeResultAccessor = new RigCellEdgeResultAccessor();
 
@@ -328,8 +326,7 @@ cvf::ref<RigResultAccessor>
 
         for ( size_t cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++ )
         {
-            cellEdgeResultAccessor->setDataAccessObjectForFace( static_cast<cvf::StructGridInterface::FaceType>(
-                                                                    cubeFaceIdx ),
+            cellEdgeResultAccessor->setDataAccessObjectForFace( static_cast<cvf::StructGridInterface::FaceType>( cubeFaceIdx ),
                                                                 daObj.p() );
         }
     }
@@ -357,8 +354,7 @@ cvf::ref<RigResultAccessor>
                                                                    porosityModel,
                                                                    adjustedTimeStep,
                                                                    resultAddresses[cubeFaceIdx] );
-            cellEdgeResultAccessor->setDataAccessObjectForFace( static_cast<cvf::StructGridInterface::FaceType>(
-                                                                    cubeFaceIdx ),
+            cellEdgeResultAccessor->setDataAccessObjectForFace( static_cast<cvf::StructGridInterface::FaceType>( cubeFaceIdx ),
                                                                 daObj.p() );
         }
     }

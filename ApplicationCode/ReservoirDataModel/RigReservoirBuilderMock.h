@@ -71,10 +71,7 @@ public:
 
     bool inputProperty( RigEclipseCaseData* eclipseCase, const QString& propertyName, std::vector<double>* values );
     bool staticResult( RigEclipseCaseData* eclipseCase, const QString& result, std::vector<double>* values );
-    bool dynamicResult( RigEclipseCaseData*  eclipseCase,
-                        const QString&       result,
-                        size_t               stepIndex,
-                        std::vector<double>* values );
+    bool dynamicResult( RigEclipseCaseData* eclipseCase, const QString& result, size_t stepIndex, std::vector<double>* values );
 
 private:
     void addFaults( RigEclipseCaseData* eclipseCase );

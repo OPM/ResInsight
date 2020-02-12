@@ -209,8 +209,7 @@ void RimGeoMechResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimGeoMechResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                       bool*                      useOptionsOnly )
+    RimGeoMechResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
@@ -261,10 +260,9 @@ QList<caf::PdmOptionItemInfo>
             options.push_back( caf::PdmOptionItemInfo( QString( "Disabled" ), RigFemResultAddress::noTimeLapseValue() ) );
             for ( size_t stepIdx = 0; stepIdx < stepNames.size(); ++stepIdx )
             {
-                options.push_back( caf::PdmOptionItemInfo( QString( "%1 (#%2)" )
-                                                               .arg( QString::fromStdString( stepNames[stepIdx] ) )
-                                                               .arg( stepIdx ),
-                                                           static_cast<int>( stepIdx ) ) );
+                options.push_back(
+                    caf::PdmOptionItemInfo( QString( "%1 (#%2)" ).arg( QString::fromStdString( stepNames[stepIdx] ) ).arg( stepIdx ),
+                                            static_cast<int>( stepIdx ) ) );
             }
         }
         else if ( &m_compactionRefLayerUiField == fieldNeedingOptions )
@@ -467,8 +465,8 @@ std::map<std::string, std::vector<std::string>> RimGeoMechResultDefinition::getR
     std::map<std::string, std::vector<std::string>> fieldWithComponentNames;
     if ( gmCase && gmCase->geoMechData() )
     {
-        fieldWithComponentNames = gmCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames(
-            m_resultPositionTypeUiField() );
+        fieldWithComponentNames =
+            gmCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames( m_resultPositionTypeUiField() );
     }
 
     return fieldWithComponentNames;
@@ -866,10 +864,7 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
     RigFemResultAddress resVarAddress = this->resultAddress();
 
     gmCase->femPartResults()->minMaxScalarValues( resVarAddress, timeStepIndex, &localMin, &localMax );
-    gmCase->femPartResults()->posNegClosestToZero( resVarAddress,
-                                                   timeStepIndex,
-                                                   &localPosClosestToZero,
-                                                   &localNegClosestToZero );
+    gmCase->femPartResults()->posNegClosestToZero( resVarAddress, timeStepIndex, &localPosClosestToZero, &localNegClosestToZero );
 
     gmCase->femPartResults()->minMaxScalarValues( resVarAddress, &globalMin, &globalMax );
     gmCase->femPartResults()->posNegClosestToZero( resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero );

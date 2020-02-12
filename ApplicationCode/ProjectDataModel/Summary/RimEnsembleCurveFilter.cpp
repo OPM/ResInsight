@@ -286,8 +286,7 @@ std::vector<RimSummaryCase*> RimEnsembleCurveFilter::applyFilter( const std::vec
 
         if ( eParam.isNumeric() )
         {
-            if ( !crpValue.isNumeric() || crpValue.numericValue() < m_minValue() ||
-                 crpValue.numericValue() > m_maxValue() )
+            if ( !crpValue.isNumeric() || crpValue.numericValue() < m_minValue() || crpValue.numericValue() > m_maxValue() )
             {
                 casesToRemove.insert( sumCase );
             }

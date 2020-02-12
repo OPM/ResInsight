@@ -301,9 +301,8 @@ void RimFormationNames::readFmuFormationNameFile( QTextStream& stream, QString* 
 
             if ( lineStream.status() != QTextStream::Ok )
             {
-                *errorMessage = QString( "Failed to parse line %1 of '%2'" )
-                                    .arg( lineNumber )
-                                    .arg( m_formationNamesFileName().path() );
+                *errorMessage =
+                    QString( "Failed to parse line %1 of '%2'" ).arg( lineNumber ).arg( m_formationNamesFileName().path() );
                 return;
             }
 

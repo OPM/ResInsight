@@ -53,10 +53,7 @@ public:
                                                      double                            xOffset );
 
 private:
-    void                        buildWellHeadParts( size_t                            frameIndex,
-                                                    const caf::DisplayCoordTransform* displayXf,
-                                                    bool                              doFlatten,
-                                                    double                            xOffset );
+    void buildWellHeadParts( size_t frameIndex, const caf::DisplayCoordTransform* displayXf, bool doFlatten, double xOffset );
     void                        clearAllGeometry();
     Rim3dView*                  viewWithSettings();
     RimSimWellInViewCollection* simWellInViewCollection();

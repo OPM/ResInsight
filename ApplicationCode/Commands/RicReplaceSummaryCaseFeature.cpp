@@ -64,8 +64,8 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     RimFileSummaryCase* summaryCase = caf::SelectionManager::instance()->selectedItemOfType<RimFileSummaryCase>();
     if ( !summaryCase ) return;
 
-    const QStringList fileNames = RicImportGeneralDataFeature::getEclipseFileNamesWithDialog(
-        RiaDefines::ECLIPSE_SUMMARY_FILE );
+    const QStringList fileNames =
+        RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ECLIPSE_SUMMARY_FILE );
     if ( fileNames.isEmpty() ) return;
 
     QString oldSummaryHeaderFilename = summaryCase->summaryHeaderFilename();

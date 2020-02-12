@@ -174,9 +174,8 @@ void RiaRegressionTestRunner::runRegressionTest()
     {
         QDir testCaseFolder( folderFileInfo.filePath() );
 
-        bool anyCommandFilesExecuted = findAndExecuteCommandFiles( testCaseFolder,
-                                                                   regressionTestConfig,
-                                                                   htmlReportFileName );
+        bool anyCommandFilesExecuted =
+            findAndExecuteCommandFiles( testCaseFolder, regressionTestConfig, htmlReportFileName );
 
         if ( !anyCommandFilesExecuted )
         {

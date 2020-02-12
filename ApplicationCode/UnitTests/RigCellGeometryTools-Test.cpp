@@ -114,10 +114,7 @@ TEST( RigCellGeometryTools, calculateCellVolumeTest2 )
 
     cvf::BoundingBox          overlapBoundingBox;
     std::array<cvf::Vec3d, 8> overlapVertices;
-    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices,
-                                                             innerBBox,
-                                                             &overlapVertices,
-                                                             &overlapBoundingBox );
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices, innerBBox, &overlapVertices, &overlapBoundingBox );
     EXPECT_DOUBLE_EQ( expectedOverlap, RigCellGeometryTools::calculateCellVolume( overlapVertices ) );
 
     cvf::BoundingBox smallerInnerBBox( cvf::Vec3d( 25.0, 25.0, -10.0 ), cvf::Vec3d( 75.0, 75.0, 25.0 ) );
@@ -128,10 +125,7 @@ TEST( RigCellGeometryTools, calculateCellVolumeTest2 )
     EXPECT_DOUBLE_EQ( 50 * 50 * 25, RigCellGeometryTools::calculateCellVolume( overlapVertices ) );
 
     cvf::BoundingBox smallerBBox( cvf::Vec3d( 50.0, 50.0, 0.0 ), cvf::Vec3d( 100.0, 100.0, 100.0 ) );
-    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices,
-                                                             smallerBBox,
-                                                             &overlapVertices,
-                                                             &overlapBoundingBox );
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices, smallerBBox, &overlapVertices, &overlapBoundingBox );
     double tipVolume = 50 * 50 * 50 * 0.5;
     EXPECT_DOUBLE_EQ( tipVolume, RigCellGeometryTools::calculateCellVolume( overlapVertices ) );
 
@@ -321,9 +315,7 @@ TEST( RigCellGeometryTools, polylinePolygonIntersectionTest )
 
     {
         std::vector<std::vector<cvf::Vec3d>> clippedLines =
-            RigCellGeometryTools::clipPolylineByPolygon( polyLine,
-                                                         polygonExample,
-                                                         RigCellGeometryTools::INTERPOLATE_LINE_Z );
+            RigCellGeometryTools::clipPolylineByPolygon( polyLine, polygonExample, RigCellGeometryTools::INTERPOLATE_LINE_Z );
 
         EXPECT_EQ( (size_t)1, clippedLines.size() );
         EXPECT_EQ( (size_t)3, clippedLines.front().size() );
@@ -460,7 +452,8 @@ TEST( RigWellPathStimplanIntersector, intersection )
     {
         cvf::Mat4d fractureXf = cvf::Mat4d::IDENTITY;
 
-        //         std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f, 0.0f} };
+        //         std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f,
+        //         0.0f} };
         double                               perforationLength = 10;
         double                               wellRadius        = 1.5;
         std::vector<std::vector<cvf::Vec3d>> stpCellPolygons   = {

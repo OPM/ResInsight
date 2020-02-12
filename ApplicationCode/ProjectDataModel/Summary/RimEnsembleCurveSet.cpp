@@ -114,13 +114,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_yPushButtonSelectSummaryAddress = false;
 
-    CAF_PDM_InitField( &m_colorMode,
-                       "ColorMode",
-                       caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ),
-                       "Coloring Mode",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
 
     CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3::BLACK ), "Color", "", "", "" );
 
@@ -862,10 +856,9 @@ void RimEnsembleCurveSet::updateCurveColors()
                 {
                     if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
                         continue;
-                    RimSummaryCase* rimCase    = curve->summaryCaseY();
-                    cvf::Color3f    curveColor = RimEnsembleCurveSetColorManager::caseColor( m_legendConfig,
-                                                                                          rimCase,
-                                                                                          ensembleParam );
+                    RimSummaryCase* rimCase = curve->summaryCaseY();
+                    cvf::Color3f    curveColor =
+                        RimEnsembleCurveSetColorManager::caseColor( m_legendConfig, rimCase, ensembleParam );
                     curve->setColor( curveColor );
                     curve->updateCurveAppearance();
                 }
@@ -893,8 +886,8 @@ void RimEnsembleCurveSet::updateCurveColors()
         {
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame = new RiuDraggableOverlayFrame( plot->viewer()->canvas(),
-                                                                     plot->viewer()->overlayMargins() );
+                m_legendOverlayFrame =
+                    new RiuDraggableOverlayFrame( plot->viewer()->canvas(), plot->viewer()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( m_legendConfig->makeLegendFrame() );
             plot->viewer()->addOverlayFrame( m_legendOverlayFrame );

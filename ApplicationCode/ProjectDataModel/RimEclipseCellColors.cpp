@@ -87,7 +87,8 @@ void RimEclipseCellColors::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 {
     RimEclipseResultDefinition::fieldChangedByUi( changedField, oldValue, newValue );
 
-    // Update of legend config must happen after RimEclipseResultDefinition::fieldChangedByUi(), as this function modifies this->resultVariable()
+    // Update of legend config must happen after RimEclipseResultDefinition::fieldChangedByUi(), as this function
+    // modifies this->resultVariable()
     if ( changedField == &m_resultVariableUiField )
     {
         if ( oldValue != newValue )

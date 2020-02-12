@@ -262,9 +262,7 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
     }
     filenames.push_back( m_gridFileName().path() );
 
-    RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(),
-                                                                     eclipseCaseData(),
-                                                                     filenames );
+    RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(), eclipseCaseData(), filenames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,7 +346,8 @@ void RimEclipseInputCase::updateFilePathsFromProjectPath( const QString& newProj
     // bool                 foundFile = false;
     // std::vector<QString> searchedPaths;
 
-    // m_gridFileName = RimTools::relocateFile( m_gridFileName().path(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
+    // m_gridFileName = RimTools::relocateFile( m_gridFileName().path(), newProjectPath, oldProjectPath, &foundFile,
+    // &searchedPaths );
 
     // for ( RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
     //{

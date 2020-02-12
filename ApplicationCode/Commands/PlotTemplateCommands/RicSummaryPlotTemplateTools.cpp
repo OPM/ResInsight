@@ -115,9 +115,8 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
                 const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForSummaryCase();
 
                 auto referenceString = fieldHandle->xmlCapability()->referenceString();
-                int  indexValue      = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString,
-                                                                                   referenceString,
-                                                                                   &conversionOk );
+                int  indexValue =
+                    RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, referenceString, &conversionOk );
 
                 maximumIndexValue = std::max( maximumIndexValue, indexValue );
 
@@ -131,8 +130,8 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
                     {
                         auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
 
-                        auto candidate = RicSummaryPlotTemplateTools::firstAddressByQuantity( currentAddressY,
-                                                                                              allAddresses );
+                        auto candidate =
+                            RicSummaryPlotTemplateTools::firstAddressByQuantity( currentAddressY, allAddresses );
                         if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
                         {
                             curve->setSummaryAddressY( candidate );
@@ -152,8 +151,8 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
 
                 for ( size_t i = maximumIndexValue; i < selectedSummaryCases.size(); i++ )
                 {
-                    auto newCurve = dynamic_cast<RimSummaryCurve*>(
-                        lastSummaryCurve->xmlCapability()->copyByXmlSerialization(
+                    auto newCurve =
+                        dynamic_cast<RimSummaryCurve*>( lastSummaryCurve->xmlCapability()->copyByXmlSerialization(
                             caf::PdmDefaultObjectFactory::instance() ) );
 
                     auto summaryCaseY = selectedSummaryCases[i];
@@ -182,9 +181,8 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
                 const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup();
 
                 auto referenceString = fieldHandle->xmlCapability()->referenceString();
-                int  indexValue      = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString,
-                                                                                   referenceString,
-                                                                                   &conversionOk );
+                int  indexValue =
+                    RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, referenceString, &conversionOk );
 
                 maximumIndexValue = std::max( maximumIndexValue, indexValue );
 
@@ -206,8 +204,8 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
 
                 for ( size_t i = maximumIndexValue; i < selectedEnsembles.size(); i++ )
                 {
-                    auto newCurveSet = dynamic_cast<RimEnsembleCurveSet*>(
-                        lastSummaryCurveSet->xmlCapability()->copyByXmlSerialization(
+                    auto newCurveSet =
+                        dynamic_cast<RimEnsembleCurveSet*>( lastSummaryCurveSet->xmlCapability()->copyByXmlSerialization(
                             caf::PdmDefaultObjectFactory::instance() ) );
 
                     auto ensembleDataSource = selectedEnsembles[i];
@@ -227,10 +225,9 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicSummaryPlotTemplateTools::htmlTextFromPlotAndSelection(
-    const RimSummaryPlot*                     templatePlot,
-    const std::set<RifEclipseSummaryAddress>& selectedSummaryAddresses,
-    const std::vector<caf::PdmObject*>&       selectedSources )
+QString RicSummaryPlotTemplateTools::htmlTextFromPlotAndSelection( const RimSummaryPlot* templatePlot,
+                                                                   const std::set<RifEclipseSummaryAddress>& selectedSummaryAddresses,
+                                                                   const std::vector<caf::PdmObject*>& selectedSources )
 {
     QString text;
 
@@ -303,9 +300,7 @@ QString RicSummaryPlotTemplateTools::htmlTextFromPlotAndSelection(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicSummaryPlotTemplateTools::htmlTextFromCount( const QString& itemText,
-                                                        size_t         requiredItemCount,
-                                                        size_t         selectionCount )
+QString RicSummaryPlotTemplateTools::htmlTextFromCount( const QString& itemText, size_t requiredItemCount, size_t selectionCount )
 {
     QString text;
 

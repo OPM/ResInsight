@@ -96,8 +96,8 @@ RicfCommandResponse RicfCreateMultipleFractures::execute()
         wellPaths = TOOLS::wellPathsFromNames( TOOLS::toQStringList( m_wellPathNames ), &wellsNotFound );
         if ( !wellsNotFound.empty() )
         {
-            QString error = QString( "createMultipleFractures: These well paths were not found: %1" )
-                                .arg( wellsNotFound.join( ", " ) );
+            QString error =
+                QString( "createMultipleFractures: These well paths were not found: %1" ).arg( wellsNotFound.join( ", " ) );
             RiaLogging::error( error );
             return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
         }
@@ -112,7 +112,8 @@ RicfCommandResponse RicfCreateMultipleFractures::execute()
 
     if ( !fractureTemplate )
     {
-        QString error = QString( "createMultipleFractures: Could not find fracture template with ID %1" ).arg( m_templateId );
+        QString error =
+            QString( "createMultipleFractures: Could not find fracture template with ID %1" ).arg( m_templateId );
         RiaLogging::error( error );
         return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
@@ -187,7 +188,6 @@ RimFractureTemplate* RicfCreateMultipleFractures::fractureTemplateFromId( int te
         if ( t->id() == templateId ) return t;
     }
 
-    RiaLogging::error(
-        QString( "createMultipleFractures: Could not find fracture template with ID %1" ).arg( templateId ) );
+    RiaLogging::error( QString( "createMultipleFractures: Could not find fracture template with ID %1" ).arg( templateId ) );
     return nullptr;
 }

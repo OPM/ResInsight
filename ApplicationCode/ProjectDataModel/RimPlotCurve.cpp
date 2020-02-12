@@ -129,13 +129,7 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault( &m_curveInterpolation, "CurveInterpolation", "Interpolation", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_lineStyle, "LineStyle", "Line Style", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_pointSymbol, "PointSymbol", "Symbol", "", "", "" );
-    CAF_PDM_InitField( &m_symbolEdgeColor,
-                       "SymbolEdgeColor",
-                       cvf::Color3f( cvf::Color3::BLACK ),
-                       "Symbol Edge Color",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_symbolEdgeColor, "SymbolEdgeColor", cvf::Color3f( cvf::Color3::BLACK ), "Symbol Edge Color", "", "", "" );
 
     CAF_PDM_InitField( &m_symbolSkipPixelDistance,
                        "SymbolSkipPxDist",
@@ -187,9 +181,7 @@ RimPlotCurve::~RimPlotCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                     const QVariant&            oldValue,
-                                     const QVariant&            newValue )
+void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_showCurve )
     {
@@ -203,8 +195,7 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( &m_curveColor == changedField || &m_curveThickness == changedField || &m_pointSymbol == changedField ||
               &m_lineStyle == changedField || &m_symbolSkipPixelDistance == changedField ||
-              &m_curveInterpolation == changedField || &m_symbolSize == changedField ||
-              &m_symbolEdgeColor == changedField )
+              &m_curveInterpolation == changedField || &m_symbolSize == changedField || &m_symbolEdgeColor == changedField )
     {
         updateCurveAppearance();
 

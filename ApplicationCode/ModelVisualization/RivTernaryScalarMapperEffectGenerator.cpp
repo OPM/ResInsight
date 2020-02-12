@@ -146,8 +146,8 @@ void RivTernaryScalarMapperEffectGenerator::updateCommonEffect( cvf::Effect* eff
 
     if ( m_polygonOffset != caf::PO_NONE )
     {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = EffectGenerator::createAndConfigurePolygonOffsetRenderState(
-            m_polygonOffset );
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset =
+            EffectGenerator::createAndConfigurePolygonOffsetRenderState( m_polygonOffset );
         effect->setRenderState( polyOffset.p() );
     }
 
@@ -220,14 +220,14 @@ bool RivTernaryScalarMapperEffectGenerator::isEqual( const EffectGenerator* othe
 //--------------------------------------------------------------------------------------------------
 caf::EffectGenerator* RivTernaryScalarMapperEffectGenerator::copy() const
 {
-    RivTernaryScalarMapperEffectGenerator* scEffGen = new RivTernaryScalarMapperEffectGenerator( m_scalarMapper.p(),
-                                                                                                 m_polygonOffset );
-    scEffGen->m_textureImage                        = m_textureImage;
-    scEffGen->m_opacityLevel                        = m_opacityLevel;
-    scEffGen->m_undefinedColor                      = m_undefinedColor;
-    scEffGen->m_faceCulling                         = m_faceCulling;
-    scEffGen->m_enableDepthWrite                    = m_enableDepthWrite;
-    scEffGen->m_disableLighting                     = m_disableLighting;
+    RivTernaryScalarMapperEffectGenerator* scEffGen =
+        new RivTernaryScalarMapperEffectGenerator( m_scalarMapper.p(), m_polygonOffset );
+    scEffGen->m_textureImage     = m_textureImage;
+    scEffGen->m_opacityLevel     = m_opacityLevel;
+    scEffGen->m_undefinedColor   = m_undefinedColor;
+    scEffGen->m_faceCulling      = m_faceCulling;
+    scEffGen->m_enableDepthWrite = m_enableDepthWrite;
+    scEffGen->m_disableLighting  = m_disableLighting;
 
     return scEffGen;
 }

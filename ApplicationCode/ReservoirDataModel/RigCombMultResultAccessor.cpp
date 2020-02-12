@@ -64,8 +64,7 @@ double RigCombMultResultAccessor::cellScalar( size_t gridLocalCellIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigCombMultResultAccessor::cellFaceScalar( size_t                             gridLocalCellIndex,
-                                                  cvf::StructGridInterface::FaceType faceId ) const
+double RigCombMultResultAccessor::cellFaceScalar( size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
     size_t i, j, k, neighborGridCellIdx;
     m_grid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k );
@@ -84,8 +83,7 @@ double RigCombMultResultAccessor::cellFaceScalar( size_t                        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigCombMultResultAccessor::nativeMultScalar( size_t                             gridLocalCellIndex,
-                                                    cvf::StructGridInterface::FaceType faceId ) const
+double RigCombMultResultAccessor::nativeMultScalar( size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
     double faceScalar = 1.0;
 
@@ -145,7 +143,8 @@ double RigCombMultResultAccessor::nativeMultScalar( size_t                      
             break;
     }
 
-    // FaceScalar with value HUGE_VAL means value outside valid IJK-range. Clamp to 1.0 as this means no change in MULT factor.
+    // FaceScalar with value HUGE_VAL means value outside valid IJK-range. Clamp to 1.0 as this means no change in MULT
+    // factor.
     if ( faceScalar == HUGE_VAL )
     {
         faceScalar = 1.0;
@@ -167,8 +166,7 @@ double RigCombMultResultAccessor::cellScalarGlobIdx( size_t globCellIndex ) cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigCombMultResultAccessor::cellFaceScalarGlobIdx( size_t                             globCellIndex,
-                                                         cvf::StructGridInterface::FaceType faceId ) const
+double RigCombMultResultAccessor::cellFaceScalarGlobIdx( size_t globCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
     size_t gridLocalCellIndex = m_grid->mainGrid()->cell( globCellIndex ).gridLocalCellIndex();
     return this->cellFaceScalar( gridLocalCellIndex, faceId );

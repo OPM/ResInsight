@@ -69,8 +69,8 @@ void RiuPvtPlotUpdater::updateOnSelectionChanged( const RiuSelectionItem* select
     Rim3dView*               newFollowAnimView    = nullptr;
     RiuEclipseSelectionItem* eclipseSelectionItem = nullptr;
 
-    eclipseSelectionItem = RiuRelativePermeabilityPlotUpdater::extractEclipseSelectionItem( selectionItem,
-                                                                                            newFollowAnimView );
+    eclipseSelectionItem =
+        RiuRelativePermeabilityPlotUpdater::extractEclipseSelectionItem( selectionItem, newFollowAnimView );
 
     bool mustClearPlot          = true;
     m_viewToFollowAnimationFrom = nullptr;
@@ -119,8 +119,8 @@ void RiuPvtPlotUpdater::updateOnTimeStepChanged( Rim3dView* changedView )
     Rim3dView*               newFollowAnimView    = nullptr;
     RiuEclipseSelectionItem* eclipseSelectionItem = nullptr;
 
-    eclipseSelectionItem = RiuRelativePermeabilityPlotUpdater::extractEclipseSelectionItem( selectionItem,
-                                                                                            newFollowAnimView );
+    eclipseSelectionItem =
+        RiuRelativePermeabilityPlotUpdater::extractEclipseSelectionItem( selectionItem, newFollowAnimView );
 
     if ( eclipseSelectionItem && newFollowAnimView == changedView )
     {
@@ -161,8 +161,8 @@ bool RiuPvtPlotUpdater::queryDataAndUpdatePlot( const RimEclipseResultDefinition
                 eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurves( RigFlowDiagSolverInterface::PVT_CT_FVF,
                                                                                   activeCellIndex );
             std::vector<RigFlowDiagSolverInterface::PvtCurve> viscosityCurveArr =
-                eclipseResultCase->flowDiagSolverInterface()
-                    ->calculatePvtCurves( RigFlowDiagSolverInterface::PVT_CT_VISCOSITY, activeCellIndex );
+                eclipseResultCase->flowDiagSolverInterface()->calculatePvtCurves( RigFlowDiagSolverInterface::PVT_CT_VISCOSITY,
+                                                                                  activeCellIndex );
 
             // The following calls will read results from file in preparation for the queries below
             RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );

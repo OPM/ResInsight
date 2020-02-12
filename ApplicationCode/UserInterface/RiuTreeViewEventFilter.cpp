@@ -121,8 +121,8 @@ bool RiuTreeViewEventFilter::eventFilter( QObject* obj, QEvent* event )
             }
             else if ( keyEvent->matches( QKeySequence::Delete ) )
             {
-                matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingKeyboardShortcut(
-                    QKeySequence::Delete );
+                matches =
+                    caf::CmdFeatureManager::instance()->commandFeaturesMatchingKeyboardShortcut( QKeySequence::Delete );
             }
             else
             {

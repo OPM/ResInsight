@@ -76,9 +76,7 @@ public:
     std::vector<RimWellPathTarget*>                     activeWellTargets() const;
 
 protected:
-    void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
-                                  QMenu*                     menu,
-                                  QWidget*                   fieldEditorWidget ) override;
+    void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
@@ -87,9 +85,7 @@ protected:
     virtual void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
     void initAfterRead() override;

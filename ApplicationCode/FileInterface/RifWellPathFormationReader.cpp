@@ -120,10 +120,9 @@ std::map<QString, cvf::ref<RigWellPathFormations>>
 
     for ( const std::pair<QString, std::vector<RigWellPathFormation>>& formation : formations )
     {
-        cvf::ref<RigWellPathFormations> wellPathFormations = new RigWellPathFormations( formation.second,
-                                                                                        filePath,
-                                                                                        formation.first );
-        result[formation.first]                            = wellPathFormations;
+        cvf::ref<RigWellPathFormations> wellPathFormations =
+            new RigWellPathFormations( formation.second, filePath, formation.first );
+        result[formation.first] = wellPathFormations;
     }
 
     return result;

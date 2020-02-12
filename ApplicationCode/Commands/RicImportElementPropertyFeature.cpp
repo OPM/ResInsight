@@ -47,10 +47,8 @@ void RicImportElementPropertyFeature::onActionTriggered( bool isChecked )
     RiaApplication* app = RiaApplication::instance();
 
     QString     defaultDir = app->lastUsedDialogDirectory( "ELM_PROPS" );
-    QStringList fileNames  = QFileDialog::getOpenFileNames( nullptr,
-                                                           "Import Element Property Table",
-                                                           defaultDir,
-                                                           "Property Table (*.inp)" );
+    QStringList fileNames =
+        QFileDialog::getOpenFileNames( nullptr, "Import Element Property Table", defaultDir, "Property Table (*.inp)" );
 
     if ( !fileNames.empty() )
     {

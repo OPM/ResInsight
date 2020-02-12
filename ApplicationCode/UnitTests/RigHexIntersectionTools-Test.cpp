@@ -42,15 +42,13 @@ TEST( RigHexIntersectionTools, planeHexCellIntersectionTest )
     cvf::Plane                                   fracturePlane;
 
     fracturePlane.setFromPointAndNormal( cvf::Vec3d( 0.5, 0.5, 0.5 ), cvf::Vec3d( 1, 0, 0 ) );
-    isCellIntersected = RigHexIntersectionTools::planeHexCellIntersection( hexCorners,
-                                                                           fracturePlane,
-                                                                           intersectionLineSegments );
+    isCellIntersected =
+        RigHexIntersectionTools::planeHexCellIntersection( hexCorners, fracturePlane, intersectionLineSegments );
     EXPECT_TRUE( isCellIntersected );
 
     fracturePlane.setFromPointAndNormal( cvf::Vec3d( 1.5, 1.5, 1.5 ), cvf::Vec3d( 1, 0, 0 ) );
-    isCellIntersected = RigHexIntersectionTools::planeHexCellIntersection( hexCorners,
-                                                                           fracturePlane,
-                                                                           intersectionLineSegments );
+    isCellIntersected =
+        RigHexIntersectionTools::planeHexCellIntersection( hexCorners, fracturePlane, intersectionLineSegments );
     EXPECT_FALSE( isCellIntersected );
 }
 

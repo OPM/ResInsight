@@ -125,9 +125,7 @@ caf::PdmFieldHandle* RimGridInfo::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridInfo::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                    const QVariant&            oldValue,
-                                    const QVariant&            newValue )
+void RimGridInfo::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimGridView* rimView = nullptr;
     this->firstAncestorOrThisOfType( rimView );

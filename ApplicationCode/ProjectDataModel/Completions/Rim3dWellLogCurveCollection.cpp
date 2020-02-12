@@ -220,8 +220,8 @@ void Rim3dWellLogCurveCollection::defineEditorAttribute( const caf::PdmFieldHand
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute )
 {
-    caf::PdmUiDoubleSliderEditorAttribute* widthAttribute = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(
-        attribute );
+    caf::PdmUiDoubleSliderEditorAttribute* widthAttribute =
+        dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
     if ( widthAttribute )
     {
         widthAttribute->m_minimum = 0.25;

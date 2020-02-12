@@ -370,10 +370,9 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData( Rim
                                                                                        histData.p90 );
                         eclipseView->currentGridCellResults()->meanCellScalarValues( eclResAddr, histData.mean );
                         eclipseView->currentGridCellResults()->sumCellScalarValues( eclResAddr, histData.sum );
-                        eclipseView->currentGridCellResults()->mobileVolumeWeightedMean( eclResAddr,
-                                                                                         histData.weightedMean );
-                        histData.histogram = &(
-                            eclipseView->currentGridCellResults()->cellScalarValuesHistogram( eclResAddr ) );
+                        eclipseView->currentGridCellResults()->mobileVolumeWeightedMean( eclResAddr, histData.weightedMean );
+                        histData.histogram =
+                            &( eclipseView->currentGridCellResults()->cellScalarValuesHistogram( eclResAddr ) );
                     }
                     else if ( m_statisticsTimeRange == CURRENT_TIMESTEP )
                     {
@@ -401,9 +400,9 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData( Rim
                                                                                          currentTimeStep,
                                                                                          histData.weightedMean );
 
-                        histData.histogram = &(
-                            eclipseView->currentGridCellResults()->cellScalarValuesHistogram( eclResAddr,
-                                                                                              currentTimeStep ) );
+                        histData.histogram =
+                            &( eclipseView->currentGridCellResults()->cellScalarValuesHistogram( eclResAddr,
+                                                                                                 currentTimeStep ) );
                     }
                     else
                     {
@@ -444,8 +443,9 @@ Rim3dOverlayInfoConfig::HistogramData Rim3dOverlayInfoConfig::histogramData( Rim
             }
             else if ( eclipseView->cellResult()->isFlowDiagOrInjectionFlooding() )
             {
-                if ( m_statisticsTimeRange == CURRENT_TIMESTEP ||
-                     m_statisticsTimeRange == ALL_TIMESTEPS ) // All timesteps is ignored
+                if ( m_statisticsTimeRange == CURRENT_TIMESTEP || m_statisticsTimeRange == ALL_TIMESTEPS ) // All
+                                                                                                           // timesteps
+                                                                                                           // is ignored
                 {
                     int currentTimeStep = eclipseView->currentTimeStep();
 
@@ -726,24 +726,24 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData,
 
             if ( eclipseView->cellResult()->hasDualPorFractureResult() )
             {
-                QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText(
-                    eclipseView->cellResult()->porosityModel() );
+                QString porosityModelText =
+                    caf::AppEnum<RiaDefines::PorosityModelType>::uiText( eclipseView->cellResult()->porosityModel() );
 
                 infoText += QString( "<b>Dual Porosity Type:</b> %1<br>" ).arg( porosityModelText );
             }
 
             infoText += QString( "<br><b>Statistics:</b> " ) + timeRangeText + " and " + m_statisticsCellRange().uiText();
-            infoText += QString(
-                            "<table border=0 cellspacing=5 >"
-                            "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
-                            "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
-                            "</table>" )
-                            .arg( histData.min )
-                            .arg( histData.p10 )
-                            .arg( histData.mean )
-                            .arg( histData.p90 )
-                            .arg( histData.max )
-                            .arg( histData.sum );
+            infoText +=
+                QString( "<table border=0 cellspacing=5 >"
+                         "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
+                         "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                         "</table>" )
+                    .arg( histData.min )
+                    .arg( histData.p10 )
+                    .arg( histData.mean )
+                    .arg( histData.p90 )
+                    .arg( histData.max )
+                    .arg( histData.sum );
 
             if ( eclipseView->faultResultSettings()->hasValidCustomResult() )
             {
@@ -751,8 +751,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData,
                 bool    isShowingGrid = eclipseView->faultCollection()->isGridVisualizationMode();
                 if ( !isShowingGrid )
                 {
-                    if ( eclipseView->faultCollection()->faultResult() ==
-                         RimFaultInViewCollection::FAULT_BACK_FACE_CULLING )
+                    if ( eclipseView->faultCollection()->faultResult() == RimFaultInViewCollection::FAULT_BACK_FACE_CULLING )
                     {
                         faultMapping = "Cells behind fault";
                     }
@@ -772,8 +771,9 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData,
                 }
 
                 infoText += QString( "<b>Fault results: </b> %1<br>" ).arg( faultMapping );
-                infoText += QString( "<b>Fault Property:</b> %1 <br>" )
-                                .arg( eclipseView->faultResultSettings()->customFaultResult()->resultVariableUiShortName() );
+                infoText +=
+                    QString( "<b>Fault Property:</b> %1 <br>" )
+                        .arg( eclipseView->faultResultSettings()->customFaultResult()->resultVariableUiShortName() );
             }
         }
 
@@ -849,7 +849,8 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData, R
             }
             else
             {
-                infoText += QString( "<b>Cell result:</b> %1, %2, %3<br>" ).arg( resultPos ).arg( fieldName ).arg( compName );
+                infoText +=
+                    QString( "<b>Cell result:</b> %1, %2, %3<br>" ).arg( resultPos ).arg( fieldName ).arg( compName );
             }
 
             const RimGeoMechContourMapView* contourMapView = dynamic_cast<const RimGeoMechContourMapView*>( geoMechView );
@@ -957,8 +958,8 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     RimEclipseView* reservoirView = dynamic_cast<RimEclipseView*>( m_viewDef.p() );
     if ( reservoirView )
     {
-        const RimEclipseStatisticsCase* eclipseStat = dynamic_cast<const RimEclipseStatisticsCase*>(
-            reservoirView->eclipseCase() );
+        const RimEclipseStatisticsCase* eclipseStat =
+            dynamic_cast<const RimEclipseStatisticsCase*>( reservoirView->eclipseCase() );
         if ( eclipseStat )
         {
             m_showVolumeWeightedMean = false;
@@ -1179,13 +1180,12 @@ QString Rim3dOverlayInfoConfig::timeStepText( RimEclipseView* eclipseView )
         {
             QString dateFormat = RiaQDateTimeTools::createTimeFormatStringFromDates( timeSteps );
 
-            QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale( timeSteps[currTimeStepIndex],
-                                                                                    dateFormat );
+            QString dateString =
+                RiaQDateTimeTools::toStringUsingApplicationLocale( timeSteps[currTimeStepIndex], dateFormat );
 
-            dateTimeString = QString( "Time Step: %1/%2  %3" )
-                                 .arg( QString::number( currTimeStepIndex ),
-                                       QString::number( timeSteps.size() - 1 ),
-                                       dateString );
+            dateTimeString =
+                QString( "Time Step: %1/%2  %3" )
+                    .arg( QString::number( currTimeStepIndex ), QString::number( timeSteps.size() - 1 ), dateString );
         }
     }
 
@@ -1383,10 +1383,12 @@ bool Rim3dOverlayInfoConfig::hasInvalidStatisticsCombination()
          m_statisticsCellRange() == VISIBLE_CELLS && m_statisticsTimeRange() == ALL_TIMESTEPS )
     {
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_viewDef.p() );
-        if ( !( eclipseView &&
-                eclipseView->cellResult()
-                    ->isFlowDiagOrInjectionFlooding() ) ) // If isFlowDiagOrInjFlooding then skip this check as
-                                                          // ALL_TIMESTEPS is overridden to CURRENT behind the scenes
+        if ( !( eclipseView && eclipseView->cellResult()->isFlowDiagOrInjectionFlooding() ) ) // If
+                                                                                              // isFlowDiagOrInjFlooding
+                                                                                              // then skip this check as
+                                                                                              // ALL_TIMESTEPS is
+                                                                                              // overridden to CURRENT
+                                                                                              // behind the scenes
         {
             return true;
         }

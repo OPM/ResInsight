@@ -242,10 +242,8 @@ QString RiaGuiApplication::promptForProjectSaveAsFileName() const
         startPath += "/ResInsightProject.rsp";
     }
 
-    QString fileName = QFileDialog::getSaveFileName( nullptr,
-                                                     tr( "Save File" ),
-                                                     startPath,
-                                                     tr( "Project Files (*.rsp);;All files(*.*)" ) );
+    QString fileName =
+        QFileDialog::getSaveFileName( nullptr, tr( "Save File" ), startPath, tr( "Project Files (*.rsp);;All files(*.*)" ) );
     return fileName;
 }
 
@@ -611,8 +609,8 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
             {
                 // One argument is available, use replace case for first occurrence in the project
 
-                std::vector<QString> gridFileNames = readFileListFromTextFile(
-                    cvfqt::Utils::toQString( o.safeValue( 0 ) ) );
+                std::vector<QString> gridFileNames =
+                    readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( 0 ) ) );
                 projectModifier->setReplaceSourceCasesFirstOccurrence( gridFileNames );
             }
             else
@@ -620,9 +618,9 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
                 size_t optionIdx = 0;
                 while ( optionIdx < o.valueCount() )
                 {
-                    const int            groupId       = o.safeValue( optionIdx++ ).toInt( -1 );
-                    std::vector<QString> gridFileNames = readFileListFromTextFile(
-                        cvfqt::Utils::toQString( o.safeValue( optionIdx++ ) ) );
+                    const int            groupId = o.safeValue( optionIdx++ ).toInt( -1 );
+                    std::vector<QString> gridFileNames =
+                        readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( optionIdx++ ) ) );
 
                     if ( groupId != -1 && !gridFileNames.empty() )
                     {
@@ -664,8 +662,8 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
     if ( cvf::Option o = progOpt->option( "case" ) )
     {
-        QStringList fileNames = RicImportGeneralDataFeature::fileNamesFromCaseNames(
-            cvfqt::Utils::toQStringList( o.values() ) );
+        QStringList fileNames =
+            RicImportGeneralDataFeature::fileNamesFromCaseNames( cvfqt::Utils::toQStringList( o.values() ) );
 
         RicImportGeneralDataFeature::OpenCaseResults results =
             RicImportGeneralDataFeature::openEclipseFilesFromFileNames( fileNames, true );
@@ -1493,15 +1491,14 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
             }
 
             QMessageBox::StandardButton reply;
-            reply =
-                QMessageBox::question( m_mainWindow,
-                                       QString( "Apply %1 to Existing Views or Plots?" ).arg( listString ),
-                                       QString( "You have changed default %1 and have existing views or plots with "
-                                                "different settings.\n" )
-                                               .arg( listString ) +
-                                           QString(
-                                               "Do you want to apply the new default settings to all existing views?" ),
-                                       QMessageBox::Ok | QMessageBox::Cancel );
+            reply                   = QMessageBox::question( m_mainWindow,
+                                           QString( "Apply %1 to Existing Views or Plots?" ).arg( listString ),
+                                           QString( "You have changed default %1 and have existing views or plots with "
+                                                    "different settings.\n" )
+                                                   .arg( listString ) +
+                                               QString( "Do you want to apply the new default settings to all existing "
+                                                        "views?" ),
+                                           QMessageBox::Ok | QMessageBox::Cancel );
             applySettingsToAllViews = ( reply == QMessageBox::Ok );
         }
 
@@ -1533,9 +1530,8 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
                     rim3dView->applyBackgroundColorAndFontChanges();
                 }
 
-                if ( oldPreferences &&
-                     ( applySettingsToAllViews ||
-                       rim3dView->scaleZ == static_cast<double>( oldPreferences->defaultScaleFactorZ() ) ) )
+                if ( oldPreferences && ( applySettingsToAllViews ||
+                                         rim3dView->scaleZ == static_cast<double>( oldPreferences->defaultScaleFactorZ() ) ) )
                 {
                     rim3dView->scaleZ = static_cast<double>( m_preferences->defaultScaleFactorZ() );
                     rim3dView->updateScaling();

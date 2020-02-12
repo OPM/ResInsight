@@ -248,8 +248,7 @@ void RimWellAllocationPlot::updateFromWell()
                                                                                      pipeBranchesCLCoords,
                                                                                      pipeBranchesCellIds );
 
-    std::map<QString, const std::vector<double>*> tracerFractionCellValues = findRelevantTracerCellFractions(
-        simWellData );
+    std::map<QString, const std::vector<double>*> tracerFractionCellValues = findRelevantTracerCellFractions( simWellData );
 
     std::unique_ptr<RigAccWellFlowCalculator> wfCalculator;
 
@@ -258,9 +257,9 @@ void RimWellAllocationPlot::updateFromWell()
 
     if ( tracerFractionCellValues.size() )
     {
-        bool isProducer = ( simWellData->wellProductionType( m_timeStep ) == RigWellResultFrame::PRODUCER ||
-                            simWellData->wellProductionType( m_timeStep ) ==
-                                RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE );
+        bool isProducer =
+            ( simWellData->wellProductionType( m_timeStep ) == RigWellResultFrame::PRODUCER ||
+              simWellData->wellProductionType( m_timeStep ) == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE );
         RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
                                                m_case->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL ) );
         wfCalculator.reset( new RigAccWellFlowCalculator( pipeBranchesCLCoords,
@@ -373,8 +372,8 @@ void RimWellAllocationPlot::updateFromWell()
         updateWellFlowPlotXAxisTitle( plotTrack );
     }
 
-    QString wellStatusText = QString( "(%1)" ).arg(
-        RimWellAllocationPlot::wellStatusTextForTimeStep( m_wellName, m_case, m_timeStep ) );
+    QString wellStatusText =
+        QString( "(%1)" ).arg( RimWellAllocationPlot::wellStatusTextForTimeStep( m_wellName, m_case, m_timeStep ) );
 
     QString flowTypeText = m_flowDiagSolution() ? "Well Allocation" : "Well Flow";
     setDescription( flowTypeText + ": " + m_wellName + " " + wellStatusText + ", " +
@@ -741,7 +740,8 @@ QList<caf::PdmOptionItemInfo>
             // options.push_back(caf::PdmOptionItemInfo("None", nullptr));
             // for (RimFlowDiagSolution* flowSol : flowSols)
             //{
-            //    options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIcon()));
+            //    options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false,
+            //    flowSol->uiIcon()));
             //}
 
             RimFlowDiagSolution* defaultFlowSolution = m_case->defaultFlowDiagSolution();

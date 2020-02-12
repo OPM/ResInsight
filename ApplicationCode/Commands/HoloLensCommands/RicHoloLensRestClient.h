@@ -33,8 +33,7 @@ public:
     virtual void handleSuccessfulCreateSession() = 0;
     virtual void handleFailedCreateSession()     = 0;
 
-    virtual void handleSuccessfulSendMetaData( int               metaDataSequenceNumber,
-                                               const QByteArray& jsonServerResponseString ) = 0;
+    virtual void handleSuccessfulSendMetaData( int metaDataSequenceNumber, const QByteArray& jsonServerResponseString ) = 0;
 
     virtual void handleError( const QString& errMsg, const QString& url, const QString& serverData ) = 0;
 };

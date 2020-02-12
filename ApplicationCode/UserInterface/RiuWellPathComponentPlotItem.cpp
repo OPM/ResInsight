@@ -201,16 +201,8 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         double       markerDepth   = startDepth;
         while ( markerDepth < endDepth - 5 )
         {
-            addMarker( -casingTrackEnd,
-                       markerDepth,
-                       markerSize,
-                       RiuQwtSymbol::SYMBOL_LEFT_ALIGNED_TRIANGLE,
-                       componentColor() );
-            addMarker( casingTrackEnd,
-                       markerDepth,
-                       markerSize,
-                       RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE,
-                       componentColor() );
+            addMarker( -casingTrackEnd, markerDepth, markerSize, RiuQwtSymbol::SYMBOL_LEFT_ALIGNED_TRIANGLE, componentColor() );
+            addMarker( casingTrackEnd, markerDepth, markerSize, RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor() );
 
             markerDepth += markerSpacing;
         }
@@ -265,16 +257,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
     {
         for ( double md : m_subMDs )
         {
-            addMarker( 0.0,
-                       md,
-                       16,
-                       RiuQwtSymbol::SYMBOL_ELLIPSE,
-                       componentColor(),
-                       "",
-                       Qt::AlignCenter,
-                       Qt::Horizontal,
-                       false,
-                       true );
+            addMarker( 0.0, md, 16, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true );
         }
         m_combinedComponentGroup.addLegendItem(
             createMarker( 0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor() ) );
@@ -283,16 +266,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
     {
         for ( double md : m_subMDs )
         {
-            addMarker( 0.0,
-                       md,
-                       16,
-                       RiuQwtSymbol::SYMBOL_ELLIPSE,
-                       componentColor(),
-                       "",
-                       Qt::AlignCenter,
-                       Qt::Horizontal,
-                       false,
-                       true );
+            addMarker( 0.0, md, 16, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true );
         }
         m_combinedComponentGroup.addLegendItem(
             createMarker( 0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor() ) );
@@ -301,16 +275,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
     {
         for ( double md : m_subMDs )
         {
-            addMarker( 0.0,
-                       md,
-                       16,
-                       RiuQwtSymbol::SYMBOL_ELLIPSE,
-                       componentColor(),
-                       "",
-                       Qt::AlignCenter,
-                       Qt::Horizontal,
-                       false,
-                       true );
+            addMarker( 0.0, md, 16, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true );
         }
         m_combinedComponentGroup.addLegendItem(
             createMarker( 0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor() ) );
@@ -381,16 +346,8 @@ void RiuWellPathComponentPlotItem::addMarker( double                        posX
                                               bool                          drawLine /*= false*/,
                                               bool                          contrastTextColor /*= true*/ )
 {
-    QwtPlotItem* marker = createMarker( posX,
-                                        depth,
-                                        size,
-                                        symbolType,
-                                        baseColor,
-                                        label,
-                                        labelAlignment,
-                                        labelOrientation,
-                                        drawLine,
-                                        contrastTextColor );
+    QwtPlotItem* marker =
+        createMarker( posX, depth, size, symbolType, baseColor, label, labelAlignment, labelOrientation, drawLine, contrastTextColor );
     m_combinedComponentGroup.addPlotItem( marker );
 }
 

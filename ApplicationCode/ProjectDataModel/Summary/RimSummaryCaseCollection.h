@@ -126,9 +126,7 @@ private:
     void                 updateIcon();
 
     void initAfterRead() override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 protected:
     virtual void onLoadDataAndUpdate();

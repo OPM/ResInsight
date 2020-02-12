@@ -46,19 +46,9 @@ RimOilField::RimOilField( void )
 
     CAF_PDM_InitFieldNoDefault( &completionTemplateCollection, "CompletionTemplateCollection", "", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &summaryCaseMainCollection,
-                                "SummaryCaseCollection",
-                                "Summary Cases",
-                                ":/GridModels.png",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &summaryCaseMainCollection, "SummaryCaseCollection", "Summary Cases", ":/GridModels.png", "", "" );
     CAF_PDM_InitFieldNoDefault( &formationNamesCollection, "FormationNamesCollection", "Formations", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &observedDataCollection,
-                                "ObservedDataCollection",
-                                "Observed Data",
-                                ":/Cases16x16.png",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &observedDataCollection, "ObservedDataCollection", "Observed Data", ":/Cases16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &annotationCollection, "AnnotationCollection", "Annotations", "", "", "" );
 

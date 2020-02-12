@@ -81,8 +81,7 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult( RimEclips
             {
                 auto intersectedCells =
                     RigWellPathIntersectionTools::findIntersectedGlobalCellIndices( eclipseCaseData,
-                                                                                    wellPath->wellPathGeometry()
-                                                                                        ->m_wellPathPoints );
+                                                                                    wellPath->wellPathGeometry()->m_wellPathPoints );
 
                 for ( auto& intersection : intersectedCells )
                 {

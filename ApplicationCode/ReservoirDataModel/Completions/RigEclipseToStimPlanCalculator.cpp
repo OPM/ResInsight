@@ -63,8 +63,8 @@ RigEclipseToStimPlanCalculator::RigEclipseToStimPlanCalculator( const RimEclipse
 //--------------------------------------------------------------------------------------------------
 void RigEclipseToStimPlanCalculator::computeValues()
 {
-    auto reservoirCellIndicesOpenForFlow = RimFractureContainmentTools::reservoirCellIndicesOpenForFlow( m_case,
-                                                                                                         m_fracture );
+    auto reservoirCellIndicesOpenForFlow =
+        RimFractureContainmentTools::reservoirCellIndicesOpenForFlow( m_case, m_fracture );
 
     for ( size_t i = 0; i < m_fractureGrid.fractureCells().size(); i++ )
     {
@@ -111,17 +111,13 @@ void RigEclipseToStimPlanCalculator::appendDataToTransmissibilityCondenser( bool
         {
             if ( useFiniteConductivityInFracture )
             {
-                condenser->addNeighborTransmissibility( {true,
-                                                         CellIdxSpace::ECLIPSE,
-                                                         fractureCellContributingEclipseCells[i]},
+                condenser->addNeighborTransmissibility( {true, CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i]},
                                                         {false, CellIdxSpace::STIMPLAN, stimPlanCellIndex},
                                                         fractureCellContributingEclipseCellTransmissibilities[i] );
             }
             else
             {
-                condenser->addNeighborTransmissibility( {true,
-                                                         CellIdxSpace::ECLIPSE,
-                                                         fractureCellContributingEclipseCells[i]},
+                condenser->addNeighborTransmissibility( {true, CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i]},
                                                         {true, CellIdxSpace::WELL, 1},
                                                         fractureCellContributingEclipseCellTransmissibilities[i] );
             }

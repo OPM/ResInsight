@@ -456,8 +456,8 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<R
                 fileCurve->setWellPath( wellPathToApply() );
                 if ( !fileCurve->wellLogChannelUiName().isEmpty() )
                 {
-                    RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName(
-                        fileCurve->wellLogChannelUiName() );
+                    RimWellLogFile* logFile =
+                        wellPathToApply()->firstWellLogFileMatchingChannelName( fileCurve->wellLogChannelUiName() );
                     fileCurve->setWellLogFile( logFile );
                     RimWellLogPlot* parentPlot = nullptr;
                     fileCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
@@ -797,8 +797,8 @@ QList<caf::PdmOptionItemInfo>
                 options.push_back( caf::PdmOptionItemInfo( "No Trajectory Types", -1 ) );
             }
         }
-        std::vector<RimWellLogExtractionCurve::TrajectoryType> trajectoryTypes =
-            {RimWellLogExtractionCurve::WELL_PATH, RimWellLogExtractionCurve::SIMULATION_WELL};
+        std::vector<RimWellLogExtractionCurve::TrajectoryType> trajectoryTypes = {RimWellLogExtractionCurve::WELL_PATH,
+                                                                                  RimWellLogExtractionCurve::SIMULATION_WELL};
         for ( RimWellLogExtractionCurve::TrajectoryType trajectoryType : trajectoryTypes )
         {
             caf::PdmOptionItemInfo item( caf::AppEnum<RimWellLogExtractionCurve::TrajectoryType>::uiText( trajectoryType ),
@@ -997,8 +997,8 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
 
         if ( m_uniqueWbsSmoothingThreshold.size() > 1u )
         {
-            auto minmax_it = std::minmax_element( m_uniqueWbsSmoothingThreshold.begin(),
-                                                  m_uniqueWbsSmoothingThreshold.end() );
+            auto minmax_it =
+                std::minmax_element( m_uniqueWbsSmoothingThreshold.begin(), m_uniqueWbsSmoothingThreshold.end() );
             displayString += QString( " [%1, %2]" ).arg( *( minmax_it.first ) ).arg( *( minmax_it.second ) );
         }
 

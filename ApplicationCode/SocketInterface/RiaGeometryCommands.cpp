@@ -140,18 +140,15 @@ public:
 
             CVF_ASSERT( valueIndex == cellCount );
 
-            RiaSocketTools::writeBlockData( server,
-                                            server->currentClient(),
-                                            (const char*)doubleValues.data(),
-                                            blockByteCount );
+            RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)doubleValues.data(), blockByteCount );
         }
 
         return true;
     }
 };
 
-static bool RiaGetCellCenters_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCellCenters>(
-    RiaGetCellCenters::commandName() );
+static bool RiaGetCellCenters_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetCellCenters>( RiaGetCellCenters::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -221,10 +218,7 @@ public:
             }
 
             CVF_ASSERT( valueIndex == activeCellCount );
-            RiaSocketTools::writeBlockData( server,
-                                            server->currentClient(),
-                                            (const char*)doubleValues.data(),
-                                            blockByteCount );
+            RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)doubleValues.data(), blockByteCount );
         }
 
         return true;
@@ -307,9 +301,8 @@ public:
                             size_t gridLocalCellIndex = rigGrid->cellIndexFromIJK( i, j, k );
                             rigGrid->cellCornerVertices( gridLocalCellIndex, cornerVerts );
 
-                            doubleValues[valueIndex++] = getCellCornerWithPositiveDepth( cornerVerts,
-                                                                                         cornerIndexMapping,
-                                                                                         coordIdx );
+                            doubleValues[valueIndex++] =
+                                getCellCornerWithPositiveDepth( cornerVerts, cornerIndexMapping, coordIdx );
                         }
                     }
                 }
@@ -327,8 +320,8 @@ public:
     }
 };
 
-static bool RiaGetCellCorners_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCellCorners>(
-    RiaGetCellCorners::commandName() );
+static bool RiaGetCellCorners_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetCellCorners>( RiaGetCellCorners::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -398,9 +391,8 @@ public:
 
                     mainGrid->cellCornerVertices( reservoirCellIndex, cornerVerts );
 
-                    doubleValues[valueIndex++] = getCellCornerWithPositiveDepth( cornerVerts,
-                                                                                 cornerIndexMapping,
-                                                                                 coordIdx );
+                    doubleValues[valueIndex++] =
+                        getCellCornerWithPositiveDepth( cornerVerts, cornerIndexMapping, coordIdx );
                 }
 
                 CVF_ASSERT( valueIndex == activeCellCount );

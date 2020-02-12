@@ -280,8 +280,7 @@ void RimFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         }
     }
 
-    if ( changedField == &m_perforationLength || changedField == &m_perforationEfficiency ||
-         changedField == &m_wellDiameter )
+    if ( changedField == &m_perforationLength || changedField == &m_perforationEfficiency || changedField == &m_wellDiameter )
     {
         for ( RimFracture* fracture : fracturesUsingThisTemplate() )
         {
@@ -762,10 +761,7 @@ void RimFractureTemplate::setId( int id )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::setScaleFactors( double halfLengthScale,
-                                           double heightScale,
-                                           double dFactorScale,
-                                           double conductivityScale )
+void RimFractureTemplate::setScaleFactors( double halfLengthScale, double heightScale, double dFactorScale, double conductivityScale )
 {
     m_halfLengthScaleFactor   = halfLengthScale;
     m_heightScaleFactor       = heightScale;

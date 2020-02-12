@@ -51,8 +51,8 @@ bool RicPasteGeoMechViewsFeature::isCommandEnabled()
         return false;
     }
 
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimGeoMechCase* geoMechCase = RicPasteFeatureImpl::findGeoMechCase( destinationObject );
     if ( geoMechCase ) return true;
@@ -65,8 +65,8 @@ bool RicPasteGeoMechViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteGeoMechViewsFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimGeoMechCase* geomCase = RicPasteFeatureImpl::findGeoMechCase( destinationObject );
     assert( geomCase );

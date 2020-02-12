@@ -142,9 +142,7 @@ void RiuWellImportWizard::issueHttpRequestToFile( QString completeUrlText, QStri
     {
         QMessageBox::information( this,
                                   tr( "HTTP" ),
-                                  tr( "Unable to save the file %1: %2." )
-                                      .arg( destinationFileName )
-                                      .arg( m_file->errorString() ) );
+                                  tr( "Unable to save the file %1: %2." ).arg( destinationFileName ).arg( m_file->errorString() ) );
         delete m_file;
         m_file = nullptr;
         return;
@@ -227,8 +225,8 @@ void RiuWellImportWizard::httpFinished()
 
             if ( singleWellPathContent.indexOf( '{' ) > 0 )
             {
-                singleWellPathContent = singleWellPathContent.right( singleWellPathContent.size() -
-                                                                     singleWellPathContent.indexOf( '{' ) );
+                singleWellPathContent =
+                    singleWellPathContent.right( singleWellPathContent.size() - singleWellPathContent.indexOf( '{' ) );
             }
 
             if ( singleWellPathContent[singleWellPathContent.size() - 1] == ']' )
@@ -480,14 +478,13 @@ void RiuWellImportWizard::downloadWells()
                     }
                     else
                     {
-                        wellRequest =
-                            QString(
-                                "/resinsight/projects/%1/wellsInArea?north=%2&south=%3&east=%4&west=%5&utmzone=32N" )
-                                .arg( oilField->edmId )
-                                .arg( QString::number( m_wellPathImportObject->north, 'g', 10 ) )
-                                .arg( QString::number( m_wellPathImportObject->south, 'g', 10 ) )
-                                .arg( QString::number( m_wellPathImportObject->east, 'g', 10 ) )
-                                .arg( QString::number( m_wellPathImportObject->west, 'g', 10 ) );
+                        wellRequest = QString( "/resinsight/projects/%1/"
+                                               "wellsInArea?north=%2&south=%3&east=%4&west=%5&utmzone=32N" )
+                                          .arg( oilField->edmId )
+                                          .arg( QString::number( m_wellPathImportObject->north, 'g', 10 ) )
+                                          .arg( QString::number( m_wellPathImportObject->south, 'g', 10 ) )
+                                          .arg( QString::number( m_wellPathImportObject->east, 'g', 10 ) )
+                                          .arg( QString::number( m_wellPathImportObject->west, 'g', 10 ) );
                     }
 
                     urlToFile.requestUrl       = m_webServiceAddress + wellRequest;
@@ -1049,8 +1046,7 @@ void WellSelectionPage::customMenuRequested( const QPoint& pos )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool lessByDescription( const caf::PdmPointer<caf::PdmObjectHandle>& obj1,
-                        const caf::PdmPointer<caf::PdmObjectHandle>& obj2 )
+bool lessByDescription( const caf::PdmPointer<caf::PdmObjectHandle>& obj1, const caf::PdmPointer<caf::PdmObjectHandle>& obj2 )
 {
     caf::PdmUiFieldHandle* uiFieldHandle1 = nullptr;
     caf::PdmUiFieldHandle* uiFieldHandle2 = nullptr;

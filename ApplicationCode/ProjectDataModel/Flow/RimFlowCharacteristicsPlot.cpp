@@ -247,8 +247,7 @@ void RimFlowCharacteristicsPlot::setAquiferCellThreshold( double aquiferCellThre
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimFlowCharacteristicsPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                       bool*                      useOptionsOnly )
+    RimFlowCharacteristicsPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -297,9 +296,9 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( m_flowDiagSolution && m_case )
         {
-            QStringList      timeStepDates       = m_case->timeStepStrings();
-            std::vector<int> calculatedTimeSteps = m_flowDiagSolution()->flowDiagResults()->calculatedTimeSteps(
-                RigFlowDiagResultAddress::PHASE_ALL );
+            QStringList      timeStepDates = m_case->timeStepStrings();
+            std::vector<int> calculatedTimeSteps =
+                m_flowDiagSolution()->flowDiagResults()->calculatedTimeSteps( RigFlowDiagResultAddress::PHASE_ALL );
             for ( int tsIdx = 0; tsIdx < timeStepDates.size(); ++tsIdx )
             {
                 auto    it       = std::find( calculatedTimeSteps.begin(), calculatedTimeSteps.end(), tsIdx );
@@ -443,8 +442,7 @@ void RimFlowCharacteristicsPlot::defineUiOrdering( QString uiConfigName, caf::Pd
         {
             regionGroup->add( &m_minCommunication );
         }
-        else if ( m_cellFilter() == RigFlowDiagResults::CELLS_DRAINED ||
-                  m_cellFilter() == RigFlowDiagResults::CELLS_FLOODED )
+        else if ( m_cellFilter() == RigFlowDiagResults::CELLS_DRAINED || m_cellFilter() == RigFlowDiagResults::CELLS_FLOODED )
         {
             regionGroup->add( &m_maxTof );
         }
@@ -682,8 +680,7 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
                     m_cellFilterView()->calculateCurrentTotalCellVisibility( &visibleCells, timeStepIdx );
                 }
 
-                RigActiveCellInfo* activeCellInfo = m_case()->eclipseCaseData()->activeCellInfo(
-                    RiaDefines::MATRIX_MODEL );
+                RigActiveCellInfo* activeCellInfo = m_case()->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
                 std::vector<char> visibleActiveCells( activeCellInfo->reservoirActiveCellCount(), 0 );
 
                 for ( size_t i = 0; i < visibleCells.size(); ++i )
@@ -695,9 +692,8 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
                     }
                 }
 
-                auto flowCharResults                 = flowResult->flowCharacteristicsResults( timeStepIdx,
-                                                                               visibleActiveCells,
-                                                                               m_maxPvFraction() );
+                auto flowCharResults =
+                    flowResult->flowCharacteristicsResults( timeStepIdx, visibleActiveCells, m_maxPvFraction() );
                 timeStepToFlowResultMap[timeStepIdx] = flowCharResults;
             }
             else
@@ -827,10 +823,8 @@ QString RimFlowCharacteristicsPlot::curveDataAsText() const
             for ( const auto storageCapacity : storageCapacitySamplingValues )
             {
                 {
-                    double flowCapacity = interpolate( storageCapacityValues,
-                                                       flowCapacityValues,
-                                                       storageCapacity,
-                                                       extrapolate );
+                    double flowCapacity =
+                        interpolate( storageCapacityValues, flowCapacityValues, storageCapacity, extrapolate );
                     flowCapacitySamplingValues.push_back( flowCapacity );
                 }
             }
@@ -846,10 +840,8 @@ QString RimFlowCharacteristicsPlot::curveDataAsText() const
             {
                 double dimensionLessTimeValue = i * step;
                 dimensionLessTimeSamplingValues.push_back( dimensionLessTimeValue );
-                double sweepEffValue = interpolate( dimensionLessTimeValues,
-                                                    sweepEffValues,
-                                                    dimensionLessTimeValue,
-                                                    extrapolate );
+                double sweepEffValue =
+                    interpolate( dimensionLessTimeValues, sweepEffValues, dimensionLessTimeValue, extrapolate );
                 sweepEffSamplingValues.push_back( sweepEffValue );
             }
 

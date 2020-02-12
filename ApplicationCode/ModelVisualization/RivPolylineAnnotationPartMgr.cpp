@@ -51,8 +51,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivPolylineAnnotationPartMgr::RivPolylineAnnotationPartMgr( Rim3dView*                    view,
-                                                            RimPolylinesAnnotationInView* annotationInView )
+RivPolylineAnnotationPartMgr::RivPolylineAnnotationPartMgr( Rim3dView* view, RimPolylinesAnnotationInView* annotationInView )
     : m_rimView( view )
     , m_rimAnnotationInView( annotationInView )
 {
@@ -138,8 +137,9 @@ void RivPolylineAnnotationPartMgr::buildPolylineAnnotationParts( const caf::Disp
             cvf::ref<cvf::DrawableVectors> vectorDrawable;
             if ( RiaGuiApplication::instance()->useShaders() )
             {
-                // NOTE: Drawable vectors must be rendered using shaders when the rest of the application is rendered using
-                // shaders Drawing vectors using fixed function when rest of the application uses shaders causes visual artifacts
+                // NOTE: Drawable vectors must be rendered using shaders when the rest of the application is rendered
+                // using shaders Drawing vectors using fixed function when rest of the application uses shaders causes
+                // visual artifacts
                 vectorDrawable = new cvf::DrawableVectors( "u_transformationMatrix", "u_color" );
             }
             else

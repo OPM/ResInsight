@@ -299,8 +299,7 @@ double RimFishbonesMultipleSubs::openHoleRoughnessFactor( RiaEclipseUnitTools::U
     {
         return RiaEclipseUnitTools::feetToMeter( m_lateralOpenHoleRoghnessFactor() );
     }
-    else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC &&
-              unitSystem == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( m_lateralOpenHoleRoghnessFactor() );
     }
@@ -382,8 +381,8 @@ void RimFishbonesMultipleSubs::geometryUpdated()
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimFishbonesMultipleSubs::coordsForLateral( size_t subIndex, size_t lateralIndex ) const
 {
-    std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD = m_rigFishbonesGeometry->coordsForLateral( subIndex,
-                                                                                                       lateralIndex );
+    std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD =
+        m_rigFishbonesGeometry->coordsForLateral( subIndex, lateralIndex );
 
     std::vector<cvf::Vec3d> domainCoords;
     for ( const auto& coordMD : coordsAndMD )
@@ -756,13 +755,7 @@ void RimFishbonesMultipleSubs::initialiseObsoleteFields()
                        "" );
     m_subsLocationMode_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_rangeStart_OBSOLETE,
-                       "RangeStart",
-                       std::numeric_limits<double>::infinity(),
-                       "Start MD [m]",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_rangeStart_OBSOLETE, "RangeStart", std::numeric_limits<double>::infinity(), "Start MD [m]", "", "", "" );
     m_rangeStart_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_rangeEnd_OBSOLETE, "RangeEnd", std::numeric_limits<double>::infinity(), "End MD [m]", "", "", "" );

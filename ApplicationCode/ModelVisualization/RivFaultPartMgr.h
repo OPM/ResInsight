@@ -50,9 +50,7 @@ class RivNNCGeometryGenerator;
 class RivFaultPartMgr : public cvf::Object
 {
 public:
-    RivFaultPartMgr( const RigGridBase*              grid,
-                     const RimFaultInViewCollection* rimFaultCollection,
-                     RimFaultInView*                 rimFault );
+    RivFaultPartMgr( const RigGridBase* grid, const RimFaultInViewCollection* rimFaultCollection, RimFaultInView* rimFault );
 
     void setCellVisibility( cvf::UByteArray* cellVisibilities );
 

@@ -92,12 +92,13 @@ std::vector<RigCompletionData>
         return completionData;
     }
 
-    std::map<size_t, std::vector<WellBorePartForTransCalc>> wellBorePartsInCells; // wellBore = main bore or fishbone lateral
+    std::map<size_t, std::vector<WellBorePartForTransCalc>> wellBorePartsInCells; // wellBore = main bore or fishbone
+                                                                                  // lateral
     findFishboneLateralsWellBoreParts( wellBorePartsInCells, wellPath, settings );
     findFishboneImportedLateralsWellBoreParts( wellBorePartsInCells, wellPath, settings );
 
-    const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(
-        RiaDefines::MATRIX_MODEL );
+    const RigActiveCellInfo* activeCellInfo =
+        settings.caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
 
     for ( const auto& cellAndWellBoreParts : wellBorePartsInCells )
     {
@@ -237,8 +238,9 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     }
 
     {
-        // Note that it is not supported to export main bore perforation intervals for Imported Laterals, only for fishbones
-        // defined by ResInsight. It is not trivial to define the open section of the main bore for imported laterals.
+        // Note that it is not supported to export main bore perforation intervals for Imported Laterals, only for
+        // fishbones defined by ResInsight. It is not trivial to define the open section of the main bore for imported
+        // laterals.
 
         if ( wellPath->fishbonesCollection()->isChecked() )
         {
@@ -302,11 +304,12 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
         for ( const auto& cellIntersectionInfo : intersectedCells )
         {
             QString                  completionMetaData = fishbonesPath->name();
-            WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc( cellIntersectionInfo.intersectionLengthsInCellCS,
-                                                                              holeRadius,
-                                                                              skinFactor,
-                                                                              isMainBore,
-                                                                              completionMetaData );
+            WellBorePartForTransCalc wellBorePart =
+                WellBorePartForTransCalc( cellIntersectionInfo.intersectionLengthsInCellCS,
+                                          holeRadius,
+                                          skinFactor,
+                                          isMainBore,
+                                          completionMetaData );
             wellBorePart.intersectionWithWellMeasuredDepth = cellIntersectionInfo.startMD;
 
             wellBorePartsInCells[cellIntersectionInfo.globCellIndex].push_back( wellBorePart );

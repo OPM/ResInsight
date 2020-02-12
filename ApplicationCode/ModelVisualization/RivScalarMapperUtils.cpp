@@ -71,10 +71,8 @@ void RivScalarMapperUtils::applyTernaryTextureResultsToPart( cvf::Part*         
     cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>( part->drawable() );
     if ( dg ) dg->setTextureCoordArray( textureCoords );
 
-    cvf::ref<cvf::Effect> scalarEffect = RivScalarMapperUtils::createTernaryScalarMapperEffect( mapper,
-                                                                                                opacityLevel,
-                                                                                                faceCulling,
-                                                                                                disableLighting );
+    cvf::ref<cvf::Effect> scalarEffect =
+        RivScalarMapperUtils::createTernaryScalarMapperEffect( mapper, opacityLevel, faceCulling, disableLighting );
     part->setEffect( scalarEffect.p() );
 }
 

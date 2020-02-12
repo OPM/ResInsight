@@ -90,8 +90,7 @@ void RicPasteGridCrossPlotDataSetFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmPointer<RimGridCrossPlotDataSet>>
-    RicPasteGridCrossPlotDataSetFeature::gridCrossPlotDataSetsOnClipboard()
+std::vector<caf::PdmPointer<RimGridCrossPlotDataSet>> RicPasteGridCrossPlotDataSetFeature::gridCrossPlotDataSetsOnClipboard()
 {
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );

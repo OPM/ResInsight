@@ -42,8 +42,7 @@ public:
     RivContourMapProjectionPartMgr( RimContourMapProjection* contourMapProjection, RimGridView* contourMap );
 
     void createProjectionGeometry();
-    void appendProjectionToModel( cvf::ModelBasicList*              model,
-                                  const caf::DisplayCoordTransform* displayCoordTransform ) const;
+    void appendProjectionToModel( cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform ) const;
     void appendContourLinesToModel( const cvf::Camera*                camera,
                                     cvf::ModelBasicList*              model,
                                     const caf::DisplayCoordTransform* displayCoordTransform );
@@ -53,16 +52,14 @@ public:
     cvf::ref<cvf::Vec2fArray> createTextureCoords( const std::vector<double>& values ) const;
 
 private:
-    static cvf::ref<cvf::DrawableText> createTextLabel( const cvf::Color3f& textColor,
-                                                        const cvf::Color3f& backgroundColor );
+    static cvf::ref<cvf::DrawableText> createTextLabel( const cvf::Color3f& textColor, const cvf::Color3f& backgroundColor );
     cvf::ref<cvf::Part> createProjectionMapPart( const caf::DisplayCoordTransform* displayCoordTransform ) const;
     std::vector<std::vector<cvf::ref<cvf::Drawable>>>
-        createContourPolygons( const caf::DisplayCoordTransform*                 displayCoordTransform,
-                               const std::vector<std::vector<cvf::BoundingBox>>& labelBBoxes ) const;
-    std::vector<cvf::ref<cvf::Drawable>>
-                               createContourLabels( const cvf::Camera*                          camera,
-                                                    const caf::DisplayCoordTransform*           displayCoordTransform,
-                                                    std::vector<std::vector<cvf::BoundingBox>>* labelBBoxes ) const;
+                                         createContourPolygons( const caf::DisplayCoordTransform*                 displayCoordTransform,
+                                                                const std::vector<std::vector<cvf::BoundingBox>>& labelBBoxes ) const;
+    std::vector<cvf::ref<cvf::Drawable>> createContourLabels( const cvf::Camera*                camera,
+                                                              const caf::DisplayCoordTransform* displayCoordTransform,
+                                                              std::vector<std::vector<cvf::BoundingBox>>* labelBBoxes ) const;
     cvf::ref<cvf::DrawableGeo> createPickPointVisDrawable( const caf::DisplayCoordTransform* displayCoordTransform ) const;
     bool                       lineOverlapsWithPreviousContourLevel( const cvf::Vec3d&                               lineCenter,
                                                                      const RimContourMapProjection::ContourPolygons* previousLevel ) const;

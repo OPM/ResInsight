@@ -384,8 +384,8 @@ public:
 
             if ( wpExIdx < intersections.size() - 1 )
             {
-                m_pipeBranchWellResultPoints.push_back(
-                    RigWellResultPoint() ); // Invalid res point describing the "line" between the cells
+                m_pipeBranchWellResultPoints.push_back( RigWellResultPoint() ); // Invalid res point describing the
+                                                                                // "line" between the cells
             }
         }
     }
@@ -416,9 +416,9 @@ public:
         std::map<size_t, std::pair<size_t, size_t>> globCellIdxToIdxInSimWellBranch;
 
         const RimWellPath*    wellPath = RimWellPlotTools::wellPathByWellPathNameOrSimWellName( wellPathName );
-        const RigSimWellData* simWell  = wellPath != nullptr ? eclCase->eclipseCaseData()->findSimWellData(
-                                                                  wellPath->associatedSimulationWellName() )
-                                                            : nullptr;
+        const RigSimWellData* simWell =
+            wellPath != nullptr ? eclCase->eclipseCaseData()->findSimWellData( wellPath->associatedSimulationWellName() )
+                                : nullptr;
 
         if ( !simWell ) return;
 
@@ -430,7 +430,8 @@ public:
 
         for ( size_t brIdx = 0; brIdx < resFrame.m_wellResultBranches.size(); ++brIdx )
         {
-            const std::vector<RigWellResultPoint>& branchResPoints = resFrame.m_wellResultBranches[brIdx].m_branchResultPoints;
+            const std::vector<RigWellResultPoint>& branchResPoints =
+                resFrame.m_wellResultBranches[brIdx].m_branchResultPoints;
             for ( size_t wrpIdx = 0; wrpIdx < branchResPoints.size(); wrpIdx++ )
             {
                 const RigGridBase* grid = mainGrid->gridByIndex( branchResPoints[wrpIdx].m_gridIndex );
@@ -472,8 +473,8 @@ public:
             m_pipeBranchWellResultPoints.push_back( resPoint );
             if ( wpExIdx < intersections.size() - 1 )
             {
-                m_pipeBranchWellResultPoints.push_back(
-                    RigWellResultPoint() ); // Invalid res point describing the "line" between the cells
+                m_pipeBranchWellResultPoints.push_back( RigWellResultPoint() ); // Invalid res point describing the
+                                                                                // "line" between the cells
             }
         }
     }
@@ -560,8 +561,8 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
                     const std::vector<double>& depthValues = wfTotalAccumulator.pseudoLengthFromTop( 0 );
 
-                    QString curveUnitText = RimWellPlotTools::flowUnitText( RimWellLogFile::WELL_FLOW_COND_RESERVOIR,
-                                                                            unitSet );
+                    QString curveUnitText =
+                        RimWellPlotTools::flowUnitText( RimWellLogFile::WELL_FLOW_COND_RESERVOIR, unitSet );
 
                     const std::vector<double> accFlow =
                         wfTotalAccumulator.accumulatedTracerFlowPrPseudoLength( RIG_FLOW_TOTAL_NAME, 0 );
@@ -604,9 +605,8 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                                 flowPhase = FLOW_PHASE_GAS;
                             else if ( tracerName == RIG_FLOW_WATER_NAME )
                                 flowPhase = FLOW_PHASE_WATER;
-                            QString curveUnitText = RimWellPlotTools::curveUnitText( RimWellLogFile::WELL_FLOW_COND_STANDARD,
-                                                                                     unitSet,
-                                                                                     flowPhase );
+                            QString curveUnitText =
+                                RimWellPlotTools::curveUnitText( RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet, flowPhase );
 
                             const std::vector<double>& accFlow =
                                 wfPhaseAccumulator.accumulatedTracerFlowPrPseudoLength( tracerName, 0 );
@@ -912,9 +912,9 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                 {
                     if ( !wellPath->wellPathGeometry() )
                     {
-                        QString tmp = QString(
-                            "Display of Measured Depth (MD) for Grid or RFT curves is not possible without a "
-                            "well log path, and the curve will be hidden in this mode.\n\n" );
+                        QString tmp =
+                            QString( "Display of Measured Depth (MD) for Grid or RFT curves is not possible without a "
+                                     "well log path, and the curve will be hidden in this mode.\n\n" );
 
                         QMessageBox::warning( nullptr, "Grid/RFT curve without MD", tmp );
 
@@ -1013,10 +1013,9 @@ void RimWellPltPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
 {
     if ( field == &m_phases )
     {
-        caf::PdmUiTreeSelectionEditorAttribute* attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>(
-            attribute );
-        attrib->showTextFilter        = false;
-        attrib->showToggleAllCheckbox = false;
+        caf::PdmUiTreeSelectionEditorAttribute* attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
+        attrib->showTextFilter                         = false;
+        attrib->showToggleAllCheckbox                  = false;
     }
 }
 

@@ -139,9 +139,8 @@ bool RigGeoMechCaseData::readFemParts( std::string* errorMessage, const std::vec
 
             m_elementPropertyReader = new RifElementPropertyReader( m_femParts->part( 0 )->elementIdxToId() );
             // Initialize results containers
-            m_femPartResultsColl = new RigFemPartResultsCollection( m_readerInterface.p(),
-                                                                    m_elementPropertyReader.p(),
-                                                                    m_femParts.p() );
+            m_femPartResultsColl =
+                new RigFemPartResultsCollection( m_readerInterface.p(), m_elementPropertyReader.p(), m_femParts.p() );
 
             // Calculate derived Fem data
             for ( int pIdx = 0; pIdx < m_femParts->partCount(); ++pIdx )

@@ -132,9 +132,7 @@ void prepareCaseCurvesForExport( DateTimePeriod    period,
                                  const CurvesData& inputCurvesData,
                                  CurvesData*       resultCurvesData );
 
-void       appendToExportDataForCase( QString&                      out,
-                                      const std::vector<time_t>&    timeSteps,
-                                      const std::vector<CurveData>& curveData );
+void       appendToExportDataForCase( QString& out, const std::vector<time_t>& timeSteps, const std::vector<CurveData>& curveData );
 void       appendToExportData( QString& out, const std::vector<CurvesData>& curvesData, bool showTimeAsLongString );
 CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData );
 
@@ -359,10 +357,7 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( DateTimePeriod resampling
         std::vector<CurvesData> exportData( 2 );
 
         // Summary grid data for export
-        prepareCaseCurvesForExport( resamplingPeriod,
-                                    ResampleAlgorithm::DATA_DECIDES,
-                                    summaryCurvesGridData,
-                                    &exportData[0] );
+        prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::DATA_DECIDES, summaryCurvesGridData, &exportData[0] );
 
         // Time history data for export
         prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::PERIOD_END, timeHistoryCurvesData, &exportData[1] );
@@ -581,13 +576,15 @@ QString RimSummaryPlot::generatedPlotTitleFromAllCurves() const
 void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot )
 {
     {
-        QString data = sourceSummaryPlot.yAxisPropertiesLeftOrRight( RiaDefines::PLOT_AXIS_LEFT )->writeObjectToXmlString();
+        QString data =
+            sourceSummaryPlot.yAxisPropertiesLeftOrRight( RiaDefines::PLOT_AXIS_LEFT )->writeObjectToXmlString();
         yAxisPropertiesLeftOrRight( RiaDefines::PLOT_AXIS_LEFT )
             ->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
     }
 
     {
-        QString data = sourceSummaryPlot.yAxisPropertiesLeftOrRight( RiaDefines::PLOT_AXIS_RIGHT )->writeObjectToXmlString();
+        QString data =
+            sourceSummaryPlot.yAxisPropertiesLeftOrRight( RiaDefines::PLOT_AXIS_RIGHT )->writeObjectToXmlString();
         yAxisPropertiesLeftOrRight( RiaDefines::PLOT_AXIS_RIGHT )
             ->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
     }
@@ -673,14 +670,11 @@ void RimSummaryPlot::updatePlotInfoLabel()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlot::containsResamplableCurves() const
 {
-    std::vector<RimSummaryCurve*> summaryCurves                = summaryAndEnsembleCurves();
-    size_t                        resamplableSummaryCurveCount = std::count_if( summaryCurves.begin(),
-                                                         summaryCurves.end(),
-                                                         []( RimSummaryCurve* curve ) {
-                                                             return curve->summaryCaseY()
-                                                                        ? !curve->summaryCaseY()->isObservedData()
-                                                                        : false;
-                                                         } );
+    std::vector<RimSummaryCurve*> summaryCurves = summaryAndEnsembleCurves();
+    size_t                        resamplableSummaryCurveCount =
+        std::count_if( summaryCurves.begin(), summaryCurves.end(), []( RimSummaryCurve* curve ) {
+            return curve->summaryCaseY() ? !curve->summaryCaseY()->isObservedData() : false;
+        } );
 
     return !m_gridTimeHistoryCurves.empty() || resamplableSummaryCurveCount > 0;
 }
@@ -1938,8 +1932,8 @@ void RimSummaryPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotSourceStepping* RimSummaryPlot::sourceSteppingObjectForKeyEventHandling() const
 {
-    caf::PdmObjectHandle* selectedObj = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* selectedObj =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selectedObj )
     {
         RimEnsembleCurveSetCollection* ensembleCurveSetColl = nullptr;
@@ -2262,9 +2256,8 @@ void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData
             }
         }
 
-        auto allTimeSteps = RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( data.resamplePeriod,
-                                                                                  minTimeStep,
-                                                                                  maxTimeStep );
+        auto allTimeSteps =
+            RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( data.resamplePeriod, minTimeStep, maxTimeStep );
 
         out += "\n\n";
         out += "Date and time";

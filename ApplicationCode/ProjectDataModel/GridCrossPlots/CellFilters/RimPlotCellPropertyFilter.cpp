@@ -144,8 +144,8 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter( size_t timeStepI
 
         if ( !resDef->currentGridCellResults()->hasResultEntry( resDef->eclipseResultAddress() ) ) return;
 
-        const std::vector<double>& cellResultValues = cellResultsData->cellScalarResults( resDef->eclipseResultAddress(),
-                                                                                          timeStepIndex );
+        const std::vector<double>& cellResultValues =
+            cellResultsData->cellScalarResults( resDef->eclipseResultAddress(), timeStepIndex );
         if ( cellResultValues.empty() ) return;
 
         const RigActiveCellInfo* actCellInfo             = cellResultsData->activeCellInfo();

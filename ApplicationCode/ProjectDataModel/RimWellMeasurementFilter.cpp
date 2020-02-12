@@ -60,10 +60,8 @@ std::vector<RimWellMeasurement*>
                                                   double                                  upperBound,
                                                   const std::vector<int>&                 qualityFilter )
 {
-    std::vector<RimWellMeasurement*> filteredMeasurementsByKindsAndWellPath = filterMeasurements( measurements,
-                                                                                                  wellPathCollection,
-                                                                                                  wellPath,
-                                                                                                  measurementKinds );
+    std::vector<RimWellMeasurement*> filteredMeasurementsByKindsAndWellPath =
+        filterMeasurements( measurements, wellPathCollection, wellPath, measurementKinds );
 
     std::vector<RimWellMeasurement*> filteredMeasurements;
     for ( auto& measurement : filteredMeasurementsByKindsAndWellPath )

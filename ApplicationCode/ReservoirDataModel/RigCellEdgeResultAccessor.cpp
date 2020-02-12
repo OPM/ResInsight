@@ -51,8 +51,7 @@ double RigCellEdgeResultAccessor::cellScalar( size_t gridLocalCellIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigCellEdgeResultAccessor::cellFaceScalar( size_t                             gridLocalCellIndex,
-                                                  cvf::StructGridInterface::FaceType faceId ) const
+double RigCellEdgeResultAccessor::cellFaceScalar( size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
     const RigResultAccessor* resultAccessObj = m_resultAccessObjects[faceId].p();
     if ( resultAccessObj != nullptr )
@@ -77,8 +76,7 @@ double RigCellEdgeResultAccessor::cellScalarGlobIdx( size_t globCellIndex ) cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigCellEdgeResultAccessor::cellFaceScalarGlobIdx( size_t                             globCellIndex,
-                                                         cvf::StructGridInterface::FaceType faceId ) const
+double RigCellEdgeResultAccessor::cellFaceScalarGlobIdx( size_t globCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
     const RigResultAccessor* resultAccessObj = m_resultAccessObjects[faceId].p();
     if ( resultAccessObj != nullptr )

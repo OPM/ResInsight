@@ -83,8 +83,8 @@ RicfCommandResponse RicfExportSnapshots::execute()
     mainWnd->hideAllDockWidgets();
     RiaGuiApplication::instance()->processEvents();
 
-    QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath(
-        RicfCommandFileExecutor::SNAPSHOTS );
+    QString absolutePathToSnapshotDir =
+        RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::SNAPSHOTS );
 
     if ( !m_exportFolder().isEmpty() )
     {
@@ -92,8 +92,8 @@ RicfCommandResponse RicfExportSnapshots::execute()
     }
     if ( absolutePathToSnapshotDir.isNull() )
     {
-        absolutePathToSnapshotDir = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath(
-            "snapshots" );
+        absolutePathToSnapshotDir =
+            RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "snapshots" );
     }
     if ( m_type == RicfExportSnapshots::VIEWS || m_type == RicfExportSnapshots::ALL )
     {

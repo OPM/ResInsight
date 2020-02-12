@@ -141,8 +141,8 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
         readerEclipseOutput->setFilenamesWithFaults( this->filesContainingFaults() );
 
-        cvf::ref<RifEclipseRestartDataAccess> restartDataAccess = RifEclipseOutputFileTools::createDynamicResultAccess(
-            caseFileName().path() );
+        cvf::ref<RifEclipseRestartDataAccess> restartDataAccess =
+            RifEclipseOutputFileTools::createDynamicResultAccess( caseFileName().path() );
 
         {
             std::vector<QDateTime> timeSteps;
@@ -490,7 +490,8 @@ void RimEclipseResultCase::updateFilePathsFromProjectPath( const QString& newPro
     // std::vector<QString> searchedPaths;
 
     // Update filename and folder paths when opening project from a different file location
-    // caseFileName = RimTools::relocateFile( caseFileName().path(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
+    // caseFileName = RimTools::relocateFile( caseFileName().path(), newProjectPath, oldProjectPath, &foundFile,
+    // &searchedPaths );
 
     // std::vector<QString>        relocatedFaultFiles;
     // const std::vector<QString>& orgFilesContainingFaults = filesContainingFaults();

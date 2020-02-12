@@ -37,10 +37,8 @@ void RicImportGeoMechCaseTimeStepFilterFeature::onActionTriggered( bool isChecke
     RiaApplication* app = RiaApplication::instance();
 
     QString     defaultDir = app->lastUsedDialogDirectory( "GEOMECH_MODEL" );
-    QStringList fileNames  = QFileDialog::getOpenFileNames( nullptr,
-                                                           "Import Geo-Mechanical Model",
-                                                           defaultDir,
-                                                           "Abaqus results (*.odb)" );
+    QStringList fileNames =
+        QFileDialog::getOpenFileNames( nullptr, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)" );
     if ( fileNames.size() ) defaultDir = QFileInfo( fileNames.last() ).absolutePath();
     for ( QString fileName : fileNames )
     {

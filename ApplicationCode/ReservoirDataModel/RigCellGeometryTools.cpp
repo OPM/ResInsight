@@ -145,10 +145,9 @@ bool RigCellGeometryTools::estimateHexOverlapWithBoundingBox( const std::array<c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCellGeometryTools::createPolygonFromLineSegments(
-    std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments,
-    std::vector<std::vector<cvf::Vec3d>>&         polygons,
-    double                                        tolerance )
+void RigCellGeometryTools::createPolygonFromLineSegments( std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments,
+                                                          std::vector<std::vector<cvf::Vec3d>>& polygons,
+                                                          double                                tolerance )
 {
     bool startNewPolygon = true;
     while ( !intersectionLineSegments.empty() )
@@ -564,7 +563,8 @@ void fillUndefinedZ( ClipperLib::IntPoint& e1bot,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Assumes x.y plane polygon. Polyline might have a Z, and the returned Z is the polyline Z, interpolated if it is clipped.
+/// Assumes x.y plane polygon. Polyline might have a Z, and the returned Z is the polyline Z, interpolated if it is
+/// clipped.
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::clipPolylineByPolygon( const std::vector<cvf::Vec3d>& polyLine,
                                                                                   const std::vector<cvf::Vec3d>& polygon,

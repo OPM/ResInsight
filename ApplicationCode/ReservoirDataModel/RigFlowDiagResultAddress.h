@@ -58,9 +58,7 @@ public:
     {
     }
 
-    RigFlowDiagResultAddress( const std::string& aVariableName,
-                              PhaseSelection     phaseSelection,
-                              const std::string& tracerName )
+    RigFlowDiagResultAddress( const std::string& aVariableName, PhaseSelection phaseSelection, const std::string& tracerName )
         : variableName( aVariableName )
         , phaseSelection( phaseSelection )
     {

@@ -40,9 +40,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void setupBeforeSave() override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
@@ -50,9 +48,8 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    static void appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options,
-                                             bool                           hideSummaryCases,
-                                             bool                           hideEnsembles );
+    static void
+        appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options, bool hideSummaryCases, bool hideEnsembles );
 
     std::vector<SummarySource*> selectedSummarySources() const;
     QString                     curveFilterTextWithoutOutdatedLabel() const;
