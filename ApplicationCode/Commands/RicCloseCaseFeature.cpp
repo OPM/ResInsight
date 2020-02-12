@@ -190,10 +190,9 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
     RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>( eclipseCase );
     if ( resultCase )
     {
-        RimProject*                   project     = RiaApplication::instance()->project();
-        RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField()
-                                                        ? project->activeOilField()->summaryCaseMainCollection()
-                                                        : nullptr;
+        RimProject*                   project = RiaApplication::instance()->project();
+        RimSummaryCaseMainCollection* sumCaseColl =
+            project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
         if ( sumCaseColl )
         {
             RimSummaryCase* summaryCase = sumCaseColl->findSummaryCaseFromEclipseResultCase( resultCase );
@@ -255,8 +254,8 @@ bool RicCloseCaseFeature::hasAnyStatisticsResults( RimIdenticalGridCaseGroup* gr
 
     for ( size_t i = 0; i < gridCaseGroup->statisticsCaseCollection()->reservoirs().size(); i++ )
     {
-        RimEclipseStatisticsCase* rimStaticsCase = dynamic_cast<RimEclipseStatisticsCase*>(
-            gridCaseGroup->statisticsCaseCollection()->reservoirs[i] );
+        RimEclipseStatisticsCase* rimStaticsCase =
+            dynamic_cast<RimEclipseStatisticsCase*>( gridCaseGroup->statisticsCaseCollection()->reservoirs[i] );
         if ( rimStaticsCase )
         {
             if ( rimStaticsCase->hasComputedStatistics() )

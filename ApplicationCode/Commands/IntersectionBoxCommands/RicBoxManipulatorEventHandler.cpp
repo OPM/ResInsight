@@ -136,8 +136,8 @@ bool RicBoxManipulatorEventHandler::eventFilter( QObject* obj, QEvent* inputEven
         {
             QMouseEvent* mouseEvent = static_cast<QMouseEvent*>( inputEvent );
 
-            cvf::ref<cvf::RayIntersectSpec> rayIS = viewer->rayIntersectSpecFromWindowCoordinates( mouseEvent->pos().x(),
-                                                                                                   mouseEvent->pos().y() );
+            cvf::ref<cvf::RayIntersectSpec> rayIS =
+                viewer->rayIntersectSpecFromWindowCoordinates( mouseEvent->pos().x(), mouseEvent->pos().y() );
 
             if ( rayIS.notNull() )
             {

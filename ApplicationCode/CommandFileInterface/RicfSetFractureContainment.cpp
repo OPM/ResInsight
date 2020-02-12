@@ -59,9 +59,8 @@ RicfCommandResponse RicfSetFractureContainment::execute()
         return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }
 
-    RimFractureTemplateCollection* templColl = !project->allFractureTemplateCollections().empty()
-                                                   ? project->allFractureTemplateCollections()[0]
-                                                   : nullptr;
+    RimFractureTemplateCollection* templColl =
+        !project->allFractureTemplateCollections().empty() ? project->allFractureTemplateCollections()[0] : nullptr;
     RimFractureTemplate* templ = templColl ? templColl->fractureTemplate( m_id ) : nullptr;
 
     if ( !templ )

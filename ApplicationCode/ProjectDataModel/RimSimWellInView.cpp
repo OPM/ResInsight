@@ -275,8 +275,8 @@ double RimSimWellInView::pipeRadius()
 
     double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
 
-    double pipeRadius = reservoirView->wellCollection()->pipeScaleFactor() * this->pipeScaleFactor() *
-                        characteristicCellSize;
+    double pipeRadius =
+        reservoirView->wellCollection()->pipeScaleFactor() * this->pipeScaleFactor() * characteristicCellSize;
 
     return pipeRadius;
 }

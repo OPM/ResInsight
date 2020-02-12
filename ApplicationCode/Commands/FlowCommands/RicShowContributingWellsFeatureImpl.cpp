@@ -101,8 +101,8 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     // assert(flowDiagSolution);
     CVF_ASSERT( flowDiagSolution );
 
-    RimFlowDiagSolution::TracerStatusType tracerStatus = flowDiagSolution->tracerStatusInTimeStep( selectedWell->name(),
-                                                                                                   timeStep );
+    RimFlowDiagSolution::TracerStatusType tracerStatus =
+        flowDiagSolution->tracerStatusInTimeStep( selectedWell->name(), timeStep );
     if ( !( tracerStatus == RimFlowDiagSolution::INJECTOR || tracerStatus == RimFlowDiagSolution::PRODUCER ) )
     {
         return;
@@ -130,9 +130,8 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     viewToModify->cellResult()->loadDataAndUpdate();
     viewToModify->cellResult()->updateConnectedEditors();
 
-    std::vector<QString> tracerNames = findContributingTracerNames( flowDiagSolution,
-                                                                    selectedWell->simWellData(),
-                                                                    timeStep );
+    std::vector<QString> tracerNames =
+        findContributingTracerNames( flowDiagSolution, selectedWell->simWellData(), timeStep );
 
     for ( RimSimWellInView* w : viewToModify->wellCollection()->wells() )
     {

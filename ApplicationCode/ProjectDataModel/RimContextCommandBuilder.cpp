@@ -439,9 +439,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             {
                 if ( wellPath->name() != parentWellPathName )
                 {
-                    menuBuilder.addCmdFeatureWithUserData( "RicMoveWellLogFilesFeature",
-                                                           wellPath->name(),
-                                                           wellPath->name() );
+                    menuBuilder.addCmdFeatureWithUserData( "RicMoveWellLogFilesFeature", wellPath->name(), wellPath->name() );
                 }
             }
             menuBuilder.subMenuEnd();
@@ -1169,8 +1167,7 @@ int RimContextCommandBuilder::appendImportMenu( caf::CmdFeatureMenuBuilder& menu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimContextCommandBuilder::appendCreateCompletions( caf::CmdFeatureMenuBuilder& menuBuilder,
-                                                       bool                        addSeparatorBeforeMenu )
+int RimContextCommandBuilder::appendCreateCompletions( caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu )
 {
     QStringList candidates;
     candidates << "RicNewPerforationIntervalFeature";
@@ -1194,8 +1191,7 @@ int RimContextCommandBuilder::appendCreateCompletions( caf::CmdFeatureMenuBuilde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimContextCommandBuilder::appendExportCompletions( caf::CmdFeatureMenuBuilder& menuBuilder,
-                                                       bool                        addSeparatorBeforeMenu )
+int RimContextCommandBuilder::appendExportCompletions( caf::CmdFeatureMenuBuilder& menuBuilder, bool addSeparatorBeforeMenu )
 {
     QStringList candidates;
     candidates << "RicExportCompletionsForVisibleWellPathsFeature";
@@ -1219,11 +1215,7 @@ int RimContextCommandBuilder::appendExportWellPaths( caf::CmdFeatureMenuBuilder&
     candidates << "RicExportSelectedWellPathsFeature";
     candidates << "RicExportVisibleWellPathsFeature";
 
-    return appendSubMenuWithCommands( menuBuilder,
-                                      candidates,
-                                      "Export Well Paths",
-                                      QIcon( ":/Save.png" ),
-                                      addSeparatorBeforeMenu );
+    return appendSubMenuWithCommands( menuBuilder, candidates, "Export Well Paths", QIcon( ":/Save.png" ), addSeparatorBeforeMenu );
 }
 
 //-------------------------------------------------------------------------------------------------

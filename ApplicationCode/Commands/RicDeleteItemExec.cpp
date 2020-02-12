@@ -73,8 +73,8 @@ QString RicDeleteItemExec::name()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemExec::redo()
 {
-    caf::PdmFieldHandle* field = caf::PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject,
-                                                                              m_commandData->m_pathToField );
+    caf::PdmFieldHandle* field =
+        caf::PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
     caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( field );
     if ( listField )
@@ -346,8 +346,8 @@ void RicDeleteItemExec::redo()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemExec::undo()
 {
-    caf::PdmFieldHandle* field = caf::PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject,
-                                                                              m_commandData->m_pathToField );
+    caf::PdmFieldHandle* field =
+        caf::PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
     caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( field );
     if ( listField )

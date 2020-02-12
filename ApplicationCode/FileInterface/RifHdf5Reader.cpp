@@ -38,7 +38,8 @@
 /// May reduce constructor content upon discussion of overlying framework.
 ///
 /// std::string dateString = getStringAttribute(file, "/KaseStudy/TransientSections", "initial_date");
-/// QDateTime initalDateTime = sourSimDateTimeToQDateTime(dateString);   // may rearrange/change to be a call in timeSteps()
+/// QDateTime initalDateTime = sourSimDateTimeToQDateTime(dateString);   // may rearrange/change to be a call in
+/// timeSteps()
 //--------------------------------------------------------------------------------------------------
 RifHdf5Reader::RifHdf5Reader( const QString& fileName )
     : m_fileName( fileName )
@@ -81,9 +82,8 @@ bool RifHdf5Reader::dynamicResult( const QString& result, size_t stepIndex, std:
 
         QStringList::iterator it = std::find( props.begin(), props.end(), result );
 
-        int propIdx = ( it != props.end() )
-                          ? it - props.begin()
-                          : 0; // index to 'result' in QStringList props (usually size_t but int gave no warning)
+        int propIdx = ( it != props.end() ) ? it - props.begin() : 0; // index to 'result' in QStringList props (usually
+                                                                      // size_t but int gave no warning)
 
         H5::Exception::dontPrint(); // Turn off auto-printing of failures to handle the errors appropriately
 

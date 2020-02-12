@@ -355,8 +355,8 @@ void RiuDragDrop::onDragCanceled()
 //--------------------------------------------------------------------------------------------------
 void RiuDragDrop::moveCasesToGridGroup( caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup )
 {
-    std::vector<RimEclipseCase*> casesToBeDeleted = RiuTypedPdmObjects<RimEclipseCase>::typedObjectsFromGroup(
-        objectGroup );
+    std::vector<RimEclipseCase*> casesToBeDeleted =
+        RiuTypedPdmObjects<RimEclipseCase>::typedObjectsFromGroup( objectGroup );
 
     if ( RicCloseCaseFeature::userConfirmedGridCaseGroupChange( casesToBeDeleted ) )
     {
@@ -426,8 +426,8 @@ bool RiuDragDrop::handleWellLogPlotCurveDrop( Qt::DropAction       action,
                                               caf::PdmObjectGroup& draggedObjects,
                                               RimWellLogCurve*     curveDropTarget )
 {
-    std::vector<RimWellLogCurve*> wellLogPlotCurves = RiuTypedPdmObjects<RimWellLogCurve>::typedObjectsFromGroup(
-        draggedObjects );
+    std::vector<RimWellLogCurve*> wellLogPlotCurves =
+        RiuTypedPdmObjects<RimWellLogCurve>::typedObjectsFromGroup( draggedObjects );
     if ( wellLogPlotCurves.size() > 0 )
     {
         if ( action == Qt::MoveAction )
@@ -452,8 +452,7 @@ bool RiuDragDrop::handleSummaryCaseCollectionDrop( Qt::DropAction            act
                                                    caf::PdmObjectGroup&      draggedObjects,
                                                    RimSummaryCaseCollection* summaryCaseDropTarget )
 {
-    std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup(
-        draggedObjects );
+    std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup( draggedObjects );
 
     if ( action != Qt::MoveAction || summaryCases.size() == 0 ) return false;
 
@@ -490,8 +489,7 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop( Qt::DropAction           
                                                        caf::PdmObjectGroup&          draggedObjects,
                                                        RimSummaryCaseMainCollection* summaryCaseDropTarget )
 {
-    std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup(
-        draggedObjects );
+    std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup( draggedObjects );
 
     if ( action != Qt::MoveAction || summaryCases.size() == 0 ) return false;
 

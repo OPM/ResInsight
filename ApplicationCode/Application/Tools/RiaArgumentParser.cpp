@@ -86,10 +86,7 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
                              "Use --summaryplot -help to show a more detailed help text.\n",
                              cvf::ProgramOptions::OPTIONAL_MULTI_VALUE );
 
-    progOpt->registerOption( "commandFile",
-                             "<commandfile>",
-                             "Execute the command file.",
-                             cvf::ProgramOptions::SINGLE_VALUE );
+    progOpt->registerOption( "commandFile", "<commandfile>", "Execute the command file.", cvf::ProgramOptions::SINGLE_VALUE );
     progOpt->registerOption( "commandFileReplaceCases",
                              "[<caseId>] <caseListFile>",
                              "Supply list of cases to replace in project, performing command file for each case.",

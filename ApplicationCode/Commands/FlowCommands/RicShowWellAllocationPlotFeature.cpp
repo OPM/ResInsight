@@ -62,8 +62,8 @@ bool RicShowWellAllocationPlotFeature::isCommandEnabled()
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
     if ( !eclView ) return false;
 
-    RimSimWellInView* simWellFromWellPath = eclView->wellCollection()->findWell(
-        wellPathCollection[0]->associatedSimulationWellName() );
+    RimSimWellInView* simWellFromWellPath =
+        eclView->wellCollection()->findWell( wellPathCollection[0]->associatedSimulationWellName() );
 
     if ( simWellFromWellPath )
     {

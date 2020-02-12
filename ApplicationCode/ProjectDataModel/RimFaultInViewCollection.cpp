@@ -65,13 +65,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 
     CAF_PDM_InitField( &showFaultFaces, "ShowFaultFaces", true, "Show Defined faces", "", "", "" );
     CAF_PDM_InitField( &showOppositeFaultFaces, "ShowOppositeFaultFaces", true, "Show Opposite Faces", "", "", "" );
-    CAF_PDM_InitField( &m_showFaultsOutsideFilters,
-                       "ShowFaultsOutsideFilters",
-                       true,
-                       "Show Faults Outside Filters",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters", "", "", "" );
 
     CAF_PDM_InitField( &faultResult,
                        "FaultFaceCulling",

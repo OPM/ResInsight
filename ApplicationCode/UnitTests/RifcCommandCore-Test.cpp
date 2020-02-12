@@ -318,9 +318,8 @@ TEST( RicfCommands, WriteCommand )
         QTextStream  inputStream( &commandString );
         RicfMessages errors;
 
-        auto objects = RicfCommandFileReader::readCommands( inputStream,
-                                                            caf::PdmDefaultObjectFactory::instance(),
-                                                            &errors );
+        auto objects =
+            RicfCommandFileReader::readCommands( inputStream, caf::PdmDefaultObjectFactory::instance(), &errors );
         EXPECT_EQ( (size_t)1, objects.size() );
 
         TestCommand1* myObj = dynamic_cast<TestCommand1*>( objects.front() );

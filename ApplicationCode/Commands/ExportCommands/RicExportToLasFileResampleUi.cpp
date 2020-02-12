@@ -106,8 +106,7 @@ void RicExportToLasFileResampleUi::tvdrkbDiffForWellPaths( std::vector<double>* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportToLasFileResampleUi::setRkbDiffs( const std::vector<QString>& wellNames,
-                                                const std::vector<double>&  rkbDiffs )
+void RicExportToLasFileResampleUi::setRkbDiffs( const std::vector<QString>& wellNames, const std::vector<double>& rkbDiffs )
 {
     for ( size_t i = 0; i < wellNames.size(); i++ )
     {
@@ -212,8 +211,8 @@ void RicExportToLasFileResampleUi::defineUiOrdering( QString uiConfigName, caf::
     caf::PdmUiGroup* tvdrkbGroup = uiOrdering.addNewGroup( "TVDRKB" );
     tvdrkbGroup->add( &exportTvdrkb );
 
-    caf::PdmUiGroup* group = tvdrkbGroup->addNewGroup(
-        "Difference between TVDRKB and TVDMSL, clear diff for no export" );
+    caf::PdmUiGroup* group =
+        tvdrkbGroup->addNewGroup( "Difference between TVDRKB and TVDMSL, clear diff for no export" );
     for ( auto& obj : m_tvdrkbOffsets )
     {
         group->add( &obj->tvdrkbOffset );

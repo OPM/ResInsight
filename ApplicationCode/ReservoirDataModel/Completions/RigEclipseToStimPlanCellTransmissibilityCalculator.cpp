@@ -67,8 +67,7 @@ const std::vector<size_t>& RigEclipseToStimPlanCellTransmissibilityCalculator::g
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>&
-    RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellTransmissibilities() const
+const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellTransmissibilities() const
 {
     return m_contributingEclipseCellTransmissibilities;
 }
@@ -198,9 +197,8 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         mainGrid->cellCornerVertices( reservoirCellIndex, hexCorners.data() );
 
         std::vector<std::vector<cvf::Vec3d>> planeCellPolygons;
-        bool isPlanIntersected = RigHexIntersectionTools::planeHexIntersectionPolygons( hexCorners,
-                                                                                        m_fractureTransform,
-                                                                                        planeCellPolygons );
+        bool                                 isPlanIntersected =
+            RigHexIntersectionTools::planeHexIntersectionPolygons( hexCorners, m_fractureTransform, planeCellPolygons );
         if ( !isPlanIntersected || planeCellPolygons.empty() ) continue;
 
         cvf::Vec3d localX;
@@ -208,7 +206,8 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         cvf::Vec3d localZ;
         RigCellGeometryTools::findCellLocalXYZ( hexCorners, localX, localY, localZ );
 
-        // Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon already is located)
+        // Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon already
+        // is located)
         cvf::Mat4d invertedTransMatrix = m_fractureTransform.getInverted();
         for ( std::vector<cvf::Vec3d>& planeCellPolygon : planeCellPolygons )
         {

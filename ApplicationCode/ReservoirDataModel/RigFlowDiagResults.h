@@ -59,10 +59,7 @@ public:
     size_t                     timeStepCount() { return m_timeStepCount; }
     const RigActiveCellInfo*   activeCellInfo( const RigFlowDiagResultAddress& resVarAddr );
 
-    void minMaxScalarValues( const RigFlowDiagResultAddress& resVarAddr,
-                             int                             timeStepIndex,
-                             double*                         localMin,
-                             double*                         localMax );
+    void minMaxScalarValues( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* localMin, double* localMax );
     void minMaxScalarValues( const RigFlowDiagResultAddress& resVarAddr, double* globalMin, double* globalMax );
     void posNegClosestToZero( const RigFlowDiagResultAddress& resVarAddr,
                               int                             timeStepIndex,
@@ -99,9 +96,7 @@ public:
                                     int                         maxTof );
 
     RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
-        flowCharacteristicsResults( int                      timeStepIndex,
-                                    const std::vector<char>& visibleActiveCells,
-                                    double                   max_pv_fraction );
+        flowCharacteristicsResults( int timeStepIndex, const std::vector<char>& visibleActiveCells, double max_pv_fraction );
 
     RimFlowDiagSolution* flowDiagSolution();
 
@@ -159,6 +154,5 @@ private:
     std::map<RigFlowDiagResultAddress, cvf::ref<RigStatisticsDataCache>>  m_resultStatistics;
 
     using InjectorProducerCommunicationMap = std::map<std::pair<std::string, std::string>, std::pair<double, double>>;
-    std::vector<std::map<RigFlowDiagResultAddress::PhaseSelection, InjectorProducerCommunicationMap>>
-        m_injProdPairFluxCommunicationTimesteps;
+    std::vector<std::map<RigFlowDiagResultAddress::PhaseSelection, InjectorProducerCommunicationMap>> m_injProdPairFluxCommunicationTimesteps;
 };

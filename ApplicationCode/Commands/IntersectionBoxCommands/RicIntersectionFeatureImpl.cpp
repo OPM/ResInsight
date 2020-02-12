@@ -30,8 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicIntersectionFeatureImpl::createIntersectionBoxSlize( const QString&                       name,
-                                                             RimBoxIntersection::SinglePlaneState plane )
+void RicIntersectionFeatureImpl::createIntersectionBoxSlize( const QString& name, RimBoxIntersection::SinglePlaneState plane )
 {
     RimGridView* activeView                 = RiaApplication::instance()->activeGridView();
     RimGridView* activeMainOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();

@@ -39,8 +39,8 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals( c
     pointNormals.reserve( vertices.size() );
 
     const cvf::Vec3d up( 0, 0, 1 );
-    const cvf::Vec3d rotatedUp = up.getTransformedVector(
-        cvf::Mat3d::fromRotation( cvf::Vec3d( 0.0, 1.0, 0.0 ), planeAngle ) );
+    const cvf::Vec3d rotatedUp =
+        up.getTransformedVector( cvf::Mat3d::fromRotation( cvf::Vec3d( 0.0, 1.0, 0.0 ), planeAngle ) );
 
     const cvf::Vec3d dominantDirection = estimateDominantDirectionInXYPlane( vertices );
 

@@ -47,8 +47,7 @@ std::vector<RimWellPath*> RicfApplicationTools::wellPathsFromNames( const QStrin
 
         for ( auto wellPath : allWellPaths )
         {
-            auto matchedName = RiaWellNameComparer::tryMatchNameInList( wellPath->name(),
-                                                                        toStringVector( wellPathNames ) );
+            auto matchedName = RiaWellNameComparer::tryMatchNameInList( wellPath->name(), toStringVector( wellPathNames ) );
             if ( !matchedName.isEmpty() )
             {
                 wellPaths.push_back( wellPath );

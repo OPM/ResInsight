@@ -77,9 +77,7 @@ protected:
 
     // Overridden PDM methods
     caf::PdmFieldHandle* userDescriptionField() override { return &m_userName; }
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     void assignIdIfNecessary() final;

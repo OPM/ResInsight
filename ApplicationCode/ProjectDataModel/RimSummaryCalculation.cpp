@@ -319,8 +319,7 @@ bool RimSummaryCalculation::calculate()
             size_t firstValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllXValues().front().first;
             size_t lastValidTimeStep  = timeHistoryCurveMerger.validIntervalsForAllXValues().back().second + 1;
 
-            if ( lastValidTimeStep > firstValidTimeStep &&
-                 lastValidTimeStep <= timeHistoryCurveMerger.allXValues().size() )
+            if ( lastValidTimeStep > firstValidTimeStep && lastValidTimeStep <= timeHistoryCurveMerger.allXValues().size() )
             {
                 std::vector<time_t> validTimeSteps( timeHistoryCurveMerger.allXValues().begin() + firstValidTimeStep,
                                                     timeHistoryCurveMerger.allXValues().begin() + lastValidTimeStep );

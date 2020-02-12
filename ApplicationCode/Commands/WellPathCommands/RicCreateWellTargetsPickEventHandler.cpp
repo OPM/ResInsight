@@ -98,16 +98,16 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
         auto firstPickItem      = eventObject.m_pickItemInfos.front();
         auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>( firstPickItem.sourceInfo() );
 
-        auto intersectionPointInDomain = rimView->displayCoordTransform()->transformToDomainCoord(
-            firstPickItem.globalPickedPoint() );
+        auto intersectionPointInDomain =
+            rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
         bool   doSetAzimuthAndInclination = false;
         double azimuth                    = 0.0;
         double inclination                = 0.0;
 
         if ( wellPathSourceInfo )
         {
-            targetPointInDomain = wellPathSourceInfo->closestPointOnCenterLine( firstPickItem.faceIdx(),
-                                                                                intersectionPointInDomain );
+            targetPointInDomain =
+                wellPathSourceInfo->closestPointOnCenterLine( firstPickItem.faceIdx(), intersectionPointInDomain );
             double md = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
             doSetAzimuthAndInclination =
                 calculateAzimuthAndInclinationAtMd( md,
@@ -125,14 +125,12 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
             targetPointInDomain        = intersectionPointInDomain;
             doSetAzimuthAndInclination = false;
 
-            cvf::Vec3d domainRayOrigin = rimView->displayCoordTransform()->transformToDomainCoord(
-                firstPickItem.globalRayOrigin() );
+            cvf::Vec3d domainRayOrigin =
+                rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalRayOrigin() );
             cvf::Vec3d domainRayEnd = targetPointInDomain + ( targetPointInDomain - domainRayOrigin );
 
-            cvf::Vec3d hexElementIntersection = findHexElementIntersection( rimView,
-                                                                            firstPickItem,
-                                                                            domainRayOrigin,
-                                                                            domainRayEnd );
+            cvf::Vec3d hexElementIntersection =
+                findHexElementIntersection( rimView, firstPickItem, domainRayOrigin, domainRayEnd );
             CVF_TIGHT_ASSERT( !hexElementIntersection.isUndefined() );
             if ( !hexElementIntersection.isUndefined() )
             {
@@ -151,8 +149,8 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
 
             if ( wellPathSourceInfo )
             {
-                double mdrkbAtFirstTarget = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(),
-                                                                               intersectionPointInDomain );
+                double mdrkbAtFirstTarget =
+                    wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
 
                 RimModeledWellPath* modeledWellPath = dynamic_cast<RimModeledWellPath*>( wellPathSourceInfo->wellPath() );
                 if ( modeledWellPath )

@@ -476,8 +476,7 @@ void RimBoxIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     cvf::BoundingBox cellsBoundingBox = currentCellBoundingBox();
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup(
-            "X Coordinates " +
-            QString( " [%1  %2]" ).arg( cellsBoundingBox.min().x() ).arg( cellsBoundingBox.max().x() ) );
+            "X Coordinates " + QString( " [%1  %2]" ).arg( cellsBoundingBox.min().x() ).arg( cellsBoundingBox.max().x() ) );
         group->add( &m_minXCoord );
         group->add( &m_maxXCoord );
     }

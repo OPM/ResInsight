@@ -67,5 +67,5 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridService::createCallbacks()
                                                                          &Self::RequestGetDimensions )};
 }
 
-static bool RiaGrpcGridService_init = RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcGridService>(
-    typeid( RiaGrpcGridService ).hash_code() );
+static bool RiaGrpcGridService_init =
+    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcGridService>( typeid( RiaGrpcGridService ).hash_code() );

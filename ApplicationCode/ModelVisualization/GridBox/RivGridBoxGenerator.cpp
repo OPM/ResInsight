@@ -267,8 +267,7 @@ void RivGridBoxGenerator::updateFromCamera( const cvf::Camera* camera )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGridBoxGenerator::computeEdgeVisibility( const std::vector<bool>& faceVisibility,
-                                                 std::vector<bool>&       edgeVisibility )
+void RivGridBoxGenerator::computeEdgeVisibility( const std::vector<bool>& faceVisibility, std::vector<bool>& edgeVisibility )
 {
     CVF_ASSERT( faceVisibility.size() == NEG_Z + 1 );
     CVF_ASSERT( edgeVisibility.size() == NEG_X_NEG_Y + 1 );

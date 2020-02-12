@@ -230,8 +230,8 @@ std::pair<RimEclipseContourMapView*, RimGeoMechContourMapView*> RicExportContour
     RimEclipseContourMapView* existingEclipseContourMap = nullptr;
     RimGeoMechContourMapView* existingGeoMechContourMap = nullptr;
 
-    auto contextMenuWidget = dynamic_cast<RiuViewer*>(
-        caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+    auto contextMenuWidget =
+        dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
 
     if ( contextMenuWidget )
     {

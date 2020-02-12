@@ -52,8 +52,8 @@ bool RicPasteIntersectionsFeature::isCommandEnabled()
         return false;
     }
 
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     if ( findIntersectionCollection( destinationObject ) )
     {
@@ -68,11 +68,11 @@ bool RicPasteIntersectionsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteIntersectionsFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
-    RimIntersectionCollection* intersectionCollection = RicPasteIntersectionsFeature::findIntersectionCollection(
-        destinationObject );
+    RimIntersectionCollection* intersectionCollection =
+        RicPasteIntersectionsFeature::findIntersectionCollection( destinationObject );
 
     CAF_ASSERT( intersectionCollection );
 
@@ -108,8 +108,7 @@ void RicPasteIntersectionsFeature::onActionTriggered( bool isChecked )
     for ( size_t i = 0; i < intersectionBoxObjects.size(); i++ )
     {
         RimBoxIntersection* intersectionBox = dynamic_cast<RimBoxIntersection*>(
-            intersectionBoxObjects[i]->xmlCapability()->copyByXmlSerialization(
-                caf::PdmDefaultObjectFactory::instance() ) );
+            intersectionBoxObjects[i]->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
         QString nameOfCopy = QString( "Copy of " ) + intersectionBox->name();
         intersectionBox->setName( nameOfCopy );

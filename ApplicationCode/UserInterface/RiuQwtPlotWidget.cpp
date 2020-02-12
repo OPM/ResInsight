@@ -317,10 +317,8 @@ void RiuQwtPlotWidget::setMajorAndMinorTickIntervals( QwtPlot::Axis axis,
     RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( this->axisScaleEngine( axis ) );
     if ( scaleEngine )
     {
-        QwtScaleDiv scaleDiv = scaleEngine->divideScaleWithExplicitIntervals( minValue,
-                                                                              maxValue,
-                                                                              majorTickInterval,
-                                                                              minorTickInterval );
+        QwtScaleDiv scaleDiv =
+            scaleEngine->divideScaleWithExplicitIntervals( minValue, maxValue, majorTickInterval, minorTickInterval );
 
         this->setAxisScaleDiv( axis, scaleDiv );
     }

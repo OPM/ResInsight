@@ -90,9 +90,7 @@ double RigTransmissibilityCondenser::transmissibilityThreshold() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigTransmissibilityCondenser::addNeighborTransmissibility( CellAddress cell1,
-                                                                CellAddress cell2,
-                                                                double      transmissibility )
+void RigTransmissibilityCondenser::addNeighborTransmissibility( CellAddress cell1, CellAddress cell2, double transmissibility )
 {
     if ( transmissibility < m_transmissibilityThreshold ) return;
 
@@ -171,11 +169,11 @@ std::map<size_t, double>
                     size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
                     size_t eclipseResultIndex  = actCellInfo->cellResultIndex( globalMatrixCellIdx );
                     CVF_ASSERT( eclipseResultIndex < currentMatrixPressures.size() );
-                    double unsignedDeltaPressure = std::abs( currentMatrixPressures[eclipseResultIndex] -
-                                                             currentWellPressure );
-                    double nonZeroDeltaPressure  = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
-                    maxNonZeroDeltaPressure      = std::max( maxNonZeroDeltaPressure, nonZeroDeltaPressure );
-                    minNonZeroDeltaPressure      = std::min( minNonZeroDeltaPressure, nonZeroDeltaPressure );
+                    double unsignedDeltaPressure =
+                        std::abs( currentMatrixPressures[eclipseResultIndex] - currentWellPressure );
+                    double nonZeroDeltaPressure = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
+                    maxNonZeroDeltaPressure     = std::max( maxNonZeroDeltaPressure, nonZeroDeltaPressure );
+                    minNonZeroDeltaPressure     = std::min( minNonZeroDeltaPressure, nonZeroDeltaPressure );
                 }
             }
         }
@@ -195,9 +193,9 @@ std::map<size_t, double>
 
                     originalLumpedMatrixToFractureTrans[globalMatrixCellIdx] += jt->second;
 
-                    double unsignedDeltaPressure = std::abs( currentMatrixPressures[eclipseResultIndex] -
-                                                             currentWellPressure );
-                    double nonZeroDeltaPressure  = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
+                    double unsignedDeltaPressure =
+                        std::abs( currentMatrixPressures[eclipseResultIndex] - currentWellPressure );
+                    double nonZeroDeltaPressure = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
 
                     jt->second *= nonZeroDeltaPressure / maxNonZeroDeltaPressure;
                 }

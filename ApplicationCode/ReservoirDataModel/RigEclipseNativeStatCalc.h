@@ -33,8 +33,7 @@ class RigHistogramCalculator;
 class RigEclipseNativeStatCalc : public RigStatisticsCalculator
 {
 public:
-    RigEclipseNativeStatCalc( RigCaseCellResultsData*        cellResultsData,
-                              const RigEclipseResultAddress& eclipseResultAddress );
+    RigEclipseNativeStatCalc( RigCaseCellResultsData* cellResultsData, const RigEclipseResultAddress& eclipseResultAddress );
 
     void   minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
     void   posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg ) override;

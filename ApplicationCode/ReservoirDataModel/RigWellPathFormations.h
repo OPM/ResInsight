@@ -64,9 +64,7 @@ public:
     };
 
 public:
-    RigWellPathFormations( const std::vector<RigWellPathFormation>& formations,
-                           const QString&                           filePath,
-                           const QString&                           key );
+    RigWellPathFormations( const std::vector<RigWellPathFormation>& formations, const QString& filePath, const QString& key );
 
     void depthAndFormationNamesUpToLevel( FormationLevel                level,
                                           std::vector<QString>*         names,

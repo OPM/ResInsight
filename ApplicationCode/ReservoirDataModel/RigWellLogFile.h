@@ -54,8 +54,7 @@ public:
 
     std::vector<double> values( const QString& name ) const;
 
-    QString                   wellLogChannelUnitString( const QString&            wellLogChannelName,
-                                                        RiaDefines::DepthUnitType displayDepthUnit ) const;
+    QString wellLogChannelUnitString( const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit ) const;
     QString                   wellLogChannelUnitString( const QString& wellLogChannelName ) const;
     RiaDefines::DepthUnitType depthUnit() const;
 

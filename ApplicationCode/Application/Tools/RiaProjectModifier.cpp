@@ -68,8 +68,7 @@ void RiaProjectModifier::setReplaceSourceCasesFirstOccurrence( const std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaProjectModifier::setReplaceSourceCasesById( int                         caseGroupIdToReplace,
-                                                    const std::vector<QString>& newGridFileNames )
+void RiaProjectModifier::setReplaceSourceCasesById( int caseGroupIdToReplace, const std::vector<QString>& newGridFileNames )
 {
     if ( caseGroupIdToReplace >= 0 )
     {

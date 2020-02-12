@@ -283,9 +283,9 @@ void RifCaseRealizationRunspecificationReader::parse()
                     }
                     else
                     {
-                        errors << QString(
-                                      "RifCaseRealizationRunspecificationReader: Invalid number format in line %1" )
-                                      .arg( xml.lineNumber() );
+                        errors
+                            << QString( "RifCaseRealizationRunspecificationReader: Invalid number format in line %1" )
+                                   .arg( xml.lineNumber() );
                     }
                 }
                 else

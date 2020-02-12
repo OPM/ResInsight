@@ -53,10 +53,7 @@ void RifEclipseSummaryTools::findSummaryFiles( const QString& inputFile, QString
     char* myBase      = nullptr;
     char* myExtention = nullptr;
 
-    util_alloc_file_components( RiaStringEncodingTools::toNativeEncoded( inputFile ).data(),
-                                &myPath,
-                                &myBase,
-                                &myExtention );
+    util_alloc_file_components( RiaStringEncodingTools::toNativeEncoded( inputFile ).data(), &myPath, &myBase, &myExtention );
 
     QString path;
     if ( myPath ) path = RiaStringEncodingTools::fromNativeEncoded( myPath );
@@ -103,8 +100,7 @@ QString RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( const QSt
     char* myPath = nullptr;
     char* myBase = nullptr;
 
-    util_alloc_file_components( RiaStringEncodingTools::toNativeEncoded( QDir::toNativeSeparators( summaryHeaderFile ) )
-                                    .data(),
+    util_alloc_file_components( RiaStringEncodingTools::toNativeEncoded( QDir::toNativeSeparators( summaryHeaderFile ) ).data(),
                                 &myPath,
                                 &myBase,
                                 nullptr );
@@ -135,11 +131,11 @@ void RifEclipseSummaryTools::dumpMetaData( RifSummaryReaderInterface* readerEcli
 
     for ( int category = 0; category < RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR; category++ )
     {
-        RifEclipseSummaryAddress::SummaryVarCategory categoryEnum = RifEclipseSummaryAddress::SummaryVarCategory(
-            category );
+        RifEclipseSummaryAddress::SummaryVarCategory categoryEnum =
+            RifEclipseSummaryAddress::SummaryVarCategory( category );
 
-        std::vector<RifEclipseSummaryAddress> catAddresses = RiaSummaryCurveAnalyzer::addressesForCategory( addresses,
-                                                                                                            categoryEnum );
+        std::vector<RifEclipseSummaryAddress> catAddresses =
+            RiaSummaryCurveAnalyzer::addressesForCategory( addresses, categoryEnum );
 
         if ( catAddresses.size() > 0 )
         {

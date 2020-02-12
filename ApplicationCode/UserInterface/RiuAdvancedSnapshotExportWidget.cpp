@@ -250,11 +250,11 @@ void RiuAdvancedSnapshotExportWidget::folderSelectionClicked()
 {
     QString defaultPath = m_exportFolderLineEdit->text();
 
-    QString directoryPath = QFileDialog::getExistingDirectory( m_exportFolderLineEdit,
-                                                               tr( "Get existing directory" ),
-                                                               defaultPath,
-                                                               QFileDialog::ShowDirsOnly |
-                                                                   QFileDialog::DontResolveSymlinks );
+    QString directoryPath =
+        QFileDialog::getExistingDirectory( m_exportFolderLineEdit,
+                                           tr( "Get existing directory" ),
+                                           defaultPath,
+                                           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
 
     if ( !directoryPath.isEmpty() )
     {

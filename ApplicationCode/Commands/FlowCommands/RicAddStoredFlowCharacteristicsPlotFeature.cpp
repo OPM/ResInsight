@@ -46,8 +46,8 @@ bool RicAddStoredFlowCharacteristicsPlotFeature::isCommandEnabled()
             RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
-            RimFlowCharacteristicsPlot* flowCharacteristicsPlot = dynamic_cast<RimFlowCharacteristicsPlot*>(
-                caf::SelectionManager::instance()->selectedItem() );
+            RimFlowCharacteristicsPlot* flowCharacteristicsPlot =
+                dynamic_cast<RimFlowCharacteristicsPlot*>( caf::SelectionManager::instance()->selectedItem() );
 
             if ( flowPlotColl->defaultFlowCharacteristicsPlot() == flowCharacteristicsPlot )
             {
@@ -70,8 +70,8 @@ void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered( bool isCheck
             RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
-            RimFlowCharacteristicsPlot* sourceObject = dynamic_cast<RimFlowCharacteristicsPlot*>(
-                caf::SelectionManager::instance()->selectedItem() );
+            RimFlowCharacteristicsPlot* sourceObject =
+                dynamic_cast<RimFlowCharacteristicsPlot*>( caf::SelectionManager::instance()->selectedItem() );
 
             RimFlowCharacteristicsPlot* flowCharacteristicsPlot = dynamic_cast<RimFlowCharacteristicsPlot*>(
                 sourceObject->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );

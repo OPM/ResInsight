@@ -98,11 +98,10 @@ void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromWellName( caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName(
-    caf::PdmUiOrdering*        uiOrdering,
-    const QString&             simWellName,
-    const caf::PdmField<bool>& branchDetectionField,
-    const caf::PdmField<int>&  branchIndexField )
+void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName( caf::PdmUiOrdering* uiOrdering,
+                                                                                const QString&      simWellName,
+                                                                                const caf::PdmField<bool>& branchDetectionField,
+                                                                                const caf::PdmField<int>& branchIndexField )
 {
     if ( RiaSimWellBranchTools::simulationWellBranches( simWellName, true ).size() > 1 )
     {

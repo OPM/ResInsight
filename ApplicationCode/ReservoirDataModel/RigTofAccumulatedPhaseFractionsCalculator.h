@@ -31,9 +31,7 @@ class QString;
 class RigTofAccumulatedPhaseFractionsCalculator
 {
 public:
-    explicit RigTofAccumulatedPhaseFractionsCalculator( RimEclipseResultCase* caseToApply,
-                                                        QString               wellname,
-                                                        size_t                timestep );
+    explicit RigTofAccumulatedPhaseFractionsCalculator( RimEclipseResultCase* caseToApply, QString wellname, size_t timestep );
 
     const std::vector<double>& sortedUniqueTOFValues() const { return m_tofInIncreasingOrder; }
     const std::vector<double>& accumulatedPhaseFractionsSwat() const { return m_accumulatedPhaseFractionSwat; }

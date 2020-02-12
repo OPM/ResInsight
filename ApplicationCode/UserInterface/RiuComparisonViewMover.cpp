@@ -138,8 +138,7 @@ RiuComparisonViewMover::DragState RiuComparisonViewMover::findHandleUnderMouse( 
     int height          = viewerHeight * normalizedComparisonRect.height();
     int bottomEdgePosQt = height - viewerHeight * normalizedComparisonRect.min().y();
 
-    if ( ( leftEdgePos - handleThickness * 0.4 ) < mousePos.x() &&
-         mousePos.x() < ( leftEdgePos + handleThickness * 0.5 ) &&
+    if ( ( leftEdgePos - handleThickness * 0.4 ) < mousePos.x() && mousePos.x() < ( leftEdgePos + handleThickness * 0.5 ) &&
          ( bottomEdgePosQt - 8 * handleThickness ) < mousePos.y() &&
          mousePos.y() < ( bottomEdgePosQt - 2 * handleThickness ) )
     {

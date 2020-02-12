@@ -149,9 +149,7 @@ private:
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
                                                RimSummaryCaseCollection*      summaryCaseGroup );

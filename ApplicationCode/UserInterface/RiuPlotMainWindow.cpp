@@ -886,8 +886,9 @@ void RiuPlotMainWindow::restoreTreeViewState()
         QString currentIndexString = RiaApplication::instance()->project()->plotWindowCurrentModelIndexPath;
         if ( !currentIndexString.isEmpty() )
         {
-            QModelIndex mi = caf::QTreeViewStateSerializer::getModelIndexFromString( m_projectTreeView->treeView()->model(),
-                                                                                     currentIndexString );
+            QModelIndex mi =
+                caf::QTreeViewStateSerializer::getModelIndexFromString( m_projectTreeView->treeView()->model(),
+                                                                        currentIndexString );
             m_projectTreeView->treeView()->setCurrentIndex( mi );
         }
     }

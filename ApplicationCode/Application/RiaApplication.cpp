@@ -552,7 +552,8 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
     }
 
     // If load action is specified to recalculate statistics, do it now.
-    // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will be clamped
+    // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will
+    // be clamped
     if ( loadAction & PLA_CALCULATE_STATISTICS )
     {
         for ( size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++ )
@@ -863,8 +864,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths,
-                                                               QStringList*   errorMessages )
+std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths, QStringList* errorMessages )
 {
     CAF_ASSERT( errorMessages );
 
@@ -937,8 +937,8 @@ std::vector<RimWellLogFile*> RiaApplication::addWellLogsToModel( const QList<QSt
         m_project->updateConnectedEditors();
     }
 
-    std::vector<RimWellLogFile*> wellLogFiles = oilField->wellPathCollection->addWellLogs( wellLogFilePaths,
-                                                                                           errorMessages );
+    std::vector<RimWellLogFile*> wellLogFiles =
+        oilField->wellPathCollection->addWellLogs( wellLogFilePaths, errorMessages );
 
     oilField->wellPathCollection->updateConnectedEditors();
 
@@ -1114,7 +1114,8 @@ bool RiaApplication::launchProcess( const QString&             program,
 
             stopMonitoringWorkProgress();
 
-            //            QMessageBox::warning(m_mainWindow, "Script execution", "Failed to start script executable located at\n" + program);
+            //            QMessageBox::warning(m_mainWindow, "Script execution", "Failed to start script executable
+            //            located at\n" + program);
 
             return false;
         }

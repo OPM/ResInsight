@@ -55,11 +55,7 @@ public:
     ~RimTernaryLegendConfig() override;
 
     void setUiValuesFromLegendConfig( const RimTernaryLegendConfig* otherLegendConfig );
-    void setAutomaticRanges( TernaryArrayIndex ternaryIndex,
-                             double            globalMin,
-                             double            globalMax,
-                             double            localMin,
-                             double            localMax );
+    void setAutomaticRanges( TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax );
 
     void                           recreateLegend();
     bool                           showLegend() const;
@@ -69,9 +65,7 @@ public:
     caf::TitledOverlayFrame*       titledOverlayFrame() override;
 
 private:
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                 QString                    uiConfigName,

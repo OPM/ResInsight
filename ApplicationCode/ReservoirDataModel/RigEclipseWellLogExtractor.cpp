@@ -147,11 +147,8 @@ void RigEclipseWellLogExtractor::calculateIntersection()
                         {
                             // Mark the last well path point as leaving cell
 
-                            bool                      isEntering = false;
-                            HexIntersectionInfo       info( lastPoint,
-                                                      isEntering,
-                                                      cvf::StructGridInterface::NO_FACE,
-                                                      globalCellIndex );
+                            bool                isEntering = false;
+                            HexIntersectionInfo info( lastPoint, isEntering, cvf::StructGridInterface::NO_FACE, globalCellIndex );
                             RigMDCellIdxEnterLeaveKey enterLeaveKey( m_wellPath->m_measuredDepths.back(),
                                                                      globalCellIndex,
                                                                      isEntering );

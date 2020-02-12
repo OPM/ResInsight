@@ -363,9 +363,8 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::regionAddress( const std::str
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::regionToRegionAddress( const std::string& quantityName,
-                                                                          int                regionNumber,
-                                                                          int                region2Number )
+RifEclipseSummaryAddress
+    RifEclipseSummaryAddress::regionToRegionAddress( const std::string& quantityName, int regionNumber, int region2Number )
 {
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_REGION_2_REGION;
@@ -391,8 +390,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::wellGroupAddress( const std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::wellAddress( const std::string& quantityName,
-                                                                const std::string& wellName )
+RifEclipseSummaryAddress RifEclipseSummaryAddress::wellAddress( const std::string& quantityName, const std::string& wellName )
 {
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_WELL;
@@ -488,11 +486,8 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::blockAddress( const std::stri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::blockLgrAddress( const std::string& quantityName,
-                                                                    const std::string& lgrName,
-                                                                    int                i,
-                                                                    int                j,
-                                                                    int                k )
+RifEclipseSummaryAddress
+    RifEclipseSummaryAddress::blockLgrAddress( const std::string& quantityName, const std::string& lgrName, int i, int j, int k )
 {
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_BLOCK_LGR;

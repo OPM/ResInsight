@@ -54,8 +54,8 @@ void RicAppendSeparateIntersectionResultFeature::onActionTriggered( bool isCheck
 
     CVF_ASSERT( intersectionResCollection );
 
-    RicAppendSeparateIntersectionResultFeatureCmd* cmd = new RicAppendSeparateIntersectionResultFeatureCmd(
-        intersectionResCollection );
+    RicAppendSeparateIntersectionResultFeatureCmd* cmd =
+        new RicAppendSeparateIntersectionResultFeatureCmd( intersectionResCollection );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
 }
 

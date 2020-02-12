@@ -24,9 +24,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswCompletion::RicMswCompletion( const QString& label,
-                                    size_t         index /* = cvf::UNDEFINED_SIZE_T */,
-                                    int            branchNumber /*= 0*/ )
+RicMswCompletion::RicMswCompletion( const QString& label, size_t index /* = cvf::UNDEFINED_SIZE_T */, int branchNumber /*= 0*/ )
     : m_label( label )
     , m_index( index )
     , m_branchNumber( branchNumber )

@@ -46,8 +46,8 @@ size_t findNeighborReservoirCellIndex( const RigMainGrid*                 mainGr
     if ( mainGrid )
     {
         size_t             gridLocalCellIndex = cvf::UNDEFINED_SIZE_T;
-        const RigGridBase* hostGrid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( globalReservoirCellIndex,
-                                                                                      &gridLocalCellIndex );
+        const RigGridBase* hostGrid =
+            mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( globalReservoirCellIndex, &gridLocalCellIndex );
 
         if ( hostGrid && gridLocalCellIndex != cvf::UNDEFINED_SIZE_T )
         {
@@ -136,9 +136,8 @@ void RimFractureContainmentTools::checkFaultAndAppendNeighborCell( const std::se
             // Eclipse 300 supports faults in LGR
             // https://github.com/OPM/ResInsight/issues/3019
 
-            size_t neighborGlobalReservoirCellIndex = findNeighborReservoirCellIndex( mainGrid,
-                                                                                      face,
-                                                                                      globalReservoirCellIndex );
+            size_t neighborGlobalReservoirCellIndex =
+                findNeighborReservoirCellIndex( mainGrid, face, globalReservoirCellIndex );
             if ( neighborGlobalReservoirCellIndex == cvf::UNDEFINED_SIZE_T )
             {
                 // This is probably an assert condition, but we return directly to ensure we are robust

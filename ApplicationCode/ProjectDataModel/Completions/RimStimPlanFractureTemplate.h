@@ -73,10 +73,9 @@ public:
     std::vector<double>                      timeSteps();
     std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
     std::vector<std::vector<double>>
-        resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const;
-    std::vector<double>
-         fractureGridResults( const QString& resultName, const QString& unitName, size_t timeStepIndex ) const;
-    bool hasConductivity() const;
+                        resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const;
+    std::vector<double> fractureGridResults( const QString& resultName, const QString& unitName, size_t timeStepIndex ) const;
+    bool                hasConductivity() const;
     double resultValueAtIJ( const QString& uiResultName, const QString& unitName, size_t timeStepIndex, size_t i, size_t j );
 
     std::vector<double> widthResultValues() const;
@@ -93,9 +92,7 @@ public:
     void convertToUnitSystem( RiaEclipseUnitTools::UnitSystem neededUnit ) override;
 
 private:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

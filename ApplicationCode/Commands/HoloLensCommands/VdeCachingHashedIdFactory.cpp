@@ -102,9 +102,7 @@ int VdeCachingHashedIdFactory::getOrCreateIdForUint32Arr( ArrayRole           ar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int VdeCachingHashedIdFactory::getOrCreateIdForUint8Arr( ArrayRole            arrayRole,
-                                                         const unsigned char* uint8Arr,
-                                                         size_t               elementCount )
+int VdeCachingHashedIdFactory::getOrCreateIdForUint8Arr( ArrayRole arrayRole, const unsigned char* uint8Arr, size_t elementCount )
 {
     return getOrCreateIdForArrOfType( arrayRole, Uint8, sizeof( unsigned char ), uint8Arr, elementCount );
 }

@@ -50,7 +50,7 @@ RimEclipseStatisticsCaseCollection::~RimEclipseStatisticsCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimEclipseStatisticsCaseCollection::parentCaseGroup()
 {
-    RimIdenticalGridCaseGroup* parentObject = dynamic_cast<RimIdenticalGridCaseGroup*>(
-        this->parentField()->ownerObject() );
+    RimIdenticalGridCaseGroup* parentObject =
+        dynamic_cast<RimIdenticalGridCaseGroup*>( this->parentField()->ownerObject() );
     return parentObject;
 }

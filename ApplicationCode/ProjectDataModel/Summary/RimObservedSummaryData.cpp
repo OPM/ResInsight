@@ -150,8 +150,7 @@ void RimObservedSummaryData::fieldChangedByUi( const caf::PdmFieldHandle* change
                                                const QVariant&            oldValue,
                                                const QVariant&            newValue )
 {
-    if ( changedField == &m_useCustomIdentifier || changedField == &m_summaryCategory ||
-         changedField == &m_identifierName )
+    if ( changedField == &m_useCustomIdentifier || changedField == &m_summaryCategory || changedField == &m_identifierName )
     {
         createSummaryReaderInterface();
 

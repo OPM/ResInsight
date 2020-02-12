@@ -53,10 +53,9 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "INPUT_FILES", QFileInfo( fileNames.last() ).absolutePath() );
 
-    RimProject*                proj                   = app->project();
-    RimObservedDataCollection* observedDataCollection = proj->activeOilField()
-                                                            ? proj->activeOilField()->observedDataCollection()
-                                                            : nullptr;
+    RimProject*                proj = app->project();
+    RimObservedDataCollection* observedDataCollection =
+        proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if ( !observedDataCollection ) return;
 
     RimObservedSummaryData* observedData = nullptr;
@@ -74,14 +73,14 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
                 observedData = observedDataCollection->createAndAddRsmObservedSummaryDataFromFile( fileName, &errorText );
                 retryImport = false;
             }
-            else if ( fileName.endsWith( ".txt", Qt::CaseInsensitive ) ||
-                      fileName.endsWith( ".csv", Qt::CaseInsensitive ) )
+            else if ( fileName.endsWith( ".txt", Qt::CaseInsensitive ) || fileName.endsWith( ".csv", Qt::CaseInsensitive ) )
             {
                 bool useSavedFieldValuesInDialog = retryImport;
-                observedData = observedDataCollection->createAndAddCvsObservedSummaryDataFromFile( fileName,
-                                                                                                   useSavedFieldValuesInDialog,
-                                                                                                   &errorText );
-                retryImport  = !errorText.isEmpty();
+                observedData =
+                    observedDataCollection->createAndAddCvsObservedSummaryDataFromFile( fileName,
+                                                                                        useSavedFieldValuesInDialog,
+                                                                                        &errorText );
+                retryImport = !errorText.isEmpty();
             }
             else
             {

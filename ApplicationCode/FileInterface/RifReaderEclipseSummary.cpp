@@ -164,8 +164,7 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, bool includeR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles( const QString& headerFileName,
-                                                                          bool*          hasWarnings )
+std::vector<RifRestartFileInfo> RifReaderEclipseSummary::getRestartFiles( const QString& headerFileName, bool* hasWarnings )
 {
     CVF_ASSERT( hasWarnings );
 
@@ -523,11 +522,10 @@ RifRestartFileInfo RifReaderEclipseSummary::getRestartFile( const QString& heade
 {
     ecl_sum_type* ecl_sum = openEclSum( headerFileName, true );
 
-    const ecl_smspec_type* smspec      = ecl_sum ? ecl_sum_get_smspec( ecl_sum ) : nullptr;
-    const char*            rstCase     = smspec ? ecl_smspec_get_restart_case( smspec ) : nullptr;
-    QString                restartCase = rstCase
-                              ? RiaFilePathTools::canonicalPath( RiaStringEncodingTools::fromNativeEncoded( rstCase ) )
-                              : "";
+    const ecl_smspec_type* smspec  = ecl_sum ? ecl_sum_get_smspec( ecl_sum ) : nullptr;
+    const char*            rstCase = smspec ? ecl_smspec_get_restart_case( smspec ) : nullptr;
+    QString                restartCase =
+        rstCase ? RiaFilePathTools::canonicalPath( RiaStringEncodingTools::fromNativeEncoded( rstCase ) ) : "";
     closeEclSum( ecl_sum );
 
     if ( !restartCase.isEmpty() )
@@ -535,13 +533,13 @@ RifRestartFileInfo RifReaderEclipseSummary::getRestartFile( const QString& heade
         QString path        = QFileInfo( restartCase ).dir().path();
         QString restartBase = QDir( restartCase ).dirName();
 
-        char*   smspec_header   = ecl_util_alloc_exfilename( path.toStdString().data(),
+        char*   smspec_header = ecl_util_alloc_exfilename( path.toStdString().data(),
                                                          restartBase.toStdString().data(),
                                                          ECL_SUMMARY_HEADER_FILE,
                                                          false /*unformatted*/,
                                                          0 );
-        QString restartFileName = RiaFilePathTools::toInternalSeparator(
-            RiaStringEncodingTools::fromNativeEncoded( smspec_header ) );
+        QString restartFileName =
+            RiaFilePathTools::toInternalSeparator( RiaStringEncodingTools::fromNativeEncoded( smspec_header ) );
         free( smspec_header );
 
         return getFileInfo( restartFileName );

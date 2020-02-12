@@ -61,11 +61,10 @@ void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
     QStringList subDirsWithFmuData = RifReaderFmuRft::findSubDirectoriesWithFmuRftData( directory );
     if ( subDirsWithFmuData.empty() )
     {
-        QString message =
-            QString(
-                "Could not find the file %1 in any sub-folder of %2.\nThis file is required for import of FMU data." )
-                .arg( RifReaderFmuRft::wellPathFileName() )
-                .arg( directory );
+        QString message = QString( "Could not find the file %1 in any sub-folder of %2.\nThis file is required for "
+                                   "import of FMU data." )
+                              .arg( RifReaderFmuRft::wellPathFileName() )
+                              .arg( directory );
 
         RiaGuiApplication* guiApp = RiaGuiApplication::instance();
         if ( guiApp )
@@ -78,10 +77,9 @@ void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
         return;
     }
 
-    RimProject*                proj                   = app->project();
-    RimObservedDataCollection* observedDataCollection = proj->activeOilField()
-                                                            ? proj->activeOilField()->observedDataCollection()
-                                                            : nullptr;
+    RimProject*                proj = app->project();
+    RimObservedDataCollection* observedDataCollection =
+        proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if ( !observedDataCollection ) return;
 
     const RimObservedFmuRftData* importedData = nullptr;

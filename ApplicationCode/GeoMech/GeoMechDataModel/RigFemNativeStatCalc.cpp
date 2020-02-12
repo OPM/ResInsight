@@ -124,15 +124,13 @@ void RigFemNativeStatCalc::valueSumAndSampleCount( size_t timeStepIndex, double&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeStatCalc::addDataToHistogramCalculator( size_t                  timeStepIndex,
-                                                         RigHistogramCalculator& histogramCalculator )
+void RigFemNativeStatCalc::addDataToHistogramCalculator( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator )
 {
     int partCount = m_resultsData->partCount();
     for ( int pIdx = 0; pIdx < partCount; ++pIdx )
     {
-        const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr,
-                                                                        pIdx,
-                                                                        static_cast<int>( timeStepIndex ) );
+        const std::vector<float>& values =
+            m_resultsData->resultValues( m_resVarAddr, pIdx, static_cast<int>( timeStepIndex ) );
 
         histogramCalculator.addData( values );
     }

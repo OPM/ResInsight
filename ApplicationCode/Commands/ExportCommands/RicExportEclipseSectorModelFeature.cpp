@@ -97,9 +97,8 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
                                                          const RicExportEclipseSectorModelUi& exportSettings,
                                                          const QString&                       logPrefix )
 {
-    int resultProgressPercentage = exportSettings.exportParameters()
-                                       ? std::min( (int)exportSettings.selectedKeywords().size(), 20 )
-                                       : 0;
+    int resultProgressPercentage =
+        exportSettings.exportParameters() ? std::min( (int)exportSettings.selectedKeywords().size(), 20 ) : 0;
 
     int faultsProgressPercentage = exportSettings.exportFaults() ? 10 : 0;
 

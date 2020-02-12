@@ -43,8 +43,7 @@ using namespace google::protobuf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status
-    RiaGrpcCommandService::Execute( grpc::ServerContext* context, const CommandParams* request, CommandReply* reply )
+grpc::Status RiaGrpcCommandService::Execute( grpc::ServerContext* context, const CommandParams* request, CommandReply* reply )
 {
     auto requestDescriptor = request->GetDescriptor();
 
@@ -253,9 +252,9 @@ void RiaGrpcCommandService::assignPdmObjectValues( caf::PdmObjectHandle*        
         auto parameter = messageDescriptor->field( i );
         if ( parameter )
         {
-            QString parameterName       = QString::fromStdString( parameter->name() );
-            auto    pdmChildFieldHandle = dynamic_cast<caf::PdmChildFieldHandle*>(
-                pdmObjectHandle->findField( parameterName ) );
+            QString parameterName = QString::fromStdString( parameter->name() );
+            auto    pdmChildFieldHandle =
+                dynamic_cast<caf::PdmChildFieldHandle*>( pdmObjectHandle->findField( parameterName ) );
             auto pdmValueFieldHandle = dynamic_cast<caf::PdmValueField*>( pdmObjectHandle->findField( parameterName ) );
             if ( pdmChildFieldHandle )
             {

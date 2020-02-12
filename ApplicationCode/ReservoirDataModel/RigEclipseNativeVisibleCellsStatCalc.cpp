@@ -63,9 +63,7 @@ void RigEclipseNativeVisibleCellsStatCalc::posNegClosestToZero( size_t timeStepI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseNativeVisibleCellsStatCalc::valueSumAndSampleCount( size_t  timeStepIndex,
-                                                                   double& valueSum,
-                                                                   size_t& sampleCount )
+void RigEclipseNativeVisibleCellsStatCalc::valueSumAndSampleCount( size_t timeStepIndex, double& valueSum, size_t& sampleCount )
 {
     SumCountAccumulator acc( valueSum, sampleCount );
     traverseCells( acc, timeStepIndex );

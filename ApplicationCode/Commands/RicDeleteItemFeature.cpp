@@ -175,8 +175,8 @@ bool RicDeleteItemFeature::isCommandEnabled()
         caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>( item );
         if ( !currentPdmObject ) return false;
 
-        caf::PdmChildArrayFieldHandle* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(
-            currentPdmObject->parentField() );
+        caf::PdmChildArrayFieldHandle* childArrayFieldHandle =
+            dynamic_cast<caf::PdmChildArrayFieldHandle*>( currentPdmObject->parentField() );
         if ( !childArrayFieldHandle ) return false;
     }
 
@@ -199,8 +199,8 @@ void RicDeleteItemFeature::onActionTriggered( bool isChecked )
         caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>( item );
         if ( !currentPdmObject ) continue;
 
-        caf::PdmChildArrayFieldHandle* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(
-            currentPdmObject->parentField() );
+        caf::PdmChildArrayFieldHandle* childArrayFieldHandle =
+            dynamic_cast<caf::PdmChildArrayFieldHandle*>( currentPdmObject->parentField() );
         if ( !childArrayFieldHandle ) continue;
 
         int indexAfter = -1;
@@ -223,9 +223,9 @@ void RicDeleteItemFeature::onActionTriggered( bool isChecked )
 
         RicDeleteItemExecData* data = executeCmd->commandData();
         data->m_rootObject          = caf::PdmReferenceHelper::findRoot( childArrayFieldHandle );
-        data->m_pathToField         = caf::PdmReferenceHelper::referenceFromRootToField( data->m_rootObject,
-                                                                                 childArrayFieldHandle );
-        data->m_indexToObject       = indexAfter;
+        data->m_pathToField =
+            caf::PdmReferenceHelper::referenceFromRootToField( data->m_rootObject, childArrayFieldHandle );
+        data->m_indexToObject = indexAfter;
 
         caf::CmdExecCommandManager::instance()->processExecuteCommand( executeCmd );
     }

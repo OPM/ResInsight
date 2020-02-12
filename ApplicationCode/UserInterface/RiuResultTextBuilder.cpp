@@ -952,10 +952,7 @@ QString RiuResultTextBuilder::cellResultText( RimEclipseResultDefinition* eclRes
             }
 
             cvf::ref<RigResultAccessor> resultAccessor =
-                RigResultAccessorFactory::createFromResultDefinition( eclipseCaseData,
-                                                                      m_gridIndex,
-                                                                      adjustedTimeStep,
-                                                                      eclResDef );
+                RigResultAccessorFactory::createFromResultDefinition( eclipseCaseData, m_gridIndex, adjustedTimeStep, eclResDef );
             if ( resultAccessor.notNull() )
             {
                 double  scalarValue = resultAccessor->cellFaceScalar( m_cellIndex, m_face );
@@ -1017,8 +1014,8 @@ QString RiuResultTextBuilder::wellResultText()
             }
 
             const RigWellResultFrame& wellResultFrame = singleWellResultData->wellResultFrame( m_timeStepIndex );
-            const RigWellResultPoint* wellResultCell  = wellResultFrame.findResultCellWellHeadIncluded( m_gridIndex,
-                                                                                                       m_cellIndex );
+            const RigWellResultPoint* wellResultCell =
+                wellResultFrame.findResultCellWellHeadIncluded( m_gridIndex, m_cellIndex );
             if ( wellResultCell )
             {
                 text += QString( "-- Well-cell connection info --\n Well Name: %1\n Branch Id: %2\n Segment Id: %3\n" )

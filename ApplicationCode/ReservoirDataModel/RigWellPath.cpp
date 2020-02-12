@@ -88,10 +88,10 @@ double RigWellPath::rkbDiff() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigWellPath::interpolatedVectorValuesAlongWellPath(
-    const std::vector<cvf::Vec3d>& vectorValuesAlongWellPath,
-    double                         measuredDepth,
-    double*                        horizontalLengthAlongWellToStartClipPoint /*= nullptr*/ ) const
+cvf::Vec3d
+    RigWellPath::interpolatedVectorValuesAlongWellPath( const std::vector<cvf::Vec3d>& vectorValuesAlongWellPath,
+                                                        double                         measuredDepth,
+                                                        double* horizontalLengthAlongWellToStartClipPoint /*= nullptr*/ ) const
 {
     CVF_ASSERT( vectorValuesAlongWellPath.size() == m_wellPathPoints.size() );
     cvf::Vec3d interpolatedVector = cvf::Vec3d::ZERO;
@@ -146,9 +146,7 @@ cvf::Vec3d
     RigWellPath::interpolatedPointAlongWellPath( double  measuredDepth,
                                                  double* horizontalLengthAlongWellToStartClipPoint /*= nullptr*/ ) const
 {
-    return interpolatedVectorValuesAlongWellPath( m_wellPathPoints,
-                                                  measuredDepth,
-                                                  horizontalLengthAlongWellToStartClipPoint );
+    return interpolatedVectorValuesAlongWellPath( m_wellPathPoints, measuredDepth, horizontalLengthAlongWellToStartClipPoint );
 }
 
 //--------------------------------------------------------------------------------------------------

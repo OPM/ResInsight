@@ -302,8 +302,7 @@ void RimViewController::updateOverrides()
                 {
                     if ( isPropertyFilterOveridden() )
                     {
-                        manGeoView->setOverridePropertyFilterCollection(
-                            masterGeoView->geoMechPropertyFilterCollection() );
+                        manGeoView->setOverridePropertyFilterCollection( masterGeoView->geoMechPropertyFilterCollection() );
                     }
                     else
                     {
@@ -617,14 +616,12 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
         dependEclGrid = dependEclipseView->mainGrid();
     }
 
-    if ( masterGeomechView && masterGeomechView->geoMechCase()->geoMechData() &&
-         masterGeomechView->femParts()->partCount() )
+    if ( masterGeomechView && masterGeomechView->geoMechCase()->geoMechData() && masterGeomechView->femParts()->partCount() )
     {
         masterFemPart = masterGeomechView->femParts()->part( 0 );
     }
 
-    if ( dependGeomechView && dependGeomechView->geoMechCase()->geoMechData() &&
-         dependGeomechView->femParts()->partCount() )
+    if ( dependGeomechView && dependGeomechView->geoMechCase()->geoMechData() && dependGeomechView->femParts()->partCount() )
     {
         dependFemPart = dependGeomechView->femParts()->part( 0 );
     }

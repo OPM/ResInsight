@@ -250,8 +250,8 @@ void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry()
             part->setDrawable( geo.p() );
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivExtrudedCurveIntersectionSourceInfo> si = new RivExtrudedCurveIntersectionSourceInfo(
-                m_intersectionGenerator.p() );
+            cvf::ref<RivExtrudedCurveIntersectionSourceInfo> si =
+                new RivExtrudedCurveIntersectionSourceInfo( m_intersectionGenerator.p() );
             part->setSourceInfo( si.p() );
 
             part->updateBoundingBox();
@@ -321,8 +321,7 @@ void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionPartMgr::createFaultLabelParts(
-    const std::vector<std::pair<QString, cvf::Vec3d>>& labelAndAnchors )
+void RivExtrudedCurveIntersectionPartMgr::createFaultLabelParts( const std::vector<std::pair<QString, cvf::Vec3d>>& labelAndAnchors )
 {
     m_faultMeshLabels     = nullptr;
     m_faultMeshLabelLines = nullptr;
@@ -498,8 +497,7 @@ void RivExtrudedCurveIntersectionPartMgr::createPolyLineParts( bool useBufferObj
             depth->enableDepthTest( false );
             eff->setRenderState( depth.p() );
 
-            cvf::ref<cvf::RenderStatePoint> pointRendState = new cvf::RenderStatePoint(
-                cvf::RenderStatePoint::FIXED_SIZE );
+            cvf::ref<cvf::RenderStatePoint> pointRendState = new cvf::RenderStatePoint( cvf::RenderStatePoint::FIXED_SIZE );
             pointRendState->setSize( 5.0f );
             eff->setRenderState( pointRendState.p() );
 
@@ -581,8 +579,7 @@ void RivExtrudedCurveIntersectionPartMgr::createExtrusionDirParts( bool useBuffe
             depth->enableDepthTest( false );
             eff->setRenderState( depth.p() );
 
-            cvf::ref<cvf::RenderStatePoint> pointRendState = new cvf::RenderStatePoint(
-                cvf::RenderStatePoint::FIXED_SIZE );
+            cvf::ref<cvf::RenderStatePoint> pointRendState = new cvf::RenderStatePoint( cvf::RenderStatePoint::FIXED_SIZE );
             pointRendState->setSize( 5.0f );
             eff->setRenderState( pointRendState.p() );
 

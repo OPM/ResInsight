@@ -32,8 +32,7 @@ RimUserDefinedPolylinesAnnotationInView::RimUserDefinedPolylinesAnnotationInView
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimUserDefinedPolylinesAnnotationInView::RimUserDefinedPolylinesAnnotationInView(
-    RimUserDefinedPolylinesAnnotation* sourceAnnotation )
+RimUserDefinedPolylinesAnnotationInView::RimUserDefinedPolylinesAnnotationInView( RimUserDefinedPolylinesAnnotation* sourceAnnotation )
     : RimPolylinesAnnotationInView( sourceAnnotation )
 {
     CAF_PDM_InitObject( "PolyLinesAnnotationInView", ":/WellCollection.png", "", "" );

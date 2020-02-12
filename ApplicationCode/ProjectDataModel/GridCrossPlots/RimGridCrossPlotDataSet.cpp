@@ -553,11 +553,10 @@ void RimGridCrossPlotDataSet::assignCurveDataGroups( const RigEclipseCrossPlotRe
 
             for ( size_t i = 0; i < result.xValues.size(); ++i )
             {
-                auto upperBoundIt    = std::lower_bound( tickValues.begin(),
-                                                      tickValues.end(),
-                                                      result.groupValuesContinuous[i] );
-                int  upperBoundIndex = static_cast<int>( upperBoundIt - tickValues.begin() );
-                int  categoryNum     = std::min( (int)tickValues.size() - 2, std::max( 0, upperBoundIndex - 1 ) );
+                auto upperBoundIt =
+                    std::lower_bound( tickValues.begin(), tickValues.end(), result.groupValuesContinuous[i] );
+                int upperBoundIndex = static_cast<int>( upperBoundIt - tickValues.begin() );
+                int categoryNum     = std::min( (int)tickValues.size() - 2, std::max( 0, upperBoundIndex - 1 ) );
                 m_groupedResults[categoryNum].xValues.push_back( result.xValues[i] );
                 m_groupedResults[categoryNum].yValues.push_back( result.yValues[i] );
                 if ( !result.groupValuesContinuous.empty() )
@@ -960,10 +959,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_grouping )
     {
-        std::set<RigGridCrossPlotCurveGrouping> validOptions = {NO_GROUPING,
-                                                                GROUP_BY_TIME,
-                                                                GROUP_BY_FORMATION,
-                                                                GROUP_BY_RESULT};
+        std::set<RigGridCrossPlotCurveGrouping> validOptions = {NO_GROUPING, GROUP_BY_TIME, GROUP_BY_FORMATION, GROUP_BY_RESULT};
         if ( !hasMultipleTimeSteps() )
         {
             validOptions.erase( GROUP_BY_TIME );
@@ -1035,8 +1031,8 @@ void RimGridCrossPlotDataSet::updateLegendRange()
             }
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame = new RiuDraggableOverlayFrame( parent->viewer()->canvas(),
-                                                                     parent->viewer()->overlayMargins() );
+                m_legendOverlayFrame =
+                    new RiuDraggableOverlayFrame( parent->viewer()->canvas(), parent->viewer()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( legendConfig()->makeLegendFrame() );
             parent->viewer()->addOverlayFrame( m_legendOverlayFrame );
@@ -1335,8 +1331,7 @@ void RimGridCrossPlotDataSet::defineEditorAttribute( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotDataSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                    QString                 uiConfigName /*= ""*/ )
+void RimGridCrossPlotDataSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     if ( groupingEnabled() )
     {

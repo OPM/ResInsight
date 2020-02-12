@@ -77,9 +77,8 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
     RimProject* project = RiaApplication::instance()->project();
     CAF_ASSERT( project );
 
-    RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField()
-                                                    ? project->activeOilField()->summaryCaseMainCollection()
-                                                    : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl =
+        project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
     if ( !sumCaseColl ) return;
 
     RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();

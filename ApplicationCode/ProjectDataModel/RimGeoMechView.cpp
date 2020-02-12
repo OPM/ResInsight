@@ -561,10 +561,7 @@ void RimGeoMechView::updateTensorLegendTextAndRanges( RimRegularLegendConfig* le
 
     RigFemResultAddress resVarAddress( resPos, resFieldName.toStdString(), "" );
 
-    gmCase->femPartResults()->minMaxScalarValuesOverAllTensorComponents( resVarAddress,
-                                                                         timeStepIndex,
-                                                                         &localMin,
-                                                                         &localMax );
+    gmCase->femPartResults()->minMaxScalarValuesOverAllTensorComponents( resVarAddress, timeStepIndex, &localMin, &localMax );
     gmCase->femPartResults()->posNegClosestToZeroOverAllTensorComponents( resVarAddress,
                                                                           timeStepIndex,
                                                                           &localPosClosestToZero,

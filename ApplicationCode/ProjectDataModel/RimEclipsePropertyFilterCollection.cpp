@@ -125,8 +125,7 @@ bool RimEclipsePropertyFilterCollection::isUsingFormationNames() const
 
     for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters )
     {
-        if ( propertyFilter->isActive() &&
-             propertyFilter->resultDefinition()->resultType() == RiaDefines::FORMATION_NAMES &&
+        if ( propertyFilter->isActive() && propertyFilter->resultDefinition()->resultType() == RiaDefines::FORMATION_NAMES &&
              propertyFilter->resultDefinition()->resultVariable() != RiaDefines::undefinedResultName() )
             return true;
     }
@@ -146,8 +145,7 @@ void RimEclipsePropertyFilterCollection::updateIconState()
     if ( view )
     {
         RimViewController* viewController = view->viewController();
-        if ( viewController &&
-             ( viewController->isPropertyFilterOveridden() || viewController->isVisibleCellsOveridden() ) )
+        if ( viewController && ( viewController->isPropertyFilterOveridden() || viewController->isVisibleCellsOveridden() ) )
         {
             activeIcon = false;
         }

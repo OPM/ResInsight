@@ -67,8 +67,8 @@ void RicGeoMechPropertyFilterNewInViewFeature::onActionTriggered( bool isChecked
     RimGeoMechView* eclView = dynamic_cast<RimGeoMechView*>( view );
     if ( !eclView ) return;
 
-    RicGeoMechPropertyFilterNewExec* filterExec = new RicGeoMechPropertyFilterNewExec(
-        eclView->geoMechPropertyFilterCollection() );
+    RicGeoMechPropertyFilterNewExec* filterExec =
+        new RicGeoMechPropertyFilterNewExec( eclView->geoMechPropertyFilterCollection() );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( filterExec );
 }
 

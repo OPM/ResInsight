@@ -37,7 +37,8 @@ CAF_CMD_SOURCE_INIT( RicGeoMechPropertyFilterInsertFeature, "RicGeoMechPropertyF
 //--------------------------------------------------------------------------------------------------
 bool RicGeoMechPropertyFilterInsertFeature::isCommandEnabled()
 {
-    std::vector<RimGeoMechPropertyFilter*> propertyFilters = RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilters();
+    std::vector<RimGeoMechPropertyFilter*> propertyFilters =
+        RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilters();
     if ( propertyFilters.size() == 1 )
     {
         return RicGeoMechPropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( propertyFilters[0] );
@@ -51,7 +52,8 @@ bool RicGeoMechPropertyFilterInsertFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicGeoMechPropertyFilterInsertFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimGeoMechPropertyFilter*> propertyFilters = RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilters();
+    std::vector<RimGeoMechPropertyFilter*> propertyFilters =
+        RicGeoMechPropertyFilterFeatureImpl::selectedPropertyFilters();
     if ( propertyFilters.size() == 1 )
     {
         RicGeoMechPropertyFilterInsertExec* filterExec = new RicGeoMechPropertyFilterInsertExec( propertyFilters[0] );

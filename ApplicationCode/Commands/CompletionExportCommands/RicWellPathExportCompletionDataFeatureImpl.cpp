@@ -107,8 +107,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
             else
             {
                 int     caseId = exportSettings.caseToApply->caseId();
-                QString format = QString(
-                    "Unit systems for well path \"%1\" must match unit system of chosen eclipse case \"%2\"" );
+                QString format =
+                    QString( "Unit systems for well path \"%1\" must match unit system of chosen eclipse case \"%2\"" );
                 QString errMsg = format.arg( wellPath->name() ).arg( caseId );
                 RiaLogging::error( errMsg );
             }
@@ -142,19 +142,19 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
             }
             else
             {
-                fractureTransmissibilityExportInformationStream = std::unique_ptr<QTextStream>(
-                    new QTextStream( &fractureTransmissibilityExportInformationFile ) );
+                fractureTransmissibilityExportInformationStream =
+                    std::unique_ptr<QTextStream>( new QTextStream( &fractureTransmissibilityExportInformationFile ) );
             }
         }
 
-        size_t maxProgress = usedWellPaths.size() * 3 + simWells.size() +
-                             ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL
-                                   ? usedWellPaths.size()
-                                   : exportSettings.fileSplit ==
-                                             RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE
-                                         ? usedWellPaths.size() * 3
-                                         : 1 ) +
-                             simWells.size();
+        size_t maxProgress =
+            usedWellPaths.size() * 3 + simWells.size() +
+            ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL
+                  ? usedWellPaths.size()
+                  : exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE
+                        ? usedWellPaths.size() * 3
+                        : 1 ) +
+            simWells.size();
 
         caf::ProgressInfo progress( maxProgress, "Export Completions" );
 
@@ -437,18 +437,16 @@ std::vector<RigCompletionData>
         exportSettings.includeFractures    = true;
 
         {
-            std::vector<RigCompletionData> completionData = RicFishbonesTransmissibilityCalculationFeatureImp::
-                generateFishboneCompdatValuesUsingAdjustedCellVolume( wellPath, exportSettings );
+            std::vector<RigCompletionData> completionData =
+                RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneCompdatValuesUsingAdjustedCellVolume( wellPath,
+                                                                                                                         exportSettings );
 
             std::copy( completionData.begin(), completionData.end(), std::back_inserter( completionsPerEclipseCell ) );
         }
 
         {
             std::vector<RigCompletionData> completionData =
-                RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath( wellPath,
-                                                                                    eclipseCase,
-                                                                                    nullptr,
-                                                                                    nullptr );
+                RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath( wellPath, eclipseCase, nullptr, nullptr );
 
             std::copy( completionData.begin(), completionData.end(), std::back_inserter( completionsPerEclipseCell ) );
         }
@@ -591,8 +589,7 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
             RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEclipseDoes( settings.caseToApply(),
                                                                                                 skinfactor,
                                                                                                 wellBoreDiameter / 2,
-                                                                                                cellIndexIJK
-                                                                                                    .globalCellIndex(),
+                                                                                                cellIndexIJK.globalCellIndex(),
                                                                                                 cellDirection );
 
         double wpimult = combinedTrans / transmissibilityEclipseCalculation;
@@ -810,8 +807,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
     {
         for ( const auto& completion : completionsForLgr.second )
         {
-            const auto wellPath = RicWellPathExportCompletionsFileTools::findWellPathFromExportName(
-                completion.wellName() );
+            const auto wellPath =
+                RicWellPathExportCompletionsFileTools::findWellPathFromExportName( completion.wellName() );
             auto item = wellPathToLgrNameMap.find( wellPath );
             wellPathToLgrNameMap[wellPath].insert( completionsForLgr.first );
         }
@@ -821,9 +818,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
     {
         const RimWellPath* wellPath = wellPathsForLgr.first;
 
-        std::tuple<double, cvf::Vec2i, QString> itemWithLowestMD = std::make_tuple( std::numeric_limits<double>::max(),
-                                                                                    cvf::Vec2i(),
-                                                                                    "" );
+        std::tuple<double, cvf::Vec2i, QString> itemWithLowestMD =
+            std::make_tuple( std::numeric_limits<double>::max(), cvf::Vec2i(), "" );
 
         // Find first LGR-intersection along the well path
 
@@ -884,8 +880,8 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
     {
         try
         {
-            std::shared_ptr<QFile> exportFile = RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
-                                                                                                          fileName );
+            std::shared_ptr<QFile> exportFile =
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, fileName );
 
             std::map<QString, std::vector<RigCompletionData>> completionsForGrid;
             completionsForGrid.insert( std::pair<QString, std::vector<RigCompletionData>>( "", completionsForMainGrid ) );
@@ -904,8 +900,8 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
         try
         {
             QString                lgrFileName = fileName + "_LGR";
-            std::shared_ptr<QFile> exportFile  = RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
-                                                                                                          lgrFileName );
+            std::shared_ptr<QFile> exportFile =
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, lgrFileName );
 
             exportWellPathFractureReport( eclipseCase, exportFile, wellPathFractureReportItems );
             exportWelspeclToFile( eclipseCase, exportFile, completionsForSubGrids );
@@ -965,46 +961,44 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
 
     if ( gridName.isEmpty() )
     {
-        header =
-            {RifTextDataTableColumn( "Well" ),
-             RifTextDataTableColumn( "I" ),
-             RifTextDataTableColumn( "J" ),
-             RifTextDataTableColumn( "K1" ),
-             RifTextDataTableColumn( "K2" ),
-             RifTextDataTableColumn( "Status" ),
-             RifTextDataTableColumn( "SAT" ),
-             RifTextDataTableColumn( "TR",
-                                     RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-             RifTextDataTableColumn( "DIAM" ),
-             RifTextDataTableColumn( "KH",
-                                     RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-             RifTextDataTableColumn( "S" ),
-             RifTextDataTableColumn( "Df",
-                                     RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-             RifTextDataTableColumn( "DIR" )};
+        header = {RifTextDataTableColumn( "Well" ),
+                  RifTextDataTableColumn( "I" ),
+                  RifTextDataTableColumn( "J" ),
+                  RifTextDataTableColumn( "K1" ),
+                  RifTextDataTableColumn( "K2" ),
+                  RifTextDataTableColumn( "Status" ),
+                  RifTextDataTableColumn( "SAT" ),
+                  RifTextDataTableColumn( "TR",
+                                          RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+                  RifTextDataTableColumn( "DIAM" ),
+                  RifTextDataTableColumn( "KH",
+                                          RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+                  RifTextDataTableColumn( "S" ),
+                  RifTextDataTableColumn( "Df",
+                                          RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+                  RifTextDataTableColumn( "DIR" )};
 
         formatter.keyword( "COMPDAT" );
     }
     else
     {
-        header =
-            {RifTextDataTableColumn( "Well" ),
-             RifTextDataTableColumn( "LgrName" ),
-             RifTextDataTableColumn( "I" ),
-             RifTextDataTableColumn( "J" ),
-             RifTextDataTableColumn( "K1" ),
-             RifTextDataTableColumn( "K2" ),
-             RifTextDataTableColumn( "Status" ),
-             RifTextDataTableColumn( "SAT" ),
-             RifTextDataTableColumn( "TR",
-                                     RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-             RifTextDataTableColumn( "DIAM" ),
-             RifTextDataTableColumn( "KH",
-                                     RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-             RifTextDataTableColumn( "S" ),
-             RifTextDataTableColumn( "Df",
-                                     RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
-             RifTextDataTableColumn( "DIR" )};
+        header = {RifTextDataTableColumn( "Well" ),
+                  RifTextDataTableColumn( "LgrName" ),
+                  RifTextDataTableColumn( "I" ),
+                  RifTextDataTableColumn( "J" ),
+                  RifTextDataTableColumn( "K1" ),
+                  RifTextDataTableColumn( "K2" ),
+                  RifTextDataTableColumn( "Status" ),
+                  RifTextDataTableColumn( "SAT" ),
+                  RifTextDataTableColumn( "TR",
+                                          RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+                  RifTextDataTableColumn( "DIAM" ),
+                  RifTextDataTableColumn( "KH",
+                                          RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+                  RifTextDataTableColumn( "S" ),
+                  RifTextDataTableColumn( "Df",
+                                          RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+                  RifTextDataTableColumn( "DIR" )};
 
         formatter.keyword( "COMPDATL" );
     }
@@ -1167,8 +1161,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
         return completionData;
     }
 
-    const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(
-        RiaDefines::MATRIX_MODEL );
+    const RigActiveCellInfo* activeCellInfo =
+        settings.caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
 
     if ( wellPath->perforationIntervalCollection()->isChecked() )
     {
@@ -1218,21 +1212,19 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
 
                     transmissibility = transmissibilityData.connectionFactor();
 
-                    if ( nonDarcyParameters->nonDarcyFlowType() ==
-                         RimNonDarcyPerforationParameters::NON_DARCY_USER_DEFINED )
+                    if ( nonDarcyParameters->nonDarcyFlowType() == RimNonDarcyPerforationParameters::NON_DARCY_USER_DEFINED )
                     {
                         kh      = transmissibilityData.kh();
                         dFactor = nonDarcyParameters->userDefinedDFactor();
                     }
-                    else if ( nonDarcyParameters->nonDarcyFlowType() ==
-                              RimNonDarcyPerforationParameters::NON_DARCY_COMPUTED )
+                    else if ( nonDarcyParameters->nonDarcyFlowType() == RimNonDarcyPerforationParameters::NON_DARCY_COMPUTED )
                     {
                         kh = transmissibilityData.kh();
 
                         const double effectiveH = transmissibilityData.effectiveH();
 
-                        const double effectivePermeability = nonDarcyParameters->gridPermeabilityScalingFactor() *
-                                                             transmissibilityData.effectiveK();
+                        const double effectivePermeability =
+                            nonDarcyParameters->gridPermeabilityScalingFactor() * transmissibilityData.effectiveK();
 
                         dFactor = calculateDFactor( settings.caseToApply,
                                                     effectiveH,
@@ -1418,8 +1410,7 @@ TransmissibilityData
                                                                0,
                                                                RiaDefines::MATRIX_MODEL,
                                                                0,
-                                                               RigEclipseResultAddress( RiaDefines::STATIC_NATIVE,
-                                                                                        "NTG" ) );
+                                                               RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "NTG" ) );
 
         if ( ntgAccessObject.notNull() )
         {
@@ -1450,8 +1441,7 @@ TransmissibilityData
         if ( directionForVolumeScaling == CellDirection::DIR_K ) dz = dz / volumeScaleConstant;
     }
 
-    const double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( internalCellLengths.x() *
-                                                                                               latNtg,
+    const double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( internalCellLengths.x() * latNtg,
                                                                                            permy,
                                                                                            permz,
                                                                                            dy,
@@ -1459,8 +1449,7 @@ TransmissibilityData
                                                                                            wellRadius,
                                                                                            skinFactor,
                                                                                            darcy );
-    const double transy = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( internalCellLengths.y() *
-                                                                                               latNtg,
+    const double transy = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( internalCellLengths.y() * latNtg,
                                                                                            permx,
                                                                                            permz,
                                                                                            dx,
@@ -1511,8 +1500,7 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor( RimEclipseC
                                                                0,
                                                                RiaDefines::MATRIX_MODEL,
                                                                0,
-                                                               RigEclipseResultAddress( RiaDefines::STATIC_NATIVE,
-                                                                                        "PORO" ) );
+                                                               RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "PORO" ) );
 
         if ( poroAccessObject.notNull() )
         {
@@ -1607,8 +1595,7 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
                                                                0,
                                                                RiaDefines::MATRIX_MODEL,
                                                                0,
-                                                               RigEclipseResultAddress( RiaDefines::STATIC_NATIVE,
-                                                                                        "NTG" ) );
+                                                               RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "NTG" ) );
         ntg = ntgAccessObject->cellScalarGlobIdx( globalCellIndex );
     }
 
@@ -1690,8 +1677,8 @@ std::pair<double, cvf::Vec2i>
     for ( WellPathCellIntersectionInfo intersection : intersections )
     {
         size_t             gridLocalCellIndex = 0;
-        const RigGridBase* grid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( intersection.globCellIndex,
-                                                                                  &gridLocalCellIndex );
+        const RigGridBase* grid =
+            mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( intersection.globCellIndex, &gridLocalCellIndex );
 
         if ( grid->gridId() == gridId && activeCellInfo->isActive( intersection.globCellIndex ) )
         {

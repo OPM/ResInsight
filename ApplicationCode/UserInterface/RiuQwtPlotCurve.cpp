@@ -237,8 +237,7 @@ void RiuQwtPlotCurve::drawSymbols( QPainter*          painter,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setLineSegmentStartStopIndices(
-    const std::vector<std::pair<size_t, size_t>>& lineSegmentStartStopIndices )
+void RiuQwtPlotCurve::setLineSegmentStartStopIndices( const std::vector<std::pair<size_t, size_t>>& lineSegmentStartStopIndices )
 {
     m_polyLineStartStopIndices = lineSegmentStartStopIndices;
 }
@@ -391,9 +390,9 @@ std::vector<double> RiuQwtPlotCurve::fromTime_t( const std::vector<time_t>& time
         doubleValues.reserve( timeSteps.size() );
         for ( const auto& time : timeSteps )
         {
-            double milliSecSinceEpoch = time *
-                                        1000; // This is kind of hack, as the c++ standard does not state what time_t
-                                              // is. "Almost always" secs since epoch according to cppreference.com
+            double milliSecSinceEpoch = time * 1000; // This is kind of hack, as the c++ standard does not state what
+                                                     // time_t is. "Almost always" secs since epoch according to
+                                                     // cppreference.com
 
             doubleValues.push_back( milliSecSinceEpoch );
         }

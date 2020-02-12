@@ -156,10 +156,7 @@ double RifWellMeasurementReader::parseDouble( const QString& token,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifWellMeasurementReader::parseInt( const QString& token,
-                                        const QString& propertyName,
-                                        int            lineNumber,
-                                        const QString& filePath )
+int RifWellMeasurementReader::parseInt( const QString& token, const QString& propertyName, int lineNumber, const QString& filePath )
 {
     bool isOk  = false;
     int  value = token.toInt( &isOk );
@@ -200,10 +197,8 @@ void RifWellMeasurementReader::verifyNonEmptyTokens( const QStringList& tokens,
     {
         if ( tokens[i].isEmpty() )
         {
-            throw FileParseException( QString( "Unexpected empty '%1' on line %2: %3" )
-                                          .arg( nameOfNonEmptyTokens[i] )
-                                          .arg( lineNumber )
-                                          .arg( filePath ) );
+            throw FileParseException(
+                QString( "Unexpected empty '%1' on line %2: %3" ).arg( nameOfNonEmptyTokens[i] ).arg( lineNumber ).arg( filePath ) );
         }
     }
 }

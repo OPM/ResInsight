@@ -135,11 +135,11 @@ bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImport
 {
     if ( caf::Utils::fileExists( this->filePath() ) )
     {
-        RifWellPathImporter::WellData wellData = wellPathImporter->readWellData( this->filePath(),
-                                                                                 m_wellPathIndexInFile() );
+        RifWellPathImporter::WellData wellData =
+            wellPathImporter->readWellData( this->filePath(), m_wellPathIndexInFile() );
 
-        RifWellPathImporter::WellMetaData wellMetaData = wellPathImporter->readWellMetaData( this->filePath(),
-                                                                                             m_wellPathIndexInFile() );
+        RifWellPathImporter::WellMetaData wellMetaData =
+            wellPathImporter->readWellMetaData( this->filePath(), m_wellPathIndexInFile() );
         // General well info
 
         setName( wellData.m_name );
@@ -209,7 +209,8 @@ QString RimFileWellPath::getCacheFileName()
 void RimFileWellPath::setupBeforeSave()
 {
     // Copy the possibly "cached" SSIHUB wellpath, stored in the folder along the project file
-    // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
+    // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to
+    // new project cache location
     if ( !isStoredInCache() )
     {
         return;
@@ -241,7 +242,8 @@ void RimFileWellPath::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 bool RimFileWellPath::isStoredInCache() const
 {
-    // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
+    // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to
+    // new project cache location
     return !id().isEmpty();
 }
 

@@ -38,10 +38,9 @@
 /// Loads input property data from the gridFile and additional files
 /// Creates new InputProperties if necessary, and flags the unused ones as obsolete
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties(
-    RimEclipseInputPropertyCollection* inputPropertyCollection,
-    RigEclipseCaseData*                eclipseCaseData,
-    const std::vector<QString>&        filenames )
+void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
+                                                                      RigEclipseCaseData*         eclipseCaseData,
+                                                                      const std::vector<QString>& filenames )
 {
     CVF_ASSERT( inputPropertyCollection );
     CVF_ASSERT( eclipseCaseData );
@@ -92,8 +91,8 @@ bool RifEclipseInputPropertyLoader::readInputPropertiesFromFiles( RimEclipseInpu
 {
     for ( const QString& propertyFileName : filenames )
     {
-        std::map<QString, QString> readProperties = RifEclipseInputFileTools::readProperties( propertyFileName,
-                                                                                              eclipseCaseData );
+        std::map<QString, QString> readProperties =
+            RifEclipseInputFileTools::readProperties( propertyFileName, eclipseCaseData );
 
         std::map<QString, QString>::iterator it;
         for ( it = readProperties.begin(); it != readProperties.end(); ++it )
@@ -205,11 +204,10 @@ void RifEclipseInputPropertyLoader::readDataForEachInputProperty( RimEclipseInpu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputPropertyLoader::readInputPropertiesForRemainingKeywords(
-    RimEclipseInputPropertyCollection* inputPropertyCollection,
-    RigEclipseCaseData*                eclipseCaseData,
-    const QString&                     filename,
-    std::set<QString>*                 fileKeywordSet )
+void RifEclipseInputPropertyLoader::readInputPropertiesForRemainingKeywords( RimEclipseInputPropertyCollection* inputPropertyCollection,
+                                                                             RigEclipseCaseData* eclipseCaseData,
+                                                                             const QString&      filename,
+                                                                             std::set<QString>*  fileKeywordSet )
 {
     for ( const QString& fileKeyword : *fileKeywordSet )
     {

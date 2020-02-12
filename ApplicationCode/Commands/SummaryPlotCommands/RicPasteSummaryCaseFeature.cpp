@@ -41,8 +41,8 @@ CAF_CMD_SOURCE_INIT( RicPasteSummaryCaseFeature, "RicPasteSummaryCaseFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicPasteSummaryCaseFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
     RimSummaryCaseCollection* summaryCaseCollection = nullptr;
@@ -78,8 +78,8 @@ bool RicPasteSummaryCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return;
 
     std::vector<caf::PdmPointer<RimSummaryCase>> sourceObjects = RicPasteSummaryCaseFeature::summaryCases();

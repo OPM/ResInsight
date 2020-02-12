@@ -18,7 +18,8 @@ void RimDataSourceSteppingTools::modifyCurrentIndex( caf::PdmValueField*        
         {
             QVariant optionValue = options[i].value();
             // First try pointer variety. They are not supported by QVariant::operator==
-            caf::PdmPointer<caf::PdmObjectHandle> optionHandle = optionValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
+            caf::PdmPointer<caf::PdmObjectHandle> optionHandle =
+                optionValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
             if ( optionHandle )
             {
                 if ( currentHandle == optionHandle )

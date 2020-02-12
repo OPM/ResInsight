@@ -93,9 +93,8 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
 
         if ( wellPath || simWell )
         {
-            RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( true,
-                                                                                                         "",
-                                                                                                         wellLogPlot );
+            RimWellLogTrack* newWellLogPlotTrack =
+                RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( true, "", wellLogPlot );
             if ( wellPath )
             {
                 newWellLogPlotTrack->setFormationWellPath( wellPath );

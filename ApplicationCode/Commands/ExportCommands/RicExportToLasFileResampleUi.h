@@ -69,9 +69,7 @@ public:
     void setRkbDiffs( const std::vector<QString>& wellNames, const std::vector<double>& rkbDiffs );
     void setUnitConversionOptionEnabled( bool enabled );
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;

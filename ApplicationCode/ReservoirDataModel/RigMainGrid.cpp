@@ -534,9 +534,7 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
 
                 if ( static_cast<size_t>( gcIdx ) < neighborReservoirCellIdx )
                 {
-                    RigFault::FaultFace ff( gcIdx,
-                                            cvf::StructGridInterface::FaceType( faceIdx ),
-                                            neighborReservoirCellIdx );
+                    RigFault::FaultFace ff( gcIdx, cvf::StructGridInterface::FaceType( faceIdx ), neighborReservoirCellIdx );
                     if ( isCellActive && isNeighborCellActive )
                     {
                         unNamedFault->faultFaces().push_back( ff );

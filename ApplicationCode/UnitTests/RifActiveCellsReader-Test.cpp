@@ -51,9 +51,9 @@ TEST( RifActiveCellsReaderTest, BasicTest10k )
         QString filename( "TEST10K_FLT_LGR_NNC.EGRID" );
         QString filePath = baseFolder.absoluteFilePath( filename );
 
-        ecl_file_type* gridFile = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( filePath ).data(),
-                                                 ECL_FILE_CLOSE_STREAM );
-        activeCellsFromActnum   = RifActiveCellsReader::activeCellsFromActnumKeyword( gridFile );
+        ecl_file_type* gridFile =
+            ecl_file_open( RiaStringEncodingTools::toNativeEncoded( filePath ).data(), ECL_FILE_CLOSE_STREAM );
+        activeCellsFromActnum = RifActiveCellsReader::activeCellsFromActnumKeyword( gridFile );
         EXPECT_EQ( (size_t)2, activeCellsFromActnum.size() );
         ecl_file_close( gridFile );
     }
@@ -62,8 +62,8 @@ TEST( RifActiveCellsReaderTest, BasicTest10k )
         QString filename( "TEST10K_FLT_LGR_NNC.INIT" );
         QString filePath = baseFolder.absoluteFilePath( filename );
 
-        ecl_file_type* initFile = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( filePath ).data(),
-                                                 ECL_FILE_CLOSE_STREAM );
+        ecl_file_type* initFile =
+            ecl_file_open( RiaStringEncodingTools::toNativeEncoded( filePath ).data(), ECL_FILE_CLOSE_STREAM );
 
         activeCellsFromPorv = RifActiveCellsReader::activeCellsFromPorvKeyword( initFile, false );
         EXPECT_EQ( 2, (int)activeCellsFromPorv.size() );

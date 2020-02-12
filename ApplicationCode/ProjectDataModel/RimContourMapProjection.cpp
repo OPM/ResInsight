@@ -1114,18 +1114,15 @@ void RimContourMapProjection::generateContourPolygons()
                 }
 
                 std::vector<caf::ContourLines::ListOfLineSegments> unorderedLineSegmentsPerLevel =
-                    caf::ContourLines::create( m_aggregatedVertexResults,
-                                               xVertexPositions(),
-                                               yVertexPositions(),
-                                               contourLevels );
+                    caf::ContourLines::create( m_aggregatedVertexResults, xVertexPositions(), yVertexPositions(), contourLevels );
 
                 contourPolygons = std::vector<ContourPolygons>( unorderedLineSegmentsPerLevel.size() );
 
 #pragma omp parallel for
                 for ( int i = 0; i < (int)unorderedLineSegmentsPerLevel.size(); ++i )
                 {
-                    contourPolygons[i] = createContourPolygonsFromLineSegments( unorderedLineSegmentsPerLevel[i],
-                                                                                contourLevels[i] );
+                    contourPolygons[i] =
+                        createContourPolygonsFromLineSegments( unorderedLineSegmentsPerLevel[i], contourLevels[i] );
 
                     if ( m_smoothContourLines() )
                     {
@@ -1161,12 +1158,12 @@ void RimContourMapProjection::generateContourPolygons()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapProjection::ContourPolygons RimContourMapProjection::createContourPolygonsFromLineSegments(
-    caf::ContourLines::ListOfLineSegments& unorderedLineSegments,
-    double                                 contourValue )
+RimContourMapProjection::ContourPolygons
+    RimContourMapProjection::createContourPolygonsFromLineSegments( caf::ContourLines::ListOfLineSegments& unorderedLineSegments,
+                                                                    double contourValue )
 {
-    const double areaThreshold = 1.5 * ( m_sampleSpacing * m_sampleSpacing ) /
-                                 ( sampleSpacingFactor() * sampleSpacingFactor() );
+    const double areaThreshold =
+        1.5 * ( m_sampleSpacing * m_sampleSpacing ) / ( sampleSpacingFactor() * sampleSpacingFactor() );
 
     ContourPolygons contourPolygons;
 
@@ -1262,8 +1259,8 @@ void RimContourMapProjection::clipContourPolygons( ContourPolygons* contourPolyg
             if ( !intersections.empty() )
             {
                 polygon.vertices = intersections.front();
-                polygon.area     = std::abs(
-                    cvf::GeometryTools::signedAreaPlanarPolygon( cvf::Vec3d::Z_AXIS, polygon.vertices ) );
+                polygon.area =
+                    std::abs( cvf::GeometryTools::signedAreaPlanarPolygon( cvf::Vec3d::Z_AXIS, polygon.vertices ) );
             }
         }
     }
@@ -1617,8 +1614,8 @@ cvf::Vec2ui RimContourMapProjection::ijFromLocalPos( const cvf::Vec2d& localPos2
 cvf::Vec2d RimContourMapProjection::cellCenterPosition( uint i, uint j ) const
 {
     cvf::Vec3d gridExtent = m_expandedBoundingBox.extent();
-    cvf::Vec2d cellCorner = cvf::Vec2d( ( i * gridExtent.x() ) / ( m_mapSize.x() ),
-                                        ( j * gridExtent.y() ) / ( m_mapSize.y() ) );
+    cvf::Vec2d cellCorner =
+        cvf::Vec2d( ( i * gridExtent.x() ) / ( m_mapSize.x() ), ( j * gridExtent.y() ) / ( m_mapSize.y() ) );
 
     return cellCorner + cvf::Vec2d( m_sampleSpacing * 0.5, m_sampleSpacing * 0.5 );
 }
@@ -1766,8 +1763,7 @@ void RimContourMapProjection::defineUiOrdering( QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                    QString                 uiConfigName /*= ""*/ )
+void RimContourMapProjection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.skipRemainingChildren( true );
 }

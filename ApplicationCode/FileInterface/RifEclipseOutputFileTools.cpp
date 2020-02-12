@@ -418,17 +418,18 @@ bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( const QString&
 void RifEclipseOutputFileTools::readGridDimensions( const QString&                 gridFileName,
                                                     std::vector<std::vector<int>>& gridDimensions )
 {
-    ecl_grid_type* grid = ecl_grid_alloc(
-        RiaStringEncodingTools::toNativeEncoded( gridFileName ).data() ); // bootstrap ecl_grid instance
+    ecl_grid_type* grid = ecl_grid_alloc( RiaStringEncodingTools::toNativeEncoded( gridFileName ).data() ); // bootstrap
+                                                                                                            // ecl_grid
+                                                                                                            // instance
     stringlist_type* lgr_names = ecl_grid_alloc_lgr_name_list( grid ); // get a list of all the lgr names.
 
     // printf("grid:%s has %d a total of %d lgr's \n", grid_filename , stringlist_get_size( lgr_names ));
     for ( int lgr_nr = 0; lgr_nr < stringlist_get_size( lgr_names ); lgr_nr++ )
     {
-        ecl_grid_type* lgr_grid =
-            ecl_grid_get_lgr( grid,
-                              stringlist_iget( lgr_names,
-                                               lgr_nr ) ); // get the ecl_grid instance of the lgr - by name.
+        ecl_grid_type* lgr_grid = ecl_grid_get_lgr( grid,
+                                                    stringlist_iget( lgr_names,
+                                                                     lgr_nr ) ); // get the ecl_grid instance of the lgr
+                                                                                 // - by name.
 
         int nx, ny, nz, active_size;
         ecl_grid_get_dims( lgr_grid, &nx, &ny, &nz, &active_size ); // get some size info from this lgr.
@@ -480,8 +481,8 @@ cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicRe
     cvf::ref<RifEclipseRestartDataAccess> resultsAccess;
 
     // Look for unified restart file
-    QString unrstFileName = RifEclipseOutputFileTools::firstFileNameOfType( filesWithSameBaseName,
-                                                                            ECL_UNIFIED_RESTART_FILE );
+    QString unrstFileName =
+        RifEclipseOutputFileTools::firstFileNameOfType( filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE );
     if ( unrstFileName.size() > 0 )
     {
         resultsAccess = new RifEclipseUnifiedRestartFileAccess();
@@ -490,8 +491,8 @@ cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicRe
     else
     {
         // Look for set of restart files (one file per time step)
-        QStringList restartFiles = RifEclipseOutputFileTools::filterFileNamesOfType( filesWithSameBaseName,
-                                                                                     ECL_RESTART_FILE );
+        QStringList restartFiles =
+            RifEclipseOutputFileTools::filterFileNamesOfType( filesWithSameBaseName, ECL_RESTART_FILE );
         if ( restartFiles.size() > 0 )
         {
             resultsAccess = new RifEclipseRestartFilesetAccess();

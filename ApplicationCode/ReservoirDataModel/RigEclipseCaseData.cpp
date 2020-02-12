@@ -255,7 +255,8 @@ void RigEclipseCaseData::computeWellCellsPrGrid()
                     if ( gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size() )
                     {
                         // NOTE : We do not check if the grid cell is active as we do for well head.
-                        // If we add test for active cell, thorough testing and verification of the new behaviour must be adressed
+                        // If we add test for active cell, thorough testing and verification of the new behaviour must
+                        // be adressed
 
                         m_wellCellsInGrid[gridIndex]->set( gridCellIndex, true );
                         m_gridCellToResultWellIndex[gridIndex]->set( gridCellIndex, static_cast<cvf::uint>( wIdx ) );
@@ -501,9 +502,8 @@ std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches( cons
     const RigSimWellData* simWellData = findSimWellData( simWellName );
     if ( !simWellData ) return branches;
 
-    std::tuple<QString, bool, bool> simWellSeachItem = std::make_tuple( simWellName,
-                                                                        includeAllCellCenters,
-                                                                        useAutoDetectionOfBranches );
+    std::tuple<QString, bool, bool> simWellSeachItem =
+        std::make_tuple( simWellName, includeAllCellCenters, useAutoDetectionOfBranches );
 
     if ( m_simWellBranchCache.find( simWellSeachItem ) == m_simWellBranchCache.end() )
     {
@@ -616,8 +616,7 @@ const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo( RiaDefines::Porosit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setActiveCellInfo( RiaDefines::PorosityModelType porosityModel,
-                                            RigActiveCellInfo*            activeCellInfo )
+void RigEclipseCaseData::setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo )
 {
     if ( porosityModel == RiaDefines::MATRIX_MODEL )
     {
@@ -773,8 +772,7 @@ const std::vector<double>* RigEclipseCaseData::resultValues( RiaDefines::Porosit
     const std::vector<double>* swatResults = nullptr;
     if ( gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( type, resultName ) ) )
     {
-        swatResults = &(
-            gridCellResults->cellScalarResults( RigEclipseResultAddress( type, resultName ), timeStepIndex ) );
+        swatResults = &( gridCellResults->cellScalarResults( RigEclipseResultAddress( type, resultName ), timeStepIndex ) );
     }
 
     return swatResults;

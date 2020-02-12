@@ -52,8 +52,7 @@ RimWellLogCurve::RimWellLogCurve()
 
     m_curveData = new RigWellLogCurveData;
 
-    m_curveDataXRange = std::make_pair( std::numeric_limits<double>::infinity(),
-                                        -std::numeric_limits<double>::infinity() );
+    m_curveDataXRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,8 +244,7 @@ void RimWellLogCurve::setOverrideCurveDataXRange( double minimumValue, double ma
 void RimWellLogCurve::calculateCurveDataXRange()
 {
     // Invalidate range first
-    m_curveDataXRange = std::make_pair( std::numeric_limits<double>::infinity(),
-                                        -std::numeric_limits<double>::infinity() );
+    m_curveDataXRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
     for ( double xValue : m_curveData->xValues() )
     {
         if ( RiaCurveDataTools::isValidValue( xValue, false ) )

@@ -217,13 +217,7 @@ RimWellLogTrack::RimWellLogTrack()
                                 "" );
     m_formationWellPathForSourceWellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_formationSimWellName,
-                       "FormationSimulationWellName",
-                       QString( "None" ),
-                       "Simulation Well",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_formationSimWellName, "FormationSimulationWellName", QString( "None" ), "Simulation Well", "", "", "" );
     CAF_PDM_InitField( &m_formationBranchIndex, "FormationBranchIndex", 0, " ", "", "", "" );
     CAF_PDM_InitField( &m_formationBranchDetection,
                        "FormationBranchDetection",
@@ -243,13 +237,7 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitField( &m_showWellPathAttributes, "ShowWellPathAttributes", false, "Show Well Attributes", "", "", "" );
     CAF_PDM_InitField( &m_wellPathAttributesInLegend, "WellPathAttributesInLegend", false, "Attributes in Legend", "", "", "" );
     CAF_PDM_InitField( &m_showWellPathCompletions, "ShowWellPathCompletions", true, "Show Well Completions", "", "", "" );
-    CAF_PDM_InitField( &m_wellPathCompletionsInLegend,
-                       "WellPathCompletionsInLegend",
-                       false,
-                       "Completions in Legend",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_wellPathCompletionsInLegend, "WellPathCompletionsInLegend", false, "Completions in Legend", "", "", "" );
     CAF_PDM_InitField( &m_showWellPathComponentsBothSides, "ShowWellPathAttrBothSides", true, "Show Both Sides", "", "", "" );
     CAF_PDM_InitField( &m_showWellPathComponentLabels, "ShowWellPathAttrLabels", false, "Show Labels", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_wellPathComponentSource, "AttributesWellPathSource", "Well Path", "", "", "" );
@@ -904,9 +892,8 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
 
     if ( fieldNeedingOptions == &m_regionAnnotationType )
     {
-        options.push_back(
-            caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::NO_ANNOTATIONS ),
-                                    RiuPlotAnnotationTool::NO_ANNOTATIONS ) );
+        options.push_back( caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::NO_ANNOTATIONS ),
+                                                   RiuPlotAnnotationTool::NO_ANNOTATIONS ) );
         options.push_back(
             caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS ),
                                     RiuPlotAnnotationTool::FORMATION_ANNOTATIONS ) );
@@ -937,9 +924,9 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
     }
     else if ( fieldNeedingOptions == &m_formationBranchIndex )
     {
-        auto simulationWellBranches = RiaSimWellBranchTools::simulationWellBranches( m_formationSimWellName(),
-                                                                                     m_formationBranchDetection );
-        options                     = RiaSimWellBranchTools::valueOptionsForBranchIndexField( simulationWellBranches );
+        auto simulationWellBranches =
+            RiaSimWellBranchTools::simulationWellBranches( m_formationSimWellName(), m_formationBranchDetection );
+        options = RiaSimWellBranchTools::valueOptionsForBranchIndexField( simulationWellBranches );
     }
     else if ( fieldNeedingOptions == &m_formationLevel )
     {
@@ -1221,8 +1208,7 @@ void RimWellLogTrack::setAutoScaleXIfNecessary()
         setAutoScaleXEnabled( true );
     }
     // If the new range is much smaller than the existing
-    if ( std::abs( m_availableXRangeMax - m_availableXRangeMin ) <
-         0.1 * std::abs( m_visibleXRangeMax - m_visibleXRangeMin ) )
+    if ( std::abs( m_availableXRangeMax - m_availableXRangeMin ) < 0.1 * std::abs( m_visibleXRangeMax - m_visibleXRangeMin ) )
     {
         setAutoScaleXEnabled( true );
     }
@@ -2038,8 +2024,8 @@ RigEclipseWellLogExtractor* RimWellLogTrack::createSimWellExtractor( RimWellLogP
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
     if ( !eclipseCase ) return nullptr;
 
-    std::vector<const RigWellPath*> wellPaths = RiaSimWellBranchTools::simulationWellBranches( simWellName,
-                                                                                               useBranchDetection );
+    std::vector<const RigWellPath*> wellPaths =
+        RiaSimWellBranchTools::simulationWellBranches( simWellName, useBranchDetection );
 
     if ( wellPaths.size() == 0 ) return nullptr;
 
@@ -2283,9 +2269,9 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         }
         else
         {
-            eclWellLogExtractor = RiaExtractionTools::wellLogExtractorEclipseCase( m_formationWellPathForSourceCase,
-                                                                                   dynamic_cast<RimEclipseCase*>(
-                                                                                       m_formationCase() ) );
+            eclWellLogExtractor =
+                RiaExtractionTools::wellLogExtractorEclipseCase( m_formationWellPathForSourceCase,
+                                                                 dynamic_cast<RimEclipseCase*>( m_formationCase() ) );
         }
 
         if ( eclWellLogExtractor )
@@ -2304,9 +2290,9 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         }
         else
         {
-            geoMechWellLogExtractor = RiaExtractionTools::wellLogExtractorGeoMechCase( m_formationWellPathForSourceCase,
-                                                                                       dynamic_cast<RimGeoMechCase*>(
-                                                                                           m_formationCase() ) );
+            geoMechWellLogExtractor =
+                RiaExtractionTools::wellLogExtractorGeoMechCase( m_formationWellPathForSourceCase,
+                                                                 dynamic_cast<RimGeoMechCase*>( m_formationCase() ) );
             if ( !geoMechWellLogExtractor ) return;
 
             std::string activeFormationNamesResultName = RiaDefines::activeFormationNamesResultName().toStdString();
@@ -2321,8 +2307,8 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         const std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
 
         const caf::ColorTable                        waterAndRockColors = RiaColorTables::waterAndRockPaletteColors();
-        const std::vector<std::pair<double, double>> waterAndRockIntervals = waterAndRockRegions( plot->depthType(),
-                                                                                                  extractor );
+        const std::vector<std::pair<double, double>> waterAndRockIntervals =
+            waterAndRockRegions( plot->depthType(), extractor );
         m_annotationTool->attachNamedRegions( m_plotWidget,
                                               {"Sea Level", ""},
                                               xRange,
@@ -2374,16 +2360,15 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
     if ( wellBoreStabilityPlot )
     {
         wellBoreStabilityPlot->updateCommonDataSource();
-        RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>(
-            wellBoreStabilityPlot->commonDataSource()->caseToApply() );
+        RimGeoMechCase* geoMechCase =
+            dynamic_cast<RimGeoMechCase*>( wellBoreStabilityPlot->commonDataSource()->caseToApply() );
         RimWellPath* wellPath = wellBoreStabilityPlot->commonDataSource()->wellPathToApply();
         int          timeStep = wellBoreStabilityPlot->commonDataSource()->timeStepToApply();
         if ( geoMechCase && wellPath && timeStep >= 0 )
         {
             RigGeoMechWellLogExtractor* geoMechWellLogExtractor = nullptr;
-            geoMechWellLogExtractor = RiaExtractionTools::wellLogExtractorGeoMechCase( wellPath,
-                                                                                       dynamic_cast<RimGeoMechCase*>(
-                                                                                           geoMechCase ) );
+            geoMechWellLogExtractor =
+                RiaExtractionTools::wellLogExtractorGeoMechCase( wellPath, dynamic_cast<RimGeoMechCase*>( geoMechCase ) );
             if ( !geoMechWellLogExtractor ) return;
 
             std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
@@ -2553,9 +2538,8 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
         {
             std::unique_ptr<RiuWellPathComponentPlotItem> plotItem(
                 new RiuWellPathComponentPlotItem( wellPathAttributeSource(), component ) );
-            QString legendTitle        = plotItem->legendTitle();
-            bool    contributeToLegend = m_wellPathCompletionsInLegend() &&
-                                      !completionsAssignedToLegend.count( legendTitle );
+            QString legendTitle     = plotItem->legendTitle();
+            bool contributeToLegend = m_wellPathCompletionsInLegend() && !completionsAssignedToLegend.count( legendTitle );
             plotItem->setContributeToLegend( contributeToLegend );
             m_wellPathAttributePlotObjects.push_back( std::move( plotItem ) );
             completionsAssignedToLegend.insert( legendTitle );

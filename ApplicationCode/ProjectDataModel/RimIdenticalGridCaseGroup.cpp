@@ -188,9 +188,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
         if ( RiaGuiApplication::isRunning() )
         {
-            QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
-                                  "Error when opening project file",
-                                  errorMessage );
+            QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "Error when opening project file", errorMessage );
         }
         RiaLogging::error( errorMessage );
         return;

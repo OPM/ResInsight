@@ -27,8 +27,7 @@
 class RicRangeFilterNewExec : public RicRangeFilterExecImpl
 {
 public:
-    RicRangeFilterNewExec( RimCellRangeFilterCollection* rangeFilterCollection,
-                           RimCellRangeFilter*           rangeFilter = nullptr );
+    RicRangeFilterNewExec( RimCellRangeFilterCollection* rangeFilterCollection, RimCellRangeFilter* rangeFilter = nullptr );
     ~RicRangeFilterNewExec() override;
 
     QString name() override;

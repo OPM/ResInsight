@@ -157,7 +157,8 @@ void RicHoloLensSession::updateSessionDataFromView( const RimGridView& activeVie
     // Note!
     // The packet directory should now contain all the packets that are being actively referenced.
     // We now prune out any packets that are no longer being referenced. This means we do no caching of actual packet
-    // data over time and that we assume that the server will ask for data packets/arrays right after having received updated meta data
+    // data over time and that we assume that the server will ask for data packets/arrays right after having received
+    // updated meta data
     m_packetDirectory.pruneUnreferencedPackets( allReferencedPacketIds );
 
     m_lastExtractionMetaDataSequenceNumber++;
@@ -178,8 +179,7 @@ void RicHoloLensSession::updateSessionDataFromView( const RimGridView& activeVie
 
         if ( !outputDir.mkpath( "." ) )
         {
-            RiaLogging::error(
-                QString( "HoloLens: Could not create debug file export folder: %1" ).arg( absOutputFolder ) );
+            RiaLogging::error( QString( "HoloLens: Could not create debug file export folder: %1" ).arg( absOutputFolder ) );
             return;
         }
 
@@ -280,8 +280,8 @@ void RicHoloLensSession::handleSuccessfulSendMetaData( int               metaDat
         return;
     }
 
-    RiaLogging::info( QString( "HoloLens: Start sending data to server, %1 data arrays have been requested" )
-                          .arg( arrayIdsToSend.size() ) );
+    RiaLogging::info(
+        QString( "HoloLens: Start sending data to server, %1 data arrays have been requested" ).arg( arrayIdsToSend.size() ) );
 
     size_t totalBytesSent     = 0;
     size_t totalNumArraysSent = 0;

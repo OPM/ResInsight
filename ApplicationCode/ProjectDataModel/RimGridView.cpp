@@ -407,10 +407,9 @@ bool RimGridView::applyFontSize( RiaDefines::FontSettingType fontSettingType,
 
             if ( applyFontSizes )
             {
-                anyChange = annotations->applyFontSizeToAllTextAnnotations( oldFontSizeEnum,
-                                                                            newFontSizeEnum,
-                                                                            forceChange ) ||
-                            anyChange;
+                anyChange =
+                    annotations->applyFontSizeToAllTextAnnotations( oldFontSizeEnum, newFontSizeEnum, forceChange ) ||
+                    anyChange;
             }
         }
     }
@@ -448,8 +447,8 @@ void RimGridView::initAfterRead()
         // Current : Grid visualization mode is directly defined by m_gridCollection->isActive
         // This change was introduced in https://github.com/OPM/ResInsight/commit/f7bfe8d0
 
-        bool isGridVisualizationModeBefore_2018_1_1 = ( ( surfaceMode() == RimGridView::SURFACE ) ||
-                                                        ( meshMode() == RiaDefines::FULL_MESH ) );
+        bool isGridVisualizationModeBefore_2018_1_1 =
+            ( ( surfaceMode() == RimGridView::SURFACE ) || ( meshMode() == RiaDefines::FULL_MESH ) );
 
         m_gridCollection->setActive( isGridVisualizationModeBefore_2018_1_1 );
         if ( !isGridVisualizationModeBefore_2018_1_1 )
@@ -530,9 +529,7 @@ void RimGridView::onClearReservoirCellVisibilitiesIfNeccessary()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                    const QVariant&            oldValue,
-                                    const QVariant&            newValue )
+void RimGridView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &scaleZ )
     {

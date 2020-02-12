@@ -522,11 +522,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             if ( !errors.empty() )
             {
-                this->setSamplesFromXYErrorValues( xValues,
-                                                   yValues,
-                                                   errors,
-                                                   isLogCurve,
-                                                   RiaCurveDataTools::ERROR_ALONG_X_AXIS );
+                this->setSamplesFromXYErrorValues( xValues, yValues, errors, isLogCurve, RiaCurveDataTools::ERROR_ALONG_X_AXIS );
             }
             else
             {
@@ -647,9 +643,8 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
     }
     else if ( fieldNeedingOptions == &m_branchIndex )
     {
-        auto simulationWellBranches = RiaSimWellBranchTools::simulationWellBranches( RimWellPlotTools::simWellName(
-                                                                                         m_wellName ),
-                                                                                     m_branchDetection );
+        auto simulationWellBranches =
+            RiaSimWellBranchTools::simulationWellBranches( RimWellPlotTools::simWellName( m_wellName ), m_branchDetection );
 
         options = RiaSimWellBranchTools::valueOptionsForBranchIndexField( simulationWellBranches );
     }
@@ -765,8 +760,8 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
     if ( !eclExtractor && m_eclipseResultCase )
     {
         QString                         simWellName = RimWellPlotTools::simWellName( m_wellName );
-        std::vector<const RigWellPath*> wellPaths   = RiaSimWellBranchTools::simulationWellBranches( simWellName,
-                                                                                                   m_branchDetection );
+        std::vector<const RigWellPath*> wellPaths =
+            RiaSimWellBranchTools::simulationWellBranches( simWellName, m_branchDetection );
         if ( wellPaths.size() == 0 ) return nullptr;
 
         m_branchIndex = RiaSimWellBranchTools::clampBranchIndex( simWellName, m_branchIndex, m_branchDetection );
@@ -1020,9 +1015,8 @@ bool RimWellLogRftCurve::deriveMeasuredDepthValuesFromWellPath( const std::vecto
         const std::vector<double>& mdValuesOfWellPath  = wellPath->wellPathGeometry()->measureDepths();
         std::vector<double>        tvdValuesOfWellPath = wellPath->wellPathGeometry()->trueVerticalDepths();
 
-        derivedMdValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath,
-                                                                          tvdValuesOfWellPath,
-                                                                          tvDepthValues );
+        derivedMdValues =
+            RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues );
         CVF_ASSERT( derivedMdValues.size() == tvDepthValues.size() );
         return true;
     }

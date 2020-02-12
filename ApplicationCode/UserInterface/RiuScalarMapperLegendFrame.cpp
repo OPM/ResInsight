@@ -27,9 +27,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuScalarMapperLegendFrame::RiuScalarMapperLegendFrame( QWidget*           parent,
-                                                        const QString&     title,
-                                                        cvf::ScalarMapper* scalarMapper )
+RiuScalarMapperLegendFrame::RiuScalarMapperLegendFrame( QWidget* parent, const QString& title, cvf::ScalarMapper* scalarMapper )
     : RiuAbstractLegendFrame( parent, title )
     , m_scalarMapper( scalarMapper )
     , m_tickNumberPrecision( 4 )
@@ -177,8 +175,7 @@ void RiuScalarMapperLegendFrame::renderRect( QPainter* painter, const LayoutInfo
     gradient.setColorAt( 0.0, startQColor );
     gradient.setColorAt( 1.0, endQColor );
 
-    QRectF rect( QPointF( layout.tickStartX,
-                          layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ),
+    QRectF rect( QPointF( layout.tickStartX, layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ),
                  QPointF( layout.tickMidX,
                           layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ) );
 

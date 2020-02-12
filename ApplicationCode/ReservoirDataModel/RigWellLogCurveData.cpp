@@ -185,8 +185,7 @@ std::set<RiaDefines::DepthTypeEnum> RigWellLogCurveData::availableDepthTypes() c
 
     if ( m_rkbDiff != 0.0 )
     {
-        if ( depthTypes.count( RiaDefines::TRUE_VERTICAL_DEPTH ) &&
-             !depthTypes.count( RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) )
+        if ( depthTypes.count( RiaDefines::TRUE_VERTICAL_DEPTH ) && !depthTypes.count( RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) )
         {
             depthTypes.insert( RiaDefines::TRUE_VERTICAL_DEPTH_RKB );
         }
@@ -228,9 +227,8 @@ std::vector<double> RigWellLogCurveData::depthPlotValues( RiaDefines::DepthTypeE
         }
         else
         {
-            std::vector<double> convertedValues = RiaWellLogUnitTools().convertDepths( depthValues,
-                                                                                       m_depthUnit,
-                                                                                       destinationDepthUnit );
+            std::vector<double> convertedValues =
+                RiaWellLogUnitTools().convertDepths( depthValues, m_depthUnit, destinationDepthUnit );
             RiaCurveDataTools::getValuesByIntervals( convertedValues, m_intervalsOfContinousValidValues, &filteredValues );
         }
     }
@@ -313,12 +311,7 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
     }
     else
     {
-        reSampledData->setValuesAndDepths( xValues,
-                                           measuredDepths,
-                                           RiaDefines::MEASURED_DEPTH,
-                                           0.0,
-                                           m_depthUnit,
-                                           m_isExtractionCurve );
+        reSampledData->setValuesAndDepths( xValues, measuredDepths, RiaDefines::MEASURED_DEPTH, 0.0, m_depthUnit, m_isExtractionCurve );
     }
 
     return reSampledData;

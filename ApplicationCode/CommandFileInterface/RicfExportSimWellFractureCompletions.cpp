@@ -102,12 +102,11 @@ RicfCommandResponse RicfExportSimWellFractureCompletions::execute()
     }
     if ( views.empty() )
     {
-        QString error =
-            QString(
-                "exportSimWellCompletions: Could not find any views with id %1 or named \"%2\" in the case with ID %3" )
-                .arg( m_viewId )
-                .arg( m_viewName )
-                .arg( m_caseId() );
+        QString error = QString( "exportSimWellCompletions: Could not find any views with id %1 or named \"%2\" in the "
+                                 "case with ID %3" )
+                            .arg( m_viewId )
+                            .arg( m_viewName )
+                            .arg( m_caseId() );
         RiaLogging::error( error );
         return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
     }

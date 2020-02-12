@@ -255,8 +255,8 @@ public:
                 {
                     size_t globalCoarseningIdx = globalCoarseningBoxIndexStart[grid->gridIndex()] + coarseningIdx;
 
-                    globalCoarseningBoxIdx.push_back(
-                        static_cast<qint32>( globalCoarseningIdx + 1 ) ); // NB: 1-based index in Octave
+                    globalCoarseningBoxIdx.push_back( static_cast<qint32>( globalCoarseningIdx + 1 ) ); // NB: 1-based
+                                                                                                        // index in Octave
                 }
                 else
                 {
@@ -267,8 +267,8 @@ public:
     }
 };
 
-static bool RiaGetActiveCellInfo_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellInfo>(
-    RiaGetActiveCellInfo::commandName() );
+static bool RiaGetActiveCellInfo_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellInfo>( RiaGetActiveCellInfo::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -339,8 +339,8 @@ public:
     }
 };
 
-static bool RiaGetCoarseningInfo_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCoarseningInfo>(
-    RiaGetCoarseningInfo::commandName() );
+static bool RiaGetCoarseningInfo_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetCoarseningInfo>( RiaGetCoarseningInfo::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -397,8 +397,8 @@ public:
     }
 };
 
-static bool RiaGetGridDimensions_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridDimensions>(
-    RiaGetGridDimensions::commandName() );
+static bool RiaGetGridDimensions_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridDimensions>( RiaGetGridDimensions::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -447,10 +447,10 @@ public:
             return true;
         }
 
-        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()
-                                                   ->results( RiaDefines::MATRIX_MODEL )
-                                                   ->timeStepDates(
-                                                       RigEclipseResultAddress( addrToMaxTimeStepCountResult ) );
+        std::vector<QDateTime> timeStepDates =
+            rimCase->eclipseCaseData()
+                ->results( RiaDefines::MATRIX_MODEL )
+                ->timeStepDates( RigEclipseResultAddress( addrToMaxTimeStepCountResult ) );
 
         quint64 timeStepCount = timeStepDates.size();
         quint64 byteCount     = sizeof( quint64 ) + 6 * timeStepCount * sizeof( qint32 );
@@ -485,8 +485,8 @@ public:
     }
 };
 
-static bool RiaGetTimeStepDates_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetTimeStepDates>(
-    RiaGetTimeStepDates::commandName() );
+static bool RiaGetTimeStepDates_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetTimeStepDates>( RiaGetTimeStepDates::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -535,9 +535,8 @@ public:
             return true;
         }
 
-        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()
-                                                           ->results( RiaDefines::MATRIX_MODEL )
-                                                           ->daysSinceSimulationStart( addrToMaxTimeStepCountResult );
+        std::vector<double> daysSinceSimulationStart =
+            rimCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->daysSinceSimulationStart( addrToMaxTimeStepCountResult );
 
         quint64 timeStepCount = daysSinceSimulationStart.size();
         quint64 byteCount     = sizeof( quint64 ) + timeStepCount * sizeof( qint32 );
@@ -554,8 +553,8 @@ public:
     }
 };
 
-static bool RiaGetTimeStepDays_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetTimeStepDays>(
-    RiaGetTimeStepDays::commandName() );
+static bool RiaGetTimeStepDays_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetTimeStepDays>( RiaGetTimeStepDays::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -664,5 +663,5 @@ public:
     }
 };
 
-static bool RiaGetSelectedCells_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetSelectedCells>(
-    RiaGetSelectedCells::commandName() );
+static bool RiaGetSelectedCells_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetSelectedCells>( RiaGetSelectedCells::commandName() );

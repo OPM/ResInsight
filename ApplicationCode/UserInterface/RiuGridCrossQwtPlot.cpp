@@ -89,10 +89,8 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
     m_selectedPointMarker = new QwtPlotMarker;
 
     // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
-    QwtSymbol* mySymbol = new QwtSymbol( QwtSymbol::Ellipse,
-                                         QBrush( QColor( 255, 255, 255, 50 ) ),
-                                         QPen( Qt::black, 2.0 ),
-                                         QSize( 10, 10 ) );
+    QwtSymbol* mySymbol =
+        new QwtSymbol( QwtSymbol::Ellipse, QBrush( QColor( 255, 255, 255, 50 ) ), QPen( Qt::black, 2.0 ), QSize( 10, 10 ) );
     m_selectedPointMarker->setSymbol( mySymbol );
     m_selectedPointMarker->setLabelAlignment( Qt::AlignRight | Qt::AlignVCenter );
     m_selectedPointMarker->setSpacing( 3 );
@@ -223,10 +221,7 @@ void RiuGridCrossQwtPlot::clearPointSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuGridCrossQwtPlot::curveText( const QwtPlotCurve* curve,
-                                     QString*            curveTitle,
-                                     QString*            xParamName,
-                                     QString*            yParamName ) const
+bool RiuGridCrossQwtPlot::curveText( const QwtPlotCurve* curve, QString* curveTitle, QString* xParamName, QString* yParamName ) const
 {
     CVF_ASSERT( curveTitle && xParamName && yParamName );
 

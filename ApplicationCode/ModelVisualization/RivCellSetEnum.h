@@ -24,7 +24,8 @@ enum RivCellSetEnum
     OVERRIDDEN_CELL_VISIBILITY, ////< Use the total visibility from a different case directly
     ALL_CELLS,
     ACTIVE, ///< All Active cells without ALL_WELL_CELLS
-    ALL_WELL_CELLS, ///< All cells ever having a connection to a well (Might be inactive cells as well. Wellhead cells typically)
+    ALL_WELL_CELLS, ///< All cells ever having a connection to a well (Might be inactive cells as well. Wellhead cells
+                    ///< typically)
     VISIBLE_WELL_CELLS, ///< ALL_WELL_CELLS && visible well cells (including Fence <-- is this correct? MSJ/JJS )
     VISIBLE_WELL_FENCE_CELLS, ///< (! ALL_WELL_CELLS) && visible well cells including Fence
     INACTIVE, ///< All inactive cells, but invalid cells might or might not be included
@@ -33,7 +34,8 @@ enum RivCellSetEnum
     RANGE_FILTERED_WELL_CELLS, ///< ALL_WELL_CELLS Filtered by the set of range filters
     VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER, ///< VISIBLE_WELL_CELLS && !RANGE_FILTERED_WELL_CELLS
     VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, ///< VISIBLE_WELL_FENCE_CELLS && !RANGE_FILTERED
-    PROPERTY_FILTERED, ///< (RANGE_FILTERED || VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER) && !ExcludedByPropFilter && IncludedByPropFilter
+    PROPERTY_FILTERED, ///< (RANGE_FILTERED || VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER) && !ExcludedByPropFilter
+                       ///< && IncludedByPropFilter
     PROPERTY_FILTERED_WELL_CELLS ///< (!(hasActiveRangeFilters || visibleWellCells) && (*ALL_WELL_CELLS)) ||
                                  ///< RANGE_FILTERED_WELL_CELLS || VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER
 };

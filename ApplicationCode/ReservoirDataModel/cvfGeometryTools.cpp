@@ -25,10 +25,8 @@ namespace cvf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d GeometryTools::computeFaceCenter( const cvf::Vec3d& v0,
-                                             const cvf::Vec3d& v1,
-                                             const cvf::Vec3d& v2,
-                                             const cvf::Vec3d& v3 )
+cvf::Vec3d
+    GeometryTools::computeFaceCenter( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3 )
 {
     cvf::Vec3d centerCoord = v0;
     centerCoord += v1;
@@ -582,7 +580,8 @@ int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d p0,
 //
 //    p = (xp, yp, zp)
 
-cvf::Vec3d barycentricCoordsExperiment(const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const cvf::Vec3d& p)
+cvf::Vec3d barycentricCoordsExperiment(const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const
+cvf::Vec3d& p)
 {
     det = x0(y1*z2 - y2*z1) + x1(y2*z0 - z2*y0) + x2(y0*z1 - y1*z0);
 
@@ -604,10 +603,8 @@ inline double TriArea2D( double x1, double y1, double x2, double y2, double x3, 
 // These can be used as weights for interpolating scalar values across the triangle
 // Based on section 3.4 in "Real Time collision detection" by Christer Ericson
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d GeometryTools::barycentricCoords( const cvf::Vec3d& t0,
-                                             const cvf::Vec3d& t1,
-                                             const cvf::Vec3d& t2,
-                                             const cvf::Vec3d& p )
+cvf::Vec3d
+    GeometryTools::barycentricCoords( const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const cvf::Vec3d& p )
 {
     // Unnormalized triangle normal
     cvf::Vec3d m = ( t1 - t0 ^ t2 - t0 );
@@ -1192,8 +1189,7 @@ bool FanEarClipTesselator::isTriangleValid( size_t u, size_t v, size_t w )
     cvf::Vec3d B = ( *m_nodeCoords )[v];
     cvf::Vec3d C = ( *m_nodeCoords )[w];
 
-    if ( m_areaTolerance >
-         ( ( ( B[m_X] - A[m_X] ) * ( C[m_Y] - A[m_Y] ) ) - ( ( B[m_Y] - A[m_Y] ) * ( C[m_X] - A[m_X] ) ) ) )
+    if ( m_areaTolerance > ( ( ( B[m_X] - A[m_X] ) * ( C[m_Y] - A[m_Y] ) ) - ( ( B[m_Y] - A[m_Y] ) * ( C[m_X] - A[m_X] ) ) ) )
         return false;
 
     std::list<size_t>::const_iterator c;

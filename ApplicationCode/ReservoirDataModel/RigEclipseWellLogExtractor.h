@@ -46,9 +46,8 @@ public:
 private:
     void                calculateIntersection();
     std::vector<size_t> findCloseCellIndices( const cvf::BoundingBox& bb );
-    cvf::Vec3d          calculateLengthInCell( size_t            cellIndex,
-                                               const cvf::Vec3d& startPoint,
-                                               const cvf::Vec3d& endPoint ) const override;
+    cvf::Vec3d
+        calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const override;
 
     cvf::cref<RigEclipseCaseData> m_caseData;
 };

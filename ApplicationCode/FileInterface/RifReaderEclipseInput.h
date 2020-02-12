@@ -34,9 +34,7 @@ public:
     // Virtual interface implementation
     bool open( const QString& fileName, RigEclipseCaseData* eclipseCase ) override;
 
-    bool staticResult( const QString&                result,
-                       RiaDefines::PorosityModelType matrixOrFracture,
-                       std::vector<double>*          values ) override
+    bool staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override
     {
         return false;
     }

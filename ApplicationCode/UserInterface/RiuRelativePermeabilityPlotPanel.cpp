@@ -214,16 +214,7 @@ void RiuRelativePermeabilityPlotPanel::clearPlot()
     m_caseName.clear();
     m_cellReferenceText.clear();
 
-    plotCurvesInQwt( m_unitSystem,
-                     m_allCurvesArr,
-                     m_swat,
-                     m_sgas,
-                     m_cellReferenceText,
-                     false,
-                     true,
-                     true,
-                     m_qwtPlot,
-                     &m_myPlotMarkers );
+    plotCurvesInQwt( m_unitSystem, m_allCurvesArr, m_swat, m_sgas, m_cellReferenceText, false, true, true, m_qwtPlot, &m_myPlotMarkers );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,8 +507,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaEclipseUnitTools::Uni
 
     plot->setAxisTitle( QwtPlot::xBottom, determineXAxisTitleFromCurveCollection( curveArr ) );
     plot->setAxisTitle( QwtPlot::yLeft, "Kr" );
-    plot->setAxisTitle( QwtPlot::yRight,
-                        QString( "Pc [%1]" ).arg( RiaEclipseUnitTools::unitStringPressure( unitSystem ) ) );
+    plot->setAxisTitle( QwtPlot::yRight, QString( "Pc [%1]" ).arg( RiaEclipseUnitTools::unitStringPressure( unitSystem ) ) );
     plot->replot();
 }
 

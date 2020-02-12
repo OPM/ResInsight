@@ -386,8 +386,8 @@ public:
     }
 };
 
-static bool RiaGetGridProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridProperty>(
-    RiaGetGridProperty::commandName() );
+static bool RiaGetGridProperty_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridProperty>( RiaGetGridProperty::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -570,9 +570,8 @@ public:
                 QString::number( cellCountFromOctave ) +
                 "\n"
                 "  " +
-                m_currentReservoir->caseUserDescription() +
-                ": Active cell count: " + QString::number( activeCellCountReservoir ) +
-                " Total cell count: " + QString::number( totalCellCount ) );
+                m_currentReservoir->caseUserDescription() + ": Active cell count: " +
+                QString::number( activeCellCountReservoir ) + " Total cell count: " + QString::number( totalCellCount ) );
 
             cellCountFromOctave              = 0;
             m_invalidActiveCellCountDetected = true;
@@ -594,8 +593,7 @@ public:
                 }
             }
 
-            if ( maxRequestedTimeStepIdx != cvf::UNDEFINED_SIZE_T &&
-                 m_scalarResultsToAdd->size() <= maxRequestedTimeStepIdx )
+            if ( maxRequestedTimeStepIdx != cvf::UNDEFINED_SIZE_T && m_scalarResultsToAdd->size() <= maxRequestedTimeStepIdx )
             {
                 m_scalarResultsToAdd->resize( maxRequestedTimeStepIdx + 1 );
             }
@@ -626,7 +624,8 @@ public:
         {
             if ( !isCoarseningActive )
             {
-                internalMatrixData = m_scalarResultsToAdd->at( m_requestedTimesteps[m_currentTimeStepNumberToRead] ).data();
+                internalMatrixData =
+                    m_scalarResultsToAdd->at( m_requestedTimesteps[m_currentTimeStepNumberToRead] ).data();
             }
 
             QStringList errorMessages;
@@ -673,8 +672,8 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>( m_currentReservoir );
                 if ( inputRes )
                 {
-                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty(
-                        m_currentPropertyName );
+                    RimEclipseInputProperty* inputProperty =
+                        inputRes->inputPropertyCollection()->findInputProperty( m_currentPropertyName );
                     if ( !inputProperty )
                     {
                         inputProperty                 = new RimEclipseInputProperty;
@@ -693,10 +692,9 @@ public:
                     // Adjust the result data if only one time step is requested so the result behaves like a static result
                     if ( m_requestedTimesteps.size() == 1 && m_currentEclResultAddress.isValid() )
                     {
-                        std::vector<std::vector<double>>* scalarResultFrames = m_currentReservoir
-                                                                                   ->results( m_porosityModelEnum )
-                                                                                   ->modifiableCellScalarResultTimesteps(
-                                                                                       m_currentEclResultAddress );
+                        std::vector<std::vector<double>>* scalarResultFrames =
+                            m_currentReservoir->results( m_porosityModelEnum )
+                                ->modifiableCellScalarResultTimesteps( m_currentEclResultAddress );
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for ( size_t i = 0; i < scalarResultFrames->size(); i++ )
                         {
@@ -992,8 +990,7 @@ public:
                 }
             }
 
-            if ( maxRequestedTimeStepIdx != cvf::UNDEFINED_SIZE_T &&
-                 m_scalarResultsToAdd->size() <= maxRequestedTimeStepIdx )
+            if ( maxRequestedTimeStepIdx != cvf::UNDEFINED_SIZE_T && m_scalarResultsToAdd->size() <= maxRequestedTimeStepIdx )
             {
                 m_scalarResultsToAdd->resize( maxRequestedTimeStepIdx + 1 );
             }
@@ -1061,8 +1058,8 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>( m_currentReservoir );
                 if ( inputRes )
                 {
-                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty(
-                        m_currentPropertyName );
+                    RimEclipseInputProperty* inputProperty =
+                        inputRes->inputPropertyCollection()->findInputProperty( m_currentPropertyName );
                     if ( !inputProperty )
                     {
                         inputProperty                 = new RimEclipseInputProperty;
@@ -1081,9 +1078,9 @@ public:
                     // Adjust the result data if only one time step is requested so the result behaves like a static result
                     if ( m_requestedTimesteps.size() == 1 && m_currentResultAddress.isValid() )
                     {
-                        auto scalarResultFrames = m_currentReservoir->results( m_porosityModelEnum )
-                                                      ->modifiableCellScalarResultTimesteps(
-                                                          RigEclipseResultAddress( m_currentResultAddress ) );
+                        auto scalarResultFrames =
+                            m_currentReservoir->results( m_porosityModelEnum )
+                                ->modifiableCellScalarResultTimesteps( RigEclipseResultAddress( m_currentResultAddress ) );
 
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for ( size_t i = 0; i < scalarResultFrames->size(); i++ )
@@ -1144,8 +1141,8 @@ private:
     bool m_invalidDataDetected;
 };
 
-static bool RiaSetGridProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaSetGridProperty>(
-    RiaSetGridProperty::commandName() );
+static bool RiaSetGridProperty_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaSetGridProperty>( RiaSetGridProperty::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1231,8 +1228,8 @@ public:
     }
 };
 
-static bool RiaGetPropertyNames_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetPropertyNames>(
-    RiaGetPropertyNames::commandName() );
+static bool RiaGetPropertyNames_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetPropertyNames>( RiaGetPropertyNames::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1382,8 +1379,7 @@ public:
 
                 if ( eclipseItem->m_resultDefinition->eclipseCase()->caseId == reservoirCase->caseId )
                 {
-                    selectedCells.push_back(
-                        std::make_pair( eclipseItem->m_gridIndex, eclipseItem->m_gridLocalCellIndex ) );
+                    selectedCells.push_back( std::make_pair( eclipseItem->m_gridIndex, eclipseItem->m_gridLocalCellIndex ) );
                 }
             }
             else if ( item->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT )

@@ -531,9 +531,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         floatNumberColumn( "LPerf" ),
         floatNumberColumn( "PerfEff" ),
         floatNumberColumn( "Wdia" ),
-        RifTextDataTableColumn( "Dfac",
-                                RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ),
-                                RIGHT ),
+        RifTextDataTableColumn( "Dfac", RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ), RIGHT ),
     };
 
     formatter.header( header );

@@ -60,21 +60,11 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
     m_geometrySelectionText.registerGetMethod( this, &RimGridTimeHistoryCurve::geometrySelectionText );
     m_geometrySelectionText.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition,
-                                "EclipseResultDefinition",
-                                "Eclipse Result Definition",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "EclipseResultDefinition", "Eclipse Result Definition", "", "", "" );
     m_eclipseResultDefinition.uiCapability()->setUiHidden( true );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_geoMechResultDefinition,
-                                "GeoMechResultDefinition",
-                                "GeoMech Result Definition",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_geoMechResultDefinition, "GeoMechResultDefinition", "GeoMech Result Definition", "", "", "" );
     m_geoMechResultDefinition.uiCapability()->setUiHidden( true );
     m_geoMechResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -180,8 +170,8 @@ void RimGridTimeHistoryCurve::setFromEclipseCellAndResult( RimEclipseCase*      
 //--------------------------------------------------------------------------------------------------
 RigGridCellResultAddress RimGridTimeHistoryCurve::resultAddress()
 {
-    RimEclipseGeometrySelectionItem* eclipseGeomSelectionItem = dynamic_cast<RimEclipseGeometrySelectionItem*>(
-        m_geometrySelectionItem.value() );
+    RimEclipseGeometrySelectionItem* eclipseGeomSelectionItem =
+        dynamic_cast<RimEclipseGeometrySelectionItem*>( m_geometrySelectionItem.value() );
 
     if ( m_eclipseResultDefinition && eclipseGeomSelectionItem )
     {

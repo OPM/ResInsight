@@ -72,8 +72,8 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
 
         if ( firstPickedPart )
         {
-            const RivObjectSourceInfo* sourceInfo = dynamic_cast<const RivObjectSourceInfo*>(
-                firstPickedPart->sourceInfo() );
+            const RivObjectSourceInfo* sourceInfo =
+                dynamic_cast<const RivObjectSourceInfo*>( firstPickedPart->sourceInfo() );
             if ( sourceInfo )
             {
                 if ( dynamic_cast<RimPerforationInterval*>( sourceInfo->object() ) )
@@ -86,16 +86,16 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
                         const cvf::Part* secondPickedPart = secondPickedItem.pickedPart();
                         if ( secondPickedPart )
                         {
-                            auto wellPathSourceCandidate = dynamic_cast<const RivWellPathSourceInfo*>(
-                                secondPickedPart->sourceInfo() );
+                            auto wellPathSourceCandidate =
+                                dynamic_cast<const RivWellPathSourceInfo*>( secondPickedPart->sourceInfo() );
                             if ( wellPathSourceCandidate )
                             {
                                 RimWellPath* perforationWellPath = nullptr;
                                 objectToSelect->firstAncestorOrThisOfType( perforationWellPath );
                                 if ( perforationWellPath == wellPathSourceCandidate->wellPath() )
                                 {
-                                    wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(
-                                        secondPickedPart->sourceInfo() );
+                                    wellPathSourceInfo =
+                                        dynamic_cast<const RivWellPathSourceInfo*>( secondPickedPart->sourceInfo() );
                                     wellPathTriangleIndex = secondPickedItem.faceIdx();
                                 }
                             }
@@ -194,9 +194,9 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
         Rim3dView* rimView = RiaApplication::instance()->activeReservoirView();
         if ( !rimView ) return false;
 
-        cvf::ref<caf::DisplayCoordTransform> transForm           = rimView->displayCoordTransform();
-        cvf::Vec3d                           pickedPositionInUTM = transForm->transformToDomainCoord(
-            eventObject.m_pickItemInfos.front().globalPickedPoint() );
+        cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
+        cvf::Vec3d                           pickedPositionInUTM =
+            transForm->transformToDomainCoord( eventObject.m_pickItemInfos.front().globalPickedPoint() );
 
         if ( auto intersectionView = dynamic_cast<Rim2dIntersectionView*>( rimView ) )
         {
@@ -208,8 +208,8 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
         // NOTE: This computation was used to find the location for a fracture when clicking on a well path
         // It turned out that the computation was a bit inaccurate
         // Consider to use code in RigSimulationWellCoordsAndMD instead
-        cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->closestPointOnCenterLine( wellPathTriangleIndex,
-                                                                                     pickedPositionInUTM );
+        cvf::Vec3d trueVerticalDepth =
+            wellPathSourceInfo->closestPointOnCenterLine( wellPathTriangleIndex, pickedPositionInUTM );
 
         QString wellPathText;
         wellPathText += QString( "Well path name : %1\n" ).arg( wellPathSourceInfo->wellPath()->name() );

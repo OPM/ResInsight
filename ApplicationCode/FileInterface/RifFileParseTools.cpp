@@ -23,8 +23,8 @@
 //--------------------------------------------------------------------------------------------------
 QStringList RifFileParseTools::splitLineAndTrim( const QString& line, const QString& separator, bool skipEmptyParts )
 {
-    QStringList cols = line.trimmed().split( separator,
-                                             skipEmptyParts ? QString::SkipEmptyParts : QString::KeepEmptyParts );
+    QStringList cols =
+        line.trimmed().split( separator, skipEmptyParts ? QString::SkipEmptyParts : QString::KeepEmptyParts );
     for ( QString& col : cols )
     {
         col = col.trimmed();

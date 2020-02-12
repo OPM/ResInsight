@@ -175,9 +175,8 @@ TEST( RifWellMeasurementReaderTest, ReadEmptyWellNameThrows )
 
     QStringList filePaths;
     filePaths.append( file.fileName() );
-    ASSERT_TRUE(
-        readingThrowsException( filePaths,
-                                QString( "Unexpected empty 'Well Name' on line 2: %1" ).arg( file.fileName() ) ) );
+    ASSERT_TRUE( readingThrowsException( filePaths,
+                                         QString( "Unexpected empty 'Well Name' on line 2: %1" ).arg( file.fileName() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -217,9 +216,8 @@ TEST( RifWellMeasurementReaderTest, ReadInvalidQualityThrows )
 
     QStringList filePaths;
     filePaths.append( file.fileName() );
-    ASSERT_TRUE(
-        readingThrowsException( filePaths,
-                                QString( "Invalid number for 'Quality' on line 1: %1" ).arg( file.fileName() ) ) );
+    ASSERT_TRUE( readingThrowsException( filePaths,
+                                         QString( "Invalid number for 'Quality' on line 1: %1" ).arg( file.fileName() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------

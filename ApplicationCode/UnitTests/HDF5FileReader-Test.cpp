@@ -68,8 +68,8 @@ TEST( DISABLED_HDFTests, BasicFileRead )
         }
 
         {
-            H5::Group GridFunction_00002 = file.openGroup(
-                "Timestep_00001/GridParts/GridPart_00000/GridFunctions/GridFunction_00002" );
+            H5::Group GridFunction_00002 =
+                file.openGroup( "Timestep_00001/GridParts/GridPart_00000/GridFunctions/GridFunction_00002" );
             H5::Attribute attr = GridFunction_00002.openAttribute( "limits_max" );
 
             double limits_max = 0.0;
@@ -82,8 +82,8 @@ TEST( DISABLED_HDFTests, BasicFileRead )
         }
 
         {
-            H5::Group GridFunction_00002 = file.openGroup(
-                "Timestep_00001/GridParts/GridPart_00000/GridFunctions/GridFunction_00002" );
+            H5::Group GridFunction_00002 =
+                file.openGroup( "Timestep_00001/GridParts/GridPart_00000/GridFunctions/GridFunction_00002" );
             H5::DataSet dataset = H5::DataSet( GridFunction_00002.openDataSet( "values" ) );
 
             hsize_t       dims[2];

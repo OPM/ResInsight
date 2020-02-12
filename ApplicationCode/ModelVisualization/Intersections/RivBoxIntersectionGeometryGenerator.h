@@ -40,8 +40,7 @@ class DrawableGeo;
 class RivBoxIntersectionGeometryGenerator : public cvf::Object, public RivIntersectionGeometryGeneratorIF
 {
 public:
-    RivBoxIntersectionGeometryGenerator( RimBoxIntersection*                    intersectionBox,
-                                         const RivIntersectionHexGridInterface* grid );
+    RivBoxIntersectionGeometryGenerator( RimBoxIntersection* intersectionBox, const RivIntersectionHexGridInterface* grid );
 
     ~RivBoxIntersectionGeometryGenerator() override;
 

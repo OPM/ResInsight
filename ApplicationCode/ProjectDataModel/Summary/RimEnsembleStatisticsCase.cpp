@@ -124,9 +124,8 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     auto inputAddress = m_curveSet->summaryAddress();
     if ( m_statisticsReader && inputAddress.isValid() )
     {
-        const std::vector<RimSummaryCase*>& validCases = validSummaryCases( sumCases,
-                                                                            inputAddress,
-                                                                            includeIncompleteCurves );
+        const std::vector<RimSummaryCase*>& validCases =
+            validSummaryCases( sumCases, inputAddress, includeIncompleteCurves );
 
         calculate( validCases, inputAddress, includeIncompleteCurves );
     }

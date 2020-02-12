@@ -82,12 +82,7 @@ public:
                                       size_t*                          gridIndex );
 
 private:
-    void ijkFromCellIndex( Rim3dView* mainOrComparisonView,
-                           size_t     gridIdx,
-                           size_t     cellIndex,
-                           size_t*    i,
-                           size_t*    j,
-                           size_t*    k );
+    void ijkFromCellIndex( Rim3dView* mainOrComparisonView, size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k );
 
     bool handleOverlayItemPicking( int winPosX, int winPosY );
     void handleTextPicking( int winPosX, int winPosY, cvf::HitItemCollection* hitItems );

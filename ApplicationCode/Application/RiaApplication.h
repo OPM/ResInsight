@@ -158,9 +158,7 @@ public:
     QString             pythonPath() const;
     QProcessEnvironment pythonProcessEnvironment() const;
 
-    bool launchProcess( const QString&             program,
-                        const QStringList&         arguments,
-                        const QProcessEnvironment& processEnvironment );
+    bool launchProcess( const QString& program, const QStringList& arguments, const QProcessEnvironment& processEnvironment );
     bool launchProcessForMultipleCases( const QString&             program,
                                         const QStringList&         arguments,
                                         const std::vector<int>&    caseIds,

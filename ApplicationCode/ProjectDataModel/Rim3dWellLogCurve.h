@@ -90,9 +90,7 @@ public:
 
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 configurationUiOrdering( caf::PdmUiOrdering& uiOrdering );
     void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                 QString                    uiConfigName,

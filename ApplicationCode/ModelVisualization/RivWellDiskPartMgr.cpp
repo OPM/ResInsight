@@ -105,8 +105,8 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
     cvf::ref<RivSimWellPipeSourceInfo> sourceInfo = new RivSimWellPipeSourceInfo( m_rimWell, 0 );
 
     // Well disk geometry
-    double arrowLength = characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() *
-                         m_rimWell->wellHeadScaleFactor();
+    double arrowLength =
+        characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
 
     cvf::Vec3d diskPosition = whEndPos;
     diskPosition.z() += pipeRadius + arrowLength * 2.0;
@@ -371,8 +371,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
 
             m_wellDiskInjectorPart = part;
         }
-        else if ( productionType == RigWellResultFrame::OIL_INJECTOR ||
-                  productionType == RigWellResultFrame::GAS_INJECTOR ||
+        else if ( productionType == RigWellResultFrame::OIL_INJECTOR || productionType == RigWellResultFrame::GAS_INJECTOR ||
                   productionType == RigWellResultFrame::WATER_INJECTOR )
         {
             cvf::GeometryBuilderFaceList builder;

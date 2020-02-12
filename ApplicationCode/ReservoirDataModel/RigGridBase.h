@@ -68,8 +68,7 @@ public:
     size_t coarseningBoxCount() const { return m_coarseningBoxInfo.size(); }
     size_t addCoarseningBox( size_t i1, size_t i2, size_t j1, size_t j2, size_t k1, size_t k2 );
 
-    void coarseningBox( size_t coarseningBoxIndex, size_t* i1, size_t* i2, size_t* j1, size_t* j2, size_t* k1, size_t* k2 )
-        const;
+    void coarseningBox( size_t coarseningBoxIndex, size_t* i1, size_t* i2, size_t* j1, size_t* j2, size_t* k1, size_t* k2 ) const;
 
     cvf::BoundingBox boundingBox();
 

@@ -81,8 +81,8 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
         cvf::Color3f curveColor = RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f( 0 );
         curveSet->setCustomColor( curveColor );
 
-        RimPlotCellPropertyFilter* cellFilter = createEquilibriumRegionPropertyFilter( eclipseResultCase,
-                                                                                       zeroBasedEquilRegionIndex );
+        RimPlotCellPropertyFilter* cellFilter =
+            createEquilibriumRegionPropertyFilter( eclipseResultCase, zeroBasedEquilRegionIndex );
 
         curveSet->addCellFilter( cellFilter );
     }
@@ -96,8 +96,8 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
         cvf::Color3f curveColor = RiaColorTables::summaryCurveRedPaletteColors().cycledColor3f( 0 );
         curveSet->setCustomColor( curveColor );
 
-        RimPlotCellPropertyFilter* cellFilter = createEquilibriumRegionPropertyFilter( eclipseResultCase,
-                                                                                       zeroBasedEquilRegionIndex );
+        RimPlotCellPropertyFilter* cellFilter =
+            createEquilibriumRegionPropertyFilter( eclipseResultCase, zeroBasedEquilRegionIndex );
         curveSet->addCellFilter( cellFilter );
 
         {
@@ -112,9 +112,8 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
 
                 maxDepth = gasOilContactDepth;
 
-                RimPlotCellPropertyFilter* depthCellFilter = createDepthPropertyFilter( eclipseResultCase,
-                                                                                        minDepth,
-                                                                                        maxDepth );
+                RimPlotCellPropertyFilter* depthCellFilter =
+                    createDepthPropertyFilter( eclipseResultCase, minDepth, maxDepth );
 
                 curveSet->addCellFilter( depthCellFilter );
             }
@@ -160,9 +159,8 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
                 minDepth = gasOilContactDepth;
                 maxDepth = waterOilContactDepth;
 
-                RimPlotCellPropertyFilter* depthCellFilter = createDepthPropertyFilter( eclipseResultCase,
-                                                                                        minDepth,
-                                                                                        maxDepth );
+                RimPlotCellPropertyFilter* depthCellFilter =
+                    createDepthPropertyFilter( eclipseResultCase, minDepth, maxDepth );
 
                 curveSet->addCellFilter( depthCellFilter );
             }

@@ -67,10 +67,9 @@ public:
     const std::vector<double>* dynamicConnectionScalarResultByName( const QString& nncDataType, size_t timeStep ) const;
 
     std::vector<std::vector<double>>& makeGeneratedConnectionScalarResult( QString nncDataType, size_t timeStepCount );
-    const std::vector<std::vector<double>>*
-                                      generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const;
-    const std::vector<double>*        generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr,
-                                                                       size_t                         timeStep ) const;
+    const std::vector<std::vector<double>>* generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const;
+    const std::vector<double>*              generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr,
+                                                                             size_t                         timeStep ) const;
     std::vector<std::vector<double>>* generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr );
     std::vector<double>* generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr, size_t timeStep );
     const std::vector<std::vector<double>>* generatedConnectionScalarResultByName( const QString& nncDataType ) const;

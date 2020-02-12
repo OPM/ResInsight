@@ -44,9 +44,7 @@ public:
 
     void importCompletionsFromFile( const QStringList& filePaths );
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     std::vector<const RimFishboneWellPath*> wellPaths() const;
     double                                  holeDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const

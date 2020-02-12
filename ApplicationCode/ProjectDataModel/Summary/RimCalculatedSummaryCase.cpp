@@ -78,8 +78,7 @@ RifSummaryReaderInterface* RimCalculatedSummaryCase::summaryReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCalculatedSummaryCase::updateFilePathsFromProjectPath( const QString& newProjectPath,
-                                                               const QString& oldProjectPath )
+void RimCalculatedSummaryCase::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
     // Nothing to do here
 }

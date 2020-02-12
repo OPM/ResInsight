@@ -102,8 +102,8 @@ cvf::ref<cvf::Vec2fArray> RivContourMapProjectionPartMgr::createTextureCoords( c
     {
         if ( values[i] != std::numeric_limits<double>::infinity() )
         {
-            cvf::Vec2f textureCoord = m_contourMapProjection->legendConfig()->scalarMapper()->mapToTextureCoord(
-                values[i] );
+            cvf::Vec2f textureCoord =
+                m_contourMapProjection->legendConfig()->scalarMapper()->mapToTextureCoord( values[i] );
             textureCoord.y()      = 0.0;
             ( *textureCoords )[i] = textureCoord;
         }
@@ -127,9 +127,8 @@ void RivContourMapProjectionPartMgr::appendContourLinesToModel( const cvf::Camer
         cvf::ScalarMapper* mapper = m_contourMapProjection->legendConfig()->scalarMapper();
 
         std::vector<std::vector<cvf::BoundingBox>> labelBBoxes;
-        std::vector<cvf::ref<cvf::Drawable>>       labelDrawables = createContourLabels( camera,
-                                                                                   displayCoordTransform,
-                                                                                   &labelBBoxes );
+        std::vector<cvf::ref<cvf::Drawable>>       labelDrawables =
+            createContourLabels( camera, displayCoordTransform, &labelBBoxes );
 
         std::vector<std::vector<cvf::ref<cvf::Drawable>>> contourDrawablesForAllLevels =
             createContourPolygons( displayCoordTransform, labelBBoxes );
@@ -222,8 +221,8 @@ cvf::ref<cvf::Part>
         values[i]           = vertices[i].w();
     }
 
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexUInt = new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_TRIANGLES,
-                                                                                         faceList.p() );
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexUInt =
+        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_TRIANGLES, faceList.p() );
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->addPrimitiveSet( indexUInt.p() );
@@ -251,9 +250,9 @@ cvf::ref<cvf::Part>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::ref<cvf::Drawable>>> RivContourMapProjectionPartMgr::createContourPolygons(
-    const caf::DisplayCoordTransform*                 displayCoordTransform,
-    const std::vector<std::vector<cvf::BoundingBox>>& labelBBoxes ) const
+std::vector<std::vector<cvf::ref<cvf::Drawable>>>
+    RivContourMapProjectionPartMgr::createContourPolygons( const caf::DisplayCoordTransform* displayCoordTransform,
+                                                           const std::vector<std::vector<cvf::BoundingBox>>& labelBBoxes ) const
 {
     const cvf::ScalarMapper* mapper = m_contourMapProjection->legendConfig()->scalarMapper();
     std::vector<double>      tickValues;
@@ -355,8 +354,8 @@ std::vector<std::vector<cvf::ref<cvf::Drawable>>> RivContourMapProjectionPartMgr
                 indices.push_back( k );
             }
 
-            cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(
-                cvf::PrimitiveType::PT_LINES );
+            cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt =
+                new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
             cvf::ref<cvf::UIntArray> indexArray = new cvf::UIntArray( indices );
             indexedUInt->setIndices( indexArray.p() );
 
@@ -435,10 +434,9 @@ std::vector<cvf::ref<cvf::Drawable>>
                 camera->project( displayVertex, &windowVertex );
                 CVF_ASSERT( !windowVertex.isUndefined() );
                 displayVertex.z() += 10.0f;
-                cvf::BoundingBox windowBBox = label->textBoundingBox( labelText,
-                                                                      cvf::Vec3f::ZERO,
-                                                                      cvf::Vec3f( segment.getNormalized() ) );
-                cvf::Vec3d       displayBBoxMin, displayBBoxMax;
+                cvf::BoundingBox windowBBox =
+                    label->textBoundingBox( labelText, cvf::Vec3f::ZERO, cvf::Vec3f( segment.getNormalized() ) );
+                cvf::Vec3d displayBBoxMin, displayBBoxMax;
                 camera->unproject( windowBBox.min() + windowVertex, &displayBBoxMin );
                 camera->unproject( windowBBox.max() + windowVertex, &displayBBoxMax );
 
@@ -499,8 +497,8 @@ std::vector<cvf::ref<cvf::Drawable>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivContourMapProjectionPartMgr::createPickPointVisDrawable(
-    const caf::DisplayCoordTransform* displayCoordTransform ) const
+cvf::ref<cvf::DrawableGeo>
+    RivContourMapProjectionPartMgr::createPickPointVisDrawable( const caf::DisplayCoordTransform* displayCoordTransform ) const
 {
     std::vector<cvf::Vec3d> pickPointPolygon = m_contourMapProjection->generatePickPointPolygon();
     if ( pickPointPolygon.empty() )
@@ -526,8 +524,8 @@ cvf::ref<cvf::DrawableGeo> RivContourMapProjectionPartMgr::createPickPointVisDra
             indices.push_back( j );
         }
 
-        cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(
-            cvf::PrimitiveType::PT_LINES );
+        cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt =
+            new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
         cvf::ref<cvf::UIntArray> indexArray = new cvf::UIntArray( indices );
         indexedUInt->setIndices( indexArray.p() );
 

@@ -90,8 +90,8 @@ RimSummaryCurve* RicSummaryPlotFeatureImpl::addDefaultCurveToPlot( RimSummaryPlo
         RimSummaryCurve* newCurve = new RimSummaryCurve();
 
         // Use same counting as RicNewSummaryEnsembleCurveSetFeature::onActionTriggered
-        cvf::Color3f curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(
-            plot->singleColorCurveCount() );
+        cvf::Color3f curveColor =
+            RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( plot->singleColorCurveCount() );
         newCurve->setColor( curveColor );
 
         plot->addCurveNoUpdate( newCurve );
@@ -585,8 +585,8 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                                                                    cellResAddr.k,
                                                                    cellResAddr.eclipseResultAddress );
                             newCurve->setLineThickness( 2 );
-                            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(
-                                curveColorIndex );
+                            cvf::Color3f curveColor =
+                                RicWellLogPlotCurveFeatureImpl::curveColorFromTable( curveColorIndex );
                             newCurve->setColor( curveColor );
                             if ( !isEnsembleMode ) ++curveColorIndex;
 
@@ -640,8 +640,8 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                                                                    cellResAddr.k,
                                                                    cellResAddr.eclipseResultAddress );
                             newCurve->setLineThickness( 2 );
-                            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(
-                                curveColorIndex );
+                            cvf::Color3f curveColor =
+                                RicWellLogPlotCurveFeatureImpl::curveColorFromTable( curveColorIndex );
                             newCurve->setColor( curveColor );
                             if ( !isEnsembleMode ) ++curveColorIndex;
                             createdCurves.push_back( newCurve );

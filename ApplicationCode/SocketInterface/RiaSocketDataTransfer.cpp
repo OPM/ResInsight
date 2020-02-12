@@ -53,10 +53,7 @@ bool RiaSocketDataTransfer::writeBlockDataToSocket( QTcpSocket*  socket,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaSocketDataTransfer::readBlockDataFromSocket( QTcpSocket*  socket,
-                                                     char*        data,
-                                                     quint64      bytesToRead,
-                                                     QStringList& errorMessages )
+bool RiaSocketDataTransfer::readBlockDataFromSocket( QTcpSocket* socket, char* data, quint64 bytesToRead, QStringList& errorMessages )
 {
     quint64 bytesRead = 0;
 

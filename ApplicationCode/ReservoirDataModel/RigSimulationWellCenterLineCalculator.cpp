@@ -173,8 +173,9 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 
         const std::vector<RigWellResultPoint>& resBranchCells = resBranches[brIdx].m_branchResultPoints;
 
-        for ( int cIdx = 0; cIdx < static_cast<int>( resBranchCells.size() );
-              cIdx++ ) // Need int because cIdx can temporarily end on cvf::UNDEFINED_SIZE_T
+        for ( int cIdx = 0; cIdx < static_cast<int>( resBranchCells.size() ); cIdx++ ) // Need int because cIdx can
+                                                                                       // temporarily end on
+                                                                                       // cvf::UNDEFINED_SIZE_T
         {
             std::vector<cvf::Vec3d>&         branchCLCoords = pipeBranchesCLCoords.back();
             std::vector<RigWellResultPoint>& branchCellIds  = pipeBranchesCellIds.back();
@@ -299,8 +300,9 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
                         // Intersect with the current cell to find a better entry point than the cell center
 
                         int  intersectionCount = cell.firstIntersectionPoint( rayToThisCell, &intoThisCell );
-                        bool isPreviousResPointInsideCurrentCell =
-                            ( intersectionCount % 2 ); // Must intersect uneven times to be inside. (1 % 2 = 1)
+                        bool isPreviousResPointInsideCurrentCell = ( intersectionCount % 2 ); // Must intersect uneven
+                                                                                              // times to be inside. (1
+                                                                                              // % 2 = 1)
 
                         // If we have a real previous cell, we need to go out of it, before entering this.
                         // That is: add a CL-point describing where it leaves the previous cell.
@@ -396,10 +398,9 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::addCellCenterPoints(
-    const RigEclipseCaseData*                     eclipseCaseData,
-    std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
-    std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds )
+void RigSimulationWellCenterLineCalculator::addCellCenterPoints( const RigEclipseCaseData*             eclipseCaseData,
+                                                                 std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords,
+                                                                 std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds )
 {
     for ( size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); brIdx++ )
     {
@@ -507,8 +508,7 @@ public:
         auto cmp = []( std::list<std::pair<bool, std::deque<size_t>>>::iterator a,
                        std::list<std::pair<bool, std::deque<size_t>>>::iterator b ) { return &( *a ) < &( *b ); };
 
-        std::set<std::list<std::pair<bool, std::deque<size_t>>>::iterator, decltype( cmp )> unusedBranchLineIterators(
-            cmp );
+        std::set<std::list<std::pair<bool, std::deque<size_t>>>::iterator, decltype( cmp )> unusedBranchLineIterators( cmp );
 
         std::map<int, std::multiset<DistToEndPoint>> resBranchIdxToBranchLineEndPointsDists;
 
@@ -565,9 +565,8 @@ public:
 
         // Calculate wellhead to branch line ends distances
         {
-            const RigCell& whCell = m_eclipseCaseData->cellFromWellResultCell(
-                m_orgWellResultFrame.wellHeadOrStartCell() );
-            cvf::Vec3d whStartPos = whCell.faceCenter( cvf::StructGridInterface::NEG_K );
+            const RigCell& whCell = m_eclipseCaseData->cellFromWellResultCell( m_orgWellResultFrame.wellHeadOrStartCell() );
+            cvf::Vec3d     whStartPos = whCell.faceCenter( cvf::StructGridInterface::NEG_K );
 
             buildResBranchToBranchLineEndsDistMap( whStartPos, -1 );
         }
@@ -668,9 +667,8 @@ private:
             m_branchedWell.m_wellResultBranches.push_back( RigWellResultBranch() );
             branchIdx = static_cast<int>( m_branchedWell.m_wellResultBranches.size() ) - 1;
             RigWellResultPoint wellHeadAsPoint;
-            const RigCell&     whCell = m_eclipseCaseData->cellFromWellResultCell(
-                m_orgWellResultFrame.wellHeadOrStartCell() );
-            cvf::Vec3d whStartPos = whCell.faceCenter( cvf::StructGridInterface::NEG_K );
+            const RigCell& whCell = m_eclipseCaseData->cellFromWellResultCell( m_orgWellResultFrame.wellHeadOrStartCell() );
+            cvf::Vec3d     whStartPos = whCell.faceCenter( cvf::StructGridInterface::NEG_K );
 
             wellHeadAsPoint.m_bottomPosition = whStartPos;
             m_branchedWell.m_wellResultBranches[branchIdx].m_branchResultPoints.push_back( wellHeadAsPoint );
@@ -689,13 +687,14 @@ private:
             if ( !branchLineIt->first ) // Is real branch, with first cell as cell *before* entry point on main branch
             {
                 RigWellResultPoint branchStartAsResultPoint;
-                const RigCell&     branchStartCell = m_eclipseCaseData->cellFromWellResultCell(
-                    orgWellResultPoints[wellCellIndices.front()] );
+                const RigCell&     branchStartCell =
+                    m_eclipseCaseData->cellFromWellResultCell( orgWellResultPoints[wellCellIndices.front()] );
                 cvf::Vec3d branchStartPos = branchStartCell.center();
 
                 if ( wellCellIndices.size() > 1 )
                 {
-                    // Use the shared face between the cell before, and the branching cell as start point for the branch, to make the pipe "whole"
+                    // Use the shared face between the cell before, and the branching cell as start point for the
+                    // branch, to make the pipe "whole"
 
                     cvf::StructGridInterface::FaceType sharedFace = cvf::StructGridInterface::NO_FACE;
                     m_eclipseCaseData->findSharedSourceFace( sharedFace,
@@ -882,10 +881,9 @@ private:
                     }
                     else // if ( endToGrow > 1 )
                     {
-                        m_branchLines.push_back( std::make_pair( false,
-                                                                 std::deque<size_t>{branchList.front(),
-                                                                                    cellWithNeighborsPair.first,
-                                                                                    neighbour} ) );
+                        m_branchLines.push_back(
+                            std::make_pair( false,
+                                            std::deque<size_t>{branchList.front(), cellWithNeighborsPair.first, neighbour} ) );
                         auto newBranchLineIt = std::prev( m_branchLines.end() );
                         growBranchListEnd( newBranchLineIt );
                         if ( newBranchLineIt->second.size() == 3 )
@@ -1036,12 +1034,7 @@ private:
             growBranchListFront( branchListIt );
         }
 
-        startAndGrowSeparateBranchesFromRestOfNeighbors( startCell,
-                                                         prevCell,
-                                                         neighbors,
-                                                         branchList,
-                                                         startCellPosInStem,
-                                                         false );
+        startAndGrowSeparateBranchesFromRestOfNeighbors( startCell, prevCell, neighbors, branchList, startCellPosInStem, false );
     }
 
     //--------------------------------------------------------------------------------------------------

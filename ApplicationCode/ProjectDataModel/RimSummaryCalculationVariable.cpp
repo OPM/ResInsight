@@ -168,11 +168,10 @@ void RimSummaryCalculationVariable::defineUiOrdering( QString uiConfigName, caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationVariable::defineObjectEditorAttribute( QString                    uiConfigName,
-                                                                 caf::PdmUiEditorAttribute* attribute )
+void RimSummaryCalculationVariable::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    caf::PdmUiTableViewPushButtonEditorAttribute* attr = dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>(
-        attribute );
+    caf::PdmUiTableViewPushButtonEditorAttribute* attr =
+        dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>( attribute );
     if ( attr )
     {
         attr->registerPushButtonTextForFieldKeyword( m_button.keyword(), "Edit" );

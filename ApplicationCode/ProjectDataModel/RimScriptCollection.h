@@ -53,9 +53,7 @@ public: // Methods
     void readContentFromDisc();
 
     // Overrides from PdmObject
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,

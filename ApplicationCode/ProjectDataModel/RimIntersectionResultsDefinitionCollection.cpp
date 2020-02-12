@@ -59,8 +59,7 @@ bool RimIntersectionResultsDefinitionCollection::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimIntersectionResultDefinition*>
-    RimIntersectionResultsDefinitionCollection::intersectionResultsDefinitions() const
+std::vector<RimIntersectionResultDefinition*> RimIntersectionResultsDefinitionCollection::intersectionResultsDefinitions() const
 {
     return m_intersectionResultsDefs.childObjects();
 }
@@ -68,8 +67,7 @@ std::vector<RimIntersectionResultDefinition*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionResultsDefinitionCollection::appendIntersectionResultDefinition(
-    RimIntersectionResultDefinition* interResDef )
+void RimIntersectionResultsDefinitionCollection::appendIntersectionResultDefinition( RimIntersectionResultDefinition* interResDef )
 {
     m_intersectionResultsDefs.push_back( interResDef );
 

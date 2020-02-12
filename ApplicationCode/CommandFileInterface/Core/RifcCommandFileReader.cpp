@@ -140,8 +140,7 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands( QTextStream
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfCommandFileReader::writeCommands( QTextStream&                           outputStream,
-                                           const std::vector<RicfCommandObject*>& commandsToWrite )
+void RicfCommandFileReader::writeCommands( QTextStream& outputStream, const std::vector<RicfCommandObject*>& commandsToWrite )
 {
     for ( const auto& cmdObj : commandsToWrite )
     {

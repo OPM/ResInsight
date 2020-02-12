@@ -681,8 +681,8 @@ void RimSummaryTimeAxisProperties::defineEditorAttribute( const caf::PdmFieldHan
         auto dateAttrib = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute );
         if ( dateAttrib )
         {
-            dateAttrib->dateFormat = RiaQDateTimeTools::dateFormatString( m_dateFormat(),
-                                                                          RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+            dateAttrib->dateFormat =
+                RiaQDateTimeTools::dateFormatString( m_dateFormat(), RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
         }
     }
     else if ( field == &m_visibleTimeRangeMin || field == &m_visibleTimeRangeMax )

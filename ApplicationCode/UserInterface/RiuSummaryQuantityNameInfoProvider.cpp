@@ -290,8 +290,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"FNLPT", {A::SUMMARY_FIELD, "NGL Production Total"}} );
     m_summaryToDescMap.insert( {"FNLPRH", {A::SUMMARY_FIELD, "NGL Production Rate History"}} );
     m_summaryToDescMap.insert( {"FNLPTH", {A::SUMMARY_FIELD, "NGL Production Total History"}} );
-    m_summaryToDescMap.insert(
-        {"FAMF", {A::SUMMARY_FIELD, "Component aqueous mole fraction, from producing completions"}} );
+    m_summaryToDescMap.insert( {"FAMF", {A::SUMMARY_FIELD, "Component aqueous mole fraction, from producing completions"}} );
     m_summaryToDescMap.insert( {"FXMF", {A::SUMMARY_FIELD, "Liquid Mole Fraction"}} );
     m_summaryToDescMap.insert( {"FYMF", {A::SUMMARY_FIELD, "Vapor Mole Fraction"}} );
     m_summaryToDescMap.insert( {"FXMFn", {A::SUMMARY_FIELD, "Liquid Mole Fraction for nth separator stage"}} );
@@ -401,8 +400,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"FWPV", {A::SUMMARY_FIELD, "Pore Volume containing Water"}} );
     m_summaryToDescMap.insert( {"FGPV", {A::SUMMARY_FIELD, "Pore Volume containing Gas"}} );
     m_summaryToDescMap.insert( {"FHPV", {A::SUMMARY_FIELD, "Pore Volume containing Hydrocarbon"}} );
-    m_summaryToDescMap.insert(
-        {"FRTM", {A::SUMMARY_FIELD, "Transmissibility Multiplier associated with rock compaction"}} );
+    m_summaryToDescMap.insert( {"FRTM", {A::SUMMARY_FIELD, "Transmissibility Multiplier associated with rock compaction"}} );
     m_summaryToDescMap.insert( {"FOE", {A::SUMMARY_FIELD, "(OIP(initial) - OIP(now)) / OIP(initial)"}} );
     m_summaryToDescMap.insert( {"FOEW", {A::SUMMARY_FIELD, "Oil Production from Wells / OIP(initial)"}} );
     m_summaryToDescMap.insert(
@@ -759,10 +757,8 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"GMWPA", {A::SUMMARY_WELL_GROUP, "Number of abandoned production wells"}} );
     m_summaryToDescMap.insert( {"GMWPU", {A::SUMMARY_WELL_GROUP, "Number of unused production wells"}} );
     m_summaryToDescMap.insert( {"GMWPG", {A::SUMMARY_WELL_GROUP, "Number of producers on group control"}} );
-    m_summaryToDescMap.insert(
-        {"GMWPO", {A::SUMMARY_WELL_GROUP, "Number of producers controlled by own oil rate limit"}} );
-    m_summaryToDescMap.insert(
-        {"GMWPS", {A::SUMMARY_WELL_GROUP, "Number of producers on own surface rate limit control"}} );
+    m_summaryToDescMap.insert( {"GMWPO", {A::SUMMARY_WELL_GROUP, "Number of producers controlled by own oil rate limit"}} );
+    m_summaryToDescMap.insert( {"GMWPS", {A::SUMMARY_WELL_GROUP, "Number of producers on own surface rate limit control"}} );
     m_summaryToDescMap.insert(
         {"GMWPV", {A::SUMMARY_WELL_GROUP, "Number of producers on own reservoir volume rate limit control"}} );
     m_summaryToDescMap.insert( {"GMWPP", {A::SUMMARY_WELL_GROUP, "Number of producers on pressure control"}} );
@@ -772,8 +768,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"GMWIA", {A::SUMMARY_WELL_GROUP, "Number of abandoned injection wells"}} );
     m_summaryToDescMap.insert( {"GMWIU", {A::SUMMARY_WELL_GROUP, "Number of unused injection wells"}} );
     m_summaryToDescMap.insert( {"GMWIG", {A::SUMMARY_WELL_GROUP, "Number of injectors on group control"}} );
-    m_summaryToDescMap.insert(
-        {"GMWIS", {A::SUMMARY_WELL_GROUP, "Number of injectors on own surface rate limit control"}} );
+    m_summaryToDescMap.insert( {"GMWIS", {A::SUMMARY_WELL_GROUP, "Number of injectors on own surface rate limit control"}} );
     m_summaryToDescMap.insert(
         {"GMWIV", {A::SUMMARY_WELL_GROUP, "Number of injectors on own reservoir volume rate limit control"}} );
     m_summaryToDescMap.insert( {"GMWIP", {A::SUMMARY_WELL_GROUP, "Number of injectors on pressure control"}} );
@@ -816,8 +811,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"GCNMR", {A::SUMMARY_WELL_GROUP, "Hydrocarbon component molar rates in the NGL phase"}} );
     m_summaryToDescMap.insert( {"GCNWR", {A::SUMMARY_WELL_GROUP, "Hydrocarbon component mass rates in the NGL phase"}} );
     m_summaryToDescMap.insert(
-        {"GCGMRn",
-         {A::SUMMARY_WELL_GROUP, "Hydrocarbon component molar rates in the gas phase for nth separator stage"}} );
+        {"GCGMRn", {A::SUMMARY_WELL_GROUP, "Hydrocarbon component molar rates in the gas phase for nth separator stage"}} );
     m_summaryToDescMap.insert(
         {"GCGRn", {A::SUMMARY_WELL_GROUP, "Hydrocarbon component molar rates in the gas phase for nth separator stage"}} );
     m_summaryToDescMap.insert( {"GCOMRn", {A::SUMMARY_WELL_GROUP, "Hydrocarbon component"}} );
@@ -862,8 +856,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert(
         {"GOSTP", {A::SUMMARY_WELL_GROUP, "Test period for the most recent sustainable capacity test for oil"}} );
     m_summaryToDescMap.insert(
-        {"GWSPR",
-         {A::SUMMARY_WELL_GROUP, "Target sustainable rate for most recent sustainable capacity test for water"}} );
+        {"GWSPR", {A::SUMMARY_WELL_GROUP, "Target sustainable rate for most recent sustainable capacity test for water"}} );
     m_summaryToDescMap.insert( {"GWSRL",
                                 {A::SUMMARY_WELL_GROUP,
                                  "Maximum tested rate sustained for the test period during the most recent sustainable "
@@ -969,14 +962,12 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"GFGR", {A::SUMMARY_WELL_GROUP, "Fuel Gas rate, at and below this group"}} );
     m_summaryToDescMap.insert( {"GFGT", {A::SUMMARY_WELL_GROUP, "Fuel Gas cumulative total, at and below this group"}} );
     m_summaryToDescMap.insert( {"GGIMR", {A::SUMMARY_WELL_GROUP, "Gas import rate, at and below this group"}} );
-    m_summaryToDescMap.insert(
-        {"GGIMT", {A::SUMMARY_WELL_GROUP, "Gas import cumulative total, at and below this group"}} );
+    m_summaryToDescMap.insert( {"GGIMT", {A::SUMMARY_WELL_GROUP, "Gas import cumulative total, at and below this group"}} );
     m_summaryToDescMap.insert(
         {"GPRFP", {A::SUMMARY_WELL_GROUP, "Group or node Pressure in network from end of First Pass"}} );
     m_summaryToDescMap.insert(
         {"GGPRNBFP",
-         {A::SUMMARY_WELL_GROUP,
-          "Gas flow rate along Group's or node's outlet branch in network, from end of First Pass"}} );
+         {A::SUMMARY_WELL_GROUP, "Gas flow rate along Group's or node's outlet branch in network, from end of First Pass"}} );
     m_summaryToDescMap.insert( {"GGLIR", {A::SUMMARY_WELL_GROUP, "Gas Lift Injection Rate"}} );
     m_summaryToDescMap.insert( {"GGCV", {A::SUMMARY_WELL_GROUP, "Gas Calorific Value"}} );
     m_summaryToDescMap.insert( {"GGQ", {A::SUMMARY_WELL_GROUP, "Gas molar Quality"}} );
@@ -988,8 +979,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"GEDCQ", {A::SUMMARY_WELL_GROUP, "Energy DCQ"}} );
     m_summaryToDescMap.insert( {"GPR", {A::SUMMARY_WELL_GROUP, "Group or node Pressure in the production network"}} );
     m_summaryToDescMap.insert( {"GPRG", {A::SUMMARY_WELL_GROUP, "Group or node Pressure in the gas injection network"}} );
-    m_summaryToDescMap.insert(
-        {"GPRW", {A::SUMMARY_WELL_GROUP, "Group or node Pressure in the water injection network"}} );
+    m_summaryToDescMap.insert( {"GPRW", {A::SUMMARY_WELL_GROUP, "Group or node Pressure in the water injection network"}} );
     m_summaryToDescMap.insert(
         {"GPRB",
          {A::SUMMARY_WELL_GROUP, "Pressure drop along the group's or node's outlet branch in the production network"}} );
@@ -998,8 +988,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
          {A::SUMMARY_WELL_GROUP, "Pressure drop along the group's or node's inlet branch in the gas injection network"}} );
     m_summaryToDescMap.insert(
         {"GPRBW",
-         {A::SUMMARY_WELL_GROUP,
-          "Pressure drop along the group's or node's inlet branch in the water injection network"}} );
+         {A::SUMMARY_WELL_GROUP, "Pressure drop along the group's or node's inlet branch in the water injection network"}} );
     m_summaryToDescMap.insert(
         {"GALQ", {A::SUMMARY_WELL_GROUP, "ALQ in the group's or node's outlet branch in the production network"}} );
     m_summaryToDescMap.insert(
@@ -1271,8 +1260,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"WNLPRH", {A::SUMMARY_WELL, "NGL Production Rate History"}} );
     m_summaryToDescMap.insert( {"WNLPTH", {A::SUMMARY_WELL, "NGL Production Total History"}} );
     m_summaryToDescMap.insert( {"WNLPRT", {A::SUMMARY_WELL, "NGL Production Rate Target"}} );
-    m_summaryToDescMap.insert(
-        {"WAMF", {A::SUMMARY_WELL, "Component aqueous mole fraction, from producing completions"}} );
+    m_summaryToDescMap.insert( {"WAMF", {A::SUMMARY_WELL, "Component aqueous mole fraction, from producing completions"}} );
     m_summaryToDescMap.insert( {"WXMF", {A::SUMMARY_WELL, "Liquid Mole Fraction"}} );
     m_summaryToDescMap.insert( {"WYMF", {A::SUMMARY_WELL, "Vapor Mole Fraction"}} );
     m_summaryToDescMap.insert( {"WXMFn", {A::SUMMARY_WELL, "Liquid Mole Fraction for nth separator stage"}} );
@@ -1325,8 +1313,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
         {"WGFWCn", {A::SUMMARY_WELL, "Derivative of well gas flow rate with respect to parameter n"}} );
     m_summaryToDescMap.insert(
         {"WOFWCn", {A::SUMMARY_WELL, "Derivative of well oil flow rate with respect to parameter n"}} );
-    m_summaryToDescMap.insert(
-        {"WWFWCn", {A::SUMMARY_WELL, "Derivative of water flow rate with respect to parameter n"}} );
+    m_summaryToDescMap.insert( {"WWFWCn", {A::SUMMARY_WELL, "Derivative of water flow rate with respect to parameter n"}} );
     m_summaryToDescMap.insert( {"WTPR", {A::SUMMARY_WELL, "Tracer Production Rate"}} );
     m_summaryToDescMap.insert( {"WTPT", {A::SUMMARY_WELL, "Tracer Production Total"}} );
     m_summaryToDescMap.insert( {"WTPC", {A::SUMMARY_WELL, "Tracer Production Concentration"}} );
@@ -1479,8 +1466,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
         {"CDBF", {A::SUMMARY_WELL_COMPLETION, "Blocking factor for generalized pseudo-pressure method"}} );
     m_summaryToDescMap.insert(
         {"CGPPTN", {A::SUMMARY_WELL_COMPLETION, "Generalized pseudo-pressure table update counter"}} );
-    m_summaryToDescMap.insert(
-        {"CGPPTS", {A::SUMMARY_WELL_COMPLETION, "Generalized pseudo-pressure table update status"}} );
+    m_summaryToDescMap.insert( {"CGPPTS", {A::SUMMARY_WELL_COMPLETION, "Generalized pseudo-pressure table update status"}} );
     m_summaryToDescMap.insert( {"CDSM", {A::SUMMARY_WELL_COMPLETION, "Current mass of scale deposited"}} );
     m_summaryToDescMap.insert(
         {"CDSML", {A::SUMMARY_WELL_COMPLETION, "Current mass of scale deposited per unit perforation length"}} );
@@ -1722,8 +1708,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"RTFTT", {A::SUMMARY_REGION_2_REGION, "Tracer inter-region Flow"}} );
     m_summaryToDescMap.insert( {"RTFTF", {A::SUMMARY_REGION_2_REGION, "Tracer inter-region Flow"}} );
     m_summaryToDescMap.insert( {"RTFTS", {A::SUMMARY_REGION_2_REGION, "Tracer inter-region Flow"}} );
-    m_summaryToDescMap.insert(
-        {"RTFT#", {A::SUMMARY_REGION_2_REGION, "Tracer inter-region Flow in phase # (1,2,3,...)"}} );
+    m_summaryToDescMap.insert( {"RTFT#", {A::SUMMARY_REGION_2_REGION, "Tracer inter-region Flow in phase # (1,2,3,...)"}} );
     m_summaryToDescMap.insert( {"RTFTTFOA", {A::SUMMARY_REGION_2_REGION, "Inter-region Flow Total"}} );
     m_summaryToDescMap.insert( {"RCFT", {A::SUMMARY_REGION_2_REGION, "Polymer inter-region Flow Total"}} );
     m_summaryToDescMap.insert( {"RSFT", {A::SUMMARY_REGION_2_REGION, "Salt inter-region Flow Total"}} );
@@ -1754,8 +1739,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"BKRW", {A::SUMMARY_BLOCK, "Water relative permeability"}} );
     m_summaryToDescMap.insert( {"BKRWG", {A::SUMMARY_BLOCK, "Two-phase water relative permeability to gas"}} );
     m_summaryToDescMap.insert( {"BKRWO", {A::SUMMARY_BLOCK, "Two-phase water relative permeability to oil"}} );
-    m_summaryToDescMap.insert(
-        {"BRK", {A::SUMMARY_BLOCK, "Water relative permeability reduction factor due to polymer"}} );
+    m_summaryToDescMap.insert( {"BRK", {A::SUMMARY_BLOCK, "Water relative permeability reduction factor due to polymer"}} );
     m_summaryToDescMap.insert( {"BEWKR", {A::SUMMARY_BLOCK, "Water effective relative permeability due to polymer"}} );
     m_summaryToDescMap.insert( {"BWPC", {A::SUMMARY_BLOCK, "Water-Oil capillary pressure"}} );
     m_summaryToDescMap.insert( {"BGPC", {A::SUMMARY_BLOCK, "Gas-Oil capillary pressure"}} );
@@ -1796,8 +1780,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"BHD_X", {A::SUMMARY_BLOCK, "Hydraulic head interpolated at a defined coordinate"}} );
     m_summaryToDescMap.insert(
         {"BHDF_X", {A::SUMMARY_BLOCK, "Hydraulic head at fresh water conditions interpolated at a defined coordinate"}} );
-    m_summaryToDescMap.insert(
-        {"BSCN_X", {A::SUMMARY_BLOCK, "Brine concentration interpolated at a defined coordinate"}} );
+    m_summaryToDescMap.insert( {"BSCN_X", {A::SUMMARY_BLOCK, "Brine concentration interpolated at a defined coordinate"}} );
     m_summaryToDescMap.insert(
         {"BCTRA_X", {A::SUMMARY_BLOCK, "Tracer concentration interpolated at a defined coordinate"}} );
     m_summaryToDescMap.insert(
@@ -1811,8 +1794,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert(
         {"LBSCN_X", {A::SUMMARY_BLOCK, "Brine concentration interpolated at a defined coordinate within a local grid"}} );
     m_summaryToDescMap.insert(
-        {"LBCTRA_X",
-         {A::SUMMARY_BLOCK, "Tracer concentration interpolated at a defined coordinate within a local grid"}} );
+        {"LBCTRA_X", {A::SUMMARY_BLOCK, "Tracer concentration interpolated at a defined coordinate within a local grid"}} );
     m_summaryToDescMap.insert( {"BOKRX", {A::SUMMARY_BLOCK, "Oil relative permeability in the X direction"}} );
     m_summaryToDescMap.insert( {"BOKRX", {A::SUMMARY_BLOCK, "- Oil relative permeability in the -X direction"}} );
     m_summaryToDescMap.insert( {"BOKRY", {A::SUMMARY_BLOCK, "Oil relative permeability in the Y direction"}} );
@@ -1867,8 +1849,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"BWPV", {A::SUMMARY_BLOCK, "Pore Volume containing Water"}} );
     m_summaryToDescMap.insert( {"BGPV", {A::SUMMARY_BLOCK, "Pore Volume containing Gas"}} );
     m_summaryToDescMap.insert( {"BHPV", {A::SUMMARY_BLOCK, "Pore Volume containing Hydrocarbon"}} );
-    m_summaryToDescMap.insert(
-        {"BRTM", {A::SUMMARY_BLOCK, "Transmissibility Multiplier associated with rock compaction"}} );
+    m_summaryToDescMap.insert( {"BRTM", {A::SUMMARY_BLOCK, "Transmissibility Multiplier associated with rock compaction"}} );
     m_summaryToDescMap.insert(
         {"BPERMMOD", {A::SUMMARY_BLOCK, "Transmissibility Multiplier associated with rock compaction"}} );
     m_summaryToDescMap.insert(
@@ -1883,8 +1864,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
         {"BPERMMDZ",
          {A::SUMMARY_BLOCK,
           "Directional Transmissibility Multipliers in the Z direction, associated with rock compaction"}} );
-    m_summaryToDescMap.insert(
-        {"BPORVMOD", {A::SUMMARY_BLOCK, "Pore Volume Multiplier associated with rock compaction"}} );
+    m_summaryToDescMap.insert( {"BPORVMOD", {A::SUMMARY_BLOCK, "Pore Volume Multiplier associated with rock compaction"}} );
     m_summaryToDescMap.insert(
         {"BSIGMMOD", {A::SUMMARY_BLOCK, "Dual Porosity Sigma Multiplier associated with rock compaction"}} );
     m_summaryToDescMap.insert( {"BTCNF", {A::SUMMARY_BLOCK, "Tracer Concentration"}} );
@@ -1944,27 +1924,27 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
         {"BCABnnn", {A::SUMMARY_BLOCK, "Adsorbed polymer by highest temperature band at which RRF was calculated"}} );
     m_summaryToDescMap.insert( {"BSCN", {A::SUMMARY_BLOCK, "Salt Cell Concentration"}} );
     m_summaryToDescMap.insert( {"BSIP", {A::SUMMARY_BLOCK, "Salt In Place"}} );
-    m_summaryToDescMap.insert(
-        {"BFLOW0I",
-         {A::SUMMARY_BLOCK, "Inter-block water flow rate in the positive I direction multiplied by the corresponding shear multiplier"}} );
-    m_summaryToDescMap.insert(
-        {"BFLOW0J",
-         {A::SUMMARY_BLOCK, "Inter-block water flow rate in the positive J direction multiplied by the corresponding shear multiplier"}} );
-    m_summaryToDescMap.insert(
-        {"BFLOW0K",
-         {A::SUMMARY_BLOCK, "Inter-block water flow rate in the positive K direction multiplied by the corresponding shear multiplier"}} );
+    m_summaryToDescMap.insert( {"BFLOW0I",
+                                {A::SUMMARY_BLOCK,
+                                 "Inter-block water flow rate in the positive I direction multiplied by the "
+                                 "corresponding shear multiplier"}} );
+    m_summaryToDescMap.insert( {"BFLOW0J",
+                                {A::SUMMARY_BLOCK,
+                                 "Inter-block water flow rate in the positive J direction multiplied by the "
+                                 "corresponding shear multiplier"}} );
+    m_summaryToDescMap.insert( {"BFLOW0K",
+                                {A::SUMMARY_BLOCK,
+                                 "Inter-block water flow rate in the positive K direction multiplied by the "
+                                 "corresponding shear multiplier"}} );
     m_summaryToDescMap.insert(
         {"BVELW0I",
-         {A::SUMMARY_BLOCK,
-          "Water velocity in the positive I direction multiplied by the corresponding shear multiplier"}} );
+         {A::SUMMARY_BLOCK, "Water velocity in the positive I direction multiplied by the corresponding shear multiplier"}} );
     m_summaryToDescMap.insert(
         {"BVELW0J",
-         {A::SUMMARY_BLOCK,
-          "Water velocity in the positive J direction multiplied by the corresponding shear multiplier"}} );
+         {A::SUMMARY_BLOCK, "Water velocity in the positive J direction multiplied by the corresponding shear multiplier"}} );
     m_summaryToDescMap.insert(
         {"BVELW0K",
-         {A::SUMMARY_BLOCK,
-          "Water velocity in the positive K direction multiplied by the corresponding shear multiplier"}} );
+         {A::SUMMARY_BLOCK, "Water velocity in the positive K direction multiplied by the corresponding shear multiplier"}} );
     m_summaryToDescMap.insert(
         {"BPSHLZI", {A::SUMMARY_BLOCK, "Viscosity multiplier due to sheared water flow in the positive I direction"}} );
     m_summaryToDescMap.insert(
@@ -2008,8 +1988,7 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
     m_summaryToDescMap.insert( {"BSURFST", {A::SUMMARY_BLOCK, "Surface tension"}} );
     m_summaryToDescMap.insert(
         {"BEWV_SUR", {A::SUMMARY_BLOCK, "Effective water viscosity due to surfactant concentration"}} );
-    m_summaryToDescMap.insert(
-        {"BESVIS", {A::SUMMARY_BLOCK, "Effective water viscosity due to surfactant concentration"}} );
+    m_summaryToDescMap.insert( {"BESVIS", {A::SUMMARY_BLOCK, "Effective water viscosity due to surfactant concentration"}} );
     m_summaryToDescMap.insert( {"BTCNFALK", {A::SUMMARY_BLOCK, "Concentration"}} );
     m_summaryToDescMap.insert( {"BTADSALK", {A::SUMMARY_BLOCK, "Adsorption"}} );
     m_summaryToDescMap.insert( {"BTSTMALK", {A::SUMMARY_BLOCK, "Surface tension multiplier"}} );
@@ -2031,12 +2010,10 @@ void RiuSummaryQuantityNameInfoProvider::populateFieldToInfoMap()
           "Opposite saturation direction turning point relative permeability to water for water-oil system"}} );
     m_summaryToDescMap.insert(
         {"BKROGT",
-         {A::SUMMARY_BLOCK,
-          "Opposite saturation direction turning point relative permeability to oil for oil-gas system"}} );
+         {A::SUMMARY_BLOCK, "Opposite saturation direction turning point relative permeability to oil for oil-gas system"}} );
     m_summaryToDescMap.insert(
         {"BKRGOT",
-         {A::SUMMARY_BLOCK,
-          "Opposite saturation direction turning point relative permeability to gas for gas-oil system"}} );
+         {A::SUMMARY_BLOCK, "Opposite saturation direction turning point relative permeability to gas for gas-oil system"}} );
     m_summaryToDescMap.insert(
         {"BKRGWT",
          {A::SUMMARY_BLOCK,

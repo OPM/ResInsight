@@ -45,9 +45,7 @@ Status RiaGrpcProjectService::GetCurrentCase( ServerContext* context, const rips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Status RiaGrpcProjectService::GetSelectedCases( ServerContext*       context,
-                                                const rips::Empty*   request,
-                                                rips::CaseInfoArray* reply )
+Status RiaGrpcProjectService::GetSelectedCases( ServerContext* context, const rips::Empty* request, rips::CaseInfoArray* reply )
 {
     std::vector<RimCase*> cases;
     caf::SelectionManager::instance()->objectsByType( &cases );
@@ -80,10 +78,9 @@ grpc::Status RiaGrpcProjectService::GetAllCaseGroups( grpc::ServerContext* conte
                                                       const rips::Empty*   request,
                                                       rips::CaseGroups*    reply )
 {
-    RimProject*               proj           = RiaApplication::instance()->project();
-    RimEclipseCaseCollection* analysisModels = ( proj && proj->activeOilField() )
-                                                   ? proj->activeOilField()->analysisModels()
-                                                   : nullptr;
+    RimProject*               proj = RiaApplication::instance()->project();
+    RimEclipseCaseCollection* analysisModels =
+        ( proj && proj->activeOilField() ) ? proj->activeOilField()->analysisModels() : nullptr;
     if ( analysisModels )
     {
         for ( RimIdenticalGridCaseGroup* cg : analysisModels->caseGroups() )
@@ -135,10 +132,9 @@ grpc::Status RiaGrpcProjectService::GetCasesInGroup( grpc::ServerContext*   cont
                                                      const rips::CaseGroup* request,
                                                      rips::CaseInfoArray*   reply )
 {
-    RimProject*               proj           = RiaApplication::instance()->project();
-    RimEclipseCaseCollection* analysisModels = ( proj && proj->activeOilField() )
-                                                   ? proj->activeOilField()->analysisModels()
-                                                   : nullptr;
+    RimProject*               proj = RiaApplication::instance()->project();
+    RimEclipseCaseCollection* analysisModels =
+        ( proj && proj->activeOilField() ) ? proj->activeOilField()->analysisModels() : nullptr;
     if ( analysisModels )
     {
         int                        groupId   = request->id();
@@ -190,9 +186,8 @@ grpc::Status RiaGrpcProjectService::GetCasesInGroup( grpc::ServerContext*   cont
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status RiaGrpcProjectService::GetPdmObject( grpc::ServerContext* context,
-                                                  const rips::Empty*   request,
-                                                  rips::PdmObject*     reply )
+grpc::Status
+    RiaGrpcProjectService::GetPdmObject( grpc::ServerContext* context, const rips::Empty* request, rips::PdmObject* reply )
 {
     RimProject* project = RiaApplication::instance()->project();
     if ( project )
@@ -210,12 +205,8 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcProjectService::createCallbacks()
     typedef RiaGrpcProjectService Self;
 
     return {new RiaGrpcUnaryCallback<Self, Empty, CaseRequest>( this, &Self::GetCurrentCase, &Self::RequestGetCurrentCase ),
-            new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>( this,
-                                                                  &Self::GetSelectedCases,
-                                                                  &Self::RequestGetSelectedCases ),
-            new RiaGrpcUnaryCallback<Self, Empty, CaseGroups>( this,
-                                                               &Self::GetAllCaseGroups,
-                                                               &Self::RequestGetAllCaseGroups ),
+            new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>( this, &Self::GetSelectedCases, &Self::RequestGetSelectedCases ),
+            new RiaGrpcUnaryCallback<Self, Empty, CaseGroups>( this, &Self::GetAllCaseGroups, &Self::RequestGetAllCaseGroups ),
             new RiaGrpcUnaryCallback<Self, Empty, CaseInfoArray>( this, &Self::GetAllCases, &Self::RequestGetAllCases ),
             new RiaGrpcUnaryCallback<Self, CaseGroup, CaseInfoArray>( this,
                                                                       &Self::GetCasesInGroup,

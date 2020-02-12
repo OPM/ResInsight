@@ -357,8 +357,8 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
         }
 
         // Remove common root path
-        std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> fileInfosNoRoot = makeShortPath(
-            {currentFileInfos, originSummaryFileInfos, originGridFileInfos} );
+        std::vector<std::vector<std::pair<RifRestartFileInfo, QString>>> fileInfosNoRoot =
+            makeShortPath( {currentFileInfos, originSummaryFileInfos, originGridFileInfos} );
 
         // Populate file list backing lists
         dialog.m_fileLists.push_back( fileInfosNoRoot[CURRENT_FILES_LIST_INDEX] );
@@ -375,8 +375,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
 
         // Set properties and show dialog
         dialog.setWindowTitle( "Origin Files" );
-        dialog.m_buttons->button( QDialogButtonBox::Apply )
-            ->setVisible( !useFirstSummaryCaseAsTemplate && showApplyToAllWidget );
+        dialog.m_buttons->button( QDialogButtonBox::Apply )->setVisible( !useFirstSummaryCaseAsTemplate && showApplyToAllWidget );
         dialog.resize( DEFAULT_DIALOG_WIDTH, DEFAULT_DIALOG_INIT_HEIGHT );
 
         QApplication::setOverrideCursor( QCursor( Qt::ArrowCursor ) );

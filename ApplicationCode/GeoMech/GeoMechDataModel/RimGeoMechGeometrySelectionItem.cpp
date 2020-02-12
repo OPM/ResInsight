@@ -38,12 +38,7 @@ RimGeoMechGeometrySelectionItem::RimGeoMechGeometrySelectionItem()
     CAF_PDM_InitFieldNoDefault( &m_gridIndex, "m_gridIndex", "GridIndex", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_cellIndex, "m_cellIndex", "CellIndex", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_elementFace, "m_elementFace", "ElementFace", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_hasIntersectionTriangle,
-                                "m_hasIntersectionTriangle",
-                                "HasIntersectionTriangle",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_hasIntersectionTriangle, "m_hasIntersectionTriangle", "HasIntersectionTriangle", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_intersectionTriangle_0, "m_intersectionTriangle_0", "IntersectionTriangle_0", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_intersectionTriangle_1, "m_intersectionTriangle_1", "IntersectionTriangle_1", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_intersectionTriangle_2, "m_intersectionTriangle_2", "IntersectionTriangle_2", "", "", "" );
@@ -96,7 +91,8 @@ QString RimGeoMechGeometrySelectionItem::geometrySelectionText() const
         text += ", ";
         text += QString("Grid index %1").arg(m_gridIndex);
         text += ", ";
-        text += RigTimeHistoryResultAccessor::geometrySelectionText(m_geoMechCase->eclipseCaseData(), m_gridIndex, m_cellIndex);
+        text += RigTimeHistoryResultAccessor::geometrySelectionText(m_geoMechCase->eclipseCaseData(), m_gridIndex,
+       m_cellIndex);
     */
 
     return text;

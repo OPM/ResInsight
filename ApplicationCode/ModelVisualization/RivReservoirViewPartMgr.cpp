@@ -703,7 +703,8 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility( cvf::UByteArray* 
 
         for ( int mcIdx = 0; mcIdx < cellCount; ++mcIdx )
         {
-            ( *cellVisibility )[lcIdx] |= ( *totCellVisibility )[cellIndicesInMasterCase[mcIdx]]; // If any is visible, show
+            ( *cellVisibility )[lcIdx] |= ( *totCellVisibility )[cellIndicesInMasterCase[mcIdx]]; // If any is visible,
+                                                                                                  // show
         }
 
 #else
@@ -781,8 +782,8 @@ void RivReservoirViewPartMgr::computeRangeVisibility( RivCellSetEnum            
 
             if ( geometryType == RANGE_FILTERED_WELL_CELLS )
             {
-                geometryType =
-                    RANGE_FILTERED; // Use the range filtering in the parent grid, not the well cells in the parent grid
+                geometryType = RANGE_FILTERED; // Use the range filtering in the parent grid, not the well cells in the
+                                               // parent grid
             }
 
             RivReservoirPartMgr* reservoirGridPartMgr = &m_geometries[geometryType];
@@ -818,10 +819,8 @@ void RivReservoirViewPartMgr::computeRangeVisibility( RivCellSetEnum            
 
                 if ( hasAdditiveRangeFilters )
                 {
-                    nativeRangeVisibility = gridCellRangeFilter.isCellVisible( mainGridI,
-                                                                               mainGridJ,
-                                                                               mainGridK,
-                                                                               isInSubGridArea );
+                    nativeRangeVisibility =
+                        gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
                 }
                 else
                 {
@@ -829,11 +828,9 @@ void RivReservoirViewPartMgr::computeRangeVisibility( RivCellSetEnum            
                     nativeRangeVisibility = ( *nativeVisibility )[cellIndex];
                 }
 
-                ( *cellVisibility )[cellIndex] = ( visibleDueToParentGrid || nativeRangeVisibility ) &&
-                                                 !gridCellRangeFilter.isCellExcluded( mainGridI,
-                                                                                      mainGridJ,
-                                                                                      mainGridK,
-                                                                                      isInSubGridArea );
+                ( *cellVisibility )[cellIndex] =
+                    ( visibleDueToParentGrid || nativeRangeVisibility ) &&
+                    !gridCellRangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
             }
         }
     }

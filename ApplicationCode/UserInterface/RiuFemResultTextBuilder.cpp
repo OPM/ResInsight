@@ -131,7 +131,8 @@ QString RiuFemResultTextBuilder::geometrySelectionText( QString itemSeparator )
             int         elementId   = femPart->elmId( m_cellIndex );
             auto        elementType = femPart->elementType( m_cellIndex );
 
-            text += QString( "Element : Id[%1], Type[%2]" ).arg( elementId ).arg( RigFemTypes::elementTypeText( elementType ) );
+            text +=
+                QString( "Element : Id[%1], Type[%2]" ).arg( elementId ).arg( RigFemTypes::elementTypeText( elementType ) );
 
             size_t i = 0;
             size_t j = 0;
@@ -396,17 +397,16 @@ QString RiuFemResultTextBuilder::closestNodeResultText( RimGeoMechResultDefiniti
 
         RigGeoMechCaseData* geomData = m_geomResDef->geoMechCase()->geoMechData();
 
-        const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues( resultColors->resultAddress(),
-                                                                                            m_gridIndex,
-                                                                                            m_timeStepIndex );
+        const std::vector<float>& scalarResults =
+            geomData->femPartResults()->resultValues( resultColors->resultAddress(), m_gridIndex, m_timeStepIndex );
 
         if ( scalarResults.size() && m_displayCoordView )
         {
             RigFemPart*         femPart              = geomData->femParts()->part( m_gridIndex );
             RigFemResultPosEnum activeResultPosition = resultColors->resultPositionType();
 
-            cvf::Vec3d intersectionPointInDomain = m_displayCoordView->displayCoordTransform()->translateToDomainCoord(
-                m_intersectionPointInDisplay );
+            cvf::Vec3d intersectionPointInDomain =
+                m_displayCoordView->displayCoordTransform()->translateToDomainCoord( m_intersectionPointInDisplay );
 
             RigFemClosestResultIndexCalculator closestIndexCalc( femPart,
                                                                  activeResultPosition,
@@ -418,8 +418,7 @@ QString RiuFemResultTextBuilder::closestNodeResultText( RimGeoMechResultDefiniti
             int closestNodeId       = closestIndexCalc.closestNodeId();
             int closestElmNodResIdx = closestIndexCalc.closestElementNodeResIdx();
 
-            float scalarValue = ( resultIndex >= 0 ) ? scalarResults[resultIndex]
-                                                     : std::numeric_limits<float>::infinity();
+            float scalarValue = ( resultIndex >= 0 ) ? scalarResults[resultIndex] : std::numeric_limits<float>::infinity();
 
             if ( activeResultPosition == RIG_ELEMENT )
             {

@@ -74,9 +74,9 @@ void RivNNCGeometryGenerator::computeArrays()
     std::vector<cvf::Vec3f> vertices;
     std::vector<size_t>     triangleToNNC;
 
-    const cvf::Vec3d offset         = m_offset;
-    long long        numConnections = static_cast<long long>( m_nncIndexes.isNull() ? m_nncData->connections().size()
-                                                                             : m_nncIndexes->size() );
+    const cvf::Vec3d offset = m_offset;
+    long long        numConnections =
+        static_cast<long long>( m_nncIndexes.isNull() ? m_nncData->connections().size() : m_nncIndexes->size() );
 
     bool                  isVisibilityCalcActive = m_cellVisibility.notNull() && m_grid.notNull();
     std::vector<RigCell>* allCells               = nullptr;
@@ -189,7 +189,8 @@ void RivNNCGeometryGenerator::textureCoordinates( cvf::Vec2fArray*              
         double cellScalarValue = HUGE_VAL;
         size_t resultIndex     = ( *m_triangleIndexToNNCIndex )[tIdx];
 
-        // The nnc connections can have more connections than reported from Eclipse, clamp the result index to Eclipse Results
+        // The nnc connections can have more connections than reported from Eclipse, clamp the result index to Eclipse
+        // Results
 
         if ( resultIndex < nncResultVals->size() )
         {

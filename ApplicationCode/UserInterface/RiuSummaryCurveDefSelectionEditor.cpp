@@ -59,9 +59,8 @@ RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionEditor::summaryAddressSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(
-    const caf::PdmUiOrdering& topLevelUiOrdering,
-    const QString&            uiConfigName )
+void RiuSummaryCurveDefSelectionEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiOrdering,
+                                                                                         const QString& uiConfigName )
 {
     if ( !m_firstRowLeftLayout || !m_firstRowRightLayout ) return;
 
@@ -195,8 +194,8 @@ void RiuSummaryCurveDefSelectionEditor::configureAndUpdateFields( int           
 
                     if ( fieldEditorWidget )
                     {
-                        fieldEditorWidget->setParent(
-                            this->widget() ); // To make sure this widget has the current group box as parent.
+                        fieldEditorWidget->setParent( this->widget() ); // To make sure this widget has the current
+                                                                        // group box as parent.
 
                         layout->insertWidget( currentWidgetIndex++, fieldEditorWidget );
                     }

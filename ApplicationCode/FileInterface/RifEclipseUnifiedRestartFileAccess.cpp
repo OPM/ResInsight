@@ -102,8 +102,8 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 
         if ( !m_ecl_file )
         {
-            m_ecl_file = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( m_filename ).data(),
-                                        ECL_FILE_CLOSE_STREAM );
+            m_ecl_file =
+                ecl_file_open( RiaStringEncodingTools::toNativeEncoded( m_filename ).data(), ECL_FILE_CLOSE_STREAM );
             if ( !m_ecl_file )
             {
                 RiaLogging::error( QString( "Failed to open file %1" ).arg( m_filename ) );

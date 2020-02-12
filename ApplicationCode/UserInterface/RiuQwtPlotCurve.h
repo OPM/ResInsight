@@ -26,7 +26,8 @@
 //==================================================================================================
 //
 // If infinite data is present in the curve data, Qwt is not able to draw a nice curve.
-// This class assumes that inf data is removed, and segments to be draw are indicated by start/stop indices into curve data.
+// This class assumes that inf data is removed, and segments to be draw are indicated by start/stop indices into curve
+// data.
 //
 // Single values in the curve are drawn using a CrossX symbol
 //

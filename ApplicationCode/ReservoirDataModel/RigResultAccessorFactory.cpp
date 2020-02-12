@@ -58,10 +58,10 @@ cvf::ref<RigResultAccessor>
         const RigGridBase* grid = eclipseCase->grid( gridIndex );
         if ( !grid ) return new RigHugeValResultAccessor;
 
-        cvf::ref<RigResultAccessor> object = new RigActiveCellsResultAccessor( grid,
-                                                                               resultValues,
-                                                                               eclipseCase->activeCellInfo(
-                                                                                   resultDefinition->porosityModel() ) );
+        cvf::ref<RigResultAccessor> object =
+            new RigActiveCellsResultAccessor( grid,
+                                              resultValues,
+                                              eclipseCase->activeCellInfo( resultDefinition->porosityModel() ) );
 
         return object;
     }
@@ -201,12 +201,8 @@ cvf::ref<RigResultAccessor>
                                                                                                         timeStepIndex,
                                                                                                         nativeAddr );
 
-        cellFaceAccessObject->setMultResultAccessors( multXPos.p(),
-                                                      multXNeg.p(),
-                                                      multYPos.p(),
-                                                      multYNeg.p(),
-                                                      multZPos.p(),
-                                                      multZNeg.p() );
+        cellFaceAccessObject
+            ->setMultResultAccessors( multXPos.p(), multXNeg.p(), multYPos.p(), multYNeg.p(), multZPos.p(), multZNeg.p() );
 
         return cellFaceAccessObject;
     }

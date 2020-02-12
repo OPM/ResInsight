@@ -71,8 +71,8 @@ void RigCaseToCaseCellMapperTools::estimatedFemCellFromEclCell( const RigMainGri
                                                                 size_t             reservoirCellIndex,
                                                                 cvf::Vec3d         estimatedElmCorners[8] )
 {
-    CVF_TIGHT_ASSERT( reservoirCellIndex <
-                      eclGrid->cellCount() ); // Assume reservoirCellIdx == localGridCellIdx for maingrid
+    CVF_TIGHT_ASSERT( reservoirCellIndex < eclGrid->cellCount() ); // Assume reservoirCellIdx == localGridCellIdx for
+                                                                   // maingrid
 
     const std::vector<cvf::Vec3d>& eclNodes = eclGrid->nodes();
 
@@ -300,9 +300,8 @@ int RigCaseToCaseCellMapperTools::findMatchingPOSKFaceIdx( const cvf::Vec3d base
                                                            const cvf::Vec3d c2[8] )
 {
     int        faceNodeCount;
-    const int* posKFace = RigFemTypes::localElmNodeIndicesForFace( HEX8,
-                                                                   (int)( cvf::StructGridInterface::POS_K ),
-                                                                   &faceNodeCount );
+    const int* posKFace =
+        RigFemTypes::localElmNodeIndicesForFace( HEX8, (int)( cvf::StructGridInterface::POS_K ), &faceNodeCount );
 
     double sign = isBaseCellNormalsOutwards ? 1.0 : -1.0;
 
@@ -376,12 +375,10 @@ void RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell( const
         int femShallowZFaceIdx = RigFemTypes::oppositeFace( HEX8, femDeepZFaceIdx );
 
         int        faceNodeCount;
-        const int* localElmNodeIndicesForPOSKFace = RigFemTypes::localElmNodeIndicesForFace( HEX8,
-                                                                                             femDeepZFaceIdx,
-                                                                                             &faceNodeCount );
-        const int* localElmNodeIndicesForNEGKFace = RigFemTypes::localElmNodeIndicesForFace( HEX8,
-                                                                                             femShallowZFaceIdx,
-                                                                                             &faceNodeCount );
+        const int* localElmNodeIndicesForPOSKFace =
+            RigFemTypes::localElmNodeIndicesForFace( HEX8, femDeepZFaceIdx, &faceNodeCount );
+        const int* localElmNodeIndicesForNEGKFace =
+            RigFemTypes::localElmNodeIndicesForFace( HEX8, femShallowZFaceIdx, &faceNodeCount );
 
         cell[0] = tmpFemCorners[localElmNodeIndicesForNEGKFace[0]];
         cell[1] = tmpFemCorners[localElmNodeIndicesForNEGKFace[1]];

@@ -304,8 +304,8 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuSelectionIt
     }
     else if ( itemAdded->type() == RiuSelectionItem::INTERSECTION_SELECTION_OBJECT )
     {
-        const Riu2dIntersectionSelectionItem* _2dSelectionItem = static_cast<const Riu2dIntersectionSelectionItem*>(
-            itemAdded );
+        const Riu2dIntersectionSelectionItem* _2dSelectionItem =
+            static_cast<const Riu2dIntersectionSelectionItem*>( itemAdded );
 
         addCurveFromSelectionItem( _2dSelectionItem );
     }
@@ -345,8 +345,7 @@ void RiuSelectionChangedHandler::updateResultInfo( const RiuSelectionItem* itemA
 
         if ( selItem->type() == RiuSelectionItem::INTERSECTION_SELECTION_OBJECT )
         {
-            const Riu2dIntersectionSelectionItem* wrapperSelItem = dynamic_cast<Riu2dIntersectionSelectionItem*>(
-                selItem );
+            const Riu2dIntersectionSelectionItem* wrapperSelItem = dynamic_cast<Riu2dIntersectionSelectionItem*>( selItem );
             if ( wrapperSelItem )
             {
                 intersectionView = wrapperSelItem->view();

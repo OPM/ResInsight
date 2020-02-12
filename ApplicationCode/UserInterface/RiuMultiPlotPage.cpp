@@ -604,8 +604,7 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             std::tie( row, column ) = findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
 
             m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, column, 1, colSpan );
-            m_gridLayout
-                ->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
+            m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
             m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, column, 1 + ( rowSpan - 1 ) * 3, colSpan );
 
             subTitles[visibleIndex]->setVisible( m_showSubTitles );
@@ -668,9 +667,9 @@ int RiuMultiPlotPage::alignCanvasTops()
         int row = visibleIndex / rowAndColumnCount.second;
         if ( plotWidgets[visibleIndex]->axisEnabled( QwtPlot::xTop ) )
         {
-            QFont font      = m_plotWidgets[visibleIndex]->axisFont( QwtPlot::xTop );
-            maxExtents[row] = std::max( maxExtents[row],
-                                        plotWidgets[visibleIndex]->axisScaleDraw( QwtPlot::xTop )->extent( font ) );
+            QFont font = m_plotWidgets[visibleIndex]->axisFont( QwtPlot::xTop );
+            maxExtents[row] =
+                std::max( maxExtents[row], plotWidgets[visibleIndex]->axisScaleDraw( QwtPlot::xTop )->extent( font ) );
         }
     }
 

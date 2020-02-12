@@ -95,8 +95,8 @@ size_t RifWellPathImporter::wellDataCount( const QString& filePath )
     }
     else
     {
-        std::map<QString, std::vector<RifWellPathImporter::WellData>>::iterator it = m_fileNameToWellDataGroupMap.find(
-            filePath );
+        std::map<QString, std::vector<RifWellPathImporter::WellData>>::iterator it =
+            m_fileNameToWellDataGroupMap.find( filePath );
 
         // If we have the file in the map, assume it is already read.
         if ( it != m_fileNameToWellDataGroupMap.end() )
@@ -149,9 +149,9 @@ RifWellPathImporter::WellMetaData RifWellPathImporter::readJsonWellMetaData( con
     // Convert updateDate from the following format:
     // "Number of milliseconds elapsed since midnight Coordinated Universal Time (UTC)
     // of January 1, 1970, not counting leap seconds"
-    QString updateDateStr  = jsonMap["updateDate"].toString().trimmed();
-    uint    updateDateUint = updateDateStr.toULongLong() /
-                          1000; // Should be within 32 bit, maximum number is 4294967295 which corresponds to year 2106
+    QString updateDateStr = jsonMap["updateDate"].toString().trimmed();
+    uint updateDateUint   = updateDateStr.toULongLong() / 1000; // Should be within 32 bit, maximum number is 4294967295
+                                                              // which corresponds to year 2106
     metadata.m_updateDate.setTime_t( updateDateUint );
 
     return metadata;
@@ -190,8 +190,8 @@ RifWellPathImporter::WellData RifWellPathImporter::readJsonWellData( const QStri
 //--------------------------------------------------------------------------------------------------
 void RifWellPathImporter::readAllAsciiWellData( const QString& filePath )
 {
-    std::map<QString, std::vector<RifWellPathImporter::WellData>>::iterator it = m_fileNameToWellDataGroupMap.find(
-        filePath );
+    std::map<QString, std::vector<RifWellPathImporter::WellData>>::iterator it =
+        m_fileNameToWellDataGroupMap.find( filePath );
 
     // If we have the file in the map, assume it is already read.
     if ( it != m_fileNameToWellDataGroupMap.end() )
@@ -278,10 +278,9 @@ void RifWellPathImporter::readAllAsciiWellData( const QString& filePath )
                     // name <WellNameA>
                     // wellname: <WellNameA>
                     std::string lineLowerCase = line;
-                    transform( lineLowerCase.begin(),
-                               lineLowerCase.end(),
-                               lineLowerCase.begin(),
-                               []( const char c ) -> char { return (char)::tolower( c ); } );
+                    transform( lineLowerCase.begin(), lineLowerCase.end(), lineLowerCase.begin(), []( const char c ) -> char {
+                        return (char)::tolower( c );
+                    } );
 
                     std::string tokenName    = "name";
                     std::size_t foundNameIdx = lineLowerCase.find( tokenName );
@@ -343,8 +342,8 @@ RifWellPathImporter::WellData RifWellPathImporter::readAsciiWellData( const QStr
 {
     readAllAsciiWellData( filePath );
 
-    std::map<QString, std::vector<RifWellPathImporter::WellData>>::iterator it = m_fileNameToWellDataGroupMap.find(
-        filePath );
+    std::map<QString, std::vector<RifWellPathImporter::WellData>>::iterator it =
+        m_fileNameToWellDataGroupMap.find( filePath );
 
     CVF_ASSERT( it != m_fileNameToWellDataGroupMap.end() );
 

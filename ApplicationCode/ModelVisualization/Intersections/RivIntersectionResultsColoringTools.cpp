@@ -159,14 +159,13 @@ void RivIntersectionResultsColoringTools::calculateIntersectionResultColors(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionResultsColoringTools::updateEclipseCellResultColors(
-    const RimEclipseResultDefinition* eclipseResDef,
-    const cvf::ScalarMapper*          scalarColorMapper,
-    size_t                            timeStepIndex,
-    bool                              isLightingDisabled,
-    const std::vector<size_t>&        triangleToCellIndexMapping,
-    cvf::Part*                        intersectionFacesPart,
-    cvf::Vec2fArray*                  intersectionFacesTextureCoords )
+void RivIntersectionResultsColoringTools::updateEclipseCellResultColors( const RimEclipseResultDefinition* eclipseResDef,
+                                                                         const cvf::ScalarMapper* scalarColorMapper,
+                                                                         size_t                   timeStepIndex,
+                                                                         bool                     isLightingDisabled,
+                                                                         const std::vector<size_t>& triangleToCellIndexMapping,
+                                                                         cvf::Part*       intersectionFacesPart,
+                                                                         cvf::Vec2fArray* intersectionFacesTextureCoords )
 {
     RigEclipseCaseData* eclipseCaseData = eclipseResDef->eclipseCase()->eclipseCaseData();
 
@@ -175,10 +174,8 @@ void RivIntersectionResultsColoringTools::updateEclipseCellResultColors(
     if ( !RiaDefines::isPerCellFaceResult( eclipseResDef->resultVariable() ) )
 
     {
-        resultAccessor = RigResultAccessorFactory::createFromResultDefinition( eclipseCaseData,
-                                                                               0,
-                                                                               timeStepIndex,
-                                                                               eclipseResDef );
+        resultAccessor =
+            RigResultAccessorFactory::createFromResultDefinition( eclipseCaseData, 0, timeStepIndex, eclipseResDef );
     }
 
     if ( resultAccessor.isNull() )
@@ -226,14 +223,13 @@ void RivIntersectionResultsColoringTools::updateEclipseTernaryCellResultColors(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
-    const RimGeoMechResultDefinition*         geomResultDef,
-    size_t                                    timeStepIndex,
-    const cvf::ScalarMapper*                  scalarColorMapper,
-    bool                                      isLightingDisabled,
-    const RivIntersectionGeometryGeneratorIF* geomGenerator,
-    cvf::Part*                                intersectionFacesPart,
-    cvf::Vec2fArray*                          intersectionFacesTextureCoords )
+void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors( const RimGeoMechResultDefinition* geomResultDef,
+                                                                         size_t                   timeStepIndex,
+                                                                         const cvf::ScalarMapper* scalarColorMapper,
+                                                                         bool                     isLightingDisabled,
+                                                                         const RivIntersectionGeometryGeneratorIF* geomGenerator,
+                                                                         cvf::Part*       intersectionFacesPart,
+                                                                         cvf::Vec2fArray* intersectionFacesTextureCoords )
 {
     RigGeoMechCaseData* caseData = nullptr;
     RigFemResultAddress resVarAddress;
@@ -251,9 +247,8 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
 
     if ( resVarAddress.resultPosType == RIG_ELEMENT )
     {
-        const std::vector<float>& resultValues = caseData->femPartResults()->resultValues( resVarAddress,
-                                                                                           0,
-                                                                                           (int)timeStepIndex );
+        const std::vector<float>& resultValues =
+            caseData->femPartResults()->resultValues( resVarAddress, 0, (int)timeStepIndex );
 
         RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
                                                                                         resultValues,
@@ -291,9 +286,8 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
             resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
         }
 
-        const std::vector<float>& resultValues = caseData->femPartResults()->resultValues( resVarAddress,
-                                                                                           0,
-                                                                                           (int)timeStepIndex );
+        const std::vector<float>& resultValues =
+            caseData->femPartResults()->resultValues( resVarAddress, 0, (int)timeStepIndex );
 
         RigFemPart* femPart              = caseData->femParts()->part( 0 );
         bool        isElementNodalResult = !( resVarAddress.resultPosType == RIG_NODAL );
@@ -353,11 +347,10 @@ void RivIntersectionResultsColoringTools::calculateEclipseTextureCoordinates( cv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoords(
-    cvf::Vec2fArray*           textureCoords,
-    const std::vector<float>&  resultValues,
-    const std::vector<size_t>& triangleToCellIdx,
-    const cvf::ScalarMapper*   mapper )
+void RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoords( cvf::Vec2fArray* textureCoords,
+                                                                                     const std::vector<float>& resultValues,
+                                                                                     const std::vector<size_t>& triangleToCellIdx,
+                                                                                     const cvf::ScalarMapper* mapper )
 {
     textureCoords->resize( triangleToCellIdx.size() * 3 );
 
@@ -462,13 +455,12 @@ void RivIntersectionResultsColoringTools::calculatePlaneAngleTextureCoords( cvf:
         int triangleVxStartIdx = triangleIdx * 3;
 
         const cvf::Vec3f* triangle = &( ( *triangelVertices )[triangleVxStartIdx] );
-        cvf::Mat3f        rotMx    = cvf::GeometryTools::computePlaneHorizontalRotationMx( triangle[1] - triangle[0],
-                                                                                 triangle[2] - triangle[0] );
+        cvf::Mat3f        rotMx =
+            cvf::GeometryTools::computePlaneHorizontalRotationMx( triangle[1] - triangle[0], triangle[2] - triangle[0] );
 
         RiaOffshoreSphericalCoords sphCoord(
-            cvf::Vec3f( rotMx.rowCol( 0, 2 ),
-                        rotMx.rowCol( 1, 2 ),
-                        rotMx.rowCol( 2, 2 ) ) ); // Use Ez from the matrix as plane normal
+            cvf::Vec3f( rotMx.rowCol( 0, 2 ), rotMx.rowCol( 1, 2 ), rotMx.rowCol( 2, 2 ) ) ); // Use Ez from the matrix
+                                                                                              // as plane normal
 
         float      angle    = cvf::Math::toDegrees( operation( sphCoord ) );
         cvf::Vec2f texCoord = ( angle != std::numeric_limits<float>::infinity() ) ? mapper->mapToTextureCoord( angle )

@@ -494,16 +494,16 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
 
         for ( const RifSummaryCaseFileResultInfo& fileInfo : summaryHeaderFileInfos )
         {
-            RimEclipseCase* eclCase      = nullptr;
-            QString         gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(
-                fileInfo.summaryFileName() );
+            RimEclipseCase* eclCase = nullptr;
+            QString         gridCaseFile =
+                RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( fileInfo.summaryFileName() );
             if ( !gridCaseFile.isEmpty() )
             {
                 eclCase = project->eclipseCaseFromGridFileName( gridCaseFile );
             }
 
-            RimGridSummaryCase* existingGridSummaryCase = dynamic_cast<RimGridSummaryCase*>(
-                findSummaryCaseFromFileName( fileInfo.summaryFileName() ) );
+            RimGridSummaryCase* existingGridSummaryCase =
+                dynamic_cast<RimGridSummaryCase*>( findSummaryCaseFromFileName( fileInfo.summaryFileName() ) );
 
             if ( eclCase && !existingGridSummaryCase )
             {

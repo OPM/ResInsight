@@ -201,10 +201,8 @@ QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defau
     }
 
     QString defaultAbsFileName = caf::Utils::constructFullFileName( startPath, defaultFileBaseName, ".png" );
-    QString fileName           = QFileDialog::getSaveFileName( nullptr,
-                                                     tr( "Export to File" ),
-                                                     defaultAbsFileName,
-                                                     fileExtensionFilter );
+    QString fileName =
+        QFileDialog::getSaveFileName( nullptr, tr( "Export to File" ), defaultAbsFileName, fileExtensionFilter );
     if ( !fileName.isEmpty() )
     {
         // Remember the directory to next time

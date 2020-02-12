@@ -68,12 +68,7 @@ RimWellMeasurementInView::RimWellMeasurementInView()
 
     // Keep track of the wells which has a given measurement in order to automatically select
     // new wells when they appear in new measurements
-    CAF_PDM_InitFieldNoDefault( &m_availableWellsSerialized,
-                                "AvailableWellsSerialized",
-                                "AvailableWellsSerialized",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_availableWellsSerialized, "AvailableWellsSerialized", "AvailableWellsSerialized", "", "", "" );
     // m_availableWellsSerialized.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_lowerBound, "LowerBound", -HUGE_VAL, "Min", "", "", "" );

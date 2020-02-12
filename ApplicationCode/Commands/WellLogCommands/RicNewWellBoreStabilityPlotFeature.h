@@ -56,8 +56,6 @@ private:
                                             RimWellPath*              wellPath,
                                             RimGeoMechCase*           geoMechCase,
                                             int                       timeStep );
-    static void createAnglesTrack( RimWellBoreStabilityPlot* plot,
-                                   RimWellPath*              wellPath,
-                                   RimGeoMechCase*           geoMechCase,
-                                   int                       timeStep );
+    static void
+        createAnglesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase, int timeStep );
 };

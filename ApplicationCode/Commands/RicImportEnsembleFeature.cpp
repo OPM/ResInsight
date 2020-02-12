@@ -65,8 +65,8 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app           = RiaApplication::instance();
     QString         pathCacheName = "ENSEMBLE_FILES";
-    QStringList fileNames = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( "Import Ensemble",
-                                                                                                   pathCacheName );
+    QStringList     fileNames =
+        RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( "Import Ensemble", pathCacheName );
 
     if ( fileNames.isEmpty() ) return;
 
@@ -77,9 +77,8 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
     RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, &cases, true );
 
     RicImportSummaryCasesFeature::addSummaryCases( cases );
-    RimSummaryCaseCollection* ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases,
-                                                                                                   ensembleName,
-                                                                                                   true );
+    RimSummaryCaseCollection* ensemble =
+        RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, ensembleName, true );
 
     if ( ensemble )
     {

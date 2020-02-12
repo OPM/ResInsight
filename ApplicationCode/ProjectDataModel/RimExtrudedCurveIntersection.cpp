@@ -114,12 +114,7 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     caf::PdmUiPushButtonEditor::configureEditorForField( &inputPolyLineFromViewerEnabled );
     inputPolyLineFromViewerEnabled = false;
 
-    CAF_PDM_InitFieldNoDefault( &inputExtrusionPointsFromViewerEnabled,
-                                "inputExtrusionPointsFromViewerEnabled",
-                                "",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &inputExtrusionPointsFromViewerEnabled, "inputExtrusionPointsFromViewerEnabled", "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &inputExtrusionPointsFromViewerEnabled );
     inputExtrusionPointsFromViewerEnabled = false;
 
@@ -417,8 +412,8 @@ void RimExtrudedCurveIntersection::updateAzimuthLine()
         cvf::Mat4d transFromOriginMat = cvf::Mat4d::fromTranslation( m_twoAzimuthPoints()[0] );
         cvf::Mat4d transToOriginMat   = cvf::Mat4d::fromTranslation( -m_twoAzimuthPoints()[0] );
 
-        m_twoAzimuthPoints.v()[1] = m_twoAzimuthPoints()[1].getTransformedPoint( transFromOriginMat * rotMat *
-                                                                                 transToOriginMat );
+        m_twoAzimuthPoints.v()[1] =
+            m_twoAzimuthPoints()[1].getTransformedPoint( transFromOriginMat * rotMat * transToOriginMat );
 
         m_twoAzimuthPoints.uiCapability()->updateConnectedEditors();
     }
@@ -721,8 +716,8 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
                                                           QString                    uiConfigName,
                                                           caf::PdmUiEditorAttribute* attribute )
 {
-    caf::PdmUiDoubleSliderEditorAttribute* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(
-        attribute );
+    caf::PdmUiDoubleSliderEditorAttribute* doubleSliderAttrib =
+        dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
     if ( doubleSliderAttrib )
     {
         if ( field == &m_azimuthAngle )
@@ -740,8 +735,7 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
     }
     else if ( field == &inputPolyLineFromViewerEnabled )
     {
-        setPushButtonText( inputPolyLineFromViewerEnabled,
-                           dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
+        setPushButtonText( inputPolyLineFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
     }
     else if ( field == &m_userPolyline )
     {

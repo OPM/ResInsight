@@ -264,8 +264,8 @@ void RimWellRftPlot::applyInitialSelections()
         sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::ENSEMBLE_RFT, ensemble ) );
     }
 
-    std::vector<RimWellLogFile*> wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure(
-        m_wellPathNameOrSimWellName );
+    std::vector<RimWellLogFile*> wellLogFiles =
+        RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName );
     if ( !wellLogFiles.empty() )
     {
         for ( RimWellLogFile* const wellLogFile : wellLogFiles )
@@ -277,8 +277,7 @@ void RimWellRftPlot::applyInitialSelections()
     for ( RimObservedFmuRftData* const observedFmuRftData :
           RimWellPlotTools::observedFmuRftDataForWell( m_wellPathNameOrSimWellName ) )
     {
-        sourcesToSelect.push_back(
-            RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT, observedFmuRftData ) );
+        sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT, observedFmuRftData ) );
     }
 
     m_selectedSources = sourcesToSelect;
@@ -543,8 +542,8 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             curve->setZOrder( 1 );
             applyCurveAppearance( curve );
 
-            bool isFirstSummaryCurveInEnsemble = ensemblesWithSummaryCurves.count( curveDefToAdd.address().ensemble() ) ==
-                                                 0u;
+            bool isFirstSummaryCurveInEnsemble =
+                ensemblesWithSummaryCurves.count( curveDefToAdd.address().ensemble() ) == 0u;
             curve->showLegend( isFirstSummaryCurveInEnsemble );
             ensemblesWithSummaryCurves.insert( curveDefToAdd.address().ensemble() );
         }
@@ -582,8 +581,8 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     curve->setSymbolSize( curve->symbolSize() + 3 );
                     curve->setSymbolSkipDistance( 150 );
                     curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
-                    QString uiText = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(
-                        rftAddress.wellLogChannel() );
+                    QString uiText =
+                        caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( rftAddress.wellLogChannel() );
                     QString label = uiText.replace( ": Pressure", "" );
                     label         = RiaStatisticsTools::replacePercentileByPValueText( label );
                     curve->setSymbolLabel( label );
@@ -787,8 +786,8 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::
             }
         }
 
-        const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsemblesForWell(
-            m_wellPathNameOrSimWellName );
+        const std::vector<RimSummaryCaseCollection*> rftEnsembles =
+            RimWellPlotTools::rftEnsemblesForWell( m_wellPathNameOrSimWellName );
         if ( !rftEnsembles.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
@@ -831,8 +830,8 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::
             item.setLevel( 1 );
             options.push_back( item );
         }
-        const std::vector<RimObservedFmuRftData*> observedFmuRftCases = RimWellPlotTools::observedFmuRftDataForWell(
-            m_wellPathNameOrSimWellName );
+        const std::vector<RimObservedFmuRftData*> observedFmuRftCases =
+            RimWellPlotTools::observedFmuRftDataForWell( m_wellPathNameOrSimWellName );
         if ( !observedFmuRftCases.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
@@ -1224,8 +1223,8 @@ cvf::Color3f RimWellRftPlot::findCurveColor( RimWellLogCurve* curve )
         {
             if ( plotByIndex( 0 ) && plotByIndex( 0 )->viewer() )
             {
-                cvf::Color3f backgroundColor = RiaColorTools::fromQColorTo3f(
-                    plotByIndex( 0 )->viewer()->canvasBackground().color() );
+                cvf::Color3f backgroundColor =
+                    RiaColorTools::fromQColorTo3f( plotByIndex( 0 )->viewer()->canvasBackground().color() );
                 curveColor = RiaColorTools::blendCvfColors( backgroundColor, curveColor, 2, 1 );
             }
         }
@@ -1261,11 +1260,10 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
     for ( RimWellRftEnsembleCurveSet* curveSet : m_ensembleCurveSets() )
     {
         CAF_ASSERT( curveSet );
-        auto ensemble_it = std::find_if( ensembles.begin(),
-                                         ensembles.end(),
-                                         [&curveSet]( const RimSummaryCaseCollection* ensemble ) {
-                                             return curveSet->ensemble() == ensemble;
-                                         } );
+        auto ensemble_it =
+            std::find_if( ensembles.begin(), ensembles.end(), [&curveSet]( const RimSummaryCaseCollection* ensemble ) {
+                return curveSet->ensemble() == ensemble;
+            } );
         if ( ensemble_it != ensembles.end() )
         {
             curveSet->initializeLegend();
@@ -1347,8 +1345,8 @@ std::vector<RimSummaryCaseCollection*> RimWellRftPlot::selectedEnsembles() const
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::createEnsembleCurveSets()
 {
-    const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsemblesForWell(
-        m_wellPathNameOrSimWellName );
+    const std::vector<RimSummaryCaseCollection*> rftEnsembles =
+        RimWellPlotTools::rftEnsemblesForWell( m_wellPathNameOrSimWellName );
 
     // First delete any curve sets not belonging to the given rftEnsembles
     std::vector<RimWellRftEnsembleCurveSet*> curveSetsToDelete;

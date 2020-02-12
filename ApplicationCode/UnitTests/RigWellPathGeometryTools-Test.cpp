@@ -79,9 +79,8 @@ TEST( RigWellPathGeometryTools, QuadraticPath )
         fullTvdValues.push_back( quadraticFunction( md ) );
     }
 
-    std::vector<double> estimatedFullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues,
-                                                                                                tvdValues,
-                                                                                                fullTvdValues );
+    std::vector<double> estimatedFullMDValues =
+        RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTvdValues );
     EXPECT_EQ( estimatedFullMDValues.size(), fullMDValues.size() );
     for ( size_t i = 0; i < estimatedFullMDValues.size(); ++i )
     {
@@ -112,9 +111,8 @@ TEST( RigWellPathGeometryTools, CubicPath )
         fullTvdValues.push_back( cubicFunction( md ) );
     }
 
-    std::vector<double> estimatedFullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues,
-                                                                                                tvdValues,
-                                                                                                fullTvdValues );
+    std::vector<double> estimatedFullMDValues =
+        RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTvdValues );
     EXPECT_EQ( estimatedFullMDValues.size(), fullMDValues.size() );
     for ( size_t i = 0; i < estimatedFullMDValues.size(); ++i )
     {
@@ -140,9 +138,8 @@ TEST( RigWellPathGeometryTools, CubicPathPoorSampling )
         fullTvdValues.push_back( cubicFunction( md ) );
     }
 
-    std::vector<double> estimatedFullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues,
-                                                                                                tvdValues,
-                                                                                                fullTvdValues );
+    std::vector<double> estimatedFullMDValues =
+        RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTvdValues );
     EXPECT_EQ( estimatedFullMDValues.size(), fullMDValues.size() );
     for ( size_t i = 0; i < estimatedFullMDValues.size(); ++i )
     {

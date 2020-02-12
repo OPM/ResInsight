@@ -60,10 +60,8 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
     RigFlowDiagResults* flowDiagResults = flowDiagSolution->flowDiagResults();
     CVF_ASSERT( flowDiagResults );
 
-    const std::vector<double>* porvResults = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
-                                                                            RiaDefines::STATIC_NATIVE,
-                                                                            "PORV",
-                                                                            0 );
+    const std::vector<double>* porvResults =
+        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::STATIC_NATIVE, "PORV", 0 );
     if ( !porvResults )
     {
         return;
@@ -76,10 +74,8 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
         phaseResultName = "SOIL";
     else if ( phase == RiaDefines::GAS_PHASE )
         phaseResultName = "SGAS";
-    const std::vector<double>* phaseResults = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
-                                                                             RiaDefines::DYNAMIC_NATIVE,
-                                                                             phaseResultName,
-                                                                             timeStepIndex );
+    const std::vector<double>* phaseResults =
+        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, phaseResultName, timeStepIndex );
     if ( !phaseResults )
     {
         return;
@@ -101,9 +97,8 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
 
     const std::map<double, std::vector<size_t>> tofToCellIndicesMap = buildSortedTofToCellIndicesMap( *tofData );
 
-    const std::vector<QString> candidateContributingWellNames = findCandidateContributingWellNames( *flowDiagSolution,
-                                                                                                    targetWellname,
-                                                                                                    timeStepIndex );
+    const std::vector<QString> candidateContributingWellNames =
+        findCandidateContributingWellNames( *flowDiagSolution, targetWellname, timeStepIndex );
 
     const size_t numContribWells = candidateContributingWellNames.size();
     for ( size_t iContribWell = 0; iContribWell < numContribWells; iContribWell++ )
@@ -113,8 +108,8 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
         const RigFlowDiagResultAddress resultAddrContribWellFraction( "Fraction",
                                                                       RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
                                                                       contribWellName.toStdString() );
-        const std::vector<double>* contribWellFractionData = flowDiagResults->resultValues( resultAddrContribWellFraction,
-                                                                                            timeStepIndex );
+        const std::vector<double>*     contribWellFractionData =
+            flowDiagResults->resultValues( resultAddrContribWellFraction, timeStepIndex );
         if ( !contribWellFractionData )
         {
             continue;
@@ -265,8 +260,7 @@ std::vector<QString>
     const std::vector<QString> allWellNames = flowDiagSolution.tracerNames();
     for ( const QString& name : allWellNames )
     {
-        const RimFlowDiagSolution::TracerStatusType status = flowDiagSolution.tracerStatusInTimeStep( name,
-                                                                                                      timeStepIndex );
+        const RimFlowDiagSolution::TracerStatusType status = flowDiagSolution.tracerStatusInTimeStep( name, timeStepIndex );
         if ( status == oppositeStatus )
         {
             candidateWellNames.push_back( name );

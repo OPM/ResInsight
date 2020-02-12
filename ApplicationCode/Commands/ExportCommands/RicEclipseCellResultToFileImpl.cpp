@@ -86,13 +86,7 @@ bool RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile( const QString&
         return false;
     }
 
-    return writeResultToTextFile( fileName,
-                                  eclipseCase,
-                                  resultAccessor.p(),
-                                  eclipseKeyword,
-                                  undefinedValue,
-                                  logPrefix,
-                                  errorMsg );
+    return writeResultToTextFile( fileName, eclipseCase, resultAccessor.p(), eclipseKeyword, undefinedValue, logPrefix, errorMsg );
 }
 
 //--------------------------------------------------------------------------------------------------

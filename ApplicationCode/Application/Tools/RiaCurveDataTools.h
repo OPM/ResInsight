@@ -47,9 +47,8 @@ public:
                                                            bool                       includePositiveValuesOnly );
 
     template <typename T>
-    static void getValuesByIntervals( const std::vector<T>& values,
-                                      const CurveIntervals& intervals,
-                                      std::vector<T>*       filteredValues )
+    static void
+        getValuesByIntervals( const std::vector<T>& values, const CurveIntervals& intervals, std::vector<T>* filteredValues )
     {
         CVF_ASSERT( filteredValues );
 

@@ -104,8 +104,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         tvdMslValues.clear();
                         for ( double measuredDepthValue : measuredDepthValues )
                         {
-                            tvdMslValues.push_back(
-                                -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
+                            tvdMslValues.push_back( -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
                         }
                     }
                 }

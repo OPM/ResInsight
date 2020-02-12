@@ -373,8 +373,8 @@ RiaDefines::PlotAxis RimSummaryCurve::axisY() const
 QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                       bool*                      useOptionsOnly )
 {
-    QList<caf::PdmOptionItemInfo> options = this->RimPlotCurve::calculateValueOptions( fieldNeedingOptions,
-                                                                                       useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options =
+        this->RimPlotCurve::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
     if ( !options.isEmpty() ) return options;
 
     if ( fieldNeedingOptions == &m_yValuesSummaryCase || fieldNeedingOptions == &m_xValuesSummaryCase )

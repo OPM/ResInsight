@@ -236,9 +236,7 @@ void RiuPvtPlotWidget::plotCurves( RiaEclipseUnitTools::UnitSystem              
         QwtPlotCurve*                               qwtCurve = new QwtPlotCurve();
 
         CVF_ASSERT( curve.pressureVals.size() == curve.yVals.size() );
-        qwtCurve->setSamples( curve.pressureVals.data(),
-                              curve.yVals.data(),
-                              static_cast<int>( curve.pressureVals.size() ) );
+        qwtCurve->setSamples( curve.pressureVals.data(), curve.yVals.data(), static_cast<int>( curve.pressureVals.size() ) );
 
         qwtCurve->setStyle( QwtPlotCurve::Lines );
 
@@ -629,8 +627,7 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
     // Determine which curves (phase) to actually plot based on selection in GUI
     const int                                         currComboIdx = m_phaseComboBox->currentIndex();
     const RigFlowDiagSolverInterface::PvtCurve::Phase phaseToPlot =
-        static_cast<const RigFlowDiagSolverInterface::PvtCurve::Phase>(
-            m_phaseComboBox->itemData( currComboIdx ).toInt() );
+        static_cast<const RigFlowDiagSolverInterface::PvtCurve::Phase>( m_phaseComboBox->itemData( currComboIdx ).toInt() );
 
     QString phaseString = "";
     if ( phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::GAS )
@@ -727,10 +724,9 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
             }
         }
 
-        const QString plotTitle  = QString( "%1 Viscosity" ).arg( phaseString );
-        const QString yAxisTitle = QString( "%1 Viscosity [%2]" )
-                                       .arg( phaseString )
-                                       .arg( unitLabelFromCurveIdent( m_unitSystem, curveIdentToPlot ) );
+        const QString plotTitle = QString( "%1 Viscosity" ).arg( phaseString );
+        const QString yAxisTitle =
+            QString( "%1 Viscosity [%2]" ).arg( phaseString ).arg( unitLabelFromCurveIdent( m_unitSystem, curveIdentToPlot ) );
         m_viscosityPlot->plotCurves( m_unitSystem,
                                      selectedViscosityCurves,
                                      m_cellValues.pressure,

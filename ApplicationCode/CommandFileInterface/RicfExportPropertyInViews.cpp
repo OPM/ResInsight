@@ -128,11 +128,11 @@ RicfCommandResponse RicfExportPropertyInViews::execute()
 
         if ( resultAccessor.isNull() )
         {
-            QString warning = QString(
-                                  "exportProperty: Could not find property. Case ID %1, time step %2, property '%3'" )
-                                  .arg( m_caseId )
-                                  .arg( view->currentTimeStep() )
-                                  .arg( propertyName );
+            QString warning =
+                QString( "exportProperty: Could not find property. Case ID %1, time step %2, property '%3'" )
+                    .arg( m_caseId )
+                    .arg( view->currentTimeStep() )
+                    .arg( propertyName );
             RiaLogging::warning( warning );
             response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
             continue;

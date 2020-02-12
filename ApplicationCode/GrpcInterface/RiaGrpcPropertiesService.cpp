@@ -106,11 +106,10 @@ public:
                 resultData->createResultEntry( m_resultAddress, true );
                 RigEclipseResultAddress addrToMaxTimeStepCountResult;
 
-                size_t timeStepCount = std::max( (size_t)1,
-                                                 resultData->maxTimeStepCount( &addrToMaxTimeStepCountResult ) );
+                size_t timeStepCount = std::max( (size_t)1, resultData->maxTimeStepCount( &addrToMaxTimeStepCountResult ) );
 
-                const std::vector<RigEclipseTimeStepInfo> timeStepInfos = resultData->timeStepInfos(
-                    addrToMaxTimeStepCountResult );
+                const std::vector<RigEclipseTimeStepInfo> timeStepInfos =
+                    resultData->timeStepInfos( addrToMaxTimeStepCountResult );
                 resultData->setTimeStepInfos( m_resultAddress, timeStepInfos );
                 auto scalarResultFrames = resultData->modifiableCellScalarResultTimesteps( m_resultAddress );
                 scalarResultFrames->resize( timeStepCount );
@@ -275,17 +274,11 @@ protected:
                            size_t                        timeStepIndex,
                            RigEclipseResultAddress       resVarAddr ) override
     {
-        m_resultAccessor = RigResultAccessorFactory::createFromResultAddress( caseData,
-                                                                              gridIndex,
-                                                                              porosityModel,
-                                                                              timeStepIndex,
-                                                                              resVarAddr );
-        m_resultModifier = RigResultModifierFactory::createResultModifier( caseData,
-                                                                           gridIndex,
-                                                                           porosityModel,
-                                                                           timeStepIndex,
-                                                                           resVarAddr );
-        m_cellCount      = caseData->grid( gridIndex )->cellCount();
+        m_resultAccessor =
+            RigResultAccessorFactory::createFromResultAddress( caseData, gridIndex, porosityModel, timeStepIndex, resVarAddr );
+        m_resultModifier =
+            RigResultModifierFactory::createResultModifier( caseData, gridIndex, porosityModel, timeStepIndex, resVarAddr );
+        m_cellCount = caseData->grid( gridIndex )->cellCount();
     }
 
     double cellResult( size_t currentCellIndex ) const override

@@ -62,8 +62,8 @@ void RicNewPolylineIntersectionFeature::onActionTriggered( bool isChecked )
     RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !activeView ) return;
 
-    RicNewPolylineIntersectionFeatureCmd* cmd = new RicNewPolylineIntersectionFeatureCmd(
-        activeView->intersectionCollection() );
+    RicNewPolylineIntersectionFeatureCmd* cmd =
+        new RicNewPolylineIntersectionFeatureCmd( activeView->intersectionCollection() );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
 }
 

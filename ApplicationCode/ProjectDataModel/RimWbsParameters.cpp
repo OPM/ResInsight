@@ -217,8 +217,7 @@ void RimWbsParameters::applyWbsParametersToExtractor( RigGeoMechWellLogExtractor
     }
     for ( auto parameterUserDefinedValuePair : m_userDefinedValueFields )
     {
-        extractor->setWbsUserDefinedValue( parameterUserDefinedValuePair.first,
-                                           ( *parameterUserDefinedValuePair.second ) );
+        extractor->setWbsUserDefinedValue( parameterUserDefinedValuePair.first, ( *parameterUserDefinedValuePair.second ) );
     }
 }
 

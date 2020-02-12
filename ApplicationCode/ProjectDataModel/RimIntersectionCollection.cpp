@@ -166,9 +166,7 @@ bool RimIntersectionCollection::hasAnyActiveSeparateResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
-                                                    cvf::ModelBasicList* model,
-                                                    cvf::Transform*      scaleTransform )
+void RimIntersectionCollection::appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
     if ( !isActive() ) return;
 

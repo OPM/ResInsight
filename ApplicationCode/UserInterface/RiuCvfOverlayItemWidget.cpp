@@ -102,9 +102,8 @@ void RiuCvfOverlayItemWidget::renderTo( QPainter* painter, const QRect& paintRec
 
         cvf::ref<cvf::FramebufferObject> fbo = new cvf::FramebufferObject;
 
-        cvf::ref<cvf::RenderbufferObject> rboColor = new cvf::RenderbufferObject( cvf::RenderbufferObject::RGBA,
-                                                                                  width,
-                                                                                  height );
+        cvf::ref<cvf::RenderbufferObject> rboColor =
+            new cvf::RenderbufferObject( cvf::RenderbufferObject::RGBA, width, height );
         cvf::ref<cvf::RenderbufferObject> rboDepth =
             new cvf::RenderbufferObject( cvf::RenderbufferObject::DEPTH_COMPONENT24, width, height );
 

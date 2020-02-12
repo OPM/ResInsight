@@ -47,9 +47,7 @@ void RicExportEclipseSectorModelUi::ResultExportOptionsEnum::setUp()
 {
     addItem( RicExportEclipseSectorModelUi::EXPORT_NO_RESULTS, "NO_RESULTS", "Do not export" );
     addItem( RicExportEclipseSectorModelUi::EXPORT_TO_GRID_FILE, "TO_GRID_FILE", "Append to grid file" );
-    addItem( RicExportEclipseSectorModelUi::EXPORT_TO_SINGLE_SEPARATE_FILE,
-             "TO_SINGLE_RESULT_FILE",
-             "Export to single file" );
+    addItem( RicExportEclipseSectorModelUi::EXPORT_TO_SINGLE_SEPARATE_FILE, "TO_SINGLE_RESULT_FILE", "Export to single file" );
     addItem( RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT,
              "TO_SEPARATE_RESULT_FILES",
              "Export to a separate file per parameter" );
@@ -235,9 +233,7 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
     if ( !m_caseData ) return;
 
     const RigMainGrid* mainGrid = m_caseData->mainGrid();
-    cvf::Vec3i         gridDimensions( int( mainGrid->cellCountI() ),
-                                       int( mainGrid->cellCountJ() ),
-                                       int( mainGrid->cellCountK() ) );
+    cvf::Vec3i gridDimensions( int( mainGrid->cellCountI() ), int( mainGrid->cellCountJ() ), int( mainGrid->cellCountK() ) );
 
     caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
 
@@ -521,8 +517,8 @@ QString RicExportEclipseSectorModelUi::defaultFolder() const
     if ( fallbackDirectory.isEmpty() )
     {
         QString generalFallback = RiaApplication::instance()->lastUsedDialogDirectory( "GENERAL_DATA" );
-        fallbackDirectory       = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback( "BINARY_GRID",
-                                                                                             generalFallback );
+        fallbackDirectory =
+            RiaApplication::instance()->lastUsedDialogDirectoryWithFallback( "BINARY_GRID", generalFallback );
     }
     return RiaApplication::instance()->lastUsedDialogDirectoryWithFallback( "EXPORT_INPUT_GRID", fallbackDirectory );
 }

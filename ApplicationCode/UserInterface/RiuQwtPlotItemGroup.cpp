@@ -60,10 +60,7 @@ void RiuQwtPlotItemGroup::addLegendItem( QwtPlotItem* legendItem )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotItemGroup::draw( QPainter*          painter,
-                                const QwtScaleMap& xMap,
-                                const QwtScaleMap& yMap,
-                                const QRectF&      canvasRect ) const
+void RiuQwtPlotItemGroup::draw( QPainter* painter, const QwtScaleMap& xMap, const QwtScaleMap& yMap, const QRectF& canvasRect ) const
 {
     for ( const QwtPlotItem* item : m_plotItems )
     {

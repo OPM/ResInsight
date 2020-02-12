@@ -198,8 +198,7 @@ void RivSurfacePartMgr::updateCellResultColor( size_t timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivSurfacePartMgr::appendIntersectionGeometryPartsToModel( cvf::ModelBasicList* model,
-                                                                cvf::Transform*      scaleTransform )
+void RivSurfacePartMgr::appendIntersectionGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
     if ( m_intersectionFaces.isNull() )
     {
@@ -306,8 +305,8 @@ void RivSurfacePartMgr::generatePartGeometry()
             part->setDrawable( geo.p() );
 
             // Set mapping from triangle face index to cell index
-            cvf::ref<RivReservoirSurfaceIntersectionSourceInfo> si = new RivReservoirSurfaceIntersectionSourceInfo(
-                m_intersectionGenerator.p() );
+            cvf::ref<RivReservoirSurfaceIntersectionSourceInfo> si =
+                new RivReservoirSurfaceIntersectionSourceInfo( m_intersectionGenerator.p() );
             part->setSourceInfo( si.p() );
 
             part->updateBoundingBox();

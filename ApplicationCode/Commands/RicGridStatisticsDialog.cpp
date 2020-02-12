@@ -227,12 +227,12 @@ void RicGridStatisticsDialog::setHistogramData( RimGridView* view )
 //--------------------------------------------------------------------------------------------------
 void RicGridStatisticsDialog::createAndConnectToolbarActions()
 {
-    QAction* scrShotToClipboardAction = m_toolBar->addAction( RicSnapshotViewToClipboardFeature::icon(),
-                                                              RicSnapshotViewToClipboardFeature::text() );
+    QAction* scrShotToClipboardAction =
+        m_toolBar->addAction( RicSnapshotViewToClipboardFeature::icon(), RicSnapshotViewToClipboardFeature::text() );
     connect( scrShotToClipboardAction, SIGNAL( triggered() ), this, SLOT( slotScreenShotToClipboard() ) );
 
-    QAction* scrShotToFileAction = m_toolBar->addAction( RicSnapshotViewToFileFeature::icon(),
-                                                         RicSnapshotViewToFileFeature::text() );
+    QAction* scrShotToFileAction =
+        m_toolBar->addAction( RicSnapshotViewToFileFeature::icon(), RicSnapshotViewToFileFeature::text() );
     connect( scrShotToFileAction, SIGNAL( triggered() ), this, SLOT( slotScreenShotToFile() ) );
 }
 

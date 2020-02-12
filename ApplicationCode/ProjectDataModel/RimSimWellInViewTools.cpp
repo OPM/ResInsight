@@ -46,17 +46,16 @@ RimGridSummaryCase* RimSimWellInViewTools::gridSummaryCaseForWell( RimSimWellInV
     RimProject* project = RiaApplication::instance()->project();
     if ( !project ) return nullptr;
 
-    RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField()
-                                                    ? project->activeOilField()->summaryCaseMainCollection()
-                                                    : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl =
+        project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
     if ( !sumCaseColl ) return nullptr;
 
     RimEclipseResultCase* eclCase = nullptr;
     well->firstAncestorOrThisOfType( eclCase );
     if ( eclCase )
     {
-        RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>(
-            sumCaseColl->findSummaryCaseFromEclipseResultCase( eclCase ) );
+        RimGridSummaryCase* gridSummaryCase =
+            dynamic_cast<RimGridSummaryCase*>( sumCaseColl->findSummaryCaseFromEclipseResultCase( eclCase ) );
         if ( gridSummaryCase )
         {
             return gridSummaryCase;
@@ -76,9 +75,8 @@ std::vector<RimSummaryCase*> RimSimWellInViewTools::summaryCases()
     RimProject* project = RiaApplication::instance()->project();
     if ( project )
     {
-        RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField()
-                                                        ? project->activeOilField()->summaryCaseMainCollection()
-                                                        : nullptr;
+        RimSummaryCaseMainCollection* sumCaseColl =
+            project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
         if ( sumCaseColl )
         {
             cases = sumCaseColl->allSummaryCases();

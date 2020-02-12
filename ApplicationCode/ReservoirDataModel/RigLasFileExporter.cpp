@@ -188,10 +188,7 @@ public:
         }
         else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_NONE )
         {
-            lasFile->AddLog( "DEPTH",
-                             "",
-                             "Depth in Connection number",
-                             firstCurveData->depths( RiaDefines::MEASURED_DEPTH ) );
+            lasFile->AddLog( "DEPTH", "", "Depth in Connection number", firstCurveData->depths( RiaDefines::MEASURED_DEPTH ) );
         }
 
         if ( firstCurveData->depths( RiaDefines::TRUE_VERTICAL_DEPTH ).size() )
@@ -389,11 +386,8 @@ std::vector<QString> RigLasFileExporter::writeToFolder( const QString& exportFol
         if ( caf::Utils::fileExists( fullPathName ) && !alwaysOverwrite )
         {
             QString txt = QString( "File %1 exists.\n\nDo you want to overwrite the file?" ).arg( fullPathName );
-            int     ret = QMessageBox::question( nullptr,
-                                             "LAS File Export",
-                                             txt,
-                                             QMessageBox::Yes | QMessageBox::No,
-                                             QMessageBox::Yes );
+            int     ret =
+                QMessageBox::question( nullptr, "LAS File Export", txt, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes );
 
             if ( ret != QMessageBox::Yes ) continue;
         }
@@ -520,8 +514,8 @@ void RigLasFileExporter::appendLasFileDescriptions( const std::vector<RimWellLog
                 const RigWellLogCurveData* curveData = nullptr;
                 if ( m_isResampleActive )
                 {
-                    cvf::ref<RigWellLogCurveData> resampledData = curve->curveData()->calculateResampledCurveData(
-                        m_resamplingInterval );
+                    cvf::ref<RigWellLogCurveData> resampledData =
+                        curve->curveData()->calculateResampledCurveData( m_resamplingInterval );
                     m_resampledCurveDatas.push_back( resampledData.p() );
 
                     curveData = resampledData.p();
@@ -537,10 +531,7 @@ void RigLasFileExporter::appendLasFileDescriptions( const std::vector<RimWellLog
                     units = curve->wellLogChannelUnits();
                 }
 
-                singleLasFileMeta.addLogData( curve->wellLogChannelName().toStdString(),
-                                              units.toStdString(),
-                                              "",
-                                              curveData );
+                singleLasFileMeta.addLogData( curve->wellLogChannelName().toStdString(), units.toStdString(), "", curveData );
             }
         }
 
