@@ -141,7 +141,7 @@ PdmFieldHandle* PdmObjectHandle::findField(const QString& keyword) const
     for (size_t it = 0; it < fields.size(); it++)
     {
         PdmFieldHandle* field = fields[it];
-        if (field->keyword() == keyword)
+        if (field->matchesKeyword(keyword))
         {
             return field;
         }
