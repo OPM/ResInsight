@@ -2106,6 +2106,7 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
         if ( !curve->isCurveVisible() ) continue;
         if ( isObservedCurve && ( curveType & CURVE_TYPE_OBSERVED ) == 0 ) continue;
         if ( !isObservedCurve && ( curveType & CURVE_TYPE_GRID ) == 0 ) continue;
+        if ( !curve->summaryCaseY() ) continue;
 
         QString curveCaseName = curve->summaryCaseY()->displayCaseName();
 
