@@ -663,8 +663,8 @@ void RigGeoMechWellLogExtractor::wellBoreFGShale( int frameIndex, std::vector<do
     else
     {
         std::vector<double> SH;
-        RigFemResultAddress addr( RIG_WELLPATH_DERIVED, "SH", "" );
-        curveData( addr, frameIndex, &SH );
+        calculateWbsParameterForAllSegments( RigWbsParameter::SH(), frameIndex, &SH );
+        CVF_ASSERT( SH.size() == m_intersections.size() );
         double multiplier = m_userDefinedValues.at( RigWbsParameter::FG_Shale() );
         CVF_ASSERT( multiplier != std::numeric_limits<double>::infinity() );
 #pragma omp parallel for
