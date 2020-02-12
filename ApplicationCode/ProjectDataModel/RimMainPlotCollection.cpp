@@ -40,6 +40,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuProjectPropertyView.h"
+#include "RimAnalysisPlotCollection.h"
 
 CAF_PDM_SOURCE_INIT( RimMainPlotCollection, "MainPlotCollection" );
 
@@ -64,6 +65,9 @@ RimMainPlotCollection::RimMainPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_summaryPlotCollection, "SummaryPlotCollection", "Summary Plots", "", "", "" );
     m_summaryPlotCollection.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_analysisPlotCollection, "AnalysisPlotCollection", "Analysis Plots", "", "", "" );
+    m_analysisPlotCollection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection, "SummaryCrossPlotCollection", "Summary Cross Plots", "", "", "" );
     m_summaryCrossPlotCollection.uiCapability()->setUiHidden( true );
@@ -94,6 +98,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_gridCrossPlotCollection          = new RimGridCrossPlotCollection;
     m_saturationPressurePlotCollection = new RimSaturationPressurePlotCollection;
     m_multiPlotCollection              = new RimMultiPlotCollection;
+    m_analysisPlotCollection           = new RimAnalysisPlotCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,6 +198,14 @@ RimMultiPlotCollection* RimMainPlotCollection::multiPlotCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimAnalysisPlotCollection* RimMainPlotCollection::analysisPlotCollection()
+{
+    return m_analysisPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::deleteAllContainedObjects()
@@ -206,6 +219,7 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
     m_saturationPressurePlotCollection()->deleteAllChildObjects();
     m_multiPlotCollection()->deleteAllChildObjects();
+    m_analysisPlotCollection()->deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,0 +1,81 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2020 Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include <QString>
+#include <QVector>
+
+#include <set>
+
+class QwtPlot;
+class QColor;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiuGroupedBarChartBuilder
+{
+public:
+    RiuGroupedBarChartBuilder( Qt::Orientation orientation );
+
+    void addBarEntry( const QString& majorTickText,
+                      const QString& midTickText,
+                      const QString& minTickText,
+                      const double   sortValue,
+                      const QString& legendText,
+                      const double   value );
+
+    void addBarChartToPlot( QwtPlot* plot );
+
+private:
+    double midPoint( double v1, double v2 )
+    {
+        return v1 + 0.5 * ( v2 - 1.0 - v1 );
+    }
+
+    void addQwtBarChart( QwtPlot*                plot,
+                         const QVector<QPointF>& posAndValue,
+                         const QString&          legendText,
+                         const QColor&           barColor );
+
+    struct BarEntry
+    {
+        BarEntry();
+
+        BarEntry( QString majorTickText,
+                  QString midTickText,
+                  QString minTickText,
+                  double  sortValue,
+                  QString legendText,
+                  double  value );
+
+        QString m_majTickText;
+        QString m_midTickText;
+        QString m_minTickText;
+        double  m_sortValue;
+        QString m_legendText;
+
+        double m_value;
+
+        bool operator<( const BarEntry& other ) const;
+    };
+
+    std::multiset<BarEntry> m_sortedBarEntries;
+    Qt::Orientation         m_orientation;
+};

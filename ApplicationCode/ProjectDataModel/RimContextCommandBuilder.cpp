@@ -148,6 +148,8 @@
 #include <QString>
 #include <QStringList>
 
+#include "RimAnalysisPlot.h"
+#include "RimAnalysisPlotCollection.h"
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -510,6 +512,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicShowSummaryCurveCalculatorFeature";
+        }
+        else if ( dynamic_cast<RimAnalysisPlotCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewAnalysisPlotFeature";
+        }
+        else if ( dynamic_cast<RimAnalysisPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewAnalysisPlotFeature";
         }
         else if ( dynamic_cast<RimSummaryCrossPlotCollection*>( firstUiItem ) )
         {

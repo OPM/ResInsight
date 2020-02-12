@@ -33,6 +33,7 @@
 
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "RimAdvancedSnapshotExportDefinition.h"
+#include "RimAnalysisPlotCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCalcScript.h"
@@ -1318,6 +1319,11 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( mainPlotCollection->summaryPlotCollection() )
             {
                 itemCollection->add( mainPlotCollection->summaryPlotCollection() );
+            }
+
+            if ( mainPlotCollection->analysisPlotCollection() )
+            {
+                itemCollection->add( mainPlotCollection->analysisPlotCollection() );
             }
 
             if ( mainPlotCollection->summaryCrossPlotCollection() )

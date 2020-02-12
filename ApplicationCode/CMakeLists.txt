@@ -70,10 +70,12 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Surfaces
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
+	${CMAKE_CURRENT_SOURCE_DIR}/UserInterface/AnalysisPlots
     ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface/Core
 
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/AnalysisPlots
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Annotations
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
@@ -139,6 +141,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     FileInterface/CMakeLists_files.cmake
     
     ProjectDataModel/CMakeLists_files.cmake
+    ProjectDataModel/AnalysisPlots/CMakeLists_files.cmake
     ProjectDataModel/GridCrossPlots/CMakeLists_files.cmake
     ProjectDataModel/GridCrossPlots/CellFilters/CMakeLists_files.cmake
     ProjectDataModel/Summary/CMakeLists_files.cmake
@@ -158,8 +161,10 @@ list( APPEND REFERENCED_CMAKE_FILES
     ModelVisualization/WindowEdgeAxesOverlayItem/CMakeLists_files.cmake
     
     UserInterface/CMakeLists_files.cmake
+    UserInterface/AnalysisPlots/CMakeLists_files.cmake
     
     Commands/CMakeLists_files.cmake
+	Commands/AnalysisPlotCommands/CMakeLists_files.cmake
     Commands/ApplicationCommands/CMakeLists_files.cmake
     Commands/AnnotationCommands/CMakeLists_files.cmake
     Commands/CompletionCommands/CMakeLists_files.cmake

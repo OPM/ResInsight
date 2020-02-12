@@ -26,6 +26,7 @@
 #include <QDockWidget>
 #include <QPointer>
 
+class RimAnalysisPlotCollection;
 class RimWellLogPlotCollection;
 class RimRftPlotCollection;
 class RimPltPlotCollection;
@@ -56,6 +57,7 @@ public:
     RimPltPlotCollection*                pltPlotCollection();
     RimSummaryPlotCollection*            summaryPlotCollection();
     RimSummaryCrossPlotCollection*       summaryCrossPlotCollection();
+    RimAnalysisPlotCollection*           analysisPlotCollection();
     RimFlowPlotCollection*               flowPlotCollection();
     RimGridCrossPlotCollection*          gridCrossPlotCollection();
     RimSaturationPressurePlotCollection* saturationPressurePlotCollection();
@@ -80,6 +82,7 @@ private:
     caf::PdmChildField<RimPltPlotCollection*>                m_pltPlotCollection;
     caf::PdmChildField<RimSummaryPlotCollection*>            m_summaryPlotCollection;
     caf::PdmChildField<RimSummaryCrossPlotCollection*>       m_summaryCrossPlotCollection;
+    caf::PdmChildField<RimAnalysisPlotCollection*>           m_analysisPlotCollection;
     caf::PdmChildField<RimFlowPlotCollection*>               m_flowPlotCollection;
     caf::PdmChildField<RimGridCrossPlotCollection*>          m_gridCrossPlotCollection;
     caf::PdmChildField<RimSaturationPressurePlotCollection*> m_saturationPressurePlotCollection;
