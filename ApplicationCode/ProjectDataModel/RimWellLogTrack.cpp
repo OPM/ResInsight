@@ -2324,7 +2324,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         const std::vector<std::pair<double, double>> waterAndRockIntervals = waterAndRockRegions( plot->depthType(),
                                                                                                   extractor );
         m_annotationTool->attachNamedRegions( m_plotWidget,
-                                              {"Surface", "Seabed"},
+                                              {"Sea Level", ""},
                                               xRange,
                                               waterAndRockIntervals,
                                               m_regionAnnotationDisplay(),
