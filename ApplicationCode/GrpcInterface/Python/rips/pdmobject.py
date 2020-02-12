@@ -3,12 +3,18 @@
 ResInsight caf::PdmObject connection module
 """
 
+from functools import partial
 import grpc
+import re
 
 import rips.generated.PdmObject_pb2 as PdmObject_pb2
 import rips.generated.PdmObject_pb2_grpc as PdmObject_pb2_grpc
 import rips.generated.Commands_pb2 as Cmd
 import rips.generated.Commands_pb2_grpc as CmdRpc
+
+def camel_to_snake(name):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 class PdmObject:
     """
@@ -24,7 +30,7 @@ class PdmObject:
                 self.__warnings.append(value)
 
         return response
-
+        
     def __init__(self, pb2_object, channel, project):
         self._pb2_object = pb2_object
         self._channel = channel
@@ -32,6 +38,13 @@ class PdmObject:
         self._commands = CmdRpc.CommandsStub(channel)
         self._project = project
         self.__warnings = []
+
+        for keyword in self.keywords():
+            snake_keyword = camel_to_snake(keyword)
+            getter = snake_keyword
+            setter = 'set_' + snake_keyword
+            setattr(self, getter, partial(self.get_value, keyword))
+            setattr(self, setter, partial(self.set_value, keyword))
 
     @classmethod
     def create(cls, class_keyword, channel, project):
@@ -86,10 +99,15 @@ class PdmObject:
 
     def print_object_info(self):
         """Print the structure and data content of the PdmObject"""
-        print("Class Keyword: " + self.class_keyword())
+        print("=========== " + self.class_keyword() + " =================")
+        print("Object Settings: ")
         for keyword in self.keywords():
-            print(keyword + " [" + type(self.get_value(keyword)).__name__ +
+            print("   " + keyword + " [" + type(self.get_value(keyword)).__name__ +
                   "]: " + str(self.get_value(keyword)))
+        print("Object Methods:")
+        for method in dir(self):
+            if callable(getattr(self, method)) and not method.startswith("_"):
+                print ("   " + method)
 
     def __to_value(self, value):
         if value.lower() == 'false':

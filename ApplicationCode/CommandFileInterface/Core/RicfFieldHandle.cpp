@@ -22,10 +22,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfFieldHandle::RicfFieldHandle( caf::PdmFieldHandle* owner, bool giveOwnership )
+RicfFieldHandle::RicfFieldHandle( caf::PdmFieldHandle* owner, const QString& fieldName, bool giveOwnership )
 {
     m_IOWriteable = true;
     m_owner       = owner;
+    m_fieldName   = fieldName;
     owner->addCapability( this, giveOwnership );
 }
 
@@ -34,4 +35,12 @@ RicfFieldHandle::RicfFieldHandle( caf::PdmFieldHandle* owner, bool giveOwnership
 //--------------------------------------------------------------------------------------------------
 RicfFieldHandle::~RicfFieldHandle()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RicfFieldHandle::fieldName() const
+{
+    return m_fieldName;
 }

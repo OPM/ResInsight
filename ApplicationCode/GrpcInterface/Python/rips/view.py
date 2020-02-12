@@ -24,22 +24,6 @@ class View(PdmObject):
     def is_geomech_view(self):
         return self.class_keyword() == "GeoMechView"
 
-    def show_grid_box(self):
-        """Check if the grid box is meant to be shown in the view"""
-        return self.get_value("ShowGridBox")
-
-    def set_show_grid_box(self, value):
-        """Set if the grid box is meant to be shown in the view"""
-        self.set_value("ShowGridBox", value)
-
-    def background_color(self):
-        """Get the current background color in the view"""
-        return self.get_value("ViewBackgroundColor")
-
-    def set_background_color(self, bgcolor):
-        """Set the background color in the view"""
-        self.set_value("ViewBackgroundColor", bgcolor)
-
     def set_cell_result(self):
         """Retrieve the current cell results"""
         return self.children("GridCellResult")[0]
