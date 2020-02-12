@@ -108,7 +108,7 @@ RimWellBoreStabilityPlot*
     {
         auto task = progInfo.task( "Updating all tracks", 5 );
 
-        plot->nameConfig()->setAutoNameTags( true, true, true, false, true );
+        plot->nameConfig()->setAutoNameTags( true, true, true, true, true );
         plot->setPlotTitleVisible( true );
         plot->setLegendsVisible( true );
         plot->setLegendsHorizontal( true );
