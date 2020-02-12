@@ -33,10 +33,7 @@ public:
     RimWellAllocationPlotLegend();
     ~RimWellAllocationPlotLegend() override;
 
-    bool isShowingLegend()
-    {
-        return m_showLegend();
-    }
+    bool isShowingLegend() { return m_showLegend(); }
 
 protected:
     caf::PdmFieldHandle* objectToggleField() override;

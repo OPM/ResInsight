@@ -51,10 +51,7 @@ public:
     {
     }
 
-    bool isValid() const override
-    {
-        return m_summaryPlot.notNull();
-    }
+    bool isValid() const override { return m_summaryPlot.notNull(); }
 
     QString description() const override
     {
@@ -95,10 +92,7 @@ public:
         }
     }
 
-    int tabCount() const override
-    {
-        return (int)tabs().size();
-    }
+    int tabCount() const override { return (int)tabs().size(); }
 
 private:
     static DateTimePeriod indexToPeriod( int tabIndex )
@@ -132,10 +126,7 @@ public:
     {
     }
 
-    bool isValid() const override
-    {
-        return m_crossPlot.notNull();
-    }
+    bool isValid() const override { return m_crossPlot.notNull(); }
 
     QString description() const override
     {

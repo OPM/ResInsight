@@ -71,7 +71,9 @@ RimEclipseInputCase::RimEclipseInputCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseInputCase::~RimEclipseInputCase() {}
+RimEclipseInputCase::~RimEclipseInputCase()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Import ascii properties. If no grid data has been read, it will first find the possible

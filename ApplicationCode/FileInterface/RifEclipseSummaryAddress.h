@@ -160,62 +160,23 @@ public:
 
     // Access methods
 
-    SummaryVarCategory category() const
-    {
-        return m_variableCategory;
-    }
-    const std::string& quantityName() const
-    {
-        return m_quantityName;
-    }
-    bool isHistoryQuantity() const;
+    SummaryVarCategory category() const { return m_variableCategory; }
+    const std::string& quantityName() const { return m_quantityName; }
+    bool               isHistoryQuantity() const;
 
-    int regionNumber() const
-    {
-        return m_regionNumber;
-    }
-    int regionNumber2() const
-    {
-        return m_regionNumber2;
-    }
+    int regionNumber() const { return m_regionNumber; }
+    int regionNumber2() const { return m_regionNumber2; }
 
-    const std::string& wellGroupName() const
-    {
-        return m_wellGroupName;
-    }
-    const std::string& wellName() const
-    {
-        return m_wellName;
-    }
-    int wellSegmentNumber() const
-    {
-        return m_wellSegmentNumber;
-    }
-    const std::string& lgrName() const
-    {
-        return m_lgrName;
-    }
-    int cellI() const
-    {
-        return m_cellI;
-    }
-    int cellJ() const
-    {
-        return m_cellJ;
-    }
-    int cellK() const
-    {
-        return m_cellK;
-    }
-    int aquiferNumber() const
-    {
-        return m_aquiferNumber;
-    }
-    int id() const
-    {
-        return m_id;
-    }
-    std::string blockAsString() const;
+    const std::string& wellGroupName() const { return m_wellGroupName; }
+    const std::string& wellName() const { return m_wellName; }
+    int                wellSegmentNumber() const { return m_wellSegmentNumber; }
+    const std::string& lgrName() const { return m_lgrName; }
+    int                cellI() const { return m_cellI; }
+    int                cellJ() const { return m_cellJ; }
+    int                cellK() const { return m_cellK; }
+    int                aquiferNumber() const { return m_aquiferNumber; }
+    int                id() const { return m_id; }
+    std::string        blockAsString() const;
 
     const std::string ensembleStatisticsQuantityName() const;
 
@@ -226,45 +187,18 @@ public:
     bool        isUiTextMatchingFilterText( const QString& filterString ) const;
 
     bool isValid() const;
-    void setQuantityName( const std::string& quantity )
-    {
-        m_quantityName = quantity;
-    }
-    void setWellName( const std::string& wellName )
-    {
-        m_wellName = wellName;
-    }
-    void setWellGroupName( const std::string& wellGroupName )
-    {
-        m_wellGroupName = wellGroupName;
-    }
-    void setRegion( int region )
-    {
-        m_regionNumber = (int16_t)region;
-    }
-    void setAquiferNumber( int aquiferNumber )
-    {
-        m_aquiferNumber = (int16_t)aquiferNumber;
-    }
+    void setQuantityName( const std::string& quantity ) { m_quantityName = quantity; }
+    void setWellName( const std::string& wellName ) { m_wellName = wellName; }
+    void setWellGroupName( const std::string& wellGroupName ) { m_wellGroupName = wellGroupName; }
+    void setRegion( int region ) { m_regionNumber = (int16_t)region; }
+    void setAquiferNumber( int aquiferNumber ) { m_aquiferNumber = (int16_t)aquiferNumber; }
     void setCellIjk( const std::string& uiText );
-    void setWellSegmentNumber( int segment )
-    {
-        m_wellSegmentNumber = (int16_t)segment;
-    }
+    void setWellSegmentNumber( int segment ) { m_wellSegmentNumber = (int16_t)segment; }
 
-    void setAsErrorResult()
-    {
-        m_isErrorResult = true;
-    }
-    bool isErrorResult() const
-    {
-        return m_isErrorResult;
-    }
+    void setAsErrorResult() { m_isErrorResult = true; }
+    bool isErrorResult() const { return m_isErrorResult; }
 
-    void setId( int id )
-    {
-        m_id = id;
-    }
+    void setId( int id ) { m_id = id; }
 
     bool hasAccumulatedData() const;
 

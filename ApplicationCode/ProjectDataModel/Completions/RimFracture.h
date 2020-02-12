@@ -55,10 +55,7 @@ public:
     {
     }
 
-    bool isDirty() const
-    {
-        return isDataDirty;
-    }
+    bool isDirty() const { return isDataDirty; }
 
     double eqWellRadius;
     double width;

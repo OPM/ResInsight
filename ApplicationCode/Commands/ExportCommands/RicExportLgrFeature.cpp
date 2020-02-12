@@ -101,10 +101,7 @@ public:
     double startMd;
     double endMd;
 
-    bool operator<( const CellInfo& other ) const
-    {
-        return startMd < other.startMd;
-    }
+    bool operator<( const CellInfo& other ) const { return startMd < other.startMd; }
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -200,14 +197,8 @@ public:
         return true;
     }
 
-    caf::VecIjk min() const
-    {
-        return caf::VecIjk( m_min[I], m_min[J], m_min[K] );
-    }
-    caf::VecIjk max() const
-    {
-        return caf::VecIjk( m_max[I], m_max[J], m_max[K] );
-    }
+    caf::VecIjk min() const { return caf::VecIjk( m_min[I], m_min[J], m_min[K] ); }
+    caf::VecIjk max() const { return caf::VecIjk( m_max[I], m_max[J], m_max[K] ); }
 
 private:
     std::array<size_t, 3> m_min;

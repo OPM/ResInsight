@@ -49,24 +49,15 @@ public:
     static RimWellLogFile* readWellLogFile( const QString& logFilePath, QString* errorMessage );
 
     void    setFileName( const QString& fileName );
-    QString fileName() const
-    {
-        return m_fileName().path();
-    }
-    QString name() const
-    {
-        return m_name;
-    }
+    QString fileName() const { return m_fileName().path(); }
+    QString name() const { return m_name; }
 
     bool readFile( QString* errorMessage );
 
     QString   wellName() const;
     QDateTime date() const;
 
-    RigWellLogFile* wellLogFileData()
-    {
-        return m_wellLogDataFile.p();
-    }
+    RigWellLogFile*                     wellLogFileData() { return m_wellLogDataFile.p(); }
     std::vector<RimWellLogFileChannel*> wellLogChannels() const;
 
     bool hasFlowData() const;
@@ -77,10 +68,7 @@ public:
         WELL_FLOW_COND_STANDARD
     };
 
-    RimWellLogFile::WellFlowCondition wellFlowRateCondition() const
-    {
-        return m_wellFlowCondition();
-    }
+    RimWellLogFile::WellFlowCondition wellFlowRateCondition() const { return m_wellFlowCondition(); }
 
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
@@ -98,10 +86,7 @@ private:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
-    caf::PdmFieldHandle* userDescriptionField() override
-    {
-        return &m_name;
-    }
+    caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
 
     static bool isDateValid( const QDateTime dateTime );
 

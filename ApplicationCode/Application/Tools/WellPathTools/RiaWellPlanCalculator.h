@@ -41,10 +41,7 @@ public:
         double turn;
     };
 
-    const std::vector<WellPlanSegment>& wellPlan() const
-    {
-        return m_wpResult;
-    }
+    const std::vector<WellPlanSegment>& wellPlan() const { return m_wpResult; }
 
 private:
     void addSegment( cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d* endTangent );

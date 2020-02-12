@@ -158,7 +158,9 @@ QImage RimWellDistributionPlotCollection::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlotCollection::zoomAll() {}
+void RimWellDistributionPlotCollection::zoomAll()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

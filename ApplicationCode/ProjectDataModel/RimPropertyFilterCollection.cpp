@@ -37,7 +37,9 @@ RimPropertyFilterCollection::RimPropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPropertyFilterCollection::~RimPropertyFilterCollection() {}
+RimPropertyFilterCollection::~RimPropertyFilterCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

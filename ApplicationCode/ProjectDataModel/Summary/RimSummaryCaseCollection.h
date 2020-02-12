@@ -73,18 +73,9 @@ public:
     {
     }
 
-    bool isValid() const
-    {
-        return !name.isEmpty() && type != TYPE_NONE;
-    }
-    bool isNumeric() const
-    {
-        return type == TYPE_NUMERIC;
-    }
-    bool isText() const
-    {
-        return type == TYPE_TEXT;
-    }
+    bool   isValid() const { return !name.isEmpty() && type != TYPE_NONE; }
+    bool   isNumeric() const { return type == TYPE_NUMERIC; }
+    bool   isText() const { return type == TYPE_TEXT; }
     double normalizedStdDeviation() const;
 
     static void sortByBinnedVariation( std::vector<NameParameterPair>& parameterVector );

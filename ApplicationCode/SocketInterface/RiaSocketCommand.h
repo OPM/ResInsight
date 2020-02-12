@@ -47,10 +47,7 @@ public:
     /// This method is supposed to read whatever more data that is available on the socket connection, and return true
     /// if it was able to read all the data. If not all the data was available, it must return false, so that the
     /// RiaSocketServer will call this method again when more data becomes available.
-    virtual bool interpretMore( RiaSocketServer* server, QTcpSocket* currentClient )
-    {
-        return true;
-    }
+    virtual bool interpretMore( RiaSocketServer* server, QTcpSocket* currentClient ) { return true; }
 };
 
 #include "cafFactory.h"

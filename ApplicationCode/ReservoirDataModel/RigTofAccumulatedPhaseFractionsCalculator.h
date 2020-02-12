@@ -35,22 +35,10 @@ public:
                                                         QString               wellname,
                                                         size_t                timestep );
 
-    const std::vector<double>& sortedUniqueTOFValues() const
-    {
-        return m_tofInIncreasingOrder;
-    }
-    const std::vector<double>& accumulatedPhaseFractionsSwat() const
-    {
-        return m_accumulatedPhaseFractionSwat;
-    }
-    const std::vector<double>& accumulatedPhaseFractionsSoil() const
-    {
-        return m_accumulatedPhaseFractionSoil;
-    }
-    const std::vector<double>& accumulatedPhaseFractionsSgas() const
-    {
-        return m_accumulatedPhaseFractionSgas;
-    }
+    const std::vector<double>& sortedUniqueTOFValues() const { return m_tofInIncreasingOrder; }
+    const std::vector<double>& accumulatedPhaseFractionsSwat() const { return m_accumulatedPhaseFractionSwat; }
+    const std::vector<double>& accumulatedPhaseFractionsSoil() const { return m_accumulatedPhaseFractionSoil; }
+    const std::vector<double>& accumulatedPhaseFractionsSgas() const { return m_accumulatedPhaseFractionSgas; }
 
 private:
     friend class RigTofAccumulatedPhaseFractionsCalculatorTester;

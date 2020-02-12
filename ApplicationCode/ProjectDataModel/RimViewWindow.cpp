@@ -227,7 +227,9 @@ void RimViewWindow::viewNavigationChanged()
 //--------------------------------------------------------------------------------------------------
 /// Default implementation of virtual method to trigger updates on view navigation (zoom, camera move, etc)
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::onViewNavigationChanged() {}
+void RimViewWindow::onViewNavigationChanged()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -41,10 +41,7 @@ public:
                                 const std::string&        wellCaseErrorMsgName );
 
     void                      curveData( const RigResultAccessor* resultAccessor, std::vector<double>* values );
-    const RigEclipseCaseData* caseData()
-    {
-        return m_caseData.p();
-    }
+    const RigEclipseCaseData* caseData() { return m_caseData.p(); }
 
 private:
     void                calculateIntersection();

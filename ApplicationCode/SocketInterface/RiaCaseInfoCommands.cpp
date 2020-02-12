@@ -59,10 +59,7 @@
 class RiaGetMainGridDimensions : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetMainGridDimensions" );
-    }
+    static QString commandName() { return QString( "GetMainGridDimensions" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -97,10 +94,7 @@ static bool RiaGetMainGridDimensions_init = RiaSocketCommandFactory::instance()-
 class RiaGetActiveCellInfo : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetActiveCellInfo" );
-    }
+    static QString commandName() { return QString( "GetActiveCellInfo" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -282,10 +276,7 @@ static bool RiaGetActiveCellInfo_init = RiaSocketCommandFactory::instance()->reg
 class RiaGetCoarseningInfo : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetCoarseningInfo" );
-    }
+    static QString commandName() { return QString( "GetCoarseningInfo" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -357,10 +348,7 @@ static bool RiaGetCoarseningInfo_init = RiaSocketCommandFactory::instance()->reg
 class RiaGetGridDimensions : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetGridDimensions" );
-    }
+    static QString commandName() { return QString( "GetGridDimensions" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -418,10 +406,7 @@ static bool RiaGetGridDimensions_init = RiaSocketCommandFactory::instance()->reg
 class RiaGetTimeStepDates : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetTimeStepDates" );
-    }
+    static QString commandName() { return QString( "GetTimeStepDates" ); }
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
         int argCaseGroupId = -1;
@@ -509,10 +494,7 @@ static bool RiaGetTimeStepDates_init = RiaSocketCommandFactory::instance()->regi
 class RiaGetTimeStepDays : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetTimeStepDays" );
-    }
+    static QString commandName() { return QString( "GetTimeStepDays" ); }
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
         int argCaseGroupId = -1;
@@ -581,10 +563,7 @@ static bool RiaGetTimeStepDays_init = RiaSocketCommandFactory::instance()->regis
 class RiaGetSelectedCells : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetSelectedCells" );
-    }
+    static QString commandName() { return QString( "GetSelectedCells" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {

@@ -70,10 +70,7 @@ public:
     virtual QString wellLogChannelUiName() const = 0;
     virtual QString wellLogChannelName() const;
     virtual QString wellLogChannelUnits() const = 0;
-    virtual QString wellDate() const
-    {
-        return "";
-    };
+    virtual QString wellDate() const { return ""; };
 
 protected:
     void updateZoomInParentPlot() override;

@@ -101,14 +101,8 @@ public:
     void           setFrameColor( const Color4f& frameColor );
     void           setDomainAxes( DomainAxes axes );
     void           setIsSwitchingYAxisSign( bool switchSign );
-    int            frameBorderWidth()
-    {
-        return static_cast<int>( m_frameBorderWidth );
-    }
-    int frameBorderHeight()
-    {
-        return static_cast<int>( m_frameBorderHeight );
-    }
+    int            frameBorderWidth() { return static_cast<int>( m_frameBorderWidth ); }
+    int            frameBorderHeight() { return static_cast<int>( m_frameBorderHeight ); }
 
     void setShowAxisLines( bool showAxisLines );
 

@@ -216,18 +216,9 @@ public:
         }
     }
 
-    int size() const
-    {
-        return m_count;
-    }
-    size_t vxId( int idx ) const
-    {
-        return m_vxIds[idx];
-    }
-    float weight( int idx ) const
-    {
-        return m_weights[idx];
-    }
+    int    size() const { return m_count; }
+    size_t vxId( int idx ) const { return m_vxIds[idx]; }
+    float  weight( int idx ) const { return m_weights[idx]; }
 
 private:
     std::array<size_t, 8> m_vxIds;

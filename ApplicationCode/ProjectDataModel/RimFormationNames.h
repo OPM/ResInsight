@@ -40,11 +40,8 @@ public:
     QString fileName();
     QString fileNameWoPath();
 
-    RigFormationNames* formationNamesData()
-    {
-        return m_formationNamesData.p();
-    }
-    void updateConnectedViews();
+    RigFormationNames* formationNamesData() { return m_formationNamesData.p(); }
+    void               updateConnectedViews();
 
     void readFormationNamesFile( QString* errorMessage );
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );

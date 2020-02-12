@@ -88,7 +88,9 @@ void RigStatisticsCalculator::addDataToHistogramCalculator( RigHistogramCalculat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigStatisticsCalculator::mobileVolumeWeightedMean( size_t timeStepIndex, double& mean ) {}
+void RigStatisticsCalculator::mobileVolumeWeightedMean( size_t timeStepIndex, double& mean )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -41,22 +41,10 @@ public:
 
     const int* masterCaseCellIndices( int dependentCaseReservoirCellIndex, int* masterCaseCellIndexCount ) const;
 
-    const RigMainGrid* masterGrid() const
-    {
-        return m_masterGrid;
-    }
-    const RigMainGrid* dependentGrid() const
-    {
-        return m_dependentGrid;
-    }
-    const RigFemPart* masterFemPart() const
-    {
-        return m_masterFemPart;
-    }
-    const RigFemPart* dependentFemPart() const
-    {
-        return m_dependentFemPart;
-    }
+    const RigMainGrid* masterGrid() const { return m_masterGrid; }
+    const RigMainGrid* dependentGrid() const { return m_dependentGrid; }
+    const RigFemPart*  masterFemPart() const { return m_masterFemPart; }
+    const RigFemPart*  dependentFemPart() const { return m_dependentFemPart; }
 
 private:
     void addMapping( int depCaseCellIdx, int masterCaseMatchingCell );

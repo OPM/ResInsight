@@ -62,32 +62,14 @@ public:
         }
     }
 
-    static constexpr int allTimeLapsesValue()
-    {
-        return ALL_TIME_LAPSES;
-    }
-    static constexpr int noTimeLapseValue()
-    {
-        return NO_TIME_LAPSE;
-    }
-    static constexpr int noCaseDiffValue()
-    {
-        return NO_CASE_DIFF;
-    }
+    static constexpr int allTimeLapsesValue() { return ALL_TIME_LAPSES; }
+    static constexpr int noTimeLapseValue() { return NO_TIME_LAPSE; }
+    static constexpr int noCaseDiffValue() { return NO_CASE_DIFF; }
 
-    bool isTimeLapse() const
-    {
-        return m_timeLapseBaseFrameIdx > NO_TIME_LAPSE;
-    }
-    bool representsAllTimeLapses() const
-    {
-        return m_timeLapseBaseFrameIdx == ALL_TIME_LAPSES;
-    }
+    bool isTimeLapse() const { return m_timeLapseBaseFrameIdx > NO_TIME_LAPSE; }
+    bool representsAllTimeLapses() const { return m_timeLapseBaseFrameIdx == ALL_TIME_LAPSES; }
 
-    bool hasDifferenceCase() const
-    {
-        return m_differenceCaseId > NO_CASE_DIFF;
-    }
+    bool hasDifferenceCase() const { return m_differenceCaseId > NO_CASE_DIFF; }
 
     bool operator<( const RigEclipseResultAddress& other ) const
     {

@@ -37,4 +37,6 @@ RimWellLogFileCurveNameConfig::RimWellLogFileCurveNameConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFileCurveNameConfig::doEnableAllAutoNameTags( bool enable ) {}
+void RimWellLogFileCurveNameConfig::doEnableAllAutoNameTags( bool enable )
+{
+}

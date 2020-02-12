@@ -80,7 +80,9 @@ RimIntersectionResultDefinition::RimIntersectionResultDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionResultDefinition::~RimIntersectionResultDefinition() {}
+RimIntersectionResultDefinition::~RimIntersectionResultDefinition()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

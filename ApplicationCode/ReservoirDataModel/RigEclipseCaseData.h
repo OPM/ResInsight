@@ -60,10 +60,7 @@ public:
     explicit RigEclipseCaseData( RimEclipseCase* ownerCase );
     ~RigEclipseCaseData() override;
 
-    RimEclipseCase* ownerCase() const
-    {
-        return m_ownerCase;
-    }
+    RimEclipseCase* ownerCase() const { return m_ownerCase; }
 
     RigMainGrid*       mainGrid();
     const RigMainGrid* mainGrid() const;
@@ -95,12 +92,9 @@ public:
     RigAllenDiagramData*       allenDiagramData();
 
     void                                   setSimWellData( const cvf::Collection<RigSimWellData>& data );
-    const cvf::Collection<RigSimWellData>& wellResults() const
-    {
-        return m_simWellData;
-    }
-    std::set<QString>     findSortedWellNames() const;
-    const RigSimWellData* findSimWellData( QString wellName ) const;
+    const cvf::Collection<RigSimWellData>& wellResults() const { return m_simWellData; }
+    std::set<QString>                      findSortedWellNames() const;
+    const RigSimWellData*                  findSimWellData( QString wellName ) const;
 
     const cvf::UByteArray* wellCellsInGrid( size_t gridIndex );
     const cvf::UIntArray*  gridCellToResultWellIndex( size_t gridIndex );
@@ -112,14 +106,8 @@ public:
 
     void computeActiveCellBoundingBoxes();
 
-    RiaEclipseUnitTools::UnitSystem unitsType() const
-    {
-        return m_unitsType;
-    }
-    void setUnitsType( RiaEclipseUnitTools::UnitSystem unitsType )
-    {
-        m_unitsType = unitsType;
-    }
+    RiaEclipseUnitTools::UnitSystem unitsType() const { return m_unitsType; }
+    void setUnitsType( RiaEclipseUnitTools::UnitSystem unitsType ) { m_unitsType = unitsType; }
 
     std::vector<QString> simulationWellNames() const;
     bool                 hasSimulationWell( const QString& simWellName ) const;
@@ -132,10 +120,7 @@ public:
         RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities );
     const RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities() const;
 
-    void clearWellCellsInGridCache()
-    {
-        m_wellCellsInGrid.clear();
-    }
+    void clearWellCellsInGridCache() { m_wellCellsInGrid.clear(); }
 
     void ensureDeckIsParsedForEquilData( const QString& dataDeckFile, const QString& includeFileAbsolutePathPrefix );
     std::vector<RigEquil> equilData() const;

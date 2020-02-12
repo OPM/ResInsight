@@ -54,7 +54,9 @@ RivReservoirSimWellsPartMgr::RivReservoirSimWellsPartMgr( RimEclipseView* reserv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivReservoirSimWellsPartMgr::~RivReservoirSimWellsPartMgr() {}
+RivReservoirSimWellsPartMgr::~RivReservoirSimWellsPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -203,7 +203,9 @@ RicSummaryCaseRestartDialog::RicSummaryCaseRestartDialog( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCaseRestartDialog::~RicSummaryCaseRestartDialog() {}
+RicSummaryCaseRestartDialog::~RicSummaryCaseRestartDialog()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

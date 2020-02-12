@@ -49,7 +49,9 @@ RicRangeFilterExecImpl::RicRangeFilterExecImpl( RimCellRangeFilterCollection* ra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicRangeFilterExecImpl::~RicRangeFilterExecImpl() {}
+RicRangeFilterExecImpl::~RicRangeFilterExecImpl()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

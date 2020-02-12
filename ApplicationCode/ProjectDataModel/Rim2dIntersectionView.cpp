@@ -110,7 +110,9 @@ Rim2dIntersectionView::Rim2dIntersectionView( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionView::~Rim2dIntersectionView( void ) {}
+Rim2dIntersectionView::~Rim2dIntersectionView( void )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -519,7 +521,9 @@ bool Rim2dIntersectionView::isWindowVisible() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) {}
+void Rim2dIntersectionView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -787,17 +791,23 @@ void Rim2dIntersectionView::onResetLegendsInViewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) {}
+void Rim2dIntersectionView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::onClampCurrentTimestep() {}
+void Rim2dIntersectionView::onClampCurrentTimestep()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::onUpdateStaticCellColors() {}
+void Rim2dIntersectionView::onUpdateStaticCellColors()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

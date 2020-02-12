@@ -41,45 +41,21 @@ public:
     explicit RigGridBase( RigMainGrid* mainGrid );
     ~RigGridBase() override;
 
-    void setGridPointDimensions( const cvf::Vec3st& gridDimensions )
-    {
-        m_gridPointDimensions = gridDimensions;
-    }
-    cvf::Vec3st gridPointDimensions()
-    {
-        return m_gridPointDimensions;
-    }
+    void        setGridPointDimensions( const cvf::Vec3st& gridDimensions ) { m_gridPointDimensions = gridDimensions; }
+    cvf::Vec3st gridPointDimensions() { return m_gridPointDimensions; }
 
-    size_t cellCount() const
-    {
-        return cellCountI() * cellCountJ() * cellCountK();
-    }
+    size_t         cellCount() const { return cellCountI() * cellCountJ() * cellCountK(); }
     RigCell&       cell( size_t gridLocalCellIndex );
     const RigCell& cell( size_t gridLocalCellIndex ) const;
 
     size_t reservoirCellIndex( size_t gridLocalCellIndex ) const;
-    void   setIndexToStartOfCells( size_t indexToStartOfCells )
-    {
-        m_indexToStartOfCells = indexToStartOfCells;
-    }
+    void   setIndexToStartOfCells( size_t indexToStartOfCells ) { m_indexToStartOfCells = indexToStartOfCells; }
 
-    void setGridIndex( size_t index )
-    {
-        m_gridIndex = index;
-    }
-    size_t gridIndex() const
-    {
-        return m_gridIndex;
-    }
+    void   setGridIndex( size_t index ) { m_gridIndex = index; }
+    size_t gridIndex() const { return m_gridIndex; }
 
-    void setGridId( int id )
-    {
-        m_gridId = id;
-    }
-    int gridId() const
-    {
-        return m_gridId;
-    }
+    void setGridId( int id ) { m_gridId = id; }
+    int  gridId() const { return m_gridId; }
 
     double characteristicIJCellSize() const;
 
@@ -87,15 +63,9 @@ public:
     void        setGridName( const std::string& gridName );
 
     bool         isMainGrid() const;
-    RigMainGrid* mainGrid() const
-    {
-        return m_mainGrid;
-    }
+    RigMainGrid* mainGrid() const { return m_mainGrid; }
 
-    size_t coarseningBoxCount() const
-    {
-        return m_coarseningBoxInfo.size();
-    }
+    size_t coarseningBoxCount() const { return m_coarseningBoxInfo.size(); }
     size_t addCoarseningBox( size_t i1, size_t i2, size_t j1, size_t j2, size_t k1, size_t k2 );
 
     void coarseningBox( size_t coarseningBoxIndex, size_t* i1, size_t* i2, size_t* j1, size_t* j2, size_t* k1, size_t* k2 )

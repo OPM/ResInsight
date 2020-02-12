@@ -37,10 +37,7 @@ public:
     RimCommandObject();
     ~RimCommandObject() override;
 
-    virtual bool isAsyncronous()
-    {
-        return false;
-    };
+    virtual bool isAsyncronous() { return false; };
 
     virtual void redo(){};
     virtual void undo(){};

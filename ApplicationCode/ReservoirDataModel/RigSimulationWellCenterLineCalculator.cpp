@@ -501,10 +501,7 @@ public:
             std::list<std::pair<bool, std::deque<size_t>>>::iterator branchLineIt;
             bool                                                     toFrontOfBranchLine;
 
-            bool operator<( const DistToEndPoint& other ) const
-            {
-                return dist < other.dist;
-            }
+            bool operator<( const DistToEndPoint& other ) const { return dist < other.dist; }
         };
 
         auto cmp = []( std::list<std::pair<bool, std::deque<size_t>>>::iterator a,
@@ -645,10 +642,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    RigWellResultFrame splittedWellResultFrame()
-    {
-        return m_branchedWell;
-    }
+    RigWellResultFrame splittedWellResultFrame() { return m_branchedWell; }
 
 private:
     //--------------------------------------------------------------------------------------------------

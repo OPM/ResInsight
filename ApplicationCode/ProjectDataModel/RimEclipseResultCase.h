@@ -64,11 +64,8 @@ public:
 
     // Overrides from RimCase
     QString locationOnDisc() const override;
-    QString gridFileName() const override
-    {
-        return caseFileName().path();
-    }
-    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
+    QString gridFileName() const override { return caseFileName().path(); }
+    void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
     RimFlowDiagSolution*              defaultFlowDiagSolution();
     std::vector<RimFlowDiagSolution*> flowDiagSolutions();

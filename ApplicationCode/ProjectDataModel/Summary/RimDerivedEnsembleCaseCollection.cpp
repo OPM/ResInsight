@@ -72,7 +72,9 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimDerivedEnsembleCaseCollection::~RimDerivedEnsembleCaseCollection() {}
+RimDerivedEnsembleCaseCollection::~RimDerivedEnsembleCaseCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -64,10 +64,7 @@ public:
     {
     }
 
-    bool isValid() const
-    {
-        return m_isValid;
-    }
+    bool isValid() const { return m_isValid; }
 
     void setData( double effectiveH, double effectiveK, double connectionFactor, double kh )
     {
@@ -79,23 +76,11 @@ public:
         m_kh               = kh;
     }
 
-    double effectiveH() const
-    {
-        return m_effectiveH;
-    }
+    double effectiveH() const { return m_effectiveH; }
 
-    double effectiveK() const
-    {
-        return m_effectiveK;
-    }
-    double connectionFactor() const
-    {
-        return m_connectionFactor;
-    }
-    double kh() const
-    {
-        return m_kh;
-    }
+    double effectiveK() const { return m_effectiveK; }
+    double connectionFactor() const { return m_connectionFactor; }
+    double kh() const { return m_kh; }
 
 private:
     bool   m_isValid;

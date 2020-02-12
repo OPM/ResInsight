@@ -44,7 +44,9 @@ RimCompletionTemplateCollection::RimCompletionTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCompletionTemplateCollection::~RimCompletionTemplateCollection() {}
+RimCompletionTemplateCollection::~RimCompletionTemplateCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

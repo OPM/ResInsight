@@ -23,9 +23,13 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGeometrySelectionItem, "GeometrySelectionIt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeometrySelectionItem::RimGeometrySelectionItem() {}
+RimGeometrySelectionItem::RimGeometrySelectionItem()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeometrySelectionItem::~RimGeometrySelectionItem() {}
+RimGeometrySelectionItem::~RimGeometrySelectionItem()
+{
+}

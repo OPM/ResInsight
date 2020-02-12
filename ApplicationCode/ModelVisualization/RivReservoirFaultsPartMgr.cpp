@@ -65,7 +65,9 @@ RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr( const RigMainGrid* grid, R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivReservoirFaultsPartMgr::~RivReservoirFaultsPartMgr() {}
+RivReservoirFaultsPartMgr::~RivReservoirFaultsPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

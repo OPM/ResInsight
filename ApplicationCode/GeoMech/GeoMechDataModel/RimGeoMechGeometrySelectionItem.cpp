@@ -53,7 +53,9 @@ RimGeoMechGeometrySelectionItem::RimGeoMechGeometrySelectionItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechGeometrySelectionItem::~RimGeoMechGeometrySelectionItem() {}
+RimGeoMechGeometrySelectionItem::~RimGeoMechGeometrySelectionItem()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

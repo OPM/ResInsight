@@ -83,12 +83,9 @@ public:
 
     void setActive( bool active );
 
-    double ignoredScalarValue()
-    {
-        return m_ignoredResultScalar;
-    }
-    void gridScalarIndices( RigEclipseResultAddress resultIndices[6] );
-    void cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* metaData );
+    double ignoredScalarValue() { return m_ignoredResultScalar; }
+    void   gridScalarIndices( RigEclipseResultAddress resultIndices[6] );
+    void   cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* metaData );
 
     void loadResult();
     bool hasResult() const;

@@ -42,37 +42,16 @@ public:
         FAILED_RADIUS_TOO_LARGE
     };
 
-    CurveStatus curveStatus() const
-    {
-        return m_curveStatus;
-    }
+    CurveStatus curveStatus() const { return m_curveStatus; }
 
-    cvf::Vec3d firstArcEndpoint() const
-    {
-        return m_firstArcEndpoint;
-    }
+    cvf::Vec3d firstArcEndpoint() const { return m_firstArcEndpoint; }
 
-    double radius() const
-    {
-        return m_radius;
-    }
-    cvf::Vec3d firstCenter() const
-    {
-        return m_c1;
-    }
-    cvf::Vec3d firstNormal() const
-    {
-        return m_n1;
-    }
+    double     radius() const { return m_radius; }
+    cvf::Vec3d firstCenter() const { return m_c1; }
+    cvf::Vec3d firstNormal() const { return m_n1; }
 
-    double endAzimuth() const
-    {
-        return m_endAzi;
-    }
-    double endInclination() const
-    {
-        return m_endInc;
-    }
+    double endAzimuth() const { return m_endAzi; }
+    double endInclination() const { return m_endInc; }
 
 private:
     CurveStatus m_curveStatus;

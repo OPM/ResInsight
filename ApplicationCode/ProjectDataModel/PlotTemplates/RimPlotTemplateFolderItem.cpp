@@ -48,7 +48,9 @@ RimPlotTemplateFolderItem::RimPlotTemplateFolderItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotTemplateFolderItem::~RimPlotTemplateFolderItem() {}
+RimPlotTemplateFolderItem::~RimPlotTemplateFolderItem()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

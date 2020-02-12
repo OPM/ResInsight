@@ -39,7 +39,9 @@ RicGeoMechPropertyFilterInsertExec::RicGeoMechPropertyFilterInsertExec( RimGeoMe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicGeoMechPropertyFilterInsertExec::~RicGeoMechPropertyFilterInsertExec() {}
+RicGeoMechPropertyFilterInsertExec::~RicGeoMechPropertyFilterInsertExec()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

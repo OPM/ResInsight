@@ -39,7 +39,9 @@ RiuRecentFileActionProvider::RiuRecentFileActionProvider( int maxActionCount )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuRecentFileActionProvider::~RiuRecentFileActionProvider() {}
+RiuRecentFileActionProvider::~RiuRecentFileActionProvider()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

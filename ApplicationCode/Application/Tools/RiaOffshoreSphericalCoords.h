@@ -66,18 +66,9 @@ public:
         else
             incAziR[0] = acos( -vec[2] / incAziR[2] );
     }
-    double inc() const
-    {
-        return incAziR[0];
-    }
-    double azi() const
-    {
-        return incAziR[1];
-    }
-    double r() const
-    {
-        return incAziR[2];
-    }
+    double inc() const { return incAziR[0]; }
+    double azi() const { return incAziR[1]; }
+    double r() const { return incAziR[2]; }
 
     // Note that this is a double function, while the rest of the class is float.
     // Todo: Convert class to a template to enable float and double versions of everything

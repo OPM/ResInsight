@@ -63,7 +63,9 @@ RivTensorResultPartMgr::RivTensorResultPartMgr( RimGeoMechView* reservoirView )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivTensorResultPartMgr::~RivTensorResultPartMgr() {}
+RivTensorResultPartMgr::~RivTensorResultPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

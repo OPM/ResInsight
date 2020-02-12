@@ -55,7 +55,9 @@ RigStimPlanFractureDefinition::RigStimPlanFractureDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigStimPlanFractureDefinition::~RigStimPlanFractureDefinition() {}
+RigStimPlanFractureDefinition::~RigStimPlanFractureDefinition()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

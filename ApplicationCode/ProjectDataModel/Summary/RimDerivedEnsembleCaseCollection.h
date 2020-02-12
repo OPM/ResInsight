@@ -44,22 +44,10 @@ public:
     RimDerivedEnsembleCaseCollection();
     ~RimDerivedEnsembleCaseCollection() override;
 
-    RimSummaryCaseCollection* ensemble1() const
-    {
-        return m_ensemble1;
-    }
-    RimSummaryCaseCollection* ensemble2() const
-    {
-        return m_ensemble2;
-    }
-    DerivedSummaryOperator op() const
-    {
-        return m_operator();
-    }
-    bool isValid() const
-    {
-        return m_ensemble1 != nullptr && m_ensemble2 != nullptr;
-    }
+    RimSummaryCaseCollection* ensemble1() const { return m_ensemble1; }
+    RimSummaryCaseCollection* ensemble2() const { return m_ensemble2; }
+    DerivedSummaryOperator    op() const { return m_operator(); }
+    bool                      isValid() const { return m_ensemble1 != nullptr && m_ensemble2 != nullptr; }
 
     void setEnsemble1( RimSummaryCaseCollection* ensemble );
     void setEnsemble2( RimSummaryCaseCollection* ensemble );

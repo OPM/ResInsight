@@ -55,14 +55,8 @@ public:
         : RiuDockedQwtPlot( parent )
     {
     }
-    QSize sizeHint() const override
-    {
-        return QSize( 100, 100 );
-    }
-    QSize minimumSizeHint() const override
-    {
-        return QSize( 0, 0 );
-    }
+    QSize sizeHint() const override { return QSize( 100, 100 ); }
+    QSize minimumSizeHint() const override { return QSize( 0, 0 ); }
 };
 
 //==================================================================================================
@@ -559,7 +553,9 @@ RiuPvtPlotPanel::RiuPvtPlotPanel( QDockWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPvtPlotPanel::~RiuPvtPlotPanel() {}
+RiuPvtPlotPanel::~RiuPvtPlotPanel()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

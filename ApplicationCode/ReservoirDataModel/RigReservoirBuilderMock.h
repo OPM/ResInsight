@@ -59,18 +59,9 @@ public:
     void setResultInfo( size_t resultCount, size_t timeStepCount );
     void enableWellData( bool enableWellData );
 
-    size_t resultCount() const
-    {
-        return m_resultCount;
-    }
-    size_t timeStepCount() const
-    {
-        return m_timeStepCount;
-    }
-    cvf::Vec3st gridPointDimensions() const
-    {
-        return m_gridPointDimensions;
-    }
+    size_t      resultCount() const { return m_resultCount; }
+    size_t      timeStepCount() const { return m_timeStepCount; }
+    cvf::Vec3st gridPointDimensions() const { return m_gridPointDimensions; }
 
     void addLocalGridRefinement( const cvf::Vec3st& minCellPosition,
                                  const cvf::Vec3st& maxCellPosition,

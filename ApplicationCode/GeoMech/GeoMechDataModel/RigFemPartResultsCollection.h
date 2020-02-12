@@ -63,14 +63,8 @@ public:
     std::vector<RigFemResultAddress> removeElementPropertyFiles( const std::vector<QString>& filenames );
 
     void   setCalculationParameters( double cohesion, double frictionAngleRad );
-    double parameterCohesion() const
-    {
-        return m_cohesion;
-    }
-    double parameterFrictionAngleRad() const
-    {
-        return m_frictionAngleRad;
-    }
+    double parameterCohesion() const { return m_cohesion; }
+    double parameterFrictionAngleRad() const { return m_frictionAngleRad; }
 
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
     std::vector<std::string>                        filteredStepNames() const;
@@ -197,18 +191,9 @@ public:
                                         int                 m_face,
                                         const cvf::Vec3d&   intersectionPointInDomain );
 
-    int resultIndexToClosestResult()
-    {
-        return m_resultIndexToClosestResult;
-    }
-    int closestNodeId()
-    {
-        return m_closestNodeId;
-    }
-    int closestElementNodeResIdx()
-    {
-        return m_closestElementNodeResIdx;
-    }
+    int resultIndexToClosestResult() { return m_resultIndexToClosestResult; }
+    int closestNodeId() { return m_closestNodeId; }
+    int closestElementNodeResIdx() { return m_closestElementNodeResIdx; }
 
 private:
     int m_resultIndexToClosestResult;

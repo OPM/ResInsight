@@ -73,10 +73,7 @@ static inline double getCellCornerWithPositiveDepth( const cvf::Vec3d* cornerVer
 class RiaGetCellCenters : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetCellCenters" );
-    }
+    static QString commandName() { return QString( "GetCellCenters" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -162,10 +159,7 @@ static bool RiaGetCellCenters_init = RiaSocketCommandFactory::instance()->regist
 class RiaGetActiveCellCenters : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetActiveCellCenters" );
-    }
+    static QString commandName() { return QString( "GetActiveCellCenters" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -249,10 +243,7 @@ static const size_t cellCornerMappingEclipse[8] = {0, 1, 3, 2, 4, 5, 7, 6};
 class RiaGetCellCorners : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetCellCorners" );
-    }
+    static QString commandName() { return QString( "GetCellCorners" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -345,10 +336,7 @@ static bool RiaGetCellCorners_init = RiaSocketCommandFactory::instance()->regist
 class RiaGetActiveCellCorners : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetActiveCellCorners" );
-    }
+    static QString commandName() { return QString( "GetActiveCellCorners" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {

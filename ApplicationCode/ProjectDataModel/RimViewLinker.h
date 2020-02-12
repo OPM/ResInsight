@@ -95,10 +95,7 @@ public:
     void notifyManagedViewChange( RimGridView* oldManagedView, RimGridView* newManagedView );
 
 protected:
-    caf::PdmFieldHandle* userDescriptionField() override
-    {
-        return &m_name;
-    }
+    caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
 
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField,

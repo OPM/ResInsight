@@ -47,7 +47,9 @@ RivFaultGeometryGenerator::RivFaultGeometryGenerator( const cvf::StructGridInter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFaultGeometryGenerator::~RivFaultGeometryGenerator() {}
+RivFaultGeometryGenerator::~RivFaultGeometryGenerator()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Generate surface drawable geo from the specified region

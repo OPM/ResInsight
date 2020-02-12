@@ -44,7 +44,9 @@ RimWellPathAttributeCollection::RimWellPathAttributeCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathAttributeCollection::~RimWellPathAttributeCollection() {}
+RimWellPathAttributeCollection::~RimWellPathAttributeCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

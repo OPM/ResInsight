@@ -40,22 +40,10 @@ public:
     const std::vector<double>& p90() const;
     const std::vector<double>& mean() const;
 
-    bool hasP10Data() const
-    {
-        return !m_p10Data.empty();
-    }
-    bool hasP50Data() const
-    {
-        return !m_p50Data.empty();
-    }
-    bool hasP90Data() const
-    {
-        return !m_p90Data.empty();
-    }
-    bool hasMeanData() const
-    {
-        return !m_meanData.empty();
-    }
+    bool hasP10Data() const { return !m_p10Data.empty(); }
+    bool hasP50Data() const { return !m_p50Data.empty(); }
+    bool hasP90Data() const { return !m_p90Data.empty(); }
+    bool hasMeanData() const { return !m_meanData.empty(); }
 
     QString                    caseName() const override;
     void                       createSummaryReaderInterface() override;

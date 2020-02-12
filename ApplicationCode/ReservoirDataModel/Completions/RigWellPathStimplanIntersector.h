@@ -45,10 +45,7 @@ public:
         double vlength;
         int    endpointCount;
 
-        double computeLength() const
-        {
-            return cvf::Math::sqrt( hlength * hlength + vlength * vlength );
-        }
+        double computeLength() const { return cvf::Math::sqrt( hlength * hlength + vlength * vlength ); }
     };
 
     RigWellPathStimplanIntersector( const RigWellPath* wellpathGeom, const RimFracture* rimFracture );

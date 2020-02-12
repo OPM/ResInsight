@@ -55,10 +55,7 @@ public:
 
     unsigned short  serverPort();
     RimEclipseCase* findReservoir( int caseId );
-    QTcpSocket*     currentClient()
-    {
-        return m_currentClient;
-    }
+    QTcpSocket*     currentClient() { return m_currentClient; }
 
     void setCurrentCaseId( int caseId );
     int  currentCaseId() const;

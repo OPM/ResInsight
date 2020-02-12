@@ -76,7 +76,9 @@ RivWellFracturePartMgr::RivWellFracturePartMgr( RimFracture* fracture )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellFracturePartMgr::~RivWellFracturePartMgr() {}
+RivWellFracturePartMgr::~RivWellFracturePartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

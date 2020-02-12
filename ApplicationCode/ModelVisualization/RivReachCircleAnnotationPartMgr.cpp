@@ -53,7 +53,9 @@ RivReachCircleAnnotationPartMgr::RivReachCircleAnnotationPartMgr( Rim3dView*    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivReachCircleAnnotationPartMgr::~RivReachCircleAnnotationPartMgr() {}
+RivReachCircleAnnotationPartMgr::~RivReachCircleAnnotationPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -19,7 +19,9 @@ RiuCategoryLegendFrame::RiuCategoryLegendFrame( QWidget* parent, const QString& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuCategoryLegendFrame::~RiuCategoryLegendFrame() {}
+RiuCategoryLegendFrame::~RiuCategoryLegendFrame()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

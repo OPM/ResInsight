@@ -97,7 +97,9 @@ void RifEclipseRestartFilesetAccess::setRestartFiles( const QStringList& fileSet
 //--------------------------------------------------------------------------------------------------
 /// Close files
 //--------------------------------------------------------------------------------------------------
-void RifEclipseRestartFilesetAccess::close() {}
+void RifEclipseRestartFilesetAccess::close()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

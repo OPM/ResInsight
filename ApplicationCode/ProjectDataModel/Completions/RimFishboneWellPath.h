@@ -56,14 +56,8 @@ public:
     void setCoordinates( std::vector<cvf::Vec3d> coordinates );
     void setMeasuredDepths( std::vector<double> measuredDepths );
 
-    std::vector<cvf::Vec3d> coordinates() const
-    {
-        return m_coordinates();
-    }
-    std::vector<double> measuredDepths() const
-    {
-        return m_measuredDepths();
-    }
+    std::vector<cvf::Vec3d> coordinates() const { return m_coordinates(); }
+    std::vector<double>     measuredDepths() const { return m_measuredDepths(); }
 
 private:
     QString displayCoordinates() const;

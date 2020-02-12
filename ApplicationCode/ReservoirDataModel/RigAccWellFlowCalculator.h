@@ -82,10 +82,7 @@ public:
     const std::vector<double>& accumulatedTracerFlowPrPseudoLength( const QString& tracerName, size_t branchIdx ) const;
     const std::vector<double>& tracerFlowPrPseudoLength( const QString& tracerName, size_t branchIdx ) const;
 
-    const std::vector<QString>& tracerNames() const
-    {
-        return m_tracerNames;
-    }
+    const std::vector<QString>& tracerNames() const { return m_tracerNames; }
 
     std::vector<std::pair<QString, double>> totalTracerFractions() const;
 

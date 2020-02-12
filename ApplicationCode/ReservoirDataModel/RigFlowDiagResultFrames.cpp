@@ -32,7 +32,9 @@ RigFlowDiagResultFrames::RigFlowDiagResultFrames( size_t frameCount )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFlowDiagResultFrames::~RigFlowDiagResultFrames() {}
+RigFlowDiagResultFrames::~RigFlowDiagResultFrames()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

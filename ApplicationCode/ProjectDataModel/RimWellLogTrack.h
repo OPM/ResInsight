@@ -107,10 +107,7 @@ public:
     void deleteAllCurves();
 
     size_t curveIndex( RimWellLogCurve* curve );
-    size_t curveCount()
-    {
-        return m_curves.size();
-    }
+    size_t curveCount() { return m_curves.size(); }
 
     void    setXAxisTitle( const QString& text );
     QString yAxisTitle() const;

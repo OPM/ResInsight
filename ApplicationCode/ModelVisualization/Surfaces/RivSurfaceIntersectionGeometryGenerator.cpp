@@ -76,7 +76,9 @@ RivSurfaceIntersectionGeometryGenerator::RivSurfaceIntersectionGeometryGenerator
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivSurfaceIntersectionGeometryGenerator::~RivSurfaceIntersectionGeometryGenerator() {}
+RivSurfaceIntersectionGeometryGenerator::~RivSurfaceIntersectionGeometryGenerator()
+{
+}
 
 class MeshLinesAccumulator
 {

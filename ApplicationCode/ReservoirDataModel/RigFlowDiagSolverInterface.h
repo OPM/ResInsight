@@ -47,10 +47,7 @@ public:
     using Curve = std::pair<std::vector<double>, std::vector<double>>;
 
     // Used to "steal" the data from this one using swap
-    std::map<RigFlowDiagResultAddress, std::vector<double>>& nativeResults()
-    {
-        return m_nativeResults;
-    }
+    std::map<RigFlowDiagResultAddress, std::vector<double>>& nativeResults() { return m_nativeResults; }
     std::map<std::pair<std::string, std::string>, std::pair<double, double>>& injProdWellPairFluxes()
     {
         return m_injProdWellPairFluxes;

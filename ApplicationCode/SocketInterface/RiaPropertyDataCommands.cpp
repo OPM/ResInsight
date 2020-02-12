@@ -54,10 +54,7 @@
 class RiaGetActiveCellProperty : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetActiveCellProperty" );
-    }
+    static QString commandName() { return QString( "GetActiveCellProperty" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -225,10 +222,7 @@ static bool RiaGetActiveCellProperty_init = RiaSocketCommandFactory::instance()-
 class RiaGetGridProperty : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetGridProperty" );
-    }
+    static QString commandName() { return QString( "GetGridProperty" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -413,10 +407,7 @@ public:
     {
     }
 
-    static QString commandName()
-    {
-        return QString( "SetActiveCellProperty" );
-    }
+    static QString commandName() { return QString( "SetActiveCellProperty" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -785,10 +776,7 @@ public:
     {
     }
 
-    static QString commandName()
-    {
-        return QString( "SetGridProperty" );
-    }
+    static QString commandName() { return QString( "SetGridProperty" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -1165,10 +1153,7 @@ static bool RiaSetGridProperty_init = RiaSocketCommandFactory::instance()->regis
 class RiaGetPropertyNames : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetPropertyNames" );
-    }
+    static QString commandName() { return QString( "GetPropertyNames" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -1255,10 +1240,7 @@ static bool RiaGetPropertyNames_init = RiaSocketCommandFactory::instance()->regi
 class RiaGetGridPropertyForSelectedCells : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetGridPropertyForSelectedCells" );
-    }
+    static QString commandName() { return QString( "GetGridPropertyForSelectedCells" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {

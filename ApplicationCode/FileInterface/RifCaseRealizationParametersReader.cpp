@@ -235,7 +235,9 @@ RifCaseRealizationRunspecificationReader::RifCaseRealizationRunspecificationRead
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCaseRealizationRunspecificationReader::~RifCaseRealizationRunspecificationReader() {}
+RifCaseRealizationRunspecificationReader::~RifCaseRealizationRunspecificationReader()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

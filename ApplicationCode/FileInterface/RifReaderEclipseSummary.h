@@ -49,10 +49,7 @@ public:
         , endDate( _endDate )
     {
     }
-    bool valid()
-    {
-        return !fileName.isEmpty();
-    }
+    bool valid() { return !fileName.isEmpty(); }
 
     QString fileName;
     time_t  startDate;
@@ -79,10 +76,7 @@ public:
     bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
     std::string unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaEclipseUnitTools::UnitSystem unitSystem() const override;
-    QStringList                     warnings() const
-    {
-        return m_warnings;
-    }
+    QStringList                     warnings() const { return m_warnings; }
 
     void markForCachePurge( const RifEclipseSummaryAddress& address ) override;
 

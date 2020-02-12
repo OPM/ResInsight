@@ -49,10 +49,7 @@ class RivReservoirViewPartMgr : public cvf::Object
 public:
     explicit RivReservoirViewPartMgr( RimEclipseView* resv );
 
-    cvf::Transform* scaleTransform()
-    {
-        return m_scaleTransform.p();
-    }
+    cvf::Transform* scaleTransform() { return m_scaleTransform.p(); }
 
     void                   clearGeometryCache();
     void                   scheduleGeometryRegen( RivCellSetEnum geometryType );

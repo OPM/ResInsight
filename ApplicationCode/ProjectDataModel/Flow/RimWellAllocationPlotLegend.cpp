@@ -33,7 +33,9 @@ RimWellAllocationPlotLegend::RimWellAllocationPlotLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellAllocationPlotLegend::~RimWellAllocationPlotLegend() {}
+RimWellAllocationPlotLegend::~RimWellAllocationPlotLegend()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

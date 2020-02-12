@@ -57,10 +57,7 @@ template <typename T>
 class RiuTypedPdmObjects
 {
 public:
-    explicit RiuTypedPdmObjects( const caf::PdmObjectGroup& objectGroup )
-    {
-        objectGroup.objectsByType( &m_objects );
-    }
+    explicit RiuTypedPdmObjects( const caf::PdmObjectGroup& objectGroup ) { objectGroup.objectsByType( &m_objects ); }
 
     explicit RiuTypedPdmObjects( const std::vector<caf::PdmPointer<caf::PdmObjectHandle>>& objectHandles )
     {
@@ -120,7 +117,9 @@ RiuDragDrop::RiuDragDrop()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuDragDrop::~RiuDragDrop() {}
+RiuDragDrop::~RiuDragDrop()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

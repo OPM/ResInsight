@@ -49,32 +49,17 @@ public:
     RigFemPart();
     ~RigFemPart() override;
 
-    int elementPartId() const
-    {
-        return m_elementPartId;
-    }
-    void setElementPartId( int partId )
-    {
-        m_elementPartId = partId;
-    }
+    int  elementPartId() const { return m_elementPartId; }
+    void setElementPartId( int partId ) { m_elementPartId = partId; }
 
     void preAllocateElementStorage( int elementCount );
     void appendElement( RigElementType elmType, int elementId, const int* connectivities );
 
-    int elementCount() const
-    {
-        return static_cast<int>( m_elementId.size() );
-    }
+    int elementCount() const { return static_cast<int>( m_elementId.size() ); }
 
-    int elmId( size_t elementIdx ) const
-    {
-        return m_elementId[elementIdx];
-    }
-    RigElementType elementType( size_t elementIdx ) const
-    {
-        return m_elementTypes[elementIdx];
-    }
-    const int* connectivities( size_t elementIdx ) const
+    int            elmId( size_t elementIdx ) const { return m_elementId[elementIdx]; }
+    RigElementType elementType( size_t elementIdx ) const { return m_elementTypes[elementIdx]; }
+    const int*     connectivities( size_t elementIdx ) const
     {
         return &m_allElementConnectivities[m_elementConnectivityStartIndices[elementIdx]];
     }
@@ -89,14 +74,8 @@ public:
         return m_allElementConnectivities[elmNodeResultIdx];
     }
     size_t resultValueIdxFromResultPosType( RigFemResultPosEnum resultPosType, int elementIdx, int elmLocalNodeIdx ) const;
-    RigFemPartNodes& nodes()
-    {
-        return m_nodes;
-    }
-    const RigFemPartNodes& nodes() const
-    {
-        return m_nodes;
-    }
+    RigFemPartNodes&       nodes() { return m_nodes; }
+    const RigFemPartNodes& nodes() const { return m_nodes; }
 
     void                              assertNodeToElmIndicesIsCalculated();
     const std::vector<int>&           elementsUsingNode( int nodeIndex ) const;
@@ -114,10 +93,7 @@ public:
 
     cvf::BoundingBox        boundingBox() const;
     float                   characteristicElementSize() const;
-    const std::vector<int>& possibleGridCornerElements() const
-    {
-        return m_possibleGridCornerElements;
-    }
+    const std::vector<int>& possibleGridCornerElements() const { return m_possibleGridCornerElements; }
     void findIntersectingCells( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const;
     void findIntersectingCellsWithExistingSearchTree( const cvf::BoundingBox& inputBB,
                                                       std::vector<size_t>*    elementIndices ) const;
@@ -127,10 +103,7 @@ public:
     cvf::Vec3f faceNormal( int elmentIndex, int faceIndex ) const;
 
     const RigFemPartGrid*   getOrCreateStructGrid() const;
-    const std::vector<int>& elementIdxToId() const
-    {
-        return m_elementId;
-    }
+    const std::vector<int>& elementIdxToId() const { return m_elementId; }
 
 private:
     int m_elementPartId;

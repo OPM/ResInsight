@@ -45,7 +45,9 @@ RivNNCGeometryGenerator::RivNNCGeometryGenerator( bool                      incl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivNNCGeometryGenerator::~RivNNCGeometryGenerator() {}
+RivNNCGeometryGenerator::~RivNNCGeometryGenerator()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Generate surface drawable geo from the specified region

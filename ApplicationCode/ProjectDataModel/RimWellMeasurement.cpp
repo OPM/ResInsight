@@ -44,7 +44,9 @@ RimWellMeasurement::RimWellMeasurement()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellMeasurement::~RimWellMeasurement() {}
+RimWellMeasurement::~RimWellMeasurement()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -193,7 +195,9 @@ void RimWellMeasurement::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurement::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) {}
+void RimWellMeasurement::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

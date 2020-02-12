@@ -23,7 +23,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CompletionDataFrame::CompletionDataFrame() {}
+CompletionDataFrame::CompletionDataFrame()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -57,12 +59,16 @@ const std::map<size_t, std::vector<RigCompletionData>>& CompletionDataFrame::mul
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigVirtualPerforationTransmissibilities::RigVirtualPerforationTransmissibilities() {}
+RigVirtualPerforationTransmissibilities::RigVirtualPerforationTransmissibilities()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigVirtualPerforationTransmissibilities::~RigVirtualPerforationTransmissibilities() {}
+RigVirtualPerforationTransmissibilities::~RigVirtualPerforationTransmissibilities()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

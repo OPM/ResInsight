@@ -57,14 +57,8 @@ public:
     RimCase* ownerCase() const override;
     void     selectOverlayInfoConfig() override {}
 
-    RimViewLinker* assosiatedViewLinker() const override
-    {
-        return nullptr;
-    }
-    RimViewController* viewController() const override
-    {
-        return nullptr;
-    }
+    RimViewLinker*     assosiatedViewLinker() const override { return nullptr; }
+    RimViewController* viewController() const override { return nullptr; }
 
     bool isTimeStepDependentDataVisible() const override;
 

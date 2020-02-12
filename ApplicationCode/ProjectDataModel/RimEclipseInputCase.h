@@ -55,10 +55,7 @@ public:
 
     // Overrides from RimCase
     QString locationOnDisc() const override;
-    QString gridFileName() const override
-    {
-        return m_gridFileName().path();
-    }
+    QString gridFileName() const override { return m_gridFileName().path(); }
 
     void updateFilePathsFromProjectPath( const QString& projectPath, const QString& oldProjectPath ) override;
 

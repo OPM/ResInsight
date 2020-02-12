@@ -41,48 +41,18 @@ public:
         FAILED_INPUT_OVERLAP
     };
 
-    CurveStatus curveStatus() const
-    {
-        return m_curveStatus;
-    }
+    CurveStatus curveStatus() const { return m_curveStatus; }
 
-    cvf::Mat4d arcCS() const
-    {
-        return m_arcCS;
-    }
-    double radius() const
-    {
-        return m_radius;
-    }
-    double arcAngle() const
-    {
-        return m_arcAngle;
-    }
-    double arcLength() const
-    {
-        return m_arcLength;
-    }
-    cvf::Vec3d center() const
-    {
-        return m_arcCS.translation();
-    }
-    cvf::Vec3d normal() const
-    {
-        return cvf::Vec3d( m_arcCS.col( 2 ) );
-    }
+    cvf::Mat4d arcCS() const { return m_arcCS; }
+    double     radius() const { return m_radius; }
+    double     arcAngle() const { return m_arcAngle; }
+    double     arcLength() const { return m_arcLength; }
+    cvf::Vec3d center() const { return m_arcCS.translation(); }
+    cvf::Vec3d normal() const { return cvf::Vec3d( m_arcCS.col( 2 ) ); }
 
-    double endAzimuth() const
-    {
-        return m_endAzi;
-    }
-    double endInclination() const
-    {
-        return m_endInc;
-    }
-    cvf::Vec3d endTangent() const
-    {
-        return m_endTangent;
-    }
+    double     endAzimuth() const { return m_endAzi; }
+    double     endInclination() const { return m_endInc; }
+    cvf::Vec3d endTangent() const { return m_endTangent; }
 
 private:
     CurveStatus m_curveStatus;

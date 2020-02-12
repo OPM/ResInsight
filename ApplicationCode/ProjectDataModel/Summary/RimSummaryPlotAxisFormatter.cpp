@@ -79,10 +79,7 @@ private:
         }
     }
 
-    double scaledValue( double value ) const
-    {
-        return value / m_scaleFactor;
-    }
+    double scaledValue( double value ) const { return value / m_scaleFactor; }
 
 private:
     double                                  m_scaleFactor;

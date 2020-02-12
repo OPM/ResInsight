@@ -45,7 +45,9 @@ RigMainGrid::RigMainGrid()
     m_dualPorosity = false;
 }
 
-RigMainGrid::~RigMainGrid() {}
+RigMainGrid::~RigMainGrid()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

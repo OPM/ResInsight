@@ -30,10 +30,7 @@ class RimNameConfigHolderInterface
 {
 public:
     virtual QString createAutoName() const = 0;
-    void            updateAutoName()
-    {
-        performAutoNameUpdate();
-    }
+    void            updateAutoName() { performAutoNameUpdate(); }
 
 protected:
     virtual void performAutoNameUpdate() {}

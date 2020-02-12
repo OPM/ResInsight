@@ -61,7 +61,9 @@ RivSimWellPipesPartMgr::RivSimWellPipesPartMgr( RimSimWellInView* well )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivSimWellPipesPartMgr::~RivSimWellPipesPartMgr() {}
+RivSimWellPipesPartMgr::~RivSimWellPipesPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

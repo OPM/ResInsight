@@ -33,7 +33,9 @@ RimCheckableNamedObject::RimCheckableNamedObject( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCheckableNamedObject::~RimCheckableNamedObject( void ) {}
+RimCheckableNamedObject::~RimCheckableNamedObject( void )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

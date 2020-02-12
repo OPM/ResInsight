@@ -39,7 +39,9 @@ RicEclipsePropertyFilterInsertExec::RicEclipsePropertyFilterInsertExec( RimEclip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicEclipsePropertyFilterInsertExec::~RicEclipsePropertyFilterInsertExec() {}
+RicEclipsePropertyFilterInsertExec::~RicEclipsePropertyFilterInsertExec()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

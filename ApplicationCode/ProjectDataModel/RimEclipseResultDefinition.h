@@ -79,21 +79,12 @@ public:
     void            setEclipseCase( RimEclipseCase* eclipseCase );
     RimEclipseCase* eclipseCase() const;
 
-    RiaDefines::ResultCatType resultType() const
-    {
-        return m_resultType();
-    }
+    RiaDefines::ResultCatType     resultType() const { return m_resultType(); }
     void                          setResultType( RiaDefines::ResultCatType val );
-    RiaDefines::PorosityModelType porosityModel() const
-    {
-        return m_porosityModel();
-    }
-    void    setPorosityModel( RiaDefines::PorosityModelType val );
-    QString resultVariable() const
-    {
-        return m_resultVariable();
-    }
-    virtual void setResultVariable( const QString& val );
+    RiaDefines::PorosityModelType porosityModel() const { return m_porosityModel(); }
+    void                          setPorosityModel( RiaDefines::PorosityModelType val );
+    QString                       resultVariable() const { return m_resultVariable(); }
+    virtual void                  setResultVariable( const QString& val );
 
     void                     setFlowSolution( RimFlowDiagSolution* flowSol );
     RimFlowDiagSolution*     flowDiagSolution() const;

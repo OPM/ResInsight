@@ -51,7 +51,9 @@ RimEclipseGeometrySelectionItem::RimEclipseGeometrySelectionItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseGeometrySelectionItem::~RimEclipseGeometrySelectionItem() {}
+RimEclipseGeometrySelectionItem::~RimEclipseGeometrySelectionItem()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

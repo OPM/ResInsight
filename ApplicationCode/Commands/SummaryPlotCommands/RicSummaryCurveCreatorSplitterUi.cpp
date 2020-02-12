@@ -54,7 +54,9 @@ RicSummaryCurveCreatorSplitterUi::RicSummaryCurveCreatorSplitterUi( QWidget* par
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorSplitterUi::~RicSummaryCurveCreatorSplitterUi() {}
+RicSummaryCurveCreatorSplitterUi::~RicSummaryCurveCreatorSplitterUi()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

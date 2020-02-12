@@ -59,7 +59,9 @@ RicSaveEclipseInputVisibleCellsUi::RicSaveEclipseInputVisibleCellsUi( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSaveEclipseInputVisibleCellsUi::~RicSaveEclipseInputVisibleCellsUi() {}
+RicSaveEclipseInputVisibleCellsUi::~RicSaveEclipseInputVisibleCellsUi()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

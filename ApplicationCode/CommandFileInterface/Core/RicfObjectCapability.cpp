@@ -35,7 +35,9 @@ RicfObjectCapability::RicfObjectCapability( caf::PdmObjectHandle* owner, bool gi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfObjectCapability::~RicfObjectCapability() {}
+RicfObjectCapability::~RicfObjectCapability()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

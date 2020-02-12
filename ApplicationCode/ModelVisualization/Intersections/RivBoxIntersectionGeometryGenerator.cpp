@@ -46,7 +46,9 @@ RivBoxIntersectionGeometryGenerator::RivBoxIntersectionGeometryGenerator( RimBox
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivBoxIntersectionGeometryGenerator::~RivBoxIntersectionGeometryGenerator() {}
+RivBoxIntersectionGeometryGenerator::~RivBoxIntersectionGeometryGenerator()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

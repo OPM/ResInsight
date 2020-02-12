@@ -41,18 +41,9 @@ public:
     {
     }
 
-    std::string keyword() const
-    {
-        return m_keyword;
-    }
-    size_t itemCount() const
-    {
-        return m_itemCount;
-    }
-    int indexWithinReportStep() const
-    {
-        return m_indexWithinReportStep;
-    }
+    std::string keyword() const { return m_keyword; }
+    size_t      itemCount() const { return m_itemCount; }
+    int         indexWithinReportStep() const { return m_indexWithinReportStep; }
 
 private:
     std::string m_keyword;

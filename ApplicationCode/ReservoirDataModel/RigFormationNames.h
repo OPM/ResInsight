@@ -37,10 +37,7 @@ public:
 
     QString formationNameFromKLayerIdx( size_t Kidx );
 
-    const std::vector<QString>& formationNames() const
-    {
-        return m_formationNames;
-    }
+    const std::vector<QString>& formationNames() const { return m_formationNames; }
 
     void appendFormationRange( const QString& name, int kStartIdx, int kEndIdx );
     void appendFormationRangeHeight( const QString& name, int kLayerCount );

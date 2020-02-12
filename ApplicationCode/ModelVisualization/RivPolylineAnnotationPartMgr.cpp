@@ -61,7 +61,9 @@ RivPolylineAnnotationPartMgr::RivPolylineAnnotationPartMgr( Rim3dView*          
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivPolylineAnnotationPartMgr::~RivPolylineAnnotationPartMgr() {}
+RivPolylineAnnotationPartMgr::~RivPolylineAnnotationPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -56,7 +56,9 @@ RimAnnotationCollectionBase::RimAnnotationCollectionBase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationCollectionBase::~RimAnnotationCollectionBase() {}
+RimAnnotationCollectionBase::~RimAnnotationCollectionBase()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

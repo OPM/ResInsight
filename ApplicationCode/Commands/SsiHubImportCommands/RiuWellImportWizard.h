@@ -98,10 +98,7 @@ public:
     caf::PdmChildArrayField<PdmObjectHandle*> objects;
 
 protected:
-    caf::PdmFieldHandle* objectToggleField() override
-    {
-        return &m_isChecked;
-    }
+    caf::PdmFieldHandle* objectToggleField() override { return &m_isChecked; }
 
 protected:
     caf::PdmField<bool> m_isChecked;

@@ -608,7 +608,9 @@ QString RimWellAllocationPlot::wellStatusTextForTimeStep( const QString&        
 //--------------------------------------------------------------------------------------------------
 /// TODO: Implement properly
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::assignIdIfNecessary() {}
+void RimWellAllocationPlot::assignIdIfNecessary()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

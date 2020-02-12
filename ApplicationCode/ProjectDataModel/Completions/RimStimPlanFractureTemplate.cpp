@@ -93,7 +93,9 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanFractureTemplate::~RimStimPlanFractureTemplate() {}
+RimStimPlanFractureTemplate::~RimStimPlanFractureTemplate()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

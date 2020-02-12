@@ -46,7 +46,9 @@ RimValveTemplateCollection::RimValveTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimValveTemplateCollection::~RimValveTemplateCollection() {}
+RimValveTemplateCollection::~RimValveTemplateCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

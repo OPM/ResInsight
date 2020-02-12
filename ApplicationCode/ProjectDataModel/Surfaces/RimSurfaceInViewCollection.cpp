@@ -49,7 +49,9 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurfaceInViewCollection::~RimSurfaceInViewCollection() {}
+RimSurfaceInViewCollection::~RimSurfaceInViewCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

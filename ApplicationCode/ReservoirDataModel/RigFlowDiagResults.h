@@ -56,11 +56,8 @@ public:
     ~RigFlowDiagResults() override;
 
     const std::vector<double>* resultValues( const RigFlowDiagResultAddress& resVarAddr, size_t timeStepIndex );
-    size_t                     timeStepCount()
-    {
-        return m_timeStepCount;
-    }
-    const RigActiveCellInfo* activeCellInfo( const RigFlowDiagResultAddress& resVarAddr );
+    size_t                     timeStepCount() { return m_timeStepCount; }
+    const RigActiveCellInfo*   activeCellInfo( const RigFlowDiagResultAddress& resVarAddr );
 
     void minMaxScalarValues( const RigFlowDiagResultAddress& resVarAddr,
                              int                             timeStepIndex,

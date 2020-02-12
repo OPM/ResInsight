@@ -40,7 +40,9 @@ RicEclipseCaseNewGroupExec::RicEclipseCaseNewGroupExec()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicEclipseCaseNewGroupExec::~RicEclipseCaseNewGroupExec() {}
+RicEclipseCaseNewGroupExec::~RicEclipseCaseNewGroupExec()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
