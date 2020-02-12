@@ -130,6 +130,11 @@ void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( DateTimePeriod per
     const auto& origTimeSteps = m_originalValues.second;
     const auto& origValues    = m_originalValues.first;
 
+    if ( origValues.empty() || origTimeSteps.empty() )
+    {
+        return;
+    }
+
     computeResampledTimeSteps( period );
 
     m_values.reserve( m_timeSteps.size() );
@@ -197,6 +202,11 @@ void RiaTimeHistoryCurveResampler::computePeriodEndValues( DateTimePeriod period
     size_t      oi            = 0;
     const auto& origTimeSteps = m_originalValues.second;
     const auto& origValues    = m_originalValues.first;
+
+    if ( origValues.empty() || origTimeSteps.empty() )
+    {
+        return;
+    }
 
     computeResampledTimeSteps( period );
 

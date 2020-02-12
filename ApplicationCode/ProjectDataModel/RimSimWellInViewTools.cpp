@@ -159,6 +159,12 @@ double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface
     std::vector<double> values;
     summaryReader->values( addr, &values );
     std::vector<time_t> timeSteps = summaryReader->timeSteps( addr );
+    if ( values.empty() || timeSteps.empty() )
+    {
+        std::cerr << "Warning: no data found for well " << wellName.toStdString() << " " << vectorName << std::endl;
+        *isOk = false;
+        return 0.0;
+    }
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( values, timeSteps );
