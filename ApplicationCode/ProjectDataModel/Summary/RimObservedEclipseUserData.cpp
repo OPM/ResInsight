@@ -44,7 +44,9 @@ RimObservedEclipseUserData::RimObservedEclipseUserData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimObservedEclipseUserData::~RimObservedEclipseUserData() {}
+RimObservedEclipseUserData::~RimObservedEclipseUserData()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

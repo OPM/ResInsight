@@ -101,7 +101,9 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellAllocationPlot::~RiuWellAllocationPlot() {}
+RiuWellAllocationPlot::~RiuWellAllocationPlot()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -206,4 +208,6 @@ QSize RiuWellAllocationPlot::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellAllocationPlot::setDefaults() {}
+void RiuWellAllocationPlot::setDefaults()
+{
+}

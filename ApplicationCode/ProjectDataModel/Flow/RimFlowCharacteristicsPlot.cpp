@@ -736,7 +736,9 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// TODO: implement properly
 //--------------------------------------------------------------------------------------------------
-void RimFlowCharacteristicsPlot::assignIdIfNecessary() {}
+void RimFlowCharacteristicsPlot::assignIdIfNecessary()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

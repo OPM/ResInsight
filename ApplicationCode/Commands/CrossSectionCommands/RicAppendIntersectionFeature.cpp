@@ -81,7 +81,9 @@ RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd( RimIntersectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicAppendIntersectionFeatureCmd::~RicAppendIntersectionFeatureCmd() {}
+RicAppendIntersectionFeatureCmd::~RicAppendIntersectionFeatureCmd()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -116,4 +118,6 @@ void RicAppendIntersectionFeatureCmd::redo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeatureCmd::undo() {}
+void RicAppendIntersectionFeatureCmd::undo()
+{
+}

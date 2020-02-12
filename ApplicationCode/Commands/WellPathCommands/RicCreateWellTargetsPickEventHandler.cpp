@@ -63,7 +63,9 @@ RicCreateWellTargetsPickEventHandler::RicCreateWellTargetsPickEventHandler( RimW
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicCreateWellTargetsPickEventHandler::~RicCreateWellTargetsPickEventHandler() {}
+RicCreateWellTargetsPickEventHandler::~RicCreateWellTargetsPickEventHandler()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

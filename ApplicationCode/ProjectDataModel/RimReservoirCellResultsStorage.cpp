@@ -339,4 +339,6 @@ RimReservoirCellResultsStorageEntryInfo::RimReservoirCellResultsStorageEntryInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsStorageEntryInfo::~RimReservoirCellResultsStorageEntryInfo() {}
+RimReservoirCellResultsStorageEntryInfo::~RimReservoirCellResultsStorageEntryInfo()
+{
+}

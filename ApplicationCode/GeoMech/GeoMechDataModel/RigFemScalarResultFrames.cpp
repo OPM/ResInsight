@@ -33,7 +33,9 @@ RigFemScalarResultFrames::RigFemScalarResultFrames( int frameCount )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames::~RigFemScalarResultFrames() {}
+RigFemScalarResultFrames::~RigFemScalarResultFrames()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

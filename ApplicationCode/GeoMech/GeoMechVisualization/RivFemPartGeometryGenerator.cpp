@@ -51,7 +51,9 @@ RivFemPartGeometryGenerator::RivFemPartGeometryGenerator( const RigFemPart* part
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemPartGeometryGenerator::~RivFemPartGeometryGenerator() {}
+RivFemPartGeometryGenerator::~RivFemPartGeometryGenerator()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Generate surface drawable geo from the specified region

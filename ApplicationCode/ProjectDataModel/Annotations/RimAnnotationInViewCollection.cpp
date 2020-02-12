@@ -129,7 +129,9 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationInViewCollection::~RimAnnotationInViewCollection() {}
+RimAnnotationInViewCollection::~RimAnnotationInViewCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

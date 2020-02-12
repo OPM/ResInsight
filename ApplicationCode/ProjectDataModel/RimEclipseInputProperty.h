@@ -56,11 +56,8 @@ public:
     caf::PdmField<ResolveStateEnum> resolvedState; // ReadOnly and not writable
 
     // PdmObject Overrides
-    caf::PdmFieldHandle* userDescriptionField() override
-    {
-        return &resultName;
-    }
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    caf::PdmFieldHandle* userDescriptionField() override { return &resultName; }
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                           const QVariant&            oldValue,
+                                           const QVariant&            newValue ) override;
 };

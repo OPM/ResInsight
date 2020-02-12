@@ -78,7 +78,9 @@ RifSummaryCaseRestartSelector::RifSummaryCaseRestartSelector()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryCaseRestartSelector::~RifSummaryCaseRestartSelector() {}
+RifSummaryCaseRestartSelector::~RifSummaryCaseRestartSelector()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

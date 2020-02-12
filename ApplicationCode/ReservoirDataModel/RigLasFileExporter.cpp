@@ -76,15 +76,9 @@ public:
         }
     }
 
-    std::string channelName() const
-    {
-        return m_channelName;
-    }
+    std::string channelName() const { return m_channelName; }
 
-    const RigWellLogCurveData* curveData() const
-    {
-        return m_curveData;
-    }
+    const RigWellLogCurveData* curveData() const { return m_curveData; }
 
 private:
     std::string m_channelName;
@@ -104,40 +98,19 @@ public:
     {
     }
 
-    void setWellName( const QString& wellName )
-    {
-        m_wellName = wellName;
-    }
+    void setWellName( const QString& wellName ) { m_wellName = wellName; }
 
-    QString wellName()
-    {
-        return m_wellName;
-    }
+    QString wellName() { return m_wellName; }
 
-    void setCaseName( const QString& caseName )
-    {
-        m_caseName = caseName;
-    }
+    void setCaseName( const QString& caseName ) { m_caseName = caseName; }
 
-    void setDate( const QString& date )
-    {
-        m_date = date;
-    }
+    void setDate( const QString& date ) { m_date = date; }
 
-    void setRkbDiff( double rkbDiff )
-    {
-        m_rkbDiff = rkbDiff;
-    }
+    void setRkbDiff( double rkbDiff ) { m_rkbDiff = rkbDiff; }
 
-    void enableTvdrkbExport()
-    {
-        m_exportTvdrkb = true;
-    }
+    void enableTvdrkbExport() { m_exportTvdrkb = true; }
 
-    double rkbDiff()
-    {
-        return m_rkbDiff;
-    }
+    double rkbDiff() { return m_rkbDiff; }
 
     void addLogData( const std::string&         channelName,
                      const std::string&         unit,

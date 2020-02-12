@@ -212,7 +212,9 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicRecursiveFileSearchDialog::~RicRecursiveFileSearchDialog() {}
+RicRecursiveFileSearchDialog::~RicRecursiveFileSearchDialog()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

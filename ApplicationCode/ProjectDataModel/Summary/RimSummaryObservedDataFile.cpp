@@ -38,7 +38,9 @@ RimSummaryObservedDataFile::RimSummaryObservedDataFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryObservedDataFile::~RimSummaryObservedDataFile() {}
+RimSummaryObservedDataFile::~RimSummaryObservedDataFile()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

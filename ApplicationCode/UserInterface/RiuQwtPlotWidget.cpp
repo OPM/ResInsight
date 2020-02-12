@@ -670,12 +670,16 @@ QSize RiuQwtPlotWidget::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::selectPoint( QwtPlotCurve* curve, int pointNumber ) {}
+void RiuQwtPlotWidget::selectPoint( QwtPlotCurve* curve, int pointNumber )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::clearPointSelection() {}
+void RiuQwtPlotWidget::clearPointSelection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -688,7 +692,9 @@ bool RiuQwtPlotWidget::isZoomerActive() const
 //--------------------------------------------------------------------------------------------------
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::endZoomOperations() {}
+void RiuQwtPlotWidget::endZoomOperations()
+{
+}
 
 //--------------------------------------------------------------------------------------------
 ///

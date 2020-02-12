@@ -635,7 +635,6 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     m_overlayInfoConfig()->update3DInfo();
 
-
     // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
     // Visibility of wells differ betweeen time steps, so trigger a rebuild of tree state items
     wellCollection()->updateConnectedEditors();

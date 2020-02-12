@@ -32,4 +32,6 @@ RicfFieldHandle::RicfFieldHandle( caf::PdmFieldHandle* owner, bool giveOwnership
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfFieldHandle::~RicfFieldHandle() {}
+RicfFieldHandle::~RicfFieldHandle()
+{
+}

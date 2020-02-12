@@ -67,18 +67,12 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    size_t cellCount() const
-    {
-        return m_cellCount;
-    }
+    size_t cellCount() const { return m_cellCount; }
 
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    size_t streamedValueCount() const
-    {
-        return m_streamedValueCount;
-    }
+    size_t streamedValueCount() const { return m_streamedValueCount; }
 
     //--------------------------------------------------------------------------------------------------
     ///
@@ -255,10 +249,7 @@ protected:
         m_cellCount = activeCellInfo->reservoirActiveCellCount();
     }
 
-    double cellResult( size_t currentCellIndex ) const override
-    {
-        return ( *m_resultValues )[currentCellIndex];
-    }
+    double cellResult( size_t currentCellIndex ) const override { return ( *m_resultValues )[currentCellIndex]; }
 
     void setCellResult( size_t currentCellIndex, double value ) override
     {

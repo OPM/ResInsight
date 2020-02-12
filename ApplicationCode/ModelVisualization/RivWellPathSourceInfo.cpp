@@ -44,7 +44,9 @@ RivWellPathSourceInfo::RivWellPathSourceInfo( RimWellPath* wellPath, RivPipeGeom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellPathSourceInfo::~RivWellPathSourceInfo() {}
+RivWellPathSourceInfo::~RivWellPathSourceInfo()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

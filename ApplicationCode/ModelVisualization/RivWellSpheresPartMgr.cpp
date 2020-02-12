@@ -58,7 +58,9 @@ RivWellSpheresPartMgr::RivWellSpheresPartMgr( RimEclipseView* reservoirView, Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellSpheresPartMgr::~RivWellSpheresPartMgr() {}
+RivWellSpheresPartMgr::~RivWellSpheresPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

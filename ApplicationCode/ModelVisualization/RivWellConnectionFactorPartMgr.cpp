@@ -59,7 +59,9 @@ RivWellConnectionFactorPartMgr::RivWellConnectionFactorPartMgr( RimWellPath*    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellConnectionFactorPartMgr::~RivWellConnectionFactorPartMgr() {}
+RivWellConnectionFactorPartMgr::~RivWellConnectionFactorPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

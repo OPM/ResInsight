@@ -82,7 +82,9 @@ RimWellDistributionPlot::RimWellDistributionPlot( RiaDefines::PhaseType phase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellDistributionPlot::~RimWellDistributionPlot() {}
+RimWellDistributionPlot::~RimWellDistributionPlot()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

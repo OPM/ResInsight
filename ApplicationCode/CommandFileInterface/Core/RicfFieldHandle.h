@@ -42,15 +42,9 @@ public:
     RicfFieldHandle( caf::PdmFieldHandle* owner, bool giveOwnership );
     ~RicfFieldHandle() override;
 
-    bool isIOWriteable() const
-    {
-        return m_IOWriteable;
-    }
+    bool isIOWriteable() const { return m_IOWriteable; }
 
-    void setIOWriteable( bool writeable )
-    {
-        m_IOWriteable = writeable;
-    }
+    void setIOWriteable( bool writeable ) { m_IOWriteable = writeable; }
 
     virtual void readFieldData( QTextStream&           inputStream,
                                 caf::PdmObjectFactory* objectFactory,

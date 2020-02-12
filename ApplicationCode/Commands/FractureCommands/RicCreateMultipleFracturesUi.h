@@ -49,10 +49,7 @@ public:
     {
     }
 
-    bool operator<( const LocationForNewFracture& loc ) const
-    {
-        return measuredDepth < loc.measuredDepth;
-    }
+    bool operator<( const LocationForNewFracture& loc ) const { return measuredDepth < loc.measuredDepth; }
 
     RimFractureTemplate* fractureTemplate;
     RimWellPath*         wellPath;

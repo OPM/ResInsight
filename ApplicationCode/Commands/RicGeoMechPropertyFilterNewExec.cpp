@@ -37,7 +37,9 @@ RicGeoMechPropertyFilterNewExec::RicGeoMechPropertyFilterNewExec( RimGeoMechProp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicGeoMechPropertyFilterNewExec::~RicGeoMechPropertyFilterNewExec() {}
+RicGeoMechPropertyFilterNewExec::~RicGeoMechPropertyFilterNewExec()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

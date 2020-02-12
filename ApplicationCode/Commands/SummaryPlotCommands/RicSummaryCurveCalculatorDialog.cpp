@@ -45,7 +45,9 @@ RicSummaryCurveCalculatorDialog::RicSummaryCurveCalculatorDialog( QWidget* paren
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog() {}
+RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

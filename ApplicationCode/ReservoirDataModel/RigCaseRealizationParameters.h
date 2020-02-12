@@ -51,18 +51,9 @@ public:
         void setValue( double value );
         void setValue( const QString& value );
 
-        bool isValid() const
-        {
-            return m_valueType != TYPE_NONE;
-        }
-        bool isNumeric() const
-        {
-            return m_valueType == TYPE_NUMERIC;
-        }
-        bool isText() const
-        {
-            return m_valueType == TYPE_TEXT;
-        }
+        bool isValid() const { return m_valueType != TYPE_NONE; }
+        bool isNumeric() const { return m_valueType == TYPE_NUMERIC; }
+        bool isText() const { return m_valueType == TYPE_TEXT; }
 
         double         numericValue() const;
         const QString& textValue() const;

@@ -83,7 +83,9 @@ RicNewSimWellIntersectionCmd::RicNewSimWellIntersectionCmd( RimIntersectionColle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewSimWellIntersectionCmd::~RicNewSimWellIntersectionCmd() {}
+RicNewSimWellIntersectionCmd::~RicNewSimWellIntersectionCmd()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -112,4 +114,6 @@ void RicNewSimWellIntersectionCmd::redo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellIntersectionCmd::undo() {}
+void RicNewSimWellIntersectionCmd::undo()
+{
+}

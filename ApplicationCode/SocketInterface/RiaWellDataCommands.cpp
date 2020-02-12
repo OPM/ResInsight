@@ -38,10 +38,7 @@
 class RiaGetWellNames : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetWellNames" );
-    }
+    static QString commandName() { return QString( "GetWellNames" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -93,10 +90,7 @@ static bool RiaGetWellNames_init = RiaSocketCommandFactory::instance()->register
 class RiaGetWellStatus : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetWellStatus" );
-    }
+    static QString commandName() { return QString( "GetWellStatus" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -235,10 +229,7 @@ static bool RiaGetWellStatus_init = RiaSocketCommandFactory::instance()->registe
 class RiaGetWellCells : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetWellCells" );
-    }
+    static QString commandName() { return QString( "GetWellCells" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {

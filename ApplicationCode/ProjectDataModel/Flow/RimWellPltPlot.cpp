@@ -282,18 +282,9 @@ public:
     RigResultPointCalculator() {}
     virtual ~RigResultPointCalculator() {}
 
-    const std::vector<cvf::Vec3d>& pipeBranchCLCoords()
-    {
-        return m_pipeBranchCLCoords;
-    }
-    const std::vector<RigWellResultPoint>& pipeBranchWellResultPoints()
-    {
-        return m_pipeBranchWellResultPoints;
-    }
-    const std::vector<double>& pipeBranchMeasuredDepths()
-    {
-        return m_pipeBranchMeasuredDepths;
-    }
+    const std::vector<cvf::Vec3d>&         pipeBranchCLCoords() { return m_pipeBranchCLCoords; }
+    const std::vector<RigWellResultPoint>& pipeBranchWellResultPoints() { return m_pipeBranchWellResultPoints; }
+    const std::vector<double>&             pipeBranchMeasuredDepths() { return m_pipeBranchMeasuredDepths; }
 
 protected:
     RigEclipseWellLogExtractor* findWellLogExtractor( const QString& wellPathName, RimEclipseResultCase* eclCase )

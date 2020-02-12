@@ -81,15 +81,9 @@ private: // Unused, Not implemented
             m_jCount = jCount;
         }
 
-        size_t& at( size_t i, size_t j, size_t k )
-        {
-            return data[i + j * m_iCount + k * m_iCount * m_jCount];
-        }
+        size_t& at( size_t i, size_t j, size_t k ) { return data[i + j * m_iCount + k * m_iCount * m_jCount]; }
 
-        size_t at( size_t i, size_t j, size_t k ) const
-        {
-            return data[i + j * m_iCount + k * m_iCount * m_jCount];
-        }
+        size_t at( size_t i, size_t j, size_t k ) const { return data[i + j * m_iCount + k * m_iCount * m_jCount]; }
 
     private:
         size_t m_iCount;

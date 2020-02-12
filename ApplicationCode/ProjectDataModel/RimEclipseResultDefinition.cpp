@@ -204,7 +204,9 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultDefinition::~RimEclipseResultDefinition() {}
+RimEclipseResultDefinition::~RimEclipseResultDefinition()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

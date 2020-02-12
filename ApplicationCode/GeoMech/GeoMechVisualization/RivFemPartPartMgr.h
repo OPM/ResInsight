@@ -50,10 +50,7 @@ public:
     ~RivFemPartPartMgr() override;
     void                      setTransform( cvf::Transform* scaleTransform );
     void                      setCellVisibility( cvf::UByteArray* cellVisibilities );
-    cvf::ref<cvf::UByteArray> cellVisibility()
-    {
-        return m_cellVisibility;
-    }
+    cvf::ref<cvf::UByteArray> cellVisibility() { return m_cellVisibility; }
 
     void updateCellColor( cvf::Color4f color );
     void updateCellResultColor( size_t timeStepIndex, RimGeoMechCellColors* cellResultColors );

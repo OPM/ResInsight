@@ -69,7 +69,9 @@ RivTextAnnotationPartMgr::RivTextAnnotationPartMgr( Rim3dView* view, RimTextAnno
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivTextAnnotationPartMgr::~RivTextAnnotationPartMgr() {}
+RivTextAnnotationPartMgr::~RivTextAnnotationPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

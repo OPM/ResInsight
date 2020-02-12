@@ -36,7 +36,9 @@ RifElementPropertyReader::RifElementPropertyReader( const std::vector<int>& elem
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifElementPropertyReader::~RifElementPropertyReader() {}
+RifElementPropertyReader::~RifElementPropertyReader()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

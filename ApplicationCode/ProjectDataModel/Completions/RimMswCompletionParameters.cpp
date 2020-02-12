@@ -98,7 +98,9 @@ RimMswCompletionParameters::RimMswCompletionParameters( bool enableReferenceDept
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMswCompletionParameters::~RimMswCompletionParameters() {}
+RimMswCompletionParameters::~RimMswCompletionParameters()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

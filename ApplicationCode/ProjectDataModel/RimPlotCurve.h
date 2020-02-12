@@ -63,11 +63,8 @@ public:
     void          reattachQwtCurve();
     QwtPlotCurve* qwtPlotCurve() const;
 
-    void         setColor( const cvf::Color3f& color );
-    cvf::Color3f color() const
-    {
-        return m_curveColor;
-    }
+    void                          setColor( const cvf::Color3f& color );
+    cvf::Color3f                  color() const { return m_curveColor; }
     void                          setLineStyle( RiuQwtPlotCurve::LineStyleEnum lineStyle );
     void                          setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle );
     RiuQwtSymbol::PointSymbolEnum symbol();
@@ -88,10 +85,7 @@ public:
     void updateCurveNameAndUpdatePlotLegendAndTitle();
     void updateCurveNameNoLegendUpdate();
 
-    QString curveName() const
-    {
-        return m_curveName;
-    }
+    QString         curveName() const { return m_curveName; }
     virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const
     {
         return m_curveName;

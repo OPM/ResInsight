@@ -49,7 +49,9 @@ RicPolylineTargetsPickEventHandler::RicPolylineTargetsPickEventHandler( RimUserD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicPolylineTargetsPickEventHandler::~RicPolylineTargetsPickEventHandler() {}
+RicPolylineTargetsPickEventHandler::~RicPolylineTargetsPickEventHandler()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

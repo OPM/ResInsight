@@ -48,14 +48,8 @@ public:
 
         void set( RivCellSetEnum aGeometryType, int aFrameIndex );
 
-        int frameIndex() const
-        {
-            return m_frameIndex;
-        }
-        unsigned short geometryType() const
-        {
-            return m_geometryType;
-        }
+        int            frameIndex() const { return m_frameIndex; }
+        unsigned short geometryType() const { return m_geometryType; }
 
         bool operator<( const Key& other ) const;
 

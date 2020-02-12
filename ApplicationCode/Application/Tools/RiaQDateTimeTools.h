@@ -159,23 +159,11 @@ public:
     {
     }
 
-    int years() const
-    {
-        return m_years;
-    }
-    int months() const
-    {
-        return m_months;
-    }
-    int days() const
-    {
-        return m_days;
-    }
+    int years() const { return m_years; }
+    int months() const { return m_months; }
+    int days() const { return m_days; }
 
-    bool isEmpty()
-    {
-        return m_years == 0 && m_months == 0 && m_days;
-    }
+    bool isEmpty() { return m_years == 0 && m_months == 0 && m_days; }
 
 private:
     int m_years;

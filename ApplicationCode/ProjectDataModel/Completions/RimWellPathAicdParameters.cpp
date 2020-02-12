@@ -74,7 +74,9 @@ RimWellPathAicdParameters::RimWellPathAicdParameters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathAicdParameters::~RimWellPathAicdParameters() {}
+RimWellPathAicdParameters::~RimWellPathAicdParameters()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Requires that all the required parameters are set and a proper value

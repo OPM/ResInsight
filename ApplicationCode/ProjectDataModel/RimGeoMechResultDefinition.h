@@ -71,10 +71,7 @@ public:
     QString currentResultUnits() const;
     QString defaultLasUnits() const;
 
-    bool hasCategoryResult() const
-    {
-        return m_resultPositionType() == RIG_FORMATION_NAMES;
-    }
+    bool hasCategoryResult() const { return m_resultPositionType() == RIG_FORMATION_NAMES; }
 
     void updateLegendTextAndRanges( RimRegularLegendConfig* legendConfigToUpdate,
                                     const QString&          legendHeading,

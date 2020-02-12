@@ -58,10 +58,7 @@ public:
         return false;
     }
 
-    bool isConductivityDefined() const
-    {
-        return ( m_conductivity != std::numeric_limits<double>::infinity() );
-    }
+    bool isConductivityDefined() const { return ( m_conductivity != std::numeric_limits<double>::infinity() ); }
 
     // Unit : meter or feet
     double m_width;

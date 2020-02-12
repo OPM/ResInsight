@@ -44,7 +44,9 @@ RimIntersectionResultsDefinitionCollection::RimIntersectionResultsDefinitionColl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionResultsDefinitionCollection::~RimIntersectionResultsDefinitionCollection() {}
+RimIntersectionResultsDefinitionCollection::~RimIntersectionResultsDefinitionCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -42,7 +42,9 @@ CAF_CMD_SOURCE_INIT( RicEditSummaryPlotFeature, "RicEditSummaryPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicEditSummaryPlotFeature::RicEditSummaryPlotFeature() {}
+RicEditSummaryPlotFeature::RicEditSummaryPlotFeature()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

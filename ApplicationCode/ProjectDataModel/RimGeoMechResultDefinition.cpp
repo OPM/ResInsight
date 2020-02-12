@@ -140,7 +140,9 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechResultDefinition::~RimGeoMechResultDefinition( void ) {}
+RimGeoMechResultDefinition::~RimGeoMechResultDefinition( void )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -103,25 +103,13 @@ public:
         }
     }
 
-    std::string origin() const
-    {
-        return m_origin;
-    }
+    std::string origin() const { return m_origin; }
 
-    std::string startDate() const
-    {
-        return m_startDate;
-    }
+    std::string startDate() const { return m_startDate; }
 
-    std::vector<Column>& columnInfos()
-    {
-        return m_columnInfos;
-    }
+    std::vector<Column>& columnInfos() { return m_columnInfos; }
 
-    const std::vector<Column>& columnInfos() const
-    {
-        return m_columnInfos;
-    }
+    const std::vector<Column>& columnInfos() const { return m_columnInfos; }
 
     int       dateTimeColumnIndex() const;
     QDateTime findFirstDate() const;

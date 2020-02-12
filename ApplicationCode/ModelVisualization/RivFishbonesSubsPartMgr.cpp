@@ -45,7 +45,9 @@ RivFishbonesSubsPartMgr::RivFishbonesSubsPartMgr( RimFishbonesMultipleSubs* subs
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFishbonesSubsPartMgr::~RivFishbonesSubsPartMgr() {}
+RivFishbonesSubsPartMgr::~RivFishbonesSubsPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

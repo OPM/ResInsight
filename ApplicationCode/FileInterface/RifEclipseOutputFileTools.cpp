@@ -45,12 +45,16 @@
 //--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
-RifEclipseOutputFileTools::RifEclipseOutputFileTools() {}
+RifEclipseOutputFileTools::RifEclipseOutputFileTools()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Destructor
 //--------------------------------------------------------------------------------------------------
-RifEclipseOutputFileTools::~RifEclipseOutputFileTools() {}
+RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
+{
+}
 
 struct KeywordItemCounter
 {
@@ -61,10 +65,7 @@ struct KeywordItemCounter
     {
     }
 
-    bool operator==( const std::string& rhs ) const
-    {
-        return this->m_keyword == rhs;
-    }
+    bool operator==( const std::string& rhs ) const { return this->m_keyword == rhs; }
 
     std::string m_keyword;
     size_t      m_aggregatedItemCount;

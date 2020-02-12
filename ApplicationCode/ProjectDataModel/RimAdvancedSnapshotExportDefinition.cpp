@@ -82,7 +82,9 @@ RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAdvancedSnapshotExportDefinition::~RimAdvancedSnapshotExportDefinition() {}
+RimAdvancedSnapshotExportDefinition::~RimAdvancedSnapshotExportDefinition()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

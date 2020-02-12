@@ -123,10 +123,7 @@ public:
     void setShowWellCellsState( bool enable );
     bool showWellCells();
 
-    bool showWellCommunicationLines()
-    {
-        return m_showWellCommunicationLines();
-    }
+    bool showWellCommunicationLines() { return m_showWellCommunicationLines(); }
 
     caf::PdmField<WellFenceEnum> wellCellFenceType;
     caf::PdmField<double>        wellCellTransparencyLevel;

@@ -78,7 +78,9 @@ RimGeoMechContourMapProjection::RimGeoMechContourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechContourMapProjection::~RimGeoMechContourMapProjection() {}
+RimGeoMechContourMapProjection::~RimGeoMechContourMapProjection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

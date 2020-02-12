@@ -132,7 +132,9 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicExportEclipseSectorModelUi::~RicExportEclipseSectorModelUi() {}
+RicExportEclipseSectorModelUi::~RicExportEclipseSectorModelUi()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -37,7 +37,9 @@ RiuAbstractOverlayContentFrame::RiuAbstractOverlayContentFrame( QWidget* parent 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuAbstractOverlayContentFrame::~RiuAbstractOverlayContentFrame() {}
+RiuAbstractOverlayContentFrame::~RiuAbstractOverlayContentFrame()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

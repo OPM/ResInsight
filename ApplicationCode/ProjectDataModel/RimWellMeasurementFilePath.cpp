@@ -40,7 +40,9 @@ RimWellMeasurementFilePath::RimWellMeasurementFilePath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellMeasurementFilePath::~RimWellMeasurementFilePath() {}
+RimWellMeasurementFilePath::~RimWellMeasurementFilePath()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

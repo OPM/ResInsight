@@ -54,18 +54,9 @@ public:
         double resultRadius2;
     };
 
-    cvf::Vec3d startTangent() const
-    {
-        return m_startTangent;
-    }
-    const std::vector<cvf::Vec3d>& lineArcEndpoints() const
-    {
-        return m_lineArcEndpoints;
-    }
-    const std::vector<WellTargetStatus>& targetStatuses() const
-    {
-        return m_targetStatuses;
-    }
+    cvf::Vec3d                           startTangent() const { return m_startTangent; }
+    const std::vector<cvf::Vec3d>&       lineArcEndpoints() const { return m_lineArcEndpoints; }
+    const std::vector<WellTargetStatus>& targetStatuses() const { return m_targetStatuses; }
 
 private:
     cvf::Vec3d                    m_startTangent;

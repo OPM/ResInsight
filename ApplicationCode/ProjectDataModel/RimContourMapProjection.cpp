@@ -99,7 +99,9 @@ RimContourMapProjection::RimContourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimContourMapProjection::~RimContourMapProjection() {}
+RimContourMapProjection::~RimContourMapProjection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1773,4 +1775,6 @@ void RimContourMapProjection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::initAfterRead() {}
+void RimContourMapProjection::initAfterRead()
+{
+}

@@ -44,7 +44,9 @@ RiuScalarMapperLegendFrame::RiuScalarMapperLegendFrame( QWidget*           paren
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuScalarMapperLegendFrame::~RiuScalarMapperLegendFrame() {}
+RiuScalarMapperLegendFrame::~RiuScalarMapperLegendFrame()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

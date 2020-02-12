@@ -42,7 +42,9 @@ RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellConnectionFactorGeometryGenerator::~RivWellConnectionFactorGeometryGenerator() {}
+RivWellConnectionFactorGeometryGenerator::~RivWellConnectionFactorGeometryGenerator()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

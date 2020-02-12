@@ -96,7 +96,9 @@ RimNonDarcyPerforationParameters::RimNonDarcyPerforationParameters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimNonDarcyPerforationParameters::~RimNonDarcyPerforationParameters() {}
+RimNonDarcyPerforationParameters::~RimNonDarcyPerforationParameters()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

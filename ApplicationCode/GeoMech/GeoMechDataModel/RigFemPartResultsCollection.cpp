@@ -109,7 +109,9 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemPartResultsCollection::~RigFemPartResultsCollection() {}
+RigFemPartResultsCollection::~RigFemPartResultsCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

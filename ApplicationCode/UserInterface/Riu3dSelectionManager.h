@@ -144,10 +144,7 @@ public:
 
     ~RiuEclipseSelectionItem() override{};
 
-    RiuSelectionType type() const override
-    {
-        return ECLIPSE_SELECTION_OBJECT;
-    }
+    RiuSelectionType type() const override { return ECLIPSE_SELECTION_OBJECT; }
 
 public:
     caf::PdmPointer<RimGridView>                m_view;
@@ -189,10 +186,7 @@ public:
                                       const std::array<cvf::Vec3f, 3>& intersectionTriangle );
     ~RiuGeoMechSelectionItem() override{};
 
-    RiuSelectionType type() const override
-    {
-        return GEOMECH_SELECTION_OBJECT;
-    }
+    RiuSelectionType type() const override { return GEOMECH_SELECTION_OBJECT; }
 
 public:
     caf::PdmPointer<RimGridView>                m_view;
@@ -219,10 +213,7 @@ public:
 
     ~Riu2dIntersectionSelectionItem() override;
 
-    RiuSelectionType type() const override
-    {
-        return INTERSECTION_SELECTION_OBJECT;
-    }
+    RiuSelectionType type() const override { return INTERSECTION_SELECTION_OBJECT; }
 
 public:
     caf::PdmPointer<Rim2dIntersectionView> view() const;
@@ -250,10 +241,7 @@ public:
 
     ~RiuWellPathSelectionItem() override{};
 
-    RiuSelectionType type() const override
-    {
-        return WELLPATH_SELECTION_OBJECT;
-    }
+    RiuSelectionType type() const override { return WELLPATH_SELECTION_OBJECT; }
 
 public:
     RimWellPath*                   m_wellpath;
@@ -274,10 +262,7 @@ public:
 
     ~RiuSimWellSelectionItem() override{};
 
-    RiuSelectionType type() const override
-    {
-        return SIMWELL_SELECTION_OBJECT;
-    }
+    RiuSelectionType type() const override { return SIMWELL_SELECTION_OBJECT; }
 
 public:
     RimSimWellInView* m_simWell;
@@ -297,10 +282,7 @@ public:
 
     ~RiuGeneralSelectionItem() override{};
 
-    RiuSelectionType type() const override
-    {
-        return GENERAL_SELECTION_OBJECT;
-    }
+    RiuSelectionType type() const override { return GENERAL_SELECTION_OBJECT; }
 
 public:
     caf::PdmObject* m_object;

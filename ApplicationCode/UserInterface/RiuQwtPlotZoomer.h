@@ -37,16 +37,10 @@ public:
         return accept( currentSelection );
     }
 
-    void endZoomOperation()
-    {
-        reset();
-    }
+    void endZoomOperation() { reset(); }
 
 protected:
-    QSizeF minZoomSize() const override
-    {
-        return QwtPlotZoomer::minZoomSize() / 10.0e6;
-    }
+    QSizeF minZoomSize() const override { return QwtPlotZoomer::minZoomSize() / 10.0e6; }
 
     bool accept( QPolygon& pa ) const override
     {

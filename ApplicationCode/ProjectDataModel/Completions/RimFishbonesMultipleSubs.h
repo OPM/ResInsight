@@ -92,11 +92,8 @@ public:
     {
         return m_pipeProperties()->holeDiameter( unitSystem );
     }
-    double effectiveDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
-    double skinFactor() const
-    {
-        return m_pipeProperties()->skinFactor();
-    }
+    double              effectiveDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
+    double              skinFactor() const { return m_pipeProperties()->skinFactor(); }
     double              openHoleRoughnessFactor( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
     double              icdOrificeDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
     double              icdFlowCoefficient() const;
@@ -105,10 +102,7 @@ public:
 
     void geometryUpdated();
 
-    const std::vector<SubLateralIndex>& installedLateralIndices() const
-    {
-        return m_subLateralIndices;
-    };
+    const std::vector<SubLateralIndex>&        installedLateralIndices() const { return m_subLateralIndices; };
     std::vector<cvf::Vec3d>                    coordsForLateral( size_t subIndex, size_t lateralIndex ) const;
     std::vector<std::pair<cvf::Vec3d, double>> coordsAndMDForLateral( size_t subIndex, size_t lateralIndex ) const;
     void                                       recomputeLateralLocations();

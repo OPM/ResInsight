@@ -43,7 +43,9 @@ Rim2dIntersectionViewCollection::Rim2dIntersectionViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionViewCollection::~Rim2dIntersectionViewCollection() {}
+Rim2dIntersectionViewCollection::~Rim2dIntersectionViewCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

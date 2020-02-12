@@ -33,10 +33,7 @@ public:
     RimFormationNamesCollection();
     ~RimFormationNamesCollection() override;
 
-    const caf::PdmChildArrayField<RimFormationNames*>& formationNamesList() const
-    {
-        return m_formationNamesList;
-    }
+    const caf::PdmChildArrayField<RimFormationNames*>& formationNamesList() const { return m_formationNamesList; }
 
     void readAllFormationNames();
 

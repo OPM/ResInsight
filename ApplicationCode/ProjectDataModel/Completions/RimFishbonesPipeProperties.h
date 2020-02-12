@@ -41,10 +41,7 @@ public:
     RimFishbonesPipeProperties();
     ~RimFishbonesPipeProperties() override;
 
-    double skinFactor() const
-    {
-        return m_skinFactor();
-    }
+    double skinFactor() const { return m_skinFactor(); }
     double holeDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
 
     void setUnitSystemSpecificDefaults();

@@ -38,7 +38,9 @@ CAF_CMD_SOURCE_INIT( RicNewWellPathIntersectionFeature, "RicNewWellPathIntersect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewWellPathIntersectionFeature::RicNewWellPathIntersectionFeature() {}
+RicNewWellPathIntersectionFeature::RicNewWellPathIntersectionFeature()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -90,7 +92,9 @@ RicNewWellPathIntersectionFeatureCmd::RicNewWellPathIntersectionFeatureCmd( RimI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewWellPathIntersectionFeatureCmd::~RicNewWellPathIntersectionFeatureCmd() {}
+RicNewWellPathIntersectionFeatureCmd::~RicNewWellPathIntersectionFeatureCmd()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -119,4 +123,6 @@ void RicNewWellPathIntersectionFeatureCmd::redo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathIntersectionFeatureCmd::undo() {}
+void RicNewWellPathIntersectionFeatureCmd::undo()
+{
+}

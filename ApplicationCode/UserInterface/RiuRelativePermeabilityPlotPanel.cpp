@@ -61,14 +61,8 @@ public:
         : RiuDockedQwtPlot( parent )
     {
     }
-    QSize sizeHint() const override
-    {
-        return QSize( 100, 100 );
-    }
-    QSize minimumSizeHint() const override
-    {
-        return QSize( 0, 0 );
-    }
+    QSize sizeHint() const override { return QSize( 100, 100 ); }
+    QSize minimumSizeHint() const override { return QSize( 0, 0 ); }
 };
 
 //==================================================================================================
@@ -148,7 +142,9 @@ RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QDockWidget*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuRelativePermeabilityPlotPanel::~RiuRelativePermeabilityPlotPanel() {}
+RiuRelativePermeabilityPlotPanel::~RiuRelativePermeabilityPlotPanel()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

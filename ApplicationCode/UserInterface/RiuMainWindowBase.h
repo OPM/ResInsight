@@ -62,11 +62,8 @@ public:
 
     void hideAllDockWidgets();
 
-    caf::PdmUiTreeView* projectTreeView()
-    {
-        return m_projectTreeView;
-    }
-    void setExpanded( const caf::PdmUiItem* uiItem, bool expanded = true );
+    caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView; }
+    void                setExpanded( const caf::PdmUiItem* uiItem, bool expanded = true );
 
     void selectAsCurrentItem( const caf::PdmObject* object, bool allowActiveViewChange = true );
     void toggleItemInSelection( const caf::PdmObject* object, bool allowActiveViewChange = true );

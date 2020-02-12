@@ -82,7 +82,9 @@ RivExtrudedCurveIntersectionGeometryGenerator::RivExtrudedCurveIntersectionGeome
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivExtrudedCurveIntersectionGeometryGenerator::~RivExtrudedCurveIntersectionGeometryGenerator() {}
+RivExtrudedCurveIntersectionGeometryGenerator::~RivExtrudedCurveIntersectionGeometryGenerator()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -53,18 +53,9 @@ public:
 public:
     RifEclipseRftAddress( QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannel );
 
-    const QString& wellName() const
-    {
-        return m_wellName;
-    }
-    QDateTime timeStep() const
-    {
-        return m_timeStep;
-    }
-    const RftWellLogChannelType& wellLogChannel() const
-    {
-        return m_wellLogChannel;
-    }
+    const QString&               wellName() const { return m_wellName; }
+    QDateTime                    timeStep() const { return m_timeStep; }
+    const RftWellLogChannelType& wellLogChannel() const { return m_wellLogChannel; }
 
     static std::set<RftWellLogChannelType> rftPlotChannelTypes()
     {

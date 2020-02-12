@@ -68,19 +68,10 @@ public:
     {
     }
 
-    virtual ~SummaryIdentifierAndField()
-    {
-        delete m_pdmField;
-    }
+    virtual ~SummaryIdentifierAndField() { delete m_pdmField; }
 
-    RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier() const
-    {
-        return m_summaryIdentifier;
-    }
-    caf::PdmField<std::vector<QString>>* pdmField()
-    {
-        return m_pdmField;
-    }
+    RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier() const { return m_summaryIdentifier; }
+    caf::PdmField<std::vector<QString>>*            pdmField() { return m_pdmField; }
 
 private:
     RifEclipseSummaryAddress::SummaryIdentifierType m_summaryIdentifier;

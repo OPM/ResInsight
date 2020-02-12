@@ -80,7 +80,9 @@ RivWindowEdgeAxesOverlayItem::RivWindowEdgeAxesOverlayItem( Font* font )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWindowEdgeAxesOverlayItem::~RivWindowEdgeAxesOverlayItem() {}
+RivWindowEdgeAxesOverlayItem::~RivWindowEdgeAxesOverlayItem()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

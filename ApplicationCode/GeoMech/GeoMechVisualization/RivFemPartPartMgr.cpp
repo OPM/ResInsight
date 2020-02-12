@@ -338,4 +338,6 @@ void RivFemPartPartMgr::updateCellResultColor( size_t timeStepIndex, RimGeoMechC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemPartPartMgr::~RivFemPartPartMgr() {}
+RivFemPartPartMgr::~RivFemPartPartMgr()
+{
+}

@@ -138,7 +138,9 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimExtrudedCurveIntersection::~RimExtrudedCurveIntersection() {}
+RimExtrudedCurveIntersection::~RimExtrudedCurveIntersection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

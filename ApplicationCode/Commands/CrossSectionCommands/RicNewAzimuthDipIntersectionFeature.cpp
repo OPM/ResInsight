@@ -43,7 +43,9 @@ CAF_CMD_SOURCE_INIT( RicNewAzimuthDipIntersectionFeature, "RicNewAzimuthDipInter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewAzimuthDipIntersectionFeature::RicNewAzimuthDipIntersectionFeature() {}
+RicNewAzimuthDipIntersectionFeature::RicNewAzimuthDipIntersectionFeature()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -88,7 +90,9 @@ RicNewAzimuthDipIntersectionFeatureCmd::RicNewAzimuthDipIntersectionFeatureCmd(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewAzimuthDipIntersectionFeatureCmd::~RicNewAzimuthDipIntersectionFeatureCmd() {}
+RicNewAzimuthDipIntersectionFeatureCmd::~RicNewAzimuthDipIntersectionFeatureCmd()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -128,4 +132,6 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewAzimuthDipIntersectionFeatureCmd::undo() {}
+void RicNewAzimuthDipIntersectionFeatureCmd::undo()
+{
+}

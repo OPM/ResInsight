@@ -44,7 +44,9 @@ RimPolylinesFromFileAnnotation::RimPolylinesFromFileAnnotation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPolylinesFromFileAnnotation::~RimPolylinesFromFileAnnotation() {}
+RimPolylinesFromFileAnnotation::~RimPolylinesFromFileAnnotation()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

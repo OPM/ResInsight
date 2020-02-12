@@ -152,7 +152,9 @@ void RicCreateMultipleFracturesFeature::slotAppendFractures()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateMultipleFracturesFeature::slotClose() {}
+void RicCreateMultipleFracturesFeature::slotClose()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

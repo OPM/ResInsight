@@ -65,7 +65,9 @@ RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimUserDefinedPolylinesAnnotation::~RimUserDefinedPolylinesAnnotation() {}
+RimUserDefinedPolylinesAnnotation::~RimUserDefinedPolylinesAnnotation()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

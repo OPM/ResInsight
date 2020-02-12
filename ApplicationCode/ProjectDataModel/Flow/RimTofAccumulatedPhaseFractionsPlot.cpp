@@ -152,7 +152,9 @@ QWidget* RimTofAccumulatedPhaseFractionsPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTofAccumulatedPhaseFractionsPlot::zoomAll() {}
+void RimTofAccumulatedPhaseFractionsPlot::zoomAll()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -205,7 +207,9 @@ QString RimTofAccumulatedPhaseFractionsPlot::description() const
 //--------------------------------------------------------------------------------------------------
 /// TODO: Implement properly
 //--------------------------------------------------------------------------------------------------
-void RimTofAccumulatedPhaseFractionsPlot::assignIdIfNecessary() {}
+void RimTofAccumulatedPhaseFractionsPlot::assignIdIfNecessary()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -42,7 +42,9 @@ CAF_CMD_SOURCE_INIT( RicNewPolylineIntersectionFeature, "RicNewPolylineIntersect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewPolylineIntersectionFeature::RicNewPolylineIntersectionFeature() {}
+RicNewPolylineIntersectionFeature::RicNewPolylineIntersectionFeature()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -86,7 +88,9 @@ RicNewPolylineIntersectionFeatureCmd::RicNewPolylineIntersectionFeatureCmd( RimI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewPolylineIntersectionFeatureCmd::~RicNewPolylineIntersectionFeatureCmd() {}
+RicNewPolylineIntersectionFeatureCmd::~RicNewPolylineIntersectionFeatureCmd()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -118,4 +122,6 @@ void RicNewPolylineIntersectionFeatureCmd::redo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewPolylineIntersectionFeatureCmd::undo() {}
+void RicNewPolylineIntersectionFeatureCmd::undo()
+{
+}

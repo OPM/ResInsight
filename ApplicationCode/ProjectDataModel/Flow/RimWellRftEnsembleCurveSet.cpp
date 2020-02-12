@@ -68,7 +68,9 @@ RimWellRftEnsembleCurveSet::RimWellRftEnsembleCurveSet()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellRftEnsembleCurveSet::~RimWellRftEnsembleCurveSet() {}
+RimWellRftEnsembleCurveSet::~RimWellRftEnsembleCurveSet()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

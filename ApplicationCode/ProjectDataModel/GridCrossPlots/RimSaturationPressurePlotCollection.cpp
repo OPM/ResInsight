@@ -50,7 +50,9 @@ RimSaturationPressurePlotCollection::RimSaturationPressurePlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSaturationPressurePlotCollection::~RimSaturationPressurePlotCollection() {}
+RimSaturationPressurePlotCollection::~RimSaturationPressurePlotCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

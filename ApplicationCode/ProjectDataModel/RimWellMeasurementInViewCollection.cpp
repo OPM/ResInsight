@@ -56,7 +56,9 @@ RimWellMeasurementInViewCollection::RimWellMeasurementInViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellMeasurementInViewCollection::~RimWellMeasurementInViewCollection() {}
+RimWellMeasurementInViewCollection::~RimWellMeasurementInViewCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -38,7 +38,9 @@ RicEclipsePropertyFilterNewExec::RicEclipsePropertyFilterNewExec( RimEclipseProp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicEclipsePropertyFilterNewExec::~RicEclipsePropertyFilterNewExec() {}
+RicEclipsePropertyFilterNewExec::~RicEclipsePropertyFilterNewExec()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -37,7 +37,9 @@ RimGridCrossPlotCollection::RimGridCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridCrossPlotCollection::~RimGridCrossPlotCollection() {}
+RimGridCrossPlotCollection::~RimGridCrossPlotCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

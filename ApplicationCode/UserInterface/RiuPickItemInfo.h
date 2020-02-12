@@ -56,34 +56,13 @@ public:
         m_globalRayOrigin = globalRayOrigin;
     }
 
-    const cvf::Part* pickedPart() const
-    {
-        return m_pickedPart;
-    }
-    cvf::Vec3d globalPickedPoint() const
-    {
-        return m_globalPickedPoint;
-    }
-    cvf::Vec3d localPickedPoint() const
-    {
-        return m_localPickedPoint;
-    }
-    const cvf::Object* sourceInfo() const
-    {
-        return m_sourceInfo;
-    }
-    cvf::uint faceIdx() const
-    {
-        return m_faceIdx;
-    }
-    double distanceAlongRay() const
-    {
-        return m_distanceAlongRay;
-    }
-    cvf::Vec3d globalRayOrigin() const
-    {
-        return m_globalRayOrigin;
-    }
+    const cvf::Part*   pickedPart() const { return m_pickedPart; }
+    cvf::Vec3d         globalPickedPoint() const { return m_globalPickedPoint; }
+    cvf::Vec3d         localPickedPoint() const { return m_localPickedPoint; }
+    const cvf::Object* sourceInfo() const { return m_sourceInfo; }
+    cvf::uint          faceIdx() const { return m_faceIdx; }
+    double             distanceAlongRay() const { return m_distanceAlongRay; }
+    cvf::Vec3d         globalRayOrigin() const { return m_globalRayOrigin; }
 
     float polygonOffsetUnit() const;
 

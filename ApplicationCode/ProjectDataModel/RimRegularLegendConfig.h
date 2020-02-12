@@ -106,16 +106,10 @@ public:
     void                              recreateLegend();
 
     void            setColorRange( ColorRangesType colorMode );
-    ColorRangesType colorRange()
-    {
-        return m_colorRangeMode();
-    }
-    void        setMappingMode( MappingType mappingType );
-    MappingType mappingMode()
-    {
-        return m_mappingMode();
-    }
-    void setTickNumberFormat( NumberFormatType numberFormat );
+    ColorRangesType colorRange() { return m_colorRangeMode(); }
+    void            setMappingMode( MappingType mappingType );
+    MappingType     mappingMode() { return m_mappingMode(); }
+    void            setTickNumberFormat( NumberFormatType numberFormat );
 
     void disableAllTimeStepsRange( bool doDisable );
 
@@ -136,14 +130,8 @@ public:
 
     void setUiValuesFromLegendConfig( const RimRegularLegendConfig* otherLegendConfig );
 
-    cvf::ScalarMapper* scalarMapper()
-    {
-        return m_currentScalarMapper.p();
-    }
-    const cvf::ScalarMapper* scalarMapper() const
-    {
-        return m_currentScalarMapper.p();
-    }
+    cvf::ScalarMapper*       scalarMapper() { return m_currentScalarMapper.p(); }
+    const cvf::ScalarMapper* scalarMapper() const { return m_currentScalarMapper.p(); }
 
     bool showLegend() const;
 

@@ -50,7 +50,9 @@ RicSaveEclipseResultAsInputPropertyExec::RicSaveEclipseResultAsInputPropertyExec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSaveEclipseResultAsInputPropertyExec::~RicSaveEclipseResultAsInputPropertyExec() {}
+RicSaveEclipseResultAsInputPropertyExec::~RicSaveEclipseResultAsInputPropertyExec()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

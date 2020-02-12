@@ -99,7 +99,9 @@ QWidget* RimTotalWellAllocationPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTotalWellAllocationPlot::zoomAll() {}
+void RimTotalWellAllocationPlot::zoomAll()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -119,7 +121,9 @@ void RimTotalWellAllocationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 /// TODO: Implement properly
 //--------------------------------------------------------------------------------------------------
-void RimTotalWellAllocationPlot::assignIdIfNecessary() {}
+void RimTotalWellAllocationPlot::assignIdIfNecessary()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

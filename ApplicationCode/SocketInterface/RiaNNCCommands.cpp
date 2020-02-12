@@ -51,10 +51,7 @@
 class RiaGetNNCConnections : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetNNCConnections" );
-    }
+    static QString commandName() { return QString( "GetNNCConnections" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -106,10 +103,7 @@ static bool RiaGetNNCConnections_init = RiaSocketCommandFactory::instance()->reg
 class RiaGetDynamicNNCValues : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetDynamicNNCValues" );
-    }
+    static QString commandName() { return QString( "GetDynamicNNCValues" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -197,10 +191,7 @@ static bool RiaGetDynamicNNCValues_init = RiaSocketCommandFactory::instance()->r
 class RiaGetStaticNNCValues : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetStaticNNCValues" );
-    }
+    static QString commandName() { return QString( "GetStaticNNCValues" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -246,10 +237,7 @@ static bool RiaGetStaticNNCValues_init = RiaSocketCommandFactory::instance()->re
 class RiaGetNNCPropertyNames : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetNNCPropertyNames" );
-    }
+    static QString commandName() { return QString( "GetNNCPropertyNames" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -332,10 +320,7 @@ public:
     {
     }
 
-    static QString commandName()
-    {
-        return QString( "SetNNCProperty" );
-    }
+    static QString commandName() { return QString( "SetNNCProperty" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {

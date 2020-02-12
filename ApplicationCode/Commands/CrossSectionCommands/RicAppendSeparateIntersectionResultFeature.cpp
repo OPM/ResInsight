@@ -81,7 +81,9 @@ RicAppendSeparateIntersectionResultFeatureCmd::RicAppendSeparateIntersectionResu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicAppendSeparateIntersectionResultFeatureCmd::~RicAppendSeparateIntersectionResultFeatureCmd() {}
+RicAppendSeparateIntersectionResultFeatureCmd::~RicAppendSeparateIntersectionResultFeatureCmd()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -107,4 +109,6 @@ void RicAppendSeparateIntersectionResultFeatureCmd::redo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendSeparateIntersectionResultFeatureCmd::undo() {}
+void RicAppendSeparateIntersectionResultFeatureCmd::undo()
+{
+}

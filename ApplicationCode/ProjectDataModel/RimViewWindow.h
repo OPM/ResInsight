@@ -39,10 +39,7 @@ struct RimMdiWindowGeometry
         , isMaximized( false )
     {
     }
-    bool isValid() const
-    {
-        return ( mainWindowID >= 0 && width >= 0 && height >= 0 );
-    }
+    bool isValid() const { return ( mainWindowID >= 0 && width >= 0 && height >= 0 ); }
 
     int mainWindowID;
 

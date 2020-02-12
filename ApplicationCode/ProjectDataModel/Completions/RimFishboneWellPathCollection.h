@@ -53,10 +53,7 @@ public:
     {
         return m_pipeProperties->holeDiameter( unitSystem );
     }
-    double skinFactor() const
-    {
-        return m_pipeProperties->skinFactor();
-    }
+    double skinFactor() const { return m_pipeProperties->skinFactor(); }
 
     void setUnitSystemSpecificDefaults();
 

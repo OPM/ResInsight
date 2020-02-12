@@ -131,4 +131,6 @@ bool RicMeasurementPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& ev
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMeasurementPickEventHandler::notifyUnregistered() {}
+void RicMeasurementPickEventHandler::notifyUnregistered()
+{
+}

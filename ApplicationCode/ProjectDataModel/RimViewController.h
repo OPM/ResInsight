@@ -89,14 +89,8 @@ protected: // Pdm overridden methods
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    caf::PdmFieldHandle* userDescriptionField() override
-    {
-        return &m_name;
-    }
-    caf::PdmFieldHandle* objectToggleField() override
-    {
-        return &m_isActive;
-    }
+    caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
+    caf::PdmFieldHandle* objectToggleField() override { return &m_isActive; }
 
 private:
     void updateCameraLink();

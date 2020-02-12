@@ -101,7 +101,9 @@ RicGridStatisticsDialog::RicGridStatisticsDialog( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicGridStatisticsDialog::~RicGridStatisticsDialog() {}
+RicGridStatisticsDialog::~RicGridStatisticsDialog()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

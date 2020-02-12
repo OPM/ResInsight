@@ -36,7 +36,9 @@ CAF_CMD_SOURCE_INIT( RicEditSummaryCrossPlotFeature, "RicEditSummaryCrossPlotFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicEditSummaryCrossPlotFeature::RicEditSummaryCrossPlotFeature() {}
+RicEditSummaryCrossPlotFeature::RicEditSummaryCrossPlotFeature()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

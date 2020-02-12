@@ -71,10 +71,7 @@ public:
                             sizes.k() / ( mainGridEndCell.k() - mainGridStartCell.k() + 1 ) );
     }
 
-    size_t cellCount() const
-    {
-        return sizes.i() * sizes.j() * sizes.k();
-    }
+    size_t cellCount() const { return sizes.i() * sizes.j() * sizes.k(); }
 
     int         id;
     QString     name;
@@ -141,10 +138,7 @@ public:
         return type == other.type && name == other.name && wellPathName == other.wellPathName;
     }
 
-    bool operator!=( const CompletionInfo& other ) const
-    {
-        return !operator==( other );
-    }
+    bool operator!=( const CompletionInfo& other ) const { return !operator==( other ); }
 };
 
 //==================================================================================================
@@ -155,10 +149,7 @@ class RicExportLgrFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
     using Range = std::pair<size_t, size_t>;
-    static Range initRange()
-    {
-        return std::make_pair( std::numeric_limits<size_t>::max(), 0 );
-    }
+    static Range initRange() { return std::make_pair( std::numeric_limits<size_t>::max(), 0 ); }
 
     static RicExportLgrUi* openDialog( const QString&  dialogTitle,
                                        RimEclipseCase* defaultCase           = nullptr,

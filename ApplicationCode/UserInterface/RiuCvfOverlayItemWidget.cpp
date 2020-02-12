@@ -54,7 +54,9 @@ RiuCvfOverlayItemWidget::RiuCvfOverlayItemWidget( caf::TitledOverlayFrame* overl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuCvfOverlayItemWidget::~RiuCvfOverlayItemWidget() {}
+RiuCvfOverlayItemWidget::~RiuCvfOverlayItemWidget()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

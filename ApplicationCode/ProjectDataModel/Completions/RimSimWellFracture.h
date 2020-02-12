@@ -42,15 +42,9 @@ public:
     void updateAzimuthBasedOnWellAzimuthAngle() override;
 
     double wellAzimuthAtFracturePosition() const override;
-    double fractureMD() const override
-    {
-        return m_location;
-    }
+    double fractureMD() const override { return m_location; }
 
-    int branchIndex() const
-    {
-        return m_branchIndex();
-    }
+    int branchIndex() const { return m_branchIndex(); }
 
     void loadDataAndUpdate() override;
 

@@ -28,7 +28,9 @@ RiaImageCompareReporter::RiaImageCompareReporter( void )
     m_showInteractiveDiff = false;
 }
 
-RiaImageCompareReporter::~RiaImageCompareReporter( void ) {}
+RiaImageCompareReporter::~RiaImageCompareReporter( void )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

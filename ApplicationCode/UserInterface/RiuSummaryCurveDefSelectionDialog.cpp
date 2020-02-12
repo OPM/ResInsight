@@ -68,7 +68,9 @@ RiuSummaryCurveDefSelectionDialog::RiuSummaryCurveDefSelectionDialog( QWidget* p
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelectionDialog::~RiuSummaryCurveDefSelectionDialog() {}
+RiuSummaryCurveDefSelectionDialog::~RiuSummaryCurveDefSelectionDialog()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -55,7 +55,9 @@ RicPointTangentManipulatorPartMgr::RicPointTangentManipulatorPartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicPointTangentManipulatorPartMgr::~RicPointTangentManipulatorPartMgr() {}
+RicPointTangentManipulatorPartMgr::~RicPointTangentManipulatorPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

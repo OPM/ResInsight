@@ -68,7 +68,9 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEllipseFractureTemplate::~RimEllipseFractureTemplate() {}
+RimEllipseFractureTemplate::~RimEllipseFractureTemplate()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

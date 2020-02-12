@@ -57,10 +57,7 @@ public:
     void setCellVisibility( cvf::UByteArray* cellVisibilities );
 
     void applySingleColorEffect();
-    void setOpacityLevel( float opacity )
-    {
-        m_opacityLevel = opacity;
-    }
+    void setOpacityLevel( float opacity ) { m_opacityLevel = opacity; }
     void updateCellResultColor( size_t timeStepIndex, RimEclipseCellColors* cellResultColors );
     void updateCellEdgeResultColor( size_t                timeStepIndex,
                                     RimEclipseCellColors* cellResultColors,

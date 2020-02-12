@@ -76,10 +76,7 @@ void getCaseInfoFromCases( std::vector<RimCase*>& cases,
 class RiaGetCurrentCase : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetCurrentCase" );
-    }
+    static QString commandName() { return QString( "GetCurrentCase" ); }
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
         qint64  caseId = server->currentCaseId();
@@ -118,10 +115,7 @@ static bool RiaGetCurrentCase_init = RiaSocketCommandFactory::instance()->regist
 class RiaGetSelectedCases : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetSelectedCases" );
-    }
+    static QString commandName() { return QString( "GetSelectedCases" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -171,10 +165,7 @@ static bool RiaGetSelectedCases_init = RiaSocketCommandFactory::instance()->regi
 class RiaGetCaseGroups : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetCaseGroups" );
-    }
+    static QString commandName() { return QString( "GetCaseGroups" ); }
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
         RimProject*               proj           = RiaApplication::instance()->project();
@@ -230,10 +221,7 @@ static bool RiaGetCaseGroups_init = RiaSocketCommandFactory::instance()->registe
 class RiaGetCases : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetCases" );
-    }
+    static QString commandName() { return QString( "GetCases" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {

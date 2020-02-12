@@ -49,7 +49,9 @@ RivWellConnectionsPartMgr::RivWellConnectionsPartMgr( RimEclipseView* reservoirV
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellConnectionsPartMgr::~RivWellConnectionsPartMgr() {}
+RivWellConnectionsPartMgr::~RivWellConnectionsPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

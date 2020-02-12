@@ -61,31 +61,13 @@ public:
     int                 refKLayerIndex;
     bool                normalizedByHydrostaticPressure;
 
-    static constexpr int allTimeLapsesValue()
-    {
-        return ALL_TIME_LAPSES;
-    }
-    static constexpr int noTimeLapseValue()
-    {
-        return NO_TIME_LAPSE;
-    }
-    static constexpr int noCompactionValue()
-    {
-        return NO_COMPACTION;
-    }
+    static constexpr int allTimeLapsesValue() { return ALL_TIME_LAPSES; }
+    static constexpr int noTimeLapseValue() { return NO_TIME_LAPSE; }
+    static constexpr int noCompactionValue() { return NO_COMPACTION; }
 
-    bool isTimeLapse() const
-    {
-        return timeLapseBaseFrameIdx > NO_TIME_LAPSE;
-    }
-    bool representsAllTimeLapses() const
-    {
-        return timeLapseBaseFrameIdx == ALL_TIME_LAPSES;
-    }
-    bool normalizeByHydrostaticPressure() const
-    {
-        return normalizedByHydrostaticPressure;
-    }
+    bool isTimeLapse() const { return timeLapseBaseFrameIdx > NO_TIME_LAPSE; }
+    bool representsAllTimeLapses() const { return timeLapseBaseFrameIdx == ALL_TIME_LAPSES; }
+    bool normalizeByHydrostaticPressure() const { return normalizedByHydrostaticPressure; }
 
     bool isValid() const
     {

@@ -89,11 +89,8 @@ public:
     void recreateLegend();
 
     void            setColorRange( ColorRangesType colorMode );
-    ColorRangesType colorRange()
-    {
-        return m_colorRangeMode();
-    }
-    void disableAllTimeStepsRange( bool doDisable );
+    ColorRangesType colorRange() { return m_colorRangeMode(); }
+    void            disableAllTimeStepsRange( bool doDisable );
 
     void setAutomaticRanges( double globalMin, double globalMax, double localMin, double localMax );
 

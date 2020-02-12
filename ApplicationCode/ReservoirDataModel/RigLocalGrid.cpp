@@ -26,7 +26,9 @@ RigLocalGrid::RigLocalGrid( RigMainGrid* mainGrid )
 {
 }
 
-RigLocalGrid::~RigLocalGrid() {}
+RigLocalGrid::~RigLocalGrid()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -35,10 +35,7 @@ public:
     static QString getCacheDirectoryPath();
 
 private:
-    QString surveyType()
-    {
-        return m_surveyType;
-    }
+    QString surveyType() { return m_surveyType; }
     void    setSurveyType( QString surveyType );
     bool    isStoredInCache() const;
     QString getCacheFileName();
