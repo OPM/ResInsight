@@ -235,9 +235,9 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitField( &m_showformationFluids, "ShowFormationFluids", false, "Show Fluids", "", "", "" );
 
     CAF_PDM_InitField( &m_showWellPathAttributes, "ShowWellPathAttributes", false, "Show Well Attributes", "", "", "" );
-    CAF_PDM_InitField( &m_wellPathAttributesInLegend, "WellPathAttributesInLegend", false, "Attributes in Legend", "", "", "" );
+    CAF_PDM_InitField( &m_wellPathAttributesInLegend, "WellPathAttributesInLegend", true, "Attributes in Legend", "", "", "" );
     CAF_PDM_InitField( &m_showWellPathCompletions, "ShowWellPathCompletions", true, "Show Well Completions", "", "", "" );
-    CAF_PDM_InitField( &m_wellPathCompletionsInLegend, "WellPathCompletionsInLegend", false, "Completions in Legend", "", "", "" );
+    CAF_PDM_InitField( &m_wellPathCompletionsInLegend, "WellPathCompletionsInLegend", true, "Completions in Legend", "", "", "" );
     CAF_PDM_InitField( &m_showWellPathComponentsBothSides, "ShowWellPathAttrBothSides", true, "Show Both Sides", "", "", "" );
     CAF_PDM_InitField( &m_showWellPathComponentLabels, "ShowWellPathAttrLabels", false, "Show Labels", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_wellPathComponentSource, "AttributesWellPathSource", "Well Path", "", "", "" );
@@ -1533,6 +1533,22 @@ bool RimWellLogTrack::showWellPathAttributes() const
 void RimWellLogTrack::setShowWellPathAttributes( bool on )
 {
     m_showWellPathAttributes = on;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setShowWellPathAttributesInLegend( bool on )
+{
+    m_wellPathAttributesInLegend = on;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setShowWellPathCompletionsInLegend( bool on )
+{
+    m_wellPathCompletionsInLegend = on;
 }
 
 //--------------------------------------------------------------------------------------------------
