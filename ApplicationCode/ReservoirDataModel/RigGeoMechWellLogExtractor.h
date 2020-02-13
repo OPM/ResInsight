@@ -91,13 +91,16 @@ private:
     std::vector<WbsParameterSource> calculateWbsParameterForAllSegments( const RigWbsParameter& parameter,
                                                                          WbsParameterSource     primarySource,
                                                                          int                    frameIndex,
-                                                                         std::vector<double>*   outputValues );
+                                                                         std::vector<double>*   outputValues,
+                                                                         bool                   allowNormalization );
     std::vector<WbsParameterSource> calculateWbsParameterForAllSegments( const RigWbsParameter& parameter,
                                                                          int                    frameIndex,
-                                                                         std::vector<double>*   outputValues );
+                                                                         std::vector<double>*   outputValues,
+                                                                         bool                   allowNormalization );
     std::vector<WbsParameterSource> calculateWbsParametersForAllSegments( const RigFemResultAddress& resAddr,
                                                                           int                        frameIndex,
-                                                                          std::vector<double>*       values );
+                                                                          std::vector<double>*       values,
+                                                                          bool allowNormalization );
 
     void wellPathAngles( const RigFemResultAddress& resAddr, std::vector<double>* values );
     std::vector<WbsParameterSource>
