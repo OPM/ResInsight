@@ -142,13 +142,37 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
     RifSummaryReaderInterface* reader2 = m_summaryCase2 ? m_summaryCase2->summaryReader() : nullptr;
     if ( !reader1 || !reader2 ) return;
 
-    if ( !reader1->hasAddress( address ) || !reader2->hasAddress( address ) )
+    if ( !reader1->hasAddress( address ) && !reader2->hasAddress( address ) )
     {
-        std::string text = address.uiText();
+        return;
+    }
+    else if ( reader1->hasAddress( address ) && !reader2->hasAddress( address ) )
+    {
+        std::vector<double> summaryValues;
+        reader1->values( address, &summaryValues );
 
-        RiaLogging::warning(
-            "Derived Ensemble : At least one of the ensembles does not contain the summary address : " +
-            QString::fromStdString( text ) );
+        auto& dataItem  = m_dataCache[address];
+        dataItem.first  = reader1->timeSteps( address );
+        dataItem.second = summaryValues;
+
+        return;
+    }
+    else if ( !reader1->hasAddress( address ) && reader2->hasAddress( address ) )
+    {
+        std::vector<double> summaryValues;
+        reader2->values( address, &summaryValues );
+
+        if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
+        {
+            for ( auto& v : summaryValues )
+            {
+                v = -v;
+            }
+        }
+
+        auto& dataItem  = m_dataCache[address];
+        dataItem.first  = reader2->timeSteps( address );
+        dataItem.second = summaryValues;
 
         return;
     }
