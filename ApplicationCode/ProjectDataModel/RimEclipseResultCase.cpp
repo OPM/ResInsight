@@ -72,7 +72,8 @@ RimEclipseResultCase::RimEclipseResultCase()
 {
     CAF_PDM_InitObject( "Eclipse Case", ":/Case48x48.png", "", "" );
 
-    RICF_InitFieldNoDefault( &caseFileName, "CaseFileName", "Case File Name", "", "", "" );
+    RICF_InitFieldNoDefault( &caseFileName, "FilePath", "Case File Name", "", "", "" );
+    caseFileName.xmlCapability()->registerKeywordAlias( "CaseFileName" );
     caseFileName.uiCapability()->setUiReadOnly( true );
     caseFileName.capability<RicfFieldHandle>()->setIOWriteable( false );
 

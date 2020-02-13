@@ -39,12 +39,13 @@ class PdmObject:
         self._project = project
         self.__warnings = []
 
-        for keyword in self.keywords():
-            snake_keyword = camel_to_snake(keyword)
-            getter = snake_keyword
-            setter = 'set_' + snake_keyword
-            setattr(self, getter, partial(self.get_value, keyword))
-            setattr(self, setter, partial(self.set_value, keyword))
+        self.__keyword_translation = {}
+        for camel_keyword in self.keywords():
+            snake_keyword = camel_to_snake(camel_keyword)
+            setter = 'set_' + snake_keyword            
+            setattr(self, snake_keyword, self.__get_grpc_value(camel_keyword))
+            setattr(self, setter, partial(self.set_value, snake_keyword))
+            self.__keyword_translation[snake_keyword] = camel_keyword            
 
     @classmethod
     def create(cls, class_keyword, channel, project):
@@ -100,16 +101,16 @@ class PdmObject:
     def print_object_info(self):
         """Print the structure and data content of the PdmObject"""
         print("=========== " + self.class_keyword() + " =================")
-        print("Object Settings: ")
-        for keyword in self.keywords():
-            print("   " + keyword + " [" + type(self.get_value(keyword)).__name__ +
-                  "]: " + str(self.get_value(keyword)))
+        print("Object Attributes: ")
+        for snake_kw, camel_kw in self.__keyword_translation:
+            print("   " + snake_kw + " [" + type(getattr(self, snake_kw)).__name__ +
+                  "]: " + str(getattr(self, snake_kw)))
         print("Object Methods:")
         for method in dir(self):
             if callable(getattr(self, method)) and not method.startswith("_"):
                 print ("   " + method)
 
-    def __to_value(self, value):
+    def __convert_from_grpc_value(self, value):
         if value.lower() == 'false':
             return False
         if value.lower() == 'true':
@@ -128,7 +129,7 @@ class PdmObject:
                     return self.__makelist(value)
                 return value
 
-    def __from_value(self, value):
+    def __convert_to_grpc_value(self, value):
         if isinstance(value, bool):
             if value:
                 return "true"
@@ -136,20 +137,26 @@ class PdmObject:
         if isinstance(value, list):
             list_of_strings = []
             for val in value:
-                list_of_strings.append(self.__from_value('\"' + val + '\"'))
+                list_of_strings.append(self.__convert_to_grpc_value('\"' + val + '\"'))
             return "[" + ", ".join(list_of_strings) + "]"
         return str(value)
 
-    def get_value(self, keyword):
-        """Get the value associated with the provided keyword
+    def __get_grpc_value(self, camel_keyword):
+        return self.__convert_from_grpc_value(self._pb2_object.parameters[camel_keyword])
+
+    def __set_grpc_value(self, camel_keyword, value):
+        self._pb2_object.parameters[camel_keyword] = self.__convert_to_grpc_value(value)
+
+    def set_value(self, snake_keyword, value):
+        """Set the value associated with the provided keyword and updates ResInsight
         Arguments:
             keyword(str): A string containing the parameter keyword
-
-        Returns:
-            The value of the parameter. Can be int, str or list.
+            value(varying): A value matching the type of the parameter.
+                See keyword documentation and/or print_object_info() to find
+                the correct data type.
         """
-        value = self._pb2_object.parameters[keyword]
-        return self.__to_value(value)
+        setattr(self, snake_keyword, value)
+        self.update()
 
     def __islist(self, value):
         return value.startswith("[") and value.endswith("]")
@@ -160,18 +167,8 @@ class PdmObject:
         strings = list_string.split(", ")
         values = []
         for string in strings:
-            values.append(self.__to_value(string))
+            values.append(self.__convert_from_grpc_value(string))
         return values
-
-    def set_value(self, keyword, value):
-        """Set the value associated with the provided keyword
-        Arguments:
-            keyword(str): A string containing the parameter keyword
-            value(varying): A value matching the type of the parameter.
-                See keyword documentation and/or print_object_info() to find
-                the correct data type.
-        """
-        self._pb2_object.parameters[keyword] = self.__from_value(value)
 
     def descendants(self, class_keyword):
         """Get a list of all project tree descendants matching the class keyword
@@ -225,6 +222,19 @@ class PdmObject:
                 return None
             raise e
 
+    def copy_from(self, object):
+        """Copy attribute values from object to self and requires that the attribute already exists           
+        """
+        for attribute in dir(object):
+            if not attribute.startswith('__') and hasattr(self, attribute):
+                value = getattr(object, attribute)
+                if not callable(value):
+                    setattr(self, attribute, value)
+
     def update(self):
         """Sync all fields from the Python Object to ResInsight"""
+
+        for snake_kw, camel_kw in self.__keyword_translation.items():
+            self.__set_grpc_value(camel_kw, getattr(self, snake_kw))
+
         self._pdm_object_stub.UpdateExistingPdmObject(self._pb2_object)

@@ -189,10 +189,11 @@ const std::vector<RigCell>& RiaActiveCellInfoStateHandler::reservoirCells() cons
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaActiveCellInfoStateHandler::assignReply( rips::CellInfoArray* reply )
 {
-    const size_t packageSize  = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( rips::CellInfoArray ) );
-    size_t       packageIndex = 0u;
-    reply->mutable_data()->Reserve( (int)packageSize );
-    for ( ; packageIndex < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++packageIndex )
+    const size_t packageCount = RiaGrpcServiceInterface::numberOfMessagesForByteCount(
+        sizeof( rips::CellInfo ) * m_activeCellInfo->reservoirCellCount() );
+    size_t packageIndex = 0u;
+    reply->mutable_data()->Reserve( (int)packageCount );
+    for ( ; packageIndex < packageCount && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++packageIndex )
     {
         rips::CellInfo singleCellInfo;
         grpc::Status   singleCellInfoStatus = assignNextActiveCellInfoData( &singleCellInfo );

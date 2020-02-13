@@ -70,7 +70,8 @@ RimGeoMechCase::RimGeoMechCase( void )
 {
     CAF_PDM_InitObject( "Geomechanical Case", ":/GeoMechCase48x48.png", "", "" );
 
-    RICF_InitFieldNoDefault( &m_caseFileName, "CaseFileName", "Case File Name", "", "", "" );
+    RICF_InitFieldNoDefault( &m_caseFileName, "FilePath", "Case File Name", "", "", "" );
+    m_caseFileName.xmlCapability()->registerKeywordAlias( "CaseFileName" );
     m_caseFileName.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitFieldNoDefault( &geoMechViews, "GeoMechViews", "", "", "", "" );
     geoMechViews.uiCapability()->setUiHidden( true );

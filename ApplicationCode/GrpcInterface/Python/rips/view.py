@@ -16,7 +16,6 @@ class View(PdmObject):
     """
     def __init__(self, pdm_object, project):
         PdmObject.__init__(self, pdm_object.pb2_object(), pdm_object.channel(), project)
-        self.view_id = pdm_object.get_value("ViewId")
 
     def is_eclipse_view(self):
         return self.class_keyword() == "ReservoirView"
@@ -24,7 +23,7 @@ class View(PdmObject):
     def is_geomech_view(self):
         return self.class_keyword() == "GeoMechView"
 
-    def set_cell_result(self):
+    def cell_result(self):
         """Retrieve the current cell results"""
         return self.children("GridCellResult")[0]
 
@@ -43,9 +42,9 @@ class View(PdmObject):
                 - INJECTION_FLOODING
             result_variable (str): String representing the result variable.
         """
-        cell_result = self.set_cell_result()
-        cell_result.set_value("ResultType", result_type)
-        cell_result.set_value("ResultVariable", result_variable)
+        cell_result = self.cell_result()
+        cell_result.result_type = result_type
+        cell_result.result_variable = result_variable
         cell_result.update()
 
     def apply_flow_diagnostics_cell_result(
@@ -77,13 +76,13 @@ class View(PdmObject):
             injectors = []
         if producers is None:
             producers = []
-        cell_result = self.set_cell_result()
-        cell_result.set_value("ResultType", "FLOW_DIAGNOSTICS")
-        cell_result.set_value("ResultVariable", result_variable)
-        cell_result.set_value("FlowTracerSelectionMode", selection_mode)
+        cell_result = self.cell_result()
+        cell_result.result_type = "FLOW_DIAGNOSTICS"
+        cell_result.result_variable = result_variable
+        cell_result.flow_tracer_selection_mode = selection_mode
         if selection_mode == 'FLOW_TR_BY_SELECTION':
-            cell_result.set_value("SelectedInjectorTracers", injectors)
-            cell_result.set_value("SelectedProducerTracers", producers)
+            cell_result.selected_injector_tracers = injectors
+            cell_result.selected_producer_tracers = producers
         cell_result.update()
 
     def case(self):
@@ -93,7 +92,7 @@ class View(PdmObject):
             pdm_case = self.ancestor("ResInsightGeoMechCase")
         if pdm_case is None:
             return None
-        return rips.case.Case(self._channel, pdm_case.get_value("CaseId"), self._project)
+        return rips.case.Case(self._channel, pdm_case.case_id, self._project)
 
     def clone(self):
         """Clone the current view"""

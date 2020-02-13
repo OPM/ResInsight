@@ -29,7 +29,6 @@ class ContourMap(View):
     """
     def __init__(self, pdm_object, project, map_type):
         View.__init__(self, pdm_object, project)
-        self.view_id = pdm_object.get_value("ViewId")
         self.map_type = map_type
 
 

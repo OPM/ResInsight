@@ -99,13 +99,6 @@ class Case(PdmObject):
         chunk = Properties_pb2.PropertyInputChunk()
         yield chunk
 
-    def grid_path(self):
-        """Get path of the current grid case
-
-        Returns: path string
-        """
-        return self.get_value("CaseFileName")
-
     def grid(self, index):
         """Get Grid of a given index. Returns a rips Grid object
 
@@ -786,7 +779,7 @@ class Case(PdmObject):
         if wbs_parameters is not None:
             assert(isinstance(wbs_parameters, WbsParameters))
             pdm_parameters = PdmObject.create("WbsParameters", self.__channel, self._project)
-            wbs_parameters.to_pdm_object(pdm_parameters)
+            pdm_parameters.copy_from(wbs_parameters)
 
         plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.case_id,
                                                                                                  wellPath=well_path,

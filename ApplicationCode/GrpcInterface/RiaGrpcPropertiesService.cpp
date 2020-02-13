@@ -142,10 +142,10 @@ public:
     //--------------------------------------------------------------------------------------------------
     Status assignStreamReply( PropertyChunk* reply )
     {
-        const size_t packageSize = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( rips::PropertyChunk ) );
+        const size_t packageCount = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( double ) * m_cellCount );
         size_t       packageIndex = 0u;
-        reply->mutable_values()->Reserve( (int)packageSize );
-        for ( ; packageIndex < packageSize && m_streamedValueCount < m_cellCount; ++packageIndex, ++m_streamedValueCount )
+        reply->mutable_values()->Reserve( (int)packageCount );
+        for ( ; packageIndex < packageCount && m_streamedValueCount < m_cellCount; ++packageIndex, ++m_streamedValueCount )
         {
             reply->add_values( cellResult( m_streamedValueCount ) );
         }

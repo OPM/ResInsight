@@ -8,8 +8,8 @@ resInsight = rips.Instance.find()
 
 cases = resInsight.project.cases()
 
-well_paths = resInsight.project.import_well_paths(well_path_folder='D:/Projects/ResInsight-regression-test/ModelData/Norne_WellPaths')
-well_log_files = resInsight.project.import_well_log_files(well_log_folder='D:/Projects/ResInsight-regression-test/ModelData/Norne_PLT_LAS')
+well_paths = resInsight.project.import_well_paths(well_path_folder='E:/Projects/ResInsight-regression-test/ModelData/Norne_WellPaths')
+well_log_files = resInsight.project.import_well_log_files(well_log_folder='E:/Projects/ResInsight-regression-test/ModelData/Norne_PLT_LAS')
 
 well_paths = resInsight.project.well_paths()
 
@@ -34,9 +34,9 @@ for case in cases:
         min_res_depth, max_res_depth = case.reservoir_depth_range()
 	
         print (case.case_id)
-        case_path = case.grid_path()
+        case_path = case.case_file_name
         folder_name = os.path.dirname(case_path)
-        case.import_formation_names(formation_files=['D:/Projects/ResInsight-regression-test/ModelData/norne/Norne_ATW2013.lyr'])
+        case.import_formation_names(formation_files=['E:/Projects/ResInsight-regression-test/ModelData/norne/Norne_ATW2013.lyr'])
 
         # create a folder to hold the snapshots
         dirname = os.path.join(folder_name, 'snapshots')
@@ -52,9 +52,12 @@ for case in cases:
                 replace_params.user_fg_shale = 1.0321
                 wbsplot.set_parameters(replace_params)
                 # Demonstrate altering general well log plot settings
-                min_depth, max_depth = wbsplot.depth_range()
-                wbsplot.set_depth_range(max(min_depth, min_res_depth), min(max_depth, max_res_depth))
-                #wbsplot.set_depth_type("TRUE_VERTICAL_DEPTH_RKB")         
+                min_depth = max(wbsplot.minimum_depth, min_res_depth)
+                max_depth = min(wbsplot.maximum_depth, max_res_depth)
+                wbsplot.minimum_depth = min_depth
+                wbsplot.maximum_depth = max_depth
+                wbsplot.update()
+                #wbsplot.depth_type = "TRUE_VERTICAL_DEPTH_RKB"
                 
                 wbsplot.export_snapshot(export_folder=dirname)
 

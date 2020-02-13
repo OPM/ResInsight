@@ -16,14 +16,12 @@ case_group.print_object_info()
 #stat_cases = caseGroup.statistics_cases()
 #case_ids = []
 #for stat_case in stat_cases:
-#    stat_case.set_value("DynamicPropertiesToCalculate", ["SWAT"])
-#    stat_case.update()
-#    case_ids.append(stat_case.get_value("CaseId"))
+#    stat_case.set_dynamic_properties_to_calculate(["SWAT"])
+#    case_ids.append(stat_case.case_id)
 
 case_group.compute_statistics()
 
 view = case_group.views()[0]
-cell_result = view.set_cell_result()
-cell_result.set_value("ResultVariable", "PRESSURE_DEV")
-cell_result.update()
+cell_result = view.cell_result()
+cell_result.set_result_variable("PRESSURE_DEV")
         

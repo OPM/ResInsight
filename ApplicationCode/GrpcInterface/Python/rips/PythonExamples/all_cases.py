@@ -17,7 +17,7 @@ if resinsight is not None:
         print("Case id: " + str(case.case_id))
         print("Case name: " + case.name)
         print("Case type: " + case.type)
-        print("Case grid path: " + case.grid_path())
+        print("Case file name: " + case.case_file_name)
         print("Case reservoir bounding box:", case.reservoir_boundingbox())
         
         timesteps = case.time_steps()

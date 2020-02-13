@@ -188,7 +188,7 @@ class Project(PdmObject):
         pdm_objects = self.descendants("WellPathBase")
         well_path_list  = []
         for pdm_object in pdm_objects:
-            well_path_list.append(pdm_object.get_value("WellPathName"))
+            well_path_list.append(pdm_object.well_path_name)
         return well_path_list
 
     def grid_case_groups(self):

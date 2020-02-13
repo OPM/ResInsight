@@ -74,8 +74,6 @@ def test_PdmObject(rips_instance, initialize_test):
     assert(case.case_id == 0)
     assert(case.address() is not 0)
     assert(case.class_keyword() == "EclipseCase")
-    case_id = case.get_value('CaseId')
-    assert(case_id == case.case_id)
 
 @pytest.mark.skipif(sys.platform.startswith('linux'), reason="Brugge is currently exceptionally slow on Linux")
 def test_brugge_0010(rips_instance, initialize_test):

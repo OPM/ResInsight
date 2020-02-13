@@ -47,10 +47,7 @@ QString RicfCommandObject::pythonHelpString( const QString& existingTooltip, con
     snake_case.replace( re1, "\\1_\\2" );
     snake_case.replace( re2, "\\1_\\2" );
 
-    QString helpString = QString( "Available through python/rips with the following object methods:\n"
-                                  "  Get: value = %1()\n"
-                                  "  Set: set_%1(value)\n" )
-                             .arg( snake_case.toLower() );
+    QString helpString = QString( "Available through python/rips as the attribute '%1'" ).arg( snake_case.toLower() );
 
     if ( !existingTooltip.isEmpty() ) return existingTooltip + "\n\n" + helpString;
     return helpString;

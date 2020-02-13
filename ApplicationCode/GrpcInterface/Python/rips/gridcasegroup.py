@@ -18,7 +18,6 @@ class GridCaseGroup(PdmObject):
         group_id (int): Grid Case Group Id corresponding to case group Id in ResInsight project.
     """
     def __init__(self, pdm_object):
-        self.group_id = pdm_object.get_value("GroupId")
         PdmObject.__init__(self, pdm_object._pb2_object, pdm_object._channel, pdm_object._project)
 
     def create_statistics_case(self):

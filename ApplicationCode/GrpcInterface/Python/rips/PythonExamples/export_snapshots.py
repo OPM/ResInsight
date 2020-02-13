@@ -20,7 +20,7 @@ for case in cases:
     print("Case name: ", case.name)
     print("Case id: ", case.case_id)
     # Get grid path and its folder name
-    case_path = case.grid_path()
+    case_path = case.file_path
     folder_name = os.path.dirname(case_path)
     
     # create a folder to hold the snapshots
