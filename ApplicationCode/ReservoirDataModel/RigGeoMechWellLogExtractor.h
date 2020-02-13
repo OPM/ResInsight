@@ -127,6 +127,11 @@ private:
     double     getWellLogIntersectionValue( size_t                                        intersectionIdx,
                                             const std::vector<std::pair<double, double>>& wellLogValues ) const;
 
+    template <typename T>
+    bool          averageIntersectionValuesToSegmentValue( size_t                intersectionIdx,
+                                                           const std::vector<T>& intersectionValues,
+                                                           const T&              invalidValue,
+                                                           T*                    averagedSegmentValue ) const;
     static double pascalToBar( double pascalValue );
 
     template <typename T>

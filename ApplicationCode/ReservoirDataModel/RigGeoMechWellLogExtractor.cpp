@@ -251,7 +251,12 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
 #pragma omp parallel for
         for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
         {
-            gridValues[intersectionIdx] = static_cast<double>( interpolatedInterfaceValues[intersectionIdx] );
+            float averageUnscaledValue = std::numeric_limits<float>::infinity();
+            averageIntersectionValuesToSegmentValue( intersectionIdx,
+                                                     interpolatedInterfaceValues,
+                                                     std::numeric_limits<float>::infinity(),
+                                                     &averageUnscaledValue );
+            gridValues[intersectionIdx] = static_cast<double>( averageUnscaledValue );
         }
     }
 
@@ -591,8 +596,11 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
         double poissonRatio = poissonAllSegments[intersectionIdx];
         double ucsBar       = ucsAllSegments[intersectionIdx];
 
-        caf::Ten3d segmentStress      = interpolatedInterfaceStressBar[intersectionIdx];
-        bool       validSegmentStress = segmentStress != caf::Ten3d::invalid();
+        caf::Ten3d segmentStress;
+        bool       validSegmentStress = averageIntersectionValuesToSegmentValue( intersectionIdx,
+                                                                           interpolatedInterfaceStressBar,
+                                                                           caf::Ten3d::invalid(),
+                                                                           &segmentStress );
 
         cvf::Vec3d wellPathTangent     = calculateWellPathTangent( intersectionIdx, TangentConstantWithinCell );
         caf::Ten3d wellPathStressFloat = transformTensorToWellPathOrientation( wellPathTangent, segmentStress );
@@ -1127,6 +1135,54 @@ double RigGeoMechWellLogExtractor::getWellLogIntersectionValue( size_t intersect
 double RigGeoMechWellLogExtractor::pascalToBar( double pascalValue )
 {
     return pascalValue * 1.0e-5;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+bool RigGeoMechWellLogExtractor::averageIntersectionValuesToSegmentValue( size_t                intersectionIdx,
+                                                                          const std::vector<T>& values,
+                                                                          const T&              invalidValue,
+                                                                          T* averagedCellValue ) const
+{
+    CVF_ASSERT( values.size() >= 2 );
+
+    *averagedCellValue = invalidValue;
+
+    T          value1, value2;
+    cvf::Vec3d centroid( cellCentroid( intersectionIdx ) );
+    double     dist1 = 0.0, dist2 = 0.0;
+    if ( intersectionIdx % 2 == 0 )
+    {
+        value1 = values[intersectionIdx];
+        value2 = values[intersectionIdx + 1];
+
+        dist1 = ( centroid - m_intersections[intersectionIdx] ).length();
+        dist2 = ( centroid - m_intersections[intersectionIdx + 1] ).length();
+    }
+    else
+    {
+        value1 = values[intersectionIdx - 1];
+        value2 = values[intersectionIdx];
+
+        dist1 = ( centroid - m_intersections[intersectionIdx - 1] ).length();
+        dist2 = ( centroid - m_intersections[intersectionIdx] ).length();
+    }
+
+    if ( invalidValue == value1 || invalidValue == value2 )
+    {
+        return false;
+    }
+
+    RiaWeightedMeanCalculator<T> averageCalc;
+    averageCalc.addValueAndWeight( value1, dist2 );
+    averageCalc.addValueAndWeight( value2, dist1 );
+    if ( averageCalc.validAggregatedWeight() )
+    {
+        *averagedCellValue = averageCalc.weightedMean();
+    }
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
