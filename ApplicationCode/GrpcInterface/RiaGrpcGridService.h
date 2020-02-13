@@ -21,9 +21,47 @@
 
 #include "RiaGrpcServiceInterface.h"
 
+#include <vector>
+
+class RigGridBase;
+class RimEclipseCase;
+
+namespace rips
+{
+class GridRequest;
+class CellCenters;
+class GridDimensions;
+}; // namespace rips
+
+//==================================================================================================
+//
+// State handler for streaming of active cell info
+//
+//==================================================================================================
+class RiaCellCenterStateHandler
+{
+    typedef grpc::Status Status;
+
+public:
+    RiaCellCenterStateHandler();
+    grpc::Status init( const rips::GridRequest* request );
+    grpc::Status assignReply( rips::CellCenters* reply );
+
+protected:
+    const rips::GridRequest* m_request;
+    RimEclipseCase*          m_eclipseCase;
+    size_t                   m_currentCellIdx;
+    const RigGridBase*       m_grid;
+};
+
 class RiaGrpcGridService final : public rips::Grid::AsyncService, public RiaGrpcServiceInterface
 {
 public:
+    grpc::Status GetCellCenters( grpc::ServerContext*       context,
+                                 const rips::GridRequest*   request,
+                                 rips::CellCenters*         reply,
+                                 RiaCellCenterStateHandler* stateHandler );
+
     grpc::Status GetDimensions( grpc::ServerContext*     context,
                                 const rips::GridRequest* request,
                                 rips::GridDimensions*    reply ) override;

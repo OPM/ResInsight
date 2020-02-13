@@ -15,3 +15,6 @@ def test_10k(rips_instance, initialize_test):
     assert(dimensions.i == 90)
     assert(dimensions.j == 96)
     assert(dimensions.k == 36)
+
+    cell_centers = grid.cell_centers()
+    assert(len(cell_centers) == (dimensions.i * dimensions.j * dimensions.k))

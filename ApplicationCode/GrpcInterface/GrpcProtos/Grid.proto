@@ -7,7 +7,7 @@ import "Case.proto";
 
 service Grid
 {
-	rpc GetCellCenters(GridRequest) returns(CellCenters) {}
+	rpc GetCellCenters(GridRequest) returns(stream CellCenters) {}
 	rpc GetDimensions(GridRequest) returns (GridDimensions) {}
 }
 
@@ -33,3 +33,4 @@ message GridDimensions
 {
 	Vec3i dimensions = 1;
 }
+
