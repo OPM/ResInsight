@@ -129,7 +129,7 @@ double RigGeoMechBoreHoleStressCalculator::solveSecant( MemberFunc fn, double* t
     double f_x0 = ( this->*fn )( x_0, &theta );
     double x_1  = m_porePressure;
     double f_x1 = ( this->*fn )( x_1, &theta );
-    double x    = 0.0;
+    double x    = m_porePressure;
     double f_x  = 0.0;
     int    i    = 0;
     for ( ; i <= N && std::abs( f_x1 - f_x0 ) > epsilon; ++i )
@@ -145,7 +145,7 @@ double RigGeoMechBoreHoleStressCalculator::solveSecant( MemberFunc fn, double* t
         f_x1 = f_x;
     }
 
-    if ( i == N || std::abs( f_x ) > epsilon * m_porePressure )
+    if ( i == 0 || i == N || std::abs( f_x ) > epsilon * m_porePressure )
     {
         // Fallback to bisection if secant doesn't converge or converged to a wrong solution.
         return solveBisection( 0.0, m_porePressure * 2.0, fn, thetaOut );

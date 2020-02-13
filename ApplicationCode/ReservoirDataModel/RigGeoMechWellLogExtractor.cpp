@@ -171,7 +171,7 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
                     {
                         frameIndex = 0;
                     }
-                    calculateWbsParameterForAllSegments( param, frameIndex, values );
+                    calculateWbsParameterForAllSegments( param, frameIndex, values, true );
                     if ( param == RigWbsParameter::UCS() ) // UCS is reported as UCS/100
                     {
                         for ( double& value : *values )
@@ -220,7 +220,8 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
     RigGeoMechWellLogExtractor::calculateWbsParameterForAllSegments( const RigWbsParameter& parameter,
                                                                      WbsParameterSource     primarySource,
                                                                      int                    frameIndex,
-                                                                     std::vector<double>*   outputValues )
+                                                                     std::vector<double>*   outputValues,
+                                                                     bool                   allowNormalization )
 {
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 
@@ -332,7 +333,7 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         }
     }
 
-    if ( parameter.normalizeByHydrostaticPP() )
+    if ( allowNormalization && parameter.normalizeByHydrostaticPP() )
     {
         outputValues->resize( unscaledValues.size(), std::numeric_limits<double>::infinity() );
 
@@ -366,9 +367,14 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
 std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
     RigGeoMechWellLogExtractor::calculateWbsParameterForAllSegments( const RigWbsParameter& parameter,
                                                                      int                    frameIndex,
-                                                                     std::vector<double>*   outputValues )
+                                                                     std::vector<double>*   outputValues,
+                                                                     bool                   allowNormalization )
 {
-    return calculateWbsParameterForAllSegments( parameter, m_parameterSources.at( parameter ), frameIndex, outputValues );
+    return calculateWbsParameterForAllSegments( parameter,
+                                                m_parameterSources.at( parameter ),
+                                                frameIndex,
+                                                outputValues,
+                                                allowNormalization );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -377,7 +383,8 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
 std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
     RigGeoMechWellLogExtractor::calculateWbsParametersForAllSegments( const RigFemResultAddress& resAddr,
                                                                       int                        frameIndex,
-                                                                      std::vector<double>*       values )
+                                                                      std::vector<double>*       values,
+                                                                      bool                       allowNormalization )
 {
     CVF_ASSERT( values );
 
@@ -387,7 +394,7 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         CVF_ASSERT( false && "wbsParameters() called on something that isn't a wbs parameter" );
     }
 
-    return calculateWbsParameterForAllSegments( param, m_userDefinedValues.at( param ), values );
+    return calculateWbsParameterForAllSegments( param, m_userDefinedValues.at( param ), values, allowNormalization );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -474,11 +481,9 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         std::vector<double> ppShaleValues( m_intersections.size(), std::numeric_limits<double>::infinity() );
 
         std::vector<WbsParameterSource> ppSandSources =
-            calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(), frameIndex, &ppSandValues );
+            calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(), frameIndex, &ppSandValues, true );
         std::vector<WbsParameterSource> ppShaleSources =
-            calculateWbsParameterForAllSegments( RigWbsParameter::PP_NonReservoir(), 0, &ppShaleValues );
-
-        double waterDensityGCM3 = m_userDefinedValues[RigWbsParameter::waterDensity()];
+            calculateWbsParameterForAllSegments( RigWbsParameter::PP_NonReservoir(), 0, &ppShaleValues, true );
 
 #pragma omp parallel for
         for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
@@ -497,20 +502,19 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
                 }
                 else
                 {
-                    ( *values )[intersectionIdx] =
-                        hydroStaticPorePressureForIntersection( intersectionIdx, waterDensityGCM3 );
-                    sources[intersectionIdx] = RigWbsParameter::HYDROSTATIC;
+                    ( *values )[intersectionIdx] = 1.0;
+                    sources[intersectionIdx]     = RigWbsParameter::HYDROSTATIC;
                 }
             }
         }
     }
     else if ( resAddr.fieldName == RiaDefines::wbsOBGResult().toStdString() )
     {
-        sources = calculateWbsParameterForAllSegments( RigWbsParameter::OBG(), frameIndex, values );
+        sources = calculateWbsParameterForAllSegments( RigWbsParameter::OBG(), frameIndex, values, true );
     }
     else
     {
-        sources = calculateWbsParameterForAllSegments( RigWbsParameter::SH(), frameIndex, values );
+        sources = calculateWbsParameterForAllSegments( RigWbsParameter::SH(), frameIndex, values, true );
     }
 
     return sources;
@@ -555,19 +559,20 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
     std::vector<caf::Ten3d> interpolatedInterfaceStressBar =
         interpolateInterfaceValues( stressResAddr, frameIndex, vertexStresses );
 
-    values->resize( m_intersections.size(), 0.0f );
+    values->resize( m_intersections.size(), std::numeric_limits<float>::infinity() );
 
     std::vector<double> ppSandAllSegments( m_intersections.size(), std::numeric_limits<double>::infinity() );
     std::vector<WbsParameterSource> ppSources = calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(),
                                                                                      RigWbsParameter::GRID,
                                                                                      frameIndex,
-                                                                                     &ppSandAllSegments );
+                                                                                     &ppSandAllSegments,
+                                                                                     false );
 
     std::vector<double> poissonAllSegments( m_intersections.size(), std::numeric_limits<double>::infinity() );
-    calculateWbsParameterForAllSegments( RigWbsParameter::poissonRatio(), frameIndex, &poissonAllSegments );
+    calculateWbsParameterForAllSegments( RigWbsParameter::poissonRatio(), frameIndex, &poissonAllSegments, false );
 
     std::vector<double> ucsAllSegments( m_intersections.size(), std::numeric_limits<double>::infinity() );
-    calculateWbsParameterForAllSegments( RigWbsParameter::UCS(), frameIndex, &ucsAllSegments );
+    calculateWbsParameterForAllSegments( RigWbsParameter::UCS(), frameIndex, &ucsAllSegments, false );
 
 #pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
@@ -638,8 +643,8 @@ void RigGeoMechWellLogExtractor::wellBoreFGShale( int frameIndex, std::vector<do
 
         curveData( ppAddr, 0, &PP0 );
 
-        calculateWbsParameterForAllSegments( RigWbsParameter::K0_FG(), frameIndex, &K0_FG );
-        calculateWbsParameterForAllSegments( RigWbsParameter::OBG0(), 0, &OBG0 );
+        calculateWbsParameterForAllSegments( RigWbsParameter::K0_FG(), frameIndex, &K0_FG, true );
+        calculateWbsParameterForAllSegments( RigWbsParameter::OBG0(), 0, &OBG0, true );
 
 #pragma omp parallel for
         for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
@@ -658,7 +663,7 @@ void RigGeoMechWellLogExtractor::wellBoreFGShale( int frameIndex, std::vector<do
     else
     {
         std::vector<double> SH;
-        calculateWbsParameterForAllSegments( RigWbsParameter::SH(), frameIndex, &SH );
+        calculateWbsParameterForAllSegments( RigWbsParameter::SH(), frameIndex, &SH, true );
         CVF_ASSERT( SH.size() == m_intersections.size() );
         double multiplier = m_userDefinedValues.at( RigWbsParameter::FG_Shale() );
         CVF_ASSERT( multiplier != std::numeric_limits<double>::infinity() );
@@ -689,9 +694,9 @@ void RigGeoMechWellLogExtractor::wellBoreSH_MatthewsKelly( int frameIndex, std::
     curveData( ppAddr, frameIndex, &PP );
     curveData( ppAddr, 0, &PP0 );
 
-    calculateWbsParameterForAllSegments( RigWbsParameter::K0_SH(), frameIndex, &K0_SH );
-    calculateWbsParameterForAllSegments( RigWbsParameter::OBG0(), 0, &OBG0 );
-    calculateWbsParameterForAllSegments( RigWbsParameter::DF(), frameIndex, &DF );
+    calculateWbsParameterForAllSegments( RigWbsParameter::K0_SH(), frameIndex, &K0_SH, true );
+    calculateWbsParameterForAllSegments( RigWbsParameter::OBG0(), 0, &OBG0, true );
+    calculateWbsParameterForAllSegments( RigWbsParameter::DF(), frameIndex, &DF, true );
 
     values->resize( m_intersections.size(), std::numeric_limits<double>::infinity() );
 
@@ -779,7 +784,7 @@ std::vector<double> RigGeoMechWellLogExtractor::poissonSourceRegions( int frameI
 {
     std::vector<double>             outputValues;
     std::vector<WbsParameterSource> sources =
-        calculateWbsParameterForAllSegments( RigWbsParameter::poissonRatio(), frameIndex, &outputValues );
+        calculateWbsParameterForAllSegments( RigWbsParameter::poissonRatio(), frameIndex, &outputValues, false );
 
     std::vector<double> doubleSources( sources.size(), 0.0 );
 #pragma omp parallel for
@@ -797,7 +802,7 @@ std::vector<double> RigGeoMechWellLogExtractor::ucsSourceRegions( int frameIndex
 {
     std::vector<double>             outputValues;
     std::vector<WbsParameterSource> sources =
-        calculateWbsParameterForAllSegments( RigWbsParameter::UCS(), frameIndex, &outputValues );
+        calculateWbsParameterForAllSegments( RigWbsParameter::UCS(), frameIndex, &outputValues, true );
 
     std::vector<double> doubleSources( sources.size(), 0.0 );
 #pragma omp parallel for
