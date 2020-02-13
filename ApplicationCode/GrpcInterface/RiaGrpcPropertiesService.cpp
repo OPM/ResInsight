@@ -274,6 +274,12 @@ protected:
                            size_t                        timeStepIndex,
                            RigEclipseResultAddress       resVarAddr ) override
     {
+        auto resultValues = caseData->results( porosityModel )->modifiableCellScalarResult( resVarAddr, timeStepIndex );
+        if ( resultValues->empty() )
+        {
+            resultValues->resize( caseData->grid( gridIndex )->cellCount() );
+        }
+
         m_resultAccessor =
             RigResultAccessorFactory::createFromResultAddress( caseData, gridIndex, porosityModel, timeStepIndex, resVarAddr );
         m_resultModifier =
