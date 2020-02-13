@@ -235,7 +235,8 @@ QString RimDerivedSummaryCase::caseName() const
 //--------------------------------------------------------------------------------------------------
 void RimDerivedSummaryCase::createSummaryReaderInterface()
 {
-    RifSummaryReaderInterface* summaryCase1Reader = nullptr;
+    RifSummaryReaderInterface* summaryCase1Reader1 = nullptr;
+    RifSummaryReaderInterface* summaryCase1Reader2 = nullptr;
     if ( m_summaryCase1 )
     {
         if ( !m_summaryCase1->summaryReader() )
@@ -243,10 +244,19 @@ void RimDerivedSummaryCase::createSummaryReaderInterface()
             m_summaryCase1->createSummaryReaderInterface();
         }
 
-        summaryCase1Reader = m_summaryCase1->summaryReader();
+        summaryCase1Reader1 = m_summaryCase1->summaryReader();
+    }
+    if ( m_summaryCase2 )
+    {
+        if ( !m_summaryCase2->summaryReader() )
+        {
+            m_summaryCase2->createSummaryReaderInterface();
+        }
+
+        summaryCase1Reader2 = m_summaryCase2->summaryReader();
     }
 
-    m_reader.reset( new RifDerivedEnsembleReader( this, summaryCase1Reader ) );
+    m_reader.reset( new RifDerivedEnsembleReader( this, summaryCase1Reader1, summaryCase1Reader2 ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -329,15 +339,7 @@ void RimDerivedSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changed
     bool reloadData = false;
     if ( changedField == &m_summaryCase2 || changedField == &m_summaryCase1 )
     {
-        if ( !m_reader )
-        {
-            createSummaryReaderInterface();
-        }
-
-        if ( m_reader )
-        {
-            m_reader->updateData( m_summaryCase1(), m_summaryCase2() );
-        }
+        createSummaryReaderInterface();
 
         reloadData = true;
     }

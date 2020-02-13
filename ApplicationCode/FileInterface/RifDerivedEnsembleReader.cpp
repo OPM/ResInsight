@@ -24,7 +24,8 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDerivedSummaryCase*     derivedCase,
-                                                    RifSummaryReaderInterface* sourceSummaryReader1 )
+                                                    RifSummaryReaderInterface* sourceSummaryReader1,
+                                                    RifSummaryReaderInterface* sourceSummaryReader2 )
 {
     CVF_ASSERT( derivedCase );
 
@@ -32,9 +33,19 @@ RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDerivedSummaryCase*     d
 
     if ( sourceSummaryReader1 )
     {
-        // TODO: This is assuming that the addresses of both reader interfaces are equal
         m_allResultAddresses = sourceSummaryReader1->allResultAddresses();
         m_allErrorAddresses  = sourceSummaryReader1->allErrorAddresses();
+    }
+    if ( sourceSummaryReader2 )
+    {
+        for ( auto a : sourceSummaryReader2->allResultAddresses() )
+        {
+            m_allResultAddresses.insert( a );
+        }
+        for ( auto a : sourceSummaryReader2->allErrorAddresses() )
+        {
+            m_allErrorAddresses.insert( a );
+        }
     }
 }
 
@@ -90,19 +101,4 @@ std::string RifDerivedEnsembleReader::unitName( const RifEclipseSummaryAddress& 
 RiaEclipseUnitTools::UnitSystem RifDerivedEnsembleReader::unitSystem() const
 {
     return RiaEclipseUnitTools::UNITS_UNKNOWN;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifDerivedEnsembleReader::updateData( RimSummaryCase* sumCase1, RimSummaryCase* sumCase2 )
-{
-    m_allErrorAddresses.clear();
-    m_allResultAddresses.clear();
-
-    if ( sumCase1 && sumCase1->summaryReader() )
-    {
-        m_allErrorAddresses  = sumCase1->summaryReader()->allErrorAddresses();
-        m_allResultAddresses = sumCase1->summaryReader()->allResultAddresses();
-    }
 }
