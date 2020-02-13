@@ -58,7 +58,7 @@ RicfCommandResponse RicfCloneView::execute()
             {
                 RimGeoMechCase* geoMechCase    = geoMechView->geoMechCase();
                 RimGeoMechView* newGeoMechView = geoMechCase->createCopyAndAddView( geoMechView );
-                view->loadDataAndUpdate();
+                newGeoMechView->loadDataAndUpdate();
                 newViewId = newGeoMechView->id();
                 geoMechCase->updateConnectedEditors();
                 Riu3DMainWindowTools::setExpanded( view );
