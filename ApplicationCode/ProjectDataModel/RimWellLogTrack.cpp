@@ -454,11 +454,16 @@ void RimWellLogTrack::updateXZoom()
 
     // Attribute range. Fixed range where well components are positioned [-1, 1].
     // Set an extended range here to allow for some label space.
-    double componentRangeMax = 1.5 * ( 4 / ( static_cast<int>( colSpan() ) ) );
+    double componentRangeMax = 2.0 / ( static_cast<double>( colSpan() ) );
     double componentRangeMin = -0.25;
     if ( m_showWellPathComponentsBothSides )
     {
         componentRangeMin = -1.5;
+        componentRangeMax *= 2.0;
+    }
+    if ( m_showWellPathComponentLabels )
+    {
+        componentRangeMax *= 1.5;
     }
 
     m_plotWidget->setAxisRange( QwtPlot::xBottom, componentRangeMin, componentRangeMax );

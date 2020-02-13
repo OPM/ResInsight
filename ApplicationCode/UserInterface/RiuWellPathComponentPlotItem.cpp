@@ -282,8 +282,8 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
     }
     else if ( m_componentType == RiaDefines::PACKER )
     {
-        addColumnFeature( -casingTrackEnd, -0.25, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
-        addColumnFeature( 0.25, casingTrackEnd, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
+        addColumnFeature( -1.1 * casingTrackEnd, -0.25, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
+        addColumnFeature( 0.25, 1.1 * casingTrackEnd, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
         addMarker( casingTrackEnd, midDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor( 0.0 ), label() );
     }
     m_combinedComponentGroup.setTitle( legendTitle() );
