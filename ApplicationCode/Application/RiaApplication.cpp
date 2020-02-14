@@ -508,6 +508,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
         RimMainPlotCollection* mainPlotColl = m_project->mainPlotCollection();
 
         mainPlotColl->ensureCalculationIdsAreAssigned();
+        mainPlotColl->ensureDefaultFlowPlotsAreCreated();
     }
 
     for ( RimOilField* oilField : m_project->oilFields )

@@ -23,7 +23,6 @@
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimProject.h"
 #include "RimWellAllocationPlot.h"
-#include "RimWellDistributionPlot.h"
 #include "RimWellDistributionPlotCollection.h"
 
 #include "cafProgressInfo.h"
@@ -208,12 +207,6 @@ void RimFlowPlotCollection::ensureDefaultFlowPlotsAreCreated()
     {
         m_flowCharacteristicsPlot = new RimFlowCharacteristicsPlot;
     }
-
-    // if ( !m_dbgWellDistributionPlot() )
-    //{
-    //    m_dbgWellDistributionPlot = new RimWellDistributionPlot;
-    //    m_dbgWellDistributionPlot->setAsPlotMdiWindow();
-    //}
 
     if ( !m_wellDistributionPlotCollection() )
     {
