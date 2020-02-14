@@ -238,10 +238,9 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
 
         double tickPos = midPoint( groupStartPos, currentBarPosition );
 
-        QwtScaleDiv::TickType ttyp = &groupTickPosList == &majTickPoss
-            ? QwtScaleDiv::MajorTick
-            : &groupTickPosList == &midTickPoss ? QwtScaleDiv::MediumTick
-            : QwtScaleDiv::MinorTick;
+        QwtScaleDiv::TickType ttyp = (&groupTickPosList == &majTickPoss ) ? QwtScaleDiv::MajorTick
+                                                                          : ( &groupTickPosList == &midTickPoss ) ? QwtScaleDiv::MediumTick
+                                                                                                                  : QwtScaleDiv::MinorTick;
 
         // Make sure we do not get ticks of different level exactly at the same spot, 
         // so that the drawing is able to distinguish
@@ -257,9 +256,10 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
 
     for ( const BarEntry& barDef : m_sortedBarEntries )
     {
+        bool hasAnyMajTics         = !majTickTexts.empty();
         auto majInsertResult       = majTickTexts.insert( barDef.m_majTickText );
         bool isStartingNewMajGroup = majInsertResult.second;
-        bool isFinishingMajGroup   = isStartingNewMajGroup && !previousMajText.isEmpty();
+        bool isFinishingMajGroup   = isStartingNewMajGroup && hasAnyMajTics;
 
         if ( isFinishingMajGroup )
         {
@@ -284,9 +284,10 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
             currentMinGroupStartPos = currentBarPosition;
         }
 
+        bool hasAnyMidTics         = !midTickTexts.empty();
         auto midInsertResult       = midTickTexts.insert( barDef.m_midTickText );
         bool isStartingNewMidGroup = midInsertResult.second;
-        bool isFinishingMidGroup   = isStartingNewMidGroup && !previousMidText.isEmpty();
+        bool isFinishingMidGroup   = isStartingNewMidGroup && hasAnyMidTics;
 
         if ( isFinishingMidGroup )
         {
@@ -307,9 +308,10 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
             currentMinGroupStartPos = currentBarPosition;
         }
 
+        bool hasAnyMinTics         = !minTickTexts.empty();
         auto minInsertResult       = minTickTexts.insert( barDef.m_minTickText );
         bool isStartingNewMinGroup = minInsertResult.second;
-        bool isFinishingMinGroup   = minInsertResult.second && !previousMinText.isEmpty();
+        bool isFinishingMinGroup   = minInsertResult.second && hasAnyMinTics;
 
         if ( isFinishingMinGroup )
         {

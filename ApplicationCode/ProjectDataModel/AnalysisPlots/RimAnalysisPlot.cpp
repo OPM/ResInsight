@@ -322,6 +322,8 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
     {
         RiuGroupedBarChartBuilder chartBuilder( Qt::Horizontal );
 
+        chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R1", 0.4 );
+        chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R2", 0.45 );
         chartBuilder.addBarEntry( "T1_The_red_Fox", "W1", "", std::numeric_limits<double>::infinity(), "R1", 0.5 );
         chartBuilder.addBarEntry( "T1_The_red_Fox", "W1", "", std::numeric_limits<double>::infinity(), "R2", 0.55 );
         chartBuilder.addBarEntry( "T1_The_red_Fox", "W3", "", std::numeric_limits<double>::infinity(), "R1", 0.7 );
