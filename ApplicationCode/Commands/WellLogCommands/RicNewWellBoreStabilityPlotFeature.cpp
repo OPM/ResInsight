@@ -252,9 +252,9 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     RimWellLogTrack* paramCurvesTrack =
         RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "WBS Parameters", plot );
     paramCurvesTrack->setColSpan( RimPlot::TWO );
-    paramCurvesTrack->setVisibleXRange( 0.0, 1.0 );
+    paramCurvesTrack->setVisibleXRange( 0.0, 2.0 );
     paramCurvesTrack->setAutoScaleXEnabled( true );
-    paramCurvesTrack->setTickIntervals( 0.5, 0.1 );
+    paramCurvesTrack->setTickIntervals( 1.0, 0.2 );
     paramCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     paramCurvesTrack->setFormationWellPath( wellPath );
     paramCurvesTrack->setFormationCase( geoMechCase );
@@ -271,6 +271,8 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     size_t i = 0;
     for ( const RigWbsParameter& param : parameters )
     {
+        if ( !param.hasExternalSource() || param == RigWbsParameter::waterDensity() ) continue;
+
         RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, param.name().toStdString(), "" );
         RimWellLogExtractionCurve* curve =
             RicWellLogTools::addWellLogExtractionCurve( paramCurvesTrack, geoMechCase, nullptr, wellPath, nullptr, -1, false, false );

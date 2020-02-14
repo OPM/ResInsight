@@ -37,6 +37,7 @@ public:
     static QString barX100UnitString();
     static QString MPaUnitString();
     static QString gPerCm3UnitString();
+    static QString kgPerM3UnitString();
     static QString pascalUnitString();
 
 public:
