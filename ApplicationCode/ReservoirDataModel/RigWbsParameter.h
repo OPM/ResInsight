@@ -56,6 +56,7 @@ public:
 
     const QString&      name() const;
     std::vector<Source> sources() const;
+    bool                hasExternalSource() const;
     QString             addressString( Source source ) const;
     QString             units( Source source ) const;
     RigFemResultAddress femAddress( Source source ) const;
