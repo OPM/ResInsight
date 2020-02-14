@@ -2327,19 +2327,22 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         // Attach water and rock base formations
         const std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
 
-        const caf::ColorTable                        waterAndRockColors = RiaColorTables::waterAndRockPaletteColors();
-        const std::vector<std::pair<double, double>> waterAndRockIntervals =
-            waterAndRockRegions( plot->depthType(), extractor );
-        m_annotationTool->attachNamedRegions( m_plotWidget,
-                                              {"Sea Level", ""},
-                                              xRange,
-                                              waterAndRockIntervals,
-                                              m_regionAnnotationDisplay(),
-                                              waterAndRockColors,
-                                              ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
-                                              m_showRegionLabels(),
-                                              RiuPlotAnnotationTool::LEFT_COLUMN,
-                                              {Qt::SolidPattern, Qt::Dense6Pattern} );
+        if ( geoMechWellLogExtractor )
+        {
+            const caf::ColorTable waterAndRockColors = RiaColorTables::waterAndRockPaletteColors();
+            const std::vector<std::pair<double, double>> waterAndRockIntervals =
+                waterAndRockRegions( plot->depthType(), extractor );
+            m_annotationTool->attachNamedRegions( m_plotWidget,
+                                                  {"Sea Level", ""},
+                                                  xRange,
+                                                  waterAndRockIntervals,
+                                                  m_regionAnnotationDisplay(),
+                                                  waterAndRockColors,
+                                                  ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
+                                                  m_showRegionLabels(),
+                                                  RiuPlotAnnotationTool::LEFT_COLUMN,
+                                                  {Qt::SolidPattern, Qt::Dense6Pattern} );
+        }
 
         if ( m_formationSource == CASE )
         {
