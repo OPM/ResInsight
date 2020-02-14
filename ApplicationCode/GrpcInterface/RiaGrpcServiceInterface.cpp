@@ -113,7 +113,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
 void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination )
 {
     CAF_ASSERT( source && destination && destination->xmlCapability() );
-    CAF_ASSERT( source->class_keyword() == destination->xmlCapability()->classKeyword().toStdString() );
+    CAF_ASSERT( destination->xmlCapability()->matchesClassKeyword( QString::fromStdString( source->class_keyword() ) ) );
 
     if ( destination->uiCapability() && destination->uiCapability()->objectToggleField() )
     {

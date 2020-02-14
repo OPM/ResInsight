@@ -3,7 +3,7 @@
 #include "cafAssert.h"
 #include "cafPdmBase.h"
 
-class QString;
+#include <QString>
 
 #include <set>
 #include <vector>
@@ -26,6 +26,9 @@ public:
     PdmObjectHandle()           { m_parentField = nullptr;  }
     virtual ~PdmObjectHandle();
 
+    static QString classKeywordStatic();  // For PdmXmlFieldCap to be able to handle fields of PdmObjectHandle directly
+    static std::vector<QString> classKeywordAliases();
+    
     /// The registered fields contained in this PdmObject. 
     void                    fields(std::vector<PdmFieldHandle*>& fields) const;
     PdmFieldHandle*         findField(const QString& keyword) const;
@@ -112,8 +115,6 @@ private:
     template < class T > friend class PdmField; // For backwards compatibility layer
 
     template < class T > friend class PdmFieldXmlCap; 
-    
-    static const char* classKeywordStatic() { return "PdmObjectHandle";} // For PdmXmlFieldCap to be able to handle fields of PdmObjectHandle directly
 
     // Support system for PdmPointer
     friend class PdmPointerImpl;

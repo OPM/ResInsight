@@ -74,7 +74,7 @@ void caf::AppEnum<Rim3dView::SurfaceModeType>::setUp()
 
 } // End namespace caf
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "GenericView" ); // Do not use. Abstract class
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "View", "GenericView" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
 ///

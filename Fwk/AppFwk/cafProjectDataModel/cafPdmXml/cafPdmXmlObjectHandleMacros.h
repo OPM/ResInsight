@@ -28,8 +28,9 @@
 // To be renamed CAF_PDM_XML_HEADER_INIT
 #define CAF_PDM_XML_HEADER_INIT \
 public: \
-    virtual QString classKeyword() const   { return  classKeywordStatic(); } \
-    static  QString classKeywordStatic(); \
+    QString                     classKeyword() const override; \
+    static std::vector<QString> classKeywordAliases(); \
+    bool                        matchesClassKeyword(const QString& keyword) const override; \
     \
     static  bool Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class()
 
@@ -38,23 +39,49 @@ public: \
 //  initializes the factory
 /// Place this in the cpp file, preferably above the constructor
 
-#define CAF_PDM_XML_SOURCE_INIT(ClassName, keyword) \
+#define CAF_PDM_XML_SOURCE_INIT(ClassName, keyword, ...) \
     bool    ClassName::Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class() { return false;} \
     \
-    QString ClassName::classKeywordStatic() \
+    QString ClassName::classKeyword() const \
+    { \
+        return classKeywordAliases().front(); \
+    } \
+    std::vector<QString> ClassName::classKeywordAliases() \
     { \
         CAF_PDM_VERIFY_XML_KEYWORD(keyword) \
-        return keyword; \
+        return {keyword, ##__VA_ARGS__}; \
+    } \
+    bool ClassName::matchesClassKeyword(const QString& matchKeyword) const\
+    { \
+        auto aliases = classKeywordAliases(); \
+        for (auto alias : aliases) \
+        { \
+            if (alias == matchKeyword) return true; \
+        } \
+        return false; \
     } \
     static bool PDM_OBJECT_STRING_CONCATENATE(my##ClassName, __LINE__) = caf::PdmDefaultObjectFactory::instance()->registerCreator<ClassName>() 
 
-#define CAF_PDM_XML_ABSTRACT_SOURCE_INIT(ClassName, keyword) \
+#define CAF_PDM_XML_ABSTRACT_SOURCE_INIT(ClassName, keyword, ...) \
     bool    ClassName::Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class() { return false;} \
     \
-    QString ClassName::classKeywordStatic() \
+    QString ClassName::classKeyword() const \
+    { \
+        return classKeywordAliases().front(); \
+    } \
+    std::vector<QString> ClassName::classKeywordAliases() \
     { \
         CAF_PDM_VERIFY_XML_KEYWORD(keyword) \
-        return keyword; \
+        return {keyword, ##__VA_ARGS__}; \
+    } \
+    bool ClassName::matchesClassKeyword(const QString& matchKeyword) const\
+    { \
+        auto aliases = classKeywordAliases(); \
+        for (auto alias : aliases) \
+        { \
+            if (alias == matchKeyword) return true; \
+        } \
+        return false; \
     } \
 
 #define CAF_PDM_XML_InitField(field, keyword) \

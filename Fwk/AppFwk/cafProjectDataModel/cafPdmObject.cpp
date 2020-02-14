@@ -89,7 +89,7 @@ void PdmObject::childrenFromClassKeyword(
         for (auto childObject : childObjects)
         {
             PdmObject* pdmObjectChild = dynamic_cast<PdmObject*>(childObject);
-            if (pdmObjectChild && pdmObjectChild->classKeyword() == classKeyword)
+            if (pdmObjectChild && pdmObjectChild->matchesClassKeyword(classKeyword))
             {
                 children.push_back(pdmObjectChild);
             }

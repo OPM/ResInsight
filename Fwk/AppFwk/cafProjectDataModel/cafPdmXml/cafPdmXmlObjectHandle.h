@@ -35,6 +35,7 @@ public:
 
     /// The classKeyword method is overridden in subclasses by the CAF_PDM_XML_HEADER_INIT macro
     virtual QString         classKeyword() const = 0;
+    virtual bool            matchesClassKeyword(const QString& classKeyword) const = 0;
 
     /// Convenience methods to serialize/de-serialize this particular object (with children)
     void                    readObjectFromXmlString(const QString& xmlString, PdmObjectFactory* objectFactory);
