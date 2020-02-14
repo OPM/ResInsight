@@ -65,7 +65,18 @@ RicfCommandResponse RicNewMultiPlotFeature::execute()
         {
             plots.push_back( reinterpret_cast<RimPlot*>( ptr ) );
         }
-        plotWindow->movePlotsToThis( plots, nullptr );
+
+        for ( auto plot : plots )
+        {
+            auto copy = dynamic_cast<RimPlot*>( plot->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+            plotWindow->addPlot( copy );
+
+            copy->resolveReferencesRecursively();
+            copy->revokeMdiWindowStatus();
+            copy->setShowWindow( true );
+
+            copy->loadDataAndUpdate();
+        }
     }
 
     project->updateAllRequiredEditors();
