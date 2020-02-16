@@ -4,4 +4,4 @@ environment:
   QT5: C:\Qt\5.13.2\msvc2017_64
 cache: C:\vcpkg
 build_script:
-- ps: appveyor-build.ps1
+- ps: .\appveyor-build.ps1
