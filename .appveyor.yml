@@ -1,19 +1,7 @@
 version: 1.0.{build}
-branches:
-  only:
-  - dev
 image: Visual Studio 2017
-clone_depth: 1
 environment:
   QT5: C:\Qt\5.13.2\msvc2017_64
+cache: C:\vcpkg
 build_script:
-- cmd: >-
-    mkdir cmakebuild
-
-    cd cmakebuild
-
-    if exist "%QT5%" set Path=%QT5%\bin;%Path%
-
-    cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Release -DRESINSIGHT_ENABLE_UNITY_BUILD=on -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=on "-DCMAKE_PREFIX_PATH=%QT5%" ..
-
-    cmake --build . --target ResInsight --config Release
+- ps: .\appveyor-build.ps1
