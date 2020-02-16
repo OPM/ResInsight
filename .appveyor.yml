@@ -4,4 +4,43 @@ environment:
   QT5: C:\Qt\5.13.2\msvc2017_64
 cache: C:\vcpkg
 build_script:
-- ps: "if ( ! (Test-Path -Path \"C:/vcpkg\") ) {\ncd C:\\\ngit clone -q https://github.com/Microsoft/vcpkg.git\ncd .\\vcpkg\n\n# Checkout grpc v 1.19.1\n# https://github.com/microsoft/vcpkg/commit/8b4a607c328d100ac9892e2cbcfb9a4b0cf44c10\ngit checkout -q 8b4a607c328d100ac9892e2cbcfb9a4b0cf44c10\n.\\bootstrap-vcpkg.bat\n\n# Set instructions to vcpkb to build release only\n#Copy .\\x64-windows.cmake .vcpkg\\triplets\\x64-windows.cmake\n\nAdd-Content .\\triplets\\x64-windows.cmake \"set(VCPKG_BUILD_TYPE release)\"\n\n# Install grpc\n.\\vcpkg.exe install grpc --triplet x64-windows\n}\n\n### Python\n$env:PATH = \"C:\\Python37;C:\\Python37\\Scripts;$env:PATH\"\n\npython --version\npython -m pip install --upgrade pip\npython -m pip install grpcio-tools\npython -m pip install pytest\n\n$env:PATH = \"$env:QT5\\bin;$env:PATH\"\n\n#### BUILD\nmkdir cmakebuild\ncd .\\cmakebuild\n\ncmake -DCMAKE_BUILD_TYPE=Release -DRESINSIGHT_ENABLE_UNITY_BUILD=on -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=on \"-DCMAKE_PREFIX_PATH=$env:QT5\" -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=C:/Python37/python.exe -DCMAKE_TOOLCHAIN_FILE=C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake -A x64 ..\n\ncmake --build . --target ResInsight --config Release\n\n### TEST\n$env:RESINSIGHT_EXECUTABLE=\"$env:APPVEYOR_BUILD_FOLDER/cmakebuild/ApplicationCode/Release/ResInsight.exe\" \n\ncd ../ApplicationCode/GrpcInterface/Python/rips\npython -m pytest --console"
+- ps: "
+  if ( ! (Test-Path -Path \"C:/vcpkg\") )
+  {
+    cd C:\
+    git clone -q https://github.com/Microsoft/vcpkg.git
+    cd .\vcpkg
+  
+    # Checkout grpc v 1.19.1
+    # https://github.com/microsoft/vcpkg/commit/8b4a607c328d100ac9892e2cbcfb9a4b0cf44c10
+    git checkout -q 8b4a607c328d100ac9892e2cbcfb9a4b0cf44c10
+    .\bootstrap-vcpkg.bat
+  
+    # Set instructions to vcpkb to build release only
+    Add-Content .\triplets\x64-windows.cmake \"set(VCPKG_BUILD_TYPE release)\"
+    
+    # Install grpc
+    .\vcpkg.exe install grpc --triplet x64-windows
+  }
+  
+  ### Python
+  $env:PATH = \"C:\\Python37;C:\\Python37\\Scripts;$env:PATH\"
+  python --version
+  python -m pip install --upgrade pip
+  python -m pip install grpcio-tools
+  python -m pip install pytest
+  $env:PATH = \"$env:QT5\\bin;$env:PATH\"
+  
+  #### BUILD
+  
+  mkdir cmakebuild
+  cd .\cmakebuild
+  cmake -DCMAKE_BUILD_TYPE=Release -DRESINSIGHT_ENABLE_UNITY_BUILD=on -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=on \"-DCMAKE_PREFIX_PATH=$env:QT5\" -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=C:/Python37/python.exe -DCMAKE_TOOLCHAIN_FILE=C:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake -A x64 ..
+  
+  cmake --build . --target ResInsight --config Release
+  
+  ### TEST
+  $env:RESINSIGHT_EXECUTABLE=\"$env:APPVEYOR_BUILD_FOLDER/cmakebuild/ApplicationCode/Release/ResInsight.exe\"
+  cd ../ApplicationCode/GrpcInterface/Python/rips
+  python -m pytest --console"
+  
