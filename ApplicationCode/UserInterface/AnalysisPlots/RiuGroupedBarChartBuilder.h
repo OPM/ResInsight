@@ -39,6 +39,7 @@ public:
                       const QString& minTickText,
                       const double   sortValue,
                       const QString& legendText,
+                      const QString& barText,
                       const double   value );
 
     void addBarChartToPlot( QwtPlot* plot );
@@ -58,18 +59,20 @@ private:
     {
         BarEntry();
 
-        BarEntry( QString majorTickText,
-                  QString midTickText,
-                  QString minTickText,
-                  double  sortValue,
-                  QString legendText,
-                  double  value );
+        BarEntry( const QString& majorTickText,
+                  const QString& midTickText,
+                  const QString& minTickText,
+                  const double   sortValue,
+                  const QString& legendText,
+                  const QString& barText,
+                  const double   value );
 
         QString m_majTickText;
         QString m_midTickText;
         QString m_minTickText;
         double  m_sortValue;
         QString m_legendText;
+        QString m_barText;
 
         double m_value;
 

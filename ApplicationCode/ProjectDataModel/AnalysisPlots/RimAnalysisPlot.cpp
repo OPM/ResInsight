@@ -322,50 +322,50 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
     {
         RiuGroupedBarChartBuilder chartBuilder( Qt::Horizontal );
 
-        chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R1", 0.4 );
-        chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R2", 0.45 );
-        chartBuilder.addBarEntry( "T1_The_red_Fox", "W1", "", std::numeric_limits<double>::infinity(), "R1", 0.5 );
-        chartBuilder.addBarEntry( "T1_The_red_Fox", "W1", "", std::numeric_limits<double>::infinity(), "R2", 0.55 );
-        chartBuilder.addBarEntry( "T1_The_red_Fox", "W3", "", std::numeric_limits<double>::infinity(), "R1", 0.7 );
-        chartBuilder.addBarEntry( "T1_The_red_Fox", "W3", "", std::numeric_limits<double>::infinity(), "R2", 0.75 );
-        chartBuilder.addBarEntry( "T1_The_red_Fox", "W2", "", std::numeric_limits<double>::infinity(), "R1", 1.05 );
-        chartBuilder.addBarEntry( "T1_The_red_Fox", "W2", "", std::numeric_limits<double>::infinity(), "R2", 1.0 );
+        chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R1", "", 0.4 );
+        chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R2", "", 0.45 );
+        chartBuilder.addBarEntry( "T1_The_red_Fox", "W1", "", std::numeric_limits<double>::infinity(), "R1", "", 0.5 );
+        chartBuilder.addBarEntry( "T1_The_red_Fox", "W1", "", std::numeric_limits<double>::infinity(), "R2", "", 0.55 );
+        chartBuilder.addBarEntry( "T1_The_red_Fox", "W3", "", std::numeric_limits<double>::infinity(), "R1", "", 0.7 );
+        chartBuilder.addBarEntry( "T1_The_red_Fox", "W3", "", std::numeric_limits<double>::infinity(), "R2", "", 0.75 );
+        chartBuilder.addBarEntry( "T1_The_red_Fox", "W2", "", std::numeric_limits<double>::infinity(), "R1", "", 1.05 );
+        chartBuilder.addBarEntry( "T1_The_red_Fox", "W2", "", std::numeric_limits<double>::infinity(), "R2", "", 1.0 );
 
-        chartBuilder.addBarEntry( "T2", "W1", "", std::numeric_limits<double>::infinity(), "R1", 1.5 );
-        chartBuilder.addBarEntry( "T2", "W1", "", std::numeric_limits<double>::infinity(), "R2", 1.5 );
-        chartBuilder.addBarEntry( "T2", "W2", "", std::numeric_limits<double>::infinity(), "R1", 2.0 );
-        chartBuilder.addBarEntry( "T2", "W2", "", std::numeric_limits<double>::infinity(), "R2", 2.0 );
+        chartBuilder.addBarEntry( "T2", "W1", "", std::numeric_limits<double>::infinity(), "R1", "", 1.5 );
+        chartBuilder.addBarEntry( "T2", "W1", "", std::numeric_limits<double>::infinity(), "R2", "", 1.5 );
+        chartBuilder.addBarEntry( "T2", "W2", "", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
+        chartBuilder.addBarEntry( "T2", "W2", "", std::numeric_limits<double>::infinity(), "R2", "", 2.0 );
 
-        chartBuilder.addBarEntry( "T3", "W1", "1", std::numeric_limits<double>::infinity(), "R1", 1.5 );
-        chartBuilder.addBarEntry( "T3", "W1", "2", std::numeric_limits<double>::infinity(), "R2", 1.5 );
-        chartBuilder.addBarEntry( "T3", "W2", "3", std::numeric_limits<double>::infinity(), "R1", 2.0 );
-        chartBuilder.addBarEntry( "T3", "W2", "4", std::numeric_limits<double>::infinity(), "R1", 2.0 );
-        chartBuilder.addBarEntry( "T3", "W2", "5", std::numeric_limits<double>::infinity(), "R1", 2.0 );
+        chartBuilder.addBarEntry( "T3", "W1", "1", std::numeric_limits<double>::infinity(), "R1", "", 1.5 );
+        chartBuilder.addBarEntry( "T3", "W1", "2", std::numeric_limits<double>::infinity(), "R2", "", 1.5 );
+        chartBuilder.addBarEntry( "T3", "W2", "3", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
+        chartBuilder.addBarEntry( "T3", "W2", "4", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
+        chartBuilder.addBarEntry( "T3", "W2", "5", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
 
-        chartBuilder.addBarEntry( "T4", "W1", "1", std::numeric_limits<double>::infinity(), "R1", 1.5 );
-        chartBuilder.addBarEntry( "T4", "W1", "2", std::numeric_limits<double>::infinity(), "R2", 1.5 );
-        chartBuilder.addBarEntry( "T4", "W2", "3", std::numeric_limits<double>::infinity(), "R1", 2.0 );
-        chartBuilder.addBarEntry( "T4", "W2", "4", std::numeric_limits<double>::infinity(), "R2", 2.0 );
-        chartBuilder.addBarEntry( "T4", "W1", "1", std::numeric_limits<double>::infinity(), "R1", 1.6 );
-        chartBuilder.addBarEntry( "T4", "W1", "2", std::numeric_limits<double>::infinity(), "R2", 1.6 );
-        chartBuilder.addBarEntry( "T4", "W2", "3", std::numeric_limits<double>::infinity(), "R1", 2.6 );
-        chartBuilder.addBarEntry( "T4", "W2", "4", std::numeric_limits<double>::infinity(), "R2", -0.3 );
+        chartBuilder.addBarEntry( "T4", "W1", "1", std::numeric_limits<double>::infinity(), "R1", "", 1.5 );
+        chartBuilder.addBarEntry( "T4", "W1", "2", std::numeric_limits<double>::infinity(), "R2", "", 1.5 );
+        chartBuilder.addBarEntry( "T4", "W2", "3", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
+        chartBuilder.addBarEntry( "T4", "W2", "4", std::numeric_limits<double>::infinity(), "R2", "", 2.0 );
+        chartBuilder.addBarEntry( "T4", "W1", "1", std::numeric_limits<double>::infinity(), "R1", "", 1.6 );
+        chartBuilder.addBarEntry( "T4", "W1", "2", std::numeric_limits<double>::infinity(), "R2", "", 1.6 );
+        chartBuilder.addBarEntry( "T4", "W2", "3", std::numeric_limits<double>::infinity(), "R1", "", 2.6 );
+        chartBuilder.addBarEntry( "T4", "W2", "4", std::numeric_limits<double>::infinity(), "R2", "", -0.3 );
 
-        chartBuilder.addBarEntry( "T5", "", "G1", 1.5, "R3", 1.5 );
-        chartBuilder.addBarEntry( "T5", "", "G2", 1.5, "R3", 1.5 );
-        chartBuilder.addBarEntry( "T5", "", "G3", 2.0, "R3", 2.0 );
-        chartBuilder.addBarEntry( "T5", "", "G4", 2.0, "R3", 2.0 );
-        chartBuilder.addBarEntry( "T5", "", "G5", 1.6, "R3", 1.6 );
-        chartBuilder.addBarEntry( "T5", "", "G6", 1.6, "R3", 1.6 );
-        chartBuilder.addBarEntry( "T5", "", "G7", 2.6, "R3", 2.6 );
-        chartBuilder.addBarEntry( "T5", "", "G8", -0.3, "R3", -0.3 );
+        chartBuilder.addBarEntry( "T5", "", "", 1.5, "R3", "G1", 1.5 );
+        chartBuilder.addBarEntry( "T5", "", "", 1.5, "R3", "G2", 1.5 );
+        chartBuilder.addBarEntry( "T5", "", "", 2.0, "R3", "G3", 2.0 );
+        chartBuilder.addBarEntry( "T5", "", "", 2.0, "R3", "G4", 2.0 );
+        chartBuilder.addBarEntry( "T5", "", "", 1.6, "R3", "G5", 1.6 );
+        chartBuilder.addBarEntry( "T5", "", "", 1.6, "R3", "G6", 1.6 );
+        chartBuilder.addBarEntry( "T5", "", "", 2.6, "R3", "G7", 2.6 );
+        chartBuilder.addBarEntry( "T5", "", "", -0.1, "R3", "G8", -0.1 );
 
-        chartBuilder.addBarEntry( "", "", "", 1.2, "", 1.2 );
-        chartBuilder.addBarEntry( "", "", "", 1.5, "", 1.5 );
-        chartBuilder.addBarEntry( "", "", "", 2.3, "", 2.3 );
-        chartBuilder.addBarEntry( "", "", "", 2.0, "", 2.0 );
-        chartBuilder.addBarEntry( "", "", "", 1.6, "", 1.6 );
-        chartBuilder.addBarEntry( "", "", "", 2.4, "", -2.4 );
+        chartBuilder.addBarEntry( "", "", "", 1.2, "", "A", 1.2 );
+        chartBuilder.addBarEntry( "", "", "", 1.5, "", "B", 1.5 );
+        chartBuilder.addBarEntry( "", "", "", 2.3, "", "C", 2.3 );
+        chartBuilder.addBarEntry( "", "", "", 2.0, "", "D", 2.0 );
+        chartBuilder.addBarEntry( "", "", "", 1.6, "", "E", 1.6 );
+        chartBuilder.addBarEntry( "", "", "", 2.4, "", "F", -2.4 );
 
         chartBuilder.addBarChartToPlot( m_plotWidget );
 

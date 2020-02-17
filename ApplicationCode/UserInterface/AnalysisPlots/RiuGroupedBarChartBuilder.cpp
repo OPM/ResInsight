@@ -25,7 +25,9 @@
 #include "qwt_painter.h"
 #include "qwt_plot.h"
 #include "qwt_plot_barchart.h"
+#include "qwt_plot_scaleitem.h"
 #include "qwt_scale_draw.h"
+#include "qwt_scale_widget.h"
 
 #include <limits>
 #include <map>
@@ -196,9 +198,11 @@ void RiuGroupedBarChartBuilder::addBarEntry( const QString& majorTickText,
                                              const QString& minTickText,
                                              const double   sortValue,
                                              const QString& legendText,
+                                             const QString& barText,
                                              const double   value )
 {
-    m_sortedBarEntries.insert( BarEntry( majorTickText, midTickText, minTickText, sortValue, legendText, value ) );
+    m_sortedBarEntries.insert(
+        BarEntry( majorTickText, midTickText, minTickText, sortValue, legendText, barText, value ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,11 +229,12 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
 
     std::map<QString, QVector<QPointF>> legendToBarPointsMap;
 
-    std::map<double, std::pair<QwtScaleDiv::TickType, QString>> positionedAxisTexts;
+    std::map<double, std::pair<QwtScaleDiv::TickType, QString>> groupPositionedAxisTexts;
+    std::map<double, std::pair<QwtScaleDiv::TickType, QString>> positionedBarLabels;
 
-    QList<double> majTickPoss;
-    QList<double> midTickPoss;
-    QList<double> minTickPoss;
+    QList<double> majTickPositions;
+    QList<double> midTickPositions;
+    QList<double> minTickPositions;
 
     // clang-format off
     auto addGroupTickText = [&]( double groupStartPos, QString tickText, QList<double>& groupTickPosList )
@@ -238,8 +243,8 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
 
         double tickPos = midPoint( groupStartPos, currentBarPosition );
 
-        QwtScaleDiv::TickType ttyp = (&groupTickPosList == &majTickPoss ) ? QwtScaleDiv::MajorTick
-                                                                          : ( &groupTickPosList == &midTickPoss ) ? QwtScaleDiv::MediumTick
+        QwtScaleDiv::TickType ttyp = (&groupTickPosList == &majTickPositions ) ? QwtScaleDiv::MajorTick
+                                                                          : ( &groupTickPosList == &midTickPositions ) ? QwtScaleDiv::MediumTick
                                                                                                                   : QwtScaleDiv::MinorTick;
 
         // Make sure we do not get ticks of different level exactly at the same spot, 
@@ -248,11 +253,13 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
         if( ttyp == QwtScaleDiv::MinorTick ) tickPos += 2e-4;
         if( ttyp == QwtScaleDiv::MediumTick ) tickPos += 1e-4;
 
-        positionedAxisTexts[tickPos] = { ttyp, tickText };
+        groupPositionedAxisTexts[tickPos] = { ttyp, tickText };
 
         groupTickPosList.push_back( tickPos );
     };
     // clang-format on
+
+    // Loop over entries, calculate tick positions and bar positions as we go
 
     for ( const BarEntry& barDef : m_sortedBarEntries )
     {
@@ -263,9 +270,9 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
 
         if ( isFinishingMajGroup )
         {
-            addGroupTickText( currentMajGroupStartPos, previousMajText, majTickPoss );
-            addGroupTickText( currentMidGroupStartPos, previousMidText, midTickPoss );
-            addGroupTickText( currentMinGroupStartPos, previousMinText, minTickPoss );
+            addGroupTickText( currentMajGroupStartPos, previousMajText, majTickPositions );
+            addGroupTickText( currentMidGroupStartPos, previousMidText, midTickPositions );
+            addGroupTickText( currentMinGroupStartPos, previousMinText, minTickPositions );
 
             currentBarPosition += majGroupSpacing;
         }
@@ -291,8 +298,8 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
 
         if ( isFinishingMidGroup )
         {
-            addGroupTickText( currentMidGroupStartPos, previousMidText, midTickPoss );
-            addGroupTickText( currentMinGroupStartPos, previousMinText, minTickPoss );
+            addGroupTickText( currentMidGroupStartPos, previousMidText, midTickPositions );
+            addGroupTickText( currentMinGroupStartPos, previousMinText, minTickPositions );
 
             currentBarPosition += midGroupSpacing;
         }
@@ -315,7 +322,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
 
         if ( isFinishingMinGroup )
         {
-            addGroupTickText( currentMinGroupStartPos, previousMinText, minTickPoss );
+            addGroupTickText( currentMinGroupStartPos, previousMinText, minTickPositions );
 
             currentBarPosition += minGroupSpacing;
         }
@@ -342,27 +349,34 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
         }
 
         barPoints->push_back( {currentBarPosition, barDef.m_value} );
+        if ( !barDef.m_barText.isEmpty() )
+        {
+            positionedBarLabels[currentBarPosition] = {QwtScaleDiv::MinorTick, barDef.m_barText};
+        }
 
         // Increment the bar position for the next bar
         currentBarPosition += 1.0;
     }
 
     // Add group tick texts for the last groups
-
-    if ( !previousMajText.isEmpty() )
     {
-        addGroupTickText( currentMajGroupStartPos, previousMajText, majTickPoss );
+        if ( !previousMajText.isEmpty() )
+        {
+            addGroupTickText( currentMajGroupStartPos, previousMajText, majTickPositions );
+        }
+
+        if ( !previousMidText.isEmpty() )
+        {
+            addGroupTickText( currentMidGroupStartPos, previousMidText, midTickPositions );
+        }
+
+        if ( !previousMinText.isEmpty() )
+        {
+            addGroupTickText( currentMinGroupStartPos, previousMinText, minTickPositions );
+        }
     }
 
-    if ( !previousMidText.isEmpty() )
-    {
-        addGroupTickText( currentMidGroupStartPos, previousMidText, midTickPoss );
-    }
-
-    if ( !previousMinText.isEmpty() )
-    {
-        addGroupTickText( currentMinGroupStartPos, previousMinText, minTickPoss );
-    }
+    // Create QwtBarCharts for each of the legend groups
 
     int idx = 0;
     for ( const auto& legendToBarPointsPair : legendToBarPointsMap )
@@ -374,28 +388,65 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
         idx++;
     }
 
-    QwtPlot::Axis         axis        = QwtPlot::xBottom;
-    RiuBarChartScaleDraw* scaleDrawer = new RiuBarChartScaleDraw( positionedAxisTexts );
-
-    if ( m_orientation == Qt::Horizontal )
+    // Set up the axis to contain group texts and tick marks
     {
-        axis = QwtPlot::yLeft;
+        QwtPlot::Axis axis = QwtPlot::xBottom;
+        if ( m_orientation == Qt::Horizontal )
+        {
+            axis = QwtPlot::yLeft;
+        }
+
+        QwtScaleDiv groupAxisScaleDiv( 0, currentBarPosition );
+        {
+            if ( majTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MajorTick, majTickPositions );
+            if ( midTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MediumTick, midTickPositions );
+            if ( minTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MinorTick, minTickPositions );
+
+            if ( m_orientation == Qt::Horizontal )
+            {
+                groupAxisScaleDiv.invert();
+            }
+        }
+
+        RiuBarChartScaleDraw* scaleDrawer = new RiuBarChartScaleDraw( groupPositionedAxisTexts );
+
+        plot->setAxisScaleDraw( axis, scaleDrawer );
+        plot->setAxisScaleDiv( axis, groupAxisScaleDiv );
     }
 
-    plot->setAxisScaleDraw( axis, scaleDrawer );
-
-    QwtScaleDiv scaleDiv( 0, currentBarPosition );
-
-    if ( majTickPoss.size() ) scaleDiv.setTicks( QwtScaleDiv::MajorTick, majTickPoss );
-    if ( midTickPoss.size() ) scaleDiv.setTicks( QwtScaleDiv::MediumTick, midTickPoss );
-    if ( minTickPoss.size() ) scaleDiv.setTicks( QwtScaleDiv::MinorTick, minTickPoss );
-
-    if ( m_orientation == Qt::Horizontal )
+    // Add texts on the bars inside the plot
     {
-        scaleDiv.invert();
-    }
+        QwtScaleDraw::Alignment alignment = QwtScaleDraw::TopScale;
+        if ( m_orientation == Qt::Horizontal )
+        {
+            alignment = QwtScaleDraw::RightScale;
+        }
 
-    plot->setAxisScaleDiv( axis, scaleDiv );
+        QwtScaleDiv barTextScaleDiv( 0, currentBarPosition );
+        {
+            QList<double> onBarTickPositions;
+
+            for ( const auto& doubleStuffPair : positionedBarLabels )
+            {
+                onBarTickPositions.push_back( doubleStuffPair.first );
+            }
+
+            barTextScaleDiv.setTicks( QwtScaleDiv::MinorTick, onBarTickPositions );
+            if ( m_orientation == Qt::Horizontal )
+            {
+                barTextScaleDiv.invert();
+            }
+        }
+
+        RiuBarChartScaleDraw* barTextScaleDrawer = new RiuBarChartScaleDraw( positionedBarLabels );
+        barTextScaleDrawer->setAlignment( alignment );
+
+        QwtPlotScaleItem* barTextScale = new QwtPlotScaleItem( alignment, 0.0 );
+        barTextScale->setScaleDraw( barTextScaleDrawer );
+        barTextScale->setScaleDiv( barTextScaleDiv );
+        barTextScale->attach( plot );
+        barTextScale->setZ( 1000 );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -437,17 +488,19 @@ RiuGroupedBarChartBuilder::BarEntry::BarEntry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGroupedBarChartBuilder::BarEntry::BarEntry( QString majorTickText,
-                                               QString midTickText,
-                                               QString minTickText,
-                                               double  sortValue,
-                                               QString legendText,
-                                               double  value )
+RiuGroupedBarChartBuilder::BarEntry::BarEntry( const QString& majorTickText,
+                                               const QString& midTickText,
+                                               const QString& minTickText,
+                                               const double   sortValue,
+                                               const QString& legendText,
+                                               const QString& barText,
+                                               const double   value )
     : m_majTickText( majorTickText )
     , m_midTickText( midTickText )
     , m_minTickText( minTickText )
     , m_sortValue( sortValue )
     , m_legendText( legendText )
+    , m_barText( barText )
     , m_value( value )
 {
 }
