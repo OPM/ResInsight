@@ -391,6 +391,9 @@ RiaPreferences::RiaPreferences( void )
                        "",
                        "" );
     CAF_PDM_InitField( &m_defaultPlotFontSize_OBSOLETE, "defaultPlotFontSize", invalidFontSize, "Plot Font Size", "", "", "" );
+
+    CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer", "", "", "" );
+    m_openExportedPdfInViewer.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -430,7 +433,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
          field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
          field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
-         field == &m_enableFaultsByDefault || field == &m_showProgressBar )
+         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -563,6 +566,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     else if ( uiConfigName == RiaPreferences::tabNameExport() )
     {
         uiOrdering.add( &csvTextExportFieldSeparator );
+        uiOrdering.add( &m_openExportedPdfInViewer );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -959,6 +963,14 @@ bool RiaPreferences::useMultipleThreadsWhenReadingSummaryData() const
 bool RiaPreferences::showProgressBar() const
 {
     return m_showProgressBar;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::openExportedPdfInViewer() const
+{
+    return m_openExportedPdfInViewer;
 }
 
 //--------------------------------------------------------------------------------------------------
