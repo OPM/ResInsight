@@ -12,16 +12,16 @@ jobs:
       uses: jurplel/install-qt-action@v2.3.0
       with:
         # Directory to install Qt
-        dir: # optional
+        #dir: # optional
         # Version of Qt to install
-        version: # optional, default is 5.12.6
+        #version: # optional, default is 5.12.6
         # Host platform
-        host: # optional
+        #host: # optional
         # Target platform for build
-        target: # optional, default is desktop
+        #target: # optional, default is desktop
         # Architecture for Windows/Android
-        arch: desktop # optional
+        #arch: desktop # optional
         # Whether or not to install Qt dependencies on Linux
-        install-deps: # optional, default is true
+        #install-deps: # optional, default is true
         # Additional Qt modules to install
-        modules: # optional
+        #modules: # optional
