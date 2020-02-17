@@ -18,6 +18,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotAllViewsToFileFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotFilenameGenerator.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotViewToClipboardFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotViewToFileFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicSnapshotViewToPdfFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportSelectedWellPathsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportVisibleWellPathsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportWellPathsUi.h
@@ -47,6 +48,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotAllViewsToFileFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotFilenameGenerator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotViewToClipboardFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSnapshotViewToFileFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSnapshotViewToPdfFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportSelectedWellPathsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportVisibleWellPathsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportWellPathsUi.cpp

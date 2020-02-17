@@ -53,7 +53,7 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, RimV
     RimPlotWindow* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
     if ( plotWindow && fileName.endsWith( ".pdf" ) )
     {
-        savePlotPDFReportAs( fileName, plotWindow );
+        savePlotPdfReportAs( fileName, plotWindow );
     }
     else if ( viewWindow )
     {
@@ -83,7 +83,7 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotViewToFileFeature::savePlotPDFReportAs( const QString& fileName, RimPlotWindow* plot )
+void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName, RimPlotWindow* plot )
 {
     RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
     QCoreApplication::processEvents();
@@ -146,7 +146,7 @@ void RicSnapshotViewToFileFeature::saveViewWindowToFile( RimViewWindow* viewWind
     {
         if ( plotWindow && fileName.endsWith( "PDF", Qt::CaseInsensitive ) )
         {
-            savePlotPDFReportAs( fileName, plotWindow );
+            savePlotPdfReportAs( fileName, plotWindow );
         }
         else
         {
@@ -170,8 +170,9 @@ void RicSnapshotViewToFileFeature::saveImageToFile( const QImage& image, const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defaultFileBaseName /*= "image"*/,
-                                                            bool           supportPDF /*= false */ )
+QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defaultFileBaseName,
+                                                            bool           supportPDF,
+                                                            const QString& defaultExtension )
 {
     RiaApplication* app  = RiaApplication::instance();
     RimProject*     proj = app->project();
@@ -195,14 +196,25 @@ QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defau
                         << "*.pgm";
     QString fileExtensionFilter = QString( "Images (%1)" ).arg( imageFileExtensions.join( " " ) );
 
+    QString pdfFilter = "PDF report( *.pdf )";
     if ( supportPDF )
     {
-        fileExtensionFilter += ";;PDF report( *.pdf )";
+        fileExtensionFilter += QString( ";;%1" ).arg( pdfFilter );
     }
 
-    QString defaultAbsFileName = caf::Utils::constructFullFileName( startPath, defaultFileBaseName, ".png" );
-    QString fileName =
-        QFileDialog::getSaveFileName( nullptr, tr( "Export to File" ), defaultAbsFileName, fileExtensionFilter );
+    QString defaultAbsFileName =
+        caf::Utils::constructFullFileName( startPath, defaultFileBaseName, "." + defaultExtension );
+
+    QString selectedExtension;
+    if ( supportPDF )
+    {
+        selectedExtension = pdfFilter;
+    }
+    QString fileName = QFileDialog::getSaveFileName( nullptr,
+                                                     tr( "Export to File" ),
+                                                     defaultAbsFileName,
+                                                     fileExtensionFilter,
+                                                     &selectedExtension );
     if ( !fileName.isEmpty() )
     {
         // Remember the directory to next time
