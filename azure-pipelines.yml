@@ -16,4 +16,9 @@ steps:
 - script: |
     echo Add other tasks to build, test, and deploy your project.
     echo See https://aka.ms/yaml
+    mkdir cmakebuild
+    cd cmakebuild
+    cmake ..
+    cmake --build . --target ResInsight --config Release
   displayName: 'Run a multi-line script'
+
