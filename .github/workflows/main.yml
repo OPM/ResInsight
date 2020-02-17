@@ -5,9 +5,30 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
-    steps:
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v2.3.0
-     
+- name: run-vcpkg
+  uses: lukka/run-vcpkg@v0.10
+  with:
+    # Specify the Git commit id that establish which version of vcpkg needs to be used. When using vcpkg as a Git submodule, this input is not needed as impicitly specified by the submodule. [More information](https://github.com/lukka/CppBuildTasks/blob/master/README.md)
+    vcpkgGitCommitId: # optional
+    # 
+    vcpkgArguments: # default is 
+    # 
+    vcpkgDirectory: # optional, default is ${{ github.workspace }}/vcpkg
+    # Specify entries to append to the .artifactignore file. This file specifies which directory to ignore or to include by the Cache task. For more info: https://docs.microsoft.com/en-us/azure/devops/artifacts/reference/artifactignore?view=azure-devops . The file is created if not already existing.
+    vcpkgArtifactIgnoreEntries: # optional, default is !.git
+**/*
+!installed
+!/vcpkg
+!vcpkg.exe
+!vcpkgArtifactIgnoreEntries
+
+    # Specify the URL Git repository to download vcpkg from. Defaults to https://github.com/microsoft/vcpkg.git
+    vcpkgGitURL: # optional, default is https://github.com/microsoft/vcpkg.git
+    # Specify the vcpkg triplet. Common values are x64-windows, x64-linux and x64-osx. It is recommended to specify the triplet in the response file provided in the arguments instead than here.
+    vcpkgTriplet: # optional, default is 
+    # Append the argument '--clean-after-build' to vcpkgArgument input, to clean buildtrees, packages and downloads after building each port. Default is true.
+    cleanAfterBuild: # optional, default is true
+    # Avoid to update vcpkg(launching git) in the specified 'vcpkgDirectory'. This is useful when vcpkg is being checkout indipendently of the run-vcpkg task. Default is false.
+    doNotUpdateVcpkg: # optional
