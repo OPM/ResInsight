@@ -277,6 +277,7 @@ void RiuPlotMainWindow::createMenus()
 
     QMenu* exportMenu = fileMenu->addMenu( "&Export" );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToFileFeature" ) );
+    exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToPdfFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotAllPlotsToFileFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSaveEclipseInputActiveVisibleCellsFeature" ) );
 
@@ -299,6 +300,7 @@ void RiuPlotMainWindow::createMenus()
     QMenu* editMenu = menuBar()->addMenu( "&Edit" );
     editMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToClipboardFeature" ) );
     editMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToFileFeature" ) );
+    editMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToPdfFeature" ) );
     editMenu->addSeparator();
     editMenu->addAction( cmdFeatureMgr->action( "RicEditPreferencesFeature" ) );
 
@@ -349,6 +351,7 @@ QStringList RiuPlotMainWindow::toolbarCommandIds( const QString& toolbarName )
     {
         commandIds << "RicSnapshotViewToClipboardFeature";
         commandIds << "RicSnapshotViewToFileFeature";
+        commandIds << "RicSnapshotViewToPdfFeature";
         commandIds << "RicSnapshotAllPlotsToFileFeature";
     }
 
