@@ -80,6 +80,7 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimModeledWellPath.h"
+#include "RimMultiPlot.h"
 #include "RimMultiPlotCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimPerforationCollection.h"
@@ -835,6 +836,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
                   dynamic_cast<RimPlotTemplateFileItem*>( firstUiItem ) )
         {
             menuBuilder << "RicReloadPlotTemplatesFeature";
+        }
+        else if ( dynamic_cast<RimMultiPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicSnapshotViewToPdfFeature";
         }
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )
         {
