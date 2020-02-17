@@ -18,14 +18,19 @@
 
 #include "RicSnapshotViewToPdfFeature.h"
 
+#include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
 
 #include "RicSnapshotFilenameGenerator.h"
 #include "RicSnapshotViewToFileFeature.h"
 
 #include "RimPlotWindow.h"
+
 #include <QAction>
+#include <QDesktopServices>
+#include <QUrl>
 
 CAF_CMD_SOURCE_INIT( RicSnapshotViewToPdfFeature, "RicSnapshotViewToPdfFeature" );
 
@@ -66,6 +71,11 @@ void RicSnapshotViewToPdfFeature::onActionTriggered( bool isChecked )
             if ( plotWindow && fileName.endsWith( "PDF", Qt::CaseInsensitive ) )
             {
                 RicSnapshotViewToFileFeature::savePlotPdfReportAs( fileName, plotWindow );
+
+                if ( RiaApplication::instance()->preferences()->openExportedPdfInViewer() )
+                {
+                    QDesktopServices::openUrl( fileName );
+                }
             }
         }
     }

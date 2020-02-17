@@ -103,6 +103,7 @@ public:
     bool        showSummaryTimeAsLongString() const;
     bool        useMultipleThreadsWhenReadingSummaryData() const;
     bool        showProgressBar() const;
+    bool        openExportedPdfInViewer() const;
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
@@ -204,6 +205,7 @@ private:
     caf::PdmField<double>              m_pageRightMargin;
     caf::PdmField<double>              m_pageTopMargin;
     caf::PdmField<double>              m_pageBottomMargin;
+    caf::PdmField<bool>                m_openExportedPdfInViewer;
 
     caf::PdmField<QString>       m_plotTemplateFolders;
     caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;
