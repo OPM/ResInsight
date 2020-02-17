@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "PdmObject.proto";
+import "Definitions.proto";
 
 package rips;
 
@@ -58,12 +59,6 @@ message CaseGroups
 message GridCount
 {
 	int32 count = 1;
-}
-
-message Vec3i {
-  int32 i = 1;
-  int32 j = 2;
-  int32 k = 3;
 }
 
 message CellCount

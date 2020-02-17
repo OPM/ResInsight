@@ -20,6 +20,8 @@
 
 #include "RimSimWellInView.h"
 
+#include "RicfCommandObject.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
@@ -62,7 +64,7 @@ RimSimWellInView::RimSimWellInView()
 {
     CAF_PDM_InitObject( "Well", ":/Well.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &name, "WellName", "Name", "", "", "" );
+    RICF_InitFieldNoDefault( &name, "WellName", "Name", "", "", "" );
 
     CAF_PDM_InitField( &showWell, "ShowWell", true, "Show well ", "", "", "" );
 

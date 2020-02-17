@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package rips;
 
+import "Definitions.proto";
 import "Case.proto";
 
 service Grid

@@ -10,6 +10,7 @@ from rips.gridcasegroup import GridCaseGroup
 from rips.pdmobject import PdmObject
 from rips.plot import Plot
 from rips.view import View
+from rips.well import Well
 from rips.contour_map import ContourMap, ContourMapType
 
 import rips.generated.Commands_pb2 as Cmd
@@ -297,6 +298,19 @@ class Project(PdmObject):
         res = self._execute_command(importWellPaths=Cmd.ImportWellPathsRequest(wellPathFolder=well_path_folder,
                                                                                wellPathFiles=well_path_files))
         return res.importWellPathsResult.wellPathNames
+
+    def wells(self):
+        """Get a list of all wells in the project
+
+        Returns:
+            A list of rips Well objects
+        """
+        pdm_objects = self.descendants("WellPathBase")
+        wells  = []
+        for pdm_object in pdm_objects:
+            wells.append(Well(pdm_object.get_value("WellPathName"), pdm_object))
+        return wells
+
 
     def import_well_log_files(self, well_log_files=None, well_log_folder=''):
         """ Import well log files into project
