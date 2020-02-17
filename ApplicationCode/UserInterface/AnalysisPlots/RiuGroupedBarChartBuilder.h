@@ -32,7 +32,7 @@ class QColor;
 class RiuGroupedBarChartBuilder
 {
 public:
-    RiuGroupedBarChartBuilder( Qt::Orientation orientation );
+    RiuGroupedBarChartBuilder();
 
     void addBarEntry( const QString& majorTickText,
                       const QString& midTickText,
@@ -42,7 +42,7 @@ public:
                       const QString& barText,
                       const double   value );
 
-    void addBarChartToPlot( QwtPlot* plot );
+    void addBarChartToPlot( QwtPlot* plot, Qt::Orientation orientation );
 
 private:
     double midPoint( double v1, double v2 )
@@ -53,7 +53,8 @@ private:
     void addQwtBarChart( QwtPlot*                plot,
                          const QVector<QPointF>& posAndValue,
                          const QString&          legendText,
-                         const QColor&           barColor );
+                         const QColor&           barColor,
+                         Qt::Orientation         orientation );
 
     struct BarEntry
     {

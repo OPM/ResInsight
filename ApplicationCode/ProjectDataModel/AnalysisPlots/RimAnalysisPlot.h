@@ -24,6 +24,7 @@
 
 class RiuSummaryQwtPlot;
 class RimAnalysisPlotDataEntry;
+class RiuGroupedBarChartBuilder;
 
 //==================================================================================================
 ///
@@ -105,6 +106,8 @@ private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
+
+    void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
 
 private:
     QPointer<RiuQwtPlotWidget> m_plotWidget;

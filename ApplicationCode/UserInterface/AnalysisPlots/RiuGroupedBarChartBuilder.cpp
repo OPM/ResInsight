@@ -185,10 +185,7 @@ protected:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGroupedBarChartBuilder::RiuGroupedBarChartBuilder( Qt::Orientation orientation )
-    : m_orientation( orientation )
-{
-}
+RiuGroupedBarChartBuilder::RiuGroupedBarChartBuilder() {}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -208,7 +205,7 @@ void RiuGroupedBarChartBuilder::addBarEntry( const QString& majorTickText,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
+void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientation orientation )
 {
     const double majGroupSpacing = 1.6;
     const double midGroupSpacing = 0.5;
@@ -384,14 +381,15 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
         addQwtBarChart( plot,
                         legendToBarPointsPair.second,
                         legendToBarPointsPair.first,
-                        RiaColorTables::summaryCurveDefaultPaletteColors().cycledQColor( idx ) );
+                        RiaColorTables::summaryCurveDefaultPaletteColors().cycledQColor( idx ),
+                        orientation );
         idx++;
     }
 
     // Set up the axis to contain group texts and tick marks
     {
         QwtPlot::Axis axis = QwtPlot::xBottom;
-        if ( m_orientation == Qt::Horizontal )
+        if ( orientation == Qt::Horizontal )
         {
             axis = QwtPlot::yLeft;
         }
@@ -402,7 +400,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
             if ( midTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MediumTick, midTickPositions );
             if ( minTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MinorTick, minTickPositions );
 
-            if ( m_orientation == Qt::Horizontal )
+            if ( orientation == Qt::Horizontal )
             {
                 groupAxisScaleDiv.invert();
             }
@@ -417,7 +415,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
     // Add texts on the bars inside the plot
     {
         QwtScaleDraw::Alignment alignment = QwtScaleDraw::TopScale;
-        if ( m_orientation == Qt::Horizontal )
+        if ( orientation == Qt::Horizontal )
         {
             alignment = QwtScaleDraw::RightScale;
         }
@@ -432,7 +430,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
             }
 
             barTextScaleDiv.setTicks( QwtScaleDiv::MinorTick, onBarTickPositions );
-            if ( m_orientation == Qt::Horizontal )
+            if ( orientation == Qt::Horizontal )
             {
                 barTextScaleDiv.invert();
             }
@@ -455,7 +453,8 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot )
 void RiuGroupedBarChartBuilder::addQwtBarChart( QwtPlot*                plot,
                                                 const QVector<QPointF>& posAndValue,
                                                 const QString&          legendText,
-                                                const QColor&           barColor )
+                                                const QColor&           barColor,
+                                                Qt::Orientation         orientation )
 {
     QPalette palette;
     palette.setColor( QPalette::Window, barColor );
@@ -472,7 +471,7 @@ void RiuGroupedBarChartBuilder::addQwtBarChart( QwtPlot*                plot,
     barChart->setLayoutPolicy( QwtPlotAbstractBarChart::ScaleSamplesToAxes );
     barChart->setLayoutHint( 1.0 );
     barChart->setSymbol( barStyle );
-    barChart->setOrientation( m_orientation );
+    barChart->setOrientation( orientation );
     barChart->attach( plot );
 }
 
