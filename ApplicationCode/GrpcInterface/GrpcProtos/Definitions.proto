@@ -17,3 +17,14 @@ message Vec3i {
   int32 k = 3;
 }
 
+message Vec3d
+{
+	double x = 1;
+	double y = 2;
+	double z = 3;
+}
+
+message CellCenters
+{
+	repeated Vec3d centers = 1;
+}

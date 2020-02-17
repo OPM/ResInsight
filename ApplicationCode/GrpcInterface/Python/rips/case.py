@@ -820,3 +820,41 @@ class Case(PdmObject):
         for pdm_object in pdm_objects:
             wells.append(SimulationWell(pdm_object.get_value("WellName"), self.case_id, pdm_object))
         return wells
+
+
+    def active_cell_centers_async(
+            self,
+            porosity_model="MATRIX_MODEL",
+    ):
+        """Get a cell centers for all active cells. Async, so returns an iterator
+
+            Arguments:
+                porosity_model(str): string enum. See available()
+
+            Returns:
+                An iterator to a chunk object containing an array of Vec3d values.
+                Loop through the chunks and then the values within the chunk to get all values.
+        """
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
+        request = Case_pb2.CellInfoRequest(case_request=self.__request,
+                                           porosity_model=porosity_model_enum)
+        return self.__case_stub.GetCellCenterForActiveCells(request)
+
+    def active_cell_centers(
+            self,
+            porosity_model="MATRIX_MODEL",
+    ):
+        """Get a cell centers for all active cells. Synchronous, so returns a list.
+
+            Arguments:
+                porosity_model(str): string enum. See available()
+
+            Returns:
+                A list of Vec3d
+        """
+        cell_centers = []
+        generator = self.active_cell_centers_async(porosity_model)
+        for chunk in generator:
+            for value in chunk.centers:
+                cell_centers.append(value)
+        return cell_centers

@@ -48,11 +48,19 @@ public:
     RiaActiveCellInfoStateHandler();
 
     Status init( const rips::CellInfoRequest* request );
+
+    RigActiveCellInfo*          activeCellInfo() const;
+    const std::vector<RigCell>& reservoirCells() const;
+
+    // For cell info:
     Status assignNextActiveCellInfoData( rips::CellInfo* cellInfo );
     void   assignCellInfoData( rips::CellInfo* cellInfo, const std::vector<RigCell>& reservoirCells, size_t cellIdx );
     Status assignReply( rips::CellInfoArray* reply );
-    RigActiveCellInfo*          activeCellInfo() const;
-    const std::vector<RigCell>& reservoirCells() const;
+
+    // For cell centers:
+    Status assignNextActiveCellCenter( rips::Vec3d* cellCenter );
+    void   assignCellCenter( rips::Vec3d* cellCenter, const std::vector<RigCell>& reservoirCells, size_t cellIdx );
+    Status assignCellCentersReply( rips::CellCenters* reply );
 
 protected:
     const rips::CellInfoRequest*  m_request;
@@ -89,6 +97,10 @@ public:
                                             const rips::CellInfoRequest*   request,
                                             rips::CellInfoArray*           reply,
                                             RiaActiveCellInfoStateHandler* stateHandler );
+    grpc::Status GetCellCenterForActiveCells( grpc::ServerContext*           context,
+                                              const rips::CellInfoRequest*   request,
+                                              rips::CellCenters*             reply,
+                                              RiaActiveCellInfoStateHandler* stateHandler );
     grpc::Status GetReservoirBoundingBox( grpc::ServerContext*     context,
                                           const rips::CaseRequest* request,
                                           rips::BoundingBox*       reply );

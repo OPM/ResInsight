@@ -33,6 +33,15 @@
 using namespace rips;
 
 //--------------------------------------------------------------------------------------------------
+/// Convert internal ResInsight representation of cells with negative depth to positive depth.
+//--------------------------------------------------------------------------------------------------
+static inline void convertVec3dToPositiveDepth( cvf::Vec3d* vec )
+{
+    double& z = vec->z();
+    z *= -1;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiaActiveCellInfoStateHandler::RiaActiveCellInfoStateHandler()
@@ -219,6 +228,71 @@ grpc::Status RiaActiveCellInfoStateHandler::assignReply( rips::CellInfoArray* re
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaActiveCellInfoStateHandler::assignNextActiveCellCenter( rips::Vec3d* cellCenter )
+{
+    const std::vector<RigCell>& reservoirCells = m_eclipseCase->eclipseCaseData()->mainGrid()->globalCellArray();
+
+    while ( m_currentCellIdx < reservoirCells.size() )
+    {
+        size_t cellIdxToTry = m_currentCellIdx++;
+        if ( m_activeCellInfo->isActive( cellIdxToTry ) )
+        {
+            assignCellCenter( cellCenter, reservoirCells, cellIdxToTry );
+            return grpc::Status::OK;
+        }
+    }
+    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaActiveCellInfoStateHandler::assignCellCenter( rips::Vec3d*                cellCenter,
+                                                      const std::vector<RigCell>& reservoirCells,
+                                                      size_t                      cellIdx )
+
+{
+    cvf::Vec3d center = reservoirCells[cellIdx].center();
+
+    convertVec3dToPositiveDepth( &center );
+
+    cellCenter->set_x( center.x() );
+    cellCenter->set_y( center.y() );
+    cellCenter->set_z( center.z() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaActiveCellInfoStateHandler::assignCellCentersReply( rips::CellCenters* reply )
+{
+    const size_t packageSize  = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( rips::CellCenters ) );
+    size_t       packageIndex = 0u;
+    reply->mutable_centers()->Reserve( (int)packageSize );
+    for ( ; packageIndex < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++packageIndex )
+    {
+        rips::Vec3d  singleCellCenter;
+        grpc::Status singleCellCenterStatus = assignNextActiveCellCenter( &singleCellCenter );
+        if ( singleCellCenterStatus.ok() )
+        {
+            rips::Vec3d* allocCellCenter = reply->add_centers();
+            *allocCellCenter             = singleCellCenter;
+        }
+        else
+        {
+            break;
+        }
+    }
+    if ( packageIndex > 0u )
+    {
+        return Status::OK;
+    }
+    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcCaseService::GetGridCount( grpc::ServerContext*     context,
                                                const rips::CaseRequest* request,
                                                rips::GridCount*         reply )
@@ -370,6 +444,17 @@ grpc::Status RiaGrpcCaseService::GetCellInfoForActiveCells( grpc::ServerContext*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcCaseService::GetCellCenterForActiveCells( grpc::ServerContext*           context,
+                                                              const rips::CellInfoRequest*   request,
+                                                              rips::CellCenters*             reply,
+                                                              RiaActiveCellInfoStateHandler* stateHandler )
+{
+    return stateHandler->assignCellCentersReply( reply );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcCaseService::GetReservoirBoundingBox( grpc::ServerContext*     context,
                                                           const rips::CaseRequest* request,
                                                           rips::BoundingBox*       reply )
@@ -411,6 +496,14 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
                                                                                     &Self::GetCellInfoForActiveCells,
                                                                                     &Self::RequestGetCellInfoForActiveCells,
                                                                                     new RiaActiveCellInfoStateHandler ),
+            new RiaGrpcServerToClientStreamCallback<Self,
+                                                    CellInfoRequest,
+                                                    CellCenters,
+                                                    RiaActiveCellInfoStateHandler>( this,
+                                                                                    &Self::GetCellCenterForActiveCells,
+                                                                                    &Self::RequestGetCellCenterForActiveCells,
+                                                                                    new RiaActiveCellInfoStateHandler ),
+
             new RiaGrpcUnaryCallback<Self, CaseRequest, BoundingBox>( this,
                                                                       &Self::GetReservoirBoundingBox,
                                                                       &Self::RequestGetReservoirBoundingBox )};

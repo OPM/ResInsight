@@ -56,6 +56,12 @@ def test_MultipleCases(rips_instance, initialize_test):
     for i, case_name in enumerate(case_names):
         assert(case_name == cases[i].name)
 
+def get_cell_index_with_ijk(cell_info, i, j, k):
+    for (idx, cell) in enumerate(cell_info):
+        if cell.local_ijk.i == i and cell.local_ijk.j == j and cell.local_ijk.k == k:
+            return idx
+    return -1
+
 def test_10k(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=case_path)
@@ -67,6 +73,20 @@ def test_10k(rips_instance, initialize_test):
     assert(len(time_steps) == 9)
     days_since_start = case.days_since_start()
     assert(len(days_since_start) == 9)
+    cell_info = case.cell_info_for_active_cells()
+    assert(len(cell_info) == cell_count_info.active_cell_count)
+
+    # Check an active cell (found in resinsight ui)
+    cell_index = get_cell_index_with_ijk(cell_info, 23, 44, 19)
+    assert(cell_index != -1)
+
+    cell_centers = case.active_cell_centers()
+    assert(len(cell_centers) == cell_count_info.active_cell_count)
+
+    # Check the cell center for the specific cell
+    assert(math.isclose(3627.17, cell_centers[cell_index].x, abs_tol=0.1))
+    assert(math.isclose(5209.75, cell_centers[cell_index].y, abs_tol=0.1))
+    assert(math.isclose(4179.6, cell_centers[cell_index].z, abs_tol=0.1))
 
 def test_PdmObject(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"

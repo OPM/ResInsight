@@ -17,18 +17,6 @@ message GridRequest
 	int32         grid_index = 2;
 }
 
-message Vec3d
-{
-	double x = 1;
-	double y = 2;
-	double z = 3;
-}
-
-message CellCenters
-{
-	repeated Vec3d centers = 1;
-}
-
 message GridDimensions
 {
 	Vec3i dimensions = 1;
