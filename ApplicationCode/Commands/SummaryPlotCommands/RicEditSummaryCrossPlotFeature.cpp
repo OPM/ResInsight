@@ -21,8 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-#include "RicSummaryCurveCreator.h"
 #include "RicSummaryPlotEditorDialog.h"
+#include "RicSummaryPlotEditorUi.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"

@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSummaryCurveCreator.h"
+#include "RicSummaryPlotEditorUi.h"
 
 #include "RiaColorTables.h"
 #include "RiaCurveSetDefinition.h"
@@ -62,7 +62,7 @@
 #include <algorithm>
 #include <sstream>
 
-CAF_PDM_SOURCE_INIT( RicSummaryCurveCreator, "RicSummaryCurveCreator" );
+CAF_PDM_SOURCE_INIT( RicSummaryPlotEditorUi, "RicSummaryCurveCreator" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -72,7 +72,7 @@ const size_t ENSEMBLE_CURVE_COUNT_THRESHOLD = 600;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString RicSummaryCurveCreator::CONFIGURATION_NAME = "CurveCreatorCfg";
+const QString RicSummaryPlotEditorUi::CONFIGURATION_NAME = "CurveCreatorCfg";
 
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
@@ -84,7 +84,7 @@ std::vector<T> toVector( const std::set<T>& set );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreator::RicSummaryCurveCreator()
+RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
 {
     CAF_PDM_InitFieldNoDefault( &m_targetPlot, "TargetPlot", "Target Plot", "", "", "" );
 
@@ -99,8 +99,8 @@ RicSummaryCurveCreator::RicSummaryCurveCreator()
     m_previewPlot.reset( new RimSummaryPlot() );
 
     CAF_PDM_InitFieldNoDefault( &m_useAutoPlotTitleProxy, "UseAutoPlotTitle", "Auto Plot Title", "", "", "" );
-    m_useAutoPlotTitleProxy.registerGetMethod( this, &RicSummaryCurveCreator::proxyPlotAutoTitle );
-    m_useAutoPlotTitleProxy.registerSetMethod( this, &RicSummaryCurveCreator::proxyEnablePlotAutoTitle );
+    m_useAutoPlotTitleProxy.registerGetMethod( this, &RicSummaryPlotEditorUi::proxyPlotAutoTitle );
+    m_useAutoPlotTitleProxy.registerSetMethod( this, &RicSummaryPlotEditorUi::proxyEnablePlotAutoTitle );
 
     CAF_PDM_InitFieldNoDefault( &m_applyButtonField, "ApplySelection", "", "", "", "" );
     m_applyButtonField = false;
@@ -136,14 +136,14 @@ RicSummaryCurveCreator::RicSummaryCurveCreator()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreator::~RicSummaryCurveCreator()
+RicSummaryPlotEditorUi::~RicSummaryPlotEditorUi()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicSummaryCurveCreator::previewPlot() const
+RimSummaryPlot* RicSummaryPlotEditorUi::previewPlot() const
 {
     return m_previewPlot.get();
 }
@@ -151,7 +151,7 @@ RimSummaryPlot* RicSummaryCurveCreator::previewPlot() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::updateFromSummaryPlot( RimSummaryPlot*                    targetPlot,
+void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot*                    targetPlot,
                                                     const std::vector<SummarySource*>& defaultSources )
 {
     if ( targetPlot == nullptr || m_targetPlot != targetPlot )
@@ -182,7 +182,7 @@ void RicSummaryCurveCreator::updateFromSummaryPlot( RimSummaryPlot*             
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RicSummaryCurveCreator::addressSelectionWidget( QWidget* parent )
+QWidget* RicSummaryPlotEditorUi::addressSelectionWidget( QWidget* parent )
 {
     return m_summaryCurveSelectionEditor->getOrCreateWidget( parent );
 }
@@ -190,7 +190,7 @@ QWidget* RicSummaryCurveCreator::addressSelectionWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSummaryCurveCreator::isCloseButtonPressed() const
+bool RicSummaryPlotEditorUi::isCloseButtonPressed() const
 {
     return m_closeButtonField();
 }
@@ -198,7 +198,7 @@ bool RicSummaryCurveCreator::isCloseButtonPressed() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::clearCloseButton()
+void RicSummaryPlotEditorUi::clearCloseButton()
 {
     m_closeButtonField = false;
 }
@@ -206,7 +206,7 @@ void RicSummaryCurveCreator::clearCloseButton()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                const QVariant&            oldValue,
                                                const QVariant&            newValue )
 {
@@ -260,7 +260,7 @@ void RicSummaryCurveCreator::fieldChangedByUi( const caf::PdmFieldHandle* change
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicSummaryCurveCreator::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RicSummaryPlotEditorUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -286,7 +286,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RicSummaryPlotEditorUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     // Appearance settings
     caf::PdmUiGroup* appearanceGroup =
@@ -338,7 +338,7 @@ void RicSummaryCurveCreator::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
+void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 {
     std::vector<RiaSummaryCurveDefinition> allCurveDefinitionsVector =
         m_summaryCurveSelectionEditor->summaryAddressSelection()->allCurveDefinitionsFromSelection();
@@ -429,7 +429,7 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
+void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
     const std::set<RiaSummaryCurveDefinition>& allCurveDefsToDisplay,
     const std::set<RiaSummaryCurveDefinition>& curveDefsToAdd,
     const std::set<RimSummaryCurve*>&          curvesToDelete,
@@ -536,7 +536,7 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::defineEditorAttribute( const caf::PdmFieldHandle* field,
+void RicSummaryPlotEditorUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                     QString                    uiConfigName,
                                                     caf::PdmUiEditorAttribute* attribute )
 {
@@ -585,7 +585,7 @@ void RicSummaryCurveCreator::defineEditorAttribute( const caf::PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 /// Populate curve creator from the given curve collection
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::populateCurveCreator( const RimSummaryPlot& sourceSummaryPlot )
+void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceSummaryPlot )
 {
     std::vector<RiaSummaryCurveDefinition> curveDefs;
 
@@ -627,7 +627,7 @@ void RicSummaryCurveCreator::populateCurveCreator( const RimSummaryPlot& sourceS
 //--------------------------------------------------------------------------------------------------
 /// Copy curves from preview plot to target plot
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::updateTargetPlot()
+void RicSummaryPlotEditorUi::updateTargetPlot()
 {
     if ( !m_targetPlot ) return;
 
@@ -672,7 +672,7 @@ void RicSummaryCurveCreator::updateTargetPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::copyCurveAndAddToPlot( const RimSummaryCurve* curve, RimSummaryPlot* plot, bool forceVisible )
+void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve, RimSummaryPlot* plot, bool forceVisible )
 {
     RimSummaryCurve* curveCopy = dynamic_cast<RimSummaryCurve*>(
         curve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
@@ -694,7 +694,7 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot( const RimSummaryCurve* curve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::copyEnsembleCurveAndAddToCurveSet( const RimSummaryCurve* curve,
+void RicSummaryPlotEditorUi::copyEnsembleCurveAndAddToCurveSet( const RimSummaryCurve* curve,
                                                                 RimEnsembleCurveSet*   curveSet,
                                                                 bool                   forceVisible )
 {
@@ -718,7 +718,7 @@ void RicSummaryCurveCreator::copyEnsembleCurveAndAddToCurveSet( const RimSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::setDefaultCurveSelection( const std::vector<SummarySource*>& defaultSources )
+void RicSummaryPlotEditorUi::setDefaultCurveSelection( const std::vector<SummarySource*>& defaultSources )
 {
     m_summaryCurveSelectionEditor->summaryAddressSelection()->setDefaultSelection( defaultSources );
 }
@@ -726,7 +726,7 @@ void RicSummaryCurveCreator::setDefaultCurveSelection( const std::vector<Summary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::resetAllFields()
+void RicSummaryPlotEditorUi::resetAllFields()
 {
     std::vector<RiaSummaryCurveDefinition> curveDefinitions;
     m_summaryCurveSelectionEditor->summaryAddressSelection()->setSelectedCurveDefinitions( curveDefinitions );
@@ -738,7 +738,7 @@ void RicSummaryCurveCreator::resetAllFields()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::initCurveAppearanceCalculator( RimSummaryCurveAppearanceCalculator& curveAppearanceCalc )
+void RicSummaryPlotEditorUi::initCurveAppearanceCalculator( RimSummaryCurveAppearanceCalculator& curveAppearanceCalc )
 {
     if ( !m_useAutoAppearanceAssignment() )
     {
@@ -769,7 +769,7 @@ void RicSummaryCurveCreator::initCurveAppearanceCalculator( RimSummaryCurveAppea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::applyAppearanceToAllPreviewCurves()
+void RicSummaryPlotEditorUi::applyAppearanceToAllPreviewCurves()
 {
     std::set<RiaSummaryCurveDefinition> allCurveDefs = m_previewPlot->summaryAndEnsembleCurveDefinitions();
 
@@ -795,7 +795,7 @@ void RicSummaryCurveCreator::applyAppearanceToAllPreviewCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::updateAppearanceEditor()
+void RicSummaryPlotEditorUi::updateAppearanceEditor()
 {
     std::set<RiaSummaryCurveDefinition> allCurveDefs = m_previewPlot->summaryAndEnsembleCurveDefinitions();
 
@@ -806,7 +806,7 @@ void RicSummaryCurveCreator::updateAppearanceEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::createNewPlot()
+void RicSummaryPlotEditorUi::createNewPlot()
 {
     RimProject* proj = RiaApplication::instance()->project();
 
@@ -862,7 +862,7 @@ void RicSummaryCurveCreator::createNewPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::updateCurveNames()
+void RicSummaryPlotEditorUi::updateCurveNames()
 {
     for ( RimSummaryCurve* curve : m_previewPlot->summaryCurves() )
     {
@@ -876,7 +876,7 @@ void RicSummaryCurveCreator::updateCurveNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSummaryCurveCreator::isObservedData( RimSummaryCase* sumCase ) const
+bool RicSummaryPlotEditorUi::isObservedData( RimSummaryCase* sumCase ) const
 {
     return dynamic_cast<RimObservedSummaryData*>( sumCase ) != nullptr;
 }
@@ -884,7 +884,7 @@ bool RicSummaryCurveCreator::isObservedData( RimSummaryCase* sumCase ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RicSummaryCurveCreator::calculatedSummaryCase()
+RimSummaryCase* RicSummaryPlotEditorUi::calculatedSummaryCase()
 {
     RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
 
@@ -894,7 +894,7 @@ RimSummaryCase* RicSummaryCurveCreator::calculatedSummaryCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::selectionEditorFieldChanged()
+void RicSummaryPlotEditorUi::selectionEditorFieldChanged()
 {
     syncPreviewCurvesFromUiSelection();
 }
@@ -902,7 +902,7 @@ void RicSummaryCurveCreator::selectionEditorFieldChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::proxyEnablePlotAutoTitle( const bool& enable )
+void RicSummaryPlotEditorUi::proxyEnablePlotAutoTitle( const bool& enable )
 {
     m_previewPlot->enableAutoPlotTitle( enable );
     m_previewPlot->setShowPlotTitle( enable );
@@ -913,7 +913,7 @@ void RicSummaryCurveCreator::proxyEnablePlotAutoTitle( const bool& enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSummaryCurveCreator::proxyPlotAutoTitle() const
+bool RicSummaryPlotEditorUi::proxyPlotAutoTitle() const
 {
     return m_previewPlot->autoPlotTitle();
 }
@@ -921,7 +921,7 @@ bool RicSummaryCurveCreator::proxyPlotAutoTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::setInitialCurveVisibility( const RimSummaryPlot* targetPlot )
+void RicSummaryPlotEditorUi::setInitialCurveVisibility( const RimSummaryPlot* targetPlot )
 {
     // Set visibility for imported curves which were not checked in source plot
     std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> sourceCurveDefs;

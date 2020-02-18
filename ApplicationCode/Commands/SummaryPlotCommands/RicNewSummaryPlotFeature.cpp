@@ -24,8 +24,8 @@
 
 #include "RicEditSummaryPlotFeature.h"
 #include "RicNewSummaryEnsembleCurveSetFeature.h"
-#include "RicSummaryCurveCreator.h"
 #include "RicSummaryPlotEditorDialog.h"
+#include "RicSummaryPlotEditorUi.h"
 
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"

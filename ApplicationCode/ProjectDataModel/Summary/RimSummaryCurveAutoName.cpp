@@ -32,7 +32,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlotNameHelper.h"
 
-#include "SummaryPlotCommands/RicSummaryCurveCreator.h"
+#include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "cafPdmUiPushButtonEditor.h"
 
@@ -401,7 +401,7 @@ void RimSummaryCurveAutoName::fieldChangedByUi( const caf::PdmFieldHandle* chang
         return;
     }
 
-    RicSummaryCurveCreator* curveCreator = dynamic_cast<RicSummaryCurveCreator*>( this->parentField()->ownerObject() );
+    RicSummaryPlotEditorUi* curveCreator = dynamic_cast<RicSummaryPlotEditorUi*>( this->parentField()->ownerObject() );
     if ( curveCreator )
     {
         curveCreator->updateCurveNames();

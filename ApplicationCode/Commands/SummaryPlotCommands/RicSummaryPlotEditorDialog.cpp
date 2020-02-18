@@ -20,7 +20,7 @@
 
 #include "RiaGuiApplication.h"
 
-#include "RicSummaryCurveCreator.h"
+#include "RicSummaryPlotEditorUi.h"
 #include "RicSummaryPlotEditorWidgetCreator.h"
 
 #include "RifReaderEclipseSummary.h"

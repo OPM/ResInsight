@@ -25,7 +25,7 @@
 
 class RimSummaryPlot;
 class RimSummaryCase;
-class RicSummaryCurveCreator;
+class RicSummaryPlotEditorUi;
 
 class QMinimizePanel;
 class QSplitter;
@@ -95,5 +95,5 @@ private:
 
     QWidget* m_parentWidget;
 
-    std::unique_ptr<RicSummaryCurveCreator> m_summaryCurveCreator;
+    std::unique_ptr<RicSummaryPlotEditorUi> m_summaryCurveCreator;
 };

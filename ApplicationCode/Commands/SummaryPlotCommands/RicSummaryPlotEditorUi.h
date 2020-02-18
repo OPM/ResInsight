@@ -50,7 +50,7 @@ class RimEnsembleCurveSet;
 ///
 ///
 //==================================================================================================
-class RicSummaryCurveCreator : public caf::PdmObject
+class RicSummaryPlotEditorUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -61,8 +61,8 @@ private:
     typedef caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType> AppearanceTypeAppEnum;
 
 public:
-    RicSummaryCurveCreator();
-    ~RicSummaryCurveCreator() override;
+    RicSummaryPlotEditorUi();
+    ~RicSummaryPlotEditorUi() override;
 
     RimSummaryPlot* previewPlot() const;
     void            updateFromSummaryPlot( RimSummaryPlot*                     targetPlot,

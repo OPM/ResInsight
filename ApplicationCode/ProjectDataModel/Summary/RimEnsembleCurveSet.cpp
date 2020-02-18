@@ -23,7 +23,7 @@
 #include "RiaStatisticsTools.h"
 #include "RiuAbstractLegendFrame.h"
 
-#include "SummaryPlotCommands/RicSummaryCurveCreator.h"
+#include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "RifEnsembleStatisticsReader.h"
 #include "RifReaderEclipseSummary.h"
@@ -673,7 +673,7 @@ void RimEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
         uiTreeOrdering.add( m_legendConfig() );
     }
 
-    if ( uiConfigName != RicSummaryCurveCreator::CONFIGURATION_NAME )
+    if ( uiConfigName != RicSummaryPlotEditorUi::CONFIGURATION_NAME )
     {
         uiTreeOrdering.add( m_curveFilters );
     }

@@ -24,7 +24,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicPasteTimeHistoryCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteAsciiDataCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCrossPlotFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreator.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorWidgetCreator.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryCurveCalculatorFeature.h
@@ -70,7 +70,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicPasteTimeHistoryCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteAsciiDataCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCrossPlotFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorWidgetCreator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryCurveCalculatorFeature.cpp

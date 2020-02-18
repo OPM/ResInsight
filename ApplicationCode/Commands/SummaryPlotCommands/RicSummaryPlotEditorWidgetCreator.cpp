@@ -18,7 +18,7 @@
 
 #include "RicSummaryPlotEditorWidgetCreator.h"
 
-#include "RicSummaryCurveCreator.h"
+#include "RicSummaryPlotEditorUi.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
@@ -46,7 +46,7 @@ RicSummaryPlotEditorWidgetCreator::RicSummaryPlotEditorWidgetCreator( QWidget* p
 {
     m_parentWidget = parent;
 
-    m_summaryCurveCreator.reset( new RicSummaryCurveCreator() );
+    m_summaryCurveCreator.reset( new RicSummaryPlotEditorUi() );
 
     this->setPdmObject( m_summaryCurveCreator.get() );
 }
@@ -223,7 +223,7 @@ QMinimizePanel* RicSummaryPlotEditorWidgetCreator::getOrCreateCurveTreeGroup()
     {
         RimSummaryPlot* previewPlot = m_summaryCurveCreator->previewPlot();
         m_curveTreeView->setPdmItem( previewPlot );
-        m_curveTreeView->setUiConfigurationName( RicSummaryCurveCreator::CONFIGURATION_NAME );
+        m_curveTreeView->setUiConfigurationName( RicSummaryPlotEditorUi::CONFIGURATION_NAME );
         m_curveTreeView->setExpanded( previewPlot->summaryCurveCollection(), true );
         m_curveTreeView->setExpanded( previewPlot->ensembleCurveSetCollection(), true );
     }

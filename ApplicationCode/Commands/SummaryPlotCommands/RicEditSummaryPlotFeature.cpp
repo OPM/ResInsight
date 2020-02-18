@@ -22,8 +22,8 @@
 #include "RiaPreferences.h"
 #include "RiaSummaryTools.h"
 
-#include "RicSummaryCurveCreator.h"
 #include "RicSummaryPlotEditorDialog.h"
+#include "RicSummaryPlotEditorUi.h"
 
 #include "RimSummaryPlot.h"
 
