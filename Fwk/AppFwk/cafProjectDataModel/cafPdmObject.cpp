@@ -96,3 +96,28 @@ void PdmObject::childrenFromClassKeyword(
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObject::PdmObject() : PdmObjectHandle(), PdmXmlObjectHandle(this, false), PdmUiObjectHandle(this, false)
+    , m_scriptable(false)
+{
+    registerClassKeyword(classKeywordStatic());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString caf::PdmObject::classKeywordStatic()
+{
+    return classKeywordAliases().front();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> caf::PdmObject::classKeywordAliases()
+{
+    return { QString("PdmObject") };
+}
