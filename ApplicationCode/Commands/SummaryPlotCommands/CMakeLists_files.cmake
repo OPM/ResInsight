@@ -26,7 +26,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCrossPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreator.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreatorSplitterUi.h
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreatorDialog.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryCurveCalculatorFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCurveCalculationFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorDialog.h
@@ -72,7 +72,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCrossPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreatorSplitterUi.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreatorDialog.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryCurveCalculatorFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCurveCalculationFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorDialog.cpp
@@ -101,7 +101,7 @@ ${SOURCE_GROUP_SOURCE_FILES}
 
 list(APPEND QT_MOC_HEADERS
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreatorSplitterUi.h
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreatorDialog.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorEditor.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorDialog.h
 )

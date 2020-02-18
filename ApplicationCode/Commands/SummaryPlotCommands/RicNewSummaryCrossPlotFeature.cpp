@@ -24,7 +24,7 @@
 
 #include "RicEditSummaryPlotFeature.h"
 #include "RicSummaryCurveCreator.h"
-#include "RicSummaryCurveCreatorDialog.h"
+#include "RicSummaryPlotEditorDialog.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"

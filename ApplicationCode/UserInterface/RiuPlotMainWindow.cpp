@@ -39,7 +39,7 @@
 #include "RimWellRftPlot.h"
 
 #include "SummaryPlotCommands/RicSummaryCurveCalculatorDialog.h"
-#include "SummaryPlotCommands/RicSummaryCurveCreatorDialog.h"
+#include "SummaryPlotCommands/RicSummaryPlotEditorDialog.h"
 
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
@@ -652,11 +652,11 @@ void RiuPlotMainWindow::setFocusToLineEditInSummaryToolBar()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorDialog* RiuPlotMainWindow::summaryCurveCreatorDialog()
+RicSummaryPlotEditorDialog* RiuPlotMainWindow::summaryCurveCreatorDialog()
 {
     if ( m_summaryCurveCreatorDialog.isNull() )
     {
-        m_summaryCurveCreatorDialog = new RicSummaryCurveCreatorDialog( this );
+        m_summaryCurveCreatorDialog = new RicSummaryPlotEditorDialog( this );
     }
 
     return m_summaryCurveCreatorDialog;
