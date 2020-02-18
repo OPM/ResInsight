@@ -85,7 +85,7 @@ class PdmObjectCapability;
 { \
     this->isInheritedFromPdmUiObject(); \
     this->isInheritedFromPdmXmlSerializable(); \
-    this->registerClassKeyword(classKeywordStatic()); \
+    this->registerClassKeyword(classKeyword()); \
     \
     static caf::PdmUiItemInfo objDescr(uiName, QString(iconResourceName), toolTip, whatsThis); \
     this->setUiItemInfo(&objDescr); \
@@ -141,8 +141,11 @@ namespace caf
 class PdmObject : public PdmObjectHandle, public PdmXmlObjectHandle, public PdmUiObjectHandle
 {
 public:
-    PdmObject() : PdmObjectHandle(), PdmXmlObjectHandle(this, false), PdmUiObjectHandle(this, false) {}
+    PdmObject();
     ~PdmObject() override {}
+
+    static QString classKeywordStatic();
+    static std::vector<QString> classKeywordAliases();
 
     /// Adds field to the internal data structure and sets the file keyword and Ui information 
     /// Consider this method private. Please use the CAF_PDM_InitField() macro instead
