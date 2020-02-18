@@ -45,13 +45,13 @@ class PdmUiTreeView;
 ///
 ///
 //==================================================================================================
-class RicSummaryCurveCreatorSplitterUi : public caf::PdmUiFormLayoutObjectEditor
+class RicSummaryPlotEditorWidgetCreator : public caf::PdmUiFormLayoutObjectEditor
 {
     Q_OBJECT
 
 public:
-    RicSummaryCurveCreatorSplitterUi( QWidget* parent );
-    ~RicSummaryCurveCreatorSplitterUi() override;
+    RicSummaryPlotEditorWidgetCreator( QWidget* parent );
+    ~RicSummaryPlotEditorWidgetCreator() override;
 
     void updateFromSummaryPlot( RimSummaryPlot* summaryPlot );
     void updateFromDefaultSources( const std::vector<caf::PdmObject*> defaultSources );

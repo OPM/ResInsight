@@ -25,7 +25,7 @@ namespace caf
 class PdmObject;
 };
 
-class RicSummaryCurveCreatorSplitterUi;
+class RicSummaryPlotEditorWidgetCreator;
 class RimSummaryPlot;
 class RimSummaryCase;
 
@@ -47,5 +47,5 @@ private slots:
     void slotDialogFinished();
 
 private:
-    RicSummaryCurveCreatorSplitterUi* m_curveCreatorSplitterUi;
+    RicSummaryPlotEditorWidgetCreator* m_curveCreatorSplitterUi;
 };

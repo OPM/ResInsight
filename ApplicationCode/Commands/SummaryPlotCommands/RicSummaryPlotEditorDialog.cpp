@@ -21,7 +21,7 @@
 #include "RiaGuiApplication.h"
 
 #include "RicSummaryCurveCreator.h"
-#include "RicSummaryCurveCreatorSplitterUi.h"
+#include "RicSummaryPlotEditorWidgetCreator.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -36,7 +36,7 @@
 RicSummaryPlotEditorDialog::RicSummaryPlotEditorDialog( QWidget* parent )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
 {
-    m_curveCreatorSplitterUi = new RicSummaryCurveCreatorSplitterUi( this );
+    m_curveCreatorSplitterUi = new RicSummaryPlotEditorWidgetCreator( this );
 
     QWidget* propertyWidget = m_curveCreatorSplitterUi->getOrCreateWidget( this );
 
