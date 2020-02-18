@@ -1,11 +1,11 @@
-name: RpcView Build
+name: ResInsight Build
 
 on: [push]
 
 jobs:
   ResInsight-x64:
 
-    runs-on: windows-2016
+    runs-on: windows-latest
 
     steps:
       - name: Checkout
@@ -24,10 +24,10 @@ jobs:
         run: |
           mkdir cmakebuild
           cd cmakebuild
-          cmake .. -G"Visual Studio 15 2017 Win64"
+          cmake .. -G"Visual Studio 15 2017 Win64" -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true
           cmake --build . --config Release --target PACKAGE
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
-          name: ResInsight-x64.zip
-          path: ${{ runner.workspace }}\RpcView\Build\x64\bin\Release
+          name: ResInsight.zip
+          path: ${{ runner.workspace }}\cmakebuild\ResInsight*.zip
