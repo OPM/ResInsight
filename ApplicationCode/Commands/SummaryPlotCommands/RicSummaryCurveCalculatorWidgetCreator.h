@@ -41,13 +41,13 @@ class PdmUiTableView;
 ///
 ///
 //==================================================================================================
-class RicSummaryCurveCalculatorEditor : public caf::PdmUiFormLayoutObjectEditor
+class RicSummaryCurveCalculatorWidgetCreator : public caf::PdmUiFormLayoutObjectEditor
 {
     Q_OBJECT
 
 public:
-    RicSummaryCurveCalculatorEditor();
-    ~RicSummaryCurveCalculatorEditor() override;
+    RicSummaryCurveCalculatorWidgetCreator();
+    ~RicSummaryCurveCalculatorWidgetCreator() override;
 
     RicSummaryCurveCalculator* calculator() const;
 

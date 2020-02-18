@@ -19,7 +19,7 @@
 #include "RicSummaryCurveCalculatorDialog.h"
 
 #include "RicSummaryCurveCalculator.h"
-#include "RicSummaryCurveCalculatorEditor.h"
+#include "RicSummaryCurveCalculatorWidgetCreator.h"
 
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
@@ -115,7 +115,8 @@ void RicSummaryCurveCalculatorDialog::setUp()
     QVBoxLayout* mainLayout = new QVBoxLayout( this );
     mainLayout->setContentsMargins( 0, 0, 0, 0 );
 
-    m_summaryCalcEditor = std::unique_ptr<RicSummaryCurveCalculatorEditor>( new RicSummaryCurveCalculatorEditor() );
+    m_summaryCalcEditor =
+        std::unique_ptr<RicSummaryCurveCalculatorWidgetCreator>( new RicSummaryCurveCalculatorWidgetCreator() );
     mainLayout->addWidget( m_summaryCalcEditor->getOrCreateWidget( this ) );
 
     QDialogButtonBox* buttonBox = new QDialogButtonBox( QDialogButtonBox::Close );
