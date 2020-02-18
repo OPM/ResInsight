@@ -300,6 +300,14 @@ bool PdmXmlObjectHandle::inheritsClassWithKeyword(const QString& testClassKeywor
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::list<QString>& PdmXmlObjectHandle::classInheritanceStack() const
+{
+    return m_classInheritanceStack;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void PdmXmlObjectHandle::initAfterReadRecursively(PdmObjectHandle* object)
