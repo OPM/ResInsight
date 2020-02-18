@@ -17,6 +17,7 @@ jobs:
           host: windows
           target: desktop
           arch: win64_msvc2017_64
+          modules: qtscript 
       - name: Build ResInsight-x64
         env:
           CMAKE_PREFIX_PATH: ${{ runner.workspace }}\Qt\5.9.1\msvc2017_64
