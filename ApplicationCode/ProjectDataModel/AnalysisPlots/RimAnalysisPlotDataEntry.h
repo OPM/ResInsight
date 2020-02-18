@@ -25,6 +25,8 @@
 
 class RimSummaryCase;
 class RimSummaryAddress;
+class RimSummaryCaseCollection;
+class RiaSummaryCurveDefinition;
 
 class RimAnalysisPlotDataEntry : public caf::PdmObject
 {
@@ -34,13 +36,17 @@ public:
     RimAnalysisPlotDataEntry();
     ~RimAnalysisPlotDataEntry() override;
 
-    void            setSummaryCase( RimSummaryCase* sumCase );
-    RimSummaryCase* summaryCase() const;
+    void setFromCurveDefinition( const RiaSummaryCurveDefinition& curveDef );
+
+    void                      setSummaryCase( RimSummaryCase* sumCase );
+    RimSummaryCase*           summaryCase() const;
+    RimSummaryCaseCollection* ensemble() const;
 
     void                     setSummaryAddress( const RifEclipseSummaryAddress& address );
     RifEclipseSummaryAddress summaryAddress() const;
 
 private:
-    caf::PdmPtrField<RimSummaryCase*>      m_summaryCase;
-    caf::PdmChildField<RimSummaryAddress*> m_summaryAddress;
+    caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
+    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
+    caf::PdmChildField<RimSummaryAddress*>      m_summaryAddress;
 };

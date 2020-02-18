@@ -132,6 +132,14 @@ void RiuSummaryVectorSelectionDialog::hideSummaryCases()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionDialog::enableMultiSelect( bool enable )
+{
+    summaryAddressSelection()->setMultiSelectionMode(enable);
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryVectorSelectionUi* RiuSummaryVectorSelectionDialog::summaryAddressSelection() const

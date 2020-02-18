@@ -100,14 +100,14 @@ private:
 
     // Overridden PDM methods
     caf::PdmFieldHandle* userDescriptionField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
 
+    void buildChart( RiuGroupedBarChartBuilder& chartBuilder );
     void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
+    void updatePlotTitle();
 
 private:
     QPointer<RiuQwtPlotWidget> m_plotWidget;
@@ -115,6 +115,9 @@ private:
     caf::PdmField<bool>    m_showPlotTitle;
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
+
+    caf::PdmField<QString> m_selectedVarsUiField;
+    caf::PdmField<bool>    m_selectVariablesButtonField;
 
     caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_data;
 
