@@ -30,12 +30,12 @@ class RimSummaryCalculation;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicSummaryCurveCalculator : public caf::PdmObject
+class RicSummaryCurveCalculatorUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicSummaryCurveCalculator();
+    RicSummaryCurveCalculatorUi();
 
     static QString calculatedSummariesGroupName();
     static QString calulationGroupName();

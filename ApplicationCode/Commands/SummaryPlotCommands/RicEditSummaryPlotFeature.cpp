@@ -22,8 +22,8 @@
 #include "RiaPreferences.h"
 #include "RiaSummaryTools.h"
 
-#include "RicSummaryCurveCreator.h"
-#include "RicSummaryCurveCreatorDialog.h"
+#include "RicSummaryPlotEditorDialog.h"
+#include "RicSummaryPlotEditorUi.h"
 
 #include "RimSummaryPlot.h"
 
@@ -64,7 +64,7 @@ void RicEditSummaryPlotFeature::closeDialogAndResetTargetPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorDialog* RicEditSummaryPlotFeature::curveCreatorDialog()
+RicSummaryPlotEditorDialog* RicEditSummaryPlotFeature::curveCreatorDialog()
 {
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
 

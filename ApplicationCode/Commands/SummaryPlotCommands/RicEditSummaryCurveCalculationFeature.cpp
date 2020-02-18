@@ -21,8 +21,8 @@
 #include "RiaApplication.h"
 
 #include "RicShowSummaryCurveCalculatorFeature.h"
-#include "RicSummaryCurveCalculator.h"
 #include "RicSummaryCurveCalculatorDialog.h"
+#include "RicSummaryCurveCalculatorUi.h"
 
 #include "RifEclipseSummaryAddress.h"
 

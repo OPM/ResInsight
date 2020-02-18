@@ -20,7 +20,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
-#include "RiuSummaryCurveDefSelectionEditor.h"
+#include "RiuSummaryVectorSelectionWidgetCreator.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -50,7 +50,7 @@ class RimEnsembleCurveSet;
 ///
 ///
 //==================================================================================================
-class RicSummaryCurveCreator : public caf::PdmObject
+class RicSummaryPlotEditorUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -61,8 +61,8 @@ private:
     typedef caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType> AppearanceTypeAppEnum;
 
 public:
-    RicSummaryCurveCreator();
-    ~RicSummaryCurveCreator() override;
+    RicSummaryPlotEditorUi();
+    ~RicSummaryPlotEditorUi() override;
 
     RimSummaryPlot* previewPlot() const;
     void            updateFromSummaryPlot( RimSummaryPlot*                     targetPlot,
@@ -132,5 +132,5 @@ private:
     caf::PdmField<bool> m_applyButtonField;
     caf::PdmField<bool> m_closeButtonField;
 
-    std::unique_ptr<RiuSummaryCurveDefSelectionEditor> m_summaryCurveSelectionEditor;
+    std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator> m_summaryCurveSelectionEditor;
 };

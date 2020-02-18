@@ -34,7 +34,7 @@ class RiuViewer;
 
 struct RimMdiWindowGeometry;
 class RimViewWindow;
-class RicSummaryCurveCreatorDialog;
+class RicSummaryPlotEditorDialog;
 class RicSummaryCurveCalculatorDialog;
 
 namespace caf
@@ -88,7 +88,7 @@ public:
     void updateSummaryPlotToolBar( bool forceUpdateUi = false );
     void setFocusToLineEditInSummaryToolBar();
 
-    RicSummaryCurveCreatorDialog*    summaryCurveCreatorDialog();
+    RicSummaryPlotEditorDialog*      summaryCurveCreatorDialog();
     RicSummaryCurveCalculatorDialog* summaryCurveCalculatorDialog();
 
 protected:
@@ -134,7 +134,7 @@ private:
 
     caf::PdmUiPropertyView* m_pdmUiPropertyView;
 
-    QPointer<RicSummaryCurveCreatorDialog>    m_summaryCurveCreatorDialog;
+    QPointer<RicSummaryPlotEditorDialog>      m_summaryCurveCreatorDialog;
     QPointer<RicSummaryCurveCalculatorDialog> m_summaryCurveCalculatorDialog;
 
     std::vector<QWidget*> m_temporaryWidgets;

@@ -2,6 +2,12 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (ApplicationCode)
 
+
+# set packaging dir
+if(NOT CPACK_PACKAGE_DIRECTORY)
+    set(CPACK_PACKAGE_DIRECTORY ${CMAKE_BINARY_DIR}/packages)
+endif()
+
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
     message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
     set(CMAKE_UNITY_BUILD true)

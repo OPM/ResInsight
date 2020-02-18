@@ -26,18 +26,18 @@
 
 class QLabel;
 
-class RiuSummaryCurveDefSelection;
-class RiuSummaryCurveDefSelectionEditor;
+class RiuSummaryVectorSelectionUi;
+class RiuSummaryVectorSelectionWidgetCreator;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RiuSummaryCurveDefSelectionDialog : public QDialog
+class RiuSummaryVectorSelectionDialog : public QDialog
 {
 public:
-    RiuSummaryCurveDefSelectionDialog( QWidget* parent );
-    ~RiuSummaryCurveDefSelectionDialog() override;
+    RiuSummaryVectorSelectionDialog( QWidget* parent );
+    ~RiuSummaryVectorSelectionDialog() override;
 
     void setCaseAndAddress( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address );
     void setEnsembleAndAddress( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& address );
@@ -47,11 +47,11 @@ public:
     void hideSummaryCases();
 
 private:
-    RiuSummaryCurveDefSelection* summaryAddressSelection() const;
+    RiuSummaryVectorSelectionUi* summaryAddressSelection() const;
     void                         updateLabel();
 
 private:
-    std::unique_ptr<RiuSummaryCurveDefSelectionEditor> m_addrSelWidget;
+    std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator> m_addrSelWidget;
 
     QLabel* m_label;
 };

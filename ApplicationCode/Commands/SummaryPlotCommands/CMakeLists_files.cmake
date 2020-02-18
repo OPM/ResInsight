@@ -24,14 +24,14 @@ ${CMAKE_CURRENT_LIST_DIR}/RicPasteTimeHistoryCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteAsciiDataCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCrossPlotFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreator.h
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreatorSplitterUi.h
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreatorDialog.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorUi.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorWidgetCreator.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryCurveCalculatorFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCurveCalculationFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorDialog.h
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorEditor.h
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorWidgetCreator.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCrossPlotCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryEnsembleCurveSetFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteEnsembleCurveSetFeature.h
@@ -70,14 +70,14 @@ ${CMAKE_CURRENT_LIST_DIR}/RicPasteTimeHistoryCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteAsciiDataCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCrossPlotFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreator.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreatorSplitterUi.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreatorDialog.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorUi.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorWidgetCreator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryCurveCalculatorFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCurveCalculationFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorDialog.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorEditor.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorWidgetCreator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCrossPlotCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryEnsembleCurveSetFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteEnsembleCurveSetFeature.cpp
@@ -100,9 +100,9 @@ ${SOURCE_GROUP_SOURCE_FILES}
 )
 
 list(APPEND QT_MOC_HEADERS
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreatorSplitterUi.h
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCreatorDialog.h
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorEditor.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorWidgetCreator.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotEditorDialog.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorWidgetCreator.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorDialog.h
 )
 

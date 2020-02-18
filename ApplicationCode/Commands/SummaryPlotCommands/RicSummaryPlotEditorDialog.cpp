@@ -16,12 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSummaryCurveCreatorDialog.h"
+#include "RicSummaryPlotEditorDialog.h"
 
 #include "RiaGuiApplication.h"
 
-#include "RicSummaryCurveCreator.h"
-#include "RicSummaryCurveCreatorSplitterUi.h"
+#include "RicSummaryPlotEditorUi.h"
+#include "RicSummaryPlotEditorWidgetCreator.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -33,10 +33,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog( QWidget* parent )
+RicSummaryPlotEditorDialog::RicSummaryPlotEditorDialog( QWidget* parent )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
 {
-    m_curveCreatorSplitterUi = new RicSummaryCurveCreatorSplitterUi( this );
+    m_curveCreatorSplitterUi = new RicSummaryPlotEditorWidgetCreator( this );
 
     QWidget* propertyWidget = m_curveCreatorSplitterUi->getOrCreateWidget( this );
 
@@ -54,7 +54,7 @@ RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorDialog::~RicSummaryCurveCreatorDialog()
+RicSummaryPlotEditorDialog::~RicSummaryPlotEditorDialog()
 {
     m_curveCreatorSplitterUi->setPdmObject( nullptr );
 }
@@ -62,7 +62,7 @@ RicSummaryCurveCreatorDialog::~RicSummaryCurveCreatorDialog()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreatorDialog::updateFromSummaryPlot( RimSummaryPlot* summaryPlot )
+void RicSummaryPlotEditorDialog::updateFromSummaryPlot( RimSummaryPlot* summaryPlot )
 {
     m_curveCreatorSplitterUi->updateFromSummaryPlot( summaryPlot );
     m_curveCreatorSplitterUi->updateUi();
@@ -71,7 +71,7 @@ void RicSummaryCurveCreatorDialog::updateFromSummaryPlot( RimSummaryPlot* summar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreatorDialog::updateFromDefaultCases( const std::vector<caf::PdmObject*> defaultSources )
+void RicSummaryPlotEditorDialog::updateFromDefaultCases( const std::vector<caf::PdmObject*> defaultSources )
 {
     m_curveCreatorSplitterUi->updateFromDefaultSources( defaultSources );
     m_curveCreatorSplitterUi->updateUi();
@@ -80,7 +80,7 @@ void RicSummaryCurveCreatorDialog::updateFromDefaultCases( const std::vector<caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreatorDialog::slotDialogFinished()
+void RicSummaryPlotEditorDialog::slotDialogFinished()
 {
     RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
     if ( plotwindow )

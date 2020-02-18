@@ -23,7 +23,7 @@
 #include "RiaStatisticsTools.h"
 #include "RiuAbstractLegendFrame.h"
 
-#include "SummaryPlotCommands/RicSummaryCurveCreator.h"
+#include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "RifEnsembleStatisticsReader.h"
 #include "RifReaderEclipseSummary.h"
@@ -51,8 +51,8 @@
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotCurve.h"
-#include "RiuSummaryCurveDefSelectionDialog.h"
 #include "RiuSummaryQwtPlot.h"
+#include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiLineEditor.h"
@@ -572,9 +572,9 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_yPushButtonSelectSummaryAddress )
     {
-        RiuSummaryCurveDefSelectionDialog dlg( nullptr );
-        RimSummaryCaseCollection*         candidateEnsemble = m_yValuesSummaryCaseCollection();
-        RifEclipseSummaryAddress          candicateAddress  = m_yValuesSummaryAddress->address();
+        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RimSummaryCaseCollection*       candidateEnsemble = m_yValuesSummaryCaseCollection();
+        RifEclipseSummaryAddress        candicateAddress  = m_yValuesSummaryAddress->address();
 
         dlg.hideSummaryCases();
         dlg.setEnsembleAndAddress( candidateEnsemble, candicateAddress );
@@ -673,7 +673,7 @@ void RimEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
         uiTreeOrdering.add( m_legendConfig() );
     }
 
-    if ( uiConfigName != RicSummaryCurveCreator::CONFIGURATION_NAME )
+    if ( uiConfigName != RicSummaryPlotEditorUi::CONFIGURATION_NAME )
     {
         uiTreeOrdering.add( m_curveFilters );
     }

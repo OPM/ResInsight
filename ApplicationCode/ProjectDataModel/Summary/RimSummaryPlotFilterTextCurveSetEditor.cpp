@@ -46,7 +46,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindow.h"
-#include "RiuSummaryCurveDefSelection.h"
+#include "RiuSummaryVectorSelectionUi.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"

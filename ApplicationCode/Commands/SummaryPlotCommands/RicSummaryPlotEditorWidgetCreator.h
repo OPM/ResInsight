@@ -23,9 +23,9 @@
 #include <memory>
 #include <vector>
 
+class RimSummaryPlot;
 class RimSummaryCase;
-class RiuSummaryCurveDefSelection;
-class RifEclipseSummaryAddress;
+class RicSummaryPlotEditorUi;
 
 class QMinimizePanel;
 class QSplitter;
@@ -36,20 +36,25 @@ class QBoxLayout;
 
 namespace caf
 {
+class PdmObject;
 class PdmUiItem;
-}
+class PdmUiTreeView;
+} // namespace caf
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RiuSummaryCurveDefSelectionEditor : public caf::PdmUiFormLayoutObjectEditor
+class RicSummaryPlotEditorWidgetCreator : public caf::PdmUiFormLayoutObjectEditor
 {
-public:
-    RiuSummaryCurveDefSelectionEditor();
-    ~RiuSummaryCurveDefSelectionEditor() override;
+    Q_OBJECT
 
-    RiuSummaryCurveDefSelection* summaryAddressSelection() const;
+public:
+    RicSummaryPlotEditorWidgetCreator( QWidget* parent );
+    ~RicSummaryPlotEditorWidgetCreator() override;
+
+    void updateFromSummaryPlot( RimSummaryPlot* summaryPlot );
+    void updateFromDefaultSources( const std::vector<caf::PdmObject*> defaultSources );
 
 private:
     void recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiOrdering,
@@ -57,16 +62,38 @@ private:
 
     QWidget* createWidget( QWidget* parent ) override;
 
+    QMinimizePanel* getOrCreateCurveTreeGroup();
+    QWidget*        getOrCreatePlotWidget();
+
+    static caf::PdmUiGroup* findGroupByKeyword( const std::vector<caf::PdmUiItem*>& topLevelUiItems,
+                                                const QString&                      keyword,
+                                                const QString&                      uiConfigName );
+
     void configureAndUpdateFields( int                                 widgetStartIndex,
                                    QBoxLayout*                         layout,
                                    const std::vector<caf::PdmUiItem*>& topLevelUiItems,
                                    const QString&                      uiConfigName );
 
     QMinimizePanel* createGroupBoxWithContent( caf::PdmUiGroup* group, const QString& uiConfigName );
+signals:
+    void signalCloseButtonPressed();
 
 private:
-    QPointer<QHBoxLayout> m_firstRowLeftLayout;
-    QPointer<QHBoxLayout> m_firstRowRightLayout;
+    QPointer<QVBoxLayout> m_layout;
+    QPointer<QSplitter>   m_firstColumnSplitter;
 
-    std::unique_ptr<RiuSummaryCurveDefSelection> m_summaryAddressSelection;
+    QPointer<QMinimizePanel> m_curvesPanel;
+
+    QPointer<QHBoxLayout> m_firstRowLayout;
+    QPointer<QHBoxLayout> m_secondRowLayout;
+    QPointer<QVBoxLayout> m_lowerLeftLayout;
+    QPointer<QVBoxLayout> m_lowerRightLayout;
+
+    QPointer<QHBoxLayout> m_bottomFieldLayout;
+
+    QPointer<caf::PdmUiTreeView> m_curveTreeView;
+
+    QWidget* m_parentWidget;
+
+    std::unique_ptr<RicSummaryPlotEditorUi> m_summaryCurveCreator;
 };

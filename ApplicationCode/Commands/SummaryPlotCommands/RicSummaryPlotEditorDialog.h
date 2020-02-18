@@ -25,7 +25,7 @@ namespace caf
 class PdmObject;
 };
 
-class RicSummaryCurveCreatorSplitterUi;
+class RicSummaryPlotEditorWidgetCreator;
 class RimSummaryPlot;
 class RimSummaryCase;
 
@@ -33,12 +33,12 @@ class RimSummaryCase;
 ///
 ///
 //==================================================================================================
-class RicSummaryCurveCreatorDialog : public QDialog
+class RicSummaryPlotEditorDialog : public QDialog
 {
     Q_OBJECT
 public:
-    RicSummaryCurveCreatorDialog( QWidget* parent );
-    ~RicSummaryCurveCreatorDialog() override;
+    RicSummaryPlotEditorDialog( QWidget* parent );
+    ~RicSummaryPlotEditorDialog() override;
 
     void updateFromSummaryPlot( RimSummaryPlot* summaryPlot );
     void updateFromDefaultCases( const std::vector<caf::PdmObject*> defaultSources );
@@ -47,5 +47,5 @@ private slots:
     void slotDialogFinished();
 
 private:
-    RicSummaryCurveCreatorSplitterUi* m_curveCreatorSplitterUi;
+    RicSummaryPlotEditorWidgetCreator* m_curveCreatorSplitterUi;
 };

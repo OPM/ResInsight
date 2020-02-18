@@ -26,7 +26,7 @@
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
-#include "SummaryPlotCommands/RicSummaryCurveCreator.h"
+#include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
@@ -1380,7 +1380,7 @@ QImage RimSummaryPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    if ( uiConfigName == RicSummaryCurveCreator::CONFIGURATION_NAME )
+    if ( uiConfigName == RicSummaryPlotEditorUi::CONFIGURATION_NAME )
     {
         uiTreeOrdering.add( &m_summaryCurveCollection );
         if ( !m_isCrossPlot )

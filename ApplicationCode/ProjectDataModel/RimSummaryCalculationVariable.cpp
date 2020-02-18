@@ -29,7 +29,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 
-#include "RiuSummaryCurveDefSelectionDialog.h"
+#include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
@@ -89,7 +89,7 @@ void RimSummaryCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle*
         bool updateContainingEditor = false;
 
         {
-            RiuSummaryCurveDefSelectionDialog dlg( nullptr );
+            RiuSummaryVectorSelectionDialog dlg( nullptr );
             dlg.hideEnsembles();
 
             readDataFromApplicationStore( &dlg );
@@ -181,7 +181,7 @@ void RimSummaryCalculationVariable::defineObjectEditorAttribute( QString uiConfi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationVariable::readDataFromApplicationStore( RiuSummaryCurveDefSelectionDialog* selectionDialog ) const
+void RimSummaryCalculationVariable::readDataFromApplicationStore( RiuSummaryVectorSelectionDialog* selectionDialog ) const
 {
     if ( !selectionDialog ) return;
 

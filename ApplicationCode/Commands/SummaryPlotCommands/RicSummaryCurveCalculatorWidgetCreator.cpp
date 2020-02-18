@@ -16,9 +16,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSummaryCurveCalculatorEditor.h"
+#include "RicSummaryCurveCalculatorWidgetCreator.h"
 
-#include "RicSummaryCurveCalculator.h"
+#include "RicSummaryCurveCalculatorUi.h"
 #include "RimSummaryCalculation.h"
 
 #include "cafPdmUiTableView.h"
@@ -34,10 +34,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorEditor::RicSummaryCurveCalculatorEditor()
+RicSummaryCurveCalculatorWidgetCreator::RicSummaryCurveCalculatorWidgetCreator()
     : m_pdmTableView( nullptr )
 {
-    m_calculator = std::unique_ptr<RicSummaryCurveCalculator>( new RicSummaryCurveCalculator );
+    m_calculator = std::unique_ptr<RicSummaryCurveCalculatorUi>( new RicSummaryCurveCalculatorUi );
 
     this->setPdmObject( m_calculator.get() );
 }
@@ -45,7 +45,7 @@ RicSummaryCurveCalculatorEditor::RicSummaryCurveCalculatorEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorEditor::~RicSummaryCurveCalculatorEditor()
+RicSummaryCurveCalculatorWidgetCreator::~RicSummaryCurveCalculatorWidgetCreator()
 {
     if ( m_pdmTableView )
     {
@@ -61,8 +61,9 @@ RicSummaryCurveCalculatorEditor::~RicSummaryCurveCalculatorEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiOrdering,
-                                                                                       const QString& uiConfigName )
+void RicSummaryCurveCalculatorWidgetCreator::recursivelyConfigureAndUpdateTopLevelUiOrdering(
+    const caf::PdmUiOrdering& topLevelUiOrdering,
+    const QString&            uiConfigName )
 {
     if ( !m_firstRowLeftLayout || !m_firstRowRightLayout ) return;
 
@@ -78,11 +79,11 @@ void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiOrd
             caf::PdmUiGroup* group    = static_cast<caf::PdmUiGroup*>( topLevelUiItems[i] );
             auto             groupBox = updateGroupBoxWithContent( group, uiConfigName );
 
-            if ( group->keyword() == RicSummaryCurveCalculator::calculatedSummariesGroupName() )
+            if ( group->keyword() == RicSummaryCurveCalculatorUi::calculatedSummariesGroupName() )
             {
                 m_firstRowLeftLayout->addWidget( groupBox );
             }
-            else if ( group->keyword() == RicSummaryCurveCalculator::calulationGroupName() )
+            else if ( group->keyword() == RicSummaryCurveCalculatorUi::calulationGroupName() )
             {
                 m_firstRowRightLayout->insertWidget( layoutItemIndex++, groupBox );
             }
@@ -116,7 +117,7 @@ void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RicSummaryCurveCalculatorEditor::createWidget( QWidget* parent )
+QWidget* RicSummaryCurveCalculatorWidgetCreator::createWidget( QWidget* parent )
 {
     m_pdmTableView = new caf::PdmUiTableView( parent );
     m_pdmTableView->tableView()->setSelectionMode( QAbstractItemView::ExtendedSelection );
@@ -185,8 +186,8 @@ QWidget* RicSummaryCurveCalculatorEditor::createWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel* RicSummaryCurveCalculatorEditor::updateGroupBoxWithContent( caf::PdmUiGroup* group,
-                                                                            const QString&   uiConfigName )
+QMinimizePanel* RicSummaryCurveCalculatorWidgetCreator::updateGroupBoxWithContent( caf::PdmUiGroup* group,
+                                                                                   const QString&   uiConfigName )
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox( this->widget(), group, uiConfigName );
 
@@ -197,7 +198,7 @@ QMinimizePanel* RicSummaryCurveCalculatorEditor::updateGroupBoxWithContent( caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculator* RicSummaryCurveCalculatorEditor::calculator() const
+RicSummaryCurveCalculatorUi* RicSummaryCurveCalculatorWidgetCreator::calculator() const
 {
     return m_calculator.get();
 }
@@ -205,7 +206,7 @@ RicSummaryCurveCalculator* RicSummaryCurveCalculatorEditor::calculator() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorEditor::slotCalculate()
+void RicSummaryCurveCalculatorWidgetCreator::slotCalculate()
 {
     m_calculator->calculate();
 
@@ -215,7 +216,7 @@ void RicSummaryCurveCalculatorEditor::slotCalculate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorEditor::slotParseExpression()
+void RicSummaryCurveCalculatorWidgetCreator::slotParseExpression()
 {
     m_calculator->parseExpression();
 

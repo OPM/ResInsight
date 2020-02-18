@@ -16,14 +16,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuSummaryCurveDefSelectionDialog.h"
+#include "RiuSummaryVectorSelectionDialog.h"
 
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RimSummaryCaseCollection.h"
 
-#include "RiuSummaryCurveDefSelection.h"
-#include "RiuSummaryCurveDefSelectionEditor.h"
+#include "RiuSummaryVectorSelectionUi.h"
+#include "RiuSummaryVectorSelectionWidgetCreator.h"
 #include "RiuTools.h"
 
 #include <QBoxLayout>
@@ -34,10 +34,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelectionDialog::RiuSummaryCurveDefSelectionDialog( QWidget* parent )
+RiuSummaryVectorSelectionDialog::RiuSummaryVectorSelectionDialog( QWidget* parent )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
 {
-    m_addrSelWidget     = std::unique_ptr<RiuSummaryCurveDefSelectionEditor>( new RiuSummaryCurveDefSelectionEditor() );
+    m_addrSelWidget =
+        std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator>( new RiuSummaryVectorSelectionWidgetCreator() );
     QWidget* addrWidget = m_addrSelWidget->getOrCreateWidget( this );
 
     QVBoxLayout* mainLayout = new QVBoxLayout( this );
@@ -68,15 +69,15 @@ RiuSummaryCurveDefSelectionDialog::RiuSummaryCurveDefSelectionDialog( QWidget* p
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelectionDialog::~RiuSummaryCurveDefSelectionDialog()
+RiuSummaryVectorSelectionDialog::~RiuSummaryVectorSelectionDialog()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionDialog::setCaseAndAddress( RimSummaryCase*                 summaryCase,
-                                                           const RifEclipseSummaryAddress& address )
+void RiuSummaryVectorSelectionDialog::setCaseAndAddress( RimSummaryCase*                 summaryCase,
+                                                         const RifEclipseSummaryAddress& address )
 {
     if ( summaryCase )
     {
@@ -92,8 +93,8 @@ void RiuSummaryCurveDefSelectionDialog::setCaseAndAddress( RimSummaryCase*      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionDialog::setEnsembleAndAddress( RimSummaryCaseCollection*       ensemble,
-                                                               const RifEclipseSummaryAddress& address )
+void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseCollection*       ensemble,
+                                                             const RifEclipseSummaryAddress& address )
 {
     if ( ensemble )
     {
@@ -109,7 +110,7 @@ void RiuSummaryCurveDefSelectionDialog::setEnsembleAndAddress( RimSummaryCaseCol
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelectionDialog::curveSelection() const
+std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionDialog::curveSelection() const
 {
     return summaryAddressSelection()->selection();
 }
@@ -117,7 +118,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelectionDialog::curveS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionDialog::hideEnsembles()
+void RiuSummaryVectorSelectionDialog::hideEnsembles()
 {
     summaryAddressSelection()->hideEnsembles( true );
 }
@@ -125,7 +126,7 @@ void RiuSummaryCurveDefSelectionDialog::hideEnsembles()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionDialog::hideSummaryCases()
+void RiuSummaryVectorSelectionDialog::hideSummaryCases()
 {
     summaryAddressSelection()->hideSummaryCases( true );
 }
@@ -133,7 +134,7 @@ void RiuSummaryCurveDefSelectionDialog::hideSummaryCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionDialog::summaryAddressSelection() const
+RiuSummaryVectorSelectionUi* RiuSummaryVectorSelectionDialog::summaryAddressSelection() const
 {
     return m_addrSelWidget->summaryAddressSelection();
 }
@@ -141,7 +142,7 @@ RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionDialog::summaryAddressSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionDialog::updateLabel()
+void RiuSummaryVectorSelectionDialog::updateLabel()
 {
     QString                                curveAddressText;
     std::vector<RiaSummaryCurveDefinition> sumCasePairs = this->summaryAddressSelection()->selection();

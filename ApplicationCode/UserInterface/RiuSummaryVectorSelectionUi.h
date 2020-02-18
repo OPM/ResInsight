@@ -45,13 +45,13 @@ using SummarySource = caf::PdmObject;
 ///
 ///
 //==================================================================================================
-class RiuSummaryCurveDefSelection : public caf::PdmObject
+class RiuSummaryVectorSelectionUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RiuSummaryCurveDefSelection();
-    ~RiuSummaryCurveDefSelection() override;
+    RiuSummaryVectorSelectionUi();
+    ~RiuSummaryVectorSelectionUi() override;
 
     void setSelectedCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     std::vector<RiaSummaryCurveDefinition> allCurveDefinitionsFromSelection() const;
