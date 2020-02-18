@@ -28,7 +28,7 @@
 
 class RimSummaryCase;
 class RimSummaryAddress;
-class RiuSummaryCurveDefSelectionDialog;
+class RiuSummaryVectorSelectionDialog;
 
 //==================================================================================================
 ///
@@ -54,7 +54,7 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    void readDataFromApplicationStore( RiuSummaryCurveDefSelectionDialog* selectionDialog ) const;
+    void readDataFromApplicationStore( RiuSummaryVectorSelectionDialog* selectionDialog ) const;
     void writeDataToApplicationStore() const;
 
 private:

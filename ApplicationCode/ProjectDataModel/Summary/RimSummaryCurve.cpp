@@ -46,7 +46,7 @@
 
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotCurve.h"
-#include "RiuSummaryCurveDefSelectionDialog.h"
+#include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -932,9 +932,9 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_yPushButtonSelectSummaryAddress )
     {
-        RiuSummaryCurveDefSelectionDialog dlg( nullptr );
-        RimSummaryCase*                   candidateCase    = m_yValuesSummaryCase();
-        RifEclipseSummaryAddress          candicateAddress = m_yValuesSummaryAddress->address();
+        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RimSummaryCase*                 candidateCase    = m_yValuesSummaryCase();
+        RifEclipseSummaryAddress        candicateAddress = m_yValuesSummaryAddress->address();
 
         if ( candidateCase == nullptr )
         {
@@ -966,9 +966,9 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_xPushButtonSelectSummaryAddress )
     {
-        RiuSummaryCurveDefSelectionDialog dlg( nullptr );
-        RimSummaryCase*                   candidateCase    = m_xValuesSummaryCase();
-        RifEclipseSummaryAddress          candicateAddress = m_xValuesSummaryAddress->address();
+        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RimSummaryCase*                 candidateCase    = m_xValuesSummaryCase();
+        RifEclipseSummaryAddress        candicateAddress = m_xValuesSummaryAddress->address();
 
         if ( candidateCase == nullptr )
         {

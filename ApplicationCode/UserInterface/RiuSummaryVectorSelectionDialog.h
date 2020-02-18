@@ -33,11 +33,11 @@ class RiuSummaryCurveDefSelectionEditor;
 ///
 ///
 //==================================================================================================
-class RiuSummaryCurveDefSelectionDialog : public QDialog
+class RiuSummaryVectorSelectionDialog : public QDialog
 {
 public:
-    RiuSummaryCurveDefSelectionDialog( QWidget* parent );
-    ~RiuSummaryCurveDefSelectionDialog() override;
+    RiuSummaryVectorSelectionDialog( QWidget* parent );
+    ~RiuSummaryVectorSelectionDialog() override;
 
     void setCaseAndAddress( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address );
     void setEnsembleAndAddress( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& address );

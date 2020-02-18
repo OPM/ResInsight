@@ -51,8 +51,8 @@
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotCurve.h"
-#include "RiuSummaryCurveDefSelectionDialog.h"
 #include "RiuSummaryQwtPlot.h"
+#include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiLineEditor.h"
@@ -572,9 +572,9 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_yPushButtonSelectSummaryAddress )
     {
-        RiuSummaryCurveDefSelectionDialog dlg( nullptr );
-        RimSummaryCaseCollection*         candidateEnsemble = m_yValuesSummaryCaseCollection();
-        RifEclipseSummaryAddress          candicateAddress  = m_yValuesSummaryAddress->address();
+        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RimSummaryCaseCollection*       candidateEnsemble = m_yValuesSummaryCaseCollection();
+        RifEclipseSummaryAddress        candicateAddress  = m_yValuesSummaryAddress->address();
 
         dlg.hideSummaryCases();
         dlg.setEnsembleAndAddress( candidateEnsemble, candicateAddress );
