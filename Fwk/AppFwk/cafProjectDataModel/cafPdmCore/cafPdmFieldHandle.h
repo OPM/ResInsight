@@ -25,11 +25,13 @@ public:
     QString          keyword() const                                { return m_keyword; }
     bool             matchesKeyword(const QString& keyword) const;
     PdmObjectHandle* ownerObject()                                  { return m_ownerObject; }
+    QString          ownerClass() const                             { return m_ownerClass;}
 
     // Child objects
     bool             hasChildObjects();
     virtual void     childObjects(std::vector<PdmObjectHandle*>*)        {  }
     virtual void     removeChildObject(PdmObjectHandle*)                 {  }
+    void             setOwnerClass(const QString& ownerClass)            { m_ownerClass = ownerClass; }
 
     // Ptr referenced objects
     bool             hasPtrReferencedObjects();
@@ -58,6 +60,7 @@ private:
     friend class PdmObjectHandle;   // Give access to m_ownerObject and set Keyword
     void             setKeyword(const QString& keyword);
     PdmObjectHandle* m_ownerObject;
+    QString          m_ownerClass;
 
     QString          m_keyword;
 
