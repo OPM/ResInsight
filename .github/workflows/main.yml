@@ -1,0 +1,32 @@
+name: RpcView Build
+
+on: [push]
+
+jobs:
+  ResInsight-x64:
+
+    runs-on: windows-2016
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Qt
+        uses: ouuan/install-qt-action@v2.3.1
+        with:
+          version: 5.9.1
+          host: windows
+          target: desktop
+          arch: win64_msvc2017_64
+      - name: Build ResInsight-x64
+        env:
+          CMAKE_PREFIX_PATH: ${{ runner.workspace }}\Qt\5.9.1\msvc2017_64
+        run: |
+          mkdir cmakebuild
+          cd cmakebuild
+          cmake .. -G"Visual Studio 15 2017 Win64"
+          cmake --build . --config Release --target PACKAGE
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: ResInsight-x64.zip
+          path: ${{ runner.workspace }}\RpcView\Build\x64\bin\Release
