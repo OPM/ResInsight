@@ -31,7 +31,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryCurveCalculatorFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCurveCalculationFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorWidgetCreator.h
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculator.h
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCrossPlotCurveFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryEnsembleCurveSetFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteEnsembleCurveSetFeature.h
@@ -77,7 +77,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryCurveCalculatorFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryCurveCalculationFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorWidgetCreator.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculator.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicSummaryCurveCalculatorUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCrossPlotCurveFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryEnsembleCurveSetFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicPasteEnsembleCurveSetFeature.cpp

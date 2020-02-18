@@ -18,7 +18,7 @@
 
 #include "RicSummaryCurveCalculatorDialog.h"
 
-#include "RicSummaryCurveCalculator.h"
+#include "RicSummaryCurveCalculatorUi.h"
 #include "RicSummaryCurveCalculatorWidgetCreator.h"
 
 #include "RimSummaryCalculation.h"
@@ -64,7 +64,7 @@ void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi( RimSummaryCalcu
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorDialog::slotTryCloseDialog()
 {
-    RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculator::calculationCollection();
+    RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculatorUi::calculationCollection();
 
     if ( dirtyCount() > 0 )
     {
@@ -134,7 +134,7 @@ size_t RicSummaryCurveCalculatorDialog::dirtyCount() const
 {
     size_t count = 0;
 
-    RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculator::calculationCollection();
+    RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculatorUi::calculationCollection();
     for ( auto c : calculationCollection->calculations() )
     {
         if ( c->isDirty() )

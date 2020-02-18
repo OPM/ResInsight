@@ -18,13 +18,13 @@
 
 #include "RiuCalculationsContextMenuManager.h"
 #include "RimSummaryCalculationCollection.h"
-#include "SummaryPlotCommands/RicSummaryCurveCalculator.h"
+#include "SummaryPlotCommands/RicSummaryCurveCalculatorUi.h"
 #include <QMenu>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuCalculationsContextMenuManager::attachWidget( QWidget* widget, RicSummaryCurveCalculator* curveCalc )
+void RiuCalculationsContextMenuManager::attachWidget( QWidget* widget, RicSummaryCurveCalculatorUi* curveCalc )
 {
     if ( m_widget != widget )
     {
@@ -67,7 +67,7 @@ void RiuCalculationsContextMenuManager::slotCreateCalculationCopy()
 
     if ( m_widget != nullptr && currCalculation != nullptr )
     {
-        RimSummaryCalculationCollection* coll     = RicSummaryCurveCalculator::calculationCollection();
+        RimSummaryCalculationCollection* coll     = RicSummaryCurveCalculatorUi::calculationCollection();
         RimSummaryCalculation*           calcCopy = coll->addCalculationCopy( currCalculation );
         m_curveCalc->setCurrentCalculation( calcCopy );
         m_curveCalc->updateConnectedEditors();

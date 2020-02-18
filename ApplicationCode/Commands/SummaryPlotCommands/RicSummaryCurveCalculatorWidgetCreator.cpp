@@ -18,7 +18,7 @@
 
 #include "RicSummaryCurveCalculatorWidgetCreator.h"
 
-#include "RicSummaryCurveCalculator.h"
+#include "RicSummaryCurveCalculatorUi.h"
 #include "RimSummaryCalculation.h"
 
 #include "cafPdmUiTableView.h"
@@ -37,7 +37,7 @@
 RicSummaryCurveCalculatorWidgetCreator::RicSummaryCurveCalculatorWidgetCreator()
     : m_pdmTableView( nullptr )
 {
-    m_calculator = std::unique_ptr<RicSummaryCurveCalculator>( new RicSummaryCurveCalculator );
+    m_calculator = std::unique_ptr<RicSummaryCurveCalculatorUi>( new RicSummaryCurveCalculatorUi );
 
     this->setPdmObject( m_calculator.get() );
 }
@@ -79,11 +79,11 @@ void RicSummaryCurveCalculatorWidgetCreator::recursivelyConfigureAndUpdateTopLev
             caf::PdmUiGroup* group    = static_cast<caf::PdmUiGroup*>( topLevelUiItems[i] );
             auto             groupBox = updateGroupBoxWithContent( group, uiConfigName );
 
-            if ( group->keyword() == RicSummaryCurveCalculator::calculatedSummariesGroupName() )
+            if ( group->keyword() == RicSummaryCurveCalculatorUi::calculatedSummariesGroupName() )
             {
                 m_firstRowLeftLayout->addWidget( groupBox );
             }
-            else if ( group->keyword() == RicSummaryCurveCalculator::calulationGroupName() )
+            else if ( group->keyword() == RicSummaryCurveCalculatorUi::calulationGroupName() )
             {
                 m_firstRowRightLayout->insertWidget( layoutItemIndex++, groupBox );
             }
@@ -198,7 +198,7 @@ QMinimizePanel* RicSummaryCurveCalculatorWidgetCreator::updateGroupBoxWithConten
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculator* RicSummaryCurveCalculatorWidgetCreator::calculator() const
+RicSummaryCurveCalculatorUi* RicSummaryCurveCalculatorWidgetCreator::calculator() const
 {
     return m_calculator.get();
 }

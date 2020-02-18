@@ -23,7 +23,7 @@
 #include <memory>
 #include <vector>
 
-class RicSummaryCurveCalculator;
+class RicSummaryCurveCalculatorUi;
 
 class QMinimizePanel;
 class QString;
@@ -49,7 +49,7 @@ public:
     RicSummaryCurveCalculatorWidgetCreator();
     ~RicSummaryCurveCalculatorWidgetCreator() override;
 
-    RicSummaryCurveCalculator* calculator() const;
+    RicSummaryCurveCalculatorUi* calculator() const;
 
 private:
     void recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiItems,
@@ -72,5 +72,5 @@ private:
 
     caf::PdmUiTableView* m_pdmTableView;
 
-    std::unique_ptr<RicSummaryCurveCalculator> m_calculator;
+    std::unique_ptr<RicSummaryCurveCalculatorUi> m_calculator;
 };
