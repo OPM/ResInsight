@@ -43,11 +43,11 @@ class PdmUiItem;
 ///
 ///
 //==================================================================================================
-class RiuSummaryCurveDefSelectionEditor : public caf::PdmUiFormLayoutObjectEditor
+class RiuSummaryVectorSelectionWidgetCreator : public caf::PdmUiFormLayoutObjectEditor
 {
 public:
-    RiuSummaryCurveDefSelectionEditor();
-    ~RiuSummaryCurveDefSelectionEditor() override;
+    RiuSummaryVectorSelectionWidgetCreator();
+    ~RiuSummaryVectorSelectionWidgetCreator() override;
 
     RiuSummaryCurveDefSelection* summaryAddressSelection() const;
 

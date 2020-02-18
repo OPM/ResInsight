@@ -24,8 +24,8 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuSummaryCurveDefSelection.h"
-#include "RiuSummaryCurveDefSelectionEditor.h"
 #include "RiuSummaryCurveDefinitionKeywords.h"
+#include "RiuSummaryVectorSelectionWidgetCreator.h"
 
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldHandle.h"

@@ -27,7 +27,7 @@
 class QLabel;
 
 class RiuSummaryCurveDefSelection;
-class RiuSummaryCurveDefSelectionEditor;
+class RiuSummaryVectorSelectionWidgetCreator;
 
 //==================================================================================================
 ///
@@ -51,7 +51,7 @@ private:
     void                         updateLabel();
 
 private:
-    std::unique_ptr<RiuSummaryCurveDefSelectionEditor> m_addrSelWidget;
+    std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator> m_addrSelWidget;
 
     QLabel* m_label;
 };

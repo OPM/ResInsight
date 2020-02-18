@@ -126,7 +126,7 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
     m_curveNameConfig.uiCapability()->setUiHidden( true );
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden( true );
 
-    m_summaryCurveSelectionEditor.reset( new RiuSummaryCurveDefSelectionEditor() );
+    m_summaryCurveSelectionEditor.reset( new RiuSummaryVectorSelectionWidgetCreator() );
 
     m_summaryCurveSelectionEditor->summaryAddressSelection()->setFieldChangedHandler(
         [this]() { this->selectionEditorFieldChanged(); } );

@@ -23,7 +23,7 @@
 #include "RimSummaryCaseCollection.h"
 
 #include "RiuSummaryCurveDefSelection.h"
-#include "RiuSummaryCurveDefSelectionEditor.h"
+#include "RiuSummaryVectorSelectionWidgetCreator.h"
 #include "RiuTools.h"
 
 #include <QBoxLayout>
@@ -37,7 +37,8 @@
 RiuSummaryVectorSelectionDialog::RiuSummaryVectorSelectionDialog( QWidget* parent )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
 {
-    m_addrSelWidget     = std::unique_ptr<RiuSummaryCurveDefSelectionEditor>( new RiuSummaryCurveDefSelectionEditor() );
+    m_addrSelWidget =
+        std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator>( new RiuSummaryVectorSelectionWidgetCreator() );
     QWidget* addrWidget = m_addrSelWidget->getOrCreateWidget( this );
 
     QVBoxLayout* mainLayout = new QVBoxLayout( this );

@@ -20,7 +20,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
-#include "RiuSummaryCurveDefSelectionEditor.h"
+#include "RiuSummaryVectorSelectionWidgetCreator.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -132,5 +132,5 @@ private:
     caf::PdmField<bool> m_applyButtonField;
     caf::PdmField<bool> m_closeButtonField;
 
-    std::unique_ptr<RiuSummaryCurveDefSelectionEditor> m_summaryCurveSelectionEditor;
+    std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator> m_summaryCurveSelectionEditor;
 };
