@@ -31,6 +31,7 @@ set (MOC_HEADER_FILES
     cafPdmUiListViewEditor.h
     cafPdmUiPropertyView.h
     cafPdmUiPushButtonEditor.h
+    cafPdmUiActionPushButtonEditor.h
     cafPdmUiSliderEditor.h
     cafPdmUiTableView.h
     cafPdmUiTableViewDelegate.h
@@ -92,6 +93,8 @@ set( PROJECT_FILES
     cafPdmUiListEditor.h
     cafPdmUiPushButtonEditor.cpp
     cafPdmUiPushButtonEditor.h
+    cafPdmUiActionPushButtonEditor.cpp
+    cafPdmUiActionPushButtonEditor.h
     cafPdmUiSliderEditor.cpp
     cafPdmUiSliderEditor.h
     cafPdmUiTextEditor.cpp
