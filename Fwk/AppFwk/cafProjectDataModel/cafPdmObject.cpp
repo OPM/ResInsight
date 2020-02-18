@@ -101,7 +101,6 @@ void PdmObject::childrenFromClassKeyword(
 ///
 //--------------------------------------------------------------------------------------------------
 caf::PdmObject::PdmObject() : PdmObjectHandle(), PdmXmlObjectHandle(this, false), PdmUiObjectHandle(this, false)
-    , m_scriptable(false)
 {
     registerClassKeyword(classKeywordStatic());
 }

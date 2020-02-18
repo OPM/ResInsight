@@ -18,7 +18,7 @@
 
 #include "RicfCommandObject.h"
 
-#include <QRegularExpression>
+#include "RiaTextStringTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -40,14 +40,9 @@ RicfCommandObject::~RicfCommandObject()
 //--------------------------------------------------------------------------------------------------
 QString RicfCommandObject::pythonHelpString( const QString& existingTooltip, const QString& keyword )
 {
-    static QRegularExpression re1( "(.)([A-Z][a-z]+)" );
-    static QRegularExpression re2( "([a-z0-9])([A-Z])" );
+    QString snake_case = RiaTextStringTools::camelToSnakeCase( keyword );
 
-    QString snake_case = keyword;
-    snake_case.replace( re1, "\\1_\\2" );
-    snake_case.replace( re2, "\\1_\\2" );
-
-    QString helpString = QString( "Available through python/rips as the attribute '%1'" ).arg( snake_case.toLower() );
+    QString helpString = QString( "Available through python/rips as the attribute '%1'" ).arg( snake_case );
 
     if ( !existingTooltip.isEmpty() ) return existingTooltip + "\n\n" + helpString;
     return helpString;
