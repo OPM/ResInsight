@@ -22,7 +22,7 @@
 
 #include "RimSummaryCaseCollection.h"
 
-#include "RiuSummaryCurveDefSelection.h"
+#include "RiuSummaryVectorSelectionUi.h"
 #include "RiuSummaryVectorSelectionWidgetCreator.h"
 #include "RiuTools.h"
 
@@ -134,7 +134,7 @@ void RiuSummaryVectorSelectionDialog::hideSummaryCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelection* RiuSummaryVectorSelectionDialog::summaryAddressSelection() const
+RiuSummaryVectorSelectionUi* RiuSummaryVectorSelectionDialog::summaryAddressSelection() const
 {
     return m_addrSelWidget->summaryAddressSelection();
 }

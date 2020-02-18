@@ -26,7 +26,7 @@
 
 class QLabel;
 
-class RiuSummaryCurveDefSelection;
+class RiuSummaryVectorSelectionUi;
 class RiuSummaryVectorSelectionWidgetCreator;
 
 //==================================================================================================
@@ -47,7 +47,7 @@ public:
     void hideSummaryCases();
 
 private:
-    RiuSummaryCurveDefSelection* summaryAddressSelection() const;
+    RiuSummaryVectorSelectionUi* summaryAddressSelection() const;
     void                         updateLabel();
 
 private:

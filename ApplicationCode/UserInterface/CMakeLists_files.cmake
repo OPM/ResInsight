@@ -68,7 +68,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuMessagePanel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotObjectPicker.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuContextMenuLauncher.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryCurveDefinitionKeywords.h
-${CMAKE_CURRENT_LIST_DIR}/RiuSummaryCurveDefSelection.h
+${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionDialog.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionWidgetCreator.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQuantityNameInfoProvider.h
@@ -160,7 +160,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuNightchartsWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMessagePanel.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotObjectPicker.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuContextMenuLauncher.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuSummaryCurveDefSelection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionDialog.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionWidgetCreator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQuantityNameInfoProvider.cpp

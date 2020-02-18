@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuSummaryCurveDefSelection.h"
+#include "RiuSummaryVectorSelectionUi.h"
 
 #include "RiaApplication.h"
 #include "RiaCurveSetDefinition.h"
@@ -46,7 +46,7 @@
 
 #include <algorithm>
 
-CAF_PDM_SOURCE_INIT( RiuSummaryCurveDefSelection, "RicSummaryAddressSelection" );
+CAF_PDM_SOURCE_INIT( RiuSummaryVectorSelectionUi, "RicSummaryAddressSelection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -81,7 +81,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection()
+RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     : m_identifierFieldsMap( {
           {RifEclipseSummaryAddress::SUMMARY_FIELD,
            {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
@@ -388,7 +388,7 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelection::~RiuSummaryCurveDefSelection()
+RiuSummaryVectorSelectionUi::~RiuSummaryVectorSelectionUi()
 {
     for ( const auto& identifierAndFieldList : m_identifierFieldsMap )
     {
@@ -402,7 +402,7 @@ RiuSummaryCurveDefSelection::~RiuSummaryCurveDefSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::allCurveDefinitionsFromSelection() const
+std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionUi::allCurveDefinitionsFromSelection() const
 {
     std::vector<RiaSummaryCurveDefinition> curveDefVector;
 
@@ -457,7 +457,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::allCurveDefi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaCurveSetDefinition> RiuSummaryCurveDefSelection::allCurveSetDefinitionsFromSelections() const
+std::vector<RiaCurveSetDefinition> RiuSummaryVectorSelectionUi::allCurveSetDefinitionsFromSelections() const
 {
     std::vector<RiaCurveSetDefinition> curveSetDefVector;
     std::set<RiaCurveSetDefinition>    curveSetDefinitions;
@@ -490,7 +490,7 @@ std::vector<RiaCurveSetDefinition> RiuSummaryCurveDefSelection::allCurveSetDefin
 //--------------------------------------------------------------------------------------------------
 /// One CurveDefinition pr ensemble curve set
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selection() const
+std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionUi::selection() const
 {
     std::vector<RiaSummaryCurveDefinition> curveDefSelection;
     std::set<RifEclipseSummaryAddress>     selectedAddressesFromUi = buildAddressListFromSelections();
@@ -531,7 +531,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selection() 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::setMultiSelectionMode( bool multiSelectionMode )
+void RiuSummaryVectorSelectionUi::setMultiSelectionMode( bool multiSelectionMode )
 {
     m_multiSelectionMode = multiSelectionMode;
 }
@@ -539,7 +539,7 @@ void RiuSummaryCurveDefSelection::setMultiSelectionMode( bool multiSelectionMode
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::hideEnsembles( bool hide )
+void RiuSummaryVectorSelectionUi::hideEnsembles( bool hide )
 {
     m_hideEnsembles = hide;
 }
@@ -547,7 +547,7 @@ void RiuSummaryCurveDefSelection::hideEnsembles( bool hide )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::hideSummaryCases( bool hide )
+void RiuSummaryVectorSelectionUi::hideSummaryCases( bool hide )
 {
     m_hideSummaryCases = hide;
 }
@@ -555,7 +555,7 @@ void RiuSummaryCurveDefSelection::hideSummaryCases( bool hide )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::setFieldChangedHandler( const std::function<void()>& handlerFunc )
+void RiuSummaryVectorSelectionUi::setFieldChangedHandler( const std::function<void()>& handlerFunc )
 {
     m_toggleChangedHandler = handlerFunc;
 }
@@ -563,7 +563,7 @@ void RiuSummaryCurveDefSelection::setFieldChangedHandler( const std::function<vo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::setDefaultSelection( const std::vector<SummarySource*>& defaultSources )
+void RiuSummaryVectorSelectionUi::setDefaultSelection( const std::vector<SummarySource*>& defaultSources )
 {
     RimProject* proj        = RiaApplication::instance()->project();
     auto        allSumCases = proj->allSummaryCases();
@@ -592,7 +592,7 @@ void RiuSummaryCurveDefSelection::setDefaultSelection( const std::vector<Summary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
+void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
     resetAllFields();
 
@@ -677,7 +677,7 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions( const std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromCalculated() const
+std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::findPossibleSummaryAddressesFromCalculated() const
 {
     std::set<RifEclipseSummaryAddress> addressSet;
 
@@ -698,7 +698,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+void RiuSummaryVectorSelectionUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                     const QVariant&            oldValue,
                                                     const QVariant&            newValue )
 {
@@ -774,7 +774,7 @@ void RiuSummaryCurveDefSelection::fieldChangedByUi( const caf::PdmFieldHandle* c
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RiuSummaryCurveDefSelection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RiuSummaryVectorSelectionUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -799,7 +799,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* sourcesGroup =
         uiOrdering.addNewGroupWithKeyword( "Sources", RiuSummaryCurveDefinitionKeywords::sources() );
@@ -956,7 +956,7 @@ void RiuSummaryCurveDefSelection::defineUiOrdering( QString uiConfigName, caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromSelectedCases(
+std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::findPossibleSummaryAddressesFromSelectedCases(
     const SummaryIdentifierAndField* identifierAndField ) const
 {
     std::vector<SummarySource*> sources;
@@ -980,7 +980,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromSelectedObservedData(
+std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::findPossibleSummaryAddressesFromSelectedObservedData(
     const SummaryIdentifierAndField* identifierAndField ) const
 {
     std::vector<SummarySource*> obsData;
@@ -1000,7 +1000,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 /// Returns the summary addresses that match the selected item type and input selections made in GUI
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress>
-    RiuSummaryCurveDefSelection::findPossibleSummaryAddresses( const std::vector<SummarySource*>& selectedSources,
+    RiuSummaryVectorSelectionUi::findPossibleSummaryAddresses( const std::vector<SummarySource*>& selectedSources,
                                                                const SummaryIdentifierAndField* identifierAndField ) const
 {
     std::set<RifEclipseSummaryAddress> addrUnion;
@@ -1062,7 +1062,7 @@ std::set<RifEclipseSummaryAddress>
 /// Build a list of relevant selections
 //--------------------------------------------------------------------------------------------------
 std::vector<SummaryIdentifierAndField*>
-    RiuSummaryCurveDefSelection::buildControllingFieldList( const SummaryIdentifierAndField* identifierAndField ) const
+    RiuSummaryVectorSelectionUi::buildControllingFieldList( const SummaryIdentifierAndField* identifierAndField ) const
 {
     std::vector<SummaryIdentifierAndField*> controllingFields;
     const auto& identifierAndFieldList = m_identifierFieldsMap.at( m_currentSummaryCategory() );
@@ -1081,7 +1081,7 @@ std::vector<SummaryIdentifierAndField*>
 ///
 //--------------------------------------------------------------------------------------------------
 SummaryIdentifierAndField*
-    RiuSummaryCurveDefSelection::lookupIdentifierAndFieldFromFieldHandle( const caf::PdmFieldHandle* pdmFieldHandle ) const
+    RiuSummaryVectorSelectionUi::lookupIdentifierAndFieldFromFieldHandle( const caf::PdmFieldHandle* pdmFieldHandle ) const
 {
     for ( const auto& itemTypes : m_identifierFieldsMap )
     {
@@ -1102,7 +1102,7 @@ SummaryIdentifierAndField*
 /// If the specified pdm field info is the topmost (i.e. index is 0), nullptr is returned
 //--------------------------------------------------------------------------------------------------
 SummaryIdentifierAndField*
-    RiuSummaryCurveDefSelection::lookupControllingField( const SummaryIdentifierAndField* dependentField ) const
+    RiuSummaryVectorSelectionUi::lookupControllingField( const SummaryIdentifierAndField* dependentField ) const
 {
     for ( const auto& identifierAndFieldList : m_identifierFieldsMap )
     {
@@ -1122,7 +1122,7 @@ SummaryIdentifierAndField*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuSummaryCurveDefSelection::isAddressCompatibleWithControllingFieldSelection(
+bool RiuSummaryVectorSelectionUi::isAddressCompatibleWithControllingFieldSelection(
     const RifEclipseSummaryAddress&                address,
     const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList ) const
 {
@@ -1151,7 +1151,7 @@ bool RiuSummaryCurveDefSelection::isAddressCompatibleWithControllingFieldSelecti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::buildAddressListFromSelections() const
+std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::buildAddressListFromSelections() const
 {
     std::set<RifEclipseSummaryAddress> addressSet;
     for ( const auto& category : m_selectedSummaryCategories() )
@@ -1170,7 +1170,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::buildAddressList
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::buildAddressListForCategoryRecursively(
+void RiuSummaryVectorSelectionUi::buildAddressListForCategoryRecursively(
     RifEclipseSummaryAddress::SummaryVarCategory                                      category,
     std::vector<SummaryIdentifierAndField*>::const_iterator                           identifierAndFieldItr,
     std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
@@ -1223,7 +1223,7 @@ void RiuSummaryCurveDefSelection::buildAddressListForCategoryRecursively(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::defineEditorAttribute( const caf::PdmFieldHandle* field,
+void RiuSummaryVectorSelectionUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute )
 {
@@ -1246,7 +1246,7 @@ void RiuSummaryCurveDefSelection::defineEditorAttribute( const caf::PdmFieldHand
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::resetAllFields()
+void RiuSummaryVectorSelectionUi::resetAllFields()
 {
     m_selectedSources.clear();
     m_selectedSummaryCategories = std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>();
@@ -1267,7 +1267,7 @@ void RiuSummaryCurveDefSelection::resetAllFields()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuSummaryCurveDefSelection::isObservedData( const RimSummaryCase* sumCase ) const
+bool RiuSummaryVectorSelectionUi::isObservedData( const RimSummaryCase* sumCase ) const
 {
     return dynamic_cast<const RimObservedSummaryData*>( sumCase ) != nullptr;
 }
@@ -1275,7 +1275,7 @@ bool RiuSummaryCurveDefSelection::isObservedData( const RimSummaryCase* sumCase 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<SummarySource*> RiuSummaryCurveDefSelection::selectedSummarySources() const
+std::vector<SummarySource*> RiuSummaryVectorSelectionUi::selectedSummarySources() const
 {
     std::vector<SummarySource*> sources;
 
@@ -1285,7 +1285,7 @@ std::vector<SummarySource*> RiuSummaryCurveDefSelection::selectedSummarySources(
     }
 
     // Always add the summary case for calculated curves as this case is not displayed in UI
-    sources.push_back( RiuSummaryCurveDefSelection::calculatedSummaryCase() );
+    sources.push_back( RiuSummaryVectorSelectionUi::calculatedSummaryCase() );
 
     return sources;
 }
@@ -1293,7 +1293,7 @@ std::vector<SummarySource*> RiuSummaryCurveDefSelection::selectedSummarySources(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RiuSummaryCurveDefSelection::calculatedSummaryCase()
+RimSummaryCase* RiuSummaryVectorSelectionUi::calculatedSummaryCase()
 {
     RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
 
@@ -1303,7 +1303,7 @@ RimSummaryCase* RiuSummaryCurveDefSelection::calculatedSummaryCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options ) const
+void RiuSummaryVectorSelectionUi::appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options ) const
 {
     RimProject*               proj = RiaApplication::instance()->project();
     std::vector<RimOilField*> oilFields;
@@ -1381,7 +1381,7 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForSources( QList<caf::PdmOpt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::appendOptionItemsForCategories( QList<caf::PdmOptionItemInfo>& options ) const
+void RiuSummaryVectorSelectionUi::appendOptionItemsForCategories( QList<caf::PdmOptionItemInfo>& options ) const
 {
     std::vector<RifEclipseSummaryAddress::SummaryVarCategory> sortedCategoriesForUi;
 
@@ -1414,7 +1414,7 @@ void RiuSummaryCurveDefSelection::appendOptionItemsForCategories( QList<caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelection::appendOptionItemsForSubCategoriesAndVectors( QList<caf::PdmOptionItemInfo>& options,
+void RiuSummaryVectorSelectionUi::appendOptionItemsForSubCategoriesAndVectors( QList<caf::PdmOptionItemInfo>& options,
                                                                                SummaryIdentifierAndField* identifierAndField ) const
 {
     if ( identifierAndField == nullptr ) return;

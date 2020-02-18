@@ -18,8 +18,8 @@
 
 #include "RiuSummaryVectorSelectionWidgetCreator.h"
 
-#include "RiuSummaryCurveDefSelection.h"
 #include "RiuSummaryCurveDefinitionKeywords.h"
+#include "RiuSummaryVectorSelectionUi.h"
 
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiGroup.h"
@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuSummaryVectorSelectionWidgetCreator::RiuSummaryVectorSelectionWidgetCreator()
 {
-    m_summaryAddressSelection = std::unique_ptr<RiuSummaryCurveDefSelection>( new RiuSummaryCurveDefSelection() );
+    m_summaryAddressSelection = std::unique_ptr<RiuSummaryVectorSelectionUi>( new RiuSummaryVectorSelectionUi() );
 
     this->setPdmObject( m_summaryAddressSelection.get() );
 }
@@ -51,7 +51,7 @@ RiuSummaryVectorSelectionWidgetCreator::~RiuSummaryVectorSelectionWidgetCreator(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelection* RiuSummaryVectorSelectionWidgetCreator::summaryAddressSelection() const
+RiuSummaryVectorSelectionUi* RiuSummaryVectorSelectionWidgetCreator::summaryAddressSelection() const
 {
     return m_summaryAddressSelection.get();
 }

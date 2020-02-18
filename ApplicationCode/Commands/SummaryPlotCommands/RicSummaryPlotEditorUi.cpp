@@ -49,8 +49,8 @@
 
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
-#include "RiuSummaryCurveDefSelection.h"
 #include "RiuSummaryQwtPlot.h"
+#include "RiuSummaryVectorSelectionUi.h"
 #include "RiuTools.h"
 
 #include "cafPdmUiComboBoxEditor.h"

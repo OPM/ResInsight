@@ -24,7 +24,7 @@
 #include <vector>
 
 class RimSummaryCase;
-class RiuSummaryCurveDefSelection;
+class RiuSummaryVectorSelectionUi;
 class RifEclipseSummaryAddress;
 
 class QMinimizePanel;
@@ -49,7 +49,7 @@ public:
     RiuSummaryVectorSelectionWidgetCreator();
     ~RiuSummaryVectorSelectionWidgetCreator() override;
 
-    RiuSummaryCurveDefSelection* summaryAddressSelection() const;
+    RiuSummaryVectorSelectionUi* summaryAddressSelection() const;
 
 private:
     void recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiOrdering,
@@ -68,5 +68,5 @@ private:
     QPointer<QHBoxLayout> m_firstRowLeftLayout;
     QPointer<QHBoxLayout> m_firstRowRightLayout;
 
-    std::unique_ptr<RiuSummaryCurveDefSelection> m_summaryAddressSelection;
+    std::unique_ptr<RiuSummaryVectorSelectionUi> m_summaryAddressSelection;
 };

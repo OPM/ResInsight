@@ -23,8 +23,8 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 
-#include "RiuSummaryCurveDefSelection.h"
 #include "RiuSummaryCurveDefinitionKeywords.h"
+#include "RiuSummaryVectorSelectionUi.h"
 #include "RiuSummaryVectorSelectionWidgetCreator.h"
 
 #include "cafPdmUiFieldEditorHandle.h"
