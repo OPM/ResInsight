@@ -164,10 +164,11 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceReader::read
     };
 
     std::vector<SurfacePointData> surfaceDataPoints;
-    int                           minI = std::numeric_limits<int>::max();
-    int                           minJ = std::numeric_limits<int>::max();
-    int                           maxI = std::numeric_limits<int>::min();
-    int                           maxJ = std::numeric_limits<int>::min();
+
+    int minI = std::numeric_limits<int>::max();
+    int minJ = std::numeric_limits<int>::max();
+    int maxI = std::numeric_limits<int>::min();
+    int maxJ = std::numeric_limits<int>::min();
 
     while ( stream.good() )
     {
@@ -175,7 +176,10 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceReader::read
         std::getline( stream, line );
         std::istringstream lineStream( line );
 
-        double              x( HUGE_VAL ), y( HUGE_VAL ), z( HUGE_VAL );
+        double x( std::numeric_limits<double>::infinity() );
+        double y( std::numeric_limits<double>::infinity() );
+        double z( std::numeric_limits<double>::infinity() );
+
         int                 i( -1 ), j( -1 );
         std::vector<double> values;
 
@@ -186,7 +190,8 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceReader::read
         {
             lineStream >> y >> z >> i >> j;
 
-            if ( x != HUGE_VAL && y != HUGE_VAL && z != HUGE_VAL && i != -1 && j != -1 )
+            if ( x != std::numeric_limits<double>::infinity() && y != std::numeric_limits<double>::infinity() &&
+                 z != std::numeric_limits<double>::infinity() && i != -1 && j != -1 )
             {
                 // Check for extra data
                 while ( lineStream.good() )
