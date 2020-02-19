@@ -68,7 +68,7 @@ QString summaryHeaderFilenameFromEclipseCase( RimEclipseCase* eclCase )
 {
     if ( !eclCase ) return QString();
 
-    QFileInfo gridFileInfo( eclCase->gridFileName() );
+    QFileInfo gridFileInfo( eclCase->caseFileName() );
 
     QString possibleSumHeaderFileName = gridFileInfo.path() + "/" + gridFileInfo.completeBaseName() + ".SMSPEC";
 
@@ -159,7 +159,7 @@ QString RimGridSummaryCase::eclipseGridFileName() const
 {
     if ( !m_eclipseCase() ) return QString();
 
-    return m_eclipseCase()->gridFileName();
+    return m_eclipseCase()->caseFileName();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -187,7 +187,7 @@ void RiaProjectModifier::replaceCase( RimProject* project )
                     QString replaceFileName = item.second;
                     if ( eclipseResultCase )
                     {
-                        eclipseResultCase->setGridFileName( replaceFileName );
+                        eclipseResultCase->setFileName( replaceFileName );
                         eclipseResultCase->caseUserDescription = caseNameFromGridFileName( replaceFileName );
                     }
                     else if ( geomechCase )

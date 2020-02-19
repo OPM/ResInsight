@@ -53,6 +53,9 @@ public:
     caf::PdmField<int>     caseId;
     caf::PdmField<QString> caseUserDescription;
 
+    void    setFileName( const QString& fileName );
+    QString caseFileName() const;
+
     std::vector<Rim3dView*>   views() const;
     std::vector<RimGridView*> gridViews() const;
 
@@ -88,6 +91,7 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 protected:
+    caf::PdmField<caf::FilePath>                         m_caseFileName;
     caf::PdmChildField<RimTimeStepFilter*>               m_timeStepFilter;
     caf::PdmChildField<Rim2dIntersectionViewCollection*> m_2dIntersectionViewCollection;
     caf::PdmPtrField<RimFormationNames*>                 m_activeFormationNames;

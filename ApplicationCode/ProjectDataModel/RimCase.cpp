@@ -51,6 +51,12 @@ RimCase::RimCase()
     caseId.uiCapability()->setUiReadOnly( true );
     caseId.capability<RicfFieldHandle>()->setIOWriteable( false );
 
+    RICF_InitFieldNoDefault( &m_caseFileName, "FilePath", "Case File Name", "", "", "" );
+    m_caseFileName.xmlCapability()->registerKeywordAlias( "CaseFileName" );
+    m_caseFileName.xmlCapability()->registerKeywordAlias( "GridFileName" );
+
+    m_caseFileName.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_activeFormationNames, "DefaultFormationNames", "Formation Names File", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter", "", "", "" );
@@ -74,6 +80,22 @@ RimCase::RimCase()
 RimCase::~RimCase()
 {
     m_isInActiveDestruction = true; // Needed because destruction of m_intersectionViews results in call to views()
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase::setFileName( const QString& fileName )
+{
+    m_caseFileName.v().setPath( fileName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCase::caseFileName() const
+{
+    return m_caseFileName().path();
 }
 
 //--------------------------------------------------------------------------------------------------

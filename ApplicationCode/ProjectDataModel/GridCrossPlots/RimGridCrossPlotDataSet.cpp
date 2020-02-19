@@ -461,7 +461,7 @@ void RimGridCrossPlotDataSet::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( !eclipseCase->ensureReservoirCaseIsOpen() )
     {
-        RiaLogging::warning( QString( "Failed to open eclipse grid file %1" ).arg( eclipseCase->gridFileName() ) );
+        RiaLogging::warning( QString( "Failed to open eclipse grid file %1" ).arg( eclipseCase->caseFileName() ) );
 
         return;
     }

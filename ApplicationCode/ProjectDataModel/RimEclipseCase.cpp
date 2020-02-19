@@ -186,7 +186,7 @@ void RimEclipseCase::ensureDeckIsParsedForEquilData()
 
         QString dataDeckFile;
         {
-            QFileInfo fi( gridFileName() );
+            QFileInfo fi( caseFileName() );
 
             dataDeckFile = caf::Utils::constructFullFileName( fi.absolutePath(), fi.baseName(), ".DATA" );
         }

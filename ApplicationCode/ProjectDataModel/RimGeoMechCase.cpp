@@ -70,9 +70,6 @@ RimGeoMechCase::RimGeoMechCase( void )
 {
     CAF_PDM_InitObject( "Geomechanical Case", ":/GeoMechCase48x48.png", "", "" );
 
-    RICF_InitFieldNoDefault( &m_caseFileName, "FilePath", "Case File Name", "", "", "" );
-    m_caseFileName.xmlCapability()->registerKeywordAlias( "CaseFileName" );
-    m_caseFileName.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitFieldNoDefault( &geoMechViews, "GeoMechViews", "", "", "", "" );
     geoMechViews.uiCapability()->setUiHidden( true );
 
@@ -131,22 +128,6 @@ RimGeoMechCase::~RimGeoMechCase( void )
         // At this point, we assume that memory should be released
         CVF_ASSERT( this->geoMechData()->refCount() == 1 );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechCase::setFileName( const QString& fileName )
-{
-    m_caseFileName.v().setPath( fileName );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimGeoMechCase::caseFileName() const
-{
-    return m_caseFileName().path();
 }
 
 //--------------------------------------------------------------------------------------------------

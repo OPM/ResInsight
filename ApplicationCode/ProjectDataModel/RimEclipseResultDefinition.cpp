@@ -1102,7 +1102,7 @@ void RimEclipseResultDefinition::loadResult()
     {
         if ( !m_eclipseCase->ensureReservoirCaseIsOpen() )
         {
-            RiaLogging::error( "Could not open the Eclipse Grid file: " + m_eclipseCase->gridFileName() );
+            RiaLogging::error( "Could not open the Eclipse Grid file: " + m_eclipseCase->caseFileName() );
             return;
         }
     }
@@ -1111,7 +1111,7 @@ void RimEclipseResultDefinition::loadResult()
     {
         if ( !m_differenceCase->ensureReservoirCaseIsOpen() )
         {
-            RiaLogging::error( "Could not open the Eclipse Grid file: " + m_eclipseCase->gridFileName() );
+            RiaLogging::error( "Could not open the Eclipse Grid file: " + m_eclipseCase->caseFileName() );
             return;
         }
     }

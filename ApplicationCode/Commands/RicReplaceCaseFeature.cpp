@@ -80,7 +80,7 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
 
     for ( RimEclipseResultCase* selectedCase : selectedEclipseCases )
     {
-        selectedCase->setGridFileName( fileName );
+        selectedCase->setFileName( fileName );
         selectedCase->reloadEclipseGridFile();
 
         std::vector<RimTimeStepFilter*> timeStepFilter;

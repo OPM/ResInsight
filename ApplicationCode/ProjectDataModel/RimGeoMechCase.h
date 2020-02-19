@@ -55,8 +55,6 @@ public:
     RimGeoMechCase( void );
     ~RimGeoMechCase( void ) override;
 
-    void           setFileName( const QString& fileName );
-    QString        caseFileName() const;
     CaseOpenStatus openGeoMechCase( std::string* errorMessage );
 
     RigGeoMechCaseData*       geoMechData();
@@ -115,7 +113,6 @@ private:
 
 private:
     cvf::ref<RigGeoMechCaseData>              m_geoMechCaseData;
-    caf::PdmField<caf::FilePath>              m_caseFileName;
     caf::PdmField<double>                     m_cohesion;
     caf::PdmField<double>                     m_frictionAngleDeg;
     caf::PdmField<std::vector<caf::FilePath>> m_elementPropertyFileNames;

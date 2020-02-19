@@ -183,7 +183,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RimEclipseCase* mainCase = caseCollection()->reservoirs[0];
     if ( !mainCase->openReserviorCase() )
     {
-        QString errorMessage = QString( "Could not open the Eclipse Grid file: \n" ) + mainCase->gridFileName() + "\n" +
+        QString errorMessage = QString( "Could not open the Eclipse Grid file: \n" ) + mainCase->caseFileName() + "\n" +
                                "Current working directory is: \n" + QDir::currentPath();
 
         if ( RiaGuiApplication::isRunning() )
@@ -438,7 +438,7 @@ bool RimIdenticalGridCaseGroup::contains( RimEclipseCase* reservoir ) const
     for ( size_t i = 0; i < caseCollection()->reservoirs().size(); i++ )
     {
         RimEclipseCase* rimReservoir = caseCollection()->reservoirs()[i];
-        if ( reservoir->gridFileName() == rimReservoir->gridFileName() )
+        if ( reservoir->caseFileName() == rimReservoir->caseFileName() )
         {
             return true;
         }

@@ -62,7 +62,7 @@ void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
     RimEclipseInputPropertyCollection* inputPropertyCollection = eclipseCase->inputPropertyCollection();
     if ( !inputPropertyCollection ) return;
 
-    QFileInfo fi( eclipseCase->gridFileName() );
+    QFileInfo fi( eclipseCase->caseFileName() );
     QString   casePath = fi.absolutePath();
 
     RiaApplication* app        = RiaApplication::instance();

@@ -900,7 +900,7 @@ void RimEclipseView::onLoadDataAndUpdate()
         {
             QMessageBox::warning( RiuMainWindow::instance(),
                                   "Error when opening project file",
-                                  "Could not open the Eclipse Grid file: \n" + m_eclipseCase->gridFileName() );
+                                  "Could not open the Eclipse Grid file: \n" + m_eclipseCase->caseFileName() );
             this->setEclipseCase( nullptr );
             return;
         }

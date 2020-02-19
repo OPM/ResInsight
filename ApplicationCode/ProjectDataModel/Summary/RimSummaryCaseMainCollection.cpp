@@ -94,7 +94,7 @@ RimSummaryCase*
         RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>( summaryCase );
         if ( gridSummaryCase && gridSummaryCase->associatedEclipseCase() )
         {
-            if ( gridSummaryCase->associatedEclipseCase()->gridFileName() == eclipseResultCase->gridFileName() )
+            if ( gridSummaryCase->associatedEclipseCase()->caseFileName() == eclipseResultCase->caseFileName() )
             {
                 return gridSummaryCase;
             }
@@ -107,7 +107,7 @@ RimSummaryCase*
         {
             RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>( sumCase );
             if ( gridSummaryCase &&
-                 gridSummaryCase->associatedEclipseCase()->gridFileName() == eclipseResultCase->gridFileName() )
+                 gridSummaryCase->associatedEclipseCase()->caseFileName() == eclipseResultCase->caseFileName() )
             {
                 return gridSummaryCase;
             }

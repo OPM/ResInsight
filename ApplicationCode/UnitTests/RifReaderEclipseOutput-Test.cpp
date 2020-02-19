@@ -188,7 +188,7 @@ TEST( RigReservoirTest, Test10k_ReadThenWriteToECL )
     EXPECT_TRUE( QFile::exists( filePath ) );
 
     std::unique_ptr<RimEclipseResultCase> resultCase( new RimEclipseResultCase );
-    resultCase->setGridFileName( filePath );
+    resultCase->setFileName( filePath );
     resultCase->importGridAndResultMetaData( false );
 
     QString subDir( "RifReaderEclipseOutput" );

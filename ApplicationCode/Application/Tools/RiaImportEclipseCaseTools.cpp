@@ -285,7 +285,7 @@ bool RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QString
 
     if ( fileContainingGrid )
     {
-        *fileContainingGrid = rimInputReservoir->gridFileName();
+        *fileContainingGrid = rimInputReservoir->caseFileName();
     }
 
     return true;

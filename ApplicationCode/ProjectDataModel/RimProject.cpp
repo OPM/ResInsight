@@ -986,7 +986,7 @@ RimEclipseCase* RimProject::eclipseCaseFromGridFileName( const QString& gridFile
 {
     for ( RimEclipseCase* eclCase : eclipseCases() )
     {
-        if ( RiaFilePathTools::toInternalSeparator( eclCase->gridFileName() ) ==
+        if ( RiaFilePathTools::toInternalSeparator( eclCase->caseFileName() ) ==
              RiaFilePathTools::toInternalSeparator( gridFileName ) )
         {
             return eclCase;

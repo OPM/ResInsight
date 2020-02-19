@@ -120,7 +120,7 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
         if ( sourceCase )
         {
             textStream << lineStart << " Grid Model:\n";
-            textStream << lineStart << " " << sourceCase->gridFileName() << "\n";
+            textStream << lineStart << " " << sourceCase->caseFileName() << "\n";
             textStream << lineStart << "\n";
         }
 

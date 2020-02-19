@@ -263,7 +263,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
         // Look for unified restart file
         QStringList m_filesWithSameBaseName;
 
-        QString gridFileName = m_eclipseCase->gridFileName();
+        QString gridFileName = m_eclipseCase->caseFileName();
         if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( gridFileName, &m_filesWithSameBaseName ) )
             return result;
 
@@ -997,7 +997,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( size_t 
 //--------------------------------------------------------------------------------------------------
 std::wstring RigFlowDiagSolverInterface::getInitFileName() const
 {
-    QString gridFileName = m_eclipseCase->gridFileName();
+    QString gridFileName = m_eclipseCase->caseFileName();
 
     QStringList m_filesWithSameBaseName;
 

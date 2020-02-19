@@ -117,7 +117,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup( caf::PdmObjectGroup& 
         if ( eclCase )
         {
             RimEclipseResultCase* eclCaseCopy = new RimEclipseResultCase();
-            eclCaseCopy->setCaseInfo( eclCase->caseUserDescription(), eclCase->gridFileName() );
+            eclCaseCopy->setCaseInfo( eclCase->caseUserDescription(), eclCase->caseFileName() );
             resultCases.push_back( eclCaseCopy );
         }
     }

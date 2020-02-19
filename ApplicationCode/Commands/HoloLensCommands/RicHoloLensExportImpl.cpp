@@ -101,7 +101,7 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport( const RimGridV
                         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( sourceInfo->object() );
                         if ( eclipseCase )
                         {
-                            QString nameOfObject   = rimEclipseCase->gridFileName();
+                            QString nameOfObject   = rimEclipseCase->caseFileName();
                             auto    gridSourceInfo = dynamic_cast<const RivSourceInfo*>( visiblePart->sourceInfo() );
                             if ( gridSourceInfo )
                             {
