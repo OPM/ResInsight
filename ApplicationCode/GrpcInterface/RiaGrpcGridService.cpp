@@ -101,6 +101,50 @@ grpc::Status RiaCellCenterStateHandler::assignReply( rips::CellCenters* reply )
     return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
 }
 
+void setCornerValues( rips::Vec3d* out, const cvf::Vec3d& in )
+{
+    out->set_x( in.x() );
+    out->set_y( in.y() );
+    out->set_z( in.z() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaCellCenterStateHandler::assignCornersReply( rips::CellCornersArray* reply )
+{
+    const size_t packageSize = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( rips::CellCornersArray ) );
+    size_t       packageIndex = 0u;
+    reply->mutable_cells()->Reserve( (int)packageSize );
+
+    cvf::Vec3d cornerVerts[8];
+    for ( ; packageIndex < packageSize && m_currentCellIdx < m_grid->cellCount(); ++packageIndex )
+    {
+        m_grid->cellCornerVertices( m_currentCellIdx, cornerVerts );
+        for ( cvf::Vec3d& corner : cornerVerts )
+        {
+            convertVec3dToPositiveDepth( &corner );
+        }
+
+        rips::CellCorners* corners = reply->add_cells();
+        setCornerValues( corners->mutable_c0(), cornerVerts[0] );
+        setCornerValues( corners->mutable_c1(), cornerVerts[1] );
+        setCornerValues( corners->mutable_c2(), cornerVerts[2] );
+        setCornerValues( corners->mutable_c3(), cornerVerts[3] );
+        setCornerValues( corners->mutable_c4(), cornerVerts[4] );
+        setCornerValues( corners->mutable_c5(), cornerVerts[5] );
+        setCornerValues( corners->mutable_c6(), cornerVerts[6] );
+        setCornerValues( corners->mutable_c7(), cornerVerts[7] );
+
+        m_currentCellIdx++;
+    }
+    if ( packageIndex > 0u )
+    {
+        return Status::OK;
+    }
+    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -145,6 +189,17 @@ grpc::Status RiaGrpcGridService::GetCellCenters( grpc::ServerContext*       cont
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcGridService::GetCellCorners( grpc::ServerContext*       context,
+                                                 const rips::GridRequest*   request,
+                                                 rips::CellCornersArray*    reply,
+                                                 RiaCellCenterStateHandler* stateHandler )
+{
+    return stateHandler->assignCornersReply( reply );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridService::createCallbacks()
 {
     typedef RiaGrpcGridService Self;
@@ -155,6 +210,11 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridService::createCallbacks()
                                                                                                             &Self::GetCellCenters,
                                                                                                             &Self::RequestGetCellCenters,
                                                                                                             new RiaCellCenterStateHandler ),
+
+        new RiaGrpcServerToClientStreamCallback<Self, GridRequest, CellCornersArray, RiaCellCenterStateHandler>( this,
+                                                                                                                 &Self::GetCellCorners,
+                                                                                                                 &Self::RequestGetCellCorners,
+                                                                                                                 new RiaCellCenterStateHandler ),
 
         new RiaGrpcUnaryCallback<Self, GridRequest, GridDimensions>( this, &Self::GetDimensions, &Self::RequestGetDimensions )};
 }

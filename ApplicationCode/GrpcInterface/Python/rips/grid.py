@@ -59,3 +59,30 @@ class Grid:
             for center in chunk.centers:
                 centers.append(center)
         return centers
+
+    def cell_corners_async(self):
+        """The cell corners for all cells in given grid, async.
+
+        Returns:
+            iterator to a list of CellCorners: a class with Vec3d for each corner (c0, c1.., c7)
+        """
+        case_request = Case_pb2.CaseRequest(id=self.case.case_id)
+        chunks = self.__stub.GetCellCorners(
+            Grid_pb2.GridRequest(case_request=case_request,
+                                 grid_index=self.index))
+
+        for chunk in chunks:
+            yield chunk
+
+    def cell_corners(self):
+        """The cell corners for all cells in given grid
+
+        Returns:
+            list of CellCorners: a class with Vec3d for each corner (c0, c1.., c7)
+        """
+        corners = []
+        chunks = self.cell_corners_async()
+        for chunk in chunks:
+            for center in chunk.cells:
+                corners.append(center)
+        return corners

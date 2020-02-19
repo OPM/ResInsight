@@ -46,6 +46,7 @@ public:
     RiaCellCenterStateHandler();
     grpc::Status init( const rips::GridRequest* request );
     grpc::Status assignReply( rips::CellCenters* reply );
+    grpc::Status assignCornersReply( rips::CellCornersArray* reply );
 
 protected:
     const rips::GridRequest* m_request;
@@ -60,6 +61,11 @@ public:
     grpc::Status GetCellCenters( grpc::ServerContext*       context,
                                  const rips::GridRequest*   request,
                                  rips::CellCenters*         reply,
+                                 RiaCellCenterStateHandler* stateHandler );
+
+    grpc::Status GetCellCorners( grpc::ServerContext*       context,
+                                 const rips::GridRequest*   request,
+                                 rips::CellCornersArray*    reply,
                                  RiaCellCenterStateHandler* stateHandler );
 
     grpc::Status GetDimensions( grpc::ServerContext*     context,

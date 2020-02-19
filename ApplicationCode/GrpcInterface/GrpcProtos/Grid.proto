@@ -8,6 +8,7 @@ import "Case.proto";
 service Grid
 {
 	rpc GetCellCenters(GridRequest) returns(stream CellCenters) {}
+	rpc GetCellCorners(GridRequest) returns(stream CellCornersArray) {}
 	rpc GetDimensions(GridRequest) returns (GridDimensions) {}
 }
 
