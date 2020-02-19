@@ -26,9 +26,9 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
-#include "RimGeoMechCase.h"
+#include "RimEclipseResultDefinition.h"
 
-#include <string.h> // memcpy
+#include "Riu3dSelectionManager.h"
 
 using namespace rips;
 
@@ -550,6 +550,135 @@ grpc::Status RiaGrpcCaseService::GetCellCornersForActiveCells( grpc::ServerConte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaSelectedCellsStateHandler::RiaSelectedCellsStateHandler()
+    : m_request( nullptr )
+    , m_eclipseCase( nullptr )
+    , m_currentItem( 0u )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Status RiaSelectedCellsStateHandler::init( const rips::CaseRequest* request )
+{
+    CAF_ASSERT( request );
+    m_request = request;
+
+    RimCase* rimCase = RiaGrpcServiceInterface::findCase( m_request->id() );
+    m_eclipseCase    = dynamic_cast<RimEclipseCase*>( rimCase );
+
+    if ( !m_eclipseCase )
+    {
+        return grpc::Status( grpc::NOT_FOUND, "Eclipse Case not found" );
+    }
+
+    if ( !m_eclipseCase->eclipseCaseData() || !m_eclipseCase->eclipseCaseData()->mainGrid() )
+    {
+        return grpc::Status( grpc::NOT_FOUND, "Eclipse Case Data not found" );
+    }
+
+    return grpc::Status::OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Status RiaSelectedCellsStateHandler::assignNextSelectedCell( rips::SelectedCell*                          cell,
+                                                             const std::vector<RiuEclipseSelectionItem*>& items )
+{
+    while ( m_currentItem < items.size() )
+    {
+        size_t itemToTry = m_currentItem++;
+
+        const RiuEclipseSelectionItem* item = items[itemToTry];
+        CVF_ASSERT( item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT );
+        assignSelectedCell( cell, item );
+        return grpc::Status::OK;
+    }
+    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSelectedCellsStateHandler::assignSelectedCell( rips::SelectedCell* cell, const RiuEclipseSelectionItem* item )
+{
+    CVF_ASSERT( item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT );
+    size_t i = -1;
+    size_t j = -1;
+    size_t k = -1;
+    item->m_resultDefinition->eclipseCase()
+        ->eclipseCaseData()
+        ->grid( item->m_gridIndex )
+        ->ijkFromCellIndex( item->m_gridLocalCellIndex, &i, &j, &k );
+
+    cell->set_grid_index( item->m_gridIndex );
+    rips::Vec3i* ijk = new rips::Vec3i;
+    ijk->set_i( (int)i );
+    ijk->set_j( (int)j );
+    ijk->set_k( (int)k );
+    cell->set_allocated_ijk( ijk );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaSelectedCellsStateHandler::assignReply( rips::SelectedCells* reply )
+{
+    std::vector<RiuSelectionItem*> items;
+    Riu3dSelectionManager::instance()->selectedItems( items );
+
+    // Only eclipse cases are currently supported. Also filter by case.
+    std::vector<RiuEclipseSelectionItem*> eclipseItems;
+    for ( auto item : items )
+    {
+        RiuEclipseSelectionItem* eclipseItem = dynamic_cast<RiuEclipseSelectionItem*>( item );
+        if ( eclipseItem && eclipseItem->m_resultDefinition->eclipseCase()->caseId == m_request->id() )
+        {
+            eclipseItems.push_back( eclipseItem );
+        }
+    }
+
+    const size_t packageSize  = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( rips::SelectedCells ) );
+    size_t       packageIndex = 0u;
+    reply->mutable_cells()->Reserve( (int)packageSize );
+    for ( ; packageIndex < packageSize && m_currentItem < eclipseItems.size(); ++packageIndex )
+    {
+        rips::SelectedCell singleSelectedCell;
+        grpc::Status       singleSelectedCellStatus = assignNextSelectedCell( &singleSelectedCell, eclipseItems );
+        if ( singleSelectedCellStatus.ok() )
+        {
+            rips::SelectedCell* allocSelectedCell = reply->add_cells();
+            *allocSelectedCell                    = singleSelectedCell;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    if ( packageIndex > 0u )
+    {
+        return Status::OK;
+    }
+    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcCaseService::GetSelectedCells( grpc::ServerContext*          context,
+                                                   const rips::CaseRequest*      request,
+                                                   rips::SelectedCells*          reply,
+                                                   RiaSelectedCellsStateHandler* stateHandler )
+{
+    return stateHandler->assignReply( reply );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcCaseService::GetReservoirBoundingBox( grpc::ServerContext*     context,
                                                           const rips::CaseRequest* request,
                                                           rips::BoundingBox*       reply )
@@ -605,6 +734,13 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
                                                                                     &Self::GetCellCornersForActiveCells,
                                                                                     &Self::RequestGetCellCornersForActiveCells,
                                                                                     new RiaActiveCellInfoStateHandler ),
+            new RiaGrpcServerToClientStreamCallback<Self,
+                                                    CaseRequest,
+                                                    SelectedCells,
+                                                    RiaSelectedCellsStateHandler>( this,
+                                                                                   &Self::GetSelectedCells,
+                                                                                   &Self::RequestGetSelectedCells,
+                                                                                   new RiaSelectedCellsStateHandler ),
             new RiaGrpcUnaryCallback<Self, CaseRequest, BoundingBox>( this,
                                                                       &Self::GetReservoirBoundingBox,
                                                                       &Self::RequestGetReservoirBoundingBox )};

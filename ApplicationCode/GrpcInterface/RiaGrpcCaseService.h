@@ -34,6 +34,7 @@ class RiaGrpcCallbackInterface;
 class RigCell;
 class RigActiveCellInfo;
 class RimEclipseCase;
+class RiuEclipseSelectionItem;
 
 //==================================================================================================
 //
@@ -78,6 +79,29 @@ protected:
 
 //==================================================================================================
 //
+// State handler for streaming of selected cells
+//
+//==================================================================================================
+class RiaSelectedCellsStateHandler
+{
+    typedef grpc::Status Status;
+
+public:
+    RiaSelectedCellsStateHandler();
+
+    Status init( const rips::CaseRequest* request );
+    Status assignReply( rips::SelectedCells* reply );
+    void   assignSelectedCell( rips::SelectedCell* cell, const RiuEclipseSelectionItem* item );
+    Status assignNextSelectedCell( rips::SelectedCell* cell, const std::vector<RiuEclipseSelectionItem*>& items );
+
+protected:
+    const rips::CaseRequest* m_request;
+    RimEclipseCase*          m_eclipseCase;
+    size_t                   m_currentItem;
+};
+
+//==================================================================================================
+//
 // gRPC-service answering requests about grid information for a given case
 //
 //==================================================================================================
@@ -110,6 +134,10 @@ public:
                                                const rips::CellInfoRequest*   request,
                                                rips::CellCornersArray*        reply,
                                                RiaActiveCellInfoStateHandler* stateHandler );
+    grpc::Status GetSelectedCells( grpc::ServerContext*          context,
+                                   const rips::CaseRequest*      request,
+                                   rips::SelectedCells*          reply,
+                                   RiaSelectedCellsStateHandler* stateHandler );
     grpc::Status GetReservoirBoundingBox( grpc::ServerContext*     context,
                                           const rips::CaseRequest* request,
                                           rips::BoundingBox*       reply );

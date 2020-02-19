@@ -895,3 +895,24 @@ class Case(PdmObject):
             for value in chunk.cells:
                 cell_corners.append(value)
         return cell_corners
+
+    def selected_cells_async(self):
+        """Get the selected cells. Async, so returns an iterator.
+            Returns:
+                An iterator to a chunk object containing an array of cells.
+                Loop through the chunks and then the cells within the chunk to get all cells.
+        """
+        return self.__case_stub.GetSelectedCells(self.__request)
+
+    def selected_cells(self):
+        """Get the selected cells. Synchronous, so returns a list.
+
+            Returns:
+                A list of Cells.
+        """
+        cells = []
+        generator = self.selected_cells_async()
+        for chunk in generator:
+            for value in chunk.cells:
+                cells.append(value)
+        return cells

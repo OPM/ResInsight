@@ -172,3 +172,8 @@ def test_exportFlowCharacteristics(rips_instance, initialize_test):
         file_name = tmpdirname + "/exportFlowChar.txt"
         case.export_flow_characteristics(time_steps=8, producers=[], injectors = "I01", file_name = file_name)
 
+def test_selected_cells(rips_instance, initialize_test):
+    case = rips_instance.project.load_case(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID")
+    assert(case.name == "TEST10K_FLT_LGR_NNC")
+    selected_cells = case.selected_cells()
+    assert(len(selected_cells) == 0)
