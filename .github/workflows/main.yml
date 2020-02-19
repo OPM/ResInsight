@@ -12,7 +12,7 @@ jobs:
           submodules: true
       
       - name: Run vcpkg
-        uses: lukka/run-vcpkg@dev
+        uses: lukka/run-vcpkg@v0.10
         id: runvcpkg
         with:
           # Member field access: https://help.github.com/en/actions/automating-your-workflow-with-github-actions/contexts-and-expression-syntax-for-github-actions
