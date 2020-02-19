@@ -61,7 +61,7 @@
 
 #include <array>
 
-CAF_PDM_SOURCE_INIT( RimGeoMechCase, "ResInsightGeoMechCase" );
+CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimGeoMechCase, "GeoMechCase", "ResInsightGeoMechCase" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

@@ -5,23 +5,20 @@ import rips.generated.Commands_pb2 as Cmd
 
 import rips.case  # Circular import of Case, which already imports View. Use full name.
 from rips.pdmobject import PdmObject
+from rips.generated.pdm_objects import View, ReservoirView, GeoMechView
 
-
-class View(PdmObject):
+class ViewCustomization:
     """ResInsight view class
 
     Attributes:
         view_id(int): View Id corresponding to the View Id in ResInsight project.
 
     """
-    def __init__(self, pdm_object, project):
-        PdmObject.__init__(self, pdm_object.pb2_object(), pdm_object.channel(), project)
-
     def is_eclipse_view(self):
-        return self.class_keyword() == "ReservoirView"
+        return isinstance(self, ReservoirView)
 
     def is_geomech_view(self):
-        return self.class_keyword() == "GeoMechView"
+        return isinstance(self, GeoMechView)
 
     def cell_result(self):
         """Retrieve the current cell results"""
@@ -92,7 +89,7 @@ class View(PdmObject):
             pdm_case = self.ancestor("ResInsightGeoMechCase")
         if pdm_case is None:
             return None
-        return rips.case.Case(self._channel, pdm_case.case_id, self._project)
+        return rips.case.Case(self._channel, pdm_case.case_id)
 
     def clone(self):
         """Clone the current view"""
@@ -198,3 +195,7 @@ class View(PdmObject):
                                                        caseId=case_id,
                                                        viewId=self.view_id,
                                                        exportFolder=export_folder))
+
+for attr in dir(ViewCustomization):
+    if not hasattr(builtins.object, attr):
+        setattr(View, attr, getattr(ViewCustomization, attr))

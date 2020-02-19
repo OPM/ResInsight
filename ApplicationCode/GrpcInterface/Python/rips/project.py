@@ -15,17 +15,23 @@ from rips.contour_map import ContourMap, ContourMapType
 import rips.generated.Commands_pb2 as Cmd
 from rips.generated.Definitions_pb2 import Empty
 import rips.generated.Project_pb2_grpc as Project_pb2_grpc
+from rips.generated.pdm_objects import Project
 
 
-class Project(PdmObject):
+class ProjectCustomization:
     """ResInsight project. Not intended to be created separately.
 
     Automatically created and assigned to Instance.
     """
-    def __init__(self, channel):
-        self._project_stub = Project_pb2_grpc.ProjectStub(channel)
-        PdmObject.__init__(self, self._project_stub.GetPdmObject(Empty()),
-                           channel, self)
+    def __custom_init__(self, pb2_object, channel, project_stub):
+        self._project_stub = project_stub
+        PdmObject.__init__(self, pb2_object, channel, self)
+
+    @staticmethod
+    def create(cls, channel):
+        project_stub = Project_pb2_grpc.ProjectStub(channel)
+        pb2_object = project_stub.GetPdmObject(Empty())
+        return cls(pb2_object, channel, project_stub)        
 
     def open(self, path):
         """Open a new project from the given path
@@ -329,3 +335,7 @@ class Project(PdmObject):
 
         res = self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
                                                                                          applyToCaseId=-1))
+
+for attr in dir(ProjectCustomization):
+    if not hasattr(builtins.object, attr):
+        setattr(Project, attr, getattr(ProjectCustomization, attr))

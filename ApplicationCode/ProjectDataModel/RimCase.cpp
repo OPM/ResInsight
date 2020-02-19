@@ -35,7 +35,7 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "RimCase" );
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "Case", "RimCase" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -43,7 +43,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "RimCase" );
 RimCase::RimCase()
     : m_isInActiveDestruction( false )
 {
-    CAF_PDM_InitObject( "Case", ":/Case48x48.png", "", "" );
+    CAF_PDM_InitObject( "Case", ":/Case48x48.png", "", "The ResInsight base class for Cases" );
 
     RICF_InitField( &caseUserDescription, "CaseUserDescription", QString(), "Case Name", "", "", "" );
 

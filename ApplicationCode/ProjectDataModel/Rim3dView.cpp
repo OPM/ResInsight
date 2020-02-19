@@ -86,6 +86,8 @@ Rim3dView::Rim3dView( void )
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT( preferences );
 
+    CAF_PDM_InitObject( "3d View", "", "", "" );
+
     RICF_InitField( &m_id, "ViewId", -1, "View ID", "", "", "" );
     m_id.uiCapability()->setUiReadOnly( true );
     m_id.uiCapability()->setUiHidden( true );

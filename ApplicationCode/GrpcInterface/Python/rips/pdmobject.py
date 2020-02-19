@@ -6,17 +6,19 @@ ResInsight caf::PdmObject connection module
 from functools import partial
 import grpc
 import re
+import builtins
 
 import rips.generated.PdmObject_pb2 as PdmObject_pb2
 import rips.generated.PdmObject_pb2_grpc as PdmObject_pb2_grpc
 import rips.generated.Commands_pb2 as Cmd
 import rips.generated.Commands_pb2_grpc as CmdRpc
+from rips.generated.pdm_objects import PdmObject
 
 def camel_to_snake(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
-class PdmObject:
+class PdmObjectCustomization:
     """
     Generic ResInsight object. Corresponds to items in the Project Tree
     """
@@ -31,12 +33,11 @@ class PdmObject:
 
         return response
         
-    def __init__(self, pb2_object, channel, project):
+    def __custom_init__(self, pb2_object, channel):
         self._pb2_object = pb2_object
         self._channel = channel
         self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(self._channel)
         self._commands = CmdRpc.CommandsStub(channel)
-        self._project = project
         self.__warnings = []
 
         self.__keyword_translation = {}
@@ -48,9 +49,9 @@ class PdmObject:
             self.__keyword_translation[snake_keyword] = camel_keyword            
 
     @classmethod
-    def create(cls, class_keyword, channel, project):
+    def create(cls, class_keyword, channel):
         pb2_object = PdmObject_pb2.PdmObject(class_keyword=class_keyword)
-        return cls(pb2_object, channel, project)
+        return cls(pb2_object, channel)
 
     def warnings(self):
         return self.__warnings
@@ -65,10 +66,6 @@ class PdmObject:
     def channel(self):
         """ Private method"""
         return self._channel
-
-    def project(self):
-        """ Private method"""
-        return self._project
 
     def address(self):
         """Get the unique address of the PdmObject
@@ -184,7 +181,7 @@ class PdmObject:
             request).objects
         child_list = []
         for pdm_object in object_list:
-            child_list.append(PdmObject(pdm_object, self._channel, self._project))
+            child_list.append(PdmObject(pdm_object, self._channel))
         return child_list
 
     def children(self, child_field):
@@ -200,7 +197,7 @@ class PdmObject:
             object_list = self._pdm_object_stub.GetChildPdmObjects(request).objects
             child_list = []
             for pdm_object in object_list:
-                child_list.append(PdmObject(pdm_object, self._channel, self._project))
+                child_list.append(PdmObject(pdm_object, self._channel))
             return child_list
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
@@ -216,7 +213,7 @@ class PdmObject:
             object=self._pb2_object, parent_keyword=class_keyword)
         try:
             return PdmObject(self._pdm_object_stub.GetAncestorPdmObject(request),
-                             self._channel, self._project)
+                             self._channel)
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 return None
@@ -238,3 +235,7 @@ class PdmObject:
             self.__set_grpc_value(camel_kw, getattr(self, snake_kw))
 
         self._pdm_object_stub.UpdateExistingPdmObject(self._pb2_object)
+
+for attr in dir(PdmObjectCustomization):
+    if not hasattr(builtins.object, attr):
+        setattr(PdmObject, attr, getattr(PdmObjectCustomization, attr))
