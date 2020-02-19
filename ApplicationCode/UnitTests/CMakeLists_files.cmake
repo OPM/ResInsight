@@ -65,6 +65,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaStdStringTools-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifWellMeasurementReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaDateStringParser-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigHexGradientTools-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader-Test.cpp
 )
 
 if (RESINSIGHT_ENABLE_GRPC)
