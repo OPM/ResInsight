@@ -52,6 +52,14 @@ void caf::AppEnum<RimAnalysisPlot::SortGroupType>::setUp()
     addItem( RimAnalysisPlot::ABS_OTHER_VALUE, "ABS_OTHER_VALUE", "abs(Other Value)" );
     addItem( RimAnalysisPlot::TIME_STEP, "TIME_STEP", "Time Step" );
 }
+
+template <>
+void caf::AppEnum<RimAnalysisPlot::BarOrientation>::setUp()
+{
+    addItem( RimAnalysisPlot::BAR_HORIZONTAL, "BAR_HORIZONTAL", "Horizontal" );
+    addItem( RimAnalysisPlot::BARS_VERTICAL, "BARS_VERTICAL", "Vertical" );
+    setDefault( RimAnalysisPlot::BAR_HORIZONTAL );
+}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimAnalysisPlot, "AnalysisPlot" );
@@ -70,6 +78,8 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
 
     CAF_PDM_InitField( &m_description, "PlotDescription", QString( "Analysis Plot" ), "Name", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_barOrientation, "BarOrientation", "Bar Orientation", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "selectedVarsUiField", "Selected Variables", "", "", "" );
     m_selectedVarsUiField.xmlCapability()->disableIO();
@@ -393,6 +403,7 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     uiOrdering.add( &m_showPlotTitle );
     uiOrdering.add( &m_useAutoPlotTitle );
     uiOrdering.add( &m_description );
+    uiOrdering.add( &m_barOrientation );
 
     caf::PdmUiGroup* selVectorsGrp = uiOrdering.addNewGroup( "Selected Vectors" );
     selVectorsGrp->add( &m_selectedVarsUiField );
@@ -429,7 +440,7 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
         // buildTestPlot( chartBuilder );
         buildChart( chartBuilder );
 
-        chartBuilder.addBarChartToPlot( m_plotWidget, Qt::Horizontal );
+        chartBuilder.addBarChartToPlot( m_plotWidget, m_barOrientation == BAR_HORIZONTAL ? Qt::Horizontal : Qt::Vertical );
 
         if ( m_showPlotLegends && m_plotWidget->legend() == nullptr )
         {

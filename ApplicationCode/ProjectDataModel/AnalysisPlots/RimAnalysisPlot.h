@@ -116,6 +116,16 @@ private:
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
 
+public:
+    enum BarOrientation
+    {
+        BAR_HORIZONTAL,
+        BARS_VERTICAL
+    };
+
+private:
+    caf::PdmField<caf::AppEnum<BarOrientation>> m_barOrientation;
+
     caf::PdmField<QString> m_selectedVarsUiField;
     caf::PdmField<bool>    m_selectVariablesButtonField;
 
