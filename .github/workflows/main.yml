@@ -1,5 +1,6 @@
 name: ResInsight Build
 
+
 on: [push]
 
 jobs:
