@@ -88,7 +88,8 @@ Rim3dView::Rim3dView( void )
 
     CAF_PDM_InitObject( "3d View", "", "", "" );
 
-    RICF_InitField( &m_id, "ViewId", -1, "View ID", "", "", "" );
+    RICF_InitField( &m_id, "Id", -1, "View ID", "", "", "" );
+    m_id.xmlCapability()->registerKeywordAlias( "ViewId" );
     m_id.uiCapability()->setUiReadOnly( true );
     m_id.uiCapability()->setUiHidden( true );
     m_id.capability<RicfFieldHandle>()->setIOWriteable( false );

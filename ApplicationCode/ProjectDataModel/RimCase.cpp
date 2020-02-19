@@ -45,9 +45,11 @@ RimCase::RimCase()
 {
     CAF_PDM_InitObject( "Case", ":/Case48x48.png", "", "The ResInsight base class for Cases" );
 
-    RICF_InitField( &caseUserDescription, "CaseUserDescription", QString(), "Case Name", "", "", "" );
+    RICF_InitField( &caseUserDescription, "Name", QString(), "Case Name", "", "", "" );
+    caseUserDescription.xmlCapability()->registerKeywordAlias( "CaseUserDescription" );
 
-    RICF_InitField( &caseId, "CaseId", -1, "Case ID", "", "", "" );
+    RICF_InitField( &caseId, "Id", -1, "Case ID", "", "", "" );
+    caseUserDescription.xmlCapability()->registerKeywordAlias( "CaseId" );
     caseId.uiCapability()->setUiReadOnly( true );
     caseId.capability<RicfFieldHandle>()->setIOWriteable( false );
 
