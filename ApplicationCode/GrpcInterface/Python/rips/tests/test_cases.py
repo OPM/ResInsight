@@ -177,3 +177,9 @@ def test_selected_cells(rips_instance, initialize_test):
     assert(case.name == "TEST10K_FLT_LGR_NNC")
     selected_cells = case.selected_cells()
     assert(len(selected_cells) == 0)
+
+    time_step_info = case.time_steps()
+    for (tidx, timestep) in enumerate(time_step_info):
+        # Try to read for SOIL the time step (will be empty since nothing is selected)
+        soil_results = case.selected_cell_property('DYNAMIC_NATIVE', 'SOIL', tidx)
+        assert(len(soil_results) == 0)

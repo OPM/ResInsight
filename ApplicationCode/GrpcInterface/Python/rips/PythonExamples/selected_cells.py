@@ -15,7 +15,9 @@ if resinsight is not None:
         cells = case.selected_cells()
         print("Found " + str(len(cells)) + " selected cells")
 
-        for cell in cells:
+        time_step_info = case.time_steps()
+
+        for (idx, cell) in enumerate(cells):
             print("Selected cell: [{}, {}, {}] grid: {}".format(cell.ijk.i+1, cell.ijk.j+1, cell.ijk.k+1, cell.grid_index))
 
             # Get the grid and dimensions
@@ -41,3 +43,8 @@ if resinsight is not None:
             print("c5:\n" + str(cell_corners.c5))
             print("c6:\n" + str(cell_corners.c6))
             print("c7:\n" + str(cell_corners.c7))
+
+            for (tidx, timestep) in enumerate(time_step_info):
+                # Read the full SOIL result for time step
+                soil_results = case.selected_cell_property('DYNAMIC_NATIVE', 'SOIL', tidx)
+                print("SOIL: {} ({}.{}.{})".format(soil_results[idx], timestep.year, timestep.month, timestep.day))

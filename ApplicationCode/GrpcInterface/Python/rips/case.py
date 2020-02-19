@@ -585,6 +585,61 @@ class Case(PdmObject):
                 all_values.append(value)
         return all_values
 
+    def selected_cell_property_async(self,
+                                     property_type,
+                                     property_name,
+                                     time_step,
+                                     porosity_model="MATRIX_MODEL"):
+        """Get a cell property for all selected cells. Async, so returns an iterator
+
+            Arguments:
+                property_type(str): string enum. See available()
+                property_name(str): name of an Eclipse property
+                time_step(int): the time step for which to get the property for
+                porosity_model(str): string enum. See available()
+
+            Returns:
+                An iterator to a chunk object containing an array of double values
+                Loop through the chunks and then the values within the chunk to get all values.
+        """
+        property_type_enum = Properties_pb2.PropertyType.Value(property_type)
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
+        request = Properties_pb2.PropertyRequest(
+            case_request=self.__request,
+            property_type=property_type_enum,
+            property_name=property_name,
+            time_step=time_step,
+            porosity_model=porosity_model_enum,
+        )
+        for chunk in self.__properties_stub.GetSelectedCellProperty(request):
+            yield chunk
+
+    def selected_cell_property(self,
+                               property_type,
+                               property_name,
+                               time_step,
+                               porosity_model="MATRIX_MODEL"):
+        """Get a cell property for all selected cells. Sync, so returns a list
+
+            Arguments:
+                property_type(str): string enum. See available()
+                property_name(str): name of an Eclipse property
+                time_step(int): the time step for which to get the property for
+                porosity_model(str): string enum. See available()
+
+            Returns:
+                A list containing double values
+                Loop through the chunks and then the values within the chunk to get all values.
+        """
+        all_values = []
+        generator = self.selected_cell_property_async(property_type,
+                                                      property_name, time_step,
+                                                      porosity_model)
+        for chunk in generator:
+            for value in chunk.values:
+                all_values.append(value)
+        return all_values
+
     def grid_property_async(
             self,
             property_type,
