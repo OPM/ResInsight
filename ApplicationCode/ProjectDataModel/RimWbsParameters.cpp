@@ -26,7 +26,7 @@
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
 
-CAF_PDM_SOURCE_INIT( RimWbsParameters, "WbsParameters" );
+CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimWbsParameters, "WbsParameters" );
 
 //--------------------------------------------------------------------------------------------------
 ///

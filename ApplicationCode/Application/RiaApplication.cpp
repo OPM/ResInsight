@@ -1838,9 +1838,11 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                     classCode += QString( "        if pdm_object is not None:\n" );
                     classCode += QString( "            pb2_object=pdm_object.pb2_object()\n" );
                     classCode += QString( "            channel=pdm_object.channel()\n" );
-                    classCode += QString( "            for attr in dir(pdm_object):\n" );
-                    classCode += QString( "                if not attr.startswith(\"__\"):\n" );
-                    classCode += QString( "                    setattr(self, attr, getattr(pdm_object, attr))\n" );
+                    classCode += QString( "            for keyword in dir(pdm_object):\n" );
+                    classCode += QString( "                if not keyword.startswith(\"__\"):\n" );
+                    classCode += QString( "                    attr = getattr( pdm_object, keyword )\n" );
+                    classCode += QString( "                    if not callable(attr):\n" );
+                    classCode += QString( "                        setattr(self, keyword, attr)\n" );
                     classCode += QString( "        if %1.__custom_init__ is not None:\n" ).arg( classKeyword );
                     classCode +=
                         QString( "            %1.__custom_init__(self, pb2_object=pb2_object, channel=channel)\n" )
