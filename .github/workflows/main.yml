@@ -8,8 +8,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-        with:
-          submodules: true
       
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v0.10
@@ -17,7 +15,7 @@ jobs:
         with:
           # Member field access: https://help.github.com/en/actions/automating-your-workflow-with-github-actions/contexts-and-expression-syntax-for-github-actions
           vcpkgArguments: 'install grpc --triplet x64-windows'
-          vcpkgDirectory: ${{ github.workspace }}/../b/vcpkg
+          vcpkgDirectory: ${{ github.workspace }}/vcpkg
           vcpkgGitCommitId: 8b4a607c328d100ac9892e2cbcfb9a4b0cf44c10
       
       - name: Install Qt
