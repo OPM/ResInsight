@@ -858,3 +858,40 @@ class Case(PdmObject):
             for value in chunk.centers:
                 cell_centers.append(value)
         return cell_centers
+
+    def active_cell_corners_async(
+            self,
+            porosity_model="MATRIX_MODEL",
+    ):
+        """Get a cell corners for all active cells. Async, so returns an iterator
+
+            Arguments:
+                porosity_model(str): string enum. See available()
+
+            Returns:
+                An iterator to a chunk object containing an array of CellCorners (which is eight Vec3d values).
+                Loop through the chunks and then the values within the chunk to get all values.
+        """
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
+        request = Case_pb2.CellInfoRequest(case_request=self.__request,
+                                           porosity_model=porosity_model_enum)
+        return self.__case_stub.GetCellCornersForActiveCells(request)
+
+    def active_cell_corners(
+            self,
+            porosity_model="MATRIX_MODEL",
+    ):
+        """Get a cell corners for all active cells. Synchronous, so returns a list.
+
+            Arguments:
+                porosity_model(str): string enum. See available()
+
+            Returns:
+                A list of CellCorners
+        """
+        cell_corners = []
+        generator = self.active_cell_corners_async(porosity_model)
+        for chunk in generator:
+            for value in chunk.cells:
+                cell_corners.append(value)
+        return cell_corners

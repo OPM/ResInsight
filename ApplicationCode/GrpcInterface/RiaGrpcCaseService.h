@@ -62,6 +62,11 @@ public:
     void   assignCellCenter( rips::Vec3d* cellCenter, const std::vector<RigCell>& reservoirCells, size_t cellIdx );
     Status assignCellCentersReply( rips::CellCenters* reply );
 
+    // For cell corners:
+    Status assignNextActiveCellCorners( rips::CellCorners* cellCorners );
+    void assignCellCorners( rips::CellCorners* cellCorners, const std::vector<RigCell>& reservoirCells, size_t cellIdx );
+    Status assignCellCornersReply( rips::CellCornersArray* reply );
+
 protected:
     const rips::CellInfoRequest*  m_request;
     RimEclipseCase*               m_eclipseCase;
@@ -101,6 +106,10 @@ public:
                                               const rips::CellInfoRequest*   request,
                                               rips::CellCenters*             reply,
                                               RiaActiveCellInfoStateHandler* stateHandler );
+    grpc::Status GetCellCornersForActiveCells( grpc::ServerContext*           context,
+                                               const rips::CellInfoRequest*   request,
+                                               rips::CellCornersArray*        reply,
+                                               RiaActiveCellInfoStateHandler* stateHandler );
     grpc::Status GetReservoirBoundingBox( grpc::ServerContext*     context,
                                           const rips::CaseRequest* request,
                                           rips::BoundingBox*       reply );

@@ -11,6 +11,7 @@ service Case
 	rpc GetCellCount(CellInfoRequest) returns (CellCount) {}
 	rpc GetCellInfoForActiveCells(CellInfoRequest) returns (stream CellInfoArray) {}
 	rpc GetCellCenterForActiveCells(CellInfoRequest) returns (stream CellCenters) {}
+	rpc GetCellCornersForActiveCells(CellInfoRequest) returns (stream CellCornersArray) {}
 	rpc GetCoarseningInfoArray(CaseRequest) returns (CoarseningInfoArray) {}
 	rpc GetTimeSteps(CaseRequest) returns (TimeStepDates) {}
 	rpc GetDaysSinceStart(CaseRequest) returns (DaysSinceStart) {}
