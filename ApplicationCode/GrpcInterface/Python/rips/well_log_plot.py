@@ -35,7 +35,7 @@ class WellLogPlot(Plot):
             A list of files exported
         """        
         res = self._execute_command(exportWellLogPlotData=Cmd.ExportWellLogPlotDataRequest(exportFormat='LAS',
-                                                                                           viewId=self.view_id,
+                                                                                           viewId=self.id,
                                                                                            exportFolder=export_folder,
                                                                                            filePrefix=file_prefix,
                                                                                            exportTvdRkb=export_tvdrkb,
@@ -56,7 +56,7 @@ class WellLogPlot(Plot):
             A list of files exported
         """
         res = self._execute_command(exportWellLogPlotData=Cmd.ExportWellLogPlotDataRequest(exportFormat='ASCII',
-                                                                                           viewId=self.view_id,
+                                                                                           viewId=self.id,
                                                                                            exportFolder=export_folder,
                                                                                            filePrefix=file_prefix,
                                                                                            exportTvdRkb=False,

@@ -1708,7 +1708,7 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
         return;
     }
     QTextStream out( &pythonFile );
-
+    out << "import builtins\n\n";
     std::vector<QString> classKeywords = factory->classKeywords();
 
     std::vector<std::shared_ptr<const caf::PdmObject>> dummyObjects;
@@ -1832,22 +1832,40 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                 classCode +=
                     QString( "    __custom_init__ = None #: Assign a custom init routine to be run at __init__\n\n" );
 
-                classCode += QString( "    def __init__(self, pb2_object, channel, **additional_arguments):\n" );
-                if ( !parentClassKeywords.empty() )
+                if ( parentClassKeywords.empty() )
                 {
+                    classCode += QString( "    def __init__(self, pb2_object=None, channel=None, pdm_object=None):\n" );
+                    classCode += QString( "        if pdm_object is not None:\n" );
+                    classCode += QString( "            pb2_object=pdm_object.pb2_object()\n" );
+                    classCode += QString( "            channel=pdm_object.channel()\n" );
+                    classCode += QString( "            for attr in dir(pdm_object):\n" );
+                    classCode += QString( "                if not attr.startswith(\"__\"):\n" );
+                    classCode += QString( "                    setattr(self, attr, getattr(pdm_object, attr))\n" );
+                    classCode += QString( "        if %1.__custom_init__ is not None:\n" ).arg( classKeyword );
                     classCode +=
-                        QString( "        %1.__init__(self, pb2_object, channel)\n" ).arg( parentClassKeywords.back() );
+                        QString( "            %1.__custom_init__(self, pb2_object=pb2_object, channel=channel)\n" )
+                            .arg( classKeyword );
                 }
-
-                for ( auto keyWordValuePair : classesGenerated[classKeyword] )
+                else
                 {
-                    classCode += keyWordValuePair.second.first;
+                    CAF_ASSERT( !parentClassKeywords.empty() );
+                    classCode += QString( "    def __init__(self, pdm_object, *additional_arguments):\n" );
+
+                    // Own attributes. This initializes a lot of attributes to None.
+                    // This means it has to be done before we set any values.
+                    for ( auto keyWordValuePair : classesGenerated[classKeyword] )
+                    {
+                        classCode += keyWordValuePair.second.first;
+                    }
+
+                    // Parent constructor
+                    classCode +=
+                        QString( "        %1.__init__(self, pdm_object=pdm_object)\n" ).arg( parentClassKeywords.back() );
+
+                    classCode += QString( "        if %1.__custom_init__ is not None:\n" ).arg( classKeyword );
+                    classCode += QString( "            %1.__custom_init__(self, pdm_object, *additional_arguments)\n" )
+                                     .arg( classKeyword );
                 }
-
-                classCode += QString( "        if __custom_init__ is not None:\n" );
-                classCode +=
-                    QString( "            __custom_init__(self, pb2_object, channel, **additional_arguments)\n" );
-
                 out << classCode << "\n";
                 classesWritten.insert( classKeyword );
             }

@@ -46,7 +46,7 @@ class PdmObjectCustomization:
             setter = 'set_' + snake_keyword            
             setattr(self, snake_keyword, self.__get_grpc_value(camel_keyword))
             setattr(self, setter, partial(self.set_value, snake_keyword))
-            self.__keyword_translation[snake_keyword] = camel_keyword            
+            self.__keyword_translation[snake_keyword] = camel_keyword   
 
     @classmethod
     def create(cls, class_keyword, channel):
@@ -99,12 +99,12 @@ class PdmObjectCustomization:
         """Print the structure and data content of the PdmObject"""
         print("=========== " + self.class_keyword() + " =================")
         print("Object Attributes: ")
-        for snake_kw, camel_kw in self.__keyword_translation:
+        for snake_kw, camel_kw in self.__keyword_translation.items():
             print("   " + snake_kw + " [" + type(getattr(self, snake_kw)).__name__ +
                   "]: " + str(getattr(self, snake_kw)))
         print("Object Methods:")
         for method in dir(self):
-            if callable(getattr(self, method)) and not method.startswith("_"):
+            if not method.startswith("_") and callable(getattr(self, method)):
                 print ("   " + method)
 
     def __convert_from_grpc_value(self, value):

@@ -33,7 +33,7 @@ for case in cases:
     if case.type == "GeoMechCase":
         min_res_depth, max_res_depth = case.reservoir_depth_range()
 	
-        print (case.case_id)
+        print (case.id)
         case_path = case.case_file_name
         folder_name = os.path.dirname(case_path)
         case.import_formation_names(formation_files=['E:/Projects/ResInsight-regression-test/ModelData/norne/Norne_ATW2013.lyr'])

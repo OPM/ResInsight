@@ -1,6 +1,8 @@
 """
 ResInsight 3d view module
 """
+
+import builtins
 import rips.generated.Commands_pb2 as Cmd
 
 import rips.case  # Circular import of Case, which already imports View. Use full name.
@@ -84,24 +86,20 @@ class ViewCustomization:
 
     def case(self):
         """Get the case the view belongs to"""
-        pdm_case = self.ancestor("EclipseCase")
-        if pdm_case is None:
-            pdm_case = self.ancestor("ResInsightGeoMechCase")
-        if pdm_case is None:
-            return None
-        return rips.case.Case(self._channel, pdm_case.case_id)
+        return rips.case.Case(self.ancestor(rips.case.Case.__name__))
 
     def clone(self):
         """Clone the current view"""
+        print ("My own view id for cloning: ", self.id)
         view_id = self._execute_command(cloneView=Cmd.CloneViewRequest(
-            viewId=self.view_id)).createViewResult.viewId
+            viewId=self.id)).createViewResult.viewId
         return self.case().view(view_id)
 
     def set_time_step(self, time_step):
         """Set the time step for current view"""
-        case_id = self.case().case_id
+        case_id = self.case().id
         return self._execute_command(setTimeStep=Cmd.SetTimeStepParams(
-            caseId=case_id, viewId=self.view_id, timeStep=time_step))
+            caseId=case_id, viewId=self.id, timeStep=time_step))
 
     def export_sim_well_fracture_completions(self, time_step,
                                              simulation_well_names, file_split,
@@ -134,11 +132,11 @@ class ViewCustomization:
         if isinstance(simulation_well_names, str):
             simulation_well_names = [simulation_well_names]
 
-        case_id = self.case().case_id
+        case_id = self.case().id
         return self._execute_command(
             exportSimWellFractureCompletions=Cmd.ExportSimWellPathFracRequest(
                 caseId=case_id,
-                viewId=self.view_id,
+                viewId=self.id,
                 timeStep=time_step,
                 simulationWellNames=simulation_well_names,
                 fileSplit=file_split,
@@ -158,11 +156,11 @@ class ViewCustomization:
             hidden_active_cells_value (int): Value to export for hidden active cells. Default: 0
             inactive_cells_value (int): Value to export for inactive cells. Default: 0
         """
-        case_id = self.case().case_id
+        case_id = self.case().id
         return self._execute_command(
             exportVisibleCells=Cmd.ExportVisibleCellsRequest(
                 caseId=case_id,
-                viewId=self.view_id,
+                viewId=self.id,
                 exportKeyword=export_keyword,
                 visibleActiveCellsValue=visible_active_cells_value,
                 hiddenActiveCellsValue=hidden_active_cells_value,
@@ -174,11 +172,11 @@ class ViewCustomization:
         Arguments:
             undefined_value (double): Value to use for undefined values. Defaults to 0.0
         """
-        case_id = self.case().case_id
+        case_id = self.case().id
         return self._execute_command(
             exportPropertyInViews=Cmd.ExportPropertyInViewsRequest(
                 caseId=case_id,
-                viewIds=[self.view_id],
+                viewIds=[self.id],
                 undefinedValue=undefined_value))
 
     def export_snapshot(self, prefix='', export_folder=''):
@@ -188,12 +186,12 @@ class ViewCustomization:
             prefix (str): Exported file name prefix
             export_folder(str): The path to export to. By default will use the global export folder
         """
-        case_id = self.case().case_id
+        case_id = self.case().id
         return self._execute_command(
             exportSnapshots=Cmd.ExportSnapshotsRequest(type='VIEWS',
                                                        prefix=prefix,
                                                        caseId=case_id,
-                                                       viewId=self.view_id,
+                                                       viewId=self.id,
                                                        exportFolder=export_folder))
 
 for attr in dir(ViewCustomization):

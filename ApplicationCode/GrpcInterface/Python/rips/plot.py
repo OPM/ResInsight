@@ -27,7 +27,7 @@ class Plot(PdmObject):
         return self._execute_command(
             exportSnapshots=Cmd.ExportSnapshotsRequest(type='PLOTS',
                                                        prefix=file_prefix,
-                                                       viewId=self.view_id,
+                                                       viewId=self.id,
                                                        exportFolder=export_folder,
                                                        plotOutputFormat=output_format))
 

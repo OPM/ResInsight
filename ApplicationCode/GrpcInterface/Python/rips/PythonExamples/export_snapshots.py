@@ -18,7 +18,7 @@ property_list = ['SOIL', 'PRESSURE'] # list of parameter for snapshot
 print ("Looping through cases")
 for case in cases:
     print("Case name: ", case.name)
-    print("Case id: ", case.case_id)
+    print("Case id: ", case.id)
     # Get grid path and its folder name
     case_path = case.file_path
     folder_name = os.path.dirname(case_path)

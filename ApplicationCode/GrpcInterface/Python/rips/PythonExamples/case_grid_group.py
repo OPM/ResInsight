@@ -17,7 +17,7 @@ case_group.print_object_info()
 #case_ids = []
 #for stat_case in stat_cases:
 #    stat_case.set_dynamic_properties_to_calculate(["SWAT"])
-#    case_ids.append(stat_case.case_id)
+#    case_ids.append(stat_case.id)
 
 case_group.compute_statistics()
 

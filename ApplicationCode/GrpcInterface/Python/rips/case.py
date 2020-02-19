@@ -7,6 +7,7 @@
 Module containing the Case class
 """
 
+import builtins
 import grpc
 
 import rips.generated.Case_pb2 as Case_pb2
@@ -16,6 +17,7 @@ import rips.generated.PdmObject_pb2 as PdmObject_pb2
 
 import rips.generated.Properties_pb2 as Properties_pb2
 import rips.generated.Properties_pb2_grpc as Properties_pb2_grpc
+from rips.generated.pdm_objects import Case
 
 
 from rips.grid import Grid
@@ -24,7 +26,7 @@ from rips.view import View
 from rips.contour_map import ContourMap, ContourMapType
 from rips.well_bore_stability_plot import WellBoreStabilityPlot, WbsParameters
 
-class Case(PdmObject):
+class CaseCustomization:
     """ResInsight case class
 
     Operate on a ResInsight case specified by a Case Id integer.
@@ -41,22 +43,16 @@ class Case(PdmObject):
                         However we need overhead space, so the default is 8160.
                         This leaves 256B for overhead.
     """
-    def __init__(self, channel, case_id, project):
+    def __custom_init__(self, pdm_object):
         # Private properties
-        self.__channel = channel
-        self.__case_stub = Case_pb2_grpc.CaseStub(channel)
-        self.__request = Case_pb2.CaseRequest(id=case_id)
+        self.__case_stub = Case_pb2_grpc.CaseStub(self._channel)
+        self.__request = Case_pb2.CaseRequest(id=self.id)
 
         info = self.__case_stub.GetCaseInfo(self.__request)
         self.__properties_stub = Properties_pb2_grpc.PropertiesStub(
-            self.__channel)
-        PdmObject.__init__(self, self.__case_stub.GetPdmObject(self.__request),
-                           self.__channel, project)
+            self._channel)
 
         # Public properties
-        self.case_id = case_id
-        self.group_id = info.group_id
-        self.name = info.name
         self.type = info.type
         self.chunk_size = 8160
 
@@ -123,8 +119,8 @@ class Case(PdmObject):
             new_egrid_file (str): path to EGRID file
         """
         self._execute_command(replaceCase=Cmd.ReplaceCaseRequest(
-            newGridFile=new_grid_file, caseId=self.case_id))
-        self.__init__(self.__channel, self.case_id, self._project)
+            newGridFile=new_grid_file, caseId=self.id))
+        self.__init__(self.__channel, self.id)
 
     def cell_count(self, porosity_model="MATRIX_MODEL"):
         """Get a cell count object containing number of active cells and
@@ -234,14 +230,14 @@ class Case(PdmObject):
 
     def views(self):
         """Get a list of views belonging to a case"""
-        eclipse_pdm_objects = self.children("ReservoirViews")
-        geomech_pdm_objects = self.children("GeoMechViews")
+        pdm_objects = self.descendants("View")
 
         view_list = []
-        for pdm_object in eclipse_pdm_objects:
-            view_list.append(View(pdm_object, self._project))
-        for pdm_object in geomech_pdm_objects:
-            view_list.append(View(pdm_object, self._project))
+        for pdm_object in pdm_objects:
+            pdm_object.print_object_info()
+            view_object = View(pdm_object)
+            view_object.print_object_info()
+            view_list.append(view_object)
 
         return view_list
 
@@ -255,7 +251,7 @@ class Case(PdmObject):
         """
         views = self.views()
         for view_object in views:
-            if view_object.view_id == view_id:
+            if view_object.id == view_id:
                 return view_object
         return None
 
@@ -263,7 +259,7 @@ class Case(PdmObject):
         """Create a new view in the current case"""
         return self.view(
             self._execute_command(createView=Cmd.CreateViewRequest(
-                caseId=self.case_id)).createViewResult.viewId)
+                caseId=self.id)).createViewResult.viewId)
 
     def contour_maps(self, map_type=ContourMapType.ECLIPSE):
         """ Get a list of all contour maps belonging to a project
@@ -276,7 +272,7 @@ class Case(PdmObject):
         pdm_objects = self.descendants(ContourMapType.get_identifier(map_type))
         contour_maps = []
         for pdm_object in pdm_objects:
-            contour_maps.append(ContourMap(pdm_object, self._project, map_type))
+            contour_maps.append(ContourMap(pdm_object, map_type))
         return contour_maps
 
     def export_snapshots_of_all_views(self, prefix="", export_folder=""):
@@ -289,7 +285,7 @@ class Case(PdmObject):
         """
         return self._execute_command(
             exportSnapshots=Cmd.ExportSnapshotsRequest(
-                type="VIEWS", prefix=prefix, caseId=self.case_id, viewId=-1, exportFolder=export_folder))
+                type="VIEWS", prefix=prefix, caseId=self.id, viewId=-1, exportFolder=export_folder))
 
     def export_well_path_completions(
             self,
@@ -343,7 +339,7 @@ class Case(PdmObject):
             well_path_names = [well_path_names]
         return self._execute_command(
             exportWellPathCompletions=Cmd.ExportWellPathCompRequest(
-                caseId=self.case_id,
+                caseId=self.id,
                 timeStep=time_step,
                 wellPathNames=well_path_names,
                 fileSplit=file_split,
@@ -362,7 +358,7 @@ class Case(PdmObject):
             well_path(str): Well path name
         """
         return self._execute_command(exportMsw=Cmd.ExportMswRequest(
-            caseId=self.case_id, wellPath=well_path))
+            caseId=self.id, wellPath=well_path))
 
     def create_multiple_fractures(
             self,
@@ -393,7 +389,7 @@ class Case(PdmObject):
             well_path_names = [well_path_names]
         return self._execute_command(
             createMultipleFractures=Cmd.MultipleFracRequest(
-                caseId=self.case_id,
+                caseId=self.id,
                 templateId=template_id,
                 wellPathNames=well_path_names,
                 minDistFromWellTd=min_dist_from_well_td,
@@ -438,7 +434,7 @@ class Case(PdmObject):
             well_path_names = [well_path_names]
         return self._execute_command(
             createLgrForCompletions=Cmd.CreateLgrForCompRequest(
-                caseId=self.case_id,
+                caseId=self.id,
                 timeStep=time_step,
                 wellPathNames=well_path_names,
                 refinementI=refinement_i,
@@ -451,7 +447,7 @@ class Case(PdmObject):
         """
         Create saturation pressure plots for the current case
         """
-        case_ids = [self.case_id]
+        case_ids = [self.id]
         return self._execute_command(
             createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(
                 caseIds=case_ids))
@@ -485,7 +481,7 @@ class Case(PdmObject):
             producers = [producers]
         return self._execute_command(
             exportFlowCharacteristics=Cmd.ExportFlowInfoRequest(
-                caseId=self.case_id,
+                caseId=self.id,
                 timeSteps=time_steps,
                 injectors=injectors,
                 producers=producers,
@@ -757,7 +753,7 @@ class Case(PdmObject):
             export_file (str):	File name for export. Defaults to the value of property parameter
         """
         return self._execute_command(exportProperty=Cmd.ExportPropertyRequest(
-            caseId=self.case_id,
+            caseId=self.id,
             timeStep=time_step,
             property=property_name,
             eclipseKeyword=eclipse_keyword,
@@ -778,14 +774,15 @@ class Case(PdmObject):
         pdm_parameters = None
         if wbs_parameters is not None:
             assert(isinstance(wbs_parameters, WbsParameters))
-            pdm_parameters = PdmObject.create("WbsParameters", self.__channel, self._project)
+            pdm_parameters = PdmObject.create("WbsParameters", self.__channel)
             pdm_parameters.copy_from(wbs_parameters)
 
-        plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.case_id,
+        plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.id,
                                                                                                  wellPath=well_path,
                                                                                                  timeStep=time_step,
                                                                                                  wbsParameters=pdm_parameters.pb2_object()))
-        return WellBoreStabilityPlot(self._project.plot(view_id=plot_result.createWbsPlotResult.viewId))
+        project = self.ancestor(Project.__name__)
+        return WellBoreStabilityPlot(project.plot(view_id=plot_result.createWbsPlotResult.viewId))
 
     def import_formation_names(self, formation_files=None):
         """ Import formation names into project and apply it to the current case
@@ -800,4 +797,8 @@ class Case(PdmObject):
             formation_files = [formation_files]
 
         res = self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
-                                                                                         applyToCaseId=self.case_id))
+                                                                                         applyToCaseId=self.id))
+
+for attr in dir(CaseCustomization):
+    if not hasattr(builtins.object, attr):
+        setattr(Case, attr, getattr(CaseCustomization, attr))

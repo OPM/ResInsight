@@ -3,6 +3,7 @@
 """
 The ResInsight project module
 """
+import builtins
 import grpc
 
 from rips.case import Case
@@ -23,15 +24,14 @@ class ProjectCustomization:
 
     Automatically created and assigned to Instance.
     """
-    def __custom_init__(self, pb2_object, channel, project_stub):
+    def __custom_init__(self, pdm_object, project_stub):
         self._project_stub = project_stub
-        PdmObject.__init__(self, pb2_object, channel, self)
 
     @staticmethod
-    def create(cls, channel):
+    def create(channel):
         project_stub = Project_pb2_grpc.ProjectStub(channel)
         pb2_object = project_stub.GetPdmObject(Empty())
-        return cls(pb2_object, channel, project_stub)        
+        return Project(PdmObject(pb2_object, channel), project_stub)        
 
     def open(self, path):
         """Open a new project from the given path
@@ -65,7 +65,7 @@ class ProjectCustomization:
         """
         command_reply = self._execute_command(loadCase=Cmd.FilePathRequest(
             path=path))
-        return Case(self._channel, command_reply.loadCaseResult.id, self)
+        return self.case(command_reply.loadCaseResult.id)
 
     def selected_cases(self):
         """Get a list of all cases selected in the project tree
@@ -76,7 +76,7 @@ class ProjectCustomization:
         case_infos = self._project_stub.GetSelectedCases(Empty())
         cases = []
         for case_info in case_infos.data:
-            cases.append(Case(self._channel, case_info.id, self))
+            cases.append(self.case(case_info.id))
         return cases
 
     def cases(self):
@@ -85,18 +85,12 @@ class ProjectCustomization:
         Returns:
             A list of rips Case objects
         """
-        try:
-            case_infos = self._project_stub.GetAllCases(Empty())
+        pdm_objects = self.descendants(Case.__name__)
 
-            cases = []
-            for case_info in case_infos.data:
-                cases.append(Case(self._channel, case_info.id, self))
-            return cases
-        except grpc.RpcError as rpc_error:
-            if rpc_error.code() == grpc.StatusCode.NOT_FOUND:
-                return []
-            print("ERROR: ", rpc_error)
-            return []
+        cases = []
+        for pdm_object in pdm_objects:
+            cases.append(Case(pdm_object))
+        return cases
 
     def case(self, case_id):
         """Get a specific case from the provided case Id
@@ -106,11 +100,11 @@ class ProjectCustomization:
         Returns:
             A rips Case object
         """
-        try:
-            case = Case(self._channel, case_id, self)
-            return case
-        except grpc.RpcError:
-            return None
+        allCases = self.cases()
+        for case in allCases:
+            if case.id == case_id:
+                return case
+        return None
 
     def replace_source_cases(self, grid_list_file, case_group_id=0):
         """Replace all source cases within a case group
@@ -142,7 +136,7 @@ class ProjectCustomization:
         pdm_objects = self.descendants("ReservoirView")
         view_list = []
         for pdm_object in pdm_objects:
-            view_list.append(View(pdm_object, self._project))
+            view_list.append(View(pdm_object))
         return view_list
 
     def view(self, view_id):
@@ -154,7 +148,7 @@ class ProjectCustomization:
         """
         views = self.views()
         for view_object in views:
-            if view_object.view_id == view_id:
+            if view_object.id == view_id:
                 return view_object
         return None
 
@@ -164,7 +158,7 @@ class ProjectCustomization:
         plot_list = []
         for pdm_object in pdm_objects:
             plot = Plot(pdm_object)
-            if plot.view_id != -1:
+            if plot.id != -1:
                 plot_list.append(plot)
         return plot_list
 
@@ -176,7 +170,7 @@ class ProjectCustomization:
         """
         plots = self.plots()
         for plot_object in plots:
-            if plot_object.view_id == view_id:
+            if plot_object.id == view_id:
                 return plot_object
         return None
 
@@ -186,7 +180,7 @@ class ProjectCustomization:
         pdm_objects = self.descendants(ContourMapType.get_identifier(map_type))
         contour_maps = []
         for pdm_object in pdm_objects:
-            contour_maps.append(ContourMap(pdm_object, self._project, map_type))
+            contour_maps.append(ContourMap(pdm_object, map_type))
         return contour_maps
 
     def well_paths(self):

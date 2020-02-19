@@ -14,7 +14,7 @@ def test_loadProject(rips_instance, initialize_test):
     case = project.cases()[0]
     assert(case is not None)
     assert(case.name == "TEST10K_FLT_LGR_NNC")
-    assert(case.case_id == 0)
+    assert(case.id == 0)
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
 

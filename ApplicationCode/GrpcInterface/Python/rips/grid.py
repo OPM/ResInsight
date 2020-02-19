@@ -28,7 +28,7 @@ class Grid:
         Returns:
             Vec3i: class with integer attributes i, j, k giving extent in all three dimensions.
         """
-        case_request = Case_pb2.CaseRequest(id=self.case.case_id)
+        case_request = Case_pb2.CaseRequest(id=self.case.id)
         return self.__stub.GetDimensions(
             Grid_pb2.GridRequest(case_request=case_request,
                                  grid_index=self.index)).dimensions
