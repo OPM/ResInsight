@@ -16,7 +16,7 @@ jobs:
           # Member field access: https://help.github.com/en/actions/automating-your-workflow-with-github-actions/contexts-and-expression-syntax-for-github-actions
           vcpkgArguments: 'install grpc --triplet x64-windows'
           vcpkgDirectory: ${{ github.workspace }}/vcpkg
-          vcpkgGitCommitId: 2019.10
+          vcpkgGitCommitId: 6282cab61d175974b1af06473db584b9b80dcd48
       
       - name: Install Qt
         uses: ouuan/install-qt-action@v2.3.1
