@@ -1,16 +1,23 @@
 name: ResInsight Build
 
-
 on: [push]
 
 jobs:
   ResInsight-x64:
-
     runs-on: windows-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      
+      - name: Run vcpkg
+        uses: lukka/run-vcpkg@dev
+        id: runvcpkg
+        with:
+          # Member field access: https://help.github.com/en/actions/automating-your-workflow-with-github-actions/contexts-and-expression-syntax-for-github-actions
+          vcpkgArguments: 'install grpc --triplet x64-windows'
+          vcpkgDirectory: ${{ github.workspace }}/../b/vcpkg
+          vcpkgGitCommitId: 8b4a607c328d100ac9892e2cbcfb9a4b0cf44c10
+      
       - name: Install Qt
         uses: ouuan/install-qt-action@v2.3.1
         with:
@@ -32,3 +39,5 @@ jobs:
         with:
           name: ResInsight
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/packages
+
+  
