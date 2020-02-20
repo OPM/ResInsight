@@ -609,7 +609,7 @@ endforeach()
 
 # Make sure we perform the Python code generation by having a target which ResInsight depends on
 if (RESINSIGHT_ENABLE_GRPC)	
-    set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
+    set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "python" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
     if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 		if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
 			add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
