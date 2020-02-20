@@ -74,7 +74,7 @@
 #include <limits>
 #include <set>
 
-CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
+CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 
 //--------------------------------------------------------------------------------------------------
 /// Internal types
