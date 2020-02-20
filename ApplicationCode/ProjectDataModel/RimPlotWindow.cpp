@@ -30,7 +30,7 @@
 
 #include <QPainter>
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "RimPlotWindow" ); // Do not use. Abstract class
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "PlotWindow", "RimPlotWindow" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -7,6 +7,7 @@ from functools import partial, wraps
 import grpc
 import re
 import builtins
+import inspect
 
 import rips.generated.PdmObject_pb2 as PdmObject_pb2
 import rips.generated.PdmObject_pb2_grpc as PdmObject_pb2_grpc
@@ -21,6 +22,15 @@ def camel_to_snake(name):
 def add_method(cls):
     def decorator(func):
         setattr(cls, func.__name__, func)
+        return func # returning func means func can still be used normally
+    return decorator
+
+def add_static_method(cls):
+    def decorator(func):
+        @wraps(func) 
+        def wrapper(*args, **kwargs): 
+            return func(*args, **kwargs)
+        setattr(cls, func.__name__, wrapper)
         # Note we are not binding func, but wrapper which accepts self but does exactly the same as func
         return func # returning func means func can still be used normally
     return decorator
@@ -38,17 +48,41 @@ def _execute_command(self, **command_params):
 
 @add_method(PdmObject)
 def __custom_init__(self, pb2_object, channel):
-    self._pb2_object = pb2_object
-    self._channel = channel
-    self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(self._channel)
-    self._commands = CmdRpc.CommandsStub(channel)
     self.__warnings = []
-
     self.__keyword_translation = {}
-    for camel_keyword in self.keywords():
-        snake_keyword = camel_to_snake(camel_keyword)
-        setattr(self, snake_keyword, self.__get_grpc_value(camel_keyword))
-        self.__keyword_translation[snake_keyword] = camel_keyword   
+
+    if pb2_object is not None:
+        self._pb2_object = pb2_object
+    else:
+        self._pb2_object = PdmObject_pb2.PdmObject(class_keyword=self.__class__.__name__)
+
+    self._channel = channel
+        
+    if self.pb2_object() is not None and self.channel() is not None:        
+        if self.channel() is not None:
+            self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(self.channel())
+            self._commands = CmdRpc.CommandsStub(self.channel())
+    
+        for camel_keyword in self._pb2_object.parameters:
+            snake_keyword = camel_to_snake(camel_keyword)
+            setattr(self, snake_keyword, self.__get_grpc_value(camel_keyword))
+            self.__keyword_translation[snake_keyword] = camel_keyword   
+
+@add_method(PdmObject)
+def copy_from(self, object):
+    """Copy attribute values from object to self and requires that the attribute already exists           
+    """
+    for attribute in dir(object):
+        if not attribute.startswith('__') and hasattr(self, attribute):
+            value = getattr(object, attribute)
+            if not callable(value):
+                setattr(self, attribute, value)
+
+@add_method(PdmObject)
+def cast(self, class_definition):
+    new_object = class_definition(self.pb2_object(), self.channel())
+    new_object.copy_from(self)
+    return new_object
 
 @add_method(PdmObject)
 def warnings(self):
@@ -92,15 +126,7 @@ def set_visible(self, visible):
 @add_method(PdmObject)
 def visible(self):
     """Get the visibility of the object in the ResInsight project tree"""
-    return self._pb2_object.visible
-        
-@add_method(PdmObject)
-def keywords(self):
-    """Get a list of all parameter keywords available in the object"""
-    list_of_keywords = []
-    for keyword in self._pb2_object.parameters:
-        list_of_keywords.append(keyword)
-    return list_of_keywords
+    return self._pb2_object.visible        
 
 @add_method(PdmObject)
 def print_object_info(self):
@@ -183,25 +209,38 @@ def __makelist(self, list_string):
     return values
 
 @add_method(PdmObject)
-def descendants(self, class_keyword):
+def descendants(self, class_keyword_or_class):
     """Get a list of all project tree descendants matching the class keyword
     Arguments:
-        class_keyword[str]: A class keyword matching the type of class wanted
+        class_keyword_or_class[str/Class]: A class keyword matching the type of class wanted or a Class definition
 
     Returns:
         A list of PdmObjects matching the keyword provided
     """
+    class_definition = PdmObject
+    class_keyword = ""
+    if isinstance(class_keyword_or_class, str):
+        class_keyword = class_keyword_or_class
+    else:
+        assert(inspect.isclass(class_keyword_or_class))
+        class_keyword = class_keyword_or_class.__name__
+        class_definition = class_keyword_or_class
+
     request = PdmObject_pb2.PdmDescendantObjectRequest(
         object=self._pb2_object, child_keyword=class_keyword)
     object_list = self._pdm_object_stub.GetDescendantPdmObjects(
         request).objects
     child_list = []
-    for pdm_object in object_list:
-        child_list.append(PdmObject(pdm_object, self._channel))
+    for pb2_object in object_list:
+        pdm_object = PdmObject(pb2_object=pb2_object, channel=self.channel())
+        if class_definition.__name__ == PdmObject.__name__:
+            child_list.append(pdm_object)    
+        else:
+            child_list.append(pdm_object.cast(class_definition))
     return child_list
 
 @add_method(PdmObject)
-def children(self, child_field):
+def children(self, child_field, class_definition=PdmObject):
     """Get a list of all direct project tree children inside the provided child_field
     Arguments:
         child_field[str]: A field name
@@ -213,8 +252,12 @@ def children(self, child_field):
     try:
         object_list = self._pdm_object_stub.GetChildPdmObjects(request).objects
         child_list = []
-        for pdm_object in object_list:
-            child_list.append(PdmObject(pdm_object, self._channel))
+        for pb2_object in object_list:
+           pdm_object = PdmObject(pb2_object=pb2_object, channel=self.channel())
+        if class_definition.__name__ == PdmObject.__name__:
+            child_list.append(pdm_object)    
+        else:
+            child_list.append(pdm_object.cast(class_definition))
         return child_list
     except grpc.RpcError as e:
         if e.code() == grpc.StatusCode.NOT_FOUND:
@@ -222,16 +265,30 @@ def children(self, child_field):
         raise e
 
 @add_method(PdmObject)
-def ancestor(self, class_keyword):
+def ancestor(self, class_keyword_or_class):
     """Find the first ancestor that matches the provided class_keyword
     Arguments:
-        class_keyword[str]: A class keyword matching the type of class wanted
+        class_keyword_or_class[str/Class]: A class keyword matching the type of class wanted or a Class definition
     """
+    class_definition = PdmObject
+    class_keyword = ""
+    if isinstance(class_keyword_or_class, str):
+        class_keyword = class_keyword_or_class
+    else:
+        assert(inspect.isclass(class_keyword_or_class))
+        class_keyword = class_keyword_or_class.__name__
+        class_definition = class_keyword_or_class
+
     request = PdmObject_pb2.PdmParentObjectRequest(
         object=self._pb2_object, parent_keyword=class_keyword)
     try:
-        return PdmObject(self._pdm_object_stub.GetAncestorPdmObject(request),
-                            self._channel)
+        pb2_object = self._pdm_object_stub.GetAncestorPdmObject(request)
+        pdm_object = PdmObject(pb2_object=pb2_object,
+                               channel=self._channel)
+        if class_definition.__name__ == PdmObject.__name__:
+            return pdm_object
+        else:
+            return pdm_object.cast(class_definition)
     except grpc.RpcError as e:
         if e.code() == grpc.StatusCode.NOT_FOUND:
             return None
@@ -240,7 +297,10 @@ def ancestor(self, class_keyword):
 @add_method(PdmObject)
 def update(self):
     """Sync all fields from the Python Object to ResInsight"""
-    for snake_kw, camel_kw in self.__keyword_translation.items():
-        self.__set_grpc_value(camel_kw, getattr(self, snake_kw))
+    if self._pdm_object_stub is not None and self._pb2_object is not None:
+        for snake_kw, camel_kw in self.__keyword_translation.items():
+            self.__set_grpc_value(camel_kw, getattr(self, snake_kw))
 
-    self._pdm_object_stub.UpdateExistingPdmObject(self._pb2_object)
+        self._pdm_object_stub.UpdateExistingPdmObject(self._pb2_object)
+    else:
+        raise Exception("Object is not connected to GRPC service so cannot update ResInsight")

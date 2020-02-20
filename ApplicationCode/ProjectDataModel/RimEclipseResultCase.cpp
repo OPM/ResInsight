@@ -70,7 +70,7 @@ CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimEclipseResultCase, "EclipseCase" );
 RimEclipseResultCase::RimEclipseResultCase()
     : RimEclipseCase()
 {
-    CAF_PDM_InitObject( "Eclipse Case", ":/Case48x48.png", "", "" );
+    CAF_PDM_InitObject( "Eclipse Case", ":/Case48x48.png", "", "The Regular Eclipse Results Case" );
 
     CAF_PDM_InitFieldNoDefault( &m_unitSystem, "UnitSystem", "Unit System", "", "", "" );
     m_unitSystem.registerGetMethod( RiaApplication::instance()->project(), &RimProject::commonUnitSystemForAllCases );

@@ -8,8 +8,8 @@ resInsight = rips.Instance.find()
 
 cases = resInsight.project.cases()
 
-well_paths = resInsight.project.import_well_paths(well_path_folder='E:/Projects/ResInsight-regression-test/ModelData/Norne_WellPaths')
-well_log_files = resInsight.project.import_well_log_files(well_log_folder='E:/Projects/ResInsight-regression-test/ModelData/Norne_PLT_LAS')
+well_paths = resInsight.project.import_well_paths(well_path_folder='D:/Projects/ResInsight-regression-test/ModelData/Norne_WellPaths')
+well_log_files = resInsight.project.import_well_log_files(well_log_folder='D:/Projects/ResInsight-regression-test/ModelData/Norne_PLT_LAS')
 
 well_paths = resInsight.project.well_paths()
 
@@ -34,9 +34,9 @@ for case in cases:
         min_res_depth, max_res_depth = case.reservoir_depth_range()
 	
         print (case.id)
-        case_path = case.case_file_name
+        case_path = case.file_path
         folder_name = os.path.dirname(case_path)
-        case.import_formation_names(formation_files=['E:/Projects/ResInsight-regression-test/ModelData/norne/Norne_ATW2013.lyr'])
+        case.import_formation_names(formation_files=['D:/Projects/ResInsight-regression-test/ModelData/norne/Norne_ATW2013.lyr'])
 
         # create a folder to hold the snapshots
         dirname = os.path.join(folder_name, 'snapshots')

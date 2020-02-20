@@ -74,7 +74,7 @@
 #include <limits>
 #include <set>
 
-CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
+CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 
 //--------------------------------------------------------------------------------------------------
 /// Internal types
@@ -142,7 +142,7 @@ CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData );
 RimSummaryPlot::RimSummaryPlot()
     : RimPlot()
 {
-    CAF_PDM_InitObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "" );
+    CAF_PDM_InitObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Plot of Eclipse Summary Data" );
 
     CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
     m_showPlotTitle.xmlCapability()->setIOWritable( false );

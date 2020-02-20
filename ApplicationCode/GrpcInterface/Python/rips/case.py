@@ -18,10 +18,10 @@ import rips.generated.PdmObject_pb2 as PdmObject_pb2
 import rips.generated.Properties_pb2 as Properties_pb2
 import rips.generated.Properties_pb2_grpc as Properties_pb2_grpc
 from rips.generated.pdm_objects import Case
-
+import rips.project
 
 from rips.grid import Grid
-from rips.pdmobject import add_method
+from rips.pdmobject import add_method, PdmObject
 from rips.view import View
 from rips.contour_map import ContourMap, ContourMapType
 from rips.well_bore_stability_plot import WellBoreStabilityPlot, WbsParameters
@@ -43,8 +43,7 @@ Attributes:
                     This leaves 256B for overhead.
 """
 @add_method(Case)
-def __custom_init__(self, pdm_object):
-    # Private properties
+def __custom_init__(self, pb2_object, channel):
     self.__case_stub = Case_pb2_grpc.CaseStub(self._channel)
     self.__request = Case_pb2.CaseRequest(id=self.id)
 
@@ -247,7 +246,7 @@ def views(self):
 
     view_list = []
     for pdm_object in pdm_objects:
-        view_object = View(pdm_object)
+        view_object = pdm_object.cast(View)
         view_list.append(view_object)
 
     return view_list
@@ -802,18 +801,19 @@ def create_well_bore_stability_plot(self, well_path, time_step, wbs_parameters=N
     Returns:
         A new plot object
     """
-    pdm_parameters = None
+    pb2_parameters = None
     if wbs_parameters is not None:
         assert(isinstance(wbs_parameters, WbsParameters))
-        pdm_parameters = PdmObject.create("WbsParameters", self.__channel)
-        pdm_parameters.copy_from(wbs_parameters)
+        pb2_parameters = wbs_parameters.pb2_object()
 
     plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.id,
-                                                                                                wellPath=well_path,
-                                                                                                timeStep=time_step,
-                                                                                                wbsParameters=pdm_parameters.pb2_object()))
-    project = self.ancestor(Project.__name__)
-    return WellBoreStabilityPlot(project.plot(view_id=plot_result.createWbsPlotResult.viewId))
+                                                                                            wellPath=well_path,
+                                                                                            timeStep=time_step,
+                                                                                            wbsParameters=pb2_parameters))
+    project = self.ancestor(rips.project.Project)
+    plot = project.plot(view_id=plot_result.createWbsPlotResult.viewId)
+    assert(plot)
+    return plot.cast(WellBoreStabilityPlot)
 
 @add_method(Case)
 def import_formation_names(self, formation_files=None):

@@ -7,7 +7,7 @@ import rips.generated.Commands_pb2 as Cmd
 
 import rips.case  # Circular import of Case, which already imports View. Use full name.
 from rips.pdmobject import add_method
-from rips.generated.pdm_objects import View, ReservoirView, GeoMechView
+from rips.generated.pdm_objects import View, ViewWindow, ReservoirView, GeoMechView
 
 @add_method(View)
 def is_eclipse_view(self):
@@ -81,11 +81,6 @@ def apply_flow_diagnostics_cell_result(
         cell_result.selected_injector_tracers = injectors
         cell_result.selected_producer_tracers = producers
     cell_result.update()
-
-@add_method(View)
-def case(self):
-    """Get the case the view belongs to"""
-    return rips.case.Case(self.ancestor(rips.case.Case.__name__))
 
 @add_method(View)
 def clone(self):
@@ -182,7 +177,14 @@ def export_property(self, undefined_value=0.0):
             viewIds=[self.id],
             undefinedValue=undefined_value))
 
-@add_method(View)
+@add_method(ViewWindow)
+def case(self):
+    """Get the case the view belongs to"""
+    mycase = self.ancestor(rips.case.Case)
+    assert(mycase is not None)
+    return mycase
+
+@add_method(ViewWindow)
 def export_snapshot(self, prefix='', export_folder=''):
     """ Export snapshot for the current view
         
