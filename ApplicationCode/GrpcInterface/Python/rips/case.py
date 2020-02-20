@@ -64,7 +64,6 @@ def __grid_count(self):
     except grpc.RpcError as exception:
         if exception.code() == grpc.StatusCode.NOT_FOUND:
             return 0
-        print("ERROR: ", exception)
         return 0
 
 @add_method(Case)
@@ -107,14 +106,14 @@ def grid(self, index):
 
     Returns: Grid object
     """
-    return Grid(index, self, self.__channel)
+    return Grid(index, self, self.channel())
 
 @add_method(Case)
 def grids(self):
     """Get a list of all rips Grid objects in the case"""
     grid_list = []
     for i in range(0, self.__grid_count()):
-        grid_list.append(Grid(i, self, self.__channel))
+        grid_list.append(Grid(i, self, self.channel()))
     return grid_list
 
 @add_method(Case)
