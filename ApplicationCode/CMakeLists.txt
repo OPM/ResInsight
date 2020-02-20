@@ -609,17 +609,8 @@ endforeach()
 
 # Make sure we perform the Python code generation by having a target which ResInsight depends on
 if (RESINSIGHT_ENABLE_GRPC)	
-    set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "python" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
-    if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-		if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
-			add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
-			add_dependencies(ResInsight GeneratedPythonSources)
-		else()
-			message(STATUS "Error installing python code: RESINSIGHT_GRPC_PYTHON_EXECUTABLE set but ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} not found")
-		endif(EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
-	else()
-		message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install GRPC Python code.")
-	endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)	
+	add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
+	add_dependencies(ResInsight GeneratedPythonSources)
 endif(RESINSIGHT_ENABLE_GRPC)
 
 #############################################################################
@@ -764,18 +755,15 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     # install gRPC Python files
     if (RESINSIGHT_ENABLE_GRPC)
 		message(STATUS "GRPC enabled")
-		if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
-			message(STATUS "Python found")
-			if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)	
-				message(STATUS "Bundling Python GRPC modules")
-				add_custom_command(
-					TARGET ResInsight
-					POST_BUILD
-					COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
-				)
-			endif()
-			install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
+		if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)	
+			message(STATUS "Bundling Python GRPC modules")
+			add_custom_command(
+				TARGET ResInsight
+				POST_BUILD
+				COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} -m pip install --target=${GRPC_PYTHON_SOURCE_PATH} grpcio-tools
+			)
 		endif()
+		install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
 	endif()
 
     set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
