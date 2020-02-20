@@ -53,14 +53,13 @@ RimCase* RiaGrpcServiceInterface::findCase( int caseId )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Find the number of messages that will fit in the given bytes.
-/// The default argument is meant to be a sensible size for GRPC.
+/// Find the number of data items that will fit in the given bytes.
+/// The default argument for numBytesWantedInPackage is meant to be a sensible size for GRPC.
 //--------------------------------------------------------------------------------------------------
-size_t RiaGrpcServiceInterface::numberOfMessagesForByteCount( size_t messageSize,
-                                                              size_t numBytesWantedInPackage /*= 64 * 1024u*/ )
+size_t RiaGrpcServiceInterface::numberOfDataUnitsInPackage( size_t dataUnitSize, size_t packageByteCount /*= 64 * 1024u*/ )
 {
-    size_t messageCount = numBytesWantedInPackage / messageSize;
-    return messageCount;
+    size_t dataUnitCount = packageByteCount / dataUnitSize;
+    return dataUnitCount;
 }
 
 //--------------------------------------------------------------------------------------------------

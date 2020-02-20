@@ -142,14 +142,18 @@ public:
     //--------------------------------------------------------------------------------------------------
     Status assignStreamReply( PropertyChunk* reply )
     {
-        const size_t packageCount = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( double ) * m_cellCount );
-        size_t       packageIndex = 0u;
-        reply->mutable_values()->Reserve( (int)packageCount );
-        for ( ; packageIndex < packageCount && m_streamedValueCount < m_cellCount; ++packageIndex, ++m_streamedValueCount )
+        // How many data units will fit into one stream package?
+        const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( double ) );
+        size_t       indexInPackage = 0u;
+        reply->mutable_values()->Reserve( (int)packageSize );
+
+        // Stream until you've reached the package size or total cell count. Whatever comes first.
+        // If you've reached the package size you'll come back for another round.
+        for ( ; indexInPackage < packageSize && m_streamedValueCount < m_cellCount; ++indexInPackage, ++m_streamedValueCount )
         {
             reply->add_values( cellResult( m_streamedValueCount ) );
         }
-        if ( packageIndex > 0u )
+        if ( indexInPackage > 0u )
         {
             return grpc::Status::OK;
         }
