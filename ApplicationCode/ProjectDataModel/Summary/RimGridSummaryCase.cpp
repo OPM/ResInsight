@@ -32,13 +32,14 @@
 //
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT( RimGridSummaryCase, "GridSummaryCase" );
+CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimGridSummaryCase, "GridSummaryCase" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimGridSummaryCase::RimGridSummaryCase()
 {
+    CAF_PDM_InitObject( "Grid Summary Case ", "", "", "A Summary Case based on extracting grid data." );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "Associated3DCase", "Eclipse Case", "", "", "" );
     m_eclipseCase.uiCapability()->setUiHidden( true );
 
