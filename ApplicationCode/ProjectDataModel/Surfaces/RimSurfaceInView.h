@@ -43,8 +43,15 @@ public:
     RimSurface* surface() const;
     void        setSurface( RimSurface* surf );
 
+    double depthOffset() const;
+
     void               clearGeometry();
     RivSurfacePartMgr* surfacePartMgr();
+
+protected:
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     virtual RimIntersectionResultsDefinitionCollection* findSeparateResultsCollection() override;
@@ -55,6 +62,8 @@ private:
 
     caf::PdmProxyValueField<QString> m_name;
     caf::PdmPtrField<RimSurface*>    m_surface;
+
+    caf::PdmField<double> m_depthOffset;
 
     cvf::ref<RivSurfacePartMgr> m_surfacePartMgr;
 };

@@ -27,6 +27,8 @@
 #include "RivHexGridIntersectionTools.h"
 #include "RivSurfacePartMgr.h"
 
+#include "cafPdmUiDoubleSliderEditor.h"
+
 CAF_PDM_SOURCE_INIT( RimSurfaceInView, "SurfaceInView" );
 
 //--------------------------------------------------------------------------------------------------
@@ -42,6 +44,9 @@ RimSurfaceInView::RimSurfaceInView()
 
     CAF_PDM_InitFieldNoDefault( &m_surface, "SurfaceRef", "Surface", "", "", "" );
     m_surface.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
+    m_depthOffset.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +85,14 @@ void RimSurfaceInView::setSurface( RimSurface* surf )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimSurfaceInView::depthOffset() const
+{
+    return m_depthOffset;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSurfaceInView::clearGeometry()
 {
     m_surfacePartMgr = nullptr;
@@ -102,15 +115,25 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
                                          const QVariant&            oldValue,
                                          const QVariant&            newValue )
 {
+    bool scheduleRedraw = false;
+
     if ( changedField == &m_isActive || changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource )
     {
-        RimGridView* ownerView;
-        this->firstAncestorOrThisOfTypeAsserted( ownerView );
-        ownerView->scheduleCreateDisplayModelAndRedraw();
+        scheduleRedraw = true;
     }
     else if ( changedField == &m_showInactiveCells )
     {
-        m_surfacePartMgr = nullptr;
+        clearGeometry();
+        scheduleRedraw = true;
+    }
+    else if ( changedField == &m_depthOffset )
+    {
+        clearGeometry();
+        scheduleRedraw = true;
+    }
+
+    if ( scheduleRedraw )
+    {
         RimGridView* ownerView;
         this->firstAncestorOrThisOfTypeAsserted( ownerView );
         ownerView->scheduleCreateDisplayModelAndRedraw();
@@ -123,13 +146,29 @@ void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 void RimSurfaceInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
-
     uiOrdering.add( &m_showInactiveCells );
+    uiOrdering.add( &m_depthOffset );
 
     this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                              QString                    uiConfigName,
+                                              caf::PdmUiEditorAttribute* attribute )
+{
+    auto doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+    if ( doubleSliderAttrib )
+    {
+        if ( field == &m_depthOffset )
+        {
+            doubleSliderAttrib->m_minimum = -2000;
+            doubleSliderAttrib->m_maximum = 2000;
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
