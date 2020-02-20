@@ -701,6 +701,46 @@ grpc::Status RiaGrpcCaseService::GetReservoirBoundingBox( grpc::ServerContext*  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcCaseService::GetCoarseningInfoArray( grpc::ServerContext*       context,
+                                                         const rips::CaseRequest*   request,
+                                                         rips::CoarseningInfoArray* reply )
+{
+    RimEclipseCase* rimCase = dynamic_cast<RimEclipseCase*>( findCase( request->id() ) );
+    if ( rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid() )
+    {
+        for ( size_t gridIdx = 0; gridIdx < rimCase->eclipseCaseData()->gridCount(); gridIdx++ )
+        {
+            RigGridBase* grid = rimCase->eclipseCaseData()->grid( gridIdx );
+
+            size_t localCoarseningBoxCount = grid->coarseningBoxCount();
+            for ( size_t boxIdx = 0; boxIdx < localCoarseningBoxCount; boxIdx++ )
+            {
+                size_t i1, i2, j1, j2, k1, k2;
+                grid->coarseningBox( boxIdx, &i1, &i2, &j1, &j2, &k1, &k2 );
+
+                rips::CoarseningInfo* coarseningInfo = reply->add_data();
+
+                rips::Vec3i* min = new rips::Vec3i;
+                min->set_i( (int)i1 );
+                min->set_j( (int)j1 );
+                min->set_k( (int)k1 );
+                coarseningInfo->set_allocated_min( min );
+
+                rips::Vec3i* max = new rips::Vec3i;
+                max->set_i( (int)i2 );
+                max->set_j( (int)j2 );
+                max->set_k( (int)k2 );
+                coarseningInfo->set_allocated_max( max );
+            }
+        }
+        return Status::OK;
+    }
+    return Status( grpc::NOT_FOUND, "Case not found" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
 {
     typedef RiaGrpcCaseService Self;
@@ -743,7 +783,11 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcCaseService::createCallbacks()
                                                                                    new RiaSelectedCellsStateHandler ),
             new RiaGrpcUnaryCallback<Self, CaseRequest, BoundingBox>( this,
                                                                       &Self::GetReservoirBoundingBox,
-                                                                      &Self::RequestGetReservoirBoundingBox )};
+                                                                      &Self::RequestGetReservoirBoundingBox ),
+
+            new RiaGrpcUnaryCallback<Self, CaseRequest, CoarseningInfoArray>( this,
+                                                                              &Self::GetCoarseningInfoArray,
+                                                                              &Self::RequestGetCoarseningInfoArray )};
 }
 
 static bool RiaGrpcCaseService_init =

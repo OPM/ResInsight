@@ -141,6 +141,9 @@ public:
     grpc::Status GetReservoirBoundingBox( grpc::ServerContext*     context,
                                           const rips::CaseRequest* request,
                                           rips::BoundingBox*       reply );
+    grpc::Status GetCoarseningInfoArray( grpc::ServerContext*       context,
+                                         const rips::CaseRequest*   request,
+                                         rips::CoarseningInfoArray* reply );
 
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

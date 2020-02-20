@@ -971,3 +971,12 @@ class Case(PdmObject):
             for value in chunk.cells:
                 cells.append(value)
         return cells
+
+    def coarsening_info(self):
+        """Get a coarsening information for all grids in the case.
+
+            Returns:
+                A list of CoarseningInfo objects with two Vec3i min and max objects
+                for each entry.
+        """
+        return self.__case_stub.GetCoarseningInfoArray(self.__request).data

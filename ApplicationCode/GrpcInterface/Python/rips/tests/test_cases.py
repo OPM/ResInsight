@@ -113,6 +113,10 @@ def test_10k(rips_instance, initialize_test):
     check_corner(cell_corners[cell_index].c6, expected_corners[6])
     check_corner(cell_corners[cell_index].c7, expected_corners[7])
 
+    # No coarsening info for this case
+    coarsening_info = case.coarsening_info()
+    assert(len(coarsening_info) == 0)
+
 def test_PdmObject(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=case_path)
