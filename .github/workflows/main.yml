@@ -15,7 +15,7 @@ jobs:
           cache-name: cache-vcpkg-modules
         with:
           path: ${{ github.workspace }}/vcpkg/
-          key: ${{ cache-vcpkg-modules }}-${{ runner.os }}
+          key: ${{ env.cache-name }}-${{ runner.os }}
       
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v0.10
