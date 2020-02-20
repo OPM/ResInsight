@@ -297,8 +297,11 @@ def ancestor(self, class_keyword_or_class):
 @add_method(PdmObject)
 def update(self):
     """Sync all fields from the Python Object to ResInsight"""
+    self.print_object_info()
     if self._pdm_object_stub is not None and self._pb2_object is not None:
+        print ("Updating")
         for snake_kw, camel_kw in self.__keyword_translation.items():
+            print("Setting value for: ", snake_kw, " / ", camel_kw, " = ", getattr(self, snake_kw))
             self.__set_grpc_value(camel_kw, getattr(self, snake_kw))
 
         self._pdm_object_stub.UpdateExistingPdmObject(self._pb2_object)

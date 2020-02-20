@@ -49,7 +49,7 @@ RimCase::RimCase()
     caseUserDescription.xmlCapability()->registerKeywordAlias( "CaseUserDescription" );
 
     RICF_InitField( &caseId, "Id", -1, "Case ID", "", "", "" );
-    caseUserDescription.xmlCapability()->registerKeywordAlias( "CaseId" );
+    caseId.xmlCapability()->registerKeywordAlias( "CaseId" );
     caseId.uiCapability()->setUiReadOnly( true );
     caseId.capability<RicfFieldHandle>()->setIOWriteable( false );
 

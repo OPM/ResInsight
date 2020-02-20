@@ -23,7 +23,7 @@ def test_well_log_plots(rips_instance, initialize_test):
     plots = project.plots()
     well_log_plots = []
     for plot in plots:
-        well_log_plot = rips.WellLogPlot.from_pdm_object(plot)
+        well_log_plot = plot.cast(rips.WellLogPlot)
         if well_log_plot is not None:
             assert(well_log_plot.depth_type == "MEASURED_DEPTH")
             well_log_plots.append(well_log_plot)
@@ -31,7 +31,8 @@ def test_well_log_plots(rips_instance, initialize_test):
 
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
         for well_log_plot in well_log_plots:
-            well_log_plot.set_depth_type("TRUE_VERTICAL_DEPTH_RKB")
+            well_log_plot.depth_type = "TRUE_VERTICAL_DEPTH_RKB"
+            well_log_plot.update()
             if rips_instance.is_gui():
                 well_log_plot.export_snapshot(tmpdirname)
             well_log_plot.export_data_as_las(tmpdirname)
@@ -44,7 +45,7 @@ def test_well_log_plots(rips_instance, initialize_test):
     
     plots2 = project.plots()
     for plot2 in plots2:
-        well_log_plot2 = rips.WellLogPlot.from_pdm_object(plot)
+        well_log_plot2 = plot.cast(rips.WellLogPlot)
         if well_log_plot2 is not None:
             assert(well_log_plot2.depth_type == "TRUE_VERTICAL_DEPTH_RKB")
     

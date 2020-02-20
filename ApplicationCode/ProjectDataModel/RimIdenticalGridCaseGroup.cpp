@@ -48,7 +48,7 @@
 #include <QDir>
 #include <QMessageBox>
 
-CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimIdenticalGridCaseGroup, "IdenticalGridCaseGroup", "RimIdenticalGridCaseGroup" );
+CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimIdenticalGridCaseGroup, "GridCaseGroup", "RimIdenticalGridCaseGroup" );
 
 //--------------------------------------------------------------------------------------------------
 ///

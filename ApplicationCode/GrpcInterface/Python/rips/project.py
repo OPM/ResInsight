@@ -93,6 +93,7 @@ def cases(self):
 
     cases = []
     for pdm_object in pdm_objects:
+        pdm_object.print_object_info()
         cases.append(pdm_object.cast(Case))
     return cases
 
