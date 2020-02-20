@@ -207,12 +207,8 @@ def well_paths(self):
 @add_method(Project)
 def grid_case_groups(self):
     """Get a list of all grid case groups in the project"""
-    case_groups = self.descendants("IdenticalGridCaseGroup")
-
-    case_group_list = []
-    for pdm_group in case_groups:
-        case_group_list.append(GridCaseGroup(pdm_group))
-    return case_group_list
+    case_groups = self.descendants(GridCaseGroup)
+    return case_groups
 
 @add_method(Project)
 def grid_case_group(self, group_id):

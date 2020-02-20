@@ -122,9 +122,11 @@ def replace(self, new_grid_file):
     Arguments:
         new_egrid_file (str): path to EGRID file
     """
+    project = self.ancestor(rips.project.Project)
     self._execute_command(replaceCase=Cmd.ReplaceCaseRequest(
         newGridFile=new_grid_file, caseId=self.id))
-    self.__init__(self.__channel, self.id)
+    new_case = project.case(self.id)
+    self.copy_from(new_case)
 
 @add_method(Case)
 def cell_count(self, porosity_model="MATRIX_MODEL"):

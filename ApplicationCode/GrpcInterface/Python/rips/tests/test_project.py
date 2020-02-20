@@ -45,7 +45,7 @@ def test_well_log_plots(rips_instance, initialize_test):
     
     plots2 = project.plots()
     for plot2 in plots2:
-        well_log_plot2 = plot.cast(rips.WellLogPlot)
+        well_log_plot2 = plot2.cast(rips.WellLogPlot)
         if well_log_plot2 is not None:
             assert(well_log_plot2.depth_type == "TRUE_VERTICAL_DEPTH_RKB")
     
