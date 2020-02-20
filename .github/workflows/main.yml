@@ -9,7 +9,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       
-      - name: Cache vcpkg's artifacts
+      - name: Cache vcpkg artifacts
         uses: actions/cache@v1
         env:
           cache-name: cache-vcpkg-modules
@@ -21,7 +21,6 @@ jobs:
         uses: lukka/run-vcpkg@v0.10
         id: runvcpkg
         with:
-          # Member field access: https://help.github.com/en/actions/automating-your-workflow-with-github-actions/contexts-and-expression-syntax-for-github-actions
           vcpkgArguments: 'grpc --triplet x64-windows'
           vcpkgDirectory: ${{ github.workspace }}/vcpkg
           vcpkgGitCommitId: 6282cab61d175974b1af06473db584b9b80dcd48
@@ -34,6 +33,7 @@ jobs:
           target: desktop
           arch: win64_msvc2017_64
           modules: qtscript 
+
       - name: Build ResInsight-x64
         env:
           CMAKE_PREFIX_PATH: ${{ runner.workspace }}\Qt\5.9.1\msvc2017_64
@@ -42,10 +42,9 @@ jobs:
           cd cmakebuild
           cmake .. -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -A x64
           cmake --build . --config Release --target PACKAGE
+
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: ResInsight
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/packages
-
-  
