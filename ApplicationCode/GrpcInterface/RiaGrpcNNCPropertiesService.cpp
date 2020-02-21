@@ -124,6 +124,105 @@ grpc::Status RiaGrpcNNCPropertiesService::GetNNCConnections( grpc::ServerContext
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaNNCValuesStateHandler::RiaNNCValuesStateHandler()
+    : m_request( nullptr )
+    , m_eclipseCase( nullptr )
+    , m_currentIdx( 0u )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaNNCValuesStateHandler::init( const rips::NNCValuesRequest* request )
+{
+    CAF_ASSERT( request );
+    m_request = request;
+
+    RimCase* rimCase = RiaGrpcServiceInterface::findCase( m_request->case_id() );
+    m_eclipseCase    = dynamic_cast<RimEclipseCase*>( rimCase );
+
+    if ( !( m_eclipseCase && m_eclipseCase->eclipseCaseData() && m_eclipseCase->eclipseCaseData()->mainGrid() ) )
+    {
+        return grpc::Status( grpc::NOT_FOUND, "Eclipse Case not found" );
+    }
+
+    return grpc::Status::OK;
+}
+
+const std::vector<double>* getScalarResultByName( const RigNNCData*         nncData,
+                                                  RigNNCData::NNCResultType resultType,
+                                                  const QString&            propertyName,
+                                                  size_t                    timeStep )
+{
+    if ( resultType == RigNNCData::NNC_STATIC )
+    {
+        return nncData->staticConnectionScalarResultByName( propertyName );
+    }
+
+    if ( resultType == RigNNCData::NNC_DYNAMIC )
+    {
+        return nncData->dynamicConnectionScalarResultByName( propertyName, timeStep );
+    }
+
+    if ( resultType == RigNNCData::NNC_GENERATED )
+    {
+        return nncData->generatedConnectionScalarResultByName( propertyName, timeStep );
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaNNCValuesStateHandler::assignReply( rips::NNCValues* reply )
+{
+    RigMainGrid*               mainGrid    = m_eclipseCase->eclipseCaseData()->mainGrid();
+    std::vector<RigConnection> connections = mainGrid->nncData()->connections();
+
+    QString                   propertyName = QString::fromStdString( m_request->property_name() );
+    RigNNCData::NNCResultType propertyType = static_cast<RigNNCData::NNCResultType>( m_request->property_type() );
+    size_t                    timeStep     = m_request->time_step();
+
+    const std::vector<double>* nncValues =
+        getScalarResultByName( mainGrid->nncData(), propertyType, propertyName, timeStep );
+    if ( !nncValues )
+    {
+        return Status( grpc::NOT_FOUND, "No values found" );
+    }
+
+    size_t       connectionCount = connections.size();
+    const size_t packageSize     = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( double ) );
+    size_t       indexInPackage  = 0u;
+    reply->mutable_values()->Reserve( (int)packageSize );
+    for ( ; indexInPackage < packageSize && m_currentIdx < connectionCount; ++indexInPackage )
+    {
+        reply->add_values( nncValues->at( m_currentIdx ) );
+        m_currentIdx++;
+    }
+
+    if ( indexInPackage > 0u )
+    {
+        return Status::OK;
+    }
+    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcNNCPropertiesService::GetNNCValues( grpc::ServerContext*          context,
+                                                        const rips::NNCValuesRequest* request,
+                                                        rips::NNCValues*              reply,
+                                                        RiaNNCValuesStateHandler*     stateHandler )
+{
+    return stateHandler->assignReply( reply );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 grpc::Status RiaGrpcNNCPropertiesService::GetAvailableNNCProperties( grpc::ServerContext*    context,
                                                                      const CaseRequest*      request,
                                                                      AvailableNNCProperties* reply )
@@ -172,7 +271,15 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcNNCPropertiesService::createCallba
                                                          RiaNNCConnectionsStateHandler>( this,
                                                                                          &Self::GetNNCConnections,
                                                                                          &Self::RequestGetNNCConnections,
-                                                                                         new RiaNNCConnectionsStateHandler )};
+                                                                                         new RiaNNCConnectionsStateHandler ),
+                 new RiaGrpcServerToClientStreamCallback<Self,
+                                                         NNCValuesRequest,
+                                                         rips::NNCValues,
+                                                         RiaNNCValuesStateHandler>( this,
+                                                                                    &Self::GetNNCValues,
+                                                                                    &Self::RequestGetNNCValues,
+                                                                                    new RiaNNCValuesStateHandler )};
+
     return callbacks;
 }
 
