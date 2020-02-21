@@ -27,9 +27,8 @@ class ContourMap(View):
         view_id(int): View Id corresponding to the View Id in ResInsight project.
 
     """
-    def __init__(self, pdm_object, project, map_type):
-        View.__init__(self, pdm_object, project)
-        self.view_id = pdm_object.get_value("ViewId")
+    def __init__(self, pdm_object, map_type):
+        View.__init__(self, pdm_object)
         self.map_type = map_type
 
 
@@ -48,4 +47,4 @@ class ContourMap(View):
                 exportLocalCoordinates=export_local_coordinates,
                 undefinedValueLabel=undefined_value_label,
                 excludeUndefinedValues=exclude_undefined_values,
-                viewId=self.view_id))
+                viewId=self.id))

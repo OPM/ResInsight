@@ -74,7 +74,7 @@ void caf::AppEnum<Rim3dView::SurfaceModeType>::setUp()
 
 } // End namespace caf
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "GenericView" ); // Do not use. Abstract class
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "View", "GenericView" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -86,7 +86,10 @@ Rim3dView::Rim3dView( void )
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT( preferences );
 
-    RICF_InitField( &m_id, "ViewId", -1, "View ID", "", "", "" );
+    CAF_PDM_InitObject( "3d View", "", "", "" );
+
+    RICF_InitField( &m_id, "Id", -1, "View ID", "", "", "" );
+    m_id.xmlCapability()->registerKeywordAlias( "ViewId" );
     m_id.uiCapability()->setUiReadOnly( true );
     m_id.uiCapability()->setUiHidden( true );
     m_id.capability<RicfFieldHandle>()->setIOWriteable( false );
@@ -104,20 +107,21 @@ Rim3dView::Rim3dView( void )
     CAF_PDM_InitField( &m_cameraPointOfInterest, "CameraPointOfInterest", cvf::Vec3d::ZERO, "", "", "", "" );
     m_cameraPointOfInterest.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "" );
+    RICF_InitField( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "" );
 
     double defaultScaleFactor = preferences->defaultScaleFactorZ();
-    CAF_PDM_InitField( &scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "" );
+    RICF_InitField( &scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "" );
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
-    RICF_InitField( &m_backgroundColor, "ViewBackgroundColor", defBackgColor, "Background", "", "", "" );
+    RICF_InitField( &m_backgroundColor, "BackgroundColor", defBackgColor, "Background", "", "", "" );
+    m_backgroundColor.xmlCapability()->registerKeywordAlias( "ViewBackgroundColor" );
 
     CAF_PDM_InitField( &maximumFrameRate, "MaximumFrameRate", 10, "Maximum Frame Rate", "", "", "" );
     maximumFrameRate.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &hasUserRequestedAnimation, "AnimationMode", false, "Animation Mode", "", "", "" );
     hasUserRequestedAnimation.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "" );
+    RICF_InitField( &m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "" );
     m_currentTimeStep.uiCapability()->setUiHidden( true );
 
     caf::AppEnum<RiaDefines::MeshModeType> defaultMeshType = preferences->defaultMeshModeType();
@@ -126,15 +130,15 @@ Rim3dView::Rim3dView( void )
 
     RICF_InitField( &m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "" );
 
-    CAF_PDM_InitField( &m_disableLighting,
-                       "DisableLighting",
-                       false,
-                       "Disable Results Lighting",
-                       "",
-                       "Disable light model for scalar result colors",
-                       "" );
+    RICF_InitField( &m_disableLighting,
+                    "DisableLighting",
+                    false,
+                    "Disable Results Lighting",
+                    "",
+                    "Disable light model for scalar result colors",
+                    "" );
 
-    CAF_PDM_InitField( &m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "" );
+    RICF_InitField( &m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_comparisonView, "ComparisonView", "Comparison View", "", "", "" );
 
@@ -880,8 +884,11 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
     }
     else if ( changedField == &m_showZScaleLabel )
     {
-        m_viewer->showZScaleLabel( m_showZScaleLabel() );
-        m_viewer->update();
+        if ( m_viewer )
+        {
+            m_viewer->showZScaleLabel( m_showZScaleLabel() );
+            m_viewer->update();
+        }
     }
     else if ( changedField == &m_comparisonView )
     {

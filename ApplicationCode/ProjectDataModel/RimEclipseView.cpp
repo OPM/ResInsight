@@ -110,7 +110,7 @@
 
 #include <climits>
 
-CAF_PDM_SOURCE_INIT( RimEclipseView, "ReservoirView" );
+CAF_PDM_XML_SCRIPTABLE_SOURCE_INIT( RimEclipseView, "ReservoirView" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ RimEclipseView::RimEclipseView()
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT( preferences );
 
-    CAF_PDM_InitObject( "Reservoir View", ":/3DView16x16.png", "", "" );
+    CAF_PDM_InitObject( "Reservoir View", ":/3DView16x16.png", "", "The Eclipse 3d Reservoir View" );
 
     CAF_PDM_InitFieldNoDefault( &m_cellResult, "GridCellResult", "Cell Result", ":/CellResult.png", "", "" );
     m_cellResult = new RimEclipseCellColors();

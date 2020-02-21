@@ -61,7 +61,7 @@
 
 #include <regex>
 
-CAF_PDM_SOURCE_INIT( RimWellPath, "WellPathBase" );
+CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimWellPath, "WellPathBase" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -75,7 +75,8 @@ RimWellPath::RimWellPath()
 {
     CAF_PDM_InitObject( "WellPath", ":/Well.png", "", "" );
 
-    RICF_InitFieldNoDefault( &m_name, "WellPathName", "Name", "", "", "" );
+    RICF_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
+    m_name.xmlCapability()->registerKeywordAlias( "WellPathName" );
     m_name.uiCapability()->setUiReadOnly( true );
     m_name.uiCapability()->setUiHidden( true );
     m_name.xmlCapability()->disableIO();

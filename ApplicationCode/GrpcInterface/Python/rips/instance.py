@@ -204,7 +204,7 @@ class Instance:
                             self.client_version_string())
 
         # Service packages
-        self.project = Project(self.channel)
+        self.project = Project.create(self.channel)
 
         path = os.getcwd()
         self.set_start_dir(path=path)

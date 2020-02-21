@@ -101,7 +101,7 @@
 #include <QMenu>
 #include <algorithm>
 
-CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
+CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimProject, "Project", "ResInsightProject" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

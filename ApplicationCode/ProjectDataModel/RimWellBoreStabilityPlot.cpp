@@ -33,7 +33,7 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiGroup.h"
 
-CAF_PDM_SOURCE_INIT( RimWellBoreStabilityPlot, "WellBoreStabilityPlot" );
+CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimWellBoreStabilityPlot, "WellBoreStabilityPlot" );
 
 //--------------------------------------------------------------------------------------------------
 ///

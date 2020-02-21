@@ -5,7 +5,7 @@
 #include "RimTools.h"
 #include "cafUtils.h"
 
-CAF_PDM_SOURCE_INIT( RimFileWellPath, "WellPath" );
+CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimFileWellPath, "WellPath" );
 
 //--------------------------------------------------------------------------------------------------
 ///
