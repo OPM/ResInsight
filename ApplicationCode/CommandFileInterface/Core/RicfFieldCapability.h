@@ -215,8 +215,8 @@ template <typename FieldType>
 class RicfFieldCapability : public RicfFieldHandle
 {
 public:
-    RicfFieldCapability( FieldType* field, bool giveOwnership )
-        : RicfFieldHandle( field, giveOwnership )
+    RicfFieldCapability( FieldType* field, const QString& fieldName, bool giveOwnership )
+        : RicfFieldHandle( field, fieldName, giveOwnership )
     {
         m_field = field;
     }
@@ -250,10 +250,10 @@ private:
 };
 
 template <typename FieldType>
-void AddRicfCapabilityToField( FieldType* field )
+void AddRicfCapabilityToField( FieldType* field, const QString& fieldName )
 {
     if ( field->template capability<RicfFieldCapability<FieldType>>() == nullptr )
     {
-        new RicfFieldCapability<FieldType>( field, true );
+        new RicfFieldCapability<FieldType>( field, fieldName, true );
     }
 }

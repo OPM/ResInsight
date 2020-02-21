@@ -100,7 +100,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
                 QString     text;
                 QTextStream outStream( &text );
                 ricfHandle->writeFieldData( outStream, false );
-                ( *parametersMap )[keyword.toStdString()] = text.toStdString();
+                ( *parametersMap )[ricfHandle->fieldName().toStdString()] = text.toStdString();
             }
         }
     }
@@ -112,7 +112,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
 void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination )
 {
     CAF_ASSERT( source && destination && destination->xmlCapability() );
-    CAF_ASSERT( source->class_keyword() == destination->xmlCapability()->classKeyword().toStdString() );
+    CAF_ASSERT( destination->xmlCapability()->matchesClassKeyword( QString::fromStdString( source->class_keyword() ) ) );
 
     if ( destination->uiCapability() && destination->uiCapability()->objectToggleField() )
     {
@@ -139,7 +139,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
             auto ricfHandle = pdmValueField->template capability<RicfFieldHandle>();
             if ( ricfHandle )
             {
-                QString keyword = pdmValueField->keyword();
+                QString keyword = ricfHandle->fieldName();
                 QString value   = QString::fromStdString( parametersMap[keyword.toStdString()] );
 
                 QVariant oldValue, newValue;
