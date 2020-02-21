@@ -266,10 +266,10 @@ void RiaActiveCellInfoStateHandler::assignCellCenter( rips::Vec3d*              
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaActiveCellInfoStateHandler::assignCellCentersReply( rips::CellCenters* reply )
 {
-    const size_t packageSize  = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( rips::CellCenters ) );
-    size_t       packageIndex = 0u;
+    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::Vec3d ) );
+    size_t       indexInPackage = 0u;
     reply->mutable_centers()->Reserve( (int)packageSize );
-    for ( ; packageIndex < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++packageIndex )
+    for ( ; indexInPackage < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++indexInPackage )
     {
         rips::Vec3d  singleCellCenter;
         grpc::Status singleCellCenterStatus = assignNextActiveCellCenter( &singleCellCenter );
@@ -283,7 +283,7 @@ grpc::Status RiaActiveCellInfoStateHandler::assignCellCentersReply( rips::CellCe
             break;
         }
     }
-    if ( packageIndex > 0u )
+    if ( indexInPackage > 0u )
     {
         return Status::OK;
     }
@@ -350,10 +350,10 @@ void RiaActiveCellInfoStateHandler::assignCellCorners( rips::CellCorners*       
 //--------------------------------------------------------------------------------------------------
 Status RiaActiveCellInfoStateHandler::assignCellCornersReply( rips::CellCornersArray* reply )
 {
-    const size_t packageSize = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( rips::CellCornersArray ) );
-    size_t       packageIndex = 0u;
+    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::CellCorners ) );
+    size_t       indexInPackage = 0u;
     reply->mutable_cells()->Reserve( (int)packageSize );
-    for ( ; packageIndex < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++packageIndex )
+    for ( ; indexInPackage < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++indexInPackage )
     {
         rips::CellCorners singleCellCorners;
         grpc::Status      singleCellCornersStatus = assignNextActiveCellCorners( &singleCellCorners );
@@ -367,7 +367,7 @@ Status RiaActiveCellInfoStateHandler::assignCellCornersReply( rips::CellCornersA
             break;
         }
     }
-    if ( packageIndex > 0u )
+    if ( indexInPackage > 0u )
     {
         return Status::OK;
     }
@@ -640,10 +640,10 @@ grpc::Status RiaSelectedCellsStateHandler::assignReply( rips::SelectedCells* rep
         }
     }
 
-    const size_t packageSize  = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( rips::SelectedCells ) );
-    size_t       packageIndex = 0u;
+    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::SelectedCell ) );
+    size_t       indexInPackage = 0u;
     reply->mutable_cells()->Reserve( (int)packageSize );
-    for ( ; packageIndex < packageSize && m_currentItem < eclipseItems.size(); ++packageIndex )
+    for ( ; indexInPackage < packageSize && m_currentItem < eclipseItems.size(); ++indexInPackage )
     {
         rips::SelectedCell singleSelectedCell;
         grpc::Status       singleSelectedCellStatus = assignNextSelectedCell( &singleSelectedCell, eclipseItems );
@@ -658,7 +658,7 @@ grpc::Status RiaSelectedCellsStateHandler::assignReply( rips::SelectedCells* rep
         }
     }
 
-    if ( packageIndex > 0u )
+    if ( indexInPackage > 0u )
     {
         return Status::OK;
     }

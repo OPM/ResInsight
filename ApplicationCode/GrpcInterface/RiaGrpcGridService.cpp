@@ -79,10 +79,10 @@ grpc::Status RiaCellCenterStateHandler::init( const rips::GridRequest* request )
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaCellCenterStateHandler::assignReply( rips::CellCenters* reply )
 {
-    const size_t packageSize  = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( rips::CellCenters ) );
-    size_t       packageIndex = 0u;
+    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::Vec3d ) );
+    size_t       indexInPackage = 0u;
     reply->mutable_centers()->Reserve( (int)packageSize );
-    for ( ; packageIndex < packageSize && m_currentCellIdx < m_grid->cellCount(); ++packageIndex )
+    for ( ; indexInPackage < packageSize && m_currentCellIdx < m_grid->cellCount(); ++indexInPackage )
     {
         cvf::Vec3d center = m_grid->cell( m_currentCellIdx ).center();
 
@@ -94,7 +94,7 @@ grpc::Status RiaCellCenterStateHandler::assignReply( rips::CellCenters* reply )
         cellCenter->set_z( center.z() );
         m_currentCellIdx++;
     }
-    if ( packageIndex > 0u )
+    if ( indexInPackage > 0u )
     {
         return Status::OK;
     }
@@ -113,12 +113,12 @@ void setCornerValues( rips::Vec3d* out, const cvf::Vec3d& in )
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaCellCenterStateHandler::assignCornersReply( rips::CellCornersArray* reply )
 {
-    const size_t packageSize = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( rips::CellCornersArray ) );
-    size_t       packageIndex = 0u;
+    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::CellCorners ) );
+    size_t       indexInPackage = 0u;
     reply->mutable_cells()->Reserve( (int)packageSize );
 
     cvf::Vec3d cornerVerts[8];
-    for ( ; packageIndex < packageSize && m_currentCellIdx < m_grid->cellCount(); ++packageIndex )
+    for ( ; indexInPackage < packageSize && m_currentCellIdx < m_grid->cellCount(); ++indexInPackage )
     {
         m_grid->cellCornerVertices( m_currentCellIdx, cornerVerts );
         for ( cvf::Vec3d& corner : cornerVerts )
@@ -138,7 +138,7 @@ grpc::Status RiaCellCenterStateHandler::assignCornersReply( rips::CellCornersArr
 
         m_currentCellIdx++;
     }
-    if ( packageIndex > 0u )
+    if ( indexInPackage > 0u )
     {
         return Status::OK;
     }
