@@ -192,7 +192,7 @@ void RiaProjectModifier::replaceCase( RimProject* project )
                     }
                     else if ( geomechCase )
                     {
-                        geomechCase->setFileName( replaceFileName );
+                        geomechCase->setGridFileName( replaceFileName );
                         geomechCase->caseUserDescription = caseNameFromGridFileName( replaceFileName );
                     }
                 }

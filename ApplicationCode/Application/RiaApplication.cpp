@@ -829,7 +829,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
     QString   caseName = gridFileName.completeBaseName();
 
     RimGeoMechCase* geoMechCase = new RimGeoMechCase();
-    geoMechCase->setFileName( fileName );
+    geoMechCase->setGridFileName( fileName );
     geoMechCase->caseUserDescription = caseName;
     geoMechCase->setApplyTimeFilter( applyTimeStepFilter );
     m_project->assignCaseIdToCase( geoMechCase );

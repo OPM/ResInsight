@@ -48,7 +48,6 @@ public:
     RimEclipseResultCase();
     ~RimEclipseResultCase() override;
 
-    void setGridFileName( const QString& fileName );
     void setCaseInfo( const QString& userDescription, const QString& fileName );
     void setSourSimFileName( const QString& fileName );
     bool hasSourSimFile();
@@ -64,7 +63,6 @@ public:
 
     // Overrides from RimCase
     QString locationOnDisc() const override;
-    QString gridFileName() const override { return caseFileName().path(); }
     void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
     RimFlowDiagSolution*              defaultFlowDiagSolution();
@@ -94,7 +92,6 @@ private:
     cvf::ref<RifReaderEclipseRft> m_readerEclipseRft;
 
     // Fields:
-    caf::PdmField<caf::FilePath>                                 caseFileName;
     caf::PdmProxyValueField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*>                m_flowDiagSolutions;
     caf::PdmField<caf::FilePath>                                 m_sourSimFileName;
