@@ -39,8 +39,10 @@ class QTextStream;
 class RicfFieldHandle : public caf::PdmFieldCapability
 {
 public:
-    RicfFieldHandle( caf::PdmFieldHandle* owner, bool giveOwnership );
+    RicfFieldHandle( caf::PdmFieldHandle* owner, const QString& fieldName, bool giveOwnership );
     ~RicfFieldHandle() override;
+
+    const QString& fieldName() const;
 
     bool isIOWriteable() const { return m_IOWriteable; }
 
@@ -54,5 +56,6 @@ public:
 
 private:
     caf::PdmFieldHandle* m_owner;
+    QString              m_fieldName;
     bool                 m_IOWriteable;
 };
