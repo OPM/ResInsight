@@ -150,7 +150,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
             if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
             {
                 QString displayMessage = errorMessage.empty()
-                                             ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName()
+                                             ? "Could not open the Odb file: \n" + m_geomechCase->gridFileName()
                                              : QString::fromStdString( errorMessage );
 
                 if ( RiaGuiApplication::isRunning() )
