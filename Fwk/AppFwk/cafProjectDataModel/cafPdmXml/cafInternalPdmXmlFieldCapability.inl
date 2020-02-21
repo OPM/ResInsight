@@ -247,7 +247,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
         else
         {
             PdmXmlObjectHandle* xmlObject = xmlObj(obj);
-            if (!xmlObject || xmlObject->classKeyword() != className)
+            if (!xmlObject || !xmlObject->matchesClassKeyword(className))
             {
                 CAF_ASSERT(false); // Inconsistency in the factory. It creates objects of wrong type from the ClassKeyword
 
@@ -267,7 +267,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
     }
 
     PdmXmlObjectHandle* xmlObject = xmlObj(obj);
-    if (!xmlObject || xmlObject->classKeyword() != className)
+    if (!xmlObject || !xmlObject->matchesClassKeyword(className))
     {
         // Error: Field contains different class type than on file
         std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Unknown object type with class name: " << className.toLatin1().data() << " found while reading the field : " << m_field->keyword().toLatin1().data() << std::endl;
@@ -382,7 +382,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
         }
 
         PdmXmlObjectHandle* xmlObject = xmlObj(obj);
-        if (!xmlObject || xmlObject->classKeyword() != className)
+        if (!xmlObject || !xmlObject->matchesClassKeyword(className))
         {
             CAF_ASSERT(false); // There is an inconsistency in the factory. It creates objects of type not matching the ClassKeyword
 

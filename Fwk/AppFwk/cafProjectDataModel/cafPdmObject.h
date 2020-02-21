@@ -77,9 +77,12 @@ class PdmObjectCapability;
 #define CAF_PDM_SOURCE_INIT CAF_PDM_XML_SOURCE_INIT
 #define CAF_PDM_ABSTRACT_SOURCE_INIT CAF_PDM_XML_ABSTRACT_SOURCE_INIT
 
+#define CAF_PDM_SCRIPTABLE_SOURCE_INIT CAF_PDM_XML_SCRIPTABLE_SOURCE_INIT
 
 /// InitObject sets up the user interface related information for the object
 /// Placed in the constructor of your PdmObject
+/// Note that classKeyword() is not virtual in the constructor of the PdmObject
+/// This is expected and fine.
 
 #define CAF_PDM_InitObject(uiName, iconResourceName, toolTip, whatsThis) \
 { \
@@ -95,6 +98,8 @@ class PdmObjectCapability;
 /// adds the field to the internal data structure in the PdmObject, 
 /// sets the default value for the field, 
 /// and sets up the static user interface related information for the field
+/// Note that classKeyword() is not virtual in the constructor of the PdmObject
+/// This is expected and fine.
 
 #define CAF_PDM_InitField(field, keyword, default, uiName, iconResourceName, toolTip, whatsThis) \
 { \
@@ -107,12 +112,15 @@ class PdmObjectCapability;
     \
     AddXmlCapabilityToField(field); \
     AddUiCapabilityToField(field); \
+    RegisterClassWithField(classKeyword(), field); \
     \
     static caf::PdmUiItemInfo objDescr(uiName, QString(iconResourceName), toolTip, whatsThis, keyword); \
     addFieldUi(field, keyword, default, &objDescr); \
 }
 
 /// InitFieldNoDefault does the same as InitField but omits the default value.
+/// Note that classKeyword() is not virtual in the constructor of the PdmObject
+/// This is expected and fine.
 
 #define CAF_PDM_InitFieldNoDefault(field, keyword, uiName, iconResourceName, toolTip, whatsThis) \
 { \
@@ -125,6 +133,7 @@ class PdmObjectCapability;
     \
     AddXmlCapabilityToField(field); \
     AddUiCapabilityToField(field); \
+    RegisterClassWithField(classKeyword(), field); \
     \
     static caf::PdmUiItemInfo objDescr(uiName, QString(iconResourceName), toolTip, whatsThis, keyword); \
     addFieldUiNoDefault(field, keyword, &objDescr); \
@@ -141,11 +150,10 @@ namespace caf
 class PdmObject : public PdmObjectHandle, public PdmXmlObjectHandle, public PdmUiObjectHandle
 {
 public:
+    CAF_PDM_HEADER_INIT;
+
     PdmObject();
     ~PdmObject() override {}
-
-    static QString classKeywordStatic();
-    static std::vector<QString> classKeywordAliases();
 
     /// Adds field to the internal data structure and sets the file keyword and Ui information 
     /// Consider this method private. Please use the CAF_PDM_InitField() macro instead
@@ -186,6 +194,7 @@ public:
     void childrenFromClassKeyword(
         const QString& classKeyword,
         std::vector<PdmObject*>& children) const;
+    
 };
 
 } // End of namespace caf
