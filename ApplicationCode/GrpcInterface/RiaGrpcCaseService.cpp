@@ -189,10 +189,13 @@ const std::vector<RigCell>& RiaActiveCellInfoStateHandler::reservoirCells() cons
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaActiveCellInfoStateHandler::assignReply( rips::CellInfoArray* reply )
 {
-    const size_t packageSize  = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( rips::CellInfoArray ) );
-    size_t       packageIndex = 0u;
+    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::CellInfo ) );
+    size_t       indexInPackage = 0u;
     reply->mutable_data()->Reserve( (int)packageSize );
-    for ( ; packageIndex < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++packageIndex )
+
+    // Stream until you've reached the package size or total cell count. Whatever comes first.
+    // If you've reached the package size you'll come back for another round.
+    for ( ; indexInPackage < packageSize && m_currentCellIdx < m_activeCellInfo->reservoirCellCount(); ++indexInPackage )
     {
         rips::CellInfo singleCellInfo;
         grpc::Status   singleCellInfoStatus = assignNextActiveCellInfoData( &singleCellInfo );
@@ -206,7 +209,7 @@ grpc::Status RiaActiveCellInfoStateHandler::assignReply( rips::CellInfoArray* re
             break;
         }
     }
-    if ( packageIndex > 0u )
+    if ( indexInPackage > 0u )
     {
         return Status::OK;
     }

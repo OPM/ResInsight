@@ -142,14 +142,18 @@ public:
     //--------------------------------------------------------------------------------------------------
     Status assignStreamReply( PropertyChunk* reply )
     {
-        const size_t packageSize = RiaGrpcServiceInterface::numberOfMessagesForByteCount( sizeof( rips::PropertyChunk ) );
-        size_t       packageIndex = 0u;
+        // How many data units will fit into one stream package?
+        const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( double ) );
+        size_t       indexInPackage = 0u;
         reply->mutable_values()->Reserve( (int)packageSize );
-        for ( ; packageIndex < packageSize && m_streamedValueCount < m_cellCount; ++packageIndex, ++m_streamedValueCount )
+
+        // Stream until you've reached the package size or total cell count. Whatever comes first.
+        // If you've reached the package size you'll come back for another round.
+        for ( ; indexInPackage < packageSize && m_streamedValueCount < m_cellCount; ++indexInPackage, ++m_streamedValueCount )
         {
             reply->add_values( cellResult( m_streamedValueCount ) );
         }
-        if ( packageIndex > 0u )
+        if ( indexInPackage > 0u )
         {
             return grpc::Status::OK;
         }
@@ -274,12 +278,6 @@ protected:
                            size_t                        timeStepIndex,
                            RigEclipseResultAddress       resVarAddr ) override
     {
-        auto resultValues = caseData->results( porosityModel )->modifiableCellScalarResult( resVarAddr, timeStepIndex );
-        if ( resultValues->empty() )
-        {
-            resultValues->resize( caseData->grid( gridIndex )->cellCount() );
-        }
-
         m_resultAccessor =
             RigResultAccessorFactory::createFromResultAddress( caseData, gridIndex, porosityModel, timeStepIndex, resVarAddr );
         m_resultModifier =
