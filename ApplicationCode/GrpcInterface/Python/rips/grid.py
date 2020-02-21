@@ -28,7 +28,7 @@ class Grid:
         Returns:
             Vec3i: class with integer attributes i, j, k giving extent in all three dimensions.
         """
-        case_request = Case_pb2.CaseRequest(id=self.case.case_id)
+        case_request = Case_pb2.CaseRequest(id=self.case.id)
         return self.__stub.GetDimensions(
             Grid_pb2.GridRequest(case_request=case_request,
                                  grid_index=self.index)).dimensions
@@ -40,7 +40,7 @@ class Grid:
         Returns:
             Iterator to a list of Vec3d: class with double attributes x, y, x giving cell centers
         """
-        case_request = Case_pb2.CaseRequest(id=self.case.case_id)
+        case_request = Case_pb2.CaseRequest(id=self.case.id)
         chunks = self.__stub.GetCellCenters(
             Grid_pb2.GridRequest(case_request=case_request,
                                  grid_index=self.index))
@@ -66,7 +66,7 @@ class Grid:
         Returns:
             iterator to a list of CellCorners: a class with Vec3d for each corner (c0, c1.., c7)
         """
-        case_request = Case_pb2.CaseRequest(id=self.case.case_id)
+        case_request = Case_pb2.CaseRequest(id=self.case.id)
         chunks = self.__stub.GetCellCorners(
             Grid_pb2.GridRequest(case_request=case_request,
                                  grid_index=self.index))

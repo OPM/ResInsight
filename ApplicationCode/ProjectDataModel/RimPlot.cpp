@@ -25,7 +25,7 @@ void RimPlot::RowOrColSpanEnum::setUp()
 }
 } // namespace caf
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlot, "RimPlot" ); // Do not use. Abstract class
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlot, "Plot", "RimPlot" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
 ///

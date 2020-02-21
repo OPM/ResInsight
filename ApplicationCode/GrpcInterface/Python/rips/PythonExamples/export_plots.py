@@ -15,7 +15,7 @@ print("Exporting to: " + export_folder)
 for plot in plots:
 	plot.export_snapshot(export_folder=export_folder)
 	plot.export_snapshot(export_folder=export_folder, output_format='PDF')
-	well_log_plot = rips.WellLogPlot.from_pdm_object(plot)
+	well_log_plot = plot.cast(rips.WellLogPlot)
 	if well_log_plot is not None:
 		well_log_plot.export_data_as_las(export_folder=export_folder)
 		well_log_plot.export_data_as_ascii(export_folder=export_folder)

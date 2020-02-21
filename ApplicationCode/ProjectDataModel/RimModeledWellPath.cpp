@@ -32,7 +32,7 @@
 #include "RimWellPathFractureCollection.h"
 #include "cafPdmUiTreeOrdering.h"
 
-CAF_PDM_SOURCE_INIT( RimModeledWellPath, "ModeledWellPath" );
+CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimModeledWellPath, "ModeledWellPath" );
 
 //--------------------------------------------------------------------------------------------------
 ///

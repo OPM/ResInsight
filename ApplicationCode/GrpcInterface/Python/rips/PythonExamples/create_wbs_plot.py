@@ -33,8 +33,8 @@ for case in cases:
     if case.type == "GeoMechCase":
         min_res_depth, max_res_depth = case.reservoir_depth_range()
 	
-        print (case.case_id)
-        case_path = case.grid_path()
+        print (case.id)
+        case_path = case.file_path
         folder_name = os.path.dirname(case_path)
         case.import_formation_names(formation_files=['D:/Projects/ResInsight-regression-test/ModelData/norne/Norne_ATW2013.lyr'])
 
@@ -45,16 +45,19 @@ for case in cases:
         for well_path in well_paths:
             try:
                 # Create plot with parameters
-                wbsplot = case.create_well_bore_stability_plot(well_path=well_path, time_step=0, wbs_parameters=wbs_parameters)
+                wbsplot = case.create_well_bore_stability_plot(well_path=well_path.name, time_step=0, wbs_parameters=wbs_parameters)
                 # Example of setting parameters for existing plots
                 replace_params = wbsplot.parameters()
                 replace_params.user_poisson_ratio = 0.654321
                 replace_params.user_fg_shale = 1.0321
                 wbsplot.set_parameters(replace_params)
                 # Demonstrate altering general well log plot settings
-                min_depth, max_depth = wbsplot.depth_range()
-                wbsplot.set_depth_range(max(min_depth, min_res_depth), min(max_depth, max_res_depth))
-                #wbsplot.set_depth_type("TRUE_VERTICAL_DEPTH_RKB")         
+                min_depth = max(wbsplot.minimum_depth, min_res_depth)
+                max_depth = min(wbsplot.maximum_depth, max_res_depth)
+                wbsplot.minimum_depth = min_depth
+                wbsplot.maximum_depth = max_depth
+                wbsplot.update()
+                #wbsplot.depth_type = "TRUE_VERTICAL_DEPTH_RKB"
                 
                 wbsplot.export_snapshot(export_folder=dirname)
 

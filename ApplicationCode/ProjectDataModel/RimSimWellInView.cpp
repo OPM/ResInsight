@@ -55,16 +55,17 @@
 //--------------------------------------------------------------------------------------------------
 Rim2dIntersectionView* corresponding2dIntersectionView( RimSimWellInView* simWellInView );
 
-CAF_PDM_SOURCE_INIT( RimSimWellInView, "Well" );
+CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimSimWellInView, "SimulationWell", "Well" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView::RimSimWellInView()
 {
-    CAF_PDM_InitObject( "Well", ":/Well.png", "", "" );
+    CAF_PDM_InitObject( "Simulation Well", ":/Well.png", "", "" );
 
-    RICF_InitFieldNoDefault( &name, "WellName", "Name", "", "", "" );
+    RICF_InitFieldNoDefault( &name, "Name", "Name", "", "", "" );
+    name.xmlCapability()->registerKeywordAlias( "WellName" );
 
     CAF_PDM_InitField( &showWell, "ShowWell", true, "Show well ", "", "", "" );
 
