@@ -13,6 +13,7 @@ set ( SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppService.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.h
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcNNCPropertiesService.h
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPdmObjectService.h
 )
 
@@ -27,6 +28,7 @@ set ( SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCommandService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcAppService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPropertiesService.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcNNCPropertiesService.cpp
 	${CMAKE_CURRENT_LIST_DIR}/RiaGrpcPdmObjectService.cpp
 )
 
@@ -88,6 +90,7 @@ set(PROTO_FILES
     "SimulationWell"
     "Project"
     "Commands"
+    "NNCProperties"
     "App"
 	"Properties"
 	"Grid"
