@@ -18,6 +18,7 @@
 #include "RiaGrpcGridService.h"
 
 #include "RiaGrpcCallbacks.h"
+#include "RiaGrpcHelper.h"
 
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
@@ -26,15 +27,6 @@
 #include "RimEclipseCase.h"
 
 using namespace rips;
-
-//--------------------------------------------------------------------------------------------------
-/// Convert internal ResInsight representation of cells with negative depth to positive depth.
-//--------------------------------------------------------------------------------------------------
-static inline void convertVec3dToPositiveDepth( cvf::Vec3d* vec )
-{
-    double& z = vec->z();
-    z *= -1;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -86,7 +78,7 @@ grpc::Status RiaCellCenterStateHandler::assignReply( rips::CellCenters* reply )
     {
         cvf::Vec3d center = m_grid->cell( m_currentCellIdx ).center();
 
-        convertVec3dToPositiveDepth( &center );
+        RiaGrpcHelper::convertVec3dToPositiveDepth( &center );
 
         Vec3d* cellCenter = reply->add_centers();
         cellCenter->set_x( center.x() );
@@ -99,13 +91,6 @@ grpc::Status RiaCellCenterStateHandler::assignReply( rips::CellCenters* reply )
         return Status::OK;
     }
     return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
-}
-
-void setCornerValues( rips::Vec3d* out, const cvf::Vec3d& in )
-{
-    out->set_x( in.x() );
-    out->set_y( in.y() );
-    out->set_z( in.z() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,18 +108,18 @@ grpc::Status RiaCellCenterStateHandler::assignCornersReply( rips::CellCornersArr
         m_grid->cellCornerVertices( m_currentCellIdx, cornerVerts );
         for ( cvf::Vec3d& corner : cornerVerts )
         {
-            convertVec3dToPositiveDepth( &corner );
+            RiaGrpcHelper::convertVec3dToPositiveDepth( &corner );
         }
 
         rips::CellCorners* corners = reply->add_cells();
-        setCornerValues( corners->mutable_c0(), cornerVerts[0] );
-        setCornerValues( corners->mutable_c1(), cornerVerts[1] );
-        setCornerValues( corners->mutable_c2(), cornerVerts[2] );
-        setCornerValues( corners->mutable_c3(), cornerVerts[3] );
-        setCornerValues( corners->mutable_c4(), cornerVerts[4] );
-        setCornerValues( corners->mutable_c5(), cornerVerts[5] );
-        setCornerValues( corners->mutable_c6(), cornerVerts[6] );
-        setCornerValues( corners->mutable_c7(), cornerVerts[7] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c0(), cornerVerts[0] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c1(), cornerVerts[1] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c2(), cornerVerts[2] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c3(), cornerVerts[3] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c4(), cornerVerts[4] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c5(), cornerVerts[5] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c6(), cornerVerts[6] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c7(), cornerVerts[7] );
 
         m_currentCellIdx++;
     }

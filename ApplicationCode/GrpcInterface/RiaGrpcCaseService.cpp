@@ -16,7 +16,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcCaseService.h"
+
 #include "RiaGrpcCallbacks.h"
+#include "RiaGrpcHelper.h"
 #include "RiaSocketTools.h"
 
 #include "RigActiveCellInfo.h"
@@ -31,15 +33,6 @@
 #include "Riu3dSelectionManager.h"
 
 using namespace rips;
-
-//--------------------------------------------------------------------------------------------------
-/// Convert internal ResInsight representation of cells with negative depth to positive depth.
-//--------------------------------------------------------------------------------------------------
-static inline void convertVec3dToPositiveDepth( cvf::Vec3d* vec )
-{
-    double& z = vec->z();
-    z *= -1;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -254,7 +247,7 @@ void RiaActiveCellInfoStateHandler::assignCellCenter( rips::Vec3d*              
 {
     cvf::Vec3d center = reservoirCells[cellIdx].center();
 
-    convertVec3dToPositiveDepth( &center );
+    RiaGrpcHelper::convertVec3dToPositiveDepth( &center );
 
     cellCenter->set_x( center.x() );
     cellCenter->set_y( center.y() );
@@ -312,17 +305,6 @@ Status RiaActiveCellInfoStateHandler::assignNextActiveCellCorners( rips::CellCor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// TODO: duped with TestGrpcGridService
-void setCornerValues2( rips::Vec3d* out, const cvf::Vec3d& in )
-{
-    out->set_x( in.x() );
-    out->set_y( in.y() );
-    out->set_z( in.z() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiaActiveCellInfoStateHandler::assignCellCorners( rips::CellCorners*          corners,
                                                        const std::vector<RigCell>& reservoirCells,
                                                        size_t                      cellIdx )
@@ -332,17 +314,17 @@ void RiaActiveCellInfoStateHandler::assignCellCorners( rips::CellCorners*       
     grid->cellCornerVertices( cellIdx, cornerVerts );
     for ( cvf::Vec3d& corner : cornerVerts )
     {
-        convertVec3dToPositiveDepth( &corner );
+        RiaGrpcHelper::convertVec3dToPositiveDepth( &corner );
     }
 
-    setCornerValues2( corners->mutable_c0(), cornerVerts[0] );
-    setCornerValues2( corners->mutable_c1(), cornerVerts[1] );
-    setCornerValues2( corners->mutable_c2(), cornerVerts[2] );
-    setCornerValues2( corners->mutable_c3(), cornerVerts[3] );
-    setCornerValues2( corners->mutable_c4(), cornerVerts[4] );
-    setCornerValues2( corners->mutable_c5(), cornerVerts[5] );
-    setCornerValues2( corners->mutable_c6(), cornerVerts[6] );
-    setCornerValues2( corners->mutable_c7(), cornerVerts[7] );
+    RiaGrpcHelper::setCornerValues( corners->mutable_c0(), cornerVerts[0] );
+    RiaGrpcHelper::setCornerValues( corners->mutable_c1(), cornerVerts[1] );
+    RiaGrpcHelper::setCornerValues( corners->mutable_c2(), cornerVerts[2] );
+    RiaGrpcHelper::setCornerValues( corners->mutable_c3(), cornerVerts[3] );
+    RiaGrpcHelper::setCornerValues( corners->mutable_c4(), cornerVerts[4] );
+    RiaGrpcHelper::setCornerValues( corners->mutable_c5(), cornerVerts[5] );
+    RiaGrpcHelper::setCornerValues( corners->mutable_c6(), cornerVerts[6] );
+    RiaGrpcHelper::setCornerValues( corners->mutable_c7(), cornerVerts[7] );
 }
 
 //--------------------------------------------------------------------------------------------------
