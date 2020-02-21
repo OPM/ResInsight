@@ -35,6 +35,9 @@
 
 #include "Rim3dView.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
+
+#include "Riu3dSelectionManager.h"
 
 #include <algorithm>
 
@@ -263,6 +266,73 @@ private:
     std::vector<double>* m_resultValues;
 };
 
+class RiaSelectedCellResultsStateHandler : public RiaCellResultsStateHandler
+{
+public:
+    RiaSelectedCellResultsStateHandler( bool clientStreamer = false )
+        : RiaCellResultsStateHandler( clientStreamer )
+    {
+    }
+
+protected:
+    void initResultAccess( RigEclipseCaseData*           caseData,
+                           size_t                        gridIndex,
+                           RiaDefines::PorosityModelType porosityModel,
+                           size_t                        timeStepIndex,
+                           RigEclipseResultAddress       resVarAddr ) override
+    {
+        std::vector<RiuSelectionItem*> items;
+        Riu3dSelectionManager::instance()->selectedItems( items );
+
+        // Only eclipse cases are currently supported. Also filter by case.
+        std::vector<RiuEclipseSelectionItem*> eclipseItems;
+        for ( auto item : items )
+        {
+            RiuEclipseSelectionItem* eclipseItem = dynamic_cast<RiuEclipseSelectionItem*>( item );
+            if ( eclipseItem && eclipseItem->m_resultDefinition->eclipseCase()->caseId == caseData->ownerCase()->caseId )
+            {
+                eclipseItems.push_back( eclipseItem );
+            }
+        }
+
+        m_cellCount = eclipseItems.size();
+        if ( m_resultValues.empty() )
+        {
+            m_resultValues.resize( m_cellCount );
+        }
+
+        for ( size_t idx = 0; idx < m_cellCount; idx++ )
+        {
+            const RiuEclipseSelectionItem* item = eclipseItems[idx];
+
+            CVF_ASSERT( item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT );
+            size_t cellIndex = item->m_gridLocalCellIndex;
+
+            cvf::ref<RigResultAccessor> resultAccessor =
+                RigResultAccessorFactory::createFromResultAddress( caseData, gridIndex, porosityModel, timeStepIndex, resVarAddr );
+
+            if ( resultAccessor.isNull() )
+            {
+                continue;
+            }
+
+            double cellValue = resultAccessor->cellScalar( cellIndex );
+            if ( cellValue == HUGE_VAL )
+            {
+                cellValue = 0.0;
+            }
+            m_resultValues[idx] = cellValue;
+        }
+    }
+
+    double cellResult( size_t currentCellIndex ) const override { return m_resultValues[currentCellIndex]; }
+
+    void setCellResult( size_t currentCellIndex, double value ) override { m_resultValues[currentCellIndex] = value; }
+
+private:
+    std::vector<double> m_resultValues;
+};
+
 class RiaGridCellResultsStateHandler : public RiaCellResultsStateHandler
 {
 public:
@@ -335,6 +405,17 @@ grpc::Status RiaGrpcPropertiesService::GetActiveCellProperty( grpc::ServerContex
                                                               const PropertyRequest*            request,
                                                               PropertyChunk*                    reply,
                                                               RiaActiveCellResultsStateHandler* stateHandler )
+{
+    return stateHandler->assignStreamReply( reply );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcPropertiesService::GetSelectedCellProperty( grpc::ServerContext*                context,
+                                                                const PropertyRequest*              request,
+                                                                PropertyChunk*                      reply,
+                                                                RiaSelectedCellResultsStateHandler* stateHandler )
 {
     return stateHandler->assignStreamReply( reply );
 }
@@ -418,6 +499,15 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcPropertiesService::createCallbacks
                                                                                      &Self::GetGridProperty,
                                                                                      &Self::RequestGetGridProperty,
                                                                                      new RiaGridCellResultsStateHandler ) );
+
+        callbacks.push_back(
+            new RiaGrpcServerToClientStreamCallback<Self,
+                                                    PropertyRequest,
+                                                    PropertyChunk,
+                                                    RiaSelectedCellResultsStateHandler>( this,
+                                                                                         &Self::GetSelectedCellProperty,
+                                                                                         &Self::RequestGetSelectedCellProperty,
+                                                                                         new RiaSelectedCellResultsStateHandler ) );
     }
     return callbacks;
 }

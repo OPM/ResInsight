@@ -10,8 +10,11 @@ service Case
 	rpc GetGridCount(CaseRequest) returns(GridCount) {}
 	rpc GetCellCount(CellInfoRequest) returns (CellCount) {}
 	rpc GetCellInfoForActiveCells(CellInfoRequest) returns (stream CellInfoArray) {}
+	rpc GetCellCenterForActiveCells(CellInfoRequest) returns (stream CellCenters) {}
+	rpc GetCellCornersForActiveCells(CellInfoRequest) returns (stream CellCornersArray) {}
 	rpc GetCoarseningInfoArray(CaseRequest) returns (CoarseningInfoArray) {}
 	rpc GetTimeSteps(CaseRequest) returns (TimeStepDates) {}
+	rpc GetSelectedCells(CaseRequest) returns (stream SelectedCells) {}
 	rpc GetDaysSinceStart(CaseRequest) returns (DaysSinceStart) {}
 	rpc GetCaseInfo(CaseRequest) returns (CaseInfo) {}
 	rpc GetPdmObject(CaseRequest) returns (PdmObject) {}
@@ -122,4 +125,16 @@ message TimeStepDate
 message DaysSinceStart
 {
 	repeated double day_decimals = 1;
+}
+
+message SelectedCell
+{
+	int32 grid_index = 1;
+	Vec3i ijk        = 2;
+}
+
+
+message SelectedCells
+{
+	repeated SelectedCell cells = 1;
 }

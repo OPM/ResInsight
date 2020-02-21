@@ -7,7 +7,8 @@ import "Case.proto";
 
 service Grid
 {
-	rpc GetCellCenters(GridRequest) returns(CellCenters) {}
+	rpc GetCellCenters(GridRequest) returns(stream CellCenters) {}
+	rpc GetCellCorners(GridRequest) returns(stream CellCornersArray) {}
 	rpc GetDimensions(GridRequest) returns (GridDimensions) {}
 }
 
@@ -17,19 +18,8 @@ message GridRequest
 	int32         grid_index = 2;
 }
 
-message Vec3d
-{
-	double x = 1;
-	double y = 2;
-	double z = 3;
-}
-
-message CellCenters
-{
-	repeated Vec3d centers = 1;
-}
-
 message GridDimensions
 {
 	Vec3i dimensions = 1;
 }
+

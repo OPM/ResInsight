@@ -585,6 +585,61 @@ class Case(PdmObject):
                 all_values.append(value)
         return all_values
 
+    def selected_cell_property_async(self,
+                                     property_type,
+                                     property_name,
+                                     time_step,
+                                     porosity_model="MATRIX_MODEL"):
+        """Get a cell property for all selected cells. Async, so returns an iterator
+
+            Arguments:
+                property_type(str): string enum. See available()
+                property_name(str): name of an Eclipse property
+                time_step(int): the time step for which to get the property for
+                porosity_model(str): string enum. See available()
+
+            Returns:
+                An iterator to a chunk object containing an array of double values
+                Loop through the chunks and then the values within the chunk to get all values.
+        """
+        property_type_enum = Properties_pb2.PropertyType.Value(property_type)
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
+        request = Properties_pb2.PropertyRequest(
+            case_request=self.__request,
+            property_type=property_type_enum,
+            property_name=property_name,
+            time_step=time_step,
+            porosity_model=porosity_model_enum,
+        )
+        for chunk in self.__properties_stub.GetSelectedCellProperty(request):
+            yield chunk
+
+    def selected_cell_property(self,
+                               property_type,
+                               property_name,
+                               time_step,
+                               porosity_model="MATRIX_MODEL"):
+        """Get a cell property for all selected cells. Sync, so returns a list
+
+            Arguments:
+                property_type(str): string enum. See available()
+                property_name(str): name of an Eclipse property
+                time_step(int): the time step for which to get the property for
+                porosity_model(str): string enum. See available()
+
+            Returns:
+                A list containing double values
+                Loop through the chunks and then the values within the chunk to get all values.
+        """
+        all_values = []
+        generator = self.selected_cell_property_async(property_type,
+                                                      property_name, time_step,
+                                                      porosity_model)
+        for chunk in generator:
+            for value in chunk.values:
+                all_values.append(value)
+        return all_values
+
     def grid_property_async(
             self,
             property_type,
@@ -820,3 +875,108 @@ class Case(PdmObject):
         for pdm_object in pdm_objects:
             wells.append(SimulationWell(pdm_object.get_value("WellName"), self.case_id, pdm_object))
         return wells
+
+
+    def active_cell_centers_async(
+            self,
+            porosity_model="MATRIX_MODEL",
+    ):
+        """Get a cell centers for all active cells. Async, so returns an iterator
+
+            Arguments:
+                porosity_model(str): string enum. See available()
+
+            Returns:
+                An iterator to a chunk object containing an array of Vec3d values.
+                Loop through the chunks and then the values within the chunk to get all values.
+        """
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
+        request = Case_pb2.CellInfoRequest(case_request=self.__request,
+                                           porosity_model=porosity_model_enum)
+        return self.__case_stub.GetCellCenterForActiveCells(request)
+
+    def active_cell_centers(
+            self,
+            porosity_model="MATRIX_MODEL",
+    ):
+        """Get a cell centers for all active cells. Synchronous, so returns a list.
+
+            Arguments:
+                porosity_model(str): string enum. See available()
+
+            Returns:
+                A list of Vec3d
+        """
+        cell_centers = []
+        generator = self.active_cell_centers_async(porosity_model)
+        for chunk in generator:
+            for value in chunk.centers:
+                cell_centers.append(value)
+        return cell_centers
+
+    def active_cell_corners_async(
+            self,
+            porosity_model="MATRIX_MODEL",
+    ):
+        """Get a cell corners for all active cells. Async, so returns an iterator
+
+            Arguments:
+                porosity_model(str): string enum. See available()
+
+            Returns:
+                An iterator to a chunk object containing an array of CellCorners (which is eight Vec3d values).
+                Loop through the chunks and then the values within the chunk to get all values.
+        """
+        porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
+        request = Case_pb2.CellInfoRequest(case_request=self.__request,
+                                           porosity_model=porosity_model_enum)
+        return self.__case_stub.GetCellCornersForActiveCells(request)
+
+    def active_cell_corners(
+            self,
+            porosity_model="MATRIX_MODEL",
+    ):
+        """Get a cell corners for all active cells. Synchronous, so returns a list.
+
+            Arguments:
+                porosity_model(str): string enum. See available()
+
+            Returns:
+                A list of CellCorners
+        """
+        cell_corners = []
+        generator = self.active_cell_corners_async(porosity_model)
+        for chunk in generator:
+            for value in chunk.cells:
+                cell_corners.append(value)
+        return cell_corners
+
+    def selected_cells_async(self):
+        """Get the selected cells. Async, so returns an iterator.
+            Returns:
+                An iterator to a chunk object containing an array of cells.
+                Loop through the chunks and then the cells within the chunk to get all cells.
+        """
+        return self.__case_stub.GetSelectedCells(self.__request)
+
+    def selected_cells(self):
+        """Get the selected cells. Synchronous, so returns a list.
+
+            Returns:
+                A list of Cells.
+        """
+        cells = []
+        generator = self.selected_cells_async()
+        for chunk in generator:
+            for value in chunk.cells:
+                cells.append(value)
+        return cells
+
+    def coarsening_info(self):
+        """Get a coarsening information for all grids in the case.
+
+            Returns:
+                A list of CoarseningInfo objects with two Vec3i min and max objects
+                for each entry.
+        """
+        return self.__case_stub.GetCoarseningInfoArray(self.__request).data

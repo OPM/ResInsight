@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.8.12)
 
 set ( SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServer.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcHelper.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCallbacks.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCallbacks.inl
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.h
@@ -17,6 +18,7 @@ set ( SOURCE_GROUP_HEADER_FILES
 
 set ( SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcHelper.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcServiceInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcCaseService.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcSimulationWellService.cpp
