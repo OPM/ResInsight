@@ -9,6 +9,7 @@ service NNCProperties
 {
 	rpc GetAvailableNNCProperties(CaseRequest) returns (AvailableNNCProperties) {}
 	rpc GetNNCConnections(CaseRequest) returns (stream NNCConnections) {}
+	rpc GetNNCValues(NNCValuesRequest) returns (stream NNCValues) {}
 }
 
 enum NNCPropertyType
@@ -40,4 +41,17 @@ message NNCConnection
 message NNCConnections
 {
 	repeated NNCConnection connections = 1;
+}
+
+message NNCValuesRequest
+{
+	int32                 case_id = 1;
+	string          property_name = 2;
+	NNCPropertyType property_type = 3;
+	int32               time_step = 4;
+}
+
+message NNCValues
+{
+	repeated double values = 1;
 }

@@ -47,6 +47,26 @@ protected:
 
 //==================================================================================================
 //
+// State handler for streaming of NNC values
+//
+//==================================================================================================
+class RiaNNCValuesStateHandler
+{
+    typedef grpc::Status Status;
+
+public:
+    RiaNNCValuesStateHandler();
+    grpc::Status init( const rips::NNCValuesRequest* request );
+    grpc::Status assignReply( rips::NNCValues* reply );
+
+protected:
+    const rips::NNCValuesRequest* m_request;
+    RimEclipseCase*               m_eclipseCase;
+    size_t                        m_currentIdx;
+};
+
+//==================================================================================================
+//
 // gRPC-service answering requests about NNC property information for a given case and time step
 //
 //==================================================================================================
@@ -60,6 +80,10 @@ public:
                                     const rips::CaseRequest*       request,
                                     rips::NNCConnections*          reply,
                                     RiaNNCConnectionsStateHandler* stateHandler );
+    grpc::Status GetNNCValues( grpc::ServerContext*          context,
+                               const rips::NNCValuesRequest* request,
+                               rips::NNCValues*              reply,
+                               RiaNNCValuesStateHandler*     stateHandler );
 
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };

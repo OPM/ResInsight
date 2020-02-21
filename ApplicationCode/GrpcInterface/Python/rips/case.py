@@ -1013,3 +1013,81 @@ class Case(PdmObject):
             for value in chunk.connections:
                 connections.append(value)
         return connections
+
+    def __nnc_connections_values_async(self, property_name, property_type, time_step):
+        request = NNCProperties_pb2.NNCValuesRequest(case_id=self.case_id,
+                                                     property_name=property_name,
+                                                     property_type=property_type,
+                                                     time_step=time_step)
+        return self.__nnc_properties_stub.GetNNCValues(request)
+
+    def __nnc_values_generator_to_list(self, generator):
+        """Converts a NNC values generator to a list."""
+        vals = []
+        for chunk in generator:
+            for value in chunk.values:
+                vals.append(value)
+        return vals
+
+    def nnc_connections_static_values_async(self, property_name):
+        """Get the static NNC values. Async, so returns an iterator.
+            Returns:
+                An iterator to a chunk object containing an list of doubles.
+                Loop through the chunks and then the values within the chunk to get values
+                for all the connections. The order of the list matches the list from
+                nnc_connections, i.e. the nth object of nnc_connections() refers to nth
+                value in this list.
+        """
+        return self.__nnc_connections_values_async(property_name, NNCProperties_pb2.NNC_STATIC, 0)
+
+    def nnc_connections_static_values(self, property_name):
+        """Get the static NNC values.
+            Returns:
+                A list of doubles. The order of the list matches the list from
+                nnc_connections, i.e. the nth object of nnc_connections() refers to nth
+                value in this list.
+        """
+        generator = self.nnc_connections_static_values_async(property_name)
+        return self.__nnc_values_generator_to_list(generator)
+
+    def nnc_connections_dynamic_values_async(self, property_name, time_step):
+        """Get the dynamic NNC values. Async, so returns an iterator.
+            Returns:
+                An iterator to a chunk object containing an list of doubles.
+                Loop through the chunks and then the values within the chunk to get values
+                for all the connections. The order of the list matches the list from
+                nnc_connections, i.e. the nth object of nnc_connections() refers to nth
+                value in this list.
+        """
+        return self.__nnc_connections_values_async(property_name, NNCProperties_pb2.NNC_DYNAMIC, time_step)
+
+    def nnc_connections_dynamic_values(self, property_name, time_step):
+        """Get the dynamic NNC values.
+            Returns:
+                A list of doubles. The order of the list matches the list from
+                nnc_connections, i.e. the nth object of nnc_connections() refers to nth
+                value in this list.
+        """
+        generator = self.nnc_connections_dynamic_values_async(property_name, time_step)
+        return self.__nnc_values_generator_to_list(generator)
+
+    def nnc_connections_generated_values_async(self, property_name, time_step):
+        """Get the generated NNC values. Async, so returns an iterator.
+            Returns:
+                An iterator to a chunk object containing an list of doubles.
+                Loop through the chunks and then the values within the chunk to get values
+                for all the connections. The order of the list matches the list from
+                nnc_connections, i.e. the nth object of nnc_connections() refers to nth
+                value in this list.
+        """
+        return self.__nnc_connections_values_async(property_name, NNCProperties_pb2.NNC_GENERATED, time_step)
+
+    def nnc_connections_generated_values(self, property_name, time_step):
+        """Get the generated NNC values.
+            Returns:
+                A list of doubles. The order of the list matches the list from
+                nnc_connections, i.e. the nth object of nnc_connections() refers to nth
+                value in this list.
+        """
+        generator = self.nnc_connections_generated_values_async(property_name, time_step)
+        return self.__nnc_values_generator_to_list(generator)
