@@ -2,6 +2,17 @@
 
 using namespace caf;
 
+CAF_PDM_ABSTRACT_SOURCE_INIT(PdmObject, "PdmObject");
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObject::PdmObject() : PdmObjectHandle(), PdmXmlObjectHandle(this, false), PdmUiObjectHandle(this, false)
+{
+    CAF_PDM_InitObject("Base PDM Object", "", "", "The Abstract Base Class for the Project Data Model");
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -89,35 +100,10 @@ void PdmObject::childrenFromClassKeyword(
         for (auto childObject : childObjects)
         {
             PdmObject* pdmObjectChild = dynamic_cast<PdmObject*>(childObject);
-            if (pdmObjectChild && pdmObjectChild->classKeyword() == classKeyword)
+            if (pdmObjectChild && pdmObjectChild->matchesClassKeyword(classKeyword))
             {
                 children.push_back(pdmObjectChild);
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmObject::PdmObject() : PdmObjectHandle(), PdmXmlObjectHandle(this, false), PdmUiObjectHandle(this, false)
-    , m_scriptable(false)
-{
-    registerClassKeyword(classKeywordStatic());
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString caf::PdmObject::classKeywordStatic()
-{
-    return classKeywordAliases().front();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> caf::PdmObject::classKeywordAliases()
-{
-    return { QString("PdmObject") };
 }

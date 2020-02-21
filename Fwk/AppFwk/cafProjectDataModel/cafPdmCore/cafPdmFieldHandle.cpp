@@ -68,6 +68,33 @@ bool PdmFieldHandle::matchesKeyword(const QString& keyword) const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// The class of the ownerObject() can be different to ownerClass().
+/// This is because the ownerClass() may be a super-class to the instantiated owner object.
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* PdmFieldHandle::ownerObject()
+{
+    return m_ownerObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Get the class in the class hierarchy the field actually belongs to.
+/// This can be different to ownerObject's class, which may be a sub-class.
+//--------------------------------------------------------------------------------------------------
+QString PdmFieldHandle::ownerClass() const
+{
+    return m_ownerClass;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Set the class in the class hierarchy the field actually belongs to.
+/// This can be different to ownerObject's class, which may be a sub-class.
+//--------------------------------------------------------------------------------------------------
+void PdmFieldHandle::setOwnerClass(const QString& ownerClass)
+{
+    m_ownerClass = ownerClass;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool PdmFieldHandle::hasPtrReferencedObjects()

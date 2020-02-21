@@ -27,35 +27,84 @@
 
 // To be renamed CAF_PDM_XML_HEADER_INIT
 #define CAF_PDM_XML_HEADER_INIT \
+private: \
+    static bool                 classIsScriptable(); \
 public: \
-    virtual QString classKeyword() const   { return  classKeywordStatic(); } \
-    static  QString classKeywordStatic(); \
+    virtual QString             classKeyword() const; \
+    static QString              classKeywordStatic(); \
+    static std::vector<QString> classKeywordAliases(); \
+    virtual bool                isScriptable() const; \
+    virtual bool                matchesClassKeyword(const QString& keyword) const; \
     \
     static  bool Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class()
 
+#define CAF_PDM_XML_NON_SCRIPTABLE_INIT(ClassName) \
+    bool ClassName::classIsScriptable() \
+    { \
+        return false; \
+    } \
+
+#define CAF_PDM_XML_SCRIPTABLE_INIT(ClassName) \
+    bool ClassName::classIsScriptable() \
+    { \
+        return true; \
+    } \
+
+#define CAF_PDM_XML_ABSTRACT_BASE_SOURCE_INIT(ClassName, keyword, ...) \
+    bool    ClassName::Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class() { return false;} \
+    \
+    QString ClassName::classKeyword() const \
+    { \
+        return classKeywordStatic(); \
+    } \
+    QString ClassName::classKeywordStatic() \
+    { \
+        return classKeywordAliases().front(); \
+    } \
+    std::vector<QString> ClassName::classKeywordAliases() \
+    { \
+        CAF_PDM_VERIFY_XML_KEYWORD(keyword) \
+        return {keyword, ##__VA_ARGS__}; \
+    } \
+    bool ClassName::isScriptable() const \
+    { \
+        return ClassName::classIsScriptable(); \
+    } \
+    bool ClassName::matchesClassKeyword(const QString& matchKeyword) const\
+    { \
+        auto aliases = classKeywordAliases(); \
+        for (auto alias : aliases) \
+        { \
+            if (alias == matchKeyword) return true; \
+        } \
+        return false; \
+    } \
+
+/// CAF_PDM_XML_ABSTRACT_SOURCE_INIT associates the file keyword used for storage with the class
+/// Place this in the cpp file, preferably above the constructor
+#define CAF_PDM_XML_ABSTRACT_SOURCE_INIT(ClassName, keyword, ...) \
+    CAF_PDM_XML_ABSTRACT_BASE_SOURCE_INIT(ClassName, keyword, ##__VA_ARGS__) \
+    CAF_PDM_XML_NON_SCRIPTABLE_INIT(ClassName) \
+
+/// CAF_PDM_XML_ABSTRACT_SOURCE_INIT associates the file keyword used for storage with the *scriptable* class
+/// Place this in the cpp file, preferably above the constructor
+#define CAF_PDM_XML_ABSTRACT_SCRIPTABLE_SOURCE_INIT(ClassName, keyword, ...) \
+ CAF_PDM_XML_ABSTRACT_BASE_SOURCE_INIT(ClassName, keyword, ##__VA_ARGS__) \
+    CAF_PDM_XML_SCRIPTABLE_INIT(ClassName) \
 
 /// CAF_PDM_XML_SOURCE_INIT associates the file keyword used for storage with the class and 
 //  initializes the factory
 /// Place this in the cpp file, preferably above the constructor
-
-#define CAF_PDM_XML_SOURCE_INIT(ClassName, keyword) \
-    bool    ClassName::Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class() { return false;} \
-    \
-    QString ClassName::classKeywordStatic() \
-    { \
-        CAF_PDM_VERIFY_XML_KEYWORD(keyword) \
-        return keyword; \
-    } \
+#define CAF_PDM_XML_SOURCE_INIT(ClassName, keyword, ...) \
+    CAF_PDM_XML_ABSTRACT_SOURCE_INIT(ClassName, keyword, ##__VA_ARGS__) \
     static bool PDM_OBJECT_STRING_CONCATENATE(my##ClassName, __LINE__) = caf::PdmDefaultObjectFactory::instance()->registerCreator<ClassName>() 
 
-#define CAF_PDM_XML_ABSTRACT_SOURCE_INIT(ClassName, keyword) \
-    bool    ClassName::Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class() { return false;} \
-    \
-    QString ClassName::classKeywordStatic() \
-    { \
-        CAF_PDM_VERIFY_XML_KEYWORD(keyword) \
-        return keyword; \
-    } \
+/// CAF_PDM_XML_SCRIPTABLE_SOURCE_INIT associates the file keyword used for storage with the *scriptable* class and 
+//  initializes the factory
+/// Place this in the cpp file, preferably above the constructor
+#define CAF_PDM_XML_SCRIPTABLE_SOURCE_INIT(ClassName, keyword, ...) \
+    CAF_PDM_XML_ABSTRACT_SCRIPTABLE_SOURCE_INIT(ClassName, keyword, ##__VA_ARGS__) \
+    static bool PDM_OBJECT_STRING_CONCATENATE(my##ClassName, __LINE__) = caf::PdmDefaultObjectFactory::instance()->registerCreator<ClassName>() 
 
 #define CAF_PDM_XML_InitField(field, keyword) \
 { \
