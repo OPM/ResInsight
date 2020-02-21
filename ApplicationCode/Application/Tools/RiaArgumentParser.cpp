@@ -141,6 +141,7 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
 #ifdef USE_UNIT_TESTS
     progOpt->registerOption( "unittest", "", "System command" );
 #endif
+    progOpt->registerOption( "generate", "[<outputFile>]", "Generate code or documentation", cvf::ProgramOptions::SINGLE_VALUE );
     progOpt->registerOption( "ignoreArgs", "", "System command. Ignore all arguments. Mostly for testing purposes" );
 
     progOpt->setOptionPrefix( cvf::ProgramOptions::DOUBLE_DASH );
