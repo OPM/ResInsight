@@ -450,6 +450,18 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
         return RiaApplication::EXIT_COMPLETED;
     }
 
+    // Code generation
+    // -----------------
+    if ( cvf::Option o = progOpt->option( "generate" ) )
+    {
+        CVF_ASSERT( o.valueCount() == 1 );
+        QString outputFile = cvfqt::Utils::toQString( o.value( 0 ) );
+
+        RiaApplication::generatePythonClasses( outputFile );
+
+        return RiaApplication::EXIT_COMPLETED;
+    }
+
     // Unit testing
     // --------------------------------------------------------
     if ( cvf::Option o = progOpt->option( "unittest" ) )

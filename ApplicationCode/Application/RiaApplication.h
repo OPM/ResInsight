@@ -226,6 +226,8 @@ protected:
     friend class RiaRegressionTestRunner;
     void resetProject();
 
+    void generatePythonClasses( const QString& outputPath );
+
 protected:
     cvf::ref<cvf::Font> m_defaultSceneFont;
     cvf::ref<cvf::Font> m_defaultAnnotationFont;
