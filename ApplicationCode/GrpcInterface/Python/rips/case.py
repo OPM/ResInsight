@@ -17,6 +17,9 @@ import rips.generated.PdmObject_pb2 as PdmObject_pb2
 import rips.generated.Properties_pb2 as Properties_pb2
 import rips.generated.Properties_pb2_grpc as Properties_pb2_grpc
 
+import rips.generated.NNCProperties_pb2 as NNCProperties_pb2
+import rips.generated.NNCProperties_pb2_grpc as NNCProperties_pb2_grpc
+
 from rips.grid import Grid
 from rips.pdmobject import PdmObject
 from rips.view import View
@@ -49,6 +52,8 @@ class Case(PdmObject):
 
         info = self.__case_stub.GetCaseInfo(self.__request)
         self.__properties_stub = Properties_pb2_grpc.PropertiesStub(
+            self.__channel)
+        self.__nnc_properties_stub = NNCProperties_pb2_grpc.NNCPropertiesStub(
             self.__channel)
         PdmObject.__init__(self, self.__case_stub.GetPdmObject(self.__request),
                            self.__channel, project)
@@ -980,3 +985,31 @@ class Case(PdmObject):
                 for each entry.
         """
         return self.__case_stub.GetCoarseningInfoArray(self.__request).data
+
+
+    def available_nnc_properties(self):
+        """Get a list of available NNC properties
+        """
+        return self.__nnc_properties_stub.GetAvailableNNCProperties(self.__request).properties
+
+
+    def nnc_connections_async(self):
+        """Get the NNC connections. Async, so returns an iterator.
+            Returns:
+                An iterator to a chunk object containing an array NNCConnection objects.
+                Loop through the chunks and then the connection within the chunk to get all connections.
+        """
+        return self.__nnc_properties_stub.GetNNCConnections(self.__request)
+
+    def nnc_connections(self):
+        """Get the NNC connection. Synchronous, so returns a list.
+
+            Returns:
+                A list of NNCConnection objects.
+        """
+        connections = []
+        generator = self.nnc_connections_async()
+        for chunk in generator:
+            for value in chunk.connections:
+                connections.append(value)
+        return connections
