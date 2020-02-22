@@ -34,18 +34,16 @@
 //
 //##################################################################################################
 
-
 #include "cafColorTable.h"
 
 #include <QColor>
 
+#include <algorithm>
 
-namespace caf {
-
-
-
+namespace caf
+{
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 ColorTable::ColorTable(const std::vector<cvf::Color3ub>& colors)
     : m_colors(colors)
@@ -54,7 +52,16 @@ ColorTable::ColorTable(const std::vector<cvf::Color3ub>& colors)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+ColorTable::ColorTable(const cvf::Color3ubArray& colors)
+    : m_colors(colors.begin(), colors.end())
+{
+    CVF_ASSERT(m_colors.size() > 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f ColorTable::cycledColor3f(size_t itemIndex) const
 {
@@ -62,7 +69,7 @@ cvf::Color3f ColorTable::cycledColor3f(size_t itemIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color3ub ColorTable::cycledColor3ub(size_t itemIndex) const
 {
@@ -72,7 +79,7 @@ cvf::Color3ub ColorTable::cycledColor3ub(size_t itemIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QColor ColorTable::cycledQColor(size_t itemIndex) const
 {
@@ -81,7 +88,7 @@ QColor ColorTable::cycledQColor(size_t itemIndex) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color3ubArray ColorTable::color3ubArray() const
 {
@@ -89,13 +96,13 @@ cvf::Color3ubArray ColorTable::color3ubArray() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color3fArray ColorTable::color3fArray() const
 {
     cvf::Color3fArray col3fArr;
 
-    col3fArr.resize(m_colors.size());
+    col3fArr.reserve(m_colors.size());
     for (const auto& c : m_colors)
     {
         col3fArr.add(cvf::Color3f(c));
@@ -105,7 +112,25 @@ cvf::Color3fArray ColorTable::color3fArray() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+size_t ColorTable::size() const
+{
+    return m_colors.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::ColorTable ColorTable::inverted() const
+{
+    std::vector<cvf::Color3ub> invertedColors = m_colors;
+    std::reverse(invertedColors.begin(), invertedColors.end());
+    return ColorTable(invertedColors);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color3ub ColorTable::fromQColor(const QColor& color)
 {
@@ -113,7 +138,7 @@ cvf::Color3ub ColorTable::fromQColor(const QColor& color)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Color3ubArray ColorTable::interpolateColorArray(const cvf::Color3ubArray& colorArray, size_t targetColorCount)
 {
@@ -124,7 +149,7 @@ cvf::Color3ubArray ColorTable::interpolateColorArray(const cvf::Color3ubArray& c
     cvf::Color3ubArray colors;
     colors.reserve(targetColorCount);
 
-    const size_t inputColorsMaxIdx = inputColorCount - 1;
+    const size_t inputColorsMaxIdx  = inputColorCount - 1;
     const size_t outputColorsMaxIdx = targetColorCount - 1;
 
     for (size_t outputLevelIdx = 0; outputLevelIdx < outputColorsMaxIdx; outputLevelIdx++)
@@ -140,9 +165,9 @@ cvf::Color3ubArray ColorTable::interpolateColorArray(const cvf::Color3ubArray& c
         cvf::Color3ub c1 = colorArray[inputLevelIndex];
         cvf::Color3ub c2 = colorArray[inputLevelIndex + 1];
 
-        int r = static_cast<int>(c1.r() + t*(c2.r() - c1.r()) + 0.5);
-        int g = static_cast<int>(c1.g() + t*(c2.g() - c1.g()) + 0.5);
-        int b = static_cast<int>(c1.b() + t*(c2.b() - c1.b()) + 0.5);
+        int r = static_cast<int>(c1.r() + t * (c2.r() - c1.r()) + 0.5);
+        int g = static_cast<int>(c1.g() + t * (c2.g() - c1.g()) + 0.5);
+        int b = static_cast<int>(c1.b() + t * (c2.b() - c1.b()) + 0.5);
 
         r = cvf::Math::clamp(r, 0, 255);
         g = cvf::Math::clamp(g, 0, 255);
@@ -155,7 +180,6 @@ cvf::Color3ubArray ColorTable::interpolateColorArray(const cvf::Color3ubArray& c
     colors.add(colorArray[colorArray.size() - 1]);
 
     return colors;
-
 }
 
 } // namespace caf

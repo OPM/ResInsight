@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+import "Definitions.proto";
+import "Case.proto";
+
+package rips;
+
+service Properties
+{
+	rpc GetAvailableProperties(AvailablePropertiesRequest) returns (AvailableProperties) {}
+	rpc GetActiveCellProperty(PropertyRequest) returns (stream PropertyChunk) {}
+	rpc GetSelectedCellProperty(PropertyRequest) returns (stream PropertyChunk) {}
+	rpc GetGridProperty(PropertyRequest)       returns (stream PropertyChunk) {}
+	rpc SetActiveCellProperty(stream PropertyInputChunk) returns (ClientToServerStreamReply) {}
+	rpc SetGridProperty(stream PropertyInputChunk) returns (ClientToServerStreamReply) {}
+}
+
+enum PropertyType
+{
+	DYNAMIC_NATIVE     = 0;
+	STATIC_NATIVE      = 1;
+	SOURSIMRL          = 2;
+	GENERATED          = 3;
+	INPUT_PROPERTY     = 4;
+	FORMATION_NAMES    = 5;
+	FLOW_DIAGNOSTICS   = 6;
+	INJECTION_FLOODING = 7;
+	REMOVED            = 8;
+	UNDEFINED          = 999;
+}
+
+message AvailablePropertiesRequest
+{
+	CaseRequest         case_request = 1;
+	PropertyType       property_type = 2;
+	PorosityModelType porosity_model = 3;
+}
+
+message AvailableProperties
+{
+	repeated string property_names = 1;
+}
+
+message PropertyRequest
+{
+	CaseRequest         case_request = 1;
+	PropertyType       property_type = 2;
+	string             property_name = 3;
+	int32                  time_step = 4;
+	int32                 grid_index = 5;
+	PorosityModelType porosity_model = 6;
+}
+
+message TimeStep
+{
+	int32 index = 1;
+}
+
+message PropertyInputChunk
+{
+	oneof ChunkType
+	{
+		// Params needs to be sent in the first message
+		PropertyRequest         params = 1;
+		PropertyChunk           values = 2;			
+	}
+}
+
+message PropertyChunk
+{
+	repeated double values = 1;
+}

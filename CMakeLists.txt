@@ -1,13 +1,16 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 include (CheckCSourceCompiles)
 project (ResInsight)
 
 set (VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
+cmake_policy(SET CMP0020 NEW)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 ################################################################################
 # Setup the main platform defines
@@ -17,11 +20,11 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_definitions(-DCVF_OSX)
 elseif(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /std:c++14")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -std=c++0x")
+    set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -std=c++11")
     set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
 endif() 
@@ -51,18 +54,38 @@ include (ResInsightVersion.cmake)
 
 
 ################################################################################
-# cotire 
+# Octave
+################################################################################
+find_package(Octave)
+
+################################################################################
+# cotire and CMake Unity Build
 # Fully automated CMake module for build speedup
 # https://github.com/sakra/cotire
 ################################################################################
 
-option(RESINSIGHT_ENABLE_COTIRE "Use Cotire to speed up build process" OFF)
-if(RESINSIGHT_ENABLE_COTIRE)
-    set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-
-    include(cotire)
+# CMAKE_UNITY_BUILD was introduced in CMake 3.16.2
+option(RESINSIGHT_ENABLE_UNITY_BUILD "Experimental speedup of compilation using CMake Unity Build" OFF)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_UNITY_BUILD)
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+  set(CAF_ENABLE_UNITY_BUILD true)
+  set(CVF_ENABLE_UNITY_BUILD true)
 endif()
 
+option(RESINSIGHT_ENABLE_COTIRE "Experimental speedup of compilation using cotire" OFF)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_COTIRE)
+if(RESINSIGHT_ENABLE_COTIRE)
+
+  if(NOT COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES)
+    message(STATUS "cotire: Setting default number of includes to 5")
+    set(COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES 5)
+  endif()
+  
+  include(cotire)
+endif()
+
+# always include cotire tools to avoid checking if a macro is available
+include(cafCotireTools)
 
 ################################################################################
 # ERT
@@ -79,25 +102,21 @@ if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
     message(FATAL_ERROR "Both RESINSIGHT_ERT_EXTERNAL_LIB_ROOT and RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT must be defined")
   endif()
 
+    message(FATAL_ERROR "TODO: Building using and external system installed ERT is broken.")
+
   list(APPEND ERT_INCLUDE_DIRS
     ${RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT}
   )
 
   list(APPEND ERT_LIBRARIES
 	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libeclxx.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl_well.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_geometry.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_util.so
   )
   
 else()
 
     # Disable install of ERT libs and headers, as Ert code is compiled and linked directly
     SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
-    SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
     SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
-    SET(ERT_BUILD_CXX ON CACHE BOOL "ERT: Enable build of CXX wrappers" FORCE)
 
     # Remember original state
     set(ORIGINAL_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
@@ -115,44 +134,77 @@ else()
     endif()
 
     if (RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT)
-        set(ERT_INCLUDE_ROOT "${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT}")
-        add_subdirectory(${ERT_SOURCE_PATH} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
+        add_subdirectory(${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
     else()
-        set(ERT_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty/Ert)
         add_subdirectory(ThirdParty/Ert)
     endif ()
 
-    list(APPEND ERT_INCLUDE_DIRS
-        ${ERT_INCLUDE_ROOT}/libecl/include/
-        ${ERT_INCLUDE_ROOT}/libert_util/include/
-        ${ERT_INCLUDE_ROOT}/libgeometry/include/
-        ${ERT_INCLUDE_ROOT}/libecl_well/include/
-        ${ERT_INCLUDE_ROOT}/libeclxx/include
-        ${ERT_INCLUDE_ROOT}/libert_utilxx/include
-
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/libert_util/include
-    )
-
-    list(APPEND ERT_LIBRARIES
-	        ecl 
-	        eclxx
-	        ecl_well 
-	        ert_geometry 
-	        ert_util  
-    )
-
     if (MSVC)
-      set_property(TARGET  
-          ${ERT_LIBRARIES}
-          ecl_lfs
-	      PROPERTY FOLDER "Thirdparty/ERT"
-      )
+         # libecl : Disable some warnings  
+         set_target_properties(ecl PROPERTIES COMPILE_FLAGS "/wd4244 /wd4267 /wd4013 /wd4190 /wd4018 /wd4477 /wd4098 /wd4293 /wd4305 /wd4020 /wd4028 /wd4715")
+    else()
+        set_target_properties(ecl PROPERTIES COMPILE_FLAGS "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered")
     endif()
+
+    list(APPEND THIRD_PARTY_LIBRARIES
+        ecl
+    )
+
+    set_property(TARGET  
+      catch2
+	  PROPERTY FOLDER "Thirdparty"
+    )
     
     # Restore original state
     set(BUILD_SHARED_LIBS ${ORIGINAL_BUILD_SHARED_LIBS})
     
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
+
+
+################################################################################
+# HDF5
+################################################################################
+if(MSVC)
+    set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Windows Only: Optional path to HDF5 libraries on Windows")
+endif()
+
+option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING "Enable prototype feature Souring (requires third party library HDF5)" ON)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING) 
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
+    if(MSVC)
+        if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
+	        list(APPEND EXTERNAL_LINK_LIBRARIES
+                ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
+                ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
+	        )
+
+	        set(RESINSIGHT_FOUND_HDF5 1)
+	        message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
+        else()
+	        message( WARNING "Use of HDF5 is enabled, but RESINSIGHT_HDF5_DIR is empty. Specify RESINSIGHT_HDF5_DIR to be able to use HDF5" )
+        endif()
+    else()
+        find_package(HDF5 COMPONENTS CXX)
+        if (HDF5_FOUND)
+		    list(APPEND EXTERNAL_LINK_LIBRARIES
+		        ${HDF5_LIBRARIES}
+		    )
+
+	        set(RESINSIGHT_FOUND_HDF5 1)
+	        message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
+
+			option (RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
+			mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES) 
+	        if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
+		        message( STATUS "Bundling of HDF5 libraries is enabled" )
+	        endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
+
+        else()
+            message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
+        endif() # HDF5_FOUND
+    endif() # MSVC
+endif() # RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING
 
 
 ################################################################################ 
@@ -197,21 +249,17 @@ list(APPEND THIRD_PARTY_LIBRARIES
     NRLib
 )
 
-
 ################################################################################
 # Qt
 ################################################################################
-set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools)
-find_package (Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED})
-if ( NOT QT4_FOUND )
-    message(FATAL_ERROR "Package Qt4 is required, but not found. Please specify qmake for variable QT_QMAKE_EXECUTABLE")
-endif ( NOT QT4_FOUND )
+option(RESINSIGHT_BUILD_WITH_QT5 "Use Qt5" ON)
+mark_as_advanced(FORCE RESINSIGHT_BUILD_WITH_QT5)
 
-if (QT_VERSION_MINOR LESS 6)
-    message(FATAL_ERROR "Qt 4.6 is required, please specify qmake for variable QT_QMAKE_EXECUTABLE")
-endif()
-
-include (${QT_USE_FILE})
+if (RESINSIGHT_BUILD_WITH_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Network Script ScriptTools Widgets)
+else()
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools REQUIRED)
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 # Open GL
 find_package( OpenGL )
@@ -237,6 +285,25 @@ list(APPEND THIRD_PARTY_LIBRARIES
     nightcharts
 )
 
+################################################################################
+# C++ Mathematical Expression Parsing And Evaluation Library 
+################################################################################
+
+add_subdirectory(ThirdParty/expressionparser)
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    expressionparser
+)
+
+################################################################################
+# clipper
+################################################################################
+
+add_subdirectory(ThirdParty/clipper)
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    clipper
+)
 
 ################################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
@@ -245,6 +312,13 @@ set_property(TARGET
     ${THIRD_PARTY_LIBRARIES}
 	PROPERTY FOLDER "Thirdparty"
 )
+
+
+################################################################################
+# App and Viz Framework Qt5 setting, propagate settings in RESINSIGHT_BUILD_WITH_QT5
+################################################################################
+set(CEE_USE_QT5 ${RESINSIGHT_BUILD_WITH_QT5} CACHE BOOL "Flag used to enable Qt5 in AppFwk and VizFwk" FORCE)
+
 
 ################################################################################
 # Vizualization Framework
@@ -263,9 +337,9 @@ if (CMAKE_COMPILER_IS_GNUCC)
     endif()
  
     if (HAVE_GCC_SYNC_FUNCTIONS)
-        message("GCC synchronization functions detected")
+        message(STATUS "GCC synchronization functions detected")
     else()
-        message("GCC synchronization functions NOT detected, fallback to non threadsafe reference counting")
+        message(STATUS "GCC synchronization functions NOT detected, fallback to non threadsafe reference counting")
         add_definitions(-DCVF_USE_NON_THREADSAFE_REFERENCE_COUNT)
     endif()
  
@@ -276,14 +350,6 @@ add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGeometry)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibRender)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibViewing)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGuiQt)
-
-include_directories(
-    ${LibCore_SOURCE_DIR}
-    ${LibGeometry_SOURCE_DIR}
-    ${LibRender_SOURCE_DIR}
-    ${LibViewing_SOURCE_DIR}
-    ${LibGuiQt_SOURCE_DIR}
-)
 
 list(APPEND VIZ_FWK_LIBRARIES
     LibGuiQt
@@ -317,9 +383,13 @@ add_subdirectory(Fwk/AppFwk/cafPdmCvf)
 add_subdirectory(Fwk/AppFwk/CommonCode)
 add_subdirectory(Fwk/AppFwk/cafVizExtensions)
 
+add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
+set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
+
 #add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
+add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
 
 list(APPEND APP_FWK_LIBRARIES
     cafPdmCore
@@ -340,8 +410,29 @@ list(APPEND APP_FWK_LIBRARIES
 
 set_property(TARGET  
     ${APP_FWK_LIBRARIES}
+	cafHexInterpolator
 	PROPERTY FOLDER "AppFwk"
 )
+
+option (RESINSIGHT_INCLUDE_APPFWK_TESTS "Enable AppFwk Tests" OFF)
+mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPFWK_TESTS)
+
+if (RESINSIGHT_INCLUDE_APPFWK_TESTS)
+    # Unit Tests
+    add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
+    set_property(TARGET cafProjectDataModel_UnitTests PROPERTY FOLDER "AppFwkTests")
+
+    add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
+    set_property(TARGET cafPdmCore_UnitTests PROPERTY FOLDER "AppFwkTests")
+
+    add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
+    set_property(TARGET cafPdmXml_UnitTests PROPERTY FOLDER "AppFwkTests")
+
+    # Executables
+    add_subdirectory(Fwk/AppFwk/cafTests/cafTestApplication)
+    set_property(TARGET cafTestApplication PROPERTY FOLDER "AppFwkTests")
+endif()
+
 
 
 ################################################################################
@@ -351,7 +442,9 @@ set_property(TARGET
 set (RESINSIGHT_INSTALL_FOLDER ".")
 
 # override system install prefix if private installation chosen
-option (RESINSIGHT_PRIVATE_INSTALL "Install as an independent bundle including the neccesary Qt libraries" ON)
+option (RESINSIGHT_PRIVATE_INSTALL "Linux only: Install the libecl shared libraries along the executable" ON)
+mark_as_advanced(FORCE RESINSIGHT_PRIVATE_INSTALL)
+
 if (RESINSIGHT_PRIVATE_INSTALL)
     set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
     
@@ -364,19 +457,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
         set(ERT_SHARED_LIB_FILES
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.1
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so.2.1
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so.2.1
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so.2.1
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so.2.1
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.4
         )
       
       install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
@@ -384,12 +465,42 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     
 endif (RESINSIGHT_PRIVATE_INSTALL)
 
+if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	  foreach (FILE_TO_COPY ${HDF5_LIBRARIES})
+        
+        # find all files containing the string "hdf"
+	    STRING( FIND ${FILE_TO_COPY} "hdf5" POS_IN_STRING ) 
+	    if(${POS_IN_STRING} GREATER -1)
+            get_filename_component(ABS_DIR ${FILE_TO_COPY} REALPATH)
+  		    message (STATUS "HDF5 bundle file - ${ABS_DIR}")
+
+            # as part of install, rename file with the extension ResInsight reports when running "ldd"
+            get_filename_component(FILE_NAME_WE ${FILE_TO_COPY} NAME_WE)
+            set(FILE_NAME_FOR_INSTALL "${FILE_NAME_WE}.so.6")
+  		    message (STATUS "HDF5 file FILE_NAME_FOR_INSTALL  - ${FILE_NAME_FOR_INSTALL}")
+      
+            install(FILES ${ABS_DIR} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} RENAME ${FILE_NAME_FOR_INSTALL} )
+		endif()
+	  endforeach()
+      
+    endif()
+    
+endif (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
+
 
 ################################################################################
 # Application 
 ################################################################################
 add_subdirectory(ApplicationCode)
-add_subdirectory(OctavePlugin)
+
+if (OCTAVE_MKOCTFILE)
+  message (STATUS "Adding OctavePlugin library")
+  
+  add_subdirectory(OctavePlugin)
+else (OCTAVE_MKOCTFILE)
+  message (STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library")
+endif(OCTAVE_MKOCTFILE)
 
 ################################################################################
 # Code documentation using Doxygen
@@ -405,67 +516,10 @@ if(RESINSIGHT_BUILD_DOCUMENTATION)
   configure_file(Doxyfile.in 
                  ${PROJECT_BINARY_DIR}/Doxyfile  @ONLY IMMEDIATE)
   #-- Add a custom target to run Doxygen when ever the project is built
-  add_custom_target (Docs ALL 
+  add_custom_target (Docs 
   					COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
   					SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
   # IF you do NOT want the documentation to be generated EVERY time you build the project
   # then leave out the 'ALL' keyword from the above command.
 endif(RESINSIGHT_BUILD_DOCUMENTATION)
 
-################################################################################
-# Installation packaging
-################################################################################
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(CPACK_GENERATOR TGZ)
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(CPACK_GENERATOR ZIP)
-endif()
-
-if(RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE) 
-    get_filename_component(RESINSIGHT_OCTAVE_DIRECTORY ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} DIRECTORY)
-    
-    execute_process (COMMAND octave-config -v
-        WORKING_DIRECTORY ${RESINSIGHT_OCTAVE_DIRECTORY}
-                    OUTPUT_VARIABLE OCTAVE_VERSION_STRING
-                    OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif ()
-
-# Handling of system name on Windows
-if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
-  if(CMAKE_CL_64)
-    set(CPACK_SYSTEM_NAME win64)
-  else()
-    set(CPACK_SYSTEM_NAME win32)
-  endif()
-endif()
-
-# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
-string(REGEX MATCH "el[5,6]?" RESINSIGHT_RHEL_SYSTEM_NAME ${CMAKE_SYSTEM})
-
-
-set(RESINSIGHT_PACKAGE_NAME "ResInsight")
-
-set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}-${STRPRODUCTVER}")
-
-if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_odb")
-endif()
-
-if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_oct-${OCTAVE_VERSION_STRING}")
-endif()
-
-
-# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
-if (NOT "${RESINSIGHT_RHEL_SYSTEM_NAME}" STREQUAL "")
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_${RESINSIGHT_RHEL_SYSTEM_NAME}")
-else()
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_${CPACK_SYSTEM_NAME}")
-endif()
-
-#message("RESINSIGHT_PACKAGE_NAME : " ${RESINSIGHT_PACKAGE_NAME})
-set(CPACK_PACKAGE_FILE_NAME ${RESINSIGHT_PACKAGE_NAME})
-
-
-include (CPack)

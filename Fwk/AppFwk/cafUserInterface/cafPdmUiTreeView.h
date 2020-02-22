@@ -61,8 +61,8 @@ class PdmUiTreeView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiTreeView(QWidget* parent = 0, Qt::WindowFlags f = 0);
-    ~PdmUiTreeView();
+    PdmUiTreeView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
+    ~PdmUiTreeView() override;
 
     void        enableDefaultContextMenu(bool enable);
     void        enableSelectionManagerUpdating(bool enable); // TODO: rename
@@ -75,7 +75,8 @@ public:
     bool        isTreeItemEditWidgetActive() const;
 
     void        selectedUiItems(std::vector<PdmUiItem*>& objects); // TODO: rename
-    void        selectAsCurrentItem(PdmUiItem* uiItem);
+    void        selectAsCurrentItem(const PdmUiItem* uiItem);
+    void        selectItems(const std::vector<const PdmUiItem*>& uiItems);
     void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const ;
 
     // QModelIndex access

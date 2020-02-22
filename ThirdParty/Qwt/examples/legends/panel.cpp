@@ -34,7 +34,7 @@ Panel::Panel( QWidget *parent ):
     d_legendItem.hAlignmentBox->addItem( "Left", Qt::AlignLeft );
     d_legendItem.hAlignmentBox->addItem( "Centered", Qt::AlignHCenter );
     d_legendItem.hAlignmentBox->addItem( "Right", Qt::AlignRight );
-    
+
     d_legendItem.vAlignmentBox = new QComboBox();
     d_legendItem.vAlignmentBox->addItem( "Top", Qt::AlignTop );
     d_legendItem.vAlignmentBox->addItem( "Centered", Qt::AlignVCenter );
@@ -110,26 +110,26 @@ Panel::Panel( QWidget *parent ):
     layout->addWidget( curveBox );
     layout->addStretch( 10 );
 
-    connect( d_legend.checkBox, 
+    connect( d_legend.checkBox,
         SIGNAL( stateChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_legend.positionBox, 
+    connect( d_legend.positionBox,
         SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
 
-    connect( d_legendItem.checkBox, 
+    connect( d_legendItem.checkBox,
         SIGNAL( stateChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_legendItem.numColumnsBox, 
+    connect( d_legendItem.numColumnsBox,
         SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_legendItem.hAlignmentBox, 
+    connect( d_legendItem.hAlignmentBox,
         SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_legendItem.vAlignmentBox, 
+    connect( d_legendItem.vAlignmentBox,
         SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_legendItem.backgroundBox, 
+    connect( d_legendItem.backgroundBox,
         SIGNAL( currentIndexChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_curve.numCurves, 
+    connect( d_curve.numCurves,
         SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_legendItem.sizeBox, 
+    connect( d_legendItem.sizeBox,
         SIGNAL( valueChanged( int ) ), SIGNAL( edited() ) );
-    connect( d_curve.title, 
+    connect( d_curve.title,
         SIGNAL( textEdited( const QString & ) ), SIGNAL( edited() ) );
 }
 
@@ -162,7 +162,7 @@ void Panel::setSettings( const Settings &settings)
     else
         d_legendItem.vAlignmentBox->setCurrentIndex( 1 );
 
-    d_legendItem.backgroundBox->setCurrentIndex( 
+    d_legendItem.backgroundBox->setCurrentIndex(
         settings.legendItem.backgroundMode );
 
     d_legendItem.sizeBox->setValue( settings.legendItem.size );
@@ -177,14 +177,14 @@ Settings Panel::settings() const
 {
     Settings s;
 
-    s.legend.isEnabled = 
+    s.legend.isEnabled =
         d_legend.checkBox->checkState() == Qt::Checked;
     s.legend.position = d_legend.positionBox->currentIndex();
 
-    s.legendItem.isEnabled = 
+    s.legendItem.isEnabled =
         d_legendItem.checkBox->checkState() == Qt::Checked;
     s.legendItem.numColumns = d_legendItem.numColumnsBox->value();
-    
+
     int align = 0;
 
     int hIndex = d_legendItem.hAlignmentBox->currentIndex();
@@ -205,7 +205,7 @@ Settings Panel::settings() const
 
     s.legendItem.alignment = align;
 
-    s.legendItem.backgroundMode = 
+    s.legendItem.backgroundMode =
             d_legendItem.backgroundBox->currentIndex();
     s.legendItem.size = d_legendItem.sizeBox->value();
 

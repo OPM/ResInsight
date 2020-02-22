@@ -1,27 +1,38 @@
 
-# Use this workaround until we're on 2.8.3 on all platforms and can use CMAKE_CURRENT_LIST_DIR directly 
-if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
-    set(CEE_CURRENT_LIST_DIR  ${CMAKE_CURRENT_LIST_DIR}/)
-endif()
-
 set (SOURCE_GROUP_HEADER_FILES
-${CEE_CURRENT_LIST_DIR}RimFlowDiagSolution.h
-${CEE_CURRENT_LIST_DIR}RimFlowPlotCollection.h
-${CEE_CURRENT_LIST_DIR}RimWellAllocationPlot.h
-${CEE_CURRENT_LIST_DIR}RimTotalWellAllocationPlot.h
-${CEE_CURRENT_LIST_DIR}RimWellFlowRateCurve.h
-${CEE_CURRENT_LIST_DIR}RimWellAllocationPlotLegend.h
-${CEE_CURRENT_LIST_DIR}RimFlowCharacteristicsPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimFlowDiagSolution.h
+${CMAKE_CURRENT_LIST_DIR}/RimFlowPlotCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimTotalWellAllocationPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimTofAccumulatedPhaseFractionsPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellFlowRateCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationPlotLegend.h
+${CMAKE_CURRENT_LIST_DIR}/RimFlowCharacteristicsPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellRftPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellPltPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimDataSourceForRftPlt.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellPlotTools.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellRftEnsembleCurveSet.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlotCollection.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
-${CEE_CURRENT_LIST_DIR}RimFlowDiagSolution.cpp
-${CEE_CURRENT_LIST_DIR}RimFlowPlotCollection.cpp
-${CEE_CURRENT_LIST_DIR}RimWellAllocationPlot.cpp
-${CEE_CURRENT_LIST_DIR}RimTotalWellAllocationPlot.cpp
-${CEE_CURRENT_LIST_DIR}RimWellFlowRateCurve.cpp
-${CEE_CURRENT_LIST_DIR}RimWellAllocationPlotLegend.cpp
-${CEE_CURRENT_LIST_DIR}RimFlowCharacteristicsPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFlowDiagSolution.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFlowPlotCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimTotalWellAllocationPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimTofAccumulatedPhaseFractionsPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellFlowRateCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationPlotLegend.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFlowCharacteristicsPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellRftPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellPltPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimDataSourceForRftPlt.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellPlotTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellRftEnsembleCurveSet.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlotCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -32,4 +43,4 @@ list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
-source_group( "ProjectDataModel\\Flow" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )
+source_group( "ProjectDataModel\\Flow" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

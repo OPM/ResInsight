@@ -2,25 +2,25 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicAddWellLogToPlotFeature.h"
 
-#include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
+#include "RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -32,24 +32,21 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RiuMainPlotWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "RigWellLogFile.h"
 
 #include "RiaApplication.h"
-#include "RiuWellLogTrack.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
-namespace caf
-{
-    CAF_CMD_SOURCE_INIT(RicAddWellLogToPlotFeature, "RicAddWellLogToPlotFeature");
-
+CAF_CMD_SOURCE_INIT( RicAddWellLogToPlotFeature, "RicAddWellLogToPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicAddWellLogToPlotFeature::isCommandEnabled()
 {
@@ -58,82 +55,77 @@ bool RicAddWellLogToPlotFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
+void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimWellLogFileChannel*> selection = selectedWellLogs();
-    if (selection.size() < 1) return;
-    
+    if ( selection.size() < 1 ) return;
+
     RimWellLogPlot* plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
-    plot->addTrack(plotTrack);
-    plotTrack->setDescription(QString("Track %1").arg(plot->trackCount()));
+    plot->addPlot( plotTrack );
+    plotTrack->setDescription( QString( "Track %1" ).arg( plot->plotCount() ) );
 
     plot->loadDataAndUpdate();
 
-    for (size_t wlIdx = 0; wlIdx < selection.size(); wlIdx++)
+    for ( size_t wlIdx = 0; wlIdx < selection.size(); wlIdx++ )
     {
         RimWellLogFileChannel* wellLog = selection[wlIdx];
 
-        RimWellPath* wellPath = NULL;
-        wellLog->firstAncestorOrThisOfType(wellPath);
+        RimWellPath* wellPath = nullptr;
+        wellLog->firstAncestorOrThisOfType( wellPath );
 
-        RimWellLogFile* wellLogFile = NULL;
-        wellLog->firstAncestorOrThisOfType(wellLogFile);
-        if (wellLogFile)
+        RimWellLogFile* wellLogFile = nullptr;
+        wellLog->firstAncestorOrThisOfType( wellLogFile );
+        if ( wellLogFile )
         {
             RimWellLogFileCurve* curve = new RimWellLogFileCurve;
-            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plotTrack->curveCount());
-            curve->setColor(curveColor);
+            cvf::Color3f curveColor    = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
+            curve->setColor( curveColor );
 
-            plotTrack->addCurve(curve);
+            plotTrack->addCurve( curve );
 
-            RigWellLogFile* wellLogDataFile = wellLogFile->wellLogFile();
-            CVF_ASSERT(wellLogDataFile);
+            RigWellLogFile* wellLogDataFile = wellLogFile->wellLogFileData();
+            CVF_ASSERT( wellLogDataFile );
 
-            if (wlIdx == 0)
+            if ( wlIdx == 0 )
             {
                 // Initialize plot with depth unit from the first log file
-                plot->setDepthUnit(wellLogDataFile->depthUnit());
+                plot->setDepthUnit( wellLogDataFile->depthUnit() );
             }
 
-            curve->setWellPath(wellPath);
-            curve->setWellLogChannelName(wellLog->name());
+            curve->setWellPath( wellPath );
+            curve->setWellLogChannelName( wellLog->name() );
+            curve->setWellLogFile( wellLogFile );
 
-            curve->loadDataAndUpdate();
-        }        
+            curve->loadDataAndUpdate( true );
+        }
     }
-
-    plot->calculateAvailableDepthRange();
-    plot->updateDepthZoom();
-    plotTrack->viewer()->replot();
-
-    // Make sure the summary plot window is created and visible
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    plot->updateLayout();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
 
-    plotwindow->selectAsCurrentItem(selection.back());
+    RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem( plot );
+    RiuPlotMainWindowTools::setExpanded( plotTrack );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicAddWellLogToPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicAddWellLogToPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Add To New Plot");
+    actionToSetup->setText( "Add To New Plot" );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogFileChannel*> RicAddWellLogToPlotFeature::selectedWellLogs()
 {
     std::vector<RimWellLogFileChannel*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
+    caf::SelectionManager::instance()->objectsByType( &selection );
     return selection;
 }
-
-} // end namespace caf

@@ -3,7 +3,7 @@
 #include "cafAssert.h"
 #include "cafPdmPointer.h"
 
-#include "cafPdmFieldHandle.h"
+#include "cafPdmValueField.h"
 
 namespace caf
 {
@@ -21,7 +21,7 @@ template< typename T> class PdmFieldXmlCap;
 //==================================================================================================
 
 template<typename DataType>
-class PdmPtrField : public PdmFieldHandle
+class PdmPtrField : public PdmValueField
 {
 public:
     PdmPtrField()
@@ -31,7 +31,7 @@ public:
 };
 
 template<typename DataType >
-class PdmPtrField <DataType*> : public PdmFieldHandle
+class PdmPtrField <DataType*> : public PdmValueField
 {
     typedef DataType* DataTypePtr;
 public:
@@ -39,7 +39,7 @@ public:
 
     PdmPtrField() : m_isResolved(false)                                     { }
     explicit PdmPtrField(const DataTypePtr& fieldValue);                
-    virtual ~PdmPtrField();
+    ~PdmPtrField() override;
 
     //  Assignment 
 
@@ -51,19 +51,22 @@ public:
     DataType*                   value() const                               { return m_fieldValue;  }
     void                        setValue(const DataTypePtr& fieldValue);    
 
+    // QVariant access
+    QVariant            toQVariant() const override;
+    void                setFromQVariant(const QVariant& variant) override;
+    bool                isReadOnly() const override { return false; }
+
     // Access operators
 
     /*Conversion*/              operator DataType* () const                 { return m_fieldValue; }
     DataType*                   operator->() const                          { return m_fieldValue; }
-
-    const PdmPointer<DataType>& operator()() const                          { return m_fieldValue; }
-    const PdmPointer<DataType>& v() const                                   { return m_fieldValue; }
+    DataType*                   operator()() const                          { return m_fieldValue; }
 
     bool                        operator==(const DataTypePtr& fieldValue)   { return m_fieldValue == fieldValue; }
 
     // Ptr referenced objects
 
-    virtual void ptrReferencedObjects(std::vector<PdmObjectHandle*>* objectsToFill);
+    void ptrReferencedObjects(std::vector<PdmObjectHandle*>* objectsToFill) override;
 
 
 private:
@@ -82,6 +85,3 @@ private:
 } // End of namespace caf
 
 #include "cafPdmPtrField.inl"
-
-#include <QMetaType>
-Q_DECLARE_METATYPE(caf::PdmPointer<caf::PdmObjectHandle>);

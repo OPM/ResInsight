@@ -27,7 +27,7 @@
 #include "qwt_global.h"
 
 #ifndef M_PI_2
-// For Qt <= 4.8.4 M_PI_2 is not known by MinGW-w64 
+// For Qt <= 4.8.4 M_PI_2 is not known by MinGW-w64
 // when compiling with -std=c++11
 #define M_PI_2 (1.57079632679489661923)
 #endif
@@ -134,13 +134,13 @@ inline double qwtFastAtan2( double y, double x )
     return 0.0;
 }
 
-// Translate degrees into radians
+//! Translate degrees into radians
 inline double qwtRadians( double degrees )
 {
     return degrees * M_PI / 180.0;
 }
 
-// Translate radians into degrees
+//! Translate radians into degrees
 inline double qwtDegrees( double degrees )
 {
     return degrees * 180.0 / M_PI;

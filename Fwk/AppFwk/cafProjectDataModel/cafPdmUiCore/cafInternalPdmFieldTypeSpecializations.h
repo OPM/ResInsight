@@ -6,6 +6,8 @@
 
 #include <QStringList>
 
+#include <type_traits>
+
 namespace caf
 {
 
@@ -84,6 +86,7 @@ public:
         }
     }
 
+    /// Operates on scalar content T value of the std::list<T>
     static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
         return PdmValueFieldSpecialization<T>::isEqual(variantValue, variantValue2);
@@ -121,9 +124,10 @@ public:
         return PdmValueFieldSpecialization< std::vector<T> >::setFromVariant(variantValue, value);
     }
 
+    /// Operates on scalar content T value of the std::vector<T>
     static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
-        return PdmValueFieldSpecialization<T>::isEqual(variantValue, variantValue2);
+         return PdmValueFieldSpecialization<T>::isEqual(variantValue, variantValue2);
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
@@ -149,8 +153,9 @@ public:
     /// Convert the field value into a QVariant
     static QVariant convert(const caf::AppEnum<T>& value)
     {
-        int enumIntVal = value;
-        return QVariant(enumIntVal);
+        T enumVal = value;
+        // Explicit cast to an int for storage in a QVariant. This allows the use of enum class instead of enum
+        return QVariant(static_cast<int>(enumVal));
     }
 
     /// Set the field value from a QVariant
@@ -173,8 +178,8 @@ public:
 
         for (size_t i = 0; i < caf::AppEnum<T>::size(); ++i)
         {
-            int enumIntVal = caf::AppEnum<T>::fromIndex(i);
-            optionList.push_back(PdmOptionItemInfo(caf::AppEnum<T>::uiTextFromIndex(i), enumIntVal));
+            T enumVal = caf::AppEnum<T>::fromIndex(i);
+            optionList.push_back(PdmOptionItemInfo(caf::AppEnum<T>::uiTextFromIndex(i), static_cast<int>(enumVal)));
         }
 
         return optionList;
@@ -186,4 +191,42 @@ public:
 
 };
 
+
+//================================================================================================== 
+/// Partial specialization for FilePath 
+//================================================================================================== 
+ 
+template <> 
+class PdmUiFieldSpecialization<caf::FilePath> 
+{ 
+public: 
+    /// Convert the field value into a QVariant 
+    static QVariant convert(const caf::FilePath& value) 
+    { 
+        return PdmValueFieldSpecialization<caf::FilePath>::convert(value); 
+    } 
+ 
+    /// Set the field value from a QVariant 
+    static void setFromVariant(const QVariant& variantValue, caf::FilePath& value) 
+    { 
+        return PdmValueFieldSpecialization<caf::FilePath>::setFromVariant(variantValue, value); 
+    } 
+ 
+    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2) 
+    { 
+        return PdmValueFieldSpecialization<caf::FilePath>::isEqual(variantValue, variantValue2); 
+    } 
+ 
+    /// Methods to get a list of options for a field, specialized for AppEnum 
+    static QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly, const caf::FilePath& ) 
+    { 
+        return QList<PdmOptionItemInfo>(); 
+    } 
+ 
+    /// Methods to retrieve the possible PdmObject pointed to by a field 
+    static void childObjects(const PdmDataValueField< caf::FilePath > & field, std::vector<PdmObjectHandle*>* objects) 
+    { } 
+ 
+}; 
+ 
 } // End namespace caf

@@ -69,7 +69,7 @@ void AttitudeIndicator::setGradient( double gradient )
     }
 }
 
-void AttitudeIndicator::drawScale( QPainter *painter, 
+void AttitudeIndicator::drawScale( QPainter *painter,
     const QPointF &center, double radius ) const
 {
     const double offset = 4.0;

@@ -1,5 +1,4 @@
 /*
-  Copyright 2017 SINTEF ICT, Applied Mathematics.
   Copyright 2017 Statoil ASA.
 
   This file is part of the Open Porous Media Project (OPM).
@@ -24,7 +23,7 @@
 
 #include <opm/utility/ECLUnitHandling.hpp>
 
-#include <opm/parser/eclipse/Units/Units.hpp>
+#include <opm/utility/imported/Units.hpp>
 
 #include <exception>
 #include <stdexcept>
@@ -39,10 +38,30 @@ namespace Opm { namespace ECLUnits {
         template <ert_ecl_unit_enum convention>
         class USys;
 
+        using namespace ImportedOpm;
+
         template <>
         class USys<ECL_METRIC_UNITS> : public ::Opm::ECLUnits::UnitSystem
         {
         public:
+            virtual std::unique_ptr<Opm::ECLUnits::UnitSystem>
+            clone() const override
+            {
+                return std::unique_ptr<Opm::ECLUnits::UnitSystem> {
+                    new USys<ECL_METRIC_UNITS>(*this)
+                };
+            }
+
+            virtual double density() const override
+            {
+                return Metric::Density;
+            }
+
+            virtual double depth() const override
+            {
+                return Metric::Length;
+            }
+
             virtual double pressure() const override
             {
                 return Metric::Pressure;
@@ -58,6 +77,16 @@ namespace Opm { namespace ECLUnits {
                 return Metric::ReservoirVolume;
             }
 
+            virtual double surfaceVolumeGas() const override
+            {
+                return Metric::GasSurfaceVolume;
+            }
+
+            virtual double surfaceVolumeLiquid() const override
+            {
+                return Metric::LiquidSurfaceVolume;
+            }
+
             virtual double time() const override
             {
                 return Metric::Time;
@@ -67,12 +96,35 @@ namespace Opm { namespace ECLUnits {
             {
                 return Metric::Transmissibility;
             }
+
+            virtual double viscosity() const override
+            {
+                return Metric::Viscosity;
+            }
         };
 
         template <>
         class USys<ECL_FIELD_UNITS> : public ::Opm::ECLUnits::UnitSystem
         {
         public:
+            virtual std::unique_ptr<Opm::ECLUnits::UnitSystem>
+            clone() const override
+            {
+                return std::unique_ptr<Opm::ECLUnits::UnitSystem> {
+                    new USys<ECL_FIELD_UNITS>(*this)
+                };
+            }
+
+            virtual double density() const override
+            {
+                return Field::Density;
+            }
+
+            virtual double depth() const override
+            {
+                return Field::Length;
+            }
+
             virtual double pressure() const override
             {
                 return Field::Pressure;
@@ -88,6 +140,16 @@ namespace Opm { namespace ECLUnits {
                 return Field::ReservoirVolume;
             }
 
+            virtual double surfaceVolumeGas() const override
+            {
+                return Field::GasSurfaceVolume;
+            }
+
+            virtual double surfaceVolumeLiquid() const override
+            {
+                return Field::LiquidSurfaceVolume;
+            }
+
             virtual double time() const override
             {
                 return Field::Time;
@@ -97,12 +159,35 @@ namespace Opm { namespace ECLUnits {
             {
                 return Field::Transmissibility;
             }
+
+            virtual double viscosity() const override
+            {
+                return Field::Viscosity;
+            }
         };
 
         template <>
         class USys<ECL_LAB_UNITS> : public ::Opm::ECLUnits::UnitSystem
         {
         public:
+            virtual std::unique_ptr<Opm::ECLUnits::UnitSystem>
+            clone() const override
+            {
+                return std::unique_ptr<Opm::ECLUnits::UnitSystem> {
+                    new USys<ECL_LAB_UNITS>(*this)
+                };
+            }
+
+            virtual double density() const override
+            {
+                return Lab::Density;
+            }
+
+            virtual double depth() const override
+            {
+                return Lab::Length;
+            }
+
             virtual double pressure() const override
             {
                 return Lab::Pressure;
@@ -118,6 +203,16 @@ namespace Opm { namespace ECLUnits {
                 return Lab::ReservoirVolume;
             }
 
+            virtual double surfaceVolumeGas() const override
+            {
+                return Lab::GasSurfaceVolume;
+            }
+
+            virtual double surfaceVolumeLiquid() const override
+            {
+                return Lab::LiquidSurfaceVolume;
+            }
+
             virtual double time() const override
             {
                 return Lab::Time;
@@ -127,12 +222,38 @@ namespace Opm { namespace ECLUnits {
             {
                 return Lab::Transmissibility;
             }
+
+            virtual double viscosity() const override
+            {
+                return Lab::Viscosity;
+            }
         };
 
         template <>
         class USys<ECL_PVT_M_UNITS> : public ::Opm::ECLUnits::UnitSystem
         {
         public:
+            virtual std::unique_ptr<Opm::ECLUnits::UnitSystem>
+            clone() const override
+            {
+                return std::unique_ptr<Opm::ECLUnits::UnitSystem> {
+                    new USys<ECL_PVT_M_UNITS>(*this)
+                };
+            }
+
+            virtual double density() const override
+            {
+                using namespace prefix;
+                using namespace unit;
+
+                return kilogram / cubic(meter);
+            }
+
+            virtual double depth() const override
+            {
+                return unit::meter;
+            }
+
             virtual double pressure() const override
             {
                 return unit::atm;
@@ -154,6 +275,16 @@ namespace Opm { namespace ECLUnits {
                 return cubic(meter);
             }
 
+            virtual double surfaceVolumeGas() const override
+            {
+                return unit::cubic(unit::meter);
+            }
+
+            virtual double surfaceVolumeLiquid() const override
+            {
+                return unit::cubic(unit::meter);
+            }
+
             virtual double time() const override
             {
                 return unit::day;
@@ -165,6 +296,11 @@ namespace Opm { namespace ECLUnits {
                 using namespace unit;
 
                 return centi*Poise * cubic(meter) / (day * atm);
+            }
+
+            virtual double viscosity() const override
+            {
+                return prefix::centi*unit::Poise;
             }
         };
     } // namespace Impl
@@ -182,6 +318,18 @@ Opm::ECLUnits::Impl::getUnitConvention(const int usys)
 
     throw std::runtime_error("Unsupported Unit Convention: "
                              + std::to_string(usys));
+}
+
+double Opm::ECLUnits::UnitSystem::dissolvedGasOilRat() const
+{
+    return this->surfaceVolumeGas()
+        /  this->surfaceVolumeLiquid();
+}
+
+double Opm::ECLUnits::UnitSystem::vaporisedOilGasRat() const
+{
+    return this->surfaceVolumeLiquid()
+        /  this->surfaceVolumeGas();
 }
 
 std::unique_ptr<const ::Opm::ECLUnits::UnitSystem>

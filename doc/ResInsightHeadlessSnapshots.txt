@@ -1,0 +1,18 @@
+
+Investigations on using ResInsight to render plots in a compleatly Headless state
+
+- Qt 5.8 or higher needed, it seems. Tested with Qt 5.14.1. Tested with Qt 5.6.1 on CentOS 6 and the plots was rendered without fonts.
+- Start ResInsight with the additional options -platform offscreen
+- The project can not contain visible 3D views. If it does, ResInsight will crash
+- Might add -stylesheet <path to stylesheet definition file> to explicitly control fonts
+  example contents of stylesheets file:
+  
+	* { font: bold italic large "Times New Roman" }
+	
+  The "*" might be substituted with specific classes or widgets.
+  It seems as the Qwt plot axis-titles are not affected by the stylesheet set above
+  
+- Example command line:
+
+  ./ResInsight --project FPPLot.rsp --savesnapshots all --snapshotsize 500 500 -stylesheet stylesheet.txt -platform offscreen
+  

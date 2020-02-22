@@ -1,0 +1,58 @@
+@startuml
+left to right direction
+
+RifSummaryReaderInterface <|-- RifCalculatedSummaryCurveReader
+RifSummaryReaderInterface <|-- RifColumnBasedUserData
+RifSummaryReaderInterface <|-- RifCsvUserData
+RifSummaryReaderInterface <|-- RifKeywordVectorUserData
+RifSummaryReaderInterface <|-- RifReaderEclipseSummary
+RifSummaryReaderInterface <|-- RifReaderObservedData
+RifSummaryReaderInterface <|-- RifEnsembleStatisticsReader
+RifSummaryReaderInterface <|-- RifDerivedEnsembleReader
+
+RifColumnBasedUserData *-- "1" RifColumnBasedUserDataParser
+RifKeywordVectorUserData *-- "1" RifKeywordVectorUserDataParser
+RifReaderObservedData --> RifCsvUserDataParser
+
+RimSummaryCaseCollection --> "*" RimSummaryCase
+
+RimSummaryCaseCollection <|-- RimDerivedEnsembleCaseCollection
+
+RimDerivedEnsembleCaseCollection --> "*" RimDerivedEnsembleCase
+
+RimSummaryCase <|-- RimCalculatedSummaryCase
+RimSummaryCase <|-- RimFileSummaryCase
+RimSummaryCase <|-- RimGridSummaryCase
+RimSummaryCase <|-- RimObservedData
+RimSummaryCase <|-- RimEnsembleStatisticsCase
+RimSummaryCase <|-- RimDerivedEnsembleCase
+
+RimObservedData <|-- RimObservedEclipseUserData
+RimObservedData <|-- RimCsvUserData
+RimObservedData <|-- RimSummaryObservedDataFile
+
+RimCalculatedSummaryCase --> RifCalculatedSummaryCurveReader
+
+RimDerivedEnsembleCase --> RifDerivedEnsembleReader
+
+RimSummaryObservedDataFile --> RifReaderObservedData
+
+RimObservedEclipseUserData *--> RifSummaryReaderInterface
+
+RimCsvUserData -> RicPasteAsciiDataToSummaryPlotFeatureUi
+RimCsvUserData --> RifCsvUserData
+
+RimFileSummaryCase *--> RifReaderEclipseSummary
+RimGridSummaryCase *--> RifReaderEclipseSummary
+
+RicPasteAsciiDataToSummaryPlotFeatureUi --> RifCsvUserDataParser
+
+RimEnsembleCurveSet -> "1" RimSummaryCaseCollection
+
+RimEnsembleCurveSet --> "1" RimEnsembleStatisticsCase
+RimEnsembleStatisticsCase --> RifEnsembleStatisticsReader
+
+RimSummaryCaseMainCollection -> "*" RimSummaryCase
+RimSummaryCaseMainCollection -> "*" RimSummaryCaseCollection
+
+@enduml

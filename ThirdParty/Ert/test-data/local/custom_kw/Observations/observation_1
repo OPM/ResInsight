@@ -1,5 +1,0 @@
-GENERAL_OBSERVATION GEN_PERLIN_1 {
-    DATA = PERLIN;
-    RESTART = 1;
-    OBS_FILE =  Observations/perlin_obs_1.txt;
-};

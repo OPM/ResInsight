@@ -1,5 +1,0 @@
-STDOUT   store_file.stdout
-STDERR   store_file.stderr
-
-EXECUTABLE  ../../../Scripts/store_file.py
-ARGLIST       <STORAGE_PATH>  <FILE> 

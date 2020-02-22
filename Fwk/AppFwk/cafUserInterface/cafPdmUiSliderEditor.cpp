@@ -43,6 +43,7 @@
 #include "cafPdmField.h"
 
 #include "cafFactory.h"
+#include "cafQShortenedLabel.h"
 
 #include <QLineEdit>
 #include <QLabel>
@@ -63,48 +64,36 @@ void PdmUiSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     CAF_ASSERT(!m_spinBox.isNull());
 
-    QIcon ic = field()->uiIcon(uiConfigName);
-    if (!ic.isNull())
-    {
-        m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-    }
-    else
-    {
-        m_label->setText(field()->uiName(uiConfigName));
-    }
+    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-    m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_label->setToolTip(field()->uiToolTip(uiConfigName));
+    m_spinBox->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_spinBox->setToolTip(uiField()->uiToolTip(uiConfigName));
 
-    m_spinBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_spinBox->setToolTip(field()->uiToolTip(uiConfigName));
+    m_slider->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_slider->setToolTip(uiField()->uiToolTip(uiConfigName));
 
-    m_slider->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_slider->setToolTip(field()->uiToolTip(uiConfigName));
-
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
     }
 
     {
         m_spinBox->blockSignals(true);
         m_spinBox->setMinimum(m_attributes.m_minimum);
         m_spinBox->setMaximum(m_attributes.m_maximum);
+        
+        QString textValue = uiField()->uiValue().toString();
+        m_spinBox->setValue(textValue.toInt());
         m_spinBox->blockSignals(false);
     }
 
     {
         m_slider->blockSignals(true);
         m_slider->setRange(m_attributes.m_minimum, m_attributes.m_maximum);
+        updateSliderPosition();
         m_slider->blockSignals(false);
     }
-
-    QString textValue = field()->uiValue().toString();
-    m_spinBox->setValue(textValue.toInt());
-
-    updateSliderPosition();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,7 +126,7 @@ QWidget* PdmUiSliderEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiSliderEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 

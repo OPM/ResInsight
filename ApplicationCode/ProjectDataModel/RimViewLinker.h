@@ -2,24 +2,22 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
-#include "RimDefines.h"
 
 #include "RivCellSetEnum.h"
 
@@ -28,80 +26,95 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-#include "cvfBase.h"
 #include "cvfVector3.h"
+
+namespace caf
+{
+class QIconProvider;
+}
 
 namespace cvf
 {
-    class BoundingBox;
+class BoundingBox;
 }
 
 class RimViewController;
 class RiuViewer;
-class RimView;
+class RimGridView;
 class RimCellRangeFilter;
+class RimPropertyFilter;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimViewLinker : public caf::PdmObject
 {
-     CAF_PDM_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    RimViewLinker(void);
-    virtual ~RimViewLinker(void);
-    
-    bool                                    isActive() const;
+    RimViewLinker();
+    ~RimViewLinker() override;
 
-    void                                    setMasterView(RimView* view);
-    RimView*                                masterView() const;
+    bool isActive() const;
 
-    void                                    addDependentView(RimView* view);
-    void                                    updateDependentViews();
-    void                                    removeViewController(RimViewController* viewController);
+    void         setMasterView( RimGridView* view );
+    RimGridView* masterView() const;
+    void         addDependentView( RimGridView* view );
+    bool         isFirstViewDependentOnSecondView( const RimGridView* firstView, const RimGridView* secondView ) const;
+    void         updateDependentViews();
+    void         removeViewController( RimViewController* viewController );
+    RimGridView* firstControlledView();
 
-    void                                    updateOverrides();
+    void updateOverrides();
 
-    void                                    updateCamera(RimView* sourceView);
-    void                                    updateTimeStep(RimView* sourceView, int timeStep);
-    void                                    updateScaleZ(RimView* sourceView, double scaleZ);
+    void updateCamera( RimGridView* sourceView );
+    void updateTimeStep( RimGridView* sourceView, int timeStep );
+    void updateScaleZ( RimGridView* sourceView, double scaleZ );
 
-    void                                    updateCellResult();
+    void updateCellResult();
 
-    void                                    updateRangeFilters(RimCellRangeFilter* changedRangeFilter);
-    void                                    applyRangeFilterCollectionByUserChoice();
+    void updateRangeFilters( RimCellRangeFilter* changedRangeFilter );
+    void applyRangeFilterCollectionByUserChoice();
 
-    void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
-    void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();
+    void updatePropertyFilters( RimPropertyFilter* changedPropertyFilter );
 
-    void                                    allViews(std::vector<RimView*>& views) const;
+    void scheduleGeometryRegenForDepViews( RivCellSetEnum geometryType );
+    void scheduleCreateDisplayModelAndRedrawForDependentViews();
 
-    void                                    updateUiNameAndIcon();
+    void allViews( std::vector<RimGridView*>& views ) const;
 
-    void                                    addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const;
+    void updateUiNameAndIcon();
 
-    static void                             applyIconEnabledState(caf::PdmObject* obj, const QIcon& icon, bool disable);
-    static void                             findNameAndIconFromView(QString* name, QIcon* icon, RimView* view);
+    void addViewControllers( caf::PdmUiTreeOrdering& uiTreeOrdering ) const;
 
-    void                                    updateCursorPosition(const RimView* sourceView, const cvf::Vec3d& domainCoord);
+    static void findNameAndIconFromView( QString* name, caf::QIconProvider* icon, RimGridView* view );
 
-public:
-    static QString                          displayNameForView(RimView* view);
+    void updateCursorPosition( const RimGridView* sourceView, const cvf::Vec3d& domainCoord );
+
+    void notifyManagedViewChange( RimGridView* oldManagedView, RimGridView* newManagedView );
 
 protected:
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &m_name; }
-    virtual void                            initAfterRead();
+    caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
+
+    void initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+
+    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    void                                    allViewsForCameraSync(const RimView* source, std::vector<RimView*>& views) const;
-    
-    void                                    removeOverrides();
+    static QString displayNameForView( RimGridView* view );
+
+    void allViewsForCameraSync( const RimGridView* source, std::vector<RimGridView*>& views ) const;
+
+    void removeOverrides();
 
 private:
-    caf::PdmChildArrayField<RimViewController*>   m_viewControllers;
-    caf::PdmPtrField<RimView*>                    m_masterView;
-    caf::PdmField<QString>                        m_name;
-    QIcon                                         m_originalIcon;
+    caf::PdmChildArrayField<RimViewController*> m_viewControllers;
+    caf::PdmPtrField<RimGridView*>              m_masterView;
+    caf::PdmField<QString>                      m_name;
+    caf::PdmPtrField<RimGridView*>              m_comparisonView;
 };

@@ -18,7 +18,7 @@ class PdmObjectGroup : public PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     PdmObjectGroup();
-    ~PdmObjectGroup();
+    ~PdmObjectGroup() override;
 
     std::vector<PdmObjectHandle*> objects;
 
@@ -55,7 +55,7 @@ void PdmObjectGroup::createCopyByType(std::vector<PdmPointer<T> >* copyOfTypedOb
     {
         QString xml = xmlObj(sourceTypedObjects[i])->writeObjectToXmlString();
 
-        PdmObjectHandle* objectCopy = PdmXmlObjectHandle::readUnknownObjectFromXmlString(xml, PdmDefaultObjectFactory::instance());
+        PdmObjectHandle* objectCopy = PdmXmlObjectHandle::readUnknownObjectFromXmlString(xml, PdmDefaultObjectFactory::instance(), true);
 
         T* typedObject = dynamic_cast<T*>(objectCopy);
         CAF_ASSERT(typedObject);
@@ -73,7 +73,7 @@ class PdmObjectCollection : public PdmObject
     CAF_PDM_HEADER_INIT;
 public:
     PdmObjectCollection();
-    ~PdmObjectCollection();
+    ~PdmObjectCollection() override;
 
     caf::PdmChildArrayField<PdmObjectHandle*> objects;
 };

@@ -39,11 +39,12 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-class QStringListModel;
 class QItemSelection;
-class QListViewHeightHint;
 class QLabel;
+class QListViewHeightHint;
 class QModelIndex;
+class QStringList;
+class QStringListModel;
 
 namespace caf 
 {
@@ -56,6 +57,7 @@ class PdmUiListEditorAttribute : public PdmUiEditorAttribute
 public:
     PdmUiListEditorAttribute()
         : m_heightHint(2000)
+        , m_allowHorizontalScrollBar(true)
     {
         QPalette myPalette;
 
@@ -65,6 +67,7 @@ public:
 public:
     QColor  m_baseColor;
     int     m_heightHint;
+    bool    m_allowHorizontalScrollBar;
 };
 
 
@@ -78,29 +81,35 @@ class PdmUiListEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiListEditor(); 
-    virtual ~PdmUiListEditor(); 
+    ~PdmUiListEditor() override; 
+
 
 protected:
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
-    virtual bool        eventFilter ( QObject * listView, QEvent * event ); // To catch delete key press in list view.
+    QWidget*    createEditorWidget(QWidget * parent) override;
+    QWidget*    createLabelWidget(QWidget * parent) override;
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    bool        eventFilter ( QObject * listView, QEvent * event ) override; // To catch delete key press in list view.
+    bool        isMultiRowEditor() const override;
 
 protected slots:
-    void                slotSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
-    void                slotListItemEdited(const QModelIndex&, const QModelIndex&);
+    void        slotSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
+    void        slotListItemEdited(const QModelIndex&, const QModelIndex&);
+    void        slotScrollToSelectedItem() const;
 
 private:
-    QString             contentAsString() const;
-    void                pasteFromString(const QString& content);
+    QString     contentAsString() const;
+    void        pasteFromString(const QString& content);
+    
+    void        trimAndSetValuesToField(const QStringList& stringList);
 
 private:
     QPointer<QListViewHeightHint> m_listView;
-    QPointer<QLabel>            m_label;
-    QPointer<QStringListModel>  m_model;
+    QPointer<QShortenedLabel>     m_label;
+    QPointer<QStringListModel>    m_model;
 
-    bool                    m_isEditOperationsAvailable;
-    int                     m_optionItemCount;
+    bool m_isEditOperationsAvailable;
+    int  m_optionItemCount;
+    bool m_isScrollToItemAllowed;
 };
 
 

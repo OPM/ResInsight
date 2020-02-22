@@ -11,8 +11,9 @@ python/lib64
 /libenkf/src/.faultlist
 /develbranch/libenkf/src/.faultlist
 /build
+/temp-build
 /libert_util/tests/data/latex_OK.pdf
-/test-data/Statoil
+/test-data/Equinor
 /python/python/ert/ecl/ecl_local.py
 /GPATH
 /GRTAGS
@@ -22,6 +23,5 @@ python/lib64
 scratch.sparsebundle
 *.iml
 *.DS_Store
-__ert_lib_path.py
-__ert_lib_info.py
-
+__ecl_lib_path.py
+__ecl_lib_info.py

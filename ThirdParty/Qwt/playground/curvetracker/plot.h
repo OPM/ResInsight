@@ -13,7 +13,7 @@ public:
     Plot( QWidget * = NULL );
 
 private:
-    void insertCurve( const QString &title, 
+    void insertCurve( const QString &title,
         const QColor &, const QPolygonF & );
 };
 

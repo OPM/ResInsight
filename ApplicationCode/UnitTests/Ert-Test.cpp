@@ -3,26 +3,24 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-
-
 /*
-#include "gtest/gtest.h"
 #include "ert/ecl/ecl_file.h"
+#include "gtest/gtest.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -30,9 +28,9 @@ TEST(RigReservoirTest, WellTestErt)
 {
 
     {
-        char filename[1024] = "d:/Models/Statoil_multipleRealisations/MultipleRealisations/Case_with_10_timesteps/Real0/BRUGGE_0000.X0000";
-        ecl_file_type* ecl_file = ecl_file_open(filename, ECL_FILE_CLOSE_STREAM);
-        ecl_file_close(ecl_file);
+        char filename[1024] =
+"d:/Models/Statoil_multipleRealisations/MultipleRealisations/Case_with_10_timesteps/Real0/BRUGGE_0000.X0000";
+ecl_file_type* ecl_file = ecl_file_open(filename, ECL_FILE_CLOSE_STREAM); ecl_file_close(ecl_file);
     }
 
     {
@@ -48,12 +46,6 @@ TEST(RigReservoirTest, WellTestErt)
     }
 }
 */
-
-
-
-
-
-
 
 #if 0
 //--------------------------------------------------------------------------------------------------
@@ -212,6 +204,5 @@ TEST(RigReservoirTest, ReadFaultsRecursively)
         }
     }
 }
-
 
 #endif

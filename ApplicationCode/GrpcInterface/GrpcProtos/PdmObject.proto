@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+import "Definitions.proto";
+
+package rips;
+
+service PdmObjectService
+{
+	rpc GetDescendantPdmObjects(PdmDescendantObjectRequest) returns (PdmObjectArray) {}
+	rpc GetChildPdmObjects(PdmChildObjectRequest) returns (PdmObjectArray) {}
+	rpc GetAncestorPdmObject(PdmParentObjectRequest) returns (PdmObject) {}
+	rpc CreateChildPdmObject(CreatePdmChildObjectRequest) returns (PdmObject) {}
+	rpc UpdateExistingPdmObject(PdmObject) returns (Empty) {}
+}
+
+message PdmDescendantObjectRequest
+{
+	PdmObject            object = 1;
+	string        child_keyword = 2;
+}
+
+message PdmChildObjectRequest
+{
+	PdmObject                  object = 1;
+	string                child_field = 2;
+}
+
+message CreatePdmChildObjectRequest
+{
+	PdmObject                  object = 1;
+	string                child_field = 2;
+}
+
+message PdmParentObjectRequest
+{
+	PdmObject          object = 1;
+	string     parent_keyword = 2;
+}
+
+message PdmObject
+{
+	string           class_keyword = 1;
+	uint64                 address = 2;
+	map<string, string> parameters = 3;
+	bool                   visible = 4;
+}
+
+message PdmObjectArray
+{
+	repeated PdmObject objects = 1;
+}

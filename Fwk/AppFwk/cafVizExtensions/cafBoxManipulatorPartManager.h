@@ -49,7 +49,7 @@ public:
 
 public:
     BoxManipulatorPartManager();
-    ~BoxManipulatorPartManager();
+    ~BoxManipulatorPartManager() override;
 
     void    setOrigin(const cvf::Vec3d& origin);
     void    setSize(const cvf::Vec3d& size);
@@ -79,9 +79,6 @@ private:
                                                        const cvf::Vec3f& v3, 
                                                        const cvf::Vec3f& v4, 
                                                        const cvf::Vec3f& v5);
-    static bool closestPointOfTwoLines(const cvf::Vec3d& p1, const cvf::Vec3d& q1, 
-                                       const cvf::Vec3d& p2, const cvf::Vec3d& q2, 
-                                       cvf::Vec3d* closestPoint1, cvf::Vec3d* closestPoint2);
 
 private:
     std::vector< std::pair<BoxFace, HandleType> >   m_handleIds;             // These arrays have the same length

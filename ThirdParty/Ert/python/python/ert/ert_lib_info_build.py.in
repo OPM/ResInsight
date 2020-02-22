@@ -1,3 +1,0 @@
-lib_path = "${LIBRARY_OUTPUT_PATH}"
-so_version = "${ERT_BINARY_POSTFIX}"
-__version__ = "${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR}.${ERT_VERSION_MICRO}"

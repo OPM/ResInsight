@@ -34,26 +34,29 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiObjectEditorHandle.h"
 
-#include "cafPdmObjectHandle.h"
 #include "cafPdmUiObjectHandle.h"
 
 namespace caf
 {
 
+std::set<QPointer<PdmUiObjectEditorHandle>> PdmUiObjectEditorHandle::m_sRegisteredObjectEditors;
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiObjectEditorHandle::getOrCreateWidget(QWidget* parent)
+PdmUiObjectEditorHandle::PdmUiObjectEditorHandle()
 {
-    if (m_widget.isNull()) 
-    {
-        m_widget = this->createWidget(parent);
-    }
-    return m_widget;
+    m_sRegisteredObjectEditors.insert(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmUiObjectEditorHandle::~PdmUiObjectEditorHandle()
+{
+    m_sRegisteredObjectEditors.erase(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +82,40 @@ PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject()
     }
     else
     {
-        return NULL;
+        return nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const caf::PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject() const
+{
+    const PdmUiItem* pdmItem = this->pdmItem();
+
+    const PdmUiObjectHandle* uiObject = dynamic_cast<const PdmUiObjectHandle*>(pdmItem);
+    if (uiObject)
+    {
+        return uiObject->objectHandle();
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// This function is intended to be called after an object has been created or deleted,
+/// to ensure all object editors are updated (including valueOptions and UI representation of objects)
+//--------------------------------------------------------------------------------------------------
+void PdmUiObjectEditorHandle::updateUiAllObjectEditors()
+{
+    for (PdmUiObjectEditorHandle* objEditorHandle : m_sRegisteredObjectEditors)
+    {
+        if (objEditorHandle != nullptr)
+        {
+            objEditorHandle->updateUi();
+        }
     }
 }
 

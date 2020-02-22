@@ -134,17 +134,21 @@ void caf::Tristate::setFromText(const QString& valueText)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void operator >> (QTextStream& str, caf::Tristate& triplet)
+QTextStream& operator >> (QTextStream& str, caf::Tristate& triplet)
 {
     QString text;
     str >> text;
     triplet.setFromText(text);
+
+    return str;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void operator << (QTextStream& str, const caf::Tristate& triplet)
+QTextStream& operator << (QTextStream& str, const caf::Tristate& triplet)
 {
     str << triplet.text();
+
+    return str;
 }

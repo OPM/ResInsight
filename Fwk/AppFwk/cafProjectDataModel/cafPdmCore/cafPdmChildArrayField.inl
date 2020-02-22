@@ -1,3 +1,4 @@
+#include "cafAsyncObjectDeleter.h"
 #include "cafClassTypeName.h"
 #include "cafPdmObjectHandle.h"
 
@@ -139,6 +140,20 @@ void PdmChildArrayField<DataType*>::deleteAllChildObjects()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Transfers ownership of the objects pointed to a separate thread.
+/// Then clears the container and lets the thread delete the objects.
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
+void PdmChildArrayField<DataType*>::deleteAllChildObjectsAsync()
+{
+    CAF_ASSERT(isInitializedByInitFieldMacro());
+
+    AsyncPdmObjectVectorDeleter<DataType> pointerDeleter(m_pointers);
+    CAF_ASSERT(m_pointers.empty()); // Object storage for m_pointers should be empty immediately.
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Removes the pointer at index from the container. Does not delete the object pointed to.
 /// Todo: This implementation can't be necessary in the new regime. Should be to just remove
 /// the item at index (shrinking the array)
@@ -161,7 +176,7 @@ void PdmChildArrayField<DataType*>::erase(size_t index)
 /// Get the index of the given object pointer
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
-size_t PdmChildArrayField<DataType*>::index(DataType* pointer)
+size_t PdmChildArrayField<DataType*>::index(const DataType* pointer) const
 {
     for (size_t i = 0; i < m_pointers.size(); ++i)
     {
@@ -202,6 +217,25 @@ void PdmChildArrayField<DataType*>::removeChildObject(PdmObjectHandle* object)
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
+std::vector<DataType*> caf::PdmChildArrayField<DataType*>::childObjects() const
+{
+    std::vector<DataType*> objects;
+
+    for (DataType* p : m_pointers)
+    {
+        if (p != nullptr)
+        {
+            objects.push_back(p);
+        }
+    }
+
+    return objects;
 }
 
 //--------------------------------------------------------------------------------------------------

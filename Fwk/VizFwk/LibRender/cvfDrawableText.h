@@ -65,8 +65,8 @@ public:
     void                        setFont(Font* font);
     ref<Font>                   font() const;
 
-    void                        addText(const String& text, const Vec3f& position);
-
+    void                        addText(const String& text, const Vec3f& position, const Vec3f& direction = Vec3f::X_AXIS);
+    size_t                      numberOfTexts() const;
     void                        setVerticalAlignment(TextDrawer::Alignment alignment);
     void                        setTextColor(const Color3f& color);
     void                        setBackgroundColor(const Color3f& color);
@@ -87,6 +87,7 @@ public:
     virtual size_t              faceCount() const;
 
     virtual BoundingBox         boundingBox() const;
+    BoundingBox                 textBoundingBox(const String& text, const Vec3f& position, const Vec3f& direction = Vec3f::X_AXIS);
 
     virtual bool                rayIntersectCreateDetail(const Ray& ray, Vec3d* intersectionPoint, ref<HitDetail>* hitDetail) const;
     bool                        rayIntersect(const Ray& ray, const Camera& camera, Vec3d* intersectionPoint);
@@ -103,6 +104,8 @@ private:
 private:
     std::vector<Vec3f>          m_positions;        // Coordinate of the lower left corner of where to place the text in pixel coordinates
     std::vector<String>         m_texts;            // Text strings to be drawn
+    std::vector<Vec3f>          m_directions;       // Text direction
+
     ref<Font>                   m_font;             // Font used to draw text
     
     TextDrawer::Alignment       m_verticalAlignment;

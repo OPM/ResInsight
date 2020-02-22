@@ -3,17 +3,17 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -26,14 +26,14 @@
 #include "cafPdmObject.h"
 
 #include "cvfArray.h"
-#include "cvfBase.h"
+
 #include "cvfObject.h"
 
 // Includes to make Pdm work for cvf::Color and cvf:Mat
-#include "cafPdmFieldCvfColor.h"    
+#include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
 
-#include "RimView.h"
+#include "RimGridView.h"
 
 class RigActiveCellInfo;
 class RigCaseCellResultsData;
@@ -41,146 +41,181 @@ class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
 class RigMainGrid;
 class Rim3dOverlayInfoConfig;
-class RimEclipseCase;
 class RimCellEdgeColors;
-class RimEclipsePropertyFilter;
-class RimEclipsePropertyFilterCollection;
 class RimCellRangeFilter;
 class RimCellRangeFilterCollection;
-class RimFaultCollection;
-class RimEclipseFaultColors;
-class RimReservoirCellResultsStorage;
-class RimReservoirCellResultsStorage;
+class RimEclipseCase;
 class RimEclipseCellColors;
-class RimEclipseWellCollection;
+class RimEclipseFaultColors;
+class RimEclipsePropertyFilter;
+class RimEclipsePropertyFilterCollection;
+class RimFaultInViewCollection;
+class RimReservoirCellResultsStorage;
+class RimReservoirCellResultsStorage;
+class RimSimWellInViewCollection;
+class RimStimPlanColors;
+class RimVirtualPerforationResults;
 class RiuViewer;
 class RivReservoirSimWellsPartMgr;
-class RivIntersectionPartMgr;
+class RivExtrudedCurveIntersectionPartMgr;
 class RivReservoirViewPartMgr;
+class RimRegularLegendConfig;
+class RimTernaryLegendConfig;
+class RimEclipseResultDefinition;
 
 namespace cvf
 {
-    class Transform;
-    class ScalarMapperUniformLevels;
-    class ModelBasicList;
-    class OverlayItem;
-}
-
-enum PartRenderMaskEnum
-{
-    surfaceBit      = 0x00000001,
-    meshSurfaceBit  = 0x00000002,
-    faultBit        = 0x00000004,
-    meshFaultBit    = 0x00000008,
-};
+class Transform;
+class ScalarMapperUniformLevels;
+class ModelBasicList;
+class OverlayItem;
+} // namespace cvf
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
-class RimEclipseView : public RimView
+class RimEclipseView : public RimGridView
 {
     CAF_PDM_HEADER_INIT;
+
 public:
-    RimEclipseView(void);
-    virtual ~RimEclipseView(void);
+    RimEclipseView();
+    ~RimEclipseView() override;
 
-    // Fields containing child objects :
+    RimEclipseCellColors*         cellResult() const;
+    RimCellEdgeColors*            cellEdgeResult() const;
+    RimEclipseFaultColors*        faultResultSettings() const;
+    RimStimPlanColors*            fractureColors() const;
+    RimSimWellInViewCollection*   wellCollection() const;
+    RimFaultInViewCollection*     faultCollection() const;
+    RimVirtualPerforationResults* virtualPerforationResult() const;
 
-    caf::PdmChildField<RimEclipseCellColors*>       cellResult;
-    caf::PdmChildField<RimCellEdgeColors*>          cellEdgeResult;
-    caf::PdmChildField<RimEclipseFaultColors*>      faultResultSettings;
-                                                    
-    caf::PdmChildField<RimEclipseWellCollection*>   wellCollection;
-    caf::PdmChildField<RimFaultCollection*>         faultCollection;
-
-    // Fields
-
-    caf::PdmField<bool>                             showInvalidCells;
-    caf::PdmField<bool>                             showInactiveCells;
-    caf::PdmField<bool>                             showMainGrid;
+    bool showInvalidCells() const;
+    bool showInactiveCells() const;
 
     // Access internal objects
-    virtual const RimPropertyFilterCollection*      propertyFilterCollection() const;
+    const RimPropertyFilterCollection* propertyFilterCollection() const override;
 
-    RimEclipsePropertyFilterCollection*             eclipsePropertyFilterCollection();
-    const RimEclipsePropertyFilterCollection*       eclipsePropertyFilterCollection() const;
-    void                                            setOverridePropertyFilterCollection(RimEclipsePropertyFilterCollection* pfc);
+    RimEclipsePropertyFilterCollection*       eclipsePropertyFilterCollection();
+    const RimEclipsePropertyFilterCollection* eclipsePropertyFilterCollection() const;
+    void setOverridePropertyFilterCollection( RimEclipsePropertyFilterCollection* pfc );
 
-    RimReservoirCellResultsStorage*                 currentGridCellResults();
-    RigActiveCellInfo*                              currentActiveCellInfo();
-    RimEclipseCellColors*                           currentFaultResultColors();
+    RigCaseCellResultsData*  currentGridCellResults();
+    const RigActiveCellInfo* currentActiveCellInfo() const;
+    RimEclipseCellColors*    currentFaultResultColors();
 
-    void                                            setEclipseCase(RimEclipseCase* reservoir);
-    RimEclipseCase*                                 eclipseCase() const;
-    virtual RimCase*                                ownerCase();
+    void            setEclipseCase( RimEclipseCase* reservoir );
+    RimEclipseCase* eclipseCase() const;
+    RimCase*        ownerCase() const override;
 
-    RigMainGrid*                                    mainGrid() const;
+    RigMainGrid* mainGrid() const;
 
     // Display model generation
 
-    virtual void                                    loadDataAndUpdate();
-    bool                                            isTimeStepDependentDataVisible() const;
+    bool isTimeStepDependentDataVisible() const override;
 
-    virtual void                                    scheduleGeometryRegen(RivCellSetEnum geometryType);
-    void                                            scheduleReservoirGridGeometryRegen();
-    void                                            scheduleSimWellGeometryRegen();
-    void                                            updateDisplayModelForWellResults();
+    void scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
+    void scheduleReservoirGridGeometryRegen();
+    void scheduleSimWellGeometryRegen();
+    void updateDisplayModelForWellResults();
 
-    const std::vector<RivCellSetEnum>&              visibleGridParts() const;
-    const RivReservoirViewPartMgr*                  reservoirGridPartManager() const;
+    void calculateCompletionTypeAndRedrawIfRequired();
+
+    bool isVirtualConnectionFactorGeometryVisible() const;
+    bool isMainGridVisible() const;
+
+    const std::vector<RivCellSetEnum>& visibleGridParts() const;
+    const RivReservoirViewPartMgr*     reservoirGridPartManager() const;
+    RivReservoirViewPartMgr*           reservoirGridPartManager();
 
     // Does this belong here, really ?
-    void                                            calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
+    void calculateVisibleWellCellsIncFence( cvf::UByteArray* visibleCells, RigGridBase* grid );
 
     // Overridden PDM methods:
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    void                                            updateIconStateForFilterCollections();
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void updateIconStateForFilterCollections();
 
-    virtual void                                    axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel);
+    void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
 
-    virtual bool                                    isUsingFormationNames() const override;
+    bool isUsingFormationNames() const override;
+
+    void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) override;
+
+    std::vector<RimLegendConfig*> legendConfigs() const override;
+    cvf::Color4f                  colorFromCellCategory( RivCellSetEnum geometryType ) const;
+
+    void syncronizeLocalAnnotationsFromGlobal();
 
 protected:
-    virtual void                                    initAfterRead();
-    virtual void                                    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
-    virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    void initAfterRead() override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void onLoadDataAndUpdate() override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
-    virtual void                                    createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts);
-    virtual bool                                    showActiveCellsOnly();
+    bool isShowingActiveCellsOnly() override;
+    void onUpdateDisplayModelForCurrentTimeStep() override;
+    void updateVisibleGeometriesAndCellColors();
+    void appendWellsAndFracturesToModel();
+
+    void                             onCreateDisplayModel() override;
+    RimPropertyFilterCollection*     nativePropertyFilterCollection();
+    virtual std::set<RivCellSetEnum> allVisibleFaultGeometryTypes() const;
 
 private:
-    void                                            createDisplayModel();
-    void                                            updateDisplayModelVisibility();
-    virtual void                                    updateCurrentTimeStep();
+    QString createAutoName() const override;
 
-    void                                            indicesToVisibleGrids(std::vector<size_t>* gridIndices);
-    virtual void                                    updateScaleTransform();
-    virtual cvf::Transform*                         scaleTransform();
+    void onUpdateDisplayModelVisibility() override;
 
-    virtual void                                    updateStaticCellColors();
-    void                                            updateStaticCellColors(RivCellSetEnum geometryType);
-    void                                            updateLegends();
-    void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultColors, RigCaseCellResultsData* cellResultsData);
-    virtual void                                    resetLegendsInViewer();
+    std::vector<size_t> indicesToVisibleGrids() const;
+    void                onUpdateScaleTransform() override;
+    cvf::Transform*     scaleTransform() override;
 
-    std::set<RivCellSetEnum>                        allVisibleFaultGeometryTypes() const;
-    void                                            updateFaultColors();
+    void onUpdateStaticCellColors() override;
+    void updateStaticCellColors( RivCellSetEnum geometryType );
 
-    void                                            syncronizeWellsWithResults();
+    void onUpdateLegends() override;
+    void updateLegendRangesTextAndVisibility( RimRegularLegendConfig*     legendConfig,
+                                              RimTernaryLegendConfig*     ternaryLegendConfig,
+                                              QString                     legendLabel,
+                                              RimEclipseResultDefinition* eclResDef,
+                                              int                         timeStepIndex );
 
-    void                                            clampCurrentTimestep();
+    void onResetLegendsInViewer() override;
+    void updateVirtualConnectionLegendRanges();
 
-    virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
+    void updateFaultColors();
+
+    void syncronizeWellsWithResults();
+
+    void   onClampCurrentTimestep() override;
+    size_t onTimeStepCountRequested() override;
+
+    void setVisibleGridParts( const std::vector<RivCellSetEnum>& cellSets );
+    void setVisibleGridPartsWatertight();
+
+private:
+    caf::PdmField<bool> m_showInvalidCells;
+    caf::PdmField<bool> m_showInactiveCells;
+    caf::PdmField<bool> m_showMainGrid_OBSOLETE;
+
+    caf::PdmChildField<RimEclipseCellColors*>         m_cellResult;
+    caf::PdmChildField<RimCellEdgeColors*>            m_cellEdgeResult;
+    caf::PdmChildField<RimEclipseFaultColors*>        m_faultResultSettings;
+    caf::PdmChildField<RimStimPlanColors*>            m_fractureColors;
+    caf::PdmChildField<RimVirtualPerforationResults*> m_virtualPerforationResult;
+
+    caf::PdmChildField<RimSimWellInViewCollection*> m_wellCollection;
+    caf::PdmChildField<RimFaultInViewCollection*>   m_faultCollection;
 
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
 
-    caf::PdmPointer<RimEclipseCase>                 m_eclipseCase;
+    caf::PdmPointer<RimEclipseCase> m_eclipseCase;
 
-    cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
-    cvf::ref<RivReservoirSimWellsPartMgr>           m_simWellsPartManager;
-	
-    std::vector<RivCellSetEnum>                     m_visibleGridParts;
+    cvf::ref<RivReservoirViewPartMgr>     m_reservoirGridPartManager;
+    cvf::ref<RivReservoirSimWellsPartMgr> m_simWellsPartManager;
+
+    std::vector<RivCellSetEnum> m_visibleGridParts;
 };
-

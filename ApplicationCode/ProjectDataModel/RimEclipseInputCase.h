@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,8 +23,8 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
-#include "cvfBase.h"
 #include "cvfObject.h"
 
 class RifReaderInterface;
@@ -33,7 +33,7 @@ class RimEclipseInputPropertyCollection;
 
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class RimEclipseInputCase : public RimEclipseCase
@@ -42,29 +42,39 @@ class RimEclipseInputCase : public RimEclipseCase
 
 public:
     RimEclipseInputCase();
-    virtual ~RimEclipseInputCase();
-
-    // Fields
-    caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
+    ~RimEclipseInputCase() override;
 
     // File open methods
-    void                        openDataFileSet(const QStringList& fileNames);
-    void                        loadAndSyncronizeInputProperties();
+    bool openDataFileSet( const QStringList& fileNames );
+    bool importAsciiInputProperties( const QStringList& fileNames ) override;
+    void loadAndSyncronizeInputProperties();
 
     // RimCase overrides
-    virtual bool                openEclipseGridFile(); // Find grid file among file set. Read, Find read and validate property date. Syncronize child property sets.
+    bool openEclipseGridFile() override;
+    void reloadEclipseGridFile() override;
 
     // Overrides from RimCase
-    virtual QString             locationOnDisc() const;
-    virtual QString             gridFileName() const { return m_gridFileName();}
+    QString locationOnDisc() const override;
+    QString gridFileName() const override { return m_gridFileName().path(); }
 
-    virtual void                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
+    void updateFilePathsFromProjectPath( const QString& projectPath, const QString& oldProjectPath ) override;
+
+    void updateAdditionalFileFolder( const QString& newFolder );
 
 private:
-    cvf::ref<RifReaderInterface> createMockModel(QString modelName);
+    std::vector<QString> additionalFiles() const;
 
+protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+private:
+    cvf::ref<RifReaderInterface> createMockModel( QString modelName );
+
+private:
     // Fields
-    caf::PdmField<std::vector<QString> >       m_additionalFileNames;
-    caf::PdmField<QString>                     m_gridFileName;
+    caf::PdmField<caf::FilePath>                  m_gridFileName;
+    caf::PdmProxyValueField<std::vector<QString>> m_additionalFiles;
 
+    // Obsolete fields
+    caf::PdmField<std::vector<QString>> m_additionalFilenames_OBSOLETE;
 };

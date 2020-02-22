@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8) 
+cmake_minimum_required (VERSION 2.8.12) 
 
 # Procedure used to extract subset from complete Boost installation
 #
@@ -33,3 +33,13 @@ add_library( ${PROJECT_NAME}
 	   
     libs/system/src/error_code.cpp 
 ) 
+if (MSVC)
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4244")
+else()
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Wno-deprecated -Wno-deprecated-declarations")
+endif()
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)

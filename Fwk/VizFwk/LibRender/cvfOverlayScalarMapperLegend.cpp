@@ -423,8 +423,8 @@ void OverlayScalarMapperLegend::renderLegend(OpenGLContext* oglContext, OverlayC
         for (iPx = 0; iPx < legendHeightPixelCount; iPx++)
         {
             const Color3ub& clr = m_scalarMapper->mapToColor(m_scalarMapper->domainValue((iPx+0.5)/legendHeightPixelCount));
-            float y0 = static_cast<float>(layout->legendRect.min().y() + iPx);
-            float y1 = static_cast<float>(layout->legendRect.min().y() + iPx + 1);
+            float y0 = layout->legendRect.min().y() + static_cast<float>(iPx);
+            float y1 = layout->legendRect.min().y() + static_cast<float>(iPx + 1);
 
             // Dynamic coordinates for rectangle
             v0[1] = v1[1] = y0;
@@ -575,8 +575,8 @@ void OverlayScalarMapperLegend::renderLegendImmediateMode(OpenGLContext* oglCont
         for (iPx = 0; iPx < legendHeightPixelCount; iPx++)
         {
             const Color3ub& clr = m_scalarMapper->mapToColor(m_scalarMapper->domainValue((iPx+0.5)/legendHeightPixelCount));
-            float y0 = static_cast<float>(layout->legendRect.min().y() + iPx);
-            float y1 = static_cast<float>(layout->legendRect.min().y() + iPx + 1);
+            float y0 = layout->legendRect.min().y() + static_cast<float>(iPx);
+            float y1 = layout->legendRect.min().y() + static_cast<float>(iPx + 1);
 
             // Dynamic coordinates for rectangle
             v0[1] = v1[1] = y0;

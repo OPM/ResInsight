@@ -1,87 +1,77 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
-// 
+//  Copyright (C) 2019-     Equinor ASA
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include "qwt_plot.h"
+#include "RiaQDateTimeTools.h"
+#include "RiuInterfaceToViewWindow.h"
+#include "RiuQwtPlotWidget.h"
+
 #include "cafPdmPointer.h"
 
 #include <QPointer>
-#include "RiuInterfaceToViewWindow.h"
 
-class QwtPlotCurve;
-class QwtPlotGrid;
-class QwtPlotZoomer;
-class QwtInterval;
-class QwtPicker;
-class QwtPlotMarker;
-
+class RimEnsembleParameterColorHandlerInterface;
 class RimSummaryPlot;
+class RiuCvfOverlayItemWidget;
+class RiuQwtPlotZoomer;
+class RiuQwtPlotWheelZoomer;
 
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RiuSummaryQwtPlot : public QwtPlot, public RiuInterfaceToViewWindow
+class RiuSummaryQwtPlot : public RiuQwtPlotWidget
 {
     Q_OBJECT;
+
 public:
-    RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* parent = NULL);
-    virtual ~RiuSummaryQwtPlot();
+    RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent = nullptr );
+    ~RiuSummaryQwtPlot() override;
 
-    RimSummaryPlot*                 ownerPlotDefinition();
-    virtual RimViewWindow*          ownerViewWindow() const override;
+    void useDateBasedTimeAxis(
+        const QString&                          dateFormat,
+        const QString&                          timeFormat,
+        RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
+        RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED );
 
-    void                            useDateBasedTimeAxis();
-    void                            useTimeBasedTimeAxis();
+    void useTimeBasedTimeAxis();
 
-    void                            currentVisibleWindow(QwtInterval* leftAxis,
-                                                         QwtInterval* rightAxis,
-                                                         QwtInterval* timeAxis) const;
+    void setLegendFontSize( int fontSize );
+    void setLegendVisible( bool visible );
 
-    void                            setZoomWindow(const QwtInterval& leftAxis,
-                                                  const QwtInterval& rightAxis,
-                                                  const QwtInterval& timeAxis);
+    void setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic );
 
-    static void                     setCommonPlotBehaviour(QwtPlot* plot);
-    static void                     enableDateBasedBottomXAxis(QwtPlot* plot);
+signals:
+    void plotZoomed();
 
 protected:
-    virtual bool                    eventFilter(QObject* watched, QEvent* event) override;
-
-    virtual QSize                   sizeHint() const override;
-    virtual QSize                   minimumSizeHint() const override;
-    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
-
-private:
-
-    void                            setDefaults();
-    void                            selectClosestCurve(const QPoint& pos);
+    void contextMenuEvent( QContextMenuEvent* ) override;
+    void setDefaults();
+    bool isZoomerActive() const override;
+    void endZoomOperations() override;
 
 private slots:
-    void                            onZoomedSlot( );
-    void                            onAxisClicked(int axis, double value);
+    void onZoomedSlot();
 
 private:
-    caf::PdmPointer<RimSummaryPlot> m_plotDefinition;
-
-    QPointer<QwtPlotZoomer>         m_zoomerLeft;
-    QPointer<QwtPlotZoomer>         m_zoomerRight;
+    QPointer<RiuQwtPlotZoomer>      m_zoomerLeft;
+    QPointer<RiuQwtPlotZoomer>      m_zoomerRight;
+    QPointer<RiuQwtPlotWheelZoomer> m_wheelZoomer;
 };
-

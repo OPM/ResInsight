@@ -37,20 +37,18 @@
 
 #pragma once
 
-#include "cafSelectionManager.h"
-
 #include <vector>
-
 
 namespace caf 
 {
 class CmdSelectionChangeExec;
+class PdmObjectHandle;
 
 class CmdSelectionHelper
 {
 public:
-    static void executeSelectionCommand(const std::vector<PdmObjectHandle*>& selection, SelectionManager::SelectionRole role);
-    static CmdSelectionChangeExec* createSelectionCommand(const std::vector<PdmObjectHandle*>& selection, SelectionManager::SelectionRole role);
+    static void executeSelectionCommand(const std::vector<PdmObjectHandle*>& selection, int selectionLevel);
+    static CmdSelectionChangeExec* createSelectionCommand(const std::vector<PdmObjectHandle*>& selection, int selectionLevel);
 };
 
 

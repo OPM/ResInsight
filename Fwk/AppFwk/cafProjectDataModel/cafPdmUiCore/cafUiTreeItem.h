@@ -76,6 +76,18 @@ public:
         return m_childItems.value(row);
     }
 
+    bool hasGrandChildren() const
+    {
+        for (auto child : m_childItems)
+        {
+            if (child->childCount() != 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     int childCount() const
     {
         return m_childItems.count();

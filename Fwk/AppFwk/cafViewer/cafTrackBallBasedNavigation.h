@@ -37,10 +37,47 @@
 
 #include "cafNavigationPolicy.h"
 
+#include <QDateTime>
+
 namespace cvf {
     class ManipulatorTrackball;
     class Ray;
 }
+
+class QMouseEvent;
+
+namespace caf
+{
+
+class RotationSensitivityCalculator
+{
+public:
+    RotationSensitivityCalculator()
+        : m_lastPosX(0)
+        , m_lastPosY(0)
+        , m_lastMouseVelocityLenght(200)
+        , m_isEnabled(false)
+        , m_fixedSensitivity(std::numeric_limits<double>::infinity())
+    {}
+
+    void enableAdaptiveRotationSensitivity(bool enable) { m_isEnabled = enable;  m_fixedSensitivity = std::numeric_limits<double>::infinity(); }
+    void enableFixedSensitivity(double senstivity)      { m_isEnabled = true;  m_fixedSensitivity = senstivity;}
+
+    void init(QMouseEvent* eventAtRotationStart);
+
+    double calculateSensitivity(QMouseEvent* eventWhenRotating);
+
+private:
+    bool                                m_isEnabled;
+    int                                 m_lastPosX;  /// Previous mouse position
+    int                                 m_lastPosY;
+    unsigned long                       m_lastTime; 
+    double                              m_lastMouseVelocityLenght;
+    double                              m_fixedSensitivity;
+};
+
+} // End namespace caf
+
 
 namespace caf
 {
@@ -57,22 +94,29 @@ class TrackBallBasedNavigation: public NavigationPolicy
 {
 public:
     TrackBallBasedNavigation();
-    virtual ~TrackBallBasedNavigation();
+    ~TrackBallBasedNavigation() override;
     void enableEventEating(bool enable) { m_consumeEvents = enable; }
+    void enableRotation(bool enable)    { m_isRotationEnabled = enable; }
+    void enableAdaptiveRotationSensitivity(bool enable) { m_roationSensitivityCalculator.enableAdaptiveRotationSensitivity(enable); }
+    void enableFixedSensitivity(double senstivity)      { m_roationSensitivityCalculator.enableFixedSensitivity(senstivity); }
 
 protected:
     // General navigation policy overrides
-    virtual void                        init();
+    void                        init() override;
 
-    virtual void                        setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
-    virtual cvf::Vec3d                  pointOfInterest(); 
-    virtual void                        setPointOfInterest(cvf::Vec3d poi);
+    void                        setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection ) override;
+    cvf::Vec3d                  pointOfInterest() override; 
+    void                        setPointOfInterest(cvf::Vec3d poi) override;
+    void                        pickAndSetPointOfInterest(int winPosX, int winPosY);
+    void                        updatePointOfInterestDuringZoomIfNecessary(int winPosX, int winPosY);
+    void                        forcePointOfInterestUpdateDuringNextWheelZoom();
 
     // Track ball navigation specific
     void                                initializeRotationCenter();
     cvf::ref<cvf::ManipulatorTrackball> m_trackball;
     bool                                m_isRotCenterInitialized; 
     cvf::Vec3d                          m_pointOfInterest;
+    RotationSensitivityCalculator       m_roationSensitivityCalculator;
 
     bool                                m_isNavigating;
     bool                                m_hasMovedMouseDuringNavigation;
@@ -88,9 +132,17 @@ protected:
     int                                 m_lastPosY;
 
     bool                                isSupposedToConsumeEvents() { return m_consumeEvents; }
+    bool                                isRotationEnabled() { return m_isRotationEnabled; }
+
+private:
+    void                                updateWheelZoomPosition(int winPosX, int winPosY);
+    bool                                shouldRaytraceForNewPoiDuringWheelZoom(int winPosX, int winPosY) const;
 
 private:
     bool                                m_consumeEvents;
+    bool                                m_isRotationEnabled;
+    int                                 m_lastWheelZoomPosX;
+    int                                 m_lastWheelZoomPosY;
 };
 
 } // End namespace caf

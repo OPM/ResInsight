@@ -46,6 +46,7 @@
 
 class QAction;
 class QIcon;
+class QKeySequence;
 class QString;
 
 #define CAF_CMD_HEADER_INIT \
@@ -73,27 +74,34 @@ class CmdFeature : public QObject
 {
     Q_OBJECT
 public:
-    CmdFeature() {}
-    virtual ~CmdFeature() {}
+    CmdFeature();
+    ~CmdFeature() override;
 
-    QAction*            action();
-    QAction*            action(QString customText);
-    void                refreshEnabledState();
-    void                refreshCheckedState();
+    QAction*        action();
+    QAction*        actionWithCustomText(const QString& customText);
+    QAction*        actionWithUserData(const QString& customText, const QVariant& userData);
+    void            refreshEnabledState();
+    void            refreshCheckedState();
 
-    bool                canFeatureBeExecuted() { return this->isCommandEnabled(); }
+    bool            canFeatureBeExecuted();
+
+    static void     applyShortcutWithHintToAction(QAction* action, const QKeySequence& keySequence);
 
 public slots:
-    void actionTriggered(bool isChecked) { this->onActionTriggered(isChecked); }
+    void            actionTriggered(bool isChecked);
 
 protected:
-    virtual void onActionTriggered(bool isChecked) = 0;
-    virtual void setupActionLook(QAction* actionToSetup) =  0;
-    virtual bool isCommandEnabled() = 0;
-    virtual bool isCommandChecked() { return false; }
+    virtual void    onActionTriggered(bool isChecked) = 0;
+    virtual void    setupActionLook(QAction* actionToSetup) =  0;
+    virtual bool    isCommandEnabled() = 0;
+    virtual bool    isCommandChecked();
+    
+    void            disableModelChangeContribution();
+    const QVariant  userData() const;
 
 private:
     std::map<QString, QAction*> m_customTextToActionMap;
+    bool                        m_triggerModelChange;
 };
 
 

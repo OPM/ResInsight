@@ -50,14 +50,14 @@ class CeetronNavigation : public NavigationPolicy
 {
 public:
     CeetronNavigation();
-    virtual ~CeetronNavigation();
+    ~CeetronNavigation() override;
 protected:
     // General navigation policy reimplememtation
-    virtual void    init();
-    virtual bool    handleInputEvent(QInputEvent* inputEvent);
-    virtual void    setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
-    virtual cvf::Vec3d  pointOfInterest(); 
-    virtual void        setPointOfInterest(cvf::Vec3d poi);
+    void    init() override;
+    bool    handleInputEvent(QInputEvent* inputEvent) override;
+    void    setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection ) override;
+    cvf::Vec3d  pointOfInterest() override; 
+    void        setPointOfInterest(cvf::Vec3d poi) override;
 
     // Ceetron navigation stuff
     void            mouseMoveEvent(QMouseEvent* event);

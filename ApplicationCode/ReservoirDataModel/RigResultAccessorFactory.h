@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,52 +22,38 @@
 #include "RifReaderInterface.h"
 #include "RigResultAccessor.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 class RigActiveCellInfo;
 class RigGridBase;
 
 class RimEclipseResultDefinition;
+class RigEclipseResultAddress;
 
 class RigResultAccessorFactory
 {
 public:
-    static cvf::ref<RigResultAccessor>
-        createFromResultDefinition(RigEclipseCaseData* eclipseCase,
-                                   size_t gridIndex,
-                                   size_t timeStepIndex,
-                                   RimEclipseResultDefinition* resultDefinition);
+    static cvf::ref<RigResultAccessor> createFromResultDefinition( const RigEclipseCaseData*         eclipseCase,
+                                                                   size_t                            gridIndex,
+                                                                   size_t                            timeStepIndex,
+                                                                   const RimEclipseResultDefinition* resultDefinition );
 
-    static cvf::ref<RigResultAccessor>
-        createFromUiResultName(RigEclipseCaseData* eclipseCase,
-                               size_t gridIndex,
-                               RifReaderInterface::PorosityModelResultType porosityModel,
-                               size_t timeStepIndex,
-                               const QString& uiResultName);
-
-    static cvf::ref<RigResultAccessor>
-        createFromNameAndType(RigEclipseCaseData* eclipseCase,
-                              size_t gridIndex,
-                              RifReaderInterface::PorosityModelResultType porosityModel,
-                              size_t timeStepIndex,
-                              const QString& uiResultName,
-                              RimDefines::ResultCatType resultType);
-
-    static cvf::ref<RigResultAccessor>
-        createFromResultIdx(RigEclipseCaseData* eclipseCase,
-                            size_t gridIndex,
-                            RifReaderInterface::PorosityModelResultType porosityModel,
-                            size_t timeStepIndex,
-                            size_t resultIndex);
+    static cvf::ref<RigResultAccessor> createFromResultAddress( const RigEclipseCaseData*      eclipseCase,
+                                                                size_t                         gridIndex,
+                                                                RiaDefines::PorosityModelType  porosityModel,
+                                                                size_t                         timeStepIndex,
+                                                                const RigEclipseResultAddress& resVarAddr );
 
 private:
-    static cvf::ref<RigResultAccessor>
-        createNativeFromUiResultName(RigEclipseCaseData* eclipseCase,
-                                     size_t gridIndex,
-                                     RifReaderInterface::PorosityModelResultType porosityModel,
-                                     size_t timeStepIndex,
-                                     const QString& resultName);
+    static cvf::ref<RigResultAccessor> createCombinedResultAccessor( const RigEclipseCaseData*      eclipseCase,
+                                                                     size_t                         gridIndex,
+                                                                     RiaDefines::PorosityModelType  porosityModel,
+                                                                     size_t                         timeStepIndex,
+                                                                     const RigEclipseResultAddress& resVarAddr );
 
+    static cvf::ref<RigResultAccessor> createNativeFromResultAddress( const RigEclipseCaseData*      eclipseCase,
+                                                                      size_t                         gridIndex,
+                                                                      RiaDefines::PorosityModelType  porosityModel,
+                                                                      size_t                         timeStepIndex,
+                                                                      const RigEclipseResultAddress& resVarAddr );
 };
-
-

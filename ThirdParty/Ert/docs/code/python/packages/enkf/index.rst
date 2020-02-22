@@ -1,2 +1,0 @@
-The ert.enkf package
-====================

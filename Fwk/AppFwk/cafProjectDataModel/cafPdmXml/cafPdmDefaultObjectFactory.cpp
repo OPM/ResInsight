@@ -20,8 +20,23 @@ PdmObjectHandle * PdmDefaultObjectFactory::create(const QString& classNameKeywor
     }
     else
     {
-        return NULL;
+        return nullptr;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> PdmDefaultObjectFactory::classKeywords() const
+{
+    std::vector<QString> names;
+
+    for (const auto& entry : m_factoryMap)
+    {
+        names.push_back(entry.first);
+    }
+
+    return names;
 }
 
 //--------------------------------------------------------------------------------------------------

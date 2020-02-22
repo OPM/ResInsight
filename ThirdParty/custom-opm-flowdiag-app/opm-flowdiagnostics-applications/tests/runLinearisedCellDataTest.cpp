@@ -20,6 +20,8 @@
 
 #include <examples/exampleSetup.hpp>
 
+#include <opm/utility/ECLCaseUtilities.hpp>
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -30,6 +32,7 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
@@ -41,7 +44,7 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 
 #include <ert/ecl/ecl_file.h>
 #include <ert/ecl/ecl_file_kw.h>
@@ -55,11 +58,11 @@ namespace StringUtils {
         std::string trim(const std::string& s)
         {
             const auto anchor_ws =
-                boost::regex(R"~~(^\s+([^\s]+)\s+$)~~");
+                std::regex(R"~~(^\s+([^\s]+)\s+$)~~");
 
-            auto m = boost::smatch{};
+            auto m = std::smatch{};
 
-            if (boost::regex_match(s, m, anchor_ws)) {
+            if (std::regex_match(s, m, anchor_ws)) {
                 return m[1];
             }
 
@@ -74,9 +77,9 @@ namespace StringUtils {
                 return { "" };
             }
 
-            const auto sep = boost::regex(R"~~([\s,;.|]+)~~");
+            const auto sep = std::regex(R"~~([\s,;.|]+)~~");
 
-            using TI = boost::sregex_token_iterator;
+            using TI = std::sregex_token_iterator;
 
             // vector<string>(begin, end)
             //
@@ -340,44 +343,8 @@ namespace {
         return max;
     }
 
-    std::vector<int>
-    availableReportSteps(const example::FilePaths& paths)
-    {
-        using FilePtr = ::ERT::
-            ert_unique_ptr<ecl_file_type, ecl_file_close>;
-
-        const auto rsspec_fn = example::
-            deriveFileName(paths.grid, { ".RSSPEC", ".FRSSPEC" });
-
-        // Read-only, keep open between requests
-        const auto open_flags = 0;
-
-        auto rsspec = FilePtr{
-            ecl_file_open(rsspec_fn.generic_string().c_str(), open_flags)
-        };
-
-        auto* globView = ecl_file_get_global_view(rsspec.get());
-
-        const auto* ITIME_kw = "ITIME";
-        const auto n = ecl_file_view_get_num_named_kw(globView, ITIME_kw);
-
-        auto steps = std::vector<int>(n);
-
-        for (auto i = 0*n; i < n; ++i) {
-            const auto* itime =
-                ecl_file_view_iget_named_kw(globView, ITIME_kw, i);
-
-            const auto* itime_data =
-                static_cast<const int*>(ecl_kw_iget_ptr(itime, 0));
-
-            steps[i] = itime_data[0];
-        }
-
-        return steps;
-    }
-
     ErrorTolerance
-    testTolerances(const ::Opm::parameter::ParameterGroup& param)
+    testTolerances(const ::Opm::ParameterGroup& param)
     {
         const auto atol = param.getDefault("atol", 1.0e-8);
         const auto rtol = param.getDefault("rtol", 5.0e-12);
@@ -386,7 +353,7 @@ namespace {
     }
 
     std::vector<std::string>
-    testQuantities(const ::Opm::parameter::ParameterGroup& param)
+    testQuantities(const ::Opm::ParameterGroup& param)
     {
         return StringUtils::VectorValue::
             get<std::string>(param.get<std::string>("quant"));
@@ -411,10 +378,10 @@ namespace {
     }
 
     ReferenceSolution
-    loadReference(const ::Opm::parameter::ParameterGroup& param,
-                  const std::string&                      quant,
-                  const int                               step,
-                  const int                               nDigits)
+    loadReference(const ::Opm::ParameterGroup& param,
+                  const std::string&           quant,
+                  const int                    step,
+                  const int                    nDigits)
     {
         namespace fs = boost::filesystem;
 
@@ -491,11 +458,21 @@ namespace {
         E.relative.push_back(std::move(rel));
     }
 
+    std::unique_ptr<Opm::ECLRestartData>
+    openRestartSet(const Opm::ECLCaseUtilities::ResultSet& rset,
+                   const int                               step)
+    {
+        return std::unique_ptr<Opm::ECLRestartData> {
+            new Opm::ECLRestartData(rset.restartFile(step))
+        };
+    }
+
     std::array<AggregateErrors, 2>
-    sampleDifferences(const ::Opm::ECLGraph&                  graph,
-                      const ::Opm::parameter::ParameterGroup& param,
-                      const std::string&                      quant,
-                      const std::vector<int>&                 steps)
+    sampleDifferences(const ::Opm::ECLGraph&                    graph,
+                      const ::Opm::ECLCaseUtilities::ResultSet& rset,
+                      const ::Opm::ParameterGroup&              param,
+                      const std::string&                        quant,
+                      const std::vector<int>&                   steps)
     {
         const auto ECLquant = boost::algorithm::to_upper_copy(quant);
 
@@ -507,10 +484,18 @@ namespace {
 
         const auto nDigits = numDigits(steps);
 
+        auto rstrt = std::unique_ptr<Opm::ECLRestartData>{};
+
         auto E = std::array<AggregateErrors, 2>{};
 
         for (const auto& step : steps) {
-            if (! graph.selectReportStep(step)) {
+            if (! (rset.isUnifiedRestart() && bool(rstrt))) {
+                // Separate (not unified) restart file or this is the first
+                // time we're selecting a report step.
+                rstrt = openRestartSet(rset, step);
+            }
+
+            if (! rstrt->selectReportStep(step)) {
                 continue;
             }
 
@@ -518,7 +503,7 @@ namespace {
 
             {
                 const auto raw = Calculated {
-                    graph.rawLinearisedCellData<double>(ECLquant)
+                    graph.rawLinearisedCellData<double>(*rstrt, ECLquant)
                 };
 
                 computeErrors(Reference{ ref.raw }, raw, E[0]);
@@ -526,7 +511,7 @@ namespace {
 
             {
                 const auto SI = Calculated {
-                    graph.linearisedCellData(ECLquant, unit)
+                    graph.linearisedCellData(*rstrt, ECLquant, unit)
                 };
 
                 computeErrors(Reference{ ref.SI }, SI, E[1]);
@@ -553,20 +538,29 @@ namespace {
         return errorAcceptable(E.absolute, tol.absolute)
             && errorAcceptable(E.relative, tol.relative);
     }
+
+    ::Opm::ECLGraph
+    constructGraph(const Opm::ECLCaseUtilities::ResultSet& rset)
+    {
+        const auto I = ::Opm::ECLInitFileData(rset.initFile());
+
+        return ::Opm::ECLGraph::load(rset.gridFile(), I);
+    }
 } // namespace Anonymous
 
 int main(int argc, char* argv[])
 try {
-    const auto prm = example::initParam(argc, argv);
-    const auto pth = example::FilePaths(prm);
-    const auto tol = testTolerances(prm);
+    const auto prm  = example::initParam(argc, argv);
+    const auto rset = example::identifyResultSet(prm);
+    const auto tol  = testTolerances(prm);
 
-    const auto steps = availableReportSteps(pth);
-    const auto graph = example::initGraph(pth);
+    const auto steps = rset.reportStepIDs();
+    const auto graph = constructGraph(rset);
 
     auto all_ok = true;
     for (const auto& quant : testQuantities(prm)) {
-        const auto E = sampleDifferences(graph, prm, quant, steps);
+        const auto E =
+            sampleDifferences(graph, rset, prm, quant, steps);
 
         const auto ok =
             everythingFine(E[0], tol) && everythingFine(E[1], tol);

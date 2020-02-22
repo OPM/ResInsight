@@ -3,75 +3,79 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include "RimDefines.h"
 #include "RimEclipseResultDefinition.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmPtrField.h"
 
+class RimEclipseCase;
 class RimTernaryLegendConfig;
-class RimLegendConfig;
+class RimRegularLegendConfig;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimEclipseCellColors : public RimEclipseResultDefinition
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimEclipseCellColors();
-    virtual ~RimEclipseCellColors();
+    ~RimEclipseCellColors() override;
 
-    void                                        setReservoirView(RimEclipseView* ownerReservoirView);
-    RimEclipseView*                             reservoirView();
+    void            setReservoirView( RimEclipseView* ownerReservoirView );
+    RimEclipseView* reservoirView();
 
-    void                                        updateLegendData(size_t timestep);
-    RimLegendConfig*                            legendConfig();
-    caf::PdmChildField<RimTernaryLegendConfig*> ternaryLegendConfig;
+    void                    updateRangesForEmbeddedLegends( int timestep );
+    RimRegularLegendConfig* legendConfig();
+    RimTernaryLegendConfig* ternaryLegendConfig();
 
-    virtual void                                setResultVariable(const QString& resultName);
-    
-    void                                        updateIconState();
+    void setResultVariable( const QString& resultName ) override;
 
-    virtual void                                updateLegendCategorySettings() override;
+    void updateIconState();
+
+    void updateLegendCategorySettings() override;
+    void uiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" );
 
 protected:
     // Overridden methods
-    virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     friend class RimEclipseFaultColors;
     friend class RimCellEdgeColors;
-    virtual void                                initAfterRead();
+    void initAfterRead() override;
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    void                                        changeLegendConfig(QString resultVarNameOfNewLegend);
+    void changeLegendConfig( QString resultVarNameOfNewLegend );
 
-    caf::PdmChildArrayField<RimLegendConfig*>   m_legendConfigData;
-    caf::PdmPtrField<RimLegendConfig*>          m_legendConfigPtrField;
+    caf::PdmChildArrayField<RimRegularLegendConfig*> m_legendConfigData;
+    caf::PdmPtrField<RimRegularLegendConfig*>        m_legendConfigPtrField;
+    caf::PdmChildField<RimTernaryLegendConfig*>      m_ternaryLegendConfig;
 
-    caf::PdmPointer<RimEclipseView>             m_reservoirView;
+    caf::PdmPointer<RimEclipseView> m_reservoirView;
 
-    // Obsolete   
-    caf::PdmChildField<RimLegendConfig*>        obsoleteField_legendConfig;
+    // Obsolete
+    caf::PdmChildField<RimRegularLegendConfig*> obsoleteField_legendConfig;
 };
-

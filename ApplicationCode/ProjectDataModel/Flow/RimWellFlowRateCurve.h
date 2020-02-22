@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,39 +20,54 @@
 
 #include "RimWellLogCurve.h"
 
-#include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
+#include "cafPdmPtrField.h"
 
 class RimEclipseResultCase;
 class RimWellAllocationPlot;
 
-
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimWellFlowRateCurve : public RimWellLogCurve
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     RimWellFlowRateCurve();
-    virtual ~RimWellFlowRateCurve();
-    
-    void setFlowValuesPrDepthValue(const QString& tracerName , const std::vector<double>& depthValues, const std::vector<double>& flowRates);
+    ~RimWellFlowRateCurve() override;
+
+    void setFlowValuesPrDepthValue( const QString&             curveName,
+                                    RiaDefines::DepthTypeEnum  depthType,
+                                    const std::vector<double>& depthValues,
+                                    const std::vector<double>& flowRates );
     void updateStackedPlotData();
 
-    virtual QString wellName() const override;
-    virtual QString wellLogChannelName() const override;
+    RimEclipseResultCase* rimCase();
+    int                   timeStep();
+    QString               wellName() const override;
+    QString               wellLogChannelUiName() const override;
+    QString               wellLogChannelUnits() const override;
+
+    void setGroupId( int groupId );
+    int  groupId() const;
+
+    void setDoFillCurve( bool doFill );
 
 protected:
-    virtual QString createCurveAutoName() override;
-    virtual void onLoadDataAndUpdate() override;
-    virtual void updateCurveAppearance() override;
+    QString createCurveAutoName() override;
+    void    onLoadDataAndUpdate( bool updateParentPlot ) override;
+    void    updateCurveAppearance() override;
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    bool isUsingConnectionNumberDepthType() const;
+    bool                   isUsingConnectionNumberDepthType() const;
     RimWellAllocationPlot* wellAllocationPlot() const;
 
-    QString m_tracerName;
-};
+    QString m_curveAutoName;
 
+    int  m_groupId;
+    bool m_doFillCurve;
+};

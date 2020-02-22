@@ -1,0 +1,7 @@
+cwrap
+numpy
+pandas
+sphinx
+future
+six
+functools32;python_version=='2.7'

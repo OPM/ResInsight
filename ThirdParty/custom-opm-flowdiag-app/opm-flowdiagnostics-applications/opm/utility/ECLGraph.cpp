@@ -1,6 +1,5 @@
 /*
-  Copyright 2016 SINTEF ICT, Applied Mathematics.
-  Copyright 2016 Statoil ASA.
+  Copyright 2016, 2017 Statoil ASA.
 
   This file is part of the Open Porous Media Project (OPM).
 
@@ -26,7 +25,7 @@
 #include <opm/utility/ECLResultData.hpp>
 #include <opm/utility/ECLUnitHandling.hpp>
 
-#include <opm/parser/eclipse/Units/Units.hpp>
+#include <opm/utility/imported/Units.hpp>
 
 #include <algorithm>
 #include <array>
@@ -39,6 +38,7 @@
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <unordered_map>
 #include <utility>
 
 #include <boost/filesystem.hpp>
@@ -86,6 +86,17 @@ namespace {
         const ecl_grid_type*
         getGrid(const ecl_grid_type* G, const int gridID);
 
+        /// Retrieve grid name.
+        ///
+        /// \param[in] ERT Grid representation.
+        ///
+        /// \param[in] gridID Numeric index of requested grid.  Zero for the
+        ///    main grid or positive for one of the LGRs.
+        ///
+        /// \return Name of grid \p G.  Empty for the main grid.
+        std::string
+        getGridName(const ecl_grid_type* G, const int gridID);
+
         /// Extract Cartesian dimensions of an ECL grid.
         ///
         /// \param[in] G ERT grid instance corresponding to the model's main
@@ -99,14 +110,20 @@ namespace {
 
         /// Access unit conventions pertaining to single grid in result set.
         ///
+        /// \tparam ResultSet Type representing a result set.  Must
+        ///    implement methods \code haveKeywordData() \endcode and \code
+        ///    keywordData<>() \endcode.  Typically \code Opm::ECLRestartData
+        ///    \endcode or \code Opm::ECLInitFileData \endcode.
+        ///
         /// \param[in] rset Result set.
         ///
-        /// \param[in] grid_ID Numerical ID of grid.  Non-negative.  Zero
-        ///    for the main grid and positive for LGRs.
+        /// \param[in] gridID ID (name) of particular grid.  Empty for the
+        ///    main grid.
         ///
-        /// \return Unit system convention for \p grid_ID in result set.
-        auto getUnitSystem(const ::Opm::ECLResultData& rset,
-                           const int                   grid_ID)
+        /// \return Unit system convention for \p gridID in result set.
+        template <class ResultSet>
+        auto getUnitSystem(const ResultSet&   rset,
+                           const std::string& gridID)
             -> decltype(::Opm::ECLUnits::createUnitSystem(0));
 
         /// Retrieve global pore-volume vector from INIT source.
@@ -117,15 +134,15 @@ namespace {
         ///
         /// \param[in] init ERT representation of INIT source.
         ///
-        /// \param[in] grid_ID Numerical ID of grid.  Non-negative.  Zero
-        ///    for the main grid and positive in the case of an LGR.
+        /// \param[in] gridID ID (name) of grid.  Empty for the main grid
+        ///    and non-empty in the case of an LGR.
         ///
         /// \return Vector of pore-volumes for all global cells of \p G in
         ///    SI unit conventions (rm^3).
         std::vector<double>
-        getPVolVector(const ecl_grid_type*        G,
-                      const ::Opm::ECLResultData& init,
-                      const int                   grid_ID = 0);
+        getPVolVector(const ecl_grid_type*          G,
+                      const ::Opm::ECLInitFileData& init,
+                      const std::string&            gridID = "");
 
         /// Extract non-neighbouring connections from ECLIPSE model
         ///
@@ -137,9 +154,10 @@ namespace {
         /// \return Model's non-neighbouring connections, including those
         ///    between main and local grids.
         std::vector<ecl_nnc_type>
-        loadNNC(const ecl_grid_type*        G,
-                const ::Opm::ECLResultData& init);
+        loadNNC(const ecl_grid_type* G,
+                const ecl_file_type* init);
 
+        /// Cartesian connections in a model grid.
         class CartesianGridData
         {
         public:
@@ -153,14 +171,16 @@ namespace {
             ///
             /// \param[in] gridID Numeric identifier of this grid.  Zero for
             ///    main grid, positive for LGRs.
-            CartesianGridData(const ecl_grid_type*        G,
-                              const ::Opm::ECLResultData& init,
-                              const int                   gridID);
+            CartesianGridData(const ecl_grid_type*          G,
+                              const ::Opm::ECLInitFileData& init,
+                              const int                     gridID);
 
             /// Retrieve non-negative numeric ID of grid instance.
             ///
             /// \return Constructor's \c gridID parameter.
             int gridID() const;
+
+            const std::string& gridName() const;
 
             /// Retrieve number of active cells in graph.
             std::size_t numCells() const;
@@ -174,6 +194,8 @@ namespace {
             /// neighbours()[2*i + 0] \endcode and \code neighbours()[2*i + 1]
             /// \endcode.
             const std::vector<int>& neighbours() const;
+
+            const std::vector<int>& getLocalCellID() const;
 
             /// Retrive static pore-volume values on active cells only.
             ///
@@ -218,14 +240,15 @@ namespace {
             ///
             /// \return Numerical values of result set vector, relative to
             /// global cell numbering of this grid.
+            template <class ResultSet>
             std::vector<double>
-            cellData(const ::Opm::ECLResultData& src,
-                     const std::string&          vector) const;
+            cellData(const ResultSet&   rset,
+                     const std::string& vector) const;
 
-            template <typename T>
+            template <typename T, class ResultSet>
             std::vector<T>
-            activeCellData(const ::Opm::ECLResultData& src,
-                           const std::string&          vector) const;
+            activeCellData(const ResultSet&   rset,
+                           const std::string& vector) const;
 
             /// Retrieve values of result set vector for all Cartesian
             /// connections in grid.
@@ -238,9 +261,9 @@ namespace {
             /// \return Numerical values of result set vector attributed to
             ///     all of the grid's Cartesian connections.
             std::vector<double>
-            connectionData(const ::Opm::ECLResultData& src,
-                           const std::string&          vector,
-                           const double                unit) const;
+            connectionData(const ::Opm::ECLRestartData& rstrt,
+                           const std::string&           vector,
+                           const double                 unit) const;
 
         private:
             /// Facility for deriving Cartesian neighbourship in a grid
@@ -327,6 +350,8 @@ namespace {
                 /// Retrieve global cell ID of from (I,J,K) index tuple.
                 std::size_t
                 getGlobalCell(const int i, const int j, const int k) const;
+
+                const std::vector<int>& getLocalCellID() const;
 
                 /// Retrieve active cell ID of particular global cell's
                 /// neighbour in given Cartesian direction.
@@ -424,6 +449,9 @@ namespace {
             /// than zero for LGRs.
             const int gridID_;
 
+            /// Grid name.  Mostly for querying properties in local grids.
+            const std::string gridName_;
+
             /// Map results from active to global cells.
             CartesianCells cells_;
 
@@ -445,14 +473,19 @@ namespace {
             /// Predicate for whether or not a particular result vector is
             /// defined on the grid's cells.
             ///
-            /// \param[in] src Result set.
+            /// \tparam ResultSet Representation of an ECLIPSE result set.
+            ///    Typically \code Opm::ECLInitFileData \endcode or \code
+            ///    Opm::ECLRestartData \endcode.
+            ///
+            /// \param[in] rset Result set.
             ///
             /// \param[in] vector Name of result vector.
             ///
-            /// \return Whether or not \p vector is defined on model's
-            /// cells and part of the result set \p src.
-            bool haveCellData(const ::Opm::ECLResultData& src,
-                              const std::string&          keyword) const;
+            /// \return Whether or not \p vector is defined on model's cells
+            ///    and part of the result set \p src.
+            template <class ResultSet>
+            bool haveCellData(const ResultSet&   rset,
+                              const std::string& keyword) const;
 
             /// Predicate for whether or not a particular result vector is
             /// defined on the grid's Cartesian connections.
@@ -462,10 +495,10 @@ namespace {
             /// \param[in] vector Prefix of result vector name.
             ///
             /// \return Whether or not all vectors formed by \p vector plus
-            /// known directional suffixes are defined on model's cells and
-            /// part of the result set \p src.
-            bool haveConnData(const ::Opm::ECLResultData& src,
-                              const std::string&          keyword) const;
+            ///    known directional suffixes are defined on model's cells
+            ///    and part of the result set \p src.
+            bool haveConnData(const ::Opm::ECLRestartData& rstrt,
+                              const std::string&           keyword) const;
 
             /// Append directional cell data to global collection of
             /// connection data identified by vector name prefix.
@@ -480,7 +513,7 @@ namespace {
             /// input, collection of values corresponding to any previous
             /// directions (preserved), and on output additionally contains
             /// the data corresponding to the Cartesian direction \p d.
-            void connectionData(const ::Opm::ECLResultData&     src,
+            void connectionData(const ::Opm::ECLRestartData&    rstrt,
                                 const CartesianCells::Direction d,
                                 const std::string&              vector,
                                 const double                    unit,
@@ -510,7 +543,7 @@ namespace {
             ///
             /// \param[in] init Internalised
             void deriveNeighbours(const std::vector<std::size_t>& gcells,
-                                  const ::Opm::ECLResultData&     init,
+                                  const ::Opm::ECLInitFileData&   init,
                                   const CartesianCells::Direction d);
         };
     } // namespace ECL
@@ -535,10 +568,20 @@ ECL::getGrid(const ecl_grid_type* G, const int gridID)
     return ecl_grid_iget_lgr(G, gridID - 1);
 }
 
+std::string
+ECL::getGridName(const ecl_grid_type* G, const int gridID)
+{
+    if (gridID == ECL_GRID_MAINGRID_LGR_NR) {
+        return "";              // Empty for main grid.
+    }
+
+    return ecl_grid_get_name(G);
+}
+
 std::vector<double>
-ECL::getPVolVector(const ecl_grid_type*        G,
-                   const ::Opm::ECLResultData& init,
-                   const int                   gridID)
+ECL::getPVolVector(const ecl_grid_type*          G,
+                   const ::Opm::ECLInitFileData& init,
+                   const std::string&            gridID)
 {
     auto make_szt = [](const int i)
     {
@@ -561,7 +604,7 @@ ECL::getPVolVector(const ecl_grid_type*        G,
             getUnitSystem(init, gridID)->reservoirVolume();
 
         for (auto& pv : pvol) {
-            pv = ::Opm::unit::convert::from(pv, pvol_unit);
+            pv = ::ImportedOpm::unit::convert::from(pv, pvol_unit);
         }
     }
 
@@ -578,8 +621,8 @@ ECL::loadCase(const boost::filesystem::path& grid)
     if (! G) {
         std::ostringstream os;
 
-        os << "Failed to load ECL Grid from '"
-           << grid.generic_string() << '\'';
+        os << "Failed to load ECL Grid from "
+           << grid.generic_string();
 
         throw std::invalid_argument(os.str());
     }
@@ -600,21 +643,40 @@ ECL::cartesianDimensions(const ecl_grid_type* G)
                make_szt(ecl_grid_get_nz(G)) } };
 }
 
-auto ECL::getUnitSystem(const ::Opm::ECLResultData& rset,
-                        const int                   grid_ID)
+template <class ResultSet>
+auto ECL::getUnitSystem(const ResultSet&   rset,
+                        const std::string& grid_ID)
     -> decltype(::Opm::ECLUnits::createUnitSystem(0))
 {
     assert (rset.haveKeywordData(INTEHEAD_KW, grid_ID)
             && "Result Set Does Not Provide Grid Header");
 
-    const auto ih = rset.keywordData<int>(INTEHEAD_KW, grid_ID);
+    const auto ih = rset.template keywordData<int>(INTEHEAD_KW, grid_ID);
 
-    return ::Opm::ECLUnits::createUnitSystem(ih[INTEHEAD_UNIT_INDEX]);
+    const auto usys      = ih[INTEHEAD_UNIT_INDEX];
+    const auto validUsys = (usys >= 1) && (usys <= 4);
+
+    if (! validUsys) {
+        if (! grid_ID.empty()) {
+            // Unity system not provided in local grid.  Fall back to
+            // querying the main grid instead.
+
+            const auto mainGrid = std::string{ "" };
+
+            return getUnitSystem(rset, mainGrid);
+        }
+
+        throw std::out_of_range {
+            "No Valid Unit System Key in Result-Set"
+        };
+    }
+
+    return ::Opm::ECLUnits::createUnitSystem(usys);
 }
 
 std::vector<ecl_nnc_type>
-ECL::loadNNC(const ecl_grid_type*        G,
-             const ::Opm::ECLResultData& init)
+ECL::loadNNC(const ecl_grid_type* G,
+             const ecl_file_type* init)
 {
     auto make_szt = [](const int n)
     {
@@ -623,12 +685,12 @@ ECL::loadNNC(const ecl_grid_type*        G,
 
     auto nncData = std::vector<ecl_nnc_type>{};
 
-    const auto numNNC = make_szt(ecl_nnc_export_get_size(G));
+    const auto numNNC = make_szt(ecl_nnc_export_get_size(G, init));
 
     if (numNNC > 0) {
         nncData.resize(numNNC);
 
-        ecl_nnc_export(G, init.getRawFilePtr(), nncData.data());
+        ecl_nnc_export(G, init, nncData.data());
     }
 
     return nncData;
@@ -814,6 +876,13 @@ CartesianCells::getGlobalCell(const int i, const int j, const int k) const
     return this->globIdx(ijk);
 }
 
+const std::vector<int>&
+ECL::CartesianGridData::
+CartesianCells::getLocalCellID() const
+{
+    return this->active_ID_;
+}
+
 int
 ECL::CartesianGridData::
 CartesianCells::getNeighbour(const std::size_t globalCell,
@@ -853,7 +922,7 @@ ECL::CartesianGridData::CartesianCells::numActiveCells() const
 {
     return this->rsMap_.subset.size();
 }
-    
+
 std::size_t
 ECL::CartesianGridData::
 CartesianCells::globIdx(const IndexTuple& ijk) const
@@ -890,11 +959,12 @@ CartesianCells::ind2sub(const std::size_t globalCell) const
 // ======================================================================
 
 ECL::CartesianGridData::
-CartesianGridData(const ecl_grid_type*        G,
-                  const ::Opm::ECLResultData& init,
-                  const int                   gridID)
-    : gridID_(gridID)
-    , cells_ (G, ::ECL::getPVolVector(G, init, gridID_))
+CartesianGridData(const ecl_grid_type*          G,
+                  const ::Opm::ECLInitFileData& init,
+                  const int                     gridID)
+    : gridID_  (gridID)
+    , gridName_(::ECL::getGridName(G, gridID))
+    , cells_   (G, ::ECL::getPVolVector(G, init, gridName_))
 {
     {
         using VT = DirectionSuffix::value_type;
@@ -923,6 +993,12 @@ int ECL::CartesianGridData::gridID() const
     return this->gridID_;
 }
 
+const std::string&
+ECL::CartesianGridData::gridName() const
+{
+    return this->gridName_;
+}
+
 std::size_t
 ECL::CartesianGridData::numCells() const
 {
@@ -939,6 +1015,12 @@ const std::vector<int>&
 ECL::CartesianGridData::neighbours() const
 {
     return this->neigh_;
+}
+
+const std::vector<int>&
+ECL::CartesianGridData::getLocalCellID() const
+{
+    return this->cells_.getLocalCellID();
 }
 
 const std::vector<double>&
@@ -973,48 +1055,51 @@ ECL::CartesianGridData::isSubdivided(const int cellID) const
     return this->cells_.isSubdivided(cellID);
 }
 
+template <class ResultSet>
 std::vector<double>
 ECL::CartesianGridData::
-cellData(const ::Opm::ECLResultData& src,
-         const std::string&          vector) const
+cellData(const ResultSet&   rset,
+         const std::string& vector) const
 {
-    if (! this->haveCellData(src, vector)) {
+    if (! this->haveCellData(rset, vector)) {
         return {};
     }
 
-    auto x = src.keywordData<double>(vector, this->gridID_);
+    const auto x =
+        rset.template keywordData<double>(vector, this->gridName());
 
     return this->cells_.scatterToGlobal(x);
 }
 
 namespace { namespace ECL {
-    template <typename T>
+    template <typename T, class ResultSet>
     std::vector<T>
-    CartesianGridData::activeCellData(const ::Opm::ECLResultData& src,
-                                      const std::string&          vector) const
+    CartesianGridData::activeCellData(const ResultSet&   rset,
+                                      const std::string& vector) const
     {
-        if (! this->haveCellData(src, vector)) {
+        if (! this->haveCellData(rset, vector)) {
             return {};
         }
 
-        auto x = src.keywordData<T>(vector, this->gridID_);
+        auto x = rset.template keywordData<T>(vector, this->gridName());
 
         return this->cells_.gatherToActive(std::move(x));
     }
 }} // namespace Anonymous::ECL
 
+template <class ResultSet>
 bool
 ECL::CartesianGridData::
-haveCellData(const ::Opm::ECLResultData& src,
-             const std::string&          vector) const
+haveCellData(const ResultSet&   rset,
+             const std::string& vector) const
 {
-    return src.haveKeywordData(vector, this->gridID_);
+    return rset.haveKeywordData(vector, this->gridName());
 }
 
 bool
 ECL::CartesianGridData::
-haveConnData(const ::Opm::ECLResultData& src,
-             const std::string&          vector) const
+haveConnData(const ::Opm::ECLRestartData& rstrt,
+             const std::string&           vector) const
 {
     auto have_data = true;
 
@@ -1024,7 +1109,7 @@ haveConnData(const ::Opm::ECLResultData& src,
     {
         const auto vname = this->vectorName(vector, d);
 
-        have_data = this->haveCellData(src, vname);
+        have_data = this->haveCellData(rstrt, vname);
 
         if (! have_data) { break; }
     }
@@ -1034,11 +1119,11 @@ haveConnData(const ::Opm::ECLResultData& src,
 
 std::vector<double>
 ECL::CartesianGridData::
-connectionData(const ::Opm::ECLResultData& src,
-               const std::string&          vector,
-               const double                unit) const
+connectionData(const ::Opm::ECLRestartData& rstrt,
+               const std::string&           vector,
+               const double                 unit) const
 {
-    if (! this->haveConnData(src, vector)) {
+    if (! this->haveConnData(rstrt, vector)) {
         return {};
     }
 
@@ -1048,7 +1133,9 @@ connectionData(const ::Opm::ECLResultData& src,
                            CartesianCells::Direction::J ,
                            CartesianCells::Direction::K })
     {
-        this->connectionData(src, d, this->vectorName(vector, d), unit, x);
+        const auto vname = this->vectorName(vector, d);
+
+        this->connectionData(rstrt, d, vname, unit, x);
     }
 
     return x;
@@ -1056,13 +1143,13 @@ connectionData(const ::Opm::ECLResultData& src,
 
 void
 ECL::CartesianGridData::
-connectionData(const ::Opm::ECLResultData&     src,
+connectionData(const ::Opm::ECLRestartData&    rstrt,
                const CartesianCells::Direction d,
                const std::string&              vector,
                const double                    unit,
                std::vector<double>&            x) const
 {
-    const auto v = this->cellData(src, vector);
+    const auto v = this->cellData(rstrt, vector);
 
     const auto& cells = this->outCell_.find(d);
 
@@ -1070,7 +1157,7 @@ connectionData(const ::Opm::ECLResultData&     src,
             "Direction must be I, J, or K");
 
     for (const auto& cell : cells->second) {
-        x.push_back(::Opm::unit::convert::from(v[cell], unit));
+        x.push_back(::ImportedOpm::unit::convert::from(v[cell], unit));
     }
 }
 
@@ -1090,7 +1177,7 @@ vectorName(const std::string&              vector,
 void
 ECL::CartesianGridData::
 deriveNeighbours(const std::vector<std::size_t>& gcells,
-                 const ::Opm::ECLResultData&     init,
+                 const ::Opm::ECLInitFileData&   init,
                  const CartesianCells::Direction d)
 {
     auto tran = std::string{"TRAN"};
@@ -1112,16 +1199,16 @@ deriveNeighbours(const std::vector<std::size_t>& gcells,
         throw std::invalid_argument("Input direction must be (I,J,K)");
     }
 
-    const auto& T = init.haveKeywordData(tran, this->gridID_)
+    const auto& T = init.haveKeywordData(tran, this->gridName())
         ? this->cellData(init, tran)
         : std::vector<double>(this->cells_.numGlobalCells(), 1.0);
 
     const auto trans_unit =
-        ECL::getUnitSystem(init, this->gridID_)->transmissibility();
+        ECL::getUnitSystem(init, this->gridName())->transmissibility();
 
     auto SI_trans = [trans_unit](const double trans)
     {
-        return ::Opm::unit::convert::from(trans, trans_unit);
+        return ::ImportedOpm::unit::convert::from(trans, trans_unit);
     };
 
     auto& ocell = this->outCell_[d];
@@ -1166,7 +1253,7 @@ public:
     /// \param[in] grid Name or prefix of ECL grid (i.e., .GRID or
     ///                 .EGRID) file.
     ///
-    /// \param[in] init Name of ECL INIT file corresponding to \p grid
+    /// \param[in] init ECL INIT result set corresponding to \p grid
     ///                 input.  Assumed to provide at least a complete set
     ///                 of pore-volume values (i.e., for all global cells
     ///                 defined in the \p grid).
@@ -1174,13 +1261,8 @@ public:
     ///                 If available in the INIT file, the constructor will
     ///                 also leverage the transmissibility data when
     ///                 constructing the active cell neighbourship table.
-    Impl(const Path& grid, const Path& init);
-
-    /// Assign source object for phase flux calculation.
-    ///
-    /// \param[in] src Name of ECL restart file, possibly unified, from
-    ///                which next set of phase fluxes should be retrieved.
-    void assignDataSource(const Path& src);
+    Impl(const ecl_grid_type*   grid,
+         const ECLInitFileData& init);
 
     /// Retrieve number of grids.
     ///
@@ -1200,11 +1282,14 @@ public:
     ///     ijk from specified grid.  Negative one (-1) if (I,J,K) outside
     ///     valid range or if the specific cell identified by \p ijk and \p
     ///     gridID is not actually active.
-    int activeCell(const int                gridID,
+    int activeCell(const std::string&       gridID,
                    const std::array<int,3>& ijk) const;
 
     /// Retrieve number of active cells in graph.
     std::size_t numCells() const;
+
+    /// Retrieve number of active cells in particular subgrid.
+    std::size_t numCells(const std::string& gridID) const;
 
     /// Retrieve number of connections in graph.
     std::size_t numConnections() const;
@@ -1213,7 +1298,12 @@ public:
     ///
     /// Mostly useful to determine the set of \c PhaseIndex values for which
     /// flux() may return non-zero values.
-    const std::vector<PhaseIndex>& activePhases() const;
+    const std::vector<ECLPhaseIndex>& activePhases() const;
+
+    /// Retrieve the simulation scenario's set of active grids.
+    ///
+    /// Mostly for canonical lookup of result data in LGRs.
+    const std::vector<std::string>& activeGrids() const;
 
     /// Retrieve neighbourship relations between active cells.
     ///
@@ -1221,6 +1311,8 @@ public:
     /// neighbours()[2*i + 0] \endcode and \code neighbours()[2*i + 1]
     /// \endcode.
     std::vector<int> neighbours() const;
+
+    std::vector<int> localCellID() const;
 
     /// Retrieve static pore-volume values on active cells only.
     ///
@@ -1238,24 +1330,6 @@ public:
     /// \endcode.
     std::vector<double> transmissibility() const;
 
-    /// Restrict dynamic result set data to single report step.
-    ///
-    /// This method must be called before calling either flux() or
-    /// rawResultData().
-    ///
-    /// \param[in] rptstep Selected temporal vector.  Report-step ID.
-    ///
-    /// \return Whether or not dynamic data for the requested report step
-    ///    exists in the underlying result set identified in method
-    ///    assignDataSource().
-    bool selectReportStep(const int rptstep) const;
-
-    /// Access underlying result set.
-    ///
-    /// The result set dynamic data corresponds to the most recent call to
-    /// method selectReportStep().
-    const ::Opm::ECLResultData& rawResultData() const;
-
     /// Retrieve phase flux on all connections defined by \code neighbours()
     /// \endcode.
     ///
@@ -1269,15 +1343,80 @@ public:
     /// reported due to report frequencies or no flux values are output at
     /// all).
     std::vector<double>
-    flux(const PhaseIndex phase) const;
+    flux(const ECLRestartData& rstrt,
+         const ECLPhaseIndex   phase) const;
 
-    template <typename T>
+    /// Retrieve result set vector from current view linearised on active
+    /// cells.
+    ///
+    /// \tparam T Element type of result set vector.
+    ///
+    /// \tparam ResultSet Implementation of an ECL Result Set.  Typically
+    ///   \code Opm::ECLRestartData \endcode or \code Opm::ECLInitFileData
+    ///   \endcode.
+    ///
+    /// \param[in] rset ECL Result set.  Typically an instance of \code
+    ///    Opm::ECLRestartData \endcode or \code Opm::ECLInitFileData
+    ///    \endcode.
+    ///
+    /// \param[in] vector Name of result set vector.
+    ///
+    /// \return Result set vector linearised on active cells.
+    template <typename T, class ResultSet>
     std::vector<T>
-    rawLinearisedCellData(const std::string& vector) const;
+    rawLinearisedCellData(const ResultSet&   rset,
+                          const std::string& vector) const;
 
+    /// Retrieve result set vector from current view (e.g., particular
+    /// report step) linearised on active cells of a particular sub-grid.
+    ///
+    /// \tparam T Element type of result set vector.
+    ///
+    /// \param[in] vector Name of result set vector.
+    ///
+    /// \param[in] gridID Identity of specific grid to which to relate the
+    ///    requested vector.  Use empty for main grid and names for any
+    ///    LGRs.
+    ///
+    /// \return Result set vector linearised on active cells of sub-grid.
+    template <typename T, class ResultSet>
+    std::vector<T>
+    rawLinearisedCellData(const ResultSet&   rset,
+                          const std::string& vector,
+                          const std::string& gridID) const;
+
+    /// Retrieve floating-point result set vector from current view
+    /// (e.g., particular report step) linearised on active cells and
+    /// converted to strict SI unit conventions.
+    ///
+    /// Typical call:
+    /// \code
+    ///  const auto press =
+    ///      lCD(rstrt, "PRESSURE", &ECLUnits::UnitSystem::pressure);
+    /// \endcode
+    ///
+    /// \param[in] rstrt ECL Restart dataset.  It is the responsibility of
+    ///    the caller to ensure that the restart data is correctly
+    ///    positioned on a particular report step.
+    ///
+    /// \param[in] vector Name of result set vector.
+    ///
+    /// \param[in] unit Call-back hook in \c UnitSystem implementation
+    ///    that enables converting the raw result data to strict SI unit
+    ///    conventions.  Hook is called for each grid in the result set.
+    ///
+    /// \return Result set vector linearised on active cells, converted
+    ///    to strict SI unit conventions.
     std::vector<double>
-    linearisedCellData(const std::string& vector,
-                       UnitConvention     unit) const;
+    linearisedCellData(const ECLRestartData& rstrt,
+                       const std::string&    vector,
+                       UnitConvention        unit) const;
+
+
+    const ECLGeometryGrid& getGeometryGrid() const
+    {
+        return this->geomGrid_;
+    }
 
 private:
     /// Collection of non-Cartesian neighbourship relations attributed to a
@@ -1516,10 +1655,16 @@ private:
     /// Set of active phases in result set.  Derived from .INIT on the
     /// assumption that the set of active phases does not change throughout
     /// the simulation run.
-    std::vector<PhaseIndex> activePhases_;
+    std::vector<ECLPhaseIndex> activePhases_;
 
-    /// Current result set.
-    std::unique_ptr<ECLResultData> src_;
+    /// Set of active grids in result set.
+    std::vector<std::string> activeGrids_;
+
+    /// Map grid names to numeric grid IDs
+    std::unordered_map<std::string, int> gridID_;
+
+    /// Geometry for main grid.
+    ECLGeometryGrid geomGrid_;
 
     /// Extract explicit non-neighbouring connections from ECL output.
     ///
@@ -1528,15 +1673,13 @@ private:
     /// \param[in] G ERT Grid representation.
     ///
     /// \param[in] init ERT representation of INIT source.
-    ///
-    /// \param[in] coll Backing data for neighbourship extraction.
-    void defineNNCs(const ecl_grid_type*        G,
-                    const ::Opm::ECLResultData& init);
+    void defineNNCs(const ecl_grid_type*   G,
+                    const ECLInitFileData& init);
 
     /// Extract scenario's set of active phases.
     ///
     /// Writes to activePhases_.
-    void defineActivePhases(const ::Opm::ECLResultData& init);
+    void defineActivePhases(const ::Opm::ECLInitFileData& init);
 
     /// Compute ECL vector basename for particular phase flux.
     ///
@@ -1546,13 +1689,15 @@ private:
     /// \return Basename for ECl vector corresponding to particular phase
     /// flux.
     std::string
-    flowVector(const PhaseIndex phase) const;
+    flowVector(const ECLPhaseIndex phase) const;
 
     /// Extract flux values corresponding to particular result set vector
     /// for all identified non-neighbouring connections.
     ///
     /// \tparam[in] GetFluxUnit Type of function object for computing the
     ///    grid-dependent flux unit.
+    ///
+    /// \param[in] rstrt ECL Restart data result set.
     ///
     /// \param[in] vector Result set vector prefix.  Typically computed by
     ///    method flowVector().
@@ -1572,9 +1717,10 @@ private:
     ///    contains those values that correspond to the non-neighbouring
     ///    connections (appended onto \p flux).
     template <class GetFluxUnit>
-    void fluxNNC(const std::string&   vector,
-                 GetFluxUnit&&        fluxUnit,
-                 std::vector<double>& flux) const;
+    void fluxNNC(const ECLRestartData& rstrt,
+                 const std::string&    vector,
+                 GetFluxUnit&&         fluxUnit,
+                 std::vector<double>&  flux) const;
 };
 
 // ======================================================================
@@ -1651,7 +1797,7 @@ NNC::add(const std::vector<ECL::CartesianGridData>& grid,
 
     // Capture transmissibility field to support on-demand flux calculations
     // if flux fields are not output to the on-disk result set.
-    this->trans_.push_back(unit::convert::from(nnc.trans, trans_unit));
+    this->trans_.push_back(ImportedOpm::unit::convert::from(nnc.trans, trans_unit));
 
     const auto cat = this->classifyConnection(nnc.grid_nr1, nnc.grid_nr2);
 
@@ -1763,56 +1909,91 @@ isViable(const std::vector<ECL::CartesianGridData>& grids,
 
 // ======================================================================
 
-Opm::ECLGraph::Impl::Impl(const Path& grid, const Path& init)
+Opm::ECLGraph::Impl::Impl(const ecl_grid_type*   grid,
+                          const ECLInitFileData& init)
 {
-    const auto G = ECL::loadCase(grid);
-    auto       I = ::Opm::ECLResultData{ init };
-
-    I.selectGlobalView();
-
-    const auto numGrids = ECL::numGrids(G.get());
+    const auto numGrids = ECL::numGrids(grid);
 
     this->grid_.reserve(numGrids);
     this->activeOffset_.reserve(numGrids + 1);
     this->activeOffset_.push_back(0);
 
-    for (auto gridID = 0*numGrids; gridID < numGrids; ++gridID)
-    {
-        this->grid_.emplace_back(ECL::getGrid(G.get(), gridID),
-                                 I, gridID);
+    for (auto gridID = 0*numGrids; gridID < numGrids; ++gridID) {
+        this->grid_.emplace_back(ECL::getGrid(grid, gridID), init, gridID);
 
         this->activeOffset_.push_back(this->activeOffset_.back() +
                                       this->grid_.back().numCells());
+
+        this->activeGrids_.push_back(this->grid_.back().gridName());
+
+        this->gridID_[this->activeGrids_.back()] = gridID;
     }
 
-    this->defineNNCs(G.get(), I);
-    this->defineActivePhases(I);
-}
+    this->defineNNCs(grid, init);
+    this->defineActivePhases(init);
 
-void
-Opm::ECLGraph::Impl::assignDataSource(const Path& src)
-{
-    this->src_.reset(new ECLResultData(src));
+    // Extract geometry of main grid.
+    {
+        // Size
+        {
+            this->geomGrid_.size[0] = ecl_grid_get_nx(grid);
+            this->geomGrid_.size[1] = ecl_grid_get_ny(grid);
+            this->geomGrid_.size[2] = ecl_grid_get_nz(grid);
+        }
+
+        // COORD
+        {
+            const auto ncoord =
+                    static_cast<std::size_t>(ecl_grid_get_coord_size(grid));
+            this->geomGrid_.coord.resize(ncoord, 0.0);
+
+            ecl_grid_init_coord_data_double(grid, this->geomGrid_.coord.data());
+        }
+
+        // ZCORN
+        {
+            const auto nzcorn =
+                    static_cast<std::size_t>(ecl_grid_get_zcorn_size(grid));
+            this->geomGrid_.zcorn.resize(nzcorn, 0.0);
+
+            ecl_grid_init_zcorn_data_double(grid, this->geomGrid_.zcorn.data());
+        }
+
+        // ACTNUM
+        {
+            const auto nglob =
+                    static_cast<std::size_t>(this->geomGrid_.size[0]) *
+                    static_cast<std::size_t>(this->geomGrid_.size[1]) *
+                    static_cast<std::size_t>(this->geomGrid_.size[2]);
+
+            this->geomGrid_.actnum.assign(nglob, 1);
+
+            ecl_grid_init_actnum_data(grid, this->geomGrid_.actnum.data());
+        }
+    }
 }
 
 int
-Opm::ECLGraph::Impl::
-numGrids() const
+Opm::ECLGraph::Impl::numGrids() const
 {
     return grid_.size();
 }
 
 int
 Opm::ECLGraph::Impl::
-activeCell(const int                gridID,
+activeCell(const std::string&       gridID,
            const std::array<int,3>& ijk) const
 {
-    const auto gIdx =
-        static_cast<decltype(this->grid_.size())>(gridID);
-
-    if (gIdx >= this->grid_.size()) {
+    const auto gID = this->gridID_.find(gridID);
+    if (gID == std::end(this->gridID_)) {
         return -1;
     }
+
+    const auto gIdx =
+        static_cast<decltype(this->grid_.size())>(gID->second);
+
+    assert ((gIdx <= this->grid_.size()) &&
+            "Logic Error in ECLGraph::Impl::Impl()");
 
     const auto& grid = this->grid_[gIdx];
 
@@ -1834,6 +2015,15 @@ Opm::ECLGraph::Impl::numCells() const
 }
 
 std::size_t
+Opm::ECLGraph::Impl::numCells(const std::string& gridID) const
+{
+    auto i = this->gridID_.find(gridID);
+
+    return (i == std::end(this->gridID_))
+        ? 0 : this->grid_[i->second].numCells();
+}
+
+std::size_t
 Opm::ECLGraph::Impl::numConnections() const
 {
     auto nconn = std::size_t{0};
@@ -1845,10 +2035,16 @@ Opm::ECLGraph::Impl::numConnections() const
     return nconn + this->nnc_.numConnections();
 }
 
-const std::vector<Opm::ECLGraph::PhaseIndex>&
+const std::vector<Opm::ECLPhaseIndex>&
 Opm::ECLGraph::Impl::activePhases() const
 {
     return this->activePhases_;
+}
+
+const std::vector<std::string>&
+Opm::ECLGraph::Impl::activeGrids() const
+{
+    return this->activeGrids_;
 }
 
 std::vector<int>
@@ -1880,6 +2076,28 @@ Opm::ECLGraph::Impl::neighbours() const
     }
 
     return N;
+}
+
+std::vector<int>
+Opm::ECLGraph::Impl::localCellID() const
+{
+    auto ret = std::vector<int>{};
+    ret.reserve(this->numCells());
+
+    auto off = this->activeOffset_.begin();
+    for (const auto& G : this->grid_) {
+        for (const auto& loc : G.getLocalCellID()) {
+            const auto locID = (loc >= 0)
+                    ? static_cast<int>(*off) + loc
+                    : -1;
+
+            ret.push_back(locID);
+        }
+
+        ++off;
+    }
+
+    return ret;
 }
 
 std::vector<double>
@@ -1925,24 +2143,13 @@ Opm::ECLGraph::Impl::transmissibility() const
     return trans;
 }
 
-const ::Opm::ECLResultData&
-Opm::ECLGraph::Impl::rawResultData() const
-{
-    return *this->src_;
-}
-
-bool Opm::ECLGraph::Impl::selectReportStep(const int rptstep) const
-{
-    return this->src_->selectReportStep(rptstep);
-}
-
 std::vector<double>
-Opm::ECLGraph::Impl::
-flux(const PhaseIndex phase) const
+Opm::ECLGraph::Impl::flux(const ECLRestartData& rstrt,
+                          const ECLPhaseIndex   phase) const
 {
-    auto fluxUnit = [this](const int gridID)
+    auto fluxUnit = [&rstrt](const std::string& gridID)
     {
-        return ::ECL::getUnitSystem(*this->src_, gridID)->reservoirRate();
+        return ::ECL::getUnitSystem(rstrt, gridID)->reservoirRate();
     };
 
     const auto vector = this->flowVector(phase);
@@ -1956,7 +2163,7 @@ flux(const PhaseIndex phase) const
 
     for (const auto& G : this->grid_) {
         const auto& q =
-            G.connectionData(*this->src_, vector, fluxUnit(G.gridID()));
+            G.connectionData(rstrt, vector, fluxUnit(G.gridName()));
 
         if (q.empty()) {
             // Flux vector invalid unless all grids provide this result
@@ -1971,7 +2178,7 @@ flux(const PhaseIndex phase) const
         // Model includes non-neighbouring connections such as faults and/or
         // local grid refinement.  Extract pertinent flux values for these
         // connections.
-        this->fluxNNC(vector, std::move(fluxUnit), v);
+        this->fluxNNC(rstrt, vector, std::move(fluxUnit), v);
     }
 
     if (v.size() < totconn) {
@@ -1985,14 +2192,15 @@ flux(const PhaseIndex phase) const
 
 namespace Opm {
 
-    template <typename T>
+    template <typename T, class ResultSet>
     std::vector<T>
-    ECLGraph::Impl::rawLinearisedCellData(const std::string& vector) const
+    ECLGraph::Impl::rawLinearisedCellData(const ResultSet&   rset,
+                                          const std::string& vector) const
     {
         auto x = std::vector<T>{};  x.reserve(this->numCells());
 
         for (const auto& G : this->grid_) {
-            const auto xi = G.activeCellData<T>(*this->src_, vector);
+            const auto xi = G.activeCellData<T>(rset, vector);
 
             x.insert(x.end(), std::begin(xi), std::end(xi));
         }
@@ -2003,22 +2211,38 @@ namespace Opm {
 
         return x;
     }
+
+    template <typename T, class ResultSet>
+    std::vector<T>
+    ECLGraph::Impl::rawLinearisedCellData(const ResultSet&   rset,
+                                          const std::string& vector,
+                                          const std::string& gridID) const
+    {
+        auto i = this->gridID_.find(gridID);
+
+        if (i == std::end(this->gridID_)) {
+            return {};
+        }
+
+        return this->grid_[i->second].activeCellData<T>(rset, vector);
+    }
 } // namespace Opm
 
 std::vector<double>
-Opm::ECLGraph::Impl::linearisedCellData(const std::string& vector,
-                                        UnitConvention     unit) const
+Opm::ECLGraph::Impl::linearisedCellData(const ECLRestartData& rstrt,
+                                        const std::string&    vector,
+                                        UnitConvention        unit) const
 {
     auto x = std::vector<double>{};  x.reserve(this->numCells());
 
     for (const auto& G : this->grid_) {
-        const auto xi = G.activeCellData<double>(*this->src_, vector);
+        const auto xi = G.activeCellData<double>(rstrt, vector);
 
         if (xi.empty()) { continue; }
 
         // Note: Compensate for incrementing Grid ID above.
         const auto usys =
-            ECL::getUnitSystem(*this->src_, G.gridID());
+            ECL::getUnitSystem(rstrt, G.gridName());
 
         // Note: 'usys' (generally, std::unique_ptr<>) does not support
         // regular PMF syntax (i.e., operator->*()).
@@ -2028,7 +2252,7 @@ Opm::ECLGraph::Impl::linearisedCellData(const std::string& vector,
                        std::back_inserter(x),
             [vector_unit](const double value)
             {
-                return ::Opm::unit::convert::from(value, vector_unit);
+                return ::ImportedOpm::unit::convert::from(value, vector_unit);
             });
     }
 
@@ -2040,25 +2264,28 @@ Opm::ECLGraph::Impl::linearisedCellData(const std::string& vector,
 }
 
 void
-Opm::ECLGraph::Impl::defineNNCs(const ecl_grid_type*        G,
-                                const ::Opm::ECLResultData& init)
+Opm::ECLGraph::Impl::defineNNCs(const ecl_grid_type*   G,
+                                const ECLInitFileData& init)
 {
     // Assume all transmissibilites in the result set follow the same unit
     // conventions.
 
-    const auto trans_unit =
-        ECL::getUnitSystem(init, 0)->transmissibility();
+    const auto gridID = std::string{ "" };  // Empty in main grid.
 
-    for (const auto& nnc : ECL::loadNNC(G, init)) {
+    const auto trans_unit =
+        ECL::getUnitSystem(init, gridID)->transmissibility();
+
+    for (const auto& nnc : ECL::loadNNC(G, init.getRawFilePtr())) {
         this->nnc_.add(this->grid_, this->activeOffset_, trans_unit, nnc);
     }
 }
 
 template <class GetFluxUnit>
 void
-Opm::ECLGraph::Impl::fluxNNC(const std::string&   vector,
-                             GetFluxUnit&&        fluxUnit,
-                             std::vector<double>& flux) const
+Opm::ECLGraph::Impl::fluxNNC(const ECLRestartData& rstrt,
+                             const std::string&    vector,
+                             GetFluxUnit&&         fluxUnit,
+                             std::vector<double>&  flux) const
 {
     auto v = std::vector<double>(this->nnc_.numConnections(), 0.0);
     auto assigned = std::vector<bool>(v.size(), false);
@@ -2068,35 +2295,38 @@ Opm::ECLGraph::Impl::fluxNNC(const std::string&   vector,
         const auto  fluxID = rel.makeKeyword(vector);
 
         for (const auto& G : this->grid_) {
-            const auto gridID = G.gridID();
+            const auto& gridName = G.gridName();
 
             const auto& iset =
-                rel.indexSet().getGridCollection(gridID);
+                rel.indexSet().getGridCollection(G.gridID());
 
-            if (iset.empty()) {
-                // No NNCs for this category in this grid.  Skip.
+            if (iset.empty() ||
+                ! rstrt.haveKeywordData(fluxID, gridName))
+            {
+                // No NNCs for this category in this grid or corresponding
+                // flux vector does not exist.  Skip.
                 continue;
             }
 
-            // Note: Method name is confusing, but does actually do what we
-            // want here.
-            const auto q = G.cellData(*this->src_, fluxID);
+            const auto q = rstrt.keywordData<double>(fluxID, gridName);
 
             if (q.empty()) {
-                // No flux data for this category in this grid.  Skip.
+                // Empty flux data for this category in this grid.  Not
+                // really supposed to happen if the above check fires, but
+                // skip this (category,gridID) pair nonetheless.
                 continue;
             }
 
-            const auto flux_unit = fluxUnit(gridID);
+            const auto flux_unit = fluxUnit(gridName);
 
-            // Data fully available for (category,gridID).  Assign
+            // Data fully available for (category,gridName).  Assign
             // approriate subset of NNC flux vector.
             for (const auto& ix : iset) {
                 assert (ix.neighIdx < v.size());
                 assert (ix.kwIdx    < q.size());
 
                 v[ix.neighIdx] =
-                    unit::convert::from(q[ix.kwIdx], flux_unit);
+                    ImportedOpm::unit::convert::from(q[ix.kwIdx], flux_unit);
 
                 assigned[ix.neighIdx] = true;
             }
@@ -2118,20 +2348,22 @@ Opm::ECLGraph::Impl::fluxNNC(const std::string&   vector,
 
 void
 Opm::ECLGraph::Impl::
-defineActivePhases(const ::Opm::ECLResultData& init)
+defineActivePhases(const ::Opm::ECLInitFileData& init)
 {
+    const auto gridID = std::string{ "" }; // Empty in main grid.
+
     const auto ih =
-        init.keywordData<int>(INTEHEAD_KW, ECL_GRID_MAINGRID_LGR_NR);
+        init.keywordData<int>(INTEHEAD_KW, gridID);
 
     const auto phaseMask =
         static_cast<unsigned int>(ih[INTEHEAD_PHASE_INDEX]);
 
-    using Check = std::pair<PhaseIndex, unsigned int>;
+    using Check = std::pair<ECLPhaseIndex, unsigned int>;
 
     const auto allPhases = std::vector<Check> {
-        { PhaseIndex::Aqua  , (1u << 1) },
-        { PhaseIndex::Liquid, (1u << 0) },
-        { PhaseIndex::Vapour, (1u << 2) },
+        { ECLPhaseIndex::Aqua  , (1u << 1) },
+        { ECLPhaseIndex::Liquid, (1u << 0) },
+        { ECLPhaseIndex::Vapour, (1u << 2) },
     };
 
     this->activePhases_.clear();
@@ -2143,20 +2375,19 @@ defineActivePhases(const ::Opm::ECLResultData& init)
 }
 
 std::string
-Opm::ECLGraph::Impl::
-flowVector(const PhaseIndex phase) const
+Opm::ECLGraph::Impl::flowVector(const ECLPhaseIndex phase) const
 {
     const auto vector = std::string("FLR"); // Flow-rate, reservoir
 
-    if (phase == PhaseIndex::Aqua) {
+    if (phase == ECLPhaseIndex::Aqua) {
         return vector + "WAT";
     }
 
-    if (phase == PhaseIndex::Liquid) {
+    if (phase == ECLPhaseIndex::Liquid) {
         return vector + "OIL";
     }
 
-    if (phase == PhaseIndex::Vapour) {
+    if (phase == ECLPhaseIndex::Vapour) {
         return vector + "GAS";
     }
 
@@ -2193,48 +2424,65 @@ Opm::ECLGraph::operator=(ECLGraph&& rhs)
 }
 
 Opm::ECLGraph
-Opm::ECLGraph::load(const Path& grid, const Path& init)
+Opm::ECLGraph::load(const boost::filesystem::path& grid,
+                    const ECLInitFileData&         init)
 {
-    auto pImpl = ImplPtr{new Impl(grid, init)};
+    auto G = ECL::loadCase(grid);
+
+    return ECLGraph::load(G.get(), init);
+}
+
+Opm::ECLGraph
+Opm::ECLGraph::load(const ecl_grid_type*   grid,
+                    const ECLInitFileData& init)
+{
+    auto pImpl = ImplPtr{ new Impl(grid, init) };
 
     return { std::move(pImpl) };
 }
 
-int
-Opm::ECLGraph::numGrids() const
+int Opm::ECLGraph::numGrids() const
 {
     return this->pImpl_->numGrids();
 }
 
 int
 Opm::ECLGraph::activeCell(const std::array<int,3>& ijk,
-                          const int                gridID) const
+                          const std::string&       gridID) const
 {
     return this->pImpl_->activeCell(gridID, ijk);
 }
 
-void
-Opm::ECLGraph::assignFluxDataSource(const Path& src)
-{
-    this->pImpl_->assignDataSource(src);
-}
-
-std::size_t
-Opm::ECLGraph::numCells() const
+std::size_t Opm::ECLGraph::numCells() const
 {
     return this->pImpl_->numCells();
 }
 
-std::size_t
-Opm::ECLGraph::numConnections() const
+std::size_t Opm::ECLGraph::numCells(const std::string& gridID) const
+{
+    return this->pImpl_->numCells(gridID);
+}
+
+std::size_t Opm::ECLGraph::numConnections() const
 {
     return this->pImpl_->numConnections();
 }
 
-const std::vector<Opm::ECLGraph::PhaseIndex>&
+std::vector<int> Opm::ECLGraph::localCellID() const
+{
+    return this->pImpl_->localCellID();
+}
+
+const std::vector<Opm::ECLPhaseIndex        >&
 Opm::ECLGraph::activePhases() const
 {
     return this->pImpl_->activePhases();
+}
+
+const std::vector<std::string>&
+Opm::ECLGraph::activeGrids() const
+{
+    return this->pImpl_->activeGrids();
 }
 
 std::vector<int> Opm::ECLGraph::neighbours() const
@@ -2252,45 +2500,82 @@ std::vector<double> Opm::ECLGraph::transmissibility() const
     return this->pImpl_->transmissibility();
 }
 
-bool Opm::ECLGraph::selectReportStep(const int rptstep) const
-{
-    return this->pImpl_->selectReportStep(rptstep);
-}
-
-const Opm::ECLResultData&
-Opm::ECLGraph::rawResultData() const
-{
-    return this->pImpl_->rawResultData();
-}
-
 std::vector<double>
-Opm::ECLGraph::
-flux(const PhaseIndex phase) const
+Opm::ECLGraph::flux(const ECLRestartData& rstrt,
+                    const ECLPhaseIndex   phase) const
 {
-    return this->pImpl_->flux(phase);
+    return this->pImpl_->flux(rstrt, phase);
 }
 
 namespace Opm {
 
-    template <typename T>
+    template <typename T, class ResultSet>
     std::vector<T>
-    ECLGraph::rawLinearisedCellData(const std::string& vector) const
+    ECLGraph::rawLinearisedCellData(const ResultSet&   rset,
+                                    const std::string& vector) const
     {
-        return this->pImpl_->rawLinearisedCellData<T>(vector);
+        return this->pImpl_->rawLinearisedCellData<T>(rset, vector);
     }
 
-    // Explicit instantiations for the element types we care about.
+    template <typename T, class ResultSet>
+    std::vector<T>
+    ECLGraph::rawLinearisedCellData(const ResultSet&   rset,
+                                    const std::string& vector,
+                                    const std::string& gridID) const
+    {
+        return this->pImpl_->rawLinearisedCellData<T>(rset, vector, gridID);
+    }
+
+    // Explicit instantiations of method rawLinearisedCellData() for the
+    // element and result set types we care about.
     template std::vector<int>
-    ECLGraph::rawLinearisedCellData<int>(const std::string& vector) const;
+    ECLGraph::rawLinearisedCellData<int>(const ECLInitFileData& rset,
+                                         const std::string&     vector) const;
+
+    template std::vector<int>
+    ECLGraph::rawLinearisedCellData<int>(const ECLRestartData& rset,
+                                         const std::string&    vector) const;
 
     template std::vector<double>
-    ECLGraph::rawLinearisedCellData<double>(const std::string& vector) const;
+    ECLGraph::rawLinearisedCellData<double>(const ECLInitFileData& rset,
+                                            const std::string&     vector) const;
+
+    template std::vector<double>
+    ECLGraph::rawLinearisedCellData<double>(const ECLRestartData& rset,
+                                            const std::string&    vector) const;
+
+    template std::vector<int>
+    ECLGraph::rawLinearisedCellData<int>(const ECLInitFileData& rset,
+                                         const std::string&     vector,
+                                         const std::string&     gridID) const;
+
+    template std::vector<int>
+    ECLGraph::rawLinearisedCellData<int>(const ECLRestartData& rset,
+                                         const std::string&    vector,
+                                         const std::string&    gridID) const;
+
+    template std::vector<double>
+    ECLGraph::rawLinearisedCellData<double>(const ECLInitFileData& rset,
+                                            const std::string&     vector,
+                                            const std::string&     gridID) const;
+
+    template std::vector<double>
+    ECLGraph::rawLinearisedCellData<double>(const ECLRestartData& rset,
+                                            const std::string&    vector,
+                                            const std::string&    gridID) const;
 
 } // namespace Opm
 
 std::vector<double>
-Opm::ECLGraph::linearisedCellData(const std::string& vector,
-                                  UnitConvention     unit) const
+Opm::ECLGraph::linearisedCellData(const ECLRestartData& rstrt,
+                                  const std::string&    vector,
+                                  UnitConvention        unit) const
 {
-    return this->pImpl_->linearisedCellData(vector, unit);
+    return this->pImpl_->linearisedCellData(rstrt, vector, unit);
+}
+
+const Opm::ECLGraph::ECLGeometryGrid&
+Opm::ECLGraph::getGeometryGrid() const
+{
+    return this->pImpl_->getGeometryGrid();
 }

@@ -1,0 +1,31 @@
+@startuml
+
+class RicPointTangentManipulator{
+eventFilter()
+}
+
+class RicPointTangentManipulatorPartMgr {
+appendPartsToModel()
+}
+Viewer <|-- RiuViewer
+RiuViewer ----* PdmUiSelection3dEditorVisualizer
+
+RicPointTangentManipulator -* RicPointTangentManipulatorPartMgr
+
+PdmUiObjectEditorHandle <|-- PdmUi3dObjectEditorHandle
+
+RicWellTarget3dEditor --* RicPointTangentManipulator
+
+RicWellPathGeometry3dEditor -* "n" RicWellTarget3dEditor
+PdmUi3dObjectEditorHandle <|-- RicWellPathGeometry3dEditor
+
+RicPointTangentManipulator ..up.> "installEventFilter()" Viewer
+
+PdmUi3dObjectEditorHandle <|-- Ric3dObjectEditorHandle
+Ric3dObjectEditorHandle <|-- RicWellTarget3dEditor
+
+PdmUiSelection3dEditorVisualizer --* "n" PdmUi3dObjectEditorHandle
+Viewer ..down.> "eventFilter()" RicPointTangentManipulator
+
+
+@enduml		

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -19,22 +19,50 @@
 #include "RicSaveProjectFeature.h"
 
 #include "RiaApplication.h"
-
-#include "RimTreeViewStateSerializer.h"
-#include "RimProject.h"
-
-#include "RiuMainWindow.h"
-#include "RiuMainPlotWindow.h"
-
-#include "cafPdmUiTreeView.h"
+#include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 
 #include <QAction>
-#include <QTreeView>
+#include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT(RicSaveProjectFeature, "RicSaveProjectFeature");
+RICF_SOURCE_INIT( RicSaveProjectFeature, "RicSaveProjectFeature", "saveProject" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+RicSaveProjectFeature::RicSaveProjectFeature()
+{
+    CAF_PDM_InitFieldNoDefault( &m_filePath, "filePath", "", "", "", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicfCommandResponse RicSaveProjectFeature::execute()
+{
+    this->disableModelChangeContribution();
+
+    bool    worked = false;
+    QString errorMessage;
+    if ( !m_filePath().isEmpty() )
+    {
+        worked = RiaApplication::instance()->saveProjectAs( m_filePath(), &errorMessage );
+    }
+    else
+    {
+        worked = RiaApplication::instance()->saveProject( &errorMessage );
+    }
+
+    if ( !worked )
+    {
+        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+    }
+
+    return RicfCommandResponse();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 bool RicSaveProjectFeature::isCommandEnabled()
 {
@@ -42,65 +70,44 @@ bool RicSaveProjectFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicSaveProjectFeature::onActionTriggered(bool isChecked)
+void RicSaveProjectFeature::onActionTriggered( bool isChecked )
 {
-    RiaApplication* app = RiaApplication::instance();
+    RiaApplication*    app    = RiaApplication::instance();
+    RiaGuiApplication* guiApp = dynamic_cast<RiaGuiApplication*>( app );
 
-    RicSaveProjectFeature::storeTreeViewState();
-
-    app->saveProject();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicSaveProjectFeature::setupActionLook(QAction* actionToSetup)
-{
-    actionToSetup->setText("&Save Project");
-    actionToSetup->setIcon(QIcon(":/Save.png"));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicSaveProjectFeature::storeTreeViewState()
-{
+    if ( guiApp && !guiApp->isProjectSavedToDisc() )
     {
-        RiaApplication* app = RiaApplication::instance();
-        if (app->mainPlotWindow() && app->mainPlotWindow()->projectTreeView())
+        m_filePath = guiApp->promptForProjectSaveAsFileName();
+
+        if ( m_filePath().isEmpty() )
         {
-            caf::PdmUiTreeView* projectTreeView = app->mainPlotWindow()->projectTreeView();
-
-            QString treeViewState;
-            RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
-
-            QModelIndex mi = projectTreeView->treeView()->currentIndex();
-
-            QString encodedModelIndexString;
-            RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
-
-            RiaApplication::instance()->project()->plotWindowTreeViewState = treeViewState;
-            RiaApplication::instance()->project()->plotWindowCurrentModelIndexPath = encodedModelIndexString;
+            return;
         }
     }
 
+    auto response = execute();
+    if ( response.status() != RicfCommandResponse::COMMAND_OK )
     {
-        caf::PdmUiTreeView* projectTreeView = RiuMainWindow::instance()->projectTreeView();
-        if (projectTreeView)
+        QString displayMessage = response.messages().join( "\n" );
+        if ( RiaGuiApplication::isRunning() )
         {
-            QString treeViewState;
-            RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
-
-            QModelIndex mi = projectTreeView->treeView()->currentIndex();
-
-            QString encodedModelIndexString;
-            RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
-
-            RiaApplication::instance()->project()->mainWindowTreeViewState = treeViewState;
-            RiaApplication::instance()->project()->mainWindowCurrentModelIndexPath = encodedModelIndexString;
+            QMessageBox::warning( nullptr, "Error when saving project file", displayMessage );
         }
+        RiaLogging::error( displayMessage );
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSaveProjectFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setText( "&Save Project" );
+    actionToSetup->setIcon( QIcon( ":/Save.png" ) );
+
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Save );
+}
+
+//--------------------------------------------------------------------------------------------------

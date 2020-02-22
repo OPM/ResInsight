@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package rips;
+
+import "Definitions.proto";
+import "Case.proto";
+
+service Grid
+{
+	rpc GetCellCenters(GridRequest) returns(stream CellCenters) {}
+	rpc GetCellCorners(GridRequest) returns(stream CellCornersArray) {}
+	rpc GetDimensions(GridRequest) returns (GridDimensions) {}
+}
+
+message GridRequest
+{
+	CaseRequest case_request = 1;
+	int32         grid_index = 2;
+}
+
+message GridDimensions
+{
+	Vec3i dimensions = 1;
+}
+

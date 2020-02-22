@@ -1,5 +1,6 @@
 /*
-  Copyright 2015, 2016 SINTEF ICT, Applied Mathematics.
+  Copyright 2015, 2016, 2017 SINTEF ICT, Applied Mathematics.
+  Copyright 2017 Statoil ASA.
 
   This file is part of the Open Porous Media project (OPM).
 
@@ -24,6 +25,7 @@
 #include <opm/flowdiagnostics/DerivedQuantities.hpp>
 #include <algorithm>
 #include <numeric>
+#include <stdexcept>
 
 namespace Opm
 {
@@ -68,26 +70,55 @@ namespace FlowDiagnostics
     /// al. (SPE 146446), Shook and Mitchell (SPE 124625).
     Graph flowCapacityStorageCapacityCurve(const Toolbox::Forward& injector_solution,
                                            const Toolbox::Reverse& producer_solution,
-                                           const std::vector<double>& pv)
+                                           const std::vector<double>& pv,
+                                           const double max_pv_fraction)
     {
-        const auto& ftof = injector_solution.fd.timeOfFlight();
-        const auto& rtof = producer_solution.fd.timeOfFlight();
-        if (pv.size() != ftof.size() || pv.size() != rtof.size()) {
+        return flowCapacityStorageCapacityCurve(injector_solution.fd.timeOfFlight(),
+                                                producer_solution.fd.timeOfFlight(),
+                                                pv,
+                                                max_pv_fraction);
+    }
+
+
+
+
+    /// The F-Phi curve.
+    ///
+    /// The F-Phi curve is an analogue to the fractional flow
+    /// curve in a 1D displacement. It can be used to compute
+    /// other interesting diagnostic quantities such as the Lorenz
+    /// coefficient. For a technical description see Shavali et
+    /// al. (SPE 146446), Shook and Mitchell (SPE 124625).
+    Graph flowCapacityStorageCapacityCurve(const std::vector<double>& injector_tof,
+                                           const std::vector<double>& producer_tof,
+                                           const std::vector<double>& pv,
+                                           const double max_pv_fraction)
+    {
+        if (pv.size() != injector_tof.size() || pv.size() != producer_tof.size()) {
             throw std::runtime_error("flowCapacityStorageCapacityCurve(): "
                                      "Input solutions must have same size.");
         }
+
+        // Compute max pv cutoff.
+        const double total_pv = std::accumulate(pv.begin(), pv.end(), 0.0);
+        const double max_pv = max_pv_fraction * total_pv;
 
         // Sort according to total travel time.
         const int n = pv.size();
         typedef std::pair<double, double> D2;
         std::vector<D2> time_and_pv(n);
         for (int ii = 0; ii < n; ++ii) {
-            time_and_pv[ii].first = ftof[ii] + rtof[ii]; // Total travel time.
-            time_and_pv[ii].second = pv[ii];
+            if (pv[ii] > max_pv) {
+                time_and_pv[ii].first = 1e100;
+                time_and_pv[ii].second = 0.0;
+            } else {
+                time_and_pv[ii].first = injector_tof[ii] + producer_tof[ii]; // Total travel time.
+                time_and_pv[ii].second = pv[ii];
+            }
         }
         std::sort(time_and_pv.begin(), time_and_pv.end());
 
-        auto Phi = cumulativeNormalized(time_and_pv, [](const D2& i) { return i.first; });
+        auto Phi = cumulativeNormalized(time_and_pv, [](const D2& i) { return i.second; });
         auto F = cumulativeNormalized(time_and_pv, [](const D2& i) { return i.second / i.first; });
 
         return Graph{std::move(Phi), std::move(F)};
@@ -196,23 +227,19 @@ namespace FlowDiagnostics
 
         // Helper for injectorProducerPairFlux().
         double pairFlux(const CellSetValues& tracer,
-                        const CellSet& well_cells,
                         const CellSetValues& inflow_flux,
                         const bool require_inflow)
         {
             double flux = 0.0;
-            for (const int cell : well_cells) {
+            for (const auto inflow : inflow_flux) {
+                const int cell = inflow.first;
                 const auto tracer_iter = tracer.find(cell);
                 if (tracer_iter != tracer.end()) {
                     // Tracer present in cell.
-                    const auto source_iter = inflow_flux.find(cell);
-                    if (source_iter != inflow_flux.end()) {
-                        // Cell has source term.
-                        const double source = source_iter->second;
-                        if ((source > 0.0) == require_inflow) {
-                            // Source term has correct sign.
-                            flux += source * tracer_iter->second;
-                        }
+                    const double source = inflow.second;
+                    if ((source > 0.0) == require_inflow) {
+                        // Source term has correct sign.
+                        flux += source * tracer_iter->second;
                     }
                 }
             }
@@ -238,14 +265,22 @@ namespace FlowDiagnostics
     std::pair<double, double>
     injectorProducerPairFlux(const Toolbox::Forward& injector_solution,
                              const Toolbox::Reverse& producer_solution,
-                             const CellSet& injector_cells,
-                             const CellSet& producer_cells,
-                             const CellSetValues& inflow_flux)
+                             const CellSetID& injector,
+                             const CellSetID& producer,
+                             const std::map<CellSetID, CellSetValues>& inflow_flux)
     {
-        const auto& inj_tracer = injector_solution.fd.concentration(injector_cells.id());
-        const auto& prod_tracer = producer_solution.fd.concentration(producer_cells.id());
-        const double inj_flux = pairFlux(prod_tracer, injector_cells, inflow_flux, true);
-        const double prod_flux = pairFlux(inj_tracer, producer_cells, inflow_flux, false);
+        const auto& inj_tracer = injector_solution.fd.concentration(injector);
+        const auto& prod_tracer = producer_solution.fd.concentration(producer);
+        const auto inj_set_iter = inflow_flux.find(injector);
+        if (inj_set_iter == inflow_flux.end()) {
+            throw std::runtime_error("injectorProducerPairFlux(): Could not find requeste injector set in inflow fluxes.");
+        }
+        const auto prod_set_iter = inflow_flux.find(producer);
+        if (prod_set_iter == inflow_flux.end()) {
+            throw std::runtime_error("injectorProducerPairFlux(): Could not find requested producer set in inflow fluxes.");
+        }
+        const double inj_flux = pairFlux(prod_tracer, inj_set_iter->second, true);
+        const double prod_flux = pairFlux(inj_tracer, prod_set_iter->second, false);
         return { inj_flux, prod_flux };
     }
 

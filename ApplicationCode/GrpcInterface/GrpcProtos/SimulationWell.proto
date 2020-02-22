@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+import "Definitions.proto";
+
+package rips;
+
+service SimulationWell
+{
+  rpc GetSimulationWellStatus(SimulationWellRequest) returns (SimulationWellStatus) {}
+  rpc GetSimulationWellCells(SimulationWellRequest) returns (SimulationWellCellInfoArray) {}
+}
+
+message SimulationWellRequest {
+  int32  case_id   = 1;
+  string well_name = 2;
+  int32  timestep  = 3;
+}
+
+message SimulationWellStatus
+{
+  string well_type = 1;
+  bool   is_open   = 2;
+}
+
+message SimulationWellCellInfo {
+  Vec3i ijk        = 1;
+  int32 grid_index = 2;
+  bool  is_open    = 3;
+  int32 branch_id  = 4;
+  int32 segment_id = 5;
+}
+
+message SimulationWellCellInfoArray
+{
+  repeated SimulationWellCellInfo data = 1;
+}
+

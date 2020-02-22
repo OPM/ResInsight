@@ -6,6 +6,7 @@
 #undef PdmDataValueField
 #undef CAF_IS_DEFINING_PDM_FIELD
 
+#ifndef __clang__
 namespace caf
 {
 
@@ -18,6 +19,7 @@ namespace caf
     {
     };
 
-#endif
+#endif // WIN32
 
 }
+#endif // __clang__

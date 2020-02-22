@@ -55,59 +55,82 @@ class PdmObjectHandle;
 class PdmUiOrdering
 {
 public:
+    struct LayoutOptions
+    {
+        static const int MAX_COLUMN_SPAN = -1;
+        LayoutOptions(bool newRow = true, int totalColumnSpan = MAX_COLUMN_SPAN, int leftLabelColumnSpan = MAX_COLUMN_SPAN)
+            : newRow(newRow), totalColumnSpan(totalColumnSpan), leftLabelColumnSpan(leftLabelColumnSpan)
+        {}
+
+        bool newRow;
+        int totalColumnSpan;
+        int leftLabelColumnSpan;
+    };
+    typedef std::pair<PdmUiItem*, LayoutOptions> FieldAndLayout;
+    typedef std::vector<FieldAndLayout>          RowLayout;
+    typedef std::vector<RowLayout>               TableLayout;
+
     PdmUiOrdering(): m_skipRemainingFields(false) { };
     virtual ~PdmUiOrdering();
 
     PdmUiOrdering(const PdmUiOrdering&) = delete;
     PdmUiOrdering& operator=(const PdmUiOrdering&) = delete;
 
-    PdmUiGroup*                     addNewGroup(QString displayName);
+    void                            add(const PdmFieldHandle* field, LayoutOptions layout = LayoutOptions());
+    void                            add(const PdmObjectHandle* obj,  LayoutOptions layout = LayoutOptions());
+    bool                            insertBeforeGroup(const QString& groupId, const PdmFieldHandle* fieldToInsert, LayoutOptions layout = LayoutOptions());
+    bool                            insertBeforeItem(const PdmUiItem* item,   const PdmFieldHandle* fieldToInsert, LayoutOptions layout = LayoutOptions());
 
-    void                            add(const PdmFieldHandle* field);
-    void                            add(const PdmObjectHandle* obj);
+    PdmUiGroup*                     addNewGroup(const QString& displayName, LayoutOptions layout = LayoutOptions());
+    PdmUiGroup*                     createGroupBeforeGroup(const QString& groupId, const QString& displayName, LayoutOptions layout = LayoutOptions());
+    PdmUiGroup*                     createGroupBeforeItem(const PdmUiItem* item,   const QString& displayName, LayoutOptions layout = LayoutOptions());
+
+    PdmUiGroup*                     addNewGroupWithKeyword(const QString& displayName, const QString& groupKeyword, LayoutOptions layout = LayoutOptions());
+    PdmUiGroup*                     createGroupWithIdBeforeGroup(const QString& groupId, const QString& displayName, const QString& newGroupId, LayoutOptions layout = LayoutOptions());
+    PdmUiGroup*                     createGroupWithIdBeforeItem(const PdmUiItem* item,   const QString& displayName, const QString& newGroupId, LayoutOptions layout = LayoutOptions());
+
+    PdmUiGroup*                     findGroup(const QString& groupId) const;
 
     void                            skipRemainingFields(bool doSkip = true);
 
     // Pdm internal methods
+    
+    const std::vector<PdmUiItem*>            uiItems() const;
+    const std::vector<FieldAndLayout>&       uiItemsWithLayout() const;
 
-    const std::vector<PdmUiItem*>&  uiItems() const;
-    bool                            contains(const PdmUiItem* item) const;
-    bool                            isIncludingRemainingFields() const;
+    std::vector<std::vector<FieldAndLayout>> calculateTableLayout(const QString& uiConfigName) const;
+    int                                      nrOfColumns(const TableLayout& tableLayout) const;
+    int                                      nrOfRequiredColumnsInRow(const RowLayout& rowItems) const;
+    int                                      nrOfExpandingItemsInRow(const RowLayout& rowItems) const;
+    void                                     nrOfColumnsRequiredForItem(const FieldAndLayout& fieldAndLayout,
+                                                                        int*                  totalColumnsRequired,
+                                                                        int*                  labelColumnsRequired,
+                                                                        int*                  fieldColumnsRequired) const;
+    bool                                   contains(const PdmUiItem* item) const;
+    bool                                   isIncludingRemainingFields() const;
+
+protected:
+
+    struct PositionFound
+    {
+        PdmUiOrdering* parent;
+        size_t indexInParent;
+        PdmUiItem* item();
+        PdmUiGroup* group();
+    };
+
+    PositionFound                   findGroupPosition(const QString& groupKeyword) const;
+    PositionFound                   findItemPosition(const PdmUiItem* item) const;
 
 private:
-    std::vector<PdmUiItem*>         m_ordering;            ///< The order of groups and fields
+    void                            insert(size_t index, const PdmFieldHandle* field, LayoutOptions layout = LayoutOptions());
+    PdmUiGroup*                     insertNewGroupWithKeyword(size_t index, const QString& displayName, const QString& groupKeyword, LayoutOptions layout = LayoutOptions());
+
+    std::vector<FieldAndLayout>     m_ordering;            ///< The order of groups and fields
     std::vector<PdmUiGroup*>        m_createdGroups;       ///< Owned PdmUiGroups, for memory management only
     bool                            m_skipRemainingFields;
 };
 
-//==================================================================================================
-/// Class representing a group of fields communicated to the Gui
-//==================================================================================================
-
-class PdmUiGroup : public PdmUiItem, public PdmUiOrdering
-{
-public:
-    PdmUiGroup() { m_isCollapsedByDefault = false; m_hasForcedExpandedState = false; m_forcedCollapseState = false;}
-
-    virtual bool isUiGroup() { return true; }
-
-    /// Set this group to be collapsed by default. When the user expands the group, the default no longer has any effect. 
-    void         setCollapsedByDefault(bool doCollapse) { m_isCollapsedByDefault = doCollapse;} 
-    /// Forcifully set the collapsed state of the group, overriding the previous user actions and the default
-    void         setCollapsed(bool doCollapse)          { m_hasForcedExpandedState = true; m_forcedCollapseState = doCollapse;}
-
-    // Pdm internal methods
-    bool         isExpandedByDefault()    const { return !m_isCollapsedByDefault;} 
-    bool         hasForcedExpandedState() const { return m_hasForcedExpandedState;} 
-    bool         forcedExpandedState()    const { return !m_forcedCollapseState;}
-
-private:
-    bool         m_isCollapsedByDefault;
-    bool         m_hasForcedExpandedState;
-    bool         m_forcedCollapseState;
-};
-
-
-
 } // End of namespace caf
 
+#include "cafPdmUiGroup.h"

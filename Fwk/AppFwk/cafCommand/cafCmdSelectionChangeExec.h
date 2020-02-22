@@ -40,7 +40,6 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafSelectionManager.h"
 #include "cafAppEnum.h"
 
 
@@ -61,12 +60,12 @@ public:
     {
         CAF_PDM_InitObject("CmdSelectionChangeExecData uiName", "", "CmdSelectionChangeExecData tooltip", "CmdSelectionChangeExecData whatsthis");
 
-        CAF_PDM_InitFieldNoDefault(&m_selectionRole,    "selectionRole",                                "selectionRole", "", "", "");
+        CAF_PDM_InitFieldNoDefault(&m_selectionLevel,    "selectionLevel",                                "selectionLevel", "", "", "");
         CAF_PDM_InitField(&m_previousSelection,         "previousSelection",    std::vector<QString>(), "previousSelection", "", "", "");
         CAF_PDM_InitField(&m_newSelection,              "newSelection",         std::vector<QString>(), "newSelection", "", "", "");
     }
 
-    PdmField< AppEnum<SelectionManager::SelectionRole> > m_selectionRole;
+    PdmField< int >                   m_selectionLevel;
     PdmField< std::vector<QString> >  m_previousSelection;
     PdmField< std::vector<QString> >  m_newSelection;
 };
@@ -79,13 +78,13 @@ class CmdSelectionChangeExec : public CmdExecuteCommand
 {
 public:
     explicit CmdSelectionChangeExec(NotificationCenter* notificationCenter);
-    virtual ~CmdSelectionChangeExec();;
+    ~CmdSelectionChangeExec() override;;
 
     CmdSelectionChangeExecData* commandData();
 
-    virtual QString name();
-    virtual void redo();
-    virtual void undo();
+    QString name() override;
+    void redo() override;
+    void undo() override;
 
 private:
     CmdSelectionChangeExecData* m_commandData;

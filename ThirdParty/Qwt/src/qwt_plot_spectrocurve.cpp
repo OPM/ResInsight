@@ -117,19 +117,19 @@ void QwtPlotSpectroCurve::setSamples( const QVector<QwtPoint3D> &samples )
 
 /*!
   Assign a series of samples
-    
+
   setSamples() is just a wrapper for setData() without any additional
   value - beside that it is easier to find for the developer.
-    
+
   \param data Data
   \warning The item takes ownership of the data object, deleting
-           it when its not used anymore. 
+           it when its not used anymore.
 */
 void QwtPlotSpectroCurve::setSamples(
     QwtSeriesData<QwtPoint3D> *data )
 {
     setData( data );
-}  
+}
 
 /*!
   Change the color map
@@ -303,14 +303,14 @@ void QwtPlotSpectroCurve::drawDots( QPainter *painter,
             const QRgb rgb = d_data->colorMap->rgb(
                 d_data->colorRange, sample.z() );
 
-            painter->setPen( QPen( QColor( rgb ), d_data->penWidth ) );
+            painter->setPen( QPen( QColor::fromRgba( rgb ), d_data->penWidth ) );
         }
         else
         {
             const unsigned char index = d_data->colorMap->colorIndex(
                 d_data->colorRange, sample.z() );
 
-            painter->setPen( QPen( QColor( d_data->colorTable[index] ), 
+            painter->setPen( QPen( QColor::fromRgba( d_data->colorTable[index] ),
                 d_data->penWidth ) );
         }
 

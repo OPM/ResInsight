@@ -1,0 +1,50 @@
+@startuml
+
+package "Curve creator (Plot editor)" {
+
+'
+' Class definitions
+'
+class RicSummaryCurveCreatorSplitterUi {
+    Qt layouts
+}
+
+class RicSummaryCurveCreator {
+    Appearance types
+    OK/Apply/Cancel buttons
+}
+
+class RiuSummaryCurveDefSelectionEditor {
+    m_firstRowLeftLayout
+    m_firstRowRightLayout
+}
+
+class RiuSummaryCurveDefSelection {
+    Cases
+    Summary categories
+    Identifier fields
+}
+
+'
+' Class Hierarchy
+'
+PdmUiWidgetBasedObjectEditor <|-- RicSummaryCurveCreatorSplitterUi
+PdmUiWidgetBasedObjectEditor <|-- RiuSummaryCurveDefSelectionEditor
+
+'
+' Class references
+'
+RicSummaryCurveCreatorDialog --> RicSummaryCurveCreatorSplitterUi
+
+RicSummaryCurveCreatorSplitterUi ->RicSummaryCurveCreator
+
+RicSummaryCurveCreator --> RiuSummaryCurveDefSelectionEditor
+
+RicSummaryCurveCreator --> RimSummaryPlot : Target plot
+RicSummaryCurveCreator --> RimSummaryPlot : Preview plot
+
+RiuSummaryCurveDefSelectionEditor --> RiuSummaryCurveDefSelection
+
+}
+
+@enduml

@@ -34,28 +34,24 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiCheckBoxEditor.h"
 
 #include "cafPdmUiDefaultObjectEditor.h"
 
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
-#include "cafPdmField.h"
+#include "cafQShortenedLabel.h"
 
 #include "cafFactory.h"
 
-
-
 namespace caf
 {
-
 CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiCheckBoxEditor);
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
@@ -63,43 +59,34 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
     CAF_ASSERT(!m_label.isNull());
 
     PdmUiCheckBoxEditorAttribute attributes;
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle*      uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &attributes);
     }
 
     if (attributes.m_useNativeCheckBoxLabel)
     {
-        m_checkBox->setText(field()->uiName(uiConfigName));
+        m_checkBox->setText(uiField()->uiName(uiConfigName));
+
+        m_label->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+        m_label->setToolTip(uiField()->uiToolTip(uiConfigName));
     }
     else
     {
-        QIcon ic = field()->uiIcon(uiConfigName);
-        if (!ic.isNull())
-        {
-            m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-        }
-        else
-        {
-            m_label->setText(field()->uiName(uiConfigName));
-        }
+        PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
     }
 
-    m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_label->setToolTip(field()->uiToolTip(uiConfigName));
+    m_checkBox->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_checkBox->setToolTip(uiField()->uiToolTip(uiConfigName));
 
-    m_checkBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_checkBox->setToolTip(field()->uiToolTip(uiConfigName));
-
-    m_checkBox->setChecked(field()->uiValue().toBool());
+    m_checkBox->setChecked(uiField()->uiValue().toBool());
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiCheckBoxEditor::createEditorWidget(QWidget * parent)
+QWidget* PdmUiCheckBoxEditor::createEditorWidget(QWidget* parent)
 {
     m_checkBox = new QCheckBox(parent);
     connect(m_checkBox, SIGNAL(clicked(bool)), this, SLOT(slotClicked(bool)));
@@ -107,16 +94,16 @@ QWidget* PdmUiCheckBoxEditor::createEditorWidget(QWidget * parent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiCheckBoxEditor::createLabelWidget(QWidget * parent)
+QWidget* PdmUiCheckBoxEditor::createLabelWidget(QWidget* parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiCheckBoxEditor::slotClicked(bool checked)
 {
@@ -124,6 +111,5 @@ void PdmUiCheckBoxEditor::slotClicked(bool checked)
     v = checked;
     this->setValueToField(v);
 }
-
 
 } // end namespace caf

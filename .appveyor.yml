@@ -1,0 +1,7 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+environment:
+  QT5: C:\Qt\5.13.2\msvc2017_64
+cache: C:\vcpkg
+build_script:
+- ps: .\appveyor-build.ps1

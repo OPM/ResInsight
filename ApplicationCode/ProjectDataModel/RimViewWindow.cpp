@@ -1,56 +1,97 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimViewWindow.h"
+
+#include "RiaApplication.h"
+#include "RiaColorTables.h"
+#include "RiaColorTools.h"
+#include "RiaFieldHandleTools.h"
+#include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
+
+#include "RicfCommandObject.h"
+
 #include "RimMdiWindowController.h"
+#include "RimProject.h"
+
+#include "cafPdmUiTreeViewEditor.h"
 #include "cvfAssert.h"
+
+#include <QDebug>
 #include <QWidget>
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimViewWindow, "ViewWindow"); // Do not use. Abstract class 
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimViewWindow::RimViewWindow(void)
+RimViewWindow::RimViewWindow( void )
 {
-    CAF_PDM_InitFieldNoDefault(&m_windowController, "WindowController", "", "", "", "");
-    m_windowController.uiCapability()->setUiHidden(true);
-    m_windowController.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitObject( "View window", "", "", "" );
 
-    CAF_PDM_InitField(&m_showWindow, "ShowWindow", true, "Show Window", "", "", "");
-    m_showWindow.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "", "", "", "" );
+    m_windowController.uiCapability()->setUiHidden( true );
+    m_windowController.uiCapability()->setUiTreeChildrenHidden( true );
+
+    CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window", "", "", "" );
+    m_showWindow.uiCapability()->setUiHidden( true );
 
     // Obsolete field
-    CAF_PDM_InitFieldNoDefault(&obsoleteField_windowGeometry, "WindowGeometry", "", "", "", "");
-    obsoleteField_windowGeometry.uiCapability()->setUiHidden(true);
-    obsoleteField_windowGeometry.xmlCapability()->setIOWritable(false);
+    CAF_PDM_InitFieldNoDefault( &obsoleteField_windowGeometry, "WindowGeometry", "", "", "", "" );
+    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_windowGeometry );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimViewWindow::~RimViewWindow(void)
+RimViewWindow::~RimViewWindow( void )
 {
-    if ( m_windowController() ) delete  m_windowController() ;
+    if ( m_windowController() ) delete m_windowController();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+bool RimViewWindow::showWindow() const
+{
+    return m_showWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::setShowWindow( bool showWindow )
+{
+    m_showWindow = showWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::loadDataAndUpdate()
+{
+    assignIdIfNecessary();
+    onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::removeMdiWindowFromMdiArea()
 {
@@ -58,7 +99,24 @@ void RimViewWindow::removeMdiWindowFromMdiArea()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+QString RimViewWindow::windowTitle()
+{
+    if ( this->userDescriptionField() )
+    {
+        caf::PdmUiFieldHandle* uiFieldHandle = this->userDescriptionField()->uiCapability();
+        if ( uiFieldHandle )
+        {
+            QVariant v = uiFieldHandle->uiValue();
+            return v.toString();
+        }
+    }
+    return QString( "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::handleMdiWindowClosed()
 {
@@ -66,19 +124,21 @@ void RimViewWindow::handleMdiWindowClosed()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::updateMdiWindowVisibility()
 {
-    if (m_windowController())
+    if ( !RiaGuiApplication::isRunning() ) return;
+
+    if ( m_windowController() )
     {
         m_windowController->updateViewerWidget();
     }
     else
     {
-        if (viewWidget())
+        if ( viewWidget() )
         {
-            if (m_showWindow)
+            if ( isWindowVisible() )
             {
                 viewWidget()->show();
             }
@@ -91,11 +151,41 @@ void RimViewWindow::updateMdiWindowVisibility()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::setAs3DViewMdiWindow()
+{
+    setAsMdiWindow( 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::setAsPlotMdiWindow()
+{
+    setAsMdiWindow( 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::revokeMdiWindowStatus()
+{
+    if ( m_windowController() )
+    {
+        handleMdiWindowClosed();
+        deleteViewWidget();
+        delete m_windowController();
+        m_windowController = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 bool RimViewWindow::isMdiWindow() const
 {
-    if (m_windowController())
+    if ( m_windowController() )
     {
         return true;
     }
@@ -104,30 +194,53 @@ bool RimViewWindow::isMdiWindow() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry)
+void RimViewWindow::setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry )
 {
-    CVF_ASSERT(m_windowController());
+    CVF_ASSERT( m_windowController() );
 
-    if (m_windowController()) m_windowController()->setMdiWindowGeometry(windowGeometry);
-
+    if ( m_windowController() ) m_windowController()->setMdiWindowGeometry( windowGeometry );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimMdiWindowGeometry RimViewWindow::mdiWindowGeometry()
 {
-    CVF_ASSERT(m_windowController());
+    CVF_ASSERT( m_windowController() );
 
-    if (m_windowController()) return m_windowController()->mdiWindowGeometry();
-    else return RimMdiWindowGeometry();
-
+    if ( m_windowController() )
+        return m_windowController()->mdiWindowGeometry();
+    else
+        return RimMdiWindowGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::viewNavigationChanged()
+{
+    onViewNavigationChanged();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Default implementation of virtual method to trigger updates on view navigation (zoom, camera move, etc)
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::onViewNavigationChanged()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimViewWindow::isWindowVisible() const
+{
+    return m_showWindow();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimViewWindow::objectToggleField()
 {
@@ -135,15 +248,17 @@ caf::PdmFieldHandle* RimViewWindow::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimViewWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                      const QVariant&            oldValue,
+                                      const QVariant&            newValue )
 {
     if ( changedField == &m_showWindow )
     {
-        if (m_showWindow)
+        if ( isWindowVisible() )
         {
-            loadDataAndUpdate();
+            onLoadDataAndUpdate();
         }
         else
         {
@@ -154,65 +269,71 @@ void RimViewWindow::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::updateMdiWindowTitle()
 {
     if ( viewWidget() )
     {
-        if ( this->userDescriptionField() )
-        {
-            caf::PdmUiFieldHandle* uiFieldHandle = this->userDescriptionField()->uiCapability();
-            if ( uiFieldHandle )
-            {
-                QVariant v = uiFieldHandle->uiValue();
-                viewWidget()->setWindowTitle(v.toString());
-            }
-        }
+        viewWidget()->setWindowTitle( windowTitle() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::setAsMdiWindow(int mainWindowID)
+void RimViewWindow::setAsMdiWindow( int mainWindowID )
 {
     if ( !m_windowController() )
     {
         m_windowController = new RimMdiWindowController;
         RimMdiWindowGeometry mwg;
         mwg.mainWindowID = mainWindowID;
-        setMdiWindowGeometry(mwg);
+        setMdiWindowGeometry( mwg );
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-#include "RimView.h"
+#include "Rim3dView.h"
 
 void RimViewWindow::initAfterRead()
 {
-   if (obsoleteField_windowGeometry.value().size() == 5)
-   {
-       RimMdiWindowGeometry wg;
-       int mainWindowID = -1;
-       
-       if (dynamic_cast<RimView*> (this))
-          mainWindowID = 0;
-       else 
-          mainWindowID = 1;
+    if ( obsoleteField_windowGeometry.value().size() == 5 )
+    {
+        RimMdiWindowGeometry wg;
+        int                  mainWindowID = -1;
 
-       wg.mainWindowID = mainWindowID; 
-       wg.x = obsoleteField_windowGeometry.value()[0];
-       wg.y = obsoleteField_windowGeometry.value()[1];
-       wg.width = obsoleteField_windowGeometry.value()[2];
-       wg.height = obsoleteField_windowGeometry.value()[3];
-       wg.isMaximized = obsoleteField_windowGeometry.value()[4];
+        if ( dynamic_cast<Rim3dView*>( this ) )
+            mainWindowID = 0;
+        else
+            mainWindowID = 1;
 
-       setAsMdiWindow(mainWindowID);
-       setMdiWindowGeometry(wg);
-   }
+        wg.mainWindowID = mainWindowID;
+        wg.x            = obsoleteField_windowGeometry.value()[0];
+        wg.y            = obsoleteField_windowGeometry.value()[1];
+        wg.width        = obsoleteField_windowGeometry.value()[2];
+        wg.height       = obsoleteField_windowGeometry.value()[3];
+        wg.isMaximized  = obsoleteField_windowGeometry.value()[4];
+
+        setAsMdiWindow( mainWindowID );
+        setMdiWindowGeometry( wg );
+    }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    caf::PdmUiTreeViewItemAttribute* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
+    if ( treeItemAttribute && RiaApplication::instance()->preferences()->showViewIdInProjectTree() && id() >= 0 )
+    {
+        treeItemAttribute->tag     = QString( "%1" ).arg( id() );
+        cvf::Color3f viewColor     = RiaColorTables::contrastCategoryPaletteColors().cycledColor3f( (size_t)id() );
+        cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
+        treeItemAttribute->bgColor = QColor( RiaColorTools::toQColor( viewColor ) );
+        treeItemAttribute->fgColor = QColor( RiaColorTools::toQColor( viewTextColor ) );
+    }
+}

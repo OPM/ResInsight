@@ -44,9 +44,9 @@ class CeetronPlusNavigation : public TrackBallBasedNavigation
 {
 public:
     CeetronPlusNavigation();
-    virtual ~CeetronPlusNavigation();
+    ~CeetronPlusNavigation() override;
 protected:
-    virtual bool  handleInputEvent(QInputEvent* inputEvent);
+    bool  handleInputEvent(QInputEvent* inputEvent) override;
 };
 
 } // End namespace caf

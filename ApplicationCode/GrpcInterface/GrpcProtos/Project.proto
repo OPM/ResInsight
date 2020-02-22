@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "Definitions.proto";
+import "Case.proto";
+import "PdmObject.proto";
+
+package rips;
+
+service Project {
+  rpc GetCurrentCase(Empty) returns (CaseRequest) {}
+  rpc GetSelectedCases(Empty) returns (CaseInfoArray) {}
+  rpc GetAllCaseGroups(Empty) returns (CaseGroups) {}
+  rpc GetAllCases(Empty) returns (CaseInfoArray) {}
+  rpc GetCasesInGroup(CaseGroup) returns (CaseInfoArray) {}
+  rpc GetPdmObject(Empty) returns (PdmObject) {}
+}

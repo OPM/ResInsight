@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 project(VizFramework)
 
@@ -47,6 +47,7 @@ add_subdirectory(LibUtilities)
 
 option(CEE_BUILD_GUI_QT "Build GUI library for Qt" ON)
 if (CEE_BUILD_GUI_QT)
+    option(CEE_USE_QT5 "Use Qt5" OFF)
 	add_subdirectory(LibGuiQt)
 endif()
 

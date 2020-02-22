@@ -1,9 +1,0 @@
-INTERNAL    True
-SCRIPT      ../scripts/csv_export.py
-MIN_ARG     1
-MAX_ARG     4
-ARG_TYPE    0  STRING
-ARG_TYPE    1  STRING
-ARG_TYPE    2  STRING
-ARG_TYPE    3  BOOL
-

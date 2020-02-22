@@ -1,0 +1,5 @@
+This regexp will identify all files not starting with the character '/'
+Useful to detect files with missing copyright header
+
+^(?!/).*$
+

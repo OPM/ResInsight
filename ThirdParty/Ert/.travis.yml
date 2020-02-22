@@ -1,65 +1,70 @@
-language: c
+language: python
+python:
+  - 2.7
+  - 3.6
 
-matrix:
-  fast_finish: true
-  allow_failures:
-    - os: osx
-  include:
-    - os: osx
-      osx_image: xcode7.3
-      compiler: clang
-    - os: linux
-      compiler: gcc
+os:
+  - linux
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - liblapack-dev
-      - valgrind
-      - gcc-4.8
-      - g++-4.8
-      - clang
-
-install:
-    - if [[ "$CC" == "gcc" ]]; then export CXX="g++-4.8"; fi
-
-    - export TRAVIS_PYTHON_VERSION="2.7"
-    # We do this conditionally because it saves us some downloading if the version is the same.
-    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-        if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-          wget https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -O miniconda.sh;
-        else
-          wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
-        fi
-      else
-        if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-          wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
-        else
-          wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-        fi
-      fi
-
-    - bash miniconda.sh -b -p $HOME/miniconda
-    - export CONDA_HOME="$HOME/miniconda"
-    - export PATH="$CONDA_HOME/bin:$PATH"
-    - hash -r
-    - conda config --set always_yes yes --set changeps1 no
-    - conda update -q conda
-    # Useful for debugging any issues with conda
-    - conda info -a
-    - conda install pyqt=4 scipy=0.16.1 numpy pandas matplotlib
+sudo: required
+services: docker
 
 env:
   global:
-     - ERT_SHOW_BACKTRACE=1 
+    - ERT_SHOW_BACKTRACE=1
+    - MB_PYTHON_VERSION=$TRAVIS_PYTHON_VERSION
+  matrix:
+    - TEST_SUITE="-LE SLOW"  # Run all tests not labeled as slow
+    - TEST_SUITE="-L SLOW_1" # Run all tests labeled as SLOW in group 1
+    - TEST_SUITE="-L SLOW_2" # Run all tests labeled as SLOW in group 2
 
-before_script:
-  - mkdir build
-  - cd build
-  - cmake -DBUILD_ERT=ON -DERT_BUILD_GUI=ON -DBUILD_TESTS=ON -DBUILD_APPLICATIONS=ON -DBUILD_PYTHON=ON -DERT_USE_OPENMP=ON -DERT_DOC=OFF -DERT_BUILD_CXX=ON ..
+matrix:
+  fast_finish: true
+  include:
+    - os: osx
+      language: generic
+      python: 2.7
+      env:
+        - MB_PYTHON_VERSION=2.7
+        - TEST_SUITE=""
+    - os: osx
+      language: generic
+      python: 3.6
+      env:
+        - MB_PYTHON_VERSION=3.6
+        - TEST_SUITE=""
+
+addons:
+  apt:
+    packages:
+    - liblapack-dev
+
+before_install:
+  - unset -f pushd
+  - unset -f popd
+  - source multibuild/common_utils.sh
+  - source multibuild/travis_steps.sh
+  - before_install
+
+install:
+  - pip install -r requirements.txt
 
 script:
+  - mkdir build
+  - pushd build
+  - cmake .. -DBUILD_TESTS=ON
+             -DENABLE_PYTHON=ON
+             -DINSTALL_CWRAP=OFF
+             -DBUILD_APPLICATIONS=ON
+             -DINSTALL_ERT_LEGACY=ON
+             -DERT_USE_OPENMP=ON
+             -DCMAKE_C_FLAGS='-Werror=all'
+             -DCMAKE_CXX_FLAGS='-Werror -Wno-unused-result'
   - make
-  - ctest --output-on-failure
+  - sudo make install
+  - which python
+  - export PYTHONPATH="/usr/local/lib/python$MB_PYTHON_VERSION/site-packages:/usr/local/lib/python$MB_PYTHON_VERSION/dist-packages:$PYTHONPATH"
+  - python -c "import sys; print('\n'.join(sys.path))"
+  - set -e; python -c "import ecl"; set +e
+  - ctest --output-on-failure $TEST_SUITE
+  - popd

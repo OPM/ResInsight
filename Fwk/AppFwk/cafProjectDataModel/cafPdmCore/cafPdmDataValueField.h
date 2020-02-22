@@ -66,7 +66,7 @@ public:
     PdmDataValueField() {}
     PdmDataValueField(const PdmDataValueField& other)                   {  m_fieldValue = other.m_fieldValue; }
     explicit PdmDataValueField(const DataType& fieldValue)              {  m_fieldValue = fieldValue; }
-    virtual ~PdmDataValueField() {}
+    ~PdmDataValueField() override {}
 
     // Assignment 
 
@@ -81,9 +81,9 @@ public:
 
     // Implementation of PdmValueField interface
 
-    virtual QVariant    toQVariant() const                              { CAF_ASSERT(isInitializedByInitFieldMacro()); return PdmValueFieldSpecialization<DataType>::convert(m_fieldValue); }
-    virtual void        setFromQVariant(const QVariant& variant)        { CAF_ASSERT(isInitializedByInitFieldMacro()); PdmValueFieldSpecialization<DataType>::setFromVariant(variant, m_fieldValue);   }
-    virtual bool        isReadOnly() const                              { return false;  }
+    QVariant    toQVariant() const override                              { CAF_ASSERT(isInitializedByInitFieldMacro()); return PdmValueFieldSpecialization<DataType>::convert(m_fieldValue); }
+    void        setFromQVariant(const QVariant& variant) override        { CAF_ASSERT(isInitializedByInitFieldMacro()); PdmValueFieldSpecialization<DataType>::setFromVariant(variant, m_fieldValue);   }
+    bool        isReadOnly() const override                              { return false;  }
 
     // Access operators
 
@@ -94,7 +94,7 @@ public:
     const DataType&     v() const                                       { return m_fieldValue; }
 
     bool                operator== (const DataType& fieldValue) const   { return m_fieldValue == fieldValue; }
-
+    bool                operator!= (const DataType& fieldValue) const   { return m_fieldValue != fieldValue; }
 protected:
     DataType            m_fieldValue;
 

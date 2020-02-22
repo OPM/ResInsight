@@ -48,13 +48,21 @@
 namespace caf
 {
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString rootIdentifierString()
+{
+    return "$ROOT$";
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QString PdmReferenceHelper::referenceFromRootToObject(PdmObjectHandle* root, PdmObjectHandle* obj)
 {
-    if (obj == NULL || root == NULL) return QString();
+    if (obj == nullptr || root == nullptr) return QString();
 
     QStringList objectNames = referenceFromRootToObjectAsStringList(root, obj);
     
@@ -67,7 +75,7 @@ QString PdmReferenceHelper::referenceFromRootToObject(PdmObjectHandle* root, Pdm
 //--------------------------------------------------------------------------------------------------
 QString PdmReferenceHelper::referenceFromRootToField(PdmObjectHandle* root, PdmFieldHandle* field)
 {
-    if (field == NULL || root == NULL) return QString();
+    if (field == nullptr || root == nullptr) return QString();
 
     PdmObjectHandle* owner = field->ownerObject();
     if (!owner) return QString(); // Should be assert ?
@@ -97,7 +105,7 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReference(PdmObjectHandle* root, 
 //--------------------------------------------------------------------------------------------------
 PdmFieldHandle* PdmReferenceHelper::findField(PdmObjectHandle* object, const QString& fieldKeyword)
 {
-    if (object == NULL) return NULL;
+    if (object == nullptr) return nullptr;
 
     std::vector<PdmFieldHandle*> fields;
     object->fields(fields);
@@ -110,7 +118,7 @@ PdmFieldHandle* PdmReferenceHelper::findField(PdmObjectHandle* object, const QSt
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,7 +128,7 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList(PdmObjectH
 {
     QStringList objectNames;
     
-    if (obj != NULL && root)
+    if (obj != nullptr && root)
     {
         if (obj == root) return objectNames;
 
@@ -186,7 +194,7 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList(PdmObjectH
 PdmFieldHandle* PdmReferenceHelper::fieldFromReference(PdmObjectHandle* root, const QString& reference)
 {
     QStringList decodedReference = reference.split(" ");
-    if (decodedReference.size() == 0) return NULL;
+    if (decodedReference.size() == 0) return nullptr;
 
     QString fieldKeyword = decodedReference[0];
     decodedReference.pop_front();
@@ -200,7 +208,7 @@ PdmFieldHandle* PdmReferenceHelper::fieldFromReference(PdmObjectHandle* root, co
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList(PdmObjectHandle* root, const QStringList& reference)
 {
-    if (!root) return NULL;
+    if (!root) return nullptr;
 
     PdmObjectHandle* currentObject = root;
 
@@ -212,7 +220,7 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList(PdmObjectHand
         PdmFieldHandle* fieldHandle = findField(currentObject, fieldKeyword);
         if (!fieldHandle)
         {
-            return NULL;
+            return nullptr;
         }
 
         std::vector<PdmObjectHandle*> childObjects;
@@ -220,7 +228,7 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList(PdmObjectHand
 
         if (childObjects.size() == 0)
         {
-            return NULL;
+            return nullptr;
         }
 
         QString fieldIndex = reference.at(i++);
@@ -228,12 +236,12 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList(PdmObjectHand
         int index = fieldIndex.toInt(&conversionOk);
         if (!conversionOk)
         {
-            return NULL;
+            return nullptr;
         }
 
         if (index < 0 || index > ((int)childObjects.size()) - 1)
         {
-            return NULL;
+            return nullptr;
         }
 
         currentObject = childObjects[index];
@@ -258,7 +266,7 @@ std::vector<PdmObjectHandle*> findPathToObjectFromRoot(PdmObjectHandle* obj)
         }
         else
         {
-            currentObj = NULL;
+            currentObj = nullptr;
         }
     }
 
@@ -281,7 +289,7 @@ QString PdmReferenceHelper::referenceFromFieldToObject(PdmFieldHandle* fromField
    std::vector<PdmObjectHandle*> toObjPath = findPathToObjectFromRoot(toObj);
 
    // Make sure the objects actually have at least one common ancestor
-   if (fromObjPath.front() != toObjPath.front()) return NULL;
+   if (fromObjPath.front() != toObjPath.front()) return nullptr;
 
    bool anchestorIsEqual = true;
    size_t idxToLastCommonAnchestor = 0;
@@ -303,9 +311,16 @@ QString PdmReferenceHelper::referenceFromFieldToObject(PdmFieldHandle* fromField
 
    QStringList referenceList = referenceFromRootToObjectAsStringList(lastCommonAnchestor, toObj);
    
-   for (size_t i = 0; i < levelCountToCommonAnchestor; ++i)
+   if (idxToLastCommonAnchestor == 0)
    {
-       referenceList.push_front("..");
+       referenceList.push_front(rootIdentifierString());
+   }
+   else
+   {
+       for (size_t i = 0; i < levelCountToCommonAnchestor; ++i)
+       {
+           referenceList.push_front("..");
+       }
    }
  
    QString completeReference = referenceList.join(" ");
@@ -318,26 +333,34 @@ QString PdmReferenceHelper::referenceFromFieldToObject(PdmFieldHandle* fromField
 //--------------------------------------------------------------------------------------------------
 PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference(PdmFieldHandle* fromField, const QString& reference)
 {
-    if (!fromField) return NULL;
-    if (reference.isEmpty()) return NULL;
+    if (!fromField) return nullptr;
+    if (reference.isEmpty()) return nullptr;
+    if (reference.trimmed().isEmpty()) return nullptr;
 
     QStringList decodedReference = reference.split(QRegExp("\\s+"), QString::SkipEmptyParts);
     PdmObjectHandle* lastCommonAnchestor = fromField->ownerObject();
     CAF_ASSERT(lastCommonAnchestor);
-    CAF_ASSERT(decodedReference.size());
-
-    while (decodedReference.front() == "..")
+ 
+    if (!decodedReference.empty() && decodedReference.front() == rootIdentifierString())
     {
-        PdmFieldHandle* parentField = lastCommonAnchestor->parentField();
-        if (!parentField)
-        {
-            // Error: Relative object reference has an invalid number of parent levels
-            return NULL;
-        }
-
-        lastCommonAnchestor = parentField->ownerObject();
-        CAF_ASSERT(lastCommonAnchestor);
+        lastCommonAnchestor = findRoot(lastCommonAnchestor);
         decodedReference.pop_front();
+    }
+    else
+    {    
+        while (!decodedReference.empty() && decodedReference.front() == "..")
+        {
+            PdmFieldHandle* parentField = lastCommonAnchestor->parentField();
+            if (!parentField)
+            {
+                // Error: Relative object reference has an invalid number of parent levels
+                return nullptr;
+            }
+
+            lastCommonAnchestor = parentField->ownerObject();
+            CAF_ASSERT(lastCommonAnchestor);
+            decodedReference.pop_front();
+        }
     }
 
     return objectFromReferenceStringList(lastCommonAnchestor, decodedReference);
@@ -351,7 +374,7 @@ PdmObjectHandle* PdmReferenceHelper::findRoot(PdmObjectHandle* obj)
     std::vector<PdmObjectHandle*> path = findPathToObjectFromRoot(obj);
 
     if (path.size()) return path[0];
-    else return NULL;
+    else return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -365,7 +388,7 @@ PdmObjectHandle* PdmReferenceHelper::findRoot(PdmFieldHandle* field)
         return findRoot(ownerObject);
     }
     
-    return NULL;
+    return nullptr;
 }
 
 } // end namespace caf

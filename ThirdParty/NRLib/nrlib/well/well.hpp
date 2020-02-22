@@ -96,6 +96,11 @@ namespace NRLib {
     void SetWellName(const std::string& wellname);
     ///
     const std::string& GetWellName() const { return well_name_; };
+    /// Set name of well
+    void SetDate(const std::string& wellname);
+    ///
+    const std::string& GetDate() const { return date_; };
+
     /// Return true if x is missing
     bool IsMissing(double x) const;
     /// Return true if n is missing
@@ -193,6 +198,8 @@ namespace NRLib {
     std::map<std::string,std::vector<double> > cont_log_background_resolution_;
     /// Name of well
     std::string well_name_;
+    /// Date
+    std::string date_;
     /// Missing value for continous logs.
     double well_rmissing_;
     /// Missing value for discrete logs.

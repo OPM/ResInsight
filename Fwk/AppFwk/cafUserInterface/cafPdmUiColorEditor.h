@@ -44,6 +44,7 @@
 #include <QPointer>
 #include <QLineEdit>
 #include <QLabel>
+#include <QToolButton>
 
 
 namespace caf 
@@ -56,11 +57,13 @@ class PdmUiColorEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     bool showAlpha;
+    bool showLabel;
 
 public:
     PdmUiColorEditorAttribute()
     {
         showAlpha = false;
+        showLabel = true;
     }
 };
 
@@ -75,26 +78,30 @@ class PdmUiColorEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiColorEditor(); 
-    virtual ~PdmUiColorEditor() {} 
+    ~PdmUiColorEditor() override {} 
 
 protected:
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    QWidget*    createEditorWidget(QWidget * parent) override;
+    QWidget*    createLabelWidget(QWidget * parent) override;
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
+
+
+    QMargins    calculateLabelContentMargins() const override;
 
 protected slots:
-    void                colorSelectionClicked();
+    void        colorSelectionClicked();
 
 private:
-    void                setColor(const QColor& c);
-
+    void        setColorOnWidget(const QColor& c);
+    QColor      getFontColor(const QColor& backgroundColor) const;
 private:
-    QPointer<QLabel>    m_label;
+    QPointer<QShortenedLabel>    m_label;
 
-    QColor              m_color;
-    QPointer<QLabel>    m_colorPixmapLabel;
-    QPointer<QLabel>    m_colorTextLabel;
-  
+    QColor                m_color;
+    QPointer<QLabel>      m_colorTextLabel;
+    QPointer<QToolButton> m_colorSelectionButton;
+    QPointer<QLabel>      m_colorPreviewLabel;
+
     PdmUiColorEditorAttribute m_attributes;
 };
 

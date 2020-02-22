@@ -3,6 +3,7 @@
 
 #include "cafBoxManipulatorGeometryGenerator.h"
 #include "cafEffectGenerator.h"
+#include "cafLine.h"
 
 #include "cvfBoxGenerator.h"
 #include "cvfDrawableGeo.h"
@@ -150,11 +151,12 @@ void BoxManipulatorPartManager::updateManipulatorFromRay(const cvf::Ray* ray)
     BoxFace face = m_handleIds[m_currentHandleIndex].first;
     cvf::Vec3d faceDir = normalFromFace(face);
 
-    cvf::Vec3d closestPointOnMouseRay;
-    cvf::Vec3d closestPointOnHandleRay;
-    BoxManipulatorPartManager::closestPointOfTwoLines(ray->origin(), ray->origin() + ray->direction(), 
-                                                      m_initialPickPoint, m_initialPickPoint + faceDir, 
-                                                      &closestPointOnMouseRay, &closestPointOnHandleRay);
+    caf::Line<double> rayLine(ray->origin(), ray->origin() + ray->direction());
+    caf::Line<double> pickLine(m_initialPickPoint, m_initialPickPoint + faceDir);
+    
+    caf::Line<double> mouseHandleLine = rayLine.findLineBetweenNearestPoints(pickLine);
+    cvf::Vec3d closestPointOnMouseRay = mouseHandleLine.start();
+    cvf::Vec3d closestPointOnHandleRay = mouseHandleLine.end();
 
     cvf::Vec3d newOrigin = m_origin;
     cvf::Vec3d newSize = m_size;
@@ -402,72 +404,5 @@ void BoxManipulatorPartManager::createBoundingBoxPart()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool BoxManipulatorPartManager::closestPointOfTwoLines(const cvf::Vec3d& L1p1, const cvf::Vec3d& L1p2, 
-                                                       const cvf::Vec3d& L2p1, const cvf::Vec3d& L2p2, 
-                                                       cvf::Vec3d* closestPointOnL1, cvf::Vec3d* closestPointOnL2)
-{
-    //    qDebug() << p1 << " " << q1 << " " << p2 << " " << q2;
-
-    // Taken from Real-Time Collistion Detection, Christer Ericson, 2005, p146-147
-
-    // L1(s) = P1 + sd1
-    // L2(t) = P2 + td2
-
-    // d1 = Q1-P1
-    // d2 = Q2-P2
-
-    // r = P1-P2
-
-    // a = d1*d1
-    // b = d1*d2
-    // c = d1*r
-    // e = d2*d2;
-    // d = ae-b^2
-    // f = d2*r
-
-    // s = (bf-ce)/d
-    // t = (af-bc)/d
-
-
-    cvf::Vec3d d1 = L1p2 - L1p1;
-    cvf::Vec3d d2 = L2p2 - L2p1;
-
-    double a = d1.dot(d1);
-    double b = d1.dot(d2);
-    double e = d2.dot(d2);
-
-    double d = a*e - b*b;
-
-    if (d < std::numeric_limits<double>::epsilon())
-    {
-        // Parallel lines
-        if (closestPointOnL1) *closestPointOnL1 = L1p1;
-        if (closestPointOnL2) *closestPointOnL2 = L2p1;
-        return false;
-    }
-
-    cvf::Vec3d r = L1p1 - L2p1;
-    double c = d1.dot(r);
-    double f = d2.dot(r);
-
-    double s = (b*f - c*e) / d;
-    double t = (a*f - b*c) / d;
-
-    if (closestPointOnL1) *closestPointOnL1 = L1p1 + s*d1;
-    if (closestPointOnL2) *closestPointOnL2 = L2p1 + t*d2;
-
-    if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-} // namespace cvf
+} // namespace caf
 

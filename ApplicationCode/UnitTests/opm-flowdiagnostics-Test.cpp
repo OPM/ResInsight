@@ -1,7 +1,9 @@
 #include "gtest/gtest.h"
 
-const std::string casePath = "\\\\csfiles\\Store\\ProjectData\\StatoilReservoir\\ReferenceCases\\simple_FlowDiag_Model\\";
+const std::string casePath =
+    "\\\\csfiles\\Store\\ProjectData\\StatoilReservoir\\ReferenceCases\\simple_FlowDiag_Model\\";
 
+/*
 #include "exampleSetup.hpp"
 
 TEST(opm_flowdiagnostics_test, basic_construction)
@@ -9,12 +11,14 @@ TEST(opm_flowdiagnostics_test, basic_construction)
 
     try
     {
-        
+        Opm::ECLRestartData rstrt(casePath + "SIMPLE.UNRST");
+        Opm::ECLInitFileData initData(casePath + "SIMPLE.INIT");
+
         Opm::ECLGraph graph = Opm::ECLGraph::load(casePath + "SIMPLE.EGRID",
-                                                  casePath + "SIMPLE.INIT");
-        graph.assignFluxDataSource(casePath + "SIMPLE.UNRST");
+                                                  initData);
+
         int step = 2;
-        if ( ! graph.selectReportStep(step) )
+        if ( ! rstrt.selectReportStep(step) )
         {
             std::ostringstream os;
 
@@ -36,7 +40,7 @@ TEST(opm_flowdiagnostics_test, basic_construction)
         std::cout.precision(16);
         for ( double t : tof )
         {
-            std::cout << t << '\n';
+            // std::cout << t << '\n';
         }
     }
     catch ( const std::exception& e )
@@ -44,3 +48,4 @@ TEST(opm_flowdiagnostics_test, basic_construction)
         std::cerr << "Caught exception: " << e.what() << '\n';
     }
 }
+*/

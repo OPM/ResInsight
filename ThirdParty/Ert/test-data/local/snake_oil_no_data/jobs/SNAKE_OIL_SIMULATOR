@@ -1,4 +1,0 @@
-STDOUT snake_oil.stdout
-STDERR snake_oil.stderr
-
-EXECUTABLE snake_oil_simulator.py

@@ -2,17 +2,17 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,64 +22,67 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimLegendConfig.h"
-#include "RimTernaryLegendConfig.h"
+#include "RimFaultInViewCollection.h"
 
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiTreeOrdering.h"
 
-
-
-CAF_PDM_SOURCE_INIT(RimEclipseFaultColors, "RimFaultResultSlot");
+CAF_PDM_SOURCE_INIT( RimEclipseFaultColors, "RimFaultResultSlot" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseFaultColors::RimEclipseFaultColors()
 {
-    CAF_PDM_InitObject("Separate Fault Result", ":/draw_style_faults_24x24.png", "", "");
+    CAF_PDM_InitObject( "Separate Fault Result", ":/draw_style_faults_24x24.png", "", "" );
 
-    CAF_PDM_InitField(&showCustomFaultResult,                "ShowCustomFaultResult",                 false,   "Show Custom Fault Result", "", "", "");
-    showCustomFaultResult.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &showCustomFaultResult, "ShowCustomFaultResult", false, "Show Custom Fault Result", "", "", "" );
+    showCustomFaultResult.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_customFaultResultColors, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_customFaultResultColors,
+                                "CustomResultSlot",
+                                "Custom Fault Result",
+                                ":/CellResult.png",
+                                "",
+                                "" );
     m_customFaultResultColors = new RimEclipseCellColors();
-
-    m_customFaultResultColors.uiCapability()->setUiHidden(true);
-
+    m_customFaultResultColors.uiCapability()->setUiHidden( true );
+    m_customFaultResultColors->setDiffResultOptionsEnabled( true );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseFaultColors::~RimEclipseFaultColors()
 {
     delete m_customFaultResultColors;
-    m_customFaultResultColors = NULL;
+    m_customFaultResultColors = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseFaultColors::setReservoirView(RimEclipseView* ownerReservoirView)
+void RimEclipseFaultColors::setReservoirView( RimEclipseView* ownerReservoirView )
 {
     m_reservoirView = ownerReservoirView;
-    m_customFaultResultColors->setReservoirView(ownerReservoirView);
+    m_customFaultResultColors->setReservoirView( ownerReservoirView );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseFaultColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimEclipseFaultColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                              const QVariant&            oldValue,
+                                              const QVariant&            newValue )
 {
     this->updateUiIconFromToggleField();
 
-    if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+    if ( m_reservoirView ) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RimEclipseFaultColors::initAfterRead()
 {
@@ -88,9 +91,8 @@ void RimEclipseFaultColors::initAfterRead()
     this->updateUiIconFromToggleField();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors* RimEclipseFaultColors::customFaultResult()
 {
@@ -98,7 +100,15 @@ RimEclipseCellColors* RimEclipseFaultColors::customFaultResult()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseFaultColors::updateUiFieldsFromActiveResult()
+{
+    m_customFaultResultColors->updateUiFieldsFromActiveResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimEclipseFaultColors::objectToggleField()
 {
@@ -106,22 +116,29 @@ caf::PdmFieldHandle* RimEclipseFaultColors::objectToggleField()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseFaultColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimEclipseFaultColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
-    m_customFaultResultColors->uiOrdering(uiConfigName, *group1);
-}   
+    caf::PdmUiGroup* group1 = uiOrdering.addNewGroup( "Result" );
+    m_customFaultResultColors->uiOrdering( uiConfigName, *group1 );
+
+    RimEclipseView* eclipseView = nullptr;
+    this->firstAncestorOfType( eclipseView );
+    if ( eclipseView )
+    {
+        eclipseView->faultCollection()->uiOrderingFaults( uiConfigName, uiOrdering );
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseFaultColors::hasValidCustomResult()
 {
-    if (this->showCustomFaultResult())
+    if ( this->showCustomFaultResult() )
     {
-        if (m_customFaultResultColors->hasResult() || m_customFaultResultColors->isTernarySaturationSelected())
+        if ( m_customFaultResultColors->hasResult() || m_customFaultResultColors->isTernarySaturationSelected() )
         {
             return true;
         }
@@ -131,9 +148,9 @@ bool RimEclipseFaultColors::hasValidCustomResult()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseFaultColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimEclipseFaultColors::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    m_customFaultResultColors()->defineUiTreeOrdering(uiTreeOrdering, uiConfigName);
+    m_customFaultResultColors()->defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
 }

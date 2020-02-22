@@ -39,12 +39,15 @@
 
 #include "cvfObject.h"
 #include "cvfString.h"
+#include "cvfVector2.h"
 #include "cvfVector3.h"
 #include "cvfColor3.h"
 
+#include <array>
 
 namespace cvf {
 
+class Glyph; 
 class Font;
 class ShaderProgram;
 class MatrixState;
@@ -72,8 +75,8 @@ public:
     TextDrawer(Font* font);
     virtual ~TextDrawer();
 
-    void    addText(const String& text, const Vec2f& pos);
-    void    addText(const String& text, const Vec3f& pos);
+    void    addText(const String& text, const Vec2f& pos, const Vec2f& dir = Vec2f::X_AXIS);
+    void    addText(const String& text, const Vec3f& pos, const Vec3f& dir = Vec3f::X_AXIS);
     void    removeAllTexts();
 
     void    setVerticalAlignment(Alignment alignment);
@@ -96,7 +99,10 @@ public:
     void    renderSoftware(OpenGLContext* oglContext, const MatrixState& matrixState);
 
     static bool pickText(const Vec3f& pickCoord2d, const String& text, const Vec3f& pos, Font* font);
+    
+    static short calculateVerticalAlignmentOffset(Font& font, Alignment alignment);
 
+    static std::array<Vec3f, 4> textCorners(const Glyph& glyph, const Vec2f& textStart, const Vec2f& textExtent, short verticalAlignment, const Vec3f& textDirection, float marginX = 0.0, float marginY = 0.0);
 private:
     void doRender2d(OpenGLContext* oglContext, const MatrixState& matrixState, bool softwareRendering);
 
@@ -104,6 +110,7 @@ private:
     ref<Font>           m_font;             // Font used to draw text
     std::vector<Vec3f>  m_positions;        // Coordinate of the lower left corner of where to place each individual text strings
     std::vector<String> m_texts;            // Text strings to be drawn
+    std::vector<Vec3f>  m_directions;        // Clockwise rotations around the position in radians
     
     bool                m_drawBackground;
     bool                m_drawBorder;

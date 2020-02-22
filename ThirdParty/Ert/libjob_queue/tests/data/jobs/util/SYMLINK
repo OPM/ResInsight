@@ -1,6 +1,0 @@
-STDERR    SYMLINK.stderr
-STDOUT    SYMLINK.stdout
-
-EXECUTABLE  /bin/ln
-ARGLIST       -sf <target> <link_name>
-

@@ -40,6 +40,8 @@
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdSelectionChangeExec.h"
 
+#include "cafSelectionManager.h"
+
 
 namespace caf
 {
@@ -47,9 +49,9 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CmdSelectionHelper::executeSelectionCommand(const std::vector<PdmObjectHandle*>& selection, SelectionManager::SelectionRole role)
+void CmdSelectionHelper::executeSelectionCommand(const std::vector<PdmObjectHandle*>& selection, int selectionLevel)
 {
-    CmdSelectionChangeExec* selectionChangeExec = createSelectionCommand(selection, role);
+    CmdSelectionChangeExec* selectionChangeExec = createSelectionCommand(selection, selectionLevel);
 
     CmdExecCommandManager::instance()->processExecuteCommand(selectionChangeExec);
 }
@@ -57,11 +59,12 @@ void CmdSelectionHelper::executeSelectionCommand(const std::vector<PdmObjectHand
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-CmdSelectionChangeExec* CmdSelectionHelper::createSelectionCommand(const std::vector<PdmObjectHandle*>& selection, SelectionManager::SelectionRole role)
+CmdSelectionChangeExec* CmdSelectionHelper::createSelectionCommand(const std::vector<PdmObjectHandle*>& selection, int selectionLevel)
 {
     CmdSelectionChangeExec* selectionChangeExec = new CmdSelectionChangeExec(SelectionManager::instance()->notificationCenter());
-    selectionChangeExec->commandData()->m_selectionRole.v() = role;
-    SelectionManager::instance()->selectionAsReferences(selectionChangeExec->commandData()->m_previousSelection.v(), role);
+    selectionChangeExec->commandData()->m_selectionLevel.v() = selectionLevel;
+
+    SelectionManager::instance()->selectionAsReferences(selectionChangeExec->commandData()->m_previousSelection.v(), selectionLevel);
 
     for (size_t i = 0; i < selection.size(); i++)
     {

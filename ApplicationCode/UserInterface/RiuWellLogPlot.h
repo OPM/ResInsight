@@ -1,87 +1,53 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//  Copyright (C) 2019-     Equinor ASA
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafPdmPointer.h"
-
-#include <QList>
-#include <QPointer>
-#include <QWidget>
-
 #include "RiuInterfaceToViewWindow.h"
+#include "RiuMultiPlotPage.h"
 
+class RiuQwtPlotWidget;
 class RimWellLogPlot;
-class RiuWellLogTrack;
 
-class QHBoxLayout;
-class QScrollBar;
-class QFocusEvent;
-class QwtLegend;
-
-//==================================================================================================
-//
-// RiuWellLogPlot
-//
-//==================================================================================================
-class RiuWellLogPlot : public QWidget, public RiuInterfaceToViewWindow
+class RiuWellLogPlot : public RiuMultiPlotPage
 {
     Q_OBJECT
-
 public:
-    RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent = NULL);
-    virtual ~RiuWellLogPlot();
+    RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent );
 
-    RimWellLogPlot*                 ownerPlotDefinition();
-    virtual RimViewWindow*          ownerViewWindow() const override;
+    RimViewWindow* ownerViewWindow() const override;
 
-    void                            addTrackPlot(RiuWellLogTrack* trackPlot);
-    void                            insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index);
-    void                            removeTrackPlot(RiuWellLogTrack* trackPlot);
-
-    void                            setDepthZoomAndReplot(double minDepth, double maxDepth);
-
-    public slots:
-    void                            updateChildrenLayout();
+    void updateVerticalScrollBar( double minVisible, double maxVisible, double minAvailable, double maxAvailable ) override;
+    void renderTo( QPaintDevice* paintDevice ) override;
 
 protected:
-    virtual void                    resizeEvent(QResizeEvent *event);
-    virtual void                    showEvent(QShowEvent *);
-    virtual void                    changeEvent(QEvent *);
-    virtual QSize                   sizeHint() const override;
-    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
+    bool showYAxis( int row, int column ) const override;
+
+    void reinsertScrollbar();
+    void alignScrollbar( int offset );
 
 private:
-    void                            updateScrollBar(double minDepth, double maxDepth);
-    void                            modifyWidthOfContainingMdiWindow(int widthChange);
-    void                            placeChildWidgets(int height, int width);
+    RimWellLogPlot* wellLogPlotDefinition();
 
 private slots:
-    void                            slotSetMinDepth(int value);
-    void                            scheduleUpdateChildrenLayout();
+    void slotSetMinDepth( int value );
+    void performUpdate() override;
 
 private:
-    QHBoxLayout*                    m_layout;
-    QScrollBar*                     m_scrollBar;
-    QList<QPointer<QwtLegend> >     m_legends;
-    QList<QPointer<RiuWellLogTrack> > m_trackPlots;
-    caf::PdmPointer<RimWellLogPlot> m_plotDefinition;
-    QTimer*                         m_scheduleUpdateChildrenLayoutTimer;
+    QPointer<QVBoxLayout> m_trackScrollBarLayout;
+    QScrollBar*           m_trackScrollBar;
 };
-

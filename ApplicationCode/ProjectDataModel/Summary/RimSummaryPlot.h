@@ -1,133 +1,255 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
-#include "cafPdmChildArrayField.h"
-#include "cafAppEnum.h"
-#include "cafPdmChildField.h"
+#include "RiaDefines.h"
+#include "RiaQDateTimeTools.h"
+#include "RiaSummaryCurveDefinition.h"
 
-#include "RimDefines.h"
-#include "RimViewWindow.h"
+#include "RifEclipseSummaryAddress.h"
+
+#include "RimPlot.h"
+
+#include "qwt_plot_textlabel.h"
+
+#include "cafPdmChildArrayField.h"
+#include "cafPdmPtrField.h"
 
 #include <QPointer>
 
-class RiuSummaryQwtPlot;
-class RimSummaryCurve;
-class RimSummaryCurveFilter;
-class RimSummaryYAxisProperties;
-class RimSummaryTimeAxisProperties;
-class RimGridTimeHistoryCurve;
+#include <memory>
+#include <set>
+
 class PdmUiTreeOrdering;
+class RimAsciiDataCurve;
+class RimGridTimeHistoryCurve;
+class RimSummaryCase;
+class RimSummaryCurve;
+class RimSummaryCurveCollection;
+class RimEnsembleCurveSet;
+class RimEnsembleCurveSetCollection;
+class RimSummaryCurveFilter_OBSOLETE;
+class RimSummaryTimeAxisProperties;
+class RimPlotAxisPropertiesInterface;
+class RimPlotAxisProperties;
+class RiuSummaryQwtPlot;
+class RimSummaryPlotNameHelper;
+class RimPlotTemplateFileItem;
+class RimSummaryPlotFilterTextCurveSetEditor;
+class RimSummaryPlotSourceStepping;
 
-class QwtPlotCurve;
 class QwtInterval;
+class QwtPlotCurve;
+
+class QKeyEvent;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
-class RimSummaryPlot : public RimViewWindow
+class RimSummaryPlot : public RimPlot
 {
+    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
 
 public:
     RimSummaryPlot();
-    virtual ~RimSummaryPlot();
+    ~RimSummaryPlot() override;
 
-    void                                            setDescription(const QString& description);
-    QString                                         description() const;
+    bool    showPlotTitle() const;
+    void    setShowPlotTitle( bool showTitle );
+    void    setDescription( const QString& description );
+    QString description() const override;
 
-    void                                            addCurve(RimSummaryCurve* curve);
-    void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
+    void enableAutoPlotTitle( bool enable );
+    bool autoPlotTitle() const;
 
-    void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
+    void addCurveAndUpdate( RimSummaryCurve* curve );
+    void addCurveNoUpdate( RimSummaryCurve* curve );
 
-    caf::PdmObject*                                 findRimCurveFromQwtCurve(const QwtPlotCurve* curve) const;
-    size_t                                          curveCount() const;
-    
-    void                                            loadDataAndUpdate();
+    void deleteCurve( RimSummaryCurve* curve );
+    void deleteCurves( const std::vector<RimSummaryCurve*>& curves );
 
-    void                                            detachAllCurves();
-    void                                            updateCaseNameHasChanged();
+    void deleteCurvesAssosiatedWithCase( RimSummaryCase* summaryCase );
+    void deleteAllGridTimeHistoryCurves();
 
-    void                                            updateAxes();
-    virtual void                                    zoomAll() override;
-    void                                            setZoomWindow(const QwtInterval& leftAxis,
-                                                                  const QwtInterval& rightAxis,
-                                                                  const QwtInterval& timeAxis);
+    RimEnsembleCurveSetCollection* ensembleCurveSetCollection() const;
 
-    void                                            updateZoomInQwt();
-    void                                            updateZoomWindowFromQwt();
-    void                                            disableAutoZoom();
-    
-    bool                                            isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const;
+    void addGridTimeHistoryCurve( RimGridTimeHistoryCurve* curve );
+    void addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* curve );
 
-    RimSummaryTimeAxisProperties*                   timeAxisProperties();
-    time_t                                          firstTimeStepOfFirstCurve();
+    std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves() const;
 
-    void                                            selectAxisInPropertyEditor(int axis);
+    void addAsciiDataCruve( RimAsciiDataCurve* curve );
 
-    virtual QWidget*                                viewWidget() override;
+    size_t curveCount() const;
 
-    QString                                         asciiDataForPlotExport() const;
+    void detachAllCurves() override;
+    void reattachAllCurves() override;
+    void updateCaseNameHasChanged();
+
+    void updateAxes() override;
+
+    bool isLogarithmicScaleEnabled( RiaDefines::PlotAxis plotAxis ) const;
+
+    RimSummaryTimeAxisProperties* timeAxisProperties();
+    time_t                        firstTimeStepOfFirstCurve();
+
+    QWidget*          viewWidget() override;
+    RiuQwtPlotWidget* viewer() override;
+
+    QString asciiDataForPlotExport() const override;
+    QString asciiDataForSummaryPlotExport( DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const;
+
+    std::vector<RimSummaryCurve*>       summaryAndEnsembleCurves() const;
+    std::set<RiaSummaryCurveDefinition> summaryAndEnsembleCurveDefinitions() const;
+    std::vector<RimSummaryCurve*>       summaryCurves() const;
+    void                                deleteAllSummaryCurves();
+    RimSummaryCurveCollection*          summaryCurveCollection() const;
+
+    std::vector<RimEnsembleCurveSet*> curveSets() const;
+
+    void updatePlotTitle();
+
+    const RimSummaryPlotNameHelper* activePlotTitleHelperAllCurves() const;
+    void                            updateCurveNames();
+    QString                         generatedPlotTitleFromAllCurves() const;
+
+    void copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot );
+
+    void updateAll();
+    void updateLegend() override;
+
+    void setPlotInfoLabel( const QString& label );
+    void showPlotInfoLabel( bool show );
+    void updatePlotInfoLabel();
+
+    bool containsResamplableCurves() const;
+
+    size_t singleColorCurveCount() const;
+    void   applyDefaultCurveAppearances();
+
+    bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
+    bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
+                        int                         oldFontSize,
+                        int                         fontSize,
+                        bool                        forceChange = false ) override;
+
+    void setNormalizationEnabled( bool enable );
+    bool isNormalizationEnabled();
+
+    virtual RimSummaryPlotSourceStepping*     sourceSteppingObjectForKeyEventHandling() const;
+    virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
+
+    void setAutoScaleXEnabled( bool enabled ) override;
+    void setAutoScaleYEnabled( bool enabled ) override;
+
+    void zoomAll() override;
+    void updateZoomInQwt() override;
+    void updateZoomFromQwt() override;
+
+    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
+
+    void onAxisSelected( int axis, bool toggle ) override;
+
+public:
+    // RimViewWindow overrides
+    void deleteViewWidget() override;
+    void initAfterRead() override;
+
+private:
+    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+
+    void updateNameHelperWithCurveData( RimSummaryPlotNameHelper* nameHelper ) const;
+
+    void doUpdateLayout() override;
+
+    void detachAllPlotItems();
+
+    void doRemoveFromCollection() override;
+    void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
 protected:
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    caf::PdmFieldHandle* userDescriptionField() override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void onLoadDataAndUpdate() override;
 
-    virtual QImage                                  snapshotWindowContent() override;
+    QImage snapshotWindowContent() override;
 
-private:
-    std::vector<RimSummaryCurve*>                   visibleSummaryCurvesForAxis(RimDefines::PlotAxis plotAxis) const;
-    std::vector<RimGridTimeHistoryCurve*>           visibleTimeHistoryCurvesForAxis(RimDefines::PlotAxis plotAxis) const;
-    bool                                            hasVisibleCurvesForAxis(RimDefines::PlotAxis plotAxis) const;
+    void setAsCrossPlot();
 
-    RimSummaryYAxisProperties*                      yAxisPropertiesForAxis(RimDefines::PlotAxis plotAxis) const;
-    void                                            updateAxis(RimDefines::PlotAxis plotAxis);
-    void                                            updateZoomForAxis(RimDefines::PlotAxis plotAxis);
-
-    void                                            updateTimeAxis();
-    void                                            setZoomIntervalsInQwtPlot();
-
-    // RimViewWindow overrides
-
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    void                                            updateMdiWindowTitle() override;
-    virtual void                                    deleteViewWidget() override; 
+private slots:
+    void onPlotZoomed();
 
 private:
-    caf::PdmField<bool>                                 m_showPlotTitle;
-    caf::PdmField<QString>                              m_userName;
-    
-    caf::PdmChildArrayField<RimGridTimeHistoryCurve*>   m_gridTimeHistoryCurves;
-    caf::PdmChildArrayField<RimSummaryCurve*>           m_summaryCurves;
-    caf::PdmChildArrayField<RimSummaryCurveFilter*>     m_curveFilters;
+    std::vector<RimSummaryCurve*>         visibleSummaryCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
+    std::vector<RimGridTimeHistoryCurve*> visibleTimeHistoryCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
+    std::vector<RimAsciiDataCurve*>       visibleAsciiDataCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
+    bool                                  hasVisibleCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
 
-    caf::PdmField<bool>                                 m_isAutoZoom;
-    caf::PdmChildField<RimSummaryYAxisProperties*>      m_leftYAxisProperties;
-    caf::PdmChildField<RimSummaryYAxisProperties*>      m_rightYAxisProperties;
-    caf::PdmChildField<RimSummaryTimeAxisProperties*>   m_timeAxisProperties;
+    RimPlotAxisProperties* yAxisPropertiesLeftOrRight( RiaDefines::PlotAxis leftOrRightPlotAxis ) const;
+    void                   updateYAxis( RiaDefines::PlotAxis plotAxis );
 
-    QPointer<RiuSummaryQwtPlot>                         m_qwtPlot;
+    void updateZoomForAxis( RiaDefines::PlotAxis plotAxis );
+
+    void updateTimeAxis();
+    void updateBottomXAxis();
+
+    std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
+
+    void cleanupBeforeClose();
+
+private:
+    caf::PdmField<bool> m_normalizeCurveYValues;
+
+    caf::PdmField<bool>    m_showPlotTitle;
+    caf::PdmField<bool>    m_useAutoPlotTitle;
+    caf::PdmField<QString> m_description;
+
+    caf::PdmChildArrayField<RimGridTimeHistoryCurve*>  m_gridTimeHistoryCurves;
+    caf::PdmChildField<RimSummaryCurveCollection*>     m_summaryCurveCollection;
+    caf::PdmChildField<RimEnsembleCurveSetCollection*> m_ensembleCurveSetCollection;
+
+    caf::PdmChildArrayField<RimAsciiDataCurve*> m_asciiDataCurves;
+
+    caf::PdmChildField<RimPlotAxisProperties*> m_leftYAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*> m_rightYAxisProperties;
+
+    caf::PdmChildField<RimPlotAxisProperties*>        m_bottomAxisProperties;
+    caf::PdmChildField<RimSummaryTimeAxisProperties*> m_timeAxisProperties;
+
+    caf::PdmChildField<RimSummaryPlotFilterTextCurveSetEditor*> m_textCurveSetEditor;
+
+    QPointer<RiuSummaryQwtPlot>       m_plotWidget;
+    std::unique_ptr<QwtPlotTextLabel> m_plotInfoLabel;
+
+    bool m_isCrossPlot;
+
+    std::unique_ptr<RimSummaryPlotNameHelper> m_nameHelperAllCurves;
+
+    // Obsolete fields
+    caf::PdmChildArrayField<RimSummaryCurve*>                m_summaryCurves_OBSOLETE;
+    caf::PdmChildArrayField<RimSummaryCurveFilter_OBSOLETE*> m_curveFilters_OBSOLETE;
+    caf::PdmField<bool>                                      m_isAutoZoom_OBSOLETE;
+
+    caf::PdmField<bool> m_showLegend_OBSOLETE;
 };

@@ -87,8 +87,9 @@ inline int Object::release() const
 {
     // Release on a NULL object ok, just return 0
     // This is symmetric with being able to call delete on a NULL pointer
+#ifndef __clang__
     if (!this) return 0;
-
+#endif
     CVF_TIGHT_ASSERT(m_refCount > 0);
 
     if (--m_refCount == 0)

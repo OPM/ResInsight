@@ -1,41 +1,36 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cvfBase.h"
 #include "cvfObject.h"
 
 #include <vector>
 
-class RigFlowDiagResultFrames: public cvf::Object
+class RigFlowDiagResultFrames : public cvf::Object
 {
 public:
-    explicit RigFlowDiagResultFrames(size_t frameCount);
-    virtual ~RigFlowDiagResultFrames();
+    explicit RigFlowDiagResultFrames( size_t frameCount );
+    ~RigFlowDiagResultFrames() override;
 
-    const
-    std::vector<double>& frameData(size_t frameIndex) const;
-    std::vector<double>& frameData(size_t frameIndex);
-    size_t               frameCount() const;
+    const std::vector<double>& frameData( size_t frameIndex ) const;
+    std::vector<double>&       frameData( size_t frameIndex );
+    size_t                     frameCount() const;
 
 private:
-    std::vector< std::vector<double> > m_dataForEachFrame;
+    std::vector<std::vector<double>> m_dataForEachFrame;
 };
-
-
-

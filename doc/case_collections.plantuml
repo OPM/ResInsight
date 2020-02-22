@@ -1,0 +1,50 @@
+@startuml
+
+package "Summary case ensamble" {
+
+    skinparam class {
+        BackgroundColor<<New>>  LightGray
+    }
+
+    package Cases {
+        RimSummaryCaseMainCollection --> "*" RimSummaryCaseCollection
+        RimSummaryCaseMainCollection --> "*" RimSummaryCase
+        RimSummaryCaseCollection --> "*" RimSummaryCase
+        
+        RimSummaryCase -> RigCaseRealizationParameters
+        
+        RimSummaryCaseMainCollection ..> RifCaseRealizationParametersReader : create
+        RifCaseRealizationParametersReader ..> RimSummaryCase : set parameters
+
+        class RifSummaryReaderInterface {
+            allResultAddresses()
+        }
+        RimSummaryCase <|-- RimGridSummaryCase
+        RimSummaryCase --> RifSummaryReaderInterface
+        RifSummaryReaderInterface <|-- RifReaderEclipseSummary
+        RimGridSummaryCase ..> RifReaderEclipseSummary
+    }
+    
+    package Curves {
+        RimMainPlotCollection --> RimSummaryPlotCollection
+        RimSummaryPlotCollection --> "*" RimSummaryPlot
+        
+        RimSummaryPlot --> RimSummaryCurveCollection
+        RimSummaryPlot -> RimEnsambleCurveSetCollection
+        RimSummaryCurveCollection --> "*" RimSummaryCurve
+        RimSummaryCurveCollection -> "3" RimSummaryPlotSourceStepping
+        RimEnsambleCurveSetCollection --> RimEnsambleCurveSet
+        RimEnsambleCurveSet --> "*" RimSummaryCurve
+    }
+
+    RimProject -> RimMainPlotCollection
+    RimProject --> "*" RimOilField
+    RimOilField --> RimSummaryCaseMainCollection
+
+    RimSummaryCurve -> RimSummaryCase
+    RimSummaryCurve --> RifEclipseSummaryAddress
+
+    RifSummaryReaderInterface --> "*" RifEclipseSummaryAddress
+}
+
+@enduml

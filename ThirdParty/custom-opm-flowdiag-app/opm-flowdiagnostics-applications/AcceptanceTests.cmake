@@ -9,11 +9,13 @@ Macro (add_acceptance_test casename)
 
   String (REGEX REPLACE "\\.[^.]*$" "" basename "${casename}")
 
+  # Note: non-default tolerances used for TOF tests (defaults too strict)
+
   Add_Test (NAME    ToF_accept_${casename}_all_steps
             COMMAND runAcceptanceTest
             "case=${OPM_DATA_ROOT}/flow_diagnostic_test/eclipse-simulation/${basename}"
             "ref-dir=${OPM_DATA_ROOT}/flow_diagnostic_test/fd-ref-data/${basename}"
-            "atol=${abs_tol}" "rtol=${rel_tol}")
+            "atol=5e-6" "rtol=1e-13")
 
 EndMacro (add_acceptance_test)
 

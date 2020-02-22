@@ -43,10 +43,21 @@ class QString;
 
 namespace caf {
 
+class ProgressInfo;
+
+class ProgressTask
+{
+public:
+    ProgressTask(ProgressInfo& parentTask);
+    ~ProgressTask();
+private:
+    ProgressInfo& m_parentTask;
+};
+
 class ProgressInfo
 {
 public:
-    ProgressInfo(size_t maxProgressValue, const QString& title);
+    ProgressInfo(size_t maxProgressValue, const QString& title, bool delayShowingProgress = false);
 
     ~ProgressInfo();
     void setProgressDescription(const QString& description);
@@ -54,20 +65,36 @@ public:
     void incrementProgress();
     void setNextProgressIncrement(size_t nextStepSize);
 
+    ProgressTask task(const QString& description, int stepSize = 1);
+ 
 };
 
+class ProgressInfoBlocker
+{
+public:
+    ProgressInfoBlocker();
+    ~ProgressInfoBlocker();
+};
 
 class ProgressInfoStatic 
 {
 public:
-    static void start(size_t maxProgressValue, const QString& title);
+    static void start(size_t maxProgressValue, const QString& title, bool delayShowingProgress);
 
     static void setProgressDescription(const QString& description);
     static void setProgress(size_t progressValue);
     static void incrementProgress();
     static void setNextProgressIncrement(size_t nextStepSize);
-
+    static bool isRunning();
     static void finished();
+    static void setEnabled(bool enable);
+
+private:
+    static bool isUpdatePossible();
+private:
+    friend class ProgressInfoBlocker;
+    static bool s_running;
+    static bool s_disabled;
 };
 
 }

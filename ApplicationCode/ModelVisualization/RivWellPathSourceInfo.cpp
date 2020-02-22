@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,11 @@
 
 #include "RigWellPath.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
 #include "RimWellPath.h"
+#include "RivPipeGeometryGenerator.h"
+
 #include "RimWellPathCollection.h"
 
 #include "RivWellPathPartMgr.h"
@@ -30,15 +33,23 @@
 #include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RivWellPathSourceInfo::RivWellPathSourceInfo(RimWellPath* wellPath)
+RivWellPathSourceInfo::RivWellPathSourceInfo( RimWellPath* wellPath, RivPipeGeometryGenerator* pipeGeomGenerator )
+    : m_wellPath( wellPath )
+    , m_pipeGeomGenerator( pipeGeomGenerator )
 {
-    m_wellPath = wellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
+//--------------------------------------------------------------------------------------------------
+RivWellPathSourceInfo::~RivWellPathSourceInfo()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RivWellPathSourceInfo::wellPath() const
 {
@@ -46,63 +57,65 @@ RimWellPath* RivWellPathSourceInfo::wellPath() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-double RivWellPathSourceInfo::measuredDepth(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const
+double RivWellPathSourceInfo::measuredDepth( size_t triangleIndex, const cvf::Vec3d& globalIntersectionInDomain ) const
 {
     size_t firstSegmentIndex = cvf::UNDEFINED_SIZE_T;
-    double norm = 0.0;
+    double norm              = 0.0;
 
-    normalizedIntersection(triangleIndex, globalIntersection, &firstSegmentIndex, &norm);
+    normalizedIntersection( triangleIndex, globalIntersectionInDomain, &firstSegmentIndex, &norm );
 
     double firstDepth = m_wellPath->wellPathGeometry()->m_measuredDepths[firstSegmentIndex];
-    double secDepth = m_wellPath->wellPathGeometry()->m_measuredDepths[firstSegmentIndex + 1];
+    double secDepth   = m_wellPath->wellPathGeometry()->m_measuredDepths[firstSegmentIndex + 1];
 
-    return firstDepth * (1.0 - norm) + norm * secDepth;
+    return firstDepth * ( 1.0 - norm ) + norm * secDepth;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivWellPathSourceInfo::trueVerticalDepth(size_t triangleIndex, const cvf::Vec3d& globalIntersection) const
+cvf::Vec3d RivWellPathSourceInfo::closestPointOnCenterLine( size_t            triangleIndex,
+                                                            const cvf::Vec3d& globalIntersectionInDomain ) const
 {
     size_t firstSegmentIndex = cvf::UNDEFINED_SIZE_T;
-    double norm = 0.0;
+    double norm              = 0.0;
 
-    normalizedIntersection(triangleIndex, globalIntersection, &firstSegmentIndex, &norm);
+    normalizedIntersection( triangleIndex, globalIntersectionInDomain, &firstSegmentIndex, &norm );
 
     cvf::Vec3d firstDepth = m_wellPath->wellPathGeometry()->m_wellPathPoints[firstSegmentIndex];
-    cvf::Vec3d secDepth = m_wellPath->wellPathGeometry()->m_wellPathPoints[firstSegmentIndex + 1];
+    cvf::Vec3d secDepth   = m_wellPath->wellPathGeometry()->m_wellPathPoints[firstSegmentIndex + 1];
 
-    return firstDepth * (1.0 - norm) + norm * secDepth;
+    return firstDepth * ( 1.0 - norm ) + norm * secDepth;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RivWellPathSourceInfo::normalizedIntersection(size_t triangleIndex, const cvf::Vec3d& globalIntersection,
-                                                    size_t* firstSegmentIndex, double* normalizedSegmentIntersection) const
+void RivWellPathSourceInfo::normalizedIntersection( size_t            triangleIndex,
+                                                    const cvf::Vec3d& globalIntersectionInDomain,
+                                                    size_t*           firstSegmentIndex,
+                                                    double*           normalizedSegmentIntersection ) const
 {
-    size_t segIndex = segmentIndex(triangleIndex);
-
+    size_t       segIndex    = segmentIndex( triangleIndex );
     RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
 
     cvf::Vec3d segmentStart = rigWellPath->m_wellPathPoints[segIndex];
-    cvf::Vec3d segmentEnd = rigWellPath->m_wellPathPoints[segIndex + 1];
+    cvf::Vec3d segmentEnd   = rigWellPath->m_wellPathPoints[segIndex + 1];
 
-    double norm = 0.0;
-    cvf::Vec3d pointOnLine = cvf::GeometryTools::projectPointOnLine(segmentStart, segmentEnd, globalIntersection, &norm);
-    norm = cvf::Math::clamp(norm, 0.0, 1.0);
+    double     norm = 0.0;
+    cvf::Vec3d pointOnLine =
+        cvf::GeometryTools::projectPointOnLine( segmentStart, segmentEnd, globalIntersectionInDomain, &norm );
+    norm = cvf::Math::clamp( norm, 0.0, 1.0 );
 
-    *firstSegmentIndex = segIndex;
+    *firstSegmentIndex             = segIndex;
     *normalizedSegmentIntersection = norm;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-size_t RivWellPathSourceInfo::segmentIndex(size_t triangleIndex) const
+size_t RivWellPathSourceInfo::segmentIndex( size_t triangleIndex ) const
 {
-    return m_wellPath->partMgr()->segmentIndexFromTriangleIndex(triangleIndex);
+    return m_pipeGeomGenerator->segmentIndexFromTriangleIndex( triangleIndex );
 }
-

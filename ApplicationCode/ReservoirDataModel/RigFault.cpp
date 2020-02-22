@@ -2,54 +2,55 @@
 //
 //  Copyright (C) Statoil ASA
 //  Copyright (C) Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigFault.h"
+
 #include "RigMainGrid.h"
 
 cvf::ref<RigFaultsPrCellAccumulator> RigFault::m_faultsPrCellAcc;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RigFault::RigFault()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigFault::addCellRangeForFace(cvf::StructGridInterface::FaceType face, const cvf::CellRange& cellRange)
+void RigFault::addCellRangeForFace( cvf::StructGridInterface::FaceType face, const cvf::CellRange& cellRange )
 {
-    size_t faceIndex = static_cast<size_t>(face);
-    CVF_ASSERT(faceIndex < 6);
+    size_t faceIndex = static_cast<size_t>( face );
+    CVF_ASSERT( faceIndex < 6 );
 
-    m_cellRangesForFaces[faceIndex].push_back(cellRange);
+    m_cellRangesForFaces[faceIndex].push_back( cellRange );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigFault::setName(const QString& name)
+void RigFault::setName( const QString& name )
 {
     m_name = name;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString RigFault::name() const
 {
@@ -57,7 +58,7 @@ QString RigFault::name() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<RigFault::FaultFace>& RigFault::faultFaces()
 {
@@ -65,7 +66,7 @@ std::vector<RigFault::FaultFace>& RigFault::faultFaces()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 const std::vector<RigFault::FaultFace>& RigFault::faultFaces() const
 {
@@ -73,63 +74,110 @@ const std::vector<RigFault::FaultFace>& RigFault::faultFaces() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* mainGrid)
+std::vector<size_t>& RigFault::connectionIndices()
 {
-    if (!mainGrid) return;
+    return m_connectionIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigFault::connectionIndices() const
+{
+    return m_connectionIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Order FaultCellAndFace by i, j, face then k.
+//--------------------------------------------------------------------------------------------------
+bool RigFault::ordering( CellAndFace first, CellAndFace second )
+{
+    size_t                             i1, i2, j1, j2, k1, k2;
+    cvf::StructGridInterface::FaceType f1, f2;
+    std::tie( i1, j1, k1, f1 ) = first;
+    std::tie( i2, j2, k2, f2 ) = second;
+    if ( i1 == i2 )
+    {
+        if ( j1 == j2 )
+        {
+            if ( f1 == f2 )
+            {
+                return k1 < k2;
+            }
+            else
+            {
+                return f1 < f2;
+            }
+        }
+        else
+        {
+            return j1 < j2;
+        }
+    }
+    else
+    {
+        return i1 < i2;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFault::computeFaultFacesFromCellRanges( const RigMainGrid* mainGrid )
+{
+    if ( !mainGrid ) return;
 
     m_faultFaces.clear();
 
-    for (size_t faceType = 0; faceType < 6; faceType++)
+    for ( size_t faceType = 0; faceType < 6; faceType++ )
     {
-        cvf::StructGridInterface::FaceType faceEnum = cvf::StructGridInterface::FaceType(faceType);
+        cvf::StructGridInterface::FaceType faceEnum = cvf::StructGridInterface::FaceType( faceType );
 
         const std::vector<cvf::CellRange>& cellRanges = m_cellRangesForFaces[faceType];
 
-        for (size_t i = 0; i < cellRanges.size(); i++)
+        for ( const cvf::CellRange& cellRange : cellRanges )
         {
-            const cvf::CellRange& cellRange = cellRanges[i];
-
             cvf::Vec3st min, max;
-            cellRange.range(min, max);
+            cellRange.range( min, max );
 
-            for (size_t i = min.x(); i <= max.x(); i++)
+            for ( size_t i = min.x(); i <= max.x(); i++ )
             {
-                if (i >= mainGrid->cellCountI())
+                if ( i >= mainGrid->cellCountI() )
                 {
                     continue;
                 }
 
-                for (size_t j = min.y(); j <= max.y(); j++)
+                for ( size_t j = min.y(); j <= max.y(); j++ )
                 {
-                    if (j >= mainGrid->cellCountJ())
+                    if ( j >= mainGrid->cellCountJ() )
                     {
                         continue;
                     }
 
-                    for (size_t k = min.z(); k <= max.z(); k++)
+                    for ( size_t k = min.z(); k <= max.z(); k++ )
                     {
-                        if (k >= mainGrid->cellCountK())
+                        if ( k >= mainGrid->cellCountK() )
                         {
                             continue;
                         }
 
                         // Do not need to compute global grid cell index as for a maingrid localIndex == globalIndex
-                        //size_t reservoirCellIndex = grid->reservoirCellIndex(gridLocalCellIndex);
+                        // size_t reservoirCellIndex = grid->reservoirCellIndex(gridLocalCellIndex);
 
                         size_t ni, nj, nk;
-                        mainGrid->neighborIJKAtCellFace(i, j, k, faceEnum, &ni, &nj, &nk);
-                        if (ni < mainGrid->cellCountI() && nj < mainGrid->cellCountJ() && nk < mainGrid->cellCountK())
+                        mainGrid->neighborIJKAtCellFace( i, j, k, faceEnum, &ni, &nj, &nk );
+                        if ( ni < mainGrid->cellCountI() && nj < mainGrid->cellCountJ() && nk < mainGrid->cellCountK() )
                         {
-                            size_t gridLocalCellIndex = mainGrid->cellIndexFromIJK(i, j, k);
-                            size_t oppositeCellIndex = mainGrid->cellIndexFromIJK(ni, nj, nk);
+                            size_t gridLocalCellIndex = mainGrid->cellIndexFromIJK( i, j, k );
+                            size_t oppositeCellIndex  = mainGrid->cellIndexFromIJK( ni, nj, nk );
 
-                            m_faultFaces.push_back(FaultFace(gridLocalCellIndex, faceEnum, oppositeCellIndex));
+                            m_faultFaces.push_back( FaultFace( gridLocalCellIndex, faceEnum, oppositeCellIndex ) );
                         }
                         else
                         {
-                            //cvf::Trace::show("Warning: Undefined Fault neighbor detected.");
+                            // cvf::Trace::show("Warning: Undefined Fault neighbor detected.");
                         }
                     }
                 }
@@ -138,18 +186,20 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* mainGrid)
     }
 }
 
-
-void  RigFault::accumulateFaultsPrCell(RigFaultsPrCellAccumulator* faultsPrCellAcc, int faultIdx)
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFault::accumulateFaultsPrCell( RigFaultsPrCellAccumulator* faultsPrCellAcc, int faultIdx )
 {
-
-    for (size_t ffIdx = 0; ffIdx < m_faultFaces.size(); ++ffIdx)
+    for ( const FaultFace& ff : m_faultFaces )
     {
-        const FaultFace& ff = m_faultFaces[ffIdx];
+        // Could detect overlapping faults here .... if (faultsPrCellAcc->faultIdx(ff.m_nativeReservoirCellIndex,
+        // ff.m_nativeFace)
+        // >= 0)
 
-        // Could detect overlapping faults here .... if (faultsPrCellAcc->faultIdx(ff.m_nativeReservoirCellIndex, ff.m_nativeFace) >= 0)
-
-        faultsPrCellAcc->setFaultIdx(ff.m_nativeReservoirCellIndex, ff.m_nativeFace, faultIdx);
-        faultsPrCellAcc->setFaultIdx(ff.m_oppositeReservoirCellIndex, cvf::StructGridInterface::oppositeFace(ff.m_nativeFace), faultIdx);
-
+        faultsPrCellAcc->setFaultIdx( ff.m_nativeReservoirCellIndex, ff.m_nativeFace, faultIdx );
+        faultsPrCellAcc->setFaultIdx( ff.m_oppositeReservoirCellIndex,
+                                      cvf::StructGridInterface::oppositeFace( ff.m_nativeFace ),
+                                      faultIdx );
     }
 }

@@ -90,7 +90,7 @@ cvf::Effect* EffectCache::findEffect(const EffectGenerator* generator)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ void EffectCache::releaseUnreferencedEffects()
     {
         if (m_effectCache[i].second.p()->refCount() <= 1 )
         {
-            m_effectCache[i].second = NULL;
+            m_effectCache[i].second = nullptr;
             delete m_effectCache[i].first;
             m_effectCache[i].first = NULL;
         }

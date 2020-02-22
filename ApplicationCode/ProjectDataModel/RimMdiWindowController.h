@@ -1,35 +1,35 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-#include "cafPdmObject.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 
-
-class RimViewWindow;
 class RiuMainWindowBase;
+class RiuMdiSubWindow;
+class RimViewWindow;
 struct RimMdiWindowGeometry;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimMdiWindowController : public caf::PdmObject
 {
@@ -37,33 +37,29 @@ class RimMdiWindowController : public caf::PdmObject
 
 public:
     RimMdiWindowController();
-    virtual ~RimMdiWindowController();
+    ~RimMdiWindowController() override;
 
-    void                      setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry);
-    RimMdiWindowGeometry      mdiWindowGeometry();
+    void                 setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeometry );
+    RimMdiWindowGeometry mdiWindowGeometry();
 
-    void                      updateViewerWidget();
-    void                      handleViewerDeletion();
-    void                      removeWindowFromMDI();
+    void updateViewerWidget();
+    void handleViewerDeletion();
+    void removeWindowFromMDI();
 
 protected:
+    RimViewWindow*     viewPdmObject();
+    QWidget*           viewWidget();
+    RiuMainWindowBase* getMainWindow();
 
-    RimViewWindow*            viewPdmObject();
-    QWidget*                  viewWidget();
-    RiuMainWindowBase*        getMainWindow();
- 
     // Overridden PDM methods
-    virtual void              setupBeforeSave() override;
+    void setupBeforeSave() override;
 
 private:
-    
-    caf::PdmField< int >      m_mainWindowID;
-     
-    caf::PdmField< int >      m_x; 
-    caf::PdmField< int >      m_y; 
-    caf::PdmField< int >      m_width;
-    caf::PdmField< int >      m_height; 
-    caf::PdmField< bool>      m_isMaximized;
+    caf::PdmField<int> m_mainWindowID;
+
+    caf::PdmField<int>  m_x;
+    caf::PdmField<int>  m_y;
+    caf::PdmField<int>  m_width;
+    caf::PdmField<int>  m_height;
+    caf::PdmField<bool> m_isMaximized;
 };
-
-

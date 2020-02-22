@@ -43,7 +43,6 @@
 #include <QWidget>
 #include <QPointer>
 #include <QLineEdit>
-#include <QGroupBox>
 #include <QSlider>
 
 
@@ -53,7 +52,6 @@ namespace caf
 //==================================================================================================
 /// 
 //==================================================================================================
-
 class PdmUiDoubleSliderEditorAttribute : public PdmUiEditorAttribute
 {
 public:
@@ -63,6 +61,7 @@ public:
         m_maximum = 10;
         m_decimals = 6;
         m_sliderTickCount = 2000;
+        m_delaySliderUpdateUntilRelease = false;
     }
 
 public:
@@ -70,9 +69,13 @@ public:
     double  m_maximum;
     int     m_decimals;
     int     m_sliderTickCount;
+    bool    m_delaySliderUpdateUntilRelease;
 };
 
 
+//==================================================================================================
+/// 
+//==================================================================================================
 class PdmUiDoubleSliderEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
@@ -80,28 +83,30 @@ class PdmUiDoubleSliderEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiDoubleSliderEditor()          {} 
-    virtual ~PdmUiDoubleSliderEditor() {} 
+    ~PdmUiDoubleSliderEditor() override {} 
 
 protected:
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget*    createEditorWidget(QWidget * parent) override;
+    QWidget*    createLabelWidget(QWidget * parent) override;
 
 protected slots:
-    void                slotEditingFinished();
-    void                slotSliderValueChanged(int value);
+    void        slotEditingFinished();
+    void        slotSliderValueChanged(int value);
+    void        slotSliderReleased();
 
 private:
-    void                updateSliderPosition();
-    void                writeValueToField();
+    void        updateSliderPosition(double value);
+    void        writeValueToField(double value);
 
-    int                 convertToSliderValue(double value);
-    double              convertFromSliderValue(int sliderValue);
+    int         convertToSliderValue(double value);
+    double      convertFromSliderValue(int sliderValue);
 
 private:
-    QPointer<QLineEdit> m_lineEdit;
-    QPointer<QSlider>   m_slider;
-    QPointer<QLabel>    m_label;
+    QPointer<QLineEdit>       m_lineEdit;
+    QPointer<QSlider>         m_slider;
+    QPointer<QShortenedLabel> m_label;
+    double                    m_sliderValue;
 
     PdmUiDoubleSliderEditorAttribute m_attributes;
 };

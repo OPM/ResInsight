@@ -43,9 +43,12 @@
 #include <QLineEdit>
 #include <QPointer>
 #include <QString>
+#include <QValidator>
 #include <QWidget>
 
 class QGridLayout;
+class QCompleter;
+class QStringListModel;
 
 namespace caf 
 {
@@ -58,30 +61,24 @@ class PdmUiLineEditorAttribute : public PdmUiEditorAttribute
 public:
     PdmUiLineEditorAttribute()
     {
-        useRangeValidator = false;
-        minValue = 0;
-        maxValue = 0;
+        avoidSendingEnterEventToParentWidget = false;
+        completerCaseSensitivity             = Qt::CaseInsensitive;
+        completerFilterMode                  = Qt::MatchContains;
+        maximumWidth                         = -1;
+        selectAllOnFocusEvent                = false;
+        placeholderText                      = "";
     }
 
 public:
-    bool useRangeValidator;
-    int minValue;
-    int maxValue;
-};
+    bool                 avoidSendingEnterEventToParentWidget;
+    QPointer<QValidator> validator;    
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class PdmUiLineEditorAttributeUniqueValues : public PdmUiEditorAttribute
-{
-public:
-    PdmUiLineEditorAttributeUniqueValues()
-    {}
-
-public:
-    std::set<int> usedIds;
-    QString errorMessage;
+    // Completer setup
+    Qt::CaseSensitivity  completerCaseSensitivity;
+    Qt::MatchFlags       completerFilterMode;
+    int                  maximumWidth;
+    bool                 selectAllOnFocusEvent;
+    QString              placeholderText;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -97,6 +94,20 @@ public:
     QString m_displayString;
 };
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class PdmUiLineEdit : public QLineEdit
+{
+    Q_OBJECT
+public:
+    PdmUiLineEdit(QWidget* parent);
+    void setAvoidSendingEnterEventToParentWidget(bool avoidSendingEnter);
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
+private:
+    bool m_avoidSendingEnterEvent;
+};
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -107,24 +118,34 @@ class PdmUiLineEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiLineEditor()          {} 
-    virtual ~PdmUiLineEditor() {} 
+    PdmUiLineEditor() : m_ignoreCompleterActivated(false)         {} 
+    ~PdmUiLineEditor() override {} 
 
 protected:
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    QWidget*    createEditorWidget(QWidget * parent) override;
+    QWidget*    createLabelWidget(QWidget * parent) override;
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QMargins    calculateLabelContentMargins() const override;
+
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
 protected slots:
-    void                slotEditingFinished();
+    void        slotEditingFinished();
+    void        slotCompleterActivated(const QModelIndex& index);
 
 private:
-    bool                isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* editorField) const;
+    bool        isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* editorField) const;
 
-private:
-    QPointer<QLineEdit> m_lineEdit;
-    QPointer<QLabel>    m_label;
+protected:
+    QPointer<PdmUiLineEdit>    m_lineEdit;
+    QPointer<QShortenedLabel>  m_label;
+    
+    QPointer<QCompleter>       m_completer; 
+    QPointer<QStringListModel> m_completerTextList;
+    QList<PdmOptionItemInfo>   m_optionCache;
+    bool                       m_ignoreCompleterActivated;
 
+    int findIndexToOption(const QString& uiText);
 };
 
 

@@ -125,6 +125,12 @@ void DrawableVectors::setSingleColor(Color3f color)
 }
 
 
+void DrawableVectors::setUniformNames(String vectorMatrixUniformName, String colorUniformName)
+{
+    m_vectorMatrixUniformName = vectorMatrixUniformName;
+    m_colorUniformName = colorUniformName;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

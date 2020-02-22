@@ -167,7 +167,7 @@ DEFUN_DLD (riGetWellCells, args, nargout,
         return octave_value();
     }
 
-    if (!args(argIndices[2]).is_numeric_type()) // Check if the TimeStep argument is actually a number
+    if (!riOctavePlugin::isOctaveValueNumeric(args(argIndices[2]))) // Check if the TimeStep argument is actually a number
     {
         error("riGetWellCells: The last argument must be a timestep index.\n");
         print_usage();

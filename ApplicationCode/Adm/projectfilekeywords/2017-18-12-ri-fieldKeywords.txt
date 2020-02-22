@@ -1,0 +1,1677 @@
+// ResInsight version string : 2017.05.2-dev.13
+// Report generated : Mon 18. Dec 07:05:11 2017
+//
+//
+
+AsciiDataCurve - class RimAsciiDataCurve
+  Show
+  CurveName
+  CurveDescription
+  AutoName
+  Color
+  Thickness
+  LineStyle
+  CurveInterpolation
+  PointSymbol
+  SymbolSkipPxDist
+  ShowLegend
+  PlotAxis
+  TimeSteps
+  Values
+  Title
+
+CalcScript - class RimCalcScript
+  AbsolutePath
+  Content
+
+CalculatedSummaryCase - class RimCalculatedSummaryCase
+  ShortName
+  AutoShortyName
+  SummaryHeaderFilename
+
+CellEdgeResultSlot - class RimCellEdgeColors
+  EnableCellEdgeColors
+  propertyType
+  CellEdgeVariable
+  UseXVariable
+  UseYVariable
+  UseZVariable
+  LegendDefinition
+  SingleVarEdgeResult
+
+CellFilter - class RimCellFilter
+  UserDescription
+  Active
+  FilterType
+
+CellPropertyFilter - class RimEclipsePropertyFilter
+  UserDescription
+  Active
+  FilterType
+  SelectedValues
+  EvaluationRegion
+  ResultDefinition
+  Dummy_keyword
+  LowerBound
+  UpperBound
+  CategorySelection
+
+CellPropertyFilters - class RimEclipsePropertyFilterCollection
+  Active
+  PropertyFilters
+
+CellRangeFilter - class RimCellRangeFilter
+  UserDescription
+  Active
+  FilterType
+  GridIndex
+  PropagateToSubGrids
+  StartIndexI
+  CellCountI
+  StartIndexJ
+  CellCountJ
+  StartIndexK
+  CellCountK
+
+CellRangeFilterCollection - class RimCellRangeFilterCollection
+  RangeFilters
+  Active
+
+ChangeDataSourceFeatureUi - class RicChangeDataSourceFeatureUi
+  CurveWellPath
+  CurveCase
+
+CmdAddItemExecData - class caf::CmdAddItemExecData
+  PathToField
+  indexAfter
+  createdItemIndex
+
+CmdDeleteItemExecData - class caf::CmdDeleteItemExecData
+  PathToField
+  indexToObject
+  deletedObjectAsXml
+
+CmdFieldChangeExecData - class caf::CmdFieldChangeExecData
+  PathToField
+
+CrossSection - class RimIntersection
+  UserDescription
+  Active
+  Type
+  Direction
+  WellPath
+  SimulationWell
+  Points
+  AzimuthAngle
+  DipAngle
+  CustomExtrusionPoints
+  TwoAzimuthPoints
+  Branch
+  ExtentLength
+  lengthUp
+  lengthDown
+  ShowInactiveCells
+  m_activateUiAppendPointsCommand
+  inputExtrusionPointsFromViewerEnabled
+  inputTwoAzimuthPointsFromViewerEnabled
+
+CrossSectionCollection - class RimIntersectionCollection
+  CrossSections
+  IntersectionBoxes
+  Active
+
+EclipseCase - class RimEclipseResultCase
+  CaseUserDescription
+  CaseId
+  DefaultFormationNames
+  TimeStepFilter
+  ReservoirViews
+  MatrixModelResults
+  FractureModelResults
+  FlipXAxis
+  FlipYAxis
+  CachedFileNamesContainingFaults
+  FilesContainingFaults
+  CaseName
+  CaseFileName
+  FlowDiagSolutions
+  CaseFolder
+  SourSimFileName
+
+EclipseGeometrySelectionItem - class RimEclipseGeometrySelectionItem
+  EclipseCase
+  GridIndex
+  CellIndex
+  LocalIntersectionPoint
+
+Fault - class RimFaultInView
+  FaultName
+  ShowFault
+  Color
+
+Faults - class RimFaultInViewCollection
+  Active
+  ShowFaultFaces
+  ShowOppositeFaultFaces
+  ShowFaultsOutsideFilters
+  FaultFaceCulling
+  ShowFaultLabel
+  FaultLabelColor
+  ShowNNCs
+  HideNncsWhenNoResultIsAvailable
+  NoCommonAreaNnncCollection
+  Faults
+
+FileSummaryCase - class RimFileSummaryCase
+  ShortName
+  AutoShortyName
+  SummaryHeaderFilename
+
+FishbonesCollection - class RimFishbonesCollection
+  Name
+  IsChecked
+  FishbonesSubs
+  WellPathCollection
+  StartMD
+  MainBoreDiameter
+  MainBoreSkinFactor
+  LinerDiameter
+  RoughnessFactor
+  PressureDrop
+  LengthAndDepth
+
+FishbonesMultipleSubs - class RimFishbonesMultipleSubs
+  Name
+  IsChecked
+  FishbonesColor
+  LateralCountPerSub
+  LateralLength
+  LateralExitAngle
+  LateralBuildAngle
+  LateralTubingDiameter
+  LateralOpenHoleRoghnessFactor
+  LateralTubingRoghnessFactor
+  LateralInstallSuccessFraction
+  IcdCount
+  IcdOrificeDiameter
+  IcdFlowCoefficient
+  LocationOfSubs
+  SubsLocationMode
+  RangeStart
+  RangeEnd
+  RangeSubSpacing
+  RangeSubCount
+  SubsOrientationMode
+  InstallationRotationAngles
+  FixedInstallationRotationAngle
+  PipeProperties
+
+FishbonesPipeProperties - class RimFishbonesPipeProperties
+  LateralHoleDiameter
+  SkinFactor
+
+FlowCharacteristicsPlot - class RimFlowCharacteristicsPlot
+  WindowController
+  ShowWindow
+  WindowGeometry
+  FlowCase
+  FlowDiagSolution
+  TimeSelectionType
+  SelectedTimeSteps
+  SelectedTimeStepsUi
+  ApplyTimeSteps
+  CellPVThreshold
+  ShowLegend
+  CellFilter
+  CellFilterView
+  TracerFilter
+  SelectedTracerNames
+  ShowRegion
+  MinCommunication
+  MaxTof
+
+FlowDiagSolution - class RimFlowDiagSolution
+  UserDescription
+
+FlowPlotCollection - class RimFlowPlotCollection
+  FlowCharacteristicsPlot
+  DefaultWellAllocationPlot
+  StoredWellAllocationPlots
+  StoredFlowCharacteristicsPlots
+
+FormationNames - class RimFormationNames
+  FormationNamesFileName
+
+FormationNamesCollectionObject - class RimFormationNamesCollection
+  FormationNamesList
+
+FractureContainment - class RimFractureContainment
+  IsUsingFractureContainment
+  TopKLayer
+  BaseKLayer
+  FaultTruncationType
+
+FractureDefinitionCollection - class RimFractureTemplateCollection
+  defaultUnitForFracTemplates
+  FractureDefinitions
+
+GeoMechGeometrySelectionItem - class RimGeoMechGeometrySelectionItem
+  GeoMechCase
+  m_gridIndex
+  m_cellIndex
+  m_elementFace
+  m_hasIntersectionTriangle
+  m_intersectionTriangle_0
+  m_intersectionTriangle_1
+  m_intersectionTriangle_2
+  m_localIntersectionPoint
+
+GeoMechPropertyFilter - class RimGeoMechPropertyFilter
+  UserDescription
+  Active
+  FilterType
+  SelectedValues
+  ResultDefinition
+  LowerBound
+  UpperBound
+
+GeoMechPropertyFilters - class RimGeoMechPropertyFilterCollection
+  Active
+  PropertyFilters
+
+GeoMechResultDefinition - class RimGeoMechResultDefinition
+  ResultPositionType
+  ResultFieldName
+  ResultComponentName
+  IsTimeLapseResult
+  TimeLapseBaseTimeStep
+  ResultPositionTypeUi
+  ResultVariableUI
+  IsTimeLapseResultUI
+  TimeLapseBaseTimeStepUI
+
+GeoMechResultSlot - class RimGeoMechCellColors
+  ResultPositionType
+  ResultFieldName
+  ResultComponentName
+  IsTimeLapseResult
+  TimeLapseBaseTimeStep
+  ResultPositionTypeUi
+  ResultVariableUI
+  IsTimeLapseResultUI
+  TimeLapseBaseTimeStepUI
+  LegendDefinition
+
+GeoMechView - class RimGeoMechView
+  WindowController
+  ShowWindow
+  WindowGeometry
+  UserDescription
+  CameraPosition
+  CameraPointOfInterest
+  PerspectiveProjection
+  GridZScale
+  ViewBackgroundColor
+  MaximumFrameRate
+  AnimationMode
+  CurrentTimeStep
+  OverlayInfoConfig
+  MeshMode
+  SurfaceMode
+  ShowGridBox
+  DisableLighting
+  RangeFilters
+  RangeFiltersControlled
+  CrossSections
+  GridCollection
+  GridCellResult
+  PropertyFilters
+
+GridCollection - class RimGridCollection
+  IsActive
+
+GridSummaryCase - class RimGridSummaryCase
+  ShortName
+  AutoShortyName
+  SummaryHeaderFilename
+  Associated3DCase
+  CachedCasename
+  Associated3DCaseGridFileName
+
+GridTimeHistoryCurve - class RimGridTimeHistoryCurve
+  Show
+  CurveName
+  CurveDescription
+  AutoName
+  Color
+  Thickness
+  LineStyle
+  CurveInterpolation
+  PointSymbol
+  SymbolSkipPxDist
+  ShowLegend
+  GeometrySelectionText
+  EclipseResultDefinition
+  GeoMechResultDefinition
+  GeometrySelectionItem
+  PlotAxis
+
+IntersectionBox - class RimIntersectionBox
+  UserDescription
+  Active
+  singlePlaneState
+  MinXCoord
+  MaxXCoord
+  MinYCoord
+  MaxYCoord
+  MinDepth
+  MaxDepth
+  ShowInactiveCells
+  xySliderStepSize
+  DepthSliderStepSize
+  show3DManipulator
+
+Legend - class RimLegendConfig
+  NumberOfLevels
+  Precision
+  TickNumberFormat
+  ColorRangeMode
+  MappingMode
+  RangeType
+  UserDefinedMax
+  UserDefinedMin
+  ResultVariableUsage
+
+MainPlotCollection - class RimMainPlotCollection
+  Show
+  WellLogPlotCollection
+  RftPlotCollection
+  PltPlotCollection
+  SummaryPlotCollection
+  SummaryCrossPlotCollection
+  FlowPlotCollection
+
+MdiWindowController - class RimMdiWindowController
+  MainWindowID
+  xPos
+  yPos
+  Width
+  Height
+  IsMaximized
+
+MockModelSettings - class RimMockModelSettings
+  CellCountX
+  CellCountY
+  CellCountZ
+  TotalCellCount
+  ResultCount
+  TimeStepCount
+
+MultiSnapshotDefinition - class RimMultiSnapshotDefinition
+  IsActive
+  View
+  EclipseResultType
+  SelectedEclipseResults
+  TimeStepStart
+  TimeStepEnd
+  SnapShotDirection
+  RangeFilterStart
+  RangeFilterEnd
+  AdditionalCases
+
+NoCommonAreaNNC - class RimNoCommonAreaNNC
+  Name
+
+ObservedDataCollection - class RimObservedDataCollection
+  ObservedDataArray
+
+PdmDocument - class caf::PdmDocument
+  DocumentFileName
+
+PdmObjectCollection - class caf::PdmObjectCollection
+  PdmObjects
+
+PdmObjectGroup - class caf::PdmObjectGroup
+
+Perforation - class RimPerforationInterval
+  Name
+  IsChecked
+  StartMeasuredDepth
+  EndMeasuredDepth
+  Diameter
+  SkinFactor
+  StartOfHistory
+  StartDate
+
+PerforationCollection - class RimPerforationCollection
+  Name
+  IsChecked
+  Perforations
+
+PropertyFilter - class RimPropertyFilter
+  UserDescription
+  Active
+  FilterType
+  SelectedValues
+
+ResInsightAnalysisModels - class RimEclipseCaseCollection
+  Reservoirs
+  CaseGroups
+
+ResInsightGeoMechCase - class RimGeoMechCase
+  CaseUserDescription
+  CaseId
+  DefaultFormationNames
+  TimeStepFilter
+  CaseFileName
+  GeoMechViews
+  CaseCohesion
+  FrctionAngleDeg
+
+ResInsightGeoMechModels - class RimGeoMechModels
+  Cases
+
+ResInsightOilField - class RimOilField
+  AnalysisModels
+  GeoMechModels
+  WellPathCollection
+  FractureDefinitionCollection
+  SummaryCaseCollection
+  FormationNamesCollection
+  ObservedDataCollection
+
+ResInsightProject - class RimProject
+  DocumentFileName
+  ProjectFileVersionString
+  NextValidCaseId
+  NextValidCaseGroupId
+  OilFields
+  ScriptCollection
+  WellPathImport
+  MainPlotCollection
+  LinkedViews
+  CalculationCollection
+  CommandObjects
+  MultiSnapshotDefinitions
+  TreeViewState
+  TreeViewCurrentModelIndexPath
+  PlotWindowTreeViewState
+  PlotWindowTreeViewCurrentModelIndexPath
+  show3DWindow
+  showPlotWindow
+  DialogData
+  Reservoirs
+  CaseGroups
+
+ReservoirCellResultStorage - class RimReservoirCellResultsStorage
+  ResultCacheFileName
+  ResultCacheEntries
+
+ReservoirView - class RimEclipseView
+  WindowController
+  ShowWindow
+  WindowGeometry
+  UserDescription
+  CameraPosition
+  CameraPointOfInterest
+  PerspectiveProjection
+  GridZScale
+  ViewBackgroundColor
+  MaximumFrameRate
+  AnimationMode
+  CurrentTimeStep
+  OverlayInfoConfig
+  MeshMode
+  SurfaceMode
+  ShowGridBox
+  DisableLighting
+  RangeFilters
+  RangeFiltersControlled
+  CrossSections
+  GridCollection
+  GridCellResult
+  GridCellEdgeResult
+  FaultResultSettings
+  StimPlanColors
+  WellCollection
+  FaultCollection
+  PropertyFilters
+  ShowMainGrid
+  ShowInactiveCells
+  ShowInvalidCells
+
+ResultDefinition - class RimEclipseResultDefinition
+  ResultType
+  PorosityModelType
+  ResultVariable
+  FlowDiagSolution
+  SelectedTracers
+  SelectedSouringTracers
+  FlowTracerSelectionMode
+  PhaseSelection
+  MResultType
+  MPorosityModelType
+  MResultVariable
+  MFlowDiagSolution
+  MSelectedTracers
+  MSelectedSouringTracers
+  SelectedTracersFilter
+
+ResultSlot - class RimEclipseCellColors
+  ResultType
+  PorosityModelType
+  ResultVariable
+  FlowDiagSolution
+  SelectedTracers
+  SelectedSouringTracers
+  FlowTracerSelectionMode
+  PhaseSelection
+  MResultType
+  MPorosityModelType
+  MResultVariable
+  MFlowDiagSolution
+  MSelectedTracers
+  MSelectedSouringTracers
+  SelectedTracersFilter
+  LegendDefinition
+  ResultVarLegendDefinitionList
+  TernaryLegendDefinition
+  LegendDefinitionPtrField
+
+ResultStorageEntryInfo - class RimReservoirCellResultsStorageEntryInfo
+  ResultType
+  ResultName
+  TimeSteps
+  DaysSinceSimulationStart
+  FilePositionDataStart
+
+RftAddress - class RimDataSourceForRftPlt
+  SourceType
+  EclipseCase
+  WellLogFile
+
+RiaPreferences - class RiaPreferences
+  navigationPolicy
+  scriptDirectory
+  scriptEditorExecutable
+  octaveExecutable
+  octaveShowHeaderInfoWhenExecutingScripts
+  ssihubAddress
+  defaultGridLines
+  defaultGridLineColors
+  defaultFaultGridLineColors
+  defaultWellLableColor
+  defaultViewerBackgroundColor
+  defaultScaleFactorZ
+  fontSizeInScene
+  showLasCurveWithoutTvdWarning
+  useShaders
+  showHud
+  appendClassNameToUiText
+  appendFieldKeywordToToolTipText
+  lastUsedProjectFileName
+  autocomputeDepth
+  loadAndShowSoil
+  readerSettings
+
+RiaRegressionTest - class RiaRegressionTest
+  workingFolder
+  regressionTestFolder
+  showInteractiveDiffImages
+  testFilter
+
+RicCaseAndFileExportSettingsUi - class RicCaseAndFileExportSettingsUi
+  Folder
+  CaseToApply
+
+RicCellRangeUi - class RicCellRangeUi
+  Case
+  GridIndex
+  StartIndexI
+  StartIndexJ
+  StartIndexK
+  CellCountI
+  CellCountJ
+  CellCountK
+
+RicDeleteItemExecData - class RicDeleteItemExecData
+  PathToField
+  indexToObject
+  deletedObjectAsXml
+
+RicExportCarfinUi - class RicExportCarfinUi
+  CellRange
+  ExportFileName
+  CaseToApply
+  CellCountI
+  CellCountJ
+  CellCountK
+  MaxWellCount
+
+RicExportCompletionDataSettingsUi - class RicExportCompletionDataSettingsUi
+  Folder
+  CaseToApply
+
+RicExportToLasFileObj - class RicExportToLasFileObj
+  tvdrkbOffset
+
+RicExportToLasFileResampleUi - class RicExportToLasFileResampleUi
+  ExportFolder
+  ActivateResample
+  ResampleInterval
+  ExportTvdrkb
+  tvdrkbOffsets
+
+RicLinkVisibleViewsFeatureUi - class RicLinkVisibleViewsFeatureUi
+  MasterView
+
+RicPasteAsciiDataToSummaryPlotFeatureUi - class RicPasteAsciiDataToSummaryPlotFeatureUi
+  PlotTitle
+  CurvePrefix
+  DecimalSeparator
+  DateFormat
+  TimeFormat
+  UseCustomDateFormat
+  CustomDateTimeFormat
+  LineStyle
+  Symbol
+  SymbolSkipDinstance
+  CellSeparator
+  TimeColumnName
+  PreviewText
+
+RicSaveEclipseInputVisibleCellsUi - class RicSaveEclipseInputVisibleCellsUi
+  ExportFilename
+  ExportKeyword
+  VisibleActiveCellsValue
+  HiddenActiveCellsValue
+  InactiveCellsValue
+
+RicSelectSummaryPlotUI - class RicSelectSummaryPlotUI
+  SelectedSummaryPlot
+  CreateNewPlot
+  NewViewName
+
+RicSelectViewUI - class RicSelectViewUI
+  MasterView
+  CreateNewView
+  NewViewName
+
+RicSummaryAddressSelection - class RiuSummaryCurveDefSelection
+  SummaryCases
+  CurrentSummaryCategory
+  SelectedSummaryCategories
+  FieldVectors
+  Aquifers
+  AquiferVectors
+  NetworkVectors
+  MiscVectors
+  Regions
+  RegionsVectors
+  Region2RegionRegions
+  Region2RegionVectors
+  WellGroupWellGroupNames
+  WellGroupVectors
+  WellWellName
+  WellVectors
+  WellCompletionWellName
+  WellCompletionIjk
+  WellCompletionVectors
+  WellCompletionLgrLgrName
+  WellCompletionLgrWellName
+  WellCompletionLgrIjk
+  WellCompletionLgrVectors
+  WellLgrLgrName
+  WellLgrWellName
+  WellLgrVectors
+  WellSegmentWellName
+  WellSegmentNumber
+  WellSegmentVectors
+  BlockIjk
+  BlockVectors
+  BlockLgrLgrName
+  BlockLgrIjk
+  BlockLgrVectors
+  CalculatedVectors
+  ImportedVectors
+
+RicSummaryCurveCalculator - class RicSummaryCurveCalculator
+  CurrentCalculation
+  NewCalculation
+  DeleteCalculation
+
+RicSummaryCurveCreator - class RicSummaryCurveCreator
+  TargetPlot
+  UseAutoAppearanceAssignment
+  AppearanceApplyButton
+  CaseAppearanceType
+  VariableAppearanceType
+  WellAppearanceType
+  GroupAppearanceType
+  RegionAppearanceType
+  UseAutoPlotTitle
+  ApplySelection
+  Close
+  OK
+  SummaryCurveNameConfig
+
+RicWellPathsUnitSystemSettingsUi - class RicWellPathsUnitSystemSettingsUi
+  UnitSystem
+
+RifReaderSettings - class RifReaderSettings
+  importFaults
+  importSimulationNNCs
+  importAdvancedMswData
+  useResultIndexFile
+  skipWellData
+  faultIncludeFileAbsolutePathPrefix
+
+RimBinaryExportSettings - class RimBinaryExportSettings
+  Filename
+  EclipseKeyword
+  UndefinedValue
+
+RimCaseCollection - class RimCaseCollection
+  Reservoirs
+
+RimCommandExecuteScript - class RimCommandExecuteScript
+  Name
+  ScriptText
+  IsEnabled
+  Execute
+
+RimCommandIssueFieldChanged - class RimCommandIssueFieldChanged
+  CommandName
+  ObjectName
+  FieldName
+  FieldValueToApply
+
+RimCommandObject - class RimCommandObject
+
+RimCsvUserData - class RimCsvUserData
+  ShortName
+  AutoShortyName
+  SummaryHeaderFilename
+  ImportedSummaryData
+  UseCustomIdentifier
+  SummaryType
+  IdentifierName
+  ParseOptions
+
+RimDialogData - class RimDialogData
+  ExportCarfin
+
+RimEllipseFractureTemplate - class RimEllipseFractureTemplate
+  UserDescription
+  fractureTemplateUnit
+  Orientation
+  AzimuthAngle
+  SkinFactor
+  PerforationLength
+  perforationEfficiency
+  wellDiameter
+  FractureCondictivity
+  fractureContainmentField
+  HalfLength
+  Height
+  Width
+  Permeability
+
+RimExportInputSettings - class RimExportInputSettings
+  Filename
+  Keyword
+
+RimFaultResultSlot - class RimEclipseFaultColors
+  ShowCustomFaultResult
+  CustomResultSlot
+
+RimFractureExportSettings - class RimFractureExportSettings
+  Filename
+  CaseToApply
+
+RimIdenticalGridCaseGroup - class RimIdenticalGridCaseGroup
+  UserDescription
+  GroupId
+  StatisticsCaseCollection
+  CaseCollection
+
+RimInputProperty - class RimEclipseInputProperty
+  ResultName
+  EclipseKeyword
+  FileName
+  ResolvedState
+
+RimInputPropertyCollection - class RimEclipseInputPropertyCollection
+  InputProperties
+
+RimInputReservoir - class RimEclipseInputCase
+  CaseUserDescription
+  CaseId
+  DefaultFormationNames
+  TimeStepFilter
+  ReservoirViews
+  MatrixModelResults
+  FractureModelResults
+  FlipXAxis
+  FlipYAxis
+  CachedFileNamesContainingFaults
+  FilesContainingFaults
+  CaseName
+  GridFileName
+  InputPropertyCollection
+  AdditionalFileNamesProxy
+  AdditionalFileNames
+
+RimNoCommonAreaNncCollection - class RimNoCommonAreaNncCollection
+  UserDescription
+  NoCommonAreaNncs
+
+RimObservedEclipseUserData - class RimObservedEclipseUserData
+  ShortName
+  AutoShortyName
+  SummaryHeaderFilename
+  ImportedSummaryData
+  UseCustomIdentifier
+  SummaryType
+  IdentifierName
+
+RimOilFieldEntry - class RimOilFieldEntry
+  OilFieldName
+  EdmId
+  Selected
+  wellsFilePath
+  Wells
+
+RimOilRegionEntry - class RimOilRegionEntry
+  OilRegionEntry
+  Fields
+  Selected
+
+RimStatisticalCalculation - class RimEclipseStatisticsCase
+  CaseUserDescription
+  CaseId
+  DefaultFormationNames
+  TimeStepFilter
+  ReservoirViews
+  MatrixModelResults
+  FractureModelResults
+  FlipXAxis
+  FlipYAxis
+  CachedFileNamesContainingFaults
+  FilesContainingFaults
+  CaseName
+  m_editingAllowed
+  SelectionSummary
+  ResultType
+  PorosityModel
+  DynamicPropertiesToCalculate
+  StaticPropertiesToCalculate
+  GeneratedPropertiesToCalculate
+  InputPropertiesToCalculate
+  FractureDynamicPropertiesToCalculate
+  FractureStaticPropertiesToCalculate
+  FractureGeneratedPropertiesToCalculate
+  FractureInputPropertiesToCalculate
+  CalculatePercentiles
+  PercentileCalculationType
+  LowPercentile
+  MidPercentile
+  HighPercentile
+  WellDataSourceCase
+  UseZeroAsInactiveCellValue
+
+RimStatisticalCollection - class RimEclipseStatisticsCaseCollection
+  Reservoirs
+
+RimStimPlanColors - class RimStimPlanColors
+  Name
+  IsChecked
+  ResultName
+  opacityLevel
+  DefaultColor
+  LegendConfigurations
+
+RimStimPlanFractureTemplate - class RimStimPlanFractureTemplate
+  UserDescription
+  fractureTemplateUnit
+  Orientation
+  AzimuthAngle
+  SkinFactor
+  PerforationLength
+  perforationEfficiency
+  wellDiameter
+  FractureCondictivity
+  fractureContainmentField
+  StimPlanFileName
+  WellPathDepthAtFracture
+  parameterForPolyton
+  activeTimeStepIndex
+  showStimPlanMesh
+  FractureConductivityFactor
+
+RimStimPlanLegendConfig - class RimStimPlanLegendConfig
+  Name
+  Legend
+
+RimSummaryCalculation - class RimSummaryCalculation
+  Description
+  Expression
+  Unit
+  Variables
+  CalculatedValues
+  TimeSteps
+
+RimSummaryCalculationCollection - class RimSummaryCalculationCollection
+  Calculations
+  CalculationsSummaryCase
+
+RimSummaryCalculationVariable - class RimSummaryCalculationVariable
+  VariableName
+  PushButton
+  SummaryAddressUi
+  SummaryCase
+  SummaryAddress
+
+RimSummaryCurveCollection - class RimSummaryCurveCollection
+  CollectionCurves
+  IsActive
+  YSourceStepping
+  XSourceStepping
+  UnionSourceStepping
+
+RimSummaryCurveCollectionModifier - class RimSummaryPlotSourceStepping
+  CurveCase
+  WellName
+  GroupName
+  Region
+  Quantities
+  Placeholder
+
+RimTernaryLegendConfig - class RimTernaryLegendConfig
+  Precision
+  RangeType
+  m_applyLocalMinMax
+  m_applyGlobalMinMax
+  m_applyFullRangeMinMax
+  ternaryRangeSummary
+  UserDefinedMaxSoil
+  UserDefinedMinSoil
+  UserDefinedMaxSgas
+  UserDefinedMinSgas
+  UserDefinedMaxSwat
+  UserDefinedMinSwat
+
+RimTimeStepFilter - class RimTimeStepFilter
+  TimeStepIndicesToImport
+  FirstTimeStep
+  LastTimeStep
+  FilterType
+  Interval
+  FilteredTimeSteps
+  ApplyReloadOfCase
+
+RimViewLinkerCollection - class RimViewLinkerCollection
+  Active
+  ViewLinkers
+
+RimWellLogExtractionCurve - class RimWellLogExtractionCurve
+  Show
+  CurveName
+  CurveDescription
+  AutoName
+  Color
+  Thickness
+  LineStyle
+  CurveInterpolation
+  PointSymbol
+  SymbolSkipPxDist
+  ShowLegend
+  TrajectoryType
+  CurveWellPath
+  SimulationWellName
+  BranchDetection
+  Branch
+  CurveCase
+  CurveEclipseResult
+  CurveGeomechResult
+  CurveTimeStep
+  AddCaseNameToCurveName
+  AddPropertyToCurveName
+  AddWellNameToCurveName
+  AddTimestepToCurveName
+  AddDateToCurveName
+
+RimWellPathEntry - class RimWellPathEntry
+  Name
+  Selected
+  WellPathType
+  surveyType
+  requestUrl
+  wellPathFilePath
+
+RimWellPathImport - class RimWellPathImport
+  WellTypeSurvey
+  WellTypePlans
+  UtmMode
+  UtmNorth
+  UtmSouth
+  UtmEast
+  UtmWest
+  Regions
+
+ScriptLocation - class RimScriptCollection
+  ScriptDirectory
+  CalcScripts
+  SubDirectories
+
+SimWellFracture - class RimSimWellFracture
+  Name
+  IsChecked
+  FractureDef
+  anchorPosition
+  ui_positionAtWellpath
+  Azimuth
+  PerforationLength
+  perforationEfficiency
+  wellDiameter
+  Dip
+  Tilt
+  showPolygonFractureOutline
+  fractureUnit
+  timeIndexToPlot
+  WellPathAzimuth
+  WellFractureAzimuthDiff
+  WellFractureAzimithAngleWarning
+  MeasuredDepth
+  Cell_IJK
+  Branch
+
+SimWellFractureCollection - class RimSimWellFractureCollection
+  Fractures
+
+SummaryAddress - class RimSummaryAddress
+  SummaryVarType
+  SummaryQuantityName
+  SummaryRegion
+  SummaryRegion2
+  SummaryWellGroup
+  SummaryWell
+  SummaryWellSegment
+  SummaryLgr
+  SummaryCellI
+  SummaryCellJ
+  SummaryCellK
+  SummaryAquifer
+
+SummaryCaseCollection - class RimSummaryCaseMainCollection
+  SummaryCases
+  SummaryCaseCollections
+
+SummaryCaseSubCollection - class RimSummaryCaseCollection
+  SummaryCases
+  SummaryCollectionName
+
+SummaryCrossPlot - class RimSummaryCrossPlot
+  WindowController
+  ShowWindow
+  WindowGeometry
+  PlotDescription
+  ShowPlotTitle
+  ShowLegend
+  LegendFontSize
+  IsUsingAutoName
+  SummaryCurveFilters
+  SummaryCurveCollection
+  SummaryCurves
+  GridTimeHistoryCurves
+  AsciiDataCurves
+  LeftYAxisProperties
+  RightYAxisProperties
+  BottomAxisProperties
+  TimeAxisProperties
+  AutoZoom
+
+SummaryCrossPlotCollection - class RimSummaryCrossPlotCollection
+  SummaryCrossPlots
+
+SummaryCurve - class RimSummaryCurve
+  Show
+  CurveName
+  CurveDescription
+  AutoName
+  Color
+  Thickness
+  LineStyle
+  CurveInterpolation
+  PointSymbol
+  SymbolSkipPxDist
+  ShowLegend
+  SummaryCase
+  SelectedVariableDisplayVar
+  VarListFilter
+  FilterResultSelection
+  SummaryAddress
+  SelectAddress
+  x_SummaryCase
+  x_SelectedVariableDisplayVar
+  x_VarListFilter
+  x_FilterResultSelection
+  x_SummaryAddress
+  x_SelectAddress
+  PlotAxis
+  SummaryCurveNameConfig
+
+SummaryCurveAutoName - class RimSummaryCurveAutoName
+  VectorName
+  Unit
+  RegionNumber
+  WellGroupName
+  WellName
+  WellSegmentNumber
+  LgrName
+  Completion
+  Aquifer
+  CaseName
+
+SummaryCurveFilter - class RimSummaryCurveFilter_OBSOLETE
+  SummaryCases
+  VarListFilter
+  FilterResultSelection
+  FilteredCurves
+  ApplySelection
+  AutoApplyFilterChanges
+  IsActive
+  UseAutoAppearanceAssignment
+  CaseAppearanceType
+  VariableAppearanceType
+  WellAppearanceType
+  GroupAppearanceType
+  RegionAppearanceType
+  PlotAxis
+  ShowLegend
+  SummaryCurveNameConfig
+
+SummaryFilterSettings - class RimSummaryFilter
+  SummaryFilterType
+  SummaryCompleteVarStringFilter
+  SummaryVarQuantityFilter
+  SummaryRegionNumberFilter
+  SummaryRegionNumber2Filter
+  SummaryWellGroupNameFilter
+  SummaryWellNameFilter
+  SummaryWellSegmentNumberFilter
+  SummaryLgrNameFilter
+  SummaryCellIJKFilter
+
+SummaryObservedDataFile - class RimSummaryObservedDataFile
+  ShortName
+  AutoShortyName
+  SummaryHeaderFilename
+  ImportedSummaryData
+  UseCustomIdentifier
+  SummaryType
+  IdentifierName
+
+SummaryPageDownloadEntity - class SummaryPageDownloadEntity
+  Name
+  RequestUrl
+  ResponseFilename
+
+SummaryPlot - class RimSummaryPlot
+  WindowController
+  ShowWindow
+  WindowGeometry
+  PlotDescription
+  ShowPlotTitle
+  ShowLegend
+  LegendFontSize
+  IsUsingAutoName
+  SummaryCurveFilters
+  SummaryCurveCollection
+  SummaryCurves
+  GridTimeHistoryCurves
+  AsciiDataCurves
+  LeftYAxisProperties
+  RightYAxisProperties
+  BottomAxisProperties
+  TimeAxisProperties
+  AutoZoom
+
+SummaryPlotCollection - class RimSummaryPlotCollection
+  SummaryPlots
+
+SummaryTimeAxisProperties - class RimSummaryTimeAxisProperties
+  Active
+  ShowTitle
+  Title
+  TitlePosition
+  FontSize
+  ValuesFontSize
+  TimeMode
+  TimeUnit
+  VisibleRangeMax
+  VisibleRangeMin
+  VisibleTimeModeRangeMax
+  VisibleTimeModeRangeMin
+
+SummaryYAxisProperties - class RimSummaryAxisProperties
+  Active
+  Name
+  AutoTitle
+  DisplayLongName
+  DisplayShortName
+  DisplayUnitText
+  CustomTitle
+  TitlePosition
+  FontSize
+  VisibleRangeMax
+  VisibleRangeMin
+  NumberFormat
+  Decimals
+  ScaleFactor
+  ValuesFontSize
+  LogarithmicScale
+
+TC2 - class TC2
+  ta
+  da
+  ia
+
+TestCommand1 - class TestCommand1
+  TextArgument
+  DoubleArgument
+  IntArgument
+
+TofAccumulatedPhaseFractionsPlot - class RimTofAccumulatedPhaseFractionsPlot
+  WindowController
+  ShowWindow
+  WindowGeometry
+  PlotDescription
+  ShowPlotTitle
+  MaxTof
+
+TotalWellAllocationPlot - class RimTotalWellAllocationPlot
+  WindowController
+  ShowWindow
+  WindowGeometry
+  PlotDescription
+  ShowPlotTitle
+
+View3dOverlayInfoConfig - class Rim3dOverlayInfoConfig
+  Active
+  ShowAnimProgress
+  ShowInfoText
+  ShowResultInfo
+  ShowHistogram
+  ShowVolumeWeightedMean
+  StatisticsTimeRange
+  StatisticsCellRange
+
+ViewController - class RimViewController
+  Active
+  Name
+  ManagedView
+  SyncCamera
+  ShowCursor
+  SyncTimeStep
+  SyncCellResult
+  SyncLegendDefinitions
+  SyncVisibleCells
+  SyncRangeFilters
+  SyncPropertyFilters
+
+ViewLinker - class RimViewLinker
+  Name
+  MainView
+  ManagedViews
+
+Well - class RimSimWellInView
+  WellName
+  ShowWell
+  ShowWellLabel
+  ShowWellHead
+  ShowWellPipe
+  ShowWellSpheres
+  WellHeadScaleFactor
+  WellPipeRadiusScale
+  WellPipeColor
+  ShowWellCells
+  ShowWellCellFence
+  FractureCollection
+
+WellAllocationPlot - class RimWellAllocationPlot
+  WindowController
+  ShowWindow
+  WindowGeometry
+  PlotDescription
+  ShowPlotTitle
+  CurveCase
+  PlotTimeStep
+  WellName
+  FlowDiagSolution
+  FlowType
+  GroupSmallContributions
+  SmallContributionsThreshold
+  AccumulatedWellFlowPlot
+  TotalWellFlowPlot
+  WellAllocLegend
+  TofAccumulatedPhaseFractionsPlot
+
+WellAllocationPlotLegend - class RimWellAllocationPlotLegend
+  ShowPlotLegend
+
+WellFlowRateCurve - class RimWellFlowRateCurve
+  Show
+  CurveName
+  CurveDescription
+  AutoName
+  Color
+  Thickness
+  LineStyle
+  CurveInterpolation
+  PointSymbol
+  SymbolSkipPxDist
+  ShowLegend
+
+WellLogFile - class RimWellLogFile
+  WellName
+  Date
+  FileName
+  Name
+  WellLogFileChannels
+  WellFlowCondition
+  InvalidDateMessage
+
+WellLogFileChannel - class RimWellLogFileChannel
+  Name
+
+WellLogFileCurve - class RimWellLogFileCurve
+  Show
+  CurveName
+  CurveDescription
+  AutoName
+  Color
+  Thickness
+  LineStyle
+  CurveInterpolation
+  PointSymbol
+  SymbolSkipPxDist
+  ShowLegend
+  CurveWellPath
+  CurveWellLogChannel
+  WellLogFile
+
+WellLogPlot - class RimWellLogPlot
+  WindowController
+  ShowWindow
+  WindowGeometry
+  PlotDescription
+  DepthType
+  DepthUnit
+  MinimumDepth
+  MaximumDepth
+  AutoScaleDepthEnabled
+  ShowTrackLegends
+  Tracks
+
+WellLogPlotCollection - class RimWellLogPlotCollection
+  WellLogPlots
+
+WellLogPlotTrack - class RimWellLogTrack
+  TrackDescription
+  Show
+  Curves
+  VisibleXRangeMin
+  VisibleXRangeMax
+  AutoScaleX
+  LogarithmicScaleX
+  ShowFormations
+  FormationSource
+  FormationTrajectoryType
+  FormationWellPath
+  FormationSimulationWellName
+  FormationBranchIndex
+  FormationBranchDetection
+  FormationCase
+  FormationLevel
+  ShowFormationFluids
+
+WellLogRftCurve - class RimWellLogRftCurve
+  Show
+  CurveName
+  CurveDescription
+  AutoName
+  Color
+  Thickness
+  LineStyle
+  CurveInterpolation
+  PointSymbol
+  SymbolSkipPxDist
+  ShowLegend
+  CurveEclipseResultCase
+  TimeStep
+  WellName
+  BranchIndex
+  BranchDetection
+  WellLogChannelName
+
+WellPath - class RimWellPath
+  WellPathName
+  WellPathId
+  SourceSystem
+  UTMZone
+  WellPathUpdateDate
+  WellPathUpdateUser
+  WellPathSurveyType
+  DatumElevation
+  UnitSystem
+  WellPathFilepath
+  WellPathNumberInFile
+  SimWellName
+  SimBranchIndex
+  ShowWellPathLabel
+  ShowWellPath
+  WellPathRadiusScale
+  WellPathColor
+  Completions
+  WellLogFiles
+  WellPathFormationKeyInFile
+  WellPathFormationFilePath
+  WellLogFile
+
+WellPathCompletion - class RimFishboneWellPath
+  Name
+  IsChecked
+  Coordinates
+  MeasuredDepth
+  DisplayCoordinates
+
+WellPathCompletionCollection - class RimFishboneWellPathCollection
+  Name
+  IsChecked
+  WellPaths
+  PipeProperties
+
+WellPathCompletions - class RimWellPathCompletions
+  Perforations
+  Fishbones
+  Fractures
+  WellNameForExport
+
+WellPathFracture - class RimWellPathFracture
+  Name
+  IsChecked
+  FractureDef
+  anchorPosition
+  ui_positionAtWellpath
+  Azimuth
+  PerforationLength
+  perforationEfficiency
+  wellDiameter
+  Dip
+  Tilt
+  showPolygonFractureOutline
+  fractureUnit
+  timeIndexToPlot
+  WellPathAzimuth
+  WellFractureAzimuthDiff
+  WellFractureAzimithAngleWarning
+  MeasuredDepth
+
+WellPathFractureCollection - class RimWellPathFractureCollection
+  Name
+  IsChecked
+  Fractures
+
+WellPaths - class RimWellPathCollection
+  Active
+  ShowWellPathLabel
+  WellPathLabelColor
+  GlobalWellPathVisibility
+  WellPathRadiusScale
+  WellPathVertexCount
+  WellPathClip
+  WellPathClipZDistance
+  WellPaths
+
+WellPltPlot - class RimWellPltPlot
+  WindowController
+  ShowWindow
+  WindowGeometry
+  PlotDescription
+  ShowPlotTitle
+  WellLog
+  WellName
+  SourcesInternal
+  Sources
+  TimeSteps
+  showStandardConditionCurves
+  showReservoirConditionCurves
+  Phases
+
+WellPltPlotCollection - class RimPltPlotCollection
+  PltPlots
+
+WellRftPlot - class RimWellRftPlot
+  WindowController
+  ShowWindow
+  WindowGeometry
+  PlotDescription
+  ShowPlotTitle
+  WellLog
+  WellName
+  BranchIndex
+  BranchDetection
+  Sources
+  TimeSteps
+
+WellRftPlotCollection - class RimRftPlotCollection
+  RftPlots
+
+Wells - class RimSimWellInViewCollection
+  Active
+  ShowWellsIntersectingVisibleCells
+  ShowWellHeadTristate
+  ShowWellLabelTristate
+  ShowWellPipe
+  ShowWellSpheres
+  WellHeadScale
+  WellPipeRadiusScale
+  CellCenterSphereScale
+  WellLabelColor
+  ShowConnectionStatusColors
+  WellColorForApply
+  ApplySingleColorToWells
+  ApplyIndividualColorsToWells
+  WellPipeVertexCount
+  WellPipeCoordType
+  ShowWellCellsTristate
+  DefaultWellFenceDirection
+  WellCellTransparency
+  IsAutoDetectingBranches
+  WellHeadPosition
+  Wells
+  ShowWellCellFenceTristate
+  GlobalWellPipeVisibility
+  GlobalWellCellVisibility
+  ShowWellHead
+  ShowWellLabel
+  ShowWellFences
+  ShowWellCommunicationLines
+
+closeProject - class RicfCloseProject
+
+computeCaseGroupStatistics - class RicfComputeCaseGroupStatistics
+  caseIds
+
+exportMsw - class RicfExportMsw
+  caseId
+  wellPath
+
+exportMultiCaseSnapshots - class RicfExportMultiCaseSnapshots
+  gridListFile
+
+exportProperty - class RicfExportProperty
+  caseId
+  timeStep
+  property
+  type
+  eclipseKeyword
+  undefinedValue
+  exportFile
+
+exportSimWellCompletions - class RicfExportSimWellCompletions
+  case
+  timeStep
+  wellPathNames
+  wellSelection
+  fileSplit
+  compdatExport
+
+exportSnapshots - class RicfExportSnapshots
+  type
+
+exportWellPathCompletions - class RicfExportWellPathCompletions
+  caseId
+  timeStep
+  wellPathNames
+  wellSelection
+  fileSplit
+  compdatExport
+  includePerforations
+  includeFishbones
+  excludeMainBoreForFishbones
+
+loadCase - class RicfLoadCase
+  path
+
+openProject - class RicfOpenProject
+  path
+
+replaceCase - class RicfReplaceCase
+  caseId
+  newGridFile
+
+replaceSourceCases - class RicfReplaceSourceCases
+  caseGroupId
+  gridListFile
+
+runOctaveScript - class RicfRunOctaveScript
+  path
+  caseIds
+
+setExportFolder - class RicfSetExportFolder
+  type
+  path
+
+setMainWindowSize - class RicfSetMainWindowSize
+  height
+  width
+
+setStartDir - class RicfSetStartDir
+  path
+
+setTimeStep - class RicfSetTimeStep
+  caseId
+  timeStep
+

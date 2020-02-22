@@ -14,8 +14,10 @@ public:
 
     // Xml Serializing
 public:
-    virtual void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory);
-    virtual void        writeFieldData(QXmlStreamWriter& xmlStream) const;
+    void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory) override;
+    void        writeFieldData(QXmlStreamWriter& xmlStream) const override;
+    bool        resolveReferences() override;
+
 private:
     FieldType* m_field;
 };
@@ -38,9 +40,10 @@ public:
 
     // Xml Serializing
 public:
-    virtual void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory);
-    virtual void        writeFieldData(QXmlStreamWriter& xmlStream) const;
-    virtual void        resolveReferences();
+    void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory) override;
+    void        writeFieldData(QXmlStreamWriter& xmlStream) const override;
+    bool        resolveReferences() override;
+    QString     referenceString() const override;
 
 private:
     FieldType* m_field;
@@ -67,9 +70,9 @@ public:
 
     // Xml Serializing
 public:
-    virtual void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory);
-    virtual void        writeFieldData(QXmlStreamWriter& xmlStream) const;
-    virtual void        resolveReferences();
+    void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory) override;
+    void        writeFieldData(QXmlStreamWriter& xmlStream) const override;
+    bool        resolveReferences() override;
 
 private:
     FieldType* m_field;
@@ -91,8 +94,10 @@ public:
 
     // Xml Serializing
 public:
-    virtual void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory); 
-    virtual void        writeFieldData(QXmlStreamWriter& xmlStream) const;
+    void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory) override; 
+    void        writeFieldData(QXmlStreamWriter& xmlStream) const override;
+    bool        resolveReferences() override;
+
 private:
     FieldType* m_field;
 };
@@ -109,8 +114,9 @@ public:
 
     // Xml Serializing
 public:
-    virtual void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory);
-    virtual void        writeFieldData(QXmlStreamWriter& xmlStream) const;
+    void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory) override;
+    void        writeFieldData(QXmlStreamWriter& xmlStream) const override;
+    bool        resolveReferences() override;
 private:
     FieldType* m_field;
 };

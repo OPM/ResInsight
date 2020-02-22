@@ -11,6 +11,7 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmXmlObjectHandle.h"
 #include "cafPdmXmlObjectHandleMacros.h"
+#include "cafFilePath.h"
 
 #include <QXmlStreamWriter>
 
@@ -99,6 +100,9 @@ public:
     caf::PdmProxyValueField<double>  m_doubleField;
     caf::PdmPtrField< caf::PdmObjectHandle* > m_pointerToItem;
     caf::PdmPtrField< caf::PdmObjectHandle* > m_pointerToDemoObj;
+
+    caf::PdmDataValueField< caf::FilePath > m_singleFilePath;
+
 
     void setDoubleMember(const double& d) { m_doubleMember = d; std::cout << "setDoubleMember" << std::endl; }
     double doubleMember() const { std::cout << "doubleMember" << std::endl; return m_doubleMember; }
@@ -197,6 +201,67 @@ TEST(AdvancedObjectTest, FieldWrite)
             a->xmlCapability()->resolveReferencesRecursively();
 
             ASSERT_TRUE(a->m_pointerToItem() == container->m_items[1]);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(AdvancedObjectTest, CopyOfObjects)
+{
+    ContainerPdmObject* root = new ContainerPdmObject;
+    ContainerPdmObject* container = new ContainerPdmObject;
+    ContainerPdmObject* sibling = new ContainerPdmObject;
+    root->m_containers.push_back(container);
+    root->m_containers.push_back(sibling);
+
+    {
+        ItemPdmObject* item = new ItemPdmObject();
+        item->m_name = "Obj A";
+
+        container->m_items.push_back(item);
+    }
+    {
+        ItemPdmObject* item = new ItemPdmObject();
+        item->m_name = "Obj B";
+
+        container->m_items.push_back(item);
+    }
+
+    {
+        ItemPdmObject* item = new ItemPdmObject();
+        item->m_name = "Obj C";
+
+        container->m_items.push_back(item);
+    
+        {
+            {
+                DemoPdmObjectA* a = new DemoPdmObjectA;
+                sibling->m_demoObjs.push_back(a);
+
+                a->m_pointerToItem = container->m_items[1];
+
+                {
+                    auto* objCopy = dynamic_cast<DemoPdmObjectA*>(a->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+                    std::vector<caf::PdmFieldHandle*> fieldWithFailingResolve;
+                    objCopy->resolveReferencesRecursively(&fieldWithFailingResolve);
+                    ASSERT_FALSE(fieldWithFailingResolve.empty());
+                    delete objCopy;
+                }
+
+
+                {
+                    auto* objCopy = dynamic_cast<DemoPdmObjectA*>(a->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+                    
+                    sibling->m_demoObjs.push_back(objCopy);
+
+                    std::vector<caf::PdmFieldHandle*> fieldWithFailingResolve;
+                    objCopy->resolveReferencesRecursively(&fieldWithFailingResolve);
+                    ASSERT_TRUE(fieldWithFailingResolve.empty());
+                    delete objCopy;
+                }
+            }
         }
     }
 }

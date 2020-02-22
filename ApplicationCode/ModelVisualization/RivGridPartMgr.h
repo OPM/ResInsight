@@ -3,41 +3,46 @@
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
 //  Copyright (C) 2011-2012 Ceetron AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "cvfBase.h"
+
+#include "RigGridBase.h"
+
+#include "RivCellSetEnum.h"
+
+#include "cafPdmPointer.h"
+
 #include "cvfObject.h"
 
 #include "cvfStructGridGeometryGenerator.h"
-#include "RigGridBase.h"
 
 namespace cvf
 {
-    class StructGridInterface;
-    class ModelBasicList;
-    class Transform;
-    class Part;
-    class Effect;
-}
+class StructGridInterface;
+class ModelBasicList;
+class Transform;
+class Part;
+class Effect;
+} // namespace cvf
 
 class RimEclipseCellColors;
 class RimCellEdgeColors;
-
-
+class RimEclipseCase;
+class RivSourceInfo;
 
 //==================================================================================================
 ///
@@ -47,41 +52,46 @@ class RimCellEdgeColors;
 ///
 //==================================================================================================
 
-class RivGridPartMgr: public cvf::Object
+class RivGridPartMgr : public cvf::Object
 {
 public:
-    RivGridPartMgr(const RigGridBase* grid, size_t gridIdx);
-    ~RivGridPartMgr();
-    void setTransform(cvf::Transform* scaleTransform);
-    void setCellVisibility(cvf::UByteArray* cellVisibilities );
-    cvf::ref<cvf::UByteArray>  cellVisibility() { return  m_cellVisibility;}
+    RivGridPartMgr( RivCellSetEnum cellSetType, RimEclipseCase* eclipseCase, const RigGridBase* grid, size_t gridIdx );
+    ~RivGridPartMgr() override;
 
-    void updateCellColor(cvf::Color4f color);
-    void updateCellResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
+    void                      setTransform( cvf::Transform* scaleTransform );
+    void                      setCellVisibility( cvf::UByteArray* cellVisibilities );
+    cvf::ref<cvf::UByteArray> cellVisibility() { return m_cellVisibility; }
 
-    void updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, 
-        RimCellEdgeColors* cellEdgeResultColors);
+    void updateCellColor( cvf::Color4f color );
+    void updateCellResultColor( size_t timeStepIndex, RimEclipseCellColors* cellResultColors );
 
-    void appendPartsToModel(cvf::ModelBasicList* model);
+    void updateCellEdgeResultColor( size_t                timeStepIndex,
+                                    RimEclipseCellColors* cellResultColors,
+                                    RimCellEdgeColors*    cellEdgeResultColors );
+
+    void appendPartsToModel( cvf::ModelBasicList* model );
 
 private:
-    void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder);
+    void generatePartGeometry( cvf::StructGridGeometryGenerator& geoBuilder );
 
 private:
-    size_t                                      m_gridIdx;
-    cvf::cref<RigGridBase>                      m_grid;
+    size_t                 m_gridIdx;
+    cvf::cref<RigGridBase> m_grid;
 
-    cvf::ref<cvf::Transform>                    m_scaleTransform;
-    float                                       m_opacityLevel;
-    cvf::Color3f                                m_defaultColor;
+    cvf::ref<cvf::Transform> m_scaleTransform;
+    float                    m_opacityLevel;
+    cvf::Color3f             m_defaultColor;
 
     // Surface visualization
-    cvf::StructGridGeometryGenerator            m_surfaceGenerator;
-    RigGridCellFaceVisibilityFilter             m_surfaceFaceFilter;
-    cvf::ref<cvf::Part>                         m_surfaceFaces;
-    cvf::ref<cvf::Vec2fArray>                   m_surfaceFacesTextureCoords;
+    cvf::StructGridGeometryGenerator m_surfaceGenerator;
+    RigGridCellFaceVisibilityFilter  m_surfaceFaceFilter;
+    cvf::ref<cvf::Part>              m_surfaceFaces;
+    cvf::ref<cvf::Vec2fArray>        m_surfaceFacesTextureCoords;
 
-    cvf::ref<cvf::Part>                         m_surfaceGridLines;
+    cvf::ref<cvf::Part> m_surfaceGridLines;
 
-    cvf::ref<cvf::UByteArray>                   m_cellVisibility;
+    cvf::ref<cvf::UByteArray> m_cellVisibility;
+
+    caf::PdmPointer<RimEclipseCase> m_eclipseCase;
+    RivCellSetEnum                  m_cellSetType;
 };

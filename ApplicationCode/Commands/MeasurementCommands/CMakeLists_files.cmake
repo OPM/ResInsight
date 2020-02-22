@@ -1,0 +1,23 @@
+
+set (SOURCE_GROUP_HEADER_FILES
+${CMAKE_CURRENT_LIST_DIR}/RicToggleMeasurementModeFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicMeasurementPickEventHandler.h
+)
+
+set (SOURCE_GROUP_SOURCE_FILES
+${CMAKE_CURRENT_LIST_DIR}/RicToggleMeasurementModeFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicMeasurementPickEventHandler.cpp
+)
+
+list(APPEND CODE_HEADER_FILES
+${SOURCE_GROUP_HEADER_FILES}
+)
+
+list(APPEND CODE_SOURCE_FILES
+${SOURCE_GROUP_SOURCE_FILES}
+)
+
+list(APPEND QT_MOC_HEADERS
+)
+
+source_group( "CommandFeature\\Measurement" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

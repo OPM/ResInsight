@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "../ApplicationCode/SocketInterface/RiaSocketServer.h"
+#include "../ApplicationCode/SocketInterface/RiaSocketServerDefines.h" 
 
 namespace riOctavePlugin
 {
@@ -60,5 +60,21 @@ namespace riOctavePlugin
     char timeStepDate_Hour[]     = "Hour";
     char timeStepDate_Minute[]   = "Minute";
     char timeStepDate_Second[]   = "Second";
+
+    // Octave data structure : CellIndex
+    char cellIndex_gridIndex[]   = "GridIndex";
+    char cellIndex_I[]           = "I";
+    char cellIndex_J[]           = "J";
+    char cellIndex_K[]           = "K";
+
+    bool isOctaveValueNumeric(const octave_value& value)
+    {
+#if (OCTAVE_MAJOR_VERSION >= 4 && OCTAVE_MINOR_VERSION >= 4)
+        return value.isnumeric();
+#else
+        return value.is_numeric_type();
+#endif
+    }
+
 }
 

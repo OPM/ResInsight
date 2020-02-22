@@ -1,12 +1,12 @@
 #include "shapefactory.h"
 
-QPainterPath ShapeFactory::path( Shape shape, 
+QPainterPath ShapeFactory::path( Shape shape,
     const QPointF &pos, const QSizeF &size )
 {
     QRectF rect;
     rect.setSize( size );
     rect.moveCenter( pos );
-    
+
     QPainterPath path;
 
     switch( shape )
@@ -80,7 +80,7 @@ QPainterPath ShapeFactory::path( Shape shape,
         }
         case Hexagon:
         {
-            const double cos30 = 0.866025; 
+            const double cos30 = 0.866025;
 
             const double dx = 0.5 * size.width() - cos30;
             const double dy = 0.25 * size.height();

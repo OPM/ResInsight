@@ -17,13 +17,7 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#if HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_H
-
-#if HAVE_DYNAMIC_BOOST_TEST
-#define BOOST_TEST_DYN_LINK
-#endif // HAVE_DYNAMIC_BOOST_TEST
 
 #define NVERBOSE
 
@@ -222,7 +216,7 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
     const auto& flux = cas.flux();
 
     // Create well in/out flows.
-    CellSetValues wellflow = { {0, 0.3}, {4, -0.3} };
+    std::map<CellSetID, CellSetValues> wellflow = { { CellSetID("I-1"), {{0, 0.3}} }, { CellSetID("P-1"), {{4, -0.3}} } };
 
     Toolbox diagTool(graph);
     diagTool.assignPoreVolume(pv);
@@ -247,6 +241,8 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
         BOOST_CHECK_THROW(flowCapacityStorageCapacityCurve(fwd, rev, {}), std::runtime_error);
         const auto fcapscap = flowCapacityStorageCapacityCurve(fwd, rev, pv);
         check_is_close(fcapscap, expectedFPhi);
+        const auto fcapscap2 = flowCapacityStorageCapacityCurve(fwd.fd.timeOfFlight(), rev.fd.timeOfFlight(), pv);
+        check_is_close(fcapscap2, expectedFPhi);
 
         BOOST_TEST_MESSAGE("==== Lorenz coefficient");
         const double expectedLorenz = 0.0;
@@ -289,11 +285,35 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
         const double vol12 = injectorProducerPairVolume(fwd, rev, pv, CellSetID("I-1"), CellSetID("P-1"));
         BOOST_CHECK_CLOSE(vol12, expectedVol12, 1e-10);
 
-        const auto pairflux = injectorProducerPairFlux(fwd, rev, inje[0], prod[0], wellflow);
+        const auto pairflux = injectorProducerPairFlux(fwd, rev, CellSetID("I-1"), CellSetID("P-1"), wellflow);
         BOOST_CHECK_CLOSE(pairflux.first, 0.3, 1e-10);
         BOOST_CHECK_CLOSE(pairflux.second, -0.3, 1e-10);
     }
 
 }
+
+
+
+
+
+BOOST_AUTO_TEST_CASE (GeneralCase)
+{
+    BOOST_TEST_MESSAGE("==== F-Phi graph");
+
+    std::vector<double> pv { 1.0, 2.0, 1.0 };
+    std::vector<double> ftof { 0.0, 2.0, 1.0 };
+    std::vector<double> rtof { 1.0, 2.0, 0.0 };
+    const Graph expectedFPhi{
+        { 0.0, 0.25, 0.5, 1.0 },
+        { 0.0, 0.4, 0.8, 1.0 }
+    };
+    const auto fcapscap = flowCapacityStorageCapacityCurve(ftof, rtof, pv);
+    check_is_close(fcapscap, expectedFPhi);
+
+    BOOST_TEST_MESSAGE("==== Lorenz coefficient");
+    const double expectedLorenz = 0.3;
+    BOOST_CHECK_CLOSE(lorenzCoefficient(fcapscap), expectedLorenz, 1e-10);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()

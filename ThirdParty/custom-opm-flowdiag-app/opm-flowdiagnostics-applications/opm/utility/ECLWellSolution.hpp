@@ -1,6 +1,6 @@
 /*
   Copyright 2016 SINTEF ICT, Applied Mathematics.
-  Copyright 2016 Statoil ASA.
+  Copyright 2016, 2017 Statoil ASA.
 
   This file is part of the Open Porous Media project (OPM).
 
@@ -29,7 +29,7 @@
 namespace Opm
 {
 
-    class ECLResultData;
+    class ECLRestartData;
 
     class ECLWellSolution
     {
@@ -45,11 +45,23 @@ namespace Opm
         {
             std::string name;
             bool is_injector_well;
+
+            double qOs;   // Well oil surface volume rate.
+            double qWs;   // Well water surface volume rate.
+            double qGs;   // Well gas surface volume rate.
+            double lrat;  // Well liquid (oil + water) surface volume rate.
+            double bhp;   // Well bottom hole pressure.
+            double qr;    // Well total reservoir volume rate.
+
             struct Completion
             {
-                int grid_index;                // 0 for main grid, otherwise LGR grid.
+                std::string gridName;          // Empty for main grid, otherwise LGR grid.
                 std::array<int, 3> ijk;        // Cartesian location in grid.
-                double reservoir_inflow_rate;  // Total fluid rate in SI (m^3/s).
+                double reservoir_inflow_rate;  // Total reservoir volume fluid rate in SI (m^3/s).
+                double qOs;                    // Completion oil surface volute rate.
+                double qWs;                    // Completion water surface volute rate.
+                double qGs;                    // Completion gas surface volute rate.
+
             };
             std::vector<Completion> completions;
         };
@@ -58,8 +70,8 @@ namespace Opm
         ///
         /// Will throw if required data is not available for the
         /// requested step.
-        std::vector<WellData> solution(const ECLResultData& restart,
-                                       const int num_grids) const;
+        std::vector<WellData> solution(const ECLRestartData& restart,
+                                       const std::vector<std::string>& grids) const;
 
     private:
         // Data members.
@@ -67,8 +79,8 @@ namespace Opm
         bool disallow_crossflow_;
 
         // Methods.
-        std::vector<WellData> readWellData(const ECLResultData& restart,
-                                           const int grid_index) const;
+        std::vector<WellData> readWellData(const ECLRestartData& restart,
+                                           const std::string& gridName) const;
     };
 
 

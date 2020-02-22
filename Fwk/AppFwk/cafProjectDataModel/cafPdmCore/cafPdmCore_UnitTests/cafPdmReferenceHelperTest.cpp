@@ -129,7 +129,7 @@ TEST(PdmReferenceHelperTest, ReferenceFrommRootToField)
 
         QString refString = caf::PdmReferenceHelper::referenceFromRootToField(ihd1, &s3->m_dir);
         QString expectedString = "m_dir m_simpleObjPtrField 2";
-        EXPECT_STREQ(expectedString.toAscii(), refString.toAscii());
+        EXPECT_STREQ(expectedString.toLatin1(), refString.toLatin1());
 
         delete ihd1;
     }
@@ -160,7 +160,7 @@ TEST(PdmReferenceHelperTest, ReferenceFrommRootToObject)
 
         QString refString = caf::PdmReferenceHelper::referenceFromRootToObject(ihd1, s3);
         QString expectedString = "m_simpleObjPtrField 2";
-        EXPECT_STREQ(expectedString.toAscii(), refString.toAscii());
+        EXPECT_STREQ(expectedString.toLatin1(), refString.toLatin1());
 
         ReferenceSimpleObj* ihd2 = new ReferenceSimpleObj;
         SimpleObj* s4 = new SimpleObj;

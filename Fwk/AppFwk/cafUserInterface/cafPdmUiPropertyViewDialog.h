@@ -52,17 +52,20 @@ class PdmUiPropertyViewDialog : public QDialog
 public:
     PdmUiPropertyViewDialog(QWidget* parent, PdmObject* object, const QString& windowTitle, const QString& uiConfigName);
     PdmUiPropertyViewDialog(QWidget* parent, PdmObject* object, const QString& windowTitle, const QString& uiConfigName, const QDialogButtonBox::StandardButtons& standardButtons);
-    ~PdmUiPropertyViewDialog();
+    ~PdmUiPropertyViewDialog() override;
+
+    QDialogButtonBox* dialogButtonBox();
 
 private:
-    void initialize(QWidget* parent, PdmObject* object, const QString& windowTitle, const QString& uiConfigName, const QDialogButtonBox::StandardButtons& standardButtons);
-    void setupUi(const QDialogButtonBox::StandardButtons& standardButtons);
+    void initialize(PdmObject* object, const QString& windowTitle, const QString& uiConfigName);
+    void setupUi();
 
 private:
     QString                m_windowTitle;
     QString                m_uiConfigName;
     PdmObject*             m_pdmObject;
     PdmUiPropertyView*     m_pdmUiPropertyView;
+    QDialogButtonBox*      m_buttonBox;
 };
 
 } // End of namespace caf

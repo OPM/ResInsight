@@ -107,7 +107,7 @@ DEFUN_DLD (riGetCoarseningInfo, args, nargout,
         qint64 caseId = -1;
         if (nargin > 0)
         {
-            if (args(0).is_numeric_type())
+            if (riOctavePlugin::isOctaveValueNumeric(args(0)))
             {
                 unsigned int argCaseId = args(0).uint_value();
                 caseId = argCaseId;

@@ -1,0 +1,31 @@
+@startuml
+
+class RifReaderInterface {
+virtual open()
+virtual close()
+virtual staticResult()
+virtual dynamicResult()
+virtual timeSteps()
+}
+
+RifEclipseRestartDataAccess <|- RifEclipseRestartFilesetAccess
+RifEclipseRestartDataAccess <|- RifEclipseUnifiedRestartFileAccess
+
+RifReaderInterface <|- RifReaderEclipseOutput
+
+class RifEclipseOutputFileTools {
+helper class with several static functions
+used to read data from Eclipse binary files
+}
+
+
+RifReaderEclipseOutput o-- "1..N" RifEclipseRestartDataAccess
+
+
+RifEclipseRestartFilesetAccess --o RifEclipseOutputFileTools : uses
+RifEclipseUnifiedRestartFileAccess --o RifEclipseOutputFileTools : uses
+
+ecl_file_type "N" o-- RifEclipseRestartFilesetAccess
+ecl_file_type "1" o-- RifEclipseUnifiedRestartFileAccess
+
+@enduml

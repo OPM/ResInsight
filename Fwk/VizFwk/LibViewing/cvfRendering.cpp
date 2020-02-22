@@ -57,6 +57,7 @@
 #include "cvfRayIntersectSpec.h"
 #include "cvfHitItemCollection.h"
 #include "cvfLogManager.h"
+#include "cvfRenderingScissor.h"
 
 namespace cvf {
 
@@ -214,7 +215,17 @@ void Rendering::render(OpenGLContext* oglContext)
 
     // Setup camera and view
     // -------------------------------------------------------------------------
-    m_camera->viewport()->applyOpenGL(oglContext, m_clearMode);
+
+    if (m_renderingScissor.notNull()) 
+    {
+        m_camera->viewport()->applyOpenGL(oglContext, Viewport::DO_NOT_CLEAR);
+        m_renderingScissor->applyOpenGL(oglContext, m_clearMode, m_camera->viewport()->clearColor());
+    }
+    else
+    {
+        m_camera->viewport()->applyOpenGL(oglContext, m_clearMode);
+    }
+
     m_camera->applyOpenGL();
 
     // Update dynamic uniforms and dynamic uniform sets
@@ -260,6 +271,11 @@ void Rendering::render(OpenGLContext* oglContext)
     const UniformSet* globalUniformSet = m_combinedGlobalUniformSet.p();
     size_t numPartsToDraw = std::min(m_maxNumPartsToDraw, renderQueue.count());
     m_renderEngine.render(oglContext, &renderQueue, numPartsToDraw, *m_camera, globalUniformSet);
+
+    if (m_renderingScissor.notNull()) 
+    {
+        m_renderingScissor->unApplyOpenGL(oglContext);
+    }
 
     if (renderTimer.notNull())
     {
@@ -665,6 +681,22 @@ Viewport::ClearMode Rendering::clearMode() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void Rendering::setRenderingScissor(RenderingScissor* scissor)
+{
+    m_renderingScissor = scissor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::RenderingScissor* Rendering::renderingScissor()
+{
+    return m_renderingScissor.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void Rendering::setEffectOverride(Effect* effect)
 {
     m_effectOverride = effect;
@@ -870,6 +902,11 @@ size_t Rendering::overlayItemCount() const
 void Rendering::addOverlayItem(OverlayItem* overlayItem)
 {
     CVF_ASSERT(overlayItem);
+
+    for (size_t i = 0; i < overlayItemCount(); i++)
+    {
+        if (this->overlayItem(i) == overlayItem) return;
+    }
     m_overlayItems.push_back(overlayItem);
 }
 

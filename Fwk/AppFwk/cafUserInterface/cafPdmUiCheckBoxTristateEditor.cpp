@@ -8,6 +8,7 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmField.h"
+#include "cafQShortenedLabel.h"
 
 #include "cafFactory.h"
 #include "cafTristate.h"
@@ -28,25 +29,12 @@ void PdmUiCheckBoxTristateEditor::configureAndUpdateUi(const QString& uiConfigNa
     CAF_ASSERT(!m_checkBox.isNull());
     CAF_ASSERT(!m_label.isNull());
 
-    {
-        QIcon ic = field()->uiIcon(uiConfigName);
-        if (!ic.isNull())
-        {
-            m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-        }
-        else
-        {
-            m_label->setText(field()->uiName(uiConfigName));
-        }
-    }
+    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName); 
 
-    m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_label->setToolTip(field()->uiToolTip(uiConfigName));
+    m_checkBox->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_checkBox->setToolTip(uiField()->uiToolTip(uiConfigName));
 
-    m_checkBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_checkBox->setToolTip(field()->uiToolTip(uiConfigName));
-
-    Tristate state = field()->uiValue().value<Tristate>();
+    Tristate state = uiField()->uiValue().value<Tristate>();
     
     if (state == Tristate::State::True)
     {
@@ -79,7 +67,7 @@ QWidget* PdmUiCheckBoxTristateEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiCheckBoxTristateEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 

@@ -1,38 +1,43 @@
-cmake_minimum_required (VERSION 2.8)
-
-# Qt
-find_package ( Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl )
-include (${QT_USE_FILE})
+cmake_minimum_required (VERSION 2.8.12)
 
 project ( cafTestApplication )
 
+# Open GL
+find_package( OpenGL )
 
-option(USE_COMMAND_FRAMEWORK "Use Caf Command Framework" ON)
+# Qt
 
 # Qt MOC
-set ( QT_MOC_HEADERS 
+set (MOC_HEADER_FILES 
 	MainWindow.h 
     WidgetLayoutTest.h
-)
-
-qt4_wrap_cpp( MOC_FILES_CPP
-    ${QT_MOC_HEADERS}
+    CustomObjectEditor.h
+    MenuItemProducer.h
 )
 
 # Resource file
 set( QRC_FILES  
+    ${QRC_FILES} 
     textedit.qrc
 )
 
-# Runs RCC on specified files
-qt4_add_resources( QRC_FILES_CPP
-    ${QRC_FILES}
-)
+if (NOT DEFINED(CEE_USE_QT5))
+	option(CEE_USE_QT5 "Use Qt5" OFF)
+endif(NOT DEFINED(CEE_USE_QT5))
 
-include_directories (
-    ${cafProjectDataModel_SOURCE_DIR}
-    ${cafUserInterface_SOURCE_DIR}
-)
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+	qt5_add_resources( QRC_FILES_CPP ${QRC_FILES} )
+else()
+    find_package(Qt4 COMPONENTS REQUIRED QtCore QtGui QtMain QtOpenGl)
+    include(${QT_USE_FILE})
+	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+	qt4_add_resources( QRC_FILES_CPP ${QRC_FILES} )
+endif(CEE_USE_QT5)
+
+option(USE_COMMAND_FRAMEWORK "Use Caf Command Framework" ON)
 
 if (USE_COMMAND_FRAMEWORK)
     include_directories (
@@ -42,55 +47,76 @@ if (USE_COMMAND_FRAMEWORK)
 endif(USE_COMMAND_FRAMEWORK)
 
 
-include_directories (
-    ${cafPdmCore_SOURCE_DIR}
-    ${cafPdmUiCore_SOURCE_DIR}
-    ${cafPdmXml_SOURCE_DIR}
-)
-
 set( PROJECT_FILES
     Main.cpp
     MainWindow.cpp
+    MainWindow.h
     WidgetLayoutTest.cpp
+    WidgetLayoutTest.h
+    ManyGroups.cpp
+    ManyGroups.h
+    CustomObjectEditor.cpp
+    CustomObjectEditor.h
+    MenuItemProducer.cpp
+    MenuItemProducer.h
+
+    TamComboBox.h
+    TamComboBox.cpp
 )
 
 
 # add the executable 
 add_executable ( ${PROJECT_NAME}
 	${PROJECT_FILES}
-    ${MOC_FILES_CPP}
+    ${MOC_SOURCE_FILES}
     ${QRC_FILES_CPP}
+    $<TARGET_OBJECTS:cafCommandFeatures> # Needed for cmake version < 3.12. Remove when we can use target_link_libraries with OBJECT libraries
 )
 
 set (TAP_LINK_LIBRARIES
     cafUserInterface
-    cafPdmXml
-    ${QT_LIBRARIES}
     )
 
 if (USE_COMMAND_FRAMEWORK)
     set (TAP_LINK_LIBRARIES
         ${TAP_LINK_LIBRARIES}
         cafCommand
+        #cafCommandFeatures # Not possible using cmake version < 3.12. Use when we can use target_link_libraries with OBJECT libraries
     )
 endif(USE_COMMAND_FRAMEWORK)
 
 
 target_link_libraries ( ${PROJECT_NAME}
     ${TAP_LINK_LIBRARIES}
+    ${QT_LIBRARIES}
 )
 
 source_group("" FILES ${PROJECT_FILES})
 
-# Copy Qt Dlls
-if (MSVC)
-    set (QTLIBLIST QtCore QtGui QtOpenGl)
-    foreach (qtlib ${QTLIBLIST})
-        
-        # Debug
-        execute_process(COMMAND cmake -E copy_if_different ${QT_BINARY_DIR}/${qtlib}d4.dll ${CMAKE_CURRENT_BINARY_DIR}/Debug/${qtlib}d4.dll)
-        
-        # Release
-        execute_process(COMMAND cmake -E copy_if_different ${QT_BINARY_DIR}/${qtlib}4.dll ${CMAKE_CURRENT_BINARY_DIR}/Release/${qtlib}4.dll)
-    endforeach( qtlib )
-endif(MSVC)
+if (CEE_USE_QT5)
+    foreach (qtlib ${QT_LIBRARIES})
+		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    )
+	endforeach(qtlib)
+else()
+	# Copy Qt Dlls
+	if (MSVC)
+	    set (QTLIBLIST QtCore QtGui QtOpenGl QtXml)
+	    foreach (qtlib ${QTLIBLIST})
+	        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different ${QT_BINARY_DIR}/$<IF:$<CONFIG:Debug>,${qtlib}d4.dll,${qtlib}4.dll> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+			)
+	    endforeach( qtlib )
+	endif(MSVC)
+endif(CEE_USE_QT5)
+
+
+# cotire
+if (COMMAND caf_apply_cotire)
+  set_source_files_properties (qrc_textedit.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
+  set_source_files_properties (qrc_cafCommandFeatures.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
+  set_source_files_properties (qrc_cafAnimControl.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
+
+  caf_apply_cotire("${PROJECT_NAME}")
+endif()

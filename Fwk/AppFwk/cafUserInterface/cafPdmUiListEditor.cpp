@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiListEditor.h"
 
 #include "cafPdmUiDefaultObjectEditor.h"
@@ -43,6 +42,7 @@
 #include "cafPdmField.h"
 
 #include "cafFactory.h"
+#include "cafQShortenedLabel.h"
 
 #include <QApplication>
 #include <QBoxLayout>
@@ -55,6 +55,7 @@
 #include <QListView>
 #include <QListView>
 #include <QStringListModel>
+#include <QTimer>
 
 
 
@@ -64,9 +65,9 @@
 class MyStringListModel : public QStringListModel
 {
 public:
-    explicit MyStringListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) { }
+    explicit MyStringListModel(QObject *parent = nullptr) : QStringListModel(parent), m_isItemsEditable(false)  { }
 
-    virtual Qt::ItemFlags flags (const QModelIndex& index) const
+    Qt::ItemFlags flags (const QModelIndex& index) const override
     {
         if (m_isItemsEditable)
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
@@ -90,7 +91,7 @@ private:
 class QListViewHeightHint : public QListView
 {
 public:
-    explicit QListViewHeightHint(QWidget *parent = 0)
+    explicit QListViewHeightHint(QWidget *parent = nullptr)
         : m_heightHint(-1)
     {
     }
@@ -98,7 +99,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual QSize sizeHint() const override
+    QSize sizeHint() const override
     {
         QSize mySize = QListView::sizeHint();
 
@@ -138,7 +139,8 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiListEditor);
 //--------------------------------------------------------------------------------------------------
 PdmUiListEditor::PdmUiListEditor() :
     m_isEditOperationsAvailable(true),
-    m_optionItemCount(0)
+    m_optionItemCount(0),
+    m_isScrollToItemAllowed(true)
 {
 }
 
@@ -162,42 +164,45 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     CAF_ASSERT(!m_label.isNull());
     CAF_ASSERT(m_listView->selectionModel());
 
-    QIcon ic = field()->uiIcon(uiConfigName);
-    if (!ic.isNull())
-    {
-        m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-    }
-    else
-    {
-        QString uiName = field()->uiName(uiConfigName);
-        m_label->setText(uiName);
-    }
+    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-    m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_label->setToolTip(field()->uiToolTip(uiConfigName));
-
-    m_listView->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_listView->setToolTip(field()->uiToolTip(uiConfigName));
+    m_listView->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_listView->setToolTip(uiField()->uiToolTip(uiConfigName));
 
     bool optionsOnly = true;
-    QList<PdmOptionItemInfo> options = field()->valueOptions(&optionsOnly);
+    QList<PdmOptionItemInfo> options = uiField()->valueOptions(&optionsOnly);
     m_optionItemCount = options.size();
-    if (options.size() > 0 || field()->isUiReadOnly(uiConfigName))
+    if (options.size() > 0 || uiField()->isUiReadOnly(uiConfigName))
     {
         m_isEditOperationsAvailable = false;
     }
+    else
+    {
+        m_isEditOperationsAvailable = true;
+    }
 
     PdmUiListEditorAttribute attributes;
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &attributes);
         
-        QPalette myPalette(m_listView->palette());
-        myPalette.setColor(QPalette::Base, attributes.m_baseColor);
+        QPalette myPalette;
 
-        m_listView->setPalette(myPalette);
+        if (attributes.m_baseColor == myPalette.color(QPalette::Active, QPalette::Base))
+        {
+            m_listView->setStyleSheet("");
+        }
+        else
+        {
+            m_listView->setStyleSheet("background-color: " + attributes.m_baseColor.name() + ";");
+        }
+
         m_listView->setHeightHint(attributes.m_heightHint);
+        if (!attributes.m_allowHorizontalScrollBar)
+        {
+            m_listView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        }
     }
 
     MyStringListModel* strListModel = dynamic_cast<MyStringListModel*>(m_model.data());
@@ -213,11 +218,11 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
         QStringList texts = PdmOptionItemInfo::extractUiTexts(options);
         strListModel->setStringList(texts);
 
-        QVariant fieldValue = field()->uiValue();
+        QVariant fieldValue = uiField()->uiValue();
         if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
         {
             int col = 0;
-            int row = field()->uiValue().toInt();
+            int row = uiField()->uiValue().toInt();
 
             QModelIndex mi = strListModel->index(row, col);
 
@@ -261,7 +266,7 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 
         QItemSelection selection =  m_listView->selectionModel()->selection();
         QModelIndex currentItem =     m_listView->selectionModel()->currentIndex();
-        QVariant fieldValue = field()->uiValue();
+        QVariant fieldValue = uiField()->uiValue();
         QStringList texts = fieldValue.toStringList();
         texts.push_back("");
         strListModel->setStringList(texts);
@@ -274,6 +279,8 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 
         m_listView->selectionModel()->blockSignals(false);
     }
+
+    QTimer::singleShot(150, this, SLOT(slotScrollToSelectedItem()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,7 +310,7 @@ QWidget* PdmUiListEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiListEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 
@@ -314,7 +321,9 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
 {
     if (m_optionItemCount == 0) return;
 
-    QVariant fieldValue = field()->uiValue();
+    m_isScrollToItemAllowed = false;
+
+    QVariant fieldValue = uiField()->uiValue();
     if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
     {
         // NOTE : Workaround for update issue seen on RHEL6 with Qt 4.6.2 
@@ -339,7 +348,6 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
     {
         QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
 
-        QVariant fieldValue = field()->uiValue();
         QList<QVariant> valuesSelectedInField = fieldValue.toList();
 
         if (idxList.size() == 1 && valuesSelectedInField.size() == 1)
@@ -368,6 +376,8 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
 
         this->setValueToField(valuesToSetInField);
     }
+
+    m_isScrollToItemAllowed = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -379,15 +389,22 @@ void PdmUiListEditor::slotListItemEdited(const QModelIndex&, const QModelIndex&)
 
     QStringList uiList = m_model->stringList();
 
-    // Remove dummy elements specifically at the  end of list.
-    
-    QStringList result;
-    foreach (const QString &str, uiList) 
-    {
-        if (str != "" && str != " ") result += str;
-    }
+    trimAndSetValuesToField(uiList);
+}
 
-    this->setValueToField(result);
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiListEditor::slotScrollToSelectedItem() const
+{
+    if (m_isScrollToItemAllowed)
+    {
+        QModelIndex mi = m_listView->currentIndex();
+        if (mi.isValid())
+        {
+            m_listView->scrollTo(mi);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -414,7 +431,21 @@ void PdmUiListEditor::pasteFromString(const QString& content)
 {
     QStringList strList = content.split("\n");
 
-    this->setValueToField(strList);
+    trimAndSetValuesToField(strList);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiListEditor::trimAndSetValuesToField(const QStringList& stringList)
+{
+    QStringList result;
+    for (const auto& str : stringList)
+    {
+        if (str != "" && str != " ") result += str;
+    }
+
+    this->setValueToField(result);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -466,14 +497,7 @@ bool PdmUiListEditor::eventFilter(QObject* object, QEvent * event)
                 {
                     QStringList uiList = m_model->stringList();
 
-                    // Remove dummy elements specifically at the  end of list.
-
-                    QStringList result;
-                    foreach (const QString &str, uiList) 
-                    {
-                        if (str != "" && str != " ") result += str;
-                    }
-                    this->setValueToField(result);
+                    trimAndSetValuesToField(uiList);
                 }
                 return true;
             }
@@ -507,6 +531,14 @@ bool PdmUiListEditor::eventFilter(QObject* object, QEvent * event)
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiListEditor::isMultiRowEditor() const
+{
+    return true;
 }
 
 } // end namespace caf

@@ -1,25 +1,26 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 
-
 #include "RimViewWindow.h"
+
+#include "RigFlowDiagResults.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -29,21 +30,23 @@
 
 class RimFlowDiagSolution;
 class RimEclipseResultCase;
+class RimEclipseView;
 
 class RiuFlowCharacteristicsPlot;
 
-namespace caf {
-    class PdmOptionItemInfo;
+namespace caf
+{
+class PdmOptionItemInfo;
 }
 
-namespace cvf {
-    class Color3f;
+namespace cvf
+{
+class Color3f;
 }
-
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimFlowCharacteristicsPlot : public RimViewWindow
 {
@@ -51,43 +54,73 @@ class RimFlowCharacteristicsPlot : public RimViewWindow
 
 public:
     RimFlowCharacteristicsPlot();
-    virtual ~RimFlowCharacteristicsPlot();
+    ~RimFlowCharacteristicsPlot() override;
 
-    void                                            setFromFlowSolution(RimFlowDiagSolution* flowSolution);
-    void                                            updateCurrentTimeStep();
+    int id() const final;
+
+    void setFromFlowSolution( RimFlowDiagSolution* flowSolution );
+    void updateCurrentTimeStep();
 
     // RimViewWindow overrides
 
-    virtual QWidget*                                viewWidget() override;
-    virtual void                                    zoomAll() override;
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    virtual void                                    deleteViewWidget() override; 
+    QWidget* viewWidget() override;
+    void     zoomAll() override;
+    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+    void     deleteViewWidget() override;
+    void     viewGeometryUpdated();
 
-    enum TimeSelectionType 
+    QString curveDataAsText() const;
+
+    enum TimeSelectionType
     {
         ALL_AVAILABLE,
-        SELECT_AVAILABLE
+        SELECTED,
     };
+
+    void setTimeSteps( const std::vector<int>& timeSteps );
+    void setInjectorsAndProducers( const std::vector<QString>& injectors, const std::vector<QString>& producers );
+    void setMinimumCommunication( double minimumCommunication );
+    void setAquiferCellThreshold( double aquiferCellThreshold );
+
 protected:
     // RimViewWindow overrides
 
-    virtual void                                    loadDataAndUpdate() override;
-    virtual QImage                                  snapshotWindowContent() override;
+    QImage snapshotWindowContent() override;
 
     // Overridden PDM methods
-    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void                          onLoadDataAndUpdate() override;
 
 private:
+    void assignIdIfNecessary() final;
 
+private:
+    caf::PdmPtrField<RimEclipseResultCase*>        m_case;
+    caf::PdmPtrField<RimFlowDiagSolution*>         m_flowDiagSolution;
+    caf::PdmField<caf::AppEnum<TimeSelectionType>> m_timeStepSelectionType;
+    caf::PdmField<std::vector<int>>                m_selectedTimeSteps;
+    caf::PdmField<std::vector<int>>                m_selectedTimeStepsUi;
+    caf::PdmField<bool>                            m_applyTimeSteps;
+    caf::PdmField<bool>                            m_showLegend;
+    caf::PdmField<double>                          m_maxPvFraction;
 
-    caf::PdmPtrField<RimEclipseResultCase*>         m_case;
-    caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
-    caf::PdmField<caf::AppEnum<TimeSelectionType> > m_timeStepSelectionType;
-    caf::PdmField<std::vector<int> >                m_selectedTimeSteps;
+    caf::PdmField<RigFlowDiagResults::CellFilterEnum> m_cellFilter;
+    caf::PdmPtrField<RimEclipseView*>                 m_cellFilterView;
+    caf::PdmField<QString>                            m_tracerFilter;
+    caf::PdmField<std::vector<QString>>               m_selectedTracerNames;
+    caf::PdmField<bool>                               m_showRegion;
 
-    std::vector<int>                                m_currentlyPlottedTimeSteps;
+    caf::PdmField<double> m_minCommunication;
+    caf::PdmField<int>    m_maxTof;
 
-    QPointer<RiuFlowCharacteristicsPlot>            m_flowCharPlotWidget;
+    std::vector<int>                                                          m_currentlyPlottedTimeSteps;
+    std::map<int, RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame> m_timeStepToFlowResultMap;
+
+    QPointer<RiuFlowCharacteristicsPlot> m_flowCharPlotWidget;
 };

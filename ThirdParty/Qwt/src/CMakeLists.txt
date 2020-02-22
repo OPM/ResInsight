@@ -1,15 +1,17 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 project(Qwt)
+
+# Unity Build
+if (RESINSIGHT_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+  set(CMAKE_UNITY_BUILD true)
+endif()
 
 if (MSVC)
     # Disable some annoying warnings (relative to warning level 3)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267")
 endif()
-
-find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL qtmain REQUIRED)
-include(${QT_USE_FILE})
-
 
 # Adapted from src.pri file in Qwt's source catalog for Qwt 6.1.0
 # Compiles static library
@@ -272,11 +274,25 @@ qwt_thermo.h
 qwt_wheel.h
 )
 
-    
-
-set(MOC_SOURCE_FILES)
-qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-    
+if (RESINSIGHT_BUILD_WITH_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Concurrent Core Gui OpenGL PrintSupport Widgets)
+	set(QT_LIBRARIES Qt5::Concurrent Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::PrintSupport Qt5::Widgets)
+	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})	
+else()
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
+    include(${QT_USE_FILE})
+	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
+endif(RESINSIGHT_BUILD_WITH_QT5)
 
 add_library(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${MOC_SOURCE_FILES})
 
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES})
+
+if (COMMAND caf_apply_cotire)
+  caf_apply_cotire("${PROJECT_NAME}")
+endif()

@@ -42,6 +42,7 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
+#include "cafQShortenedLabel.h"
 
 #include <QTextEdit>
 #include <QLabel>
@@ -60,8 +61,31 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiTextEditor);
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TextEdit::TextEdit(QWidget *parent /*= 0*/) : QTextEdit(parent)
+TextEdit::TextEdit(QWidget *parent /*= 0*/) : QTextEdit(parent), m_heightHint(-1)
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QSize TextEdit::sizeHint() const
+{
+    QSize mySize = QTextEdit::sizeHint();
+
+    if (m_heightHint > 0)
+    {
+        mySize.setHeight(m_heightHint);
+    }
+
+    return mySize;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void TextEdit::setHeightHint(int heightHint)
+{
+    m_heightHint = heightHint;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,29 +108,18 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
     CAF_ASSERT(!m_textEdit.isNull());
     CAF_ASSERT(!m_label.isNull());
 
-    QIcon ic = field()->uiIcon(uiConfigName);
-    if (!ic.isNull())
-    {
-        m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-    }
-    else
-    {
-        m_label->setText(field()->uiName(uiConfigName));
-    }
+    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-    //m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_label->setToolTip(field()->uiToolTip(uiConfigName));
-
-    m_textEdit->setReadOnly(field()->isUiReadOnly(uiConfigName));
+    m_textEdit->setReadOnly(uiField()->isUiReadOnly(uiConfigName));
     //m_textEdit->setEnabled(!field()->isUiReadOnly(uiConfigName)); // Neccesary ?
-    m_textEdit->setToolTip(field()->uiToolTip(uiConfigName));
+    m_textEdit->setToolTip(uiField()->uiToolTip(uiConfigName));
 
     PdmUiTextEditorAttribute leab;
     
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
     if (uiObject)
     {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &leab);
+        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &leab);
     }
     
     m_textMode = leab.textMode;
@@ -126,14 +139,29 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
     switch (leab.textMode)
     {
     case PdmUiTextEditorAttribute::PLAIN:
-        m_textEdit->setPlainText(field()->uiValue().toString());
+        m_textEdit->setPlainText(uiField()->uiValue().toString());
         break;
     case PdmUiTextEditorAttribute::HTML:
-        m_textEdit->setHtml(field()->uiValue().toString());
+        m_textEdit->setHtml(uiField()->uiValue().toString());
         break;
     }
     m_textEdit->blockSignals(false);
 
+    m_textEdit->setWordWrapMode(toQTextOptionWrapMode(leab.wrapMode));
+
+    m_textEdit->setFont(leab.font);
+    if (leab.heightHint > 0)
+    {
+        m_textEdit->setHeightHint(leab.heightHint);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTextEditor::isMultiRowEditor() const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,6 +179,7 @@ QWidget* PdmUiTextEditor::createEditorWidget(QWidget * parent)
 
     QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget(m_textEdit);
+    layout->setMargin(0);
 
     QHBoxLayout* buttonLayout = new QHBoxLayout;
     buttonLayout->insertStretch(0, 10);
@@ -167,7 +196,7 @@ QWidget* PdmUiTextEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiTextEditor::createLabelWidget(QWidget * parent)
 {
-    m_label = new QLabel(parent);
+    m_label = new QShortenedLabel(parent);
     return m_label;
 }
 
@@ -194,5 +223,21 @@ void PdmUiTextEditor::slotSetValueToField()
     this->setValueToField(v);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QTextOption::WrapMode PdmUiTextEditor::toQTextOptionWrapMode(PdmUiTextEditorAttribute::WrapMode wrapMode)
+{
+    switch (wrapMode)
+    {
+    case PdmUiTextEditorAttribute::NoWrap:                      return QTextOption::WrapMode::NoWrap;
+    case PdmUiTextEditorAttribute::WordWrap:                    return QTextOption::WrapMode::WordWrap;
+    case PdmUiTextEditorAttribute::ManualWrap:                  return QTextOption::WrapMode::ManualWrap;
+    case PdmUiTextEditorAttribute::WrapAnywhere:                return QTextOption::WrapMode::WrapAnywhere;
+    case PdmUiTextEditorAttribute::WrapAtWordBoundaryOrAnywhere:
+    default:                                                    return QTextOption::WrapMode::WrapAtWordBoundaryOrAnywhere;
+    }
+}
 
 } // end namespace caf

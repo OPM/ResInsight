@@ -95,10 +95,10 @@ void Log::infoMultiLine(const QString& line1, const QString& line2Etc)
 
     if (generateTrace)
     {
-        cvf::Trace::show("INF: %s", (const char*)line1.toAscii());
+        cvf::Trace::show("INF: %s", (const char*)line1.toLatin1());
         if (!line2Etc.isEmpty())
         {
-            cvf::Trace::show((const char*)Utils::indentString(5, line2Etc).toAscii());
+            cvf::Trace::show((const char*)Utils::indentString(5, line2Etc).toLatin1());
         }
     }
 }
@@ -127,10 +127,10 @@ void Log::warningMultiLine(const QString& line1, const QString& line2Etc)
 
     if (generateTrace)
     {
-        cvf::Trace::show("WRN: %s", (const char*)line1.toAscii());
+        cvf::Trace::show("WRN: %s", (const char*)line1.toLatin1());
         if (!line2Etc.isEmpty())
         {
-            cvf::Trace::show((const char*)Utils::indentString(5, line2Etc).toAscii());
+            cvf::Trace::show((const char*)Utils::indentString(5, line2Etc).toLatin1());
         }
     }
 }
@@ -186,10 +186,10 @@ bool Log::errorMultiLine(const QString& line1, const QString& line2Etc)
 
     if (generateTrace)
     {
-        cvf::Trace::show("\nERR: %s", (const char*)line1.toAscii());
+        cvf::Trace::show("\nERR: %s", (const char*)line1.toLatin1());
         if (!line2Etc.isEmpty())
         {
-            cvf::Trace::show((const char*)Utils::indentString(5, line2Etc).toAscii());
+            cvf::Trace::show((const char*)Utils::indentString(5, line2Etc).toLatin1());
         }
     }
 

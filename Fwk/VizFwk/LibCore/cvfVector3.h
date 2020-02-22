@@ -144,7 +144,7 @@ public:
 
 private:
     template<typename T> 
-    friend inline const Vector3<T> operator*(T scalar, const Vector3<T>& rhs);
+    friend const Vector3<T> operator*(T scalar, const Vector3<T>& rhs);
 
 private:
     S m_v[3];

@@ -1,0 +1,10 @@
+@startuml
+PDM -> PdmObject: fieldChangedByUi(changedField, oldValue, newValue)
+note right: Called for changed UI field (by the user)
+
+PDM -> PdmObject: defineUiOrdering(uiOrdering)
+note right: Called each time the view have to be rebuilt, also after UI field change
+
+PDM -> PdmObject: calculateValueOptions(fieldNeedingOptions)
+note right: Called for each visible field
+@enduml

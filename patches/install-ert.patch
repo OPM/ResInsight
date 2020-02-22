@@ -1,0 +1,49 @@
+From cff955fb7f4c0f87ce4164b58a5fd2359f1ee9d7 Mon Sep 17 00:00:00 2001
+From: Magne Sjaastad <magne.sjaastad@ceetronsolutions.com>
+Date: Thu, 9 May 2019 09:19:18 +0200
+Subject: [PATCH] tmp
+
+---
+ ThirdParty/Ert/CMakeLists.txt     | 5 ++++-
+ ThirdParty/Ert/lib/CMakeLists.txt | 3 ++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/ThirdParty/Ert/CMakeLists.txt b/ThirdParty/Ert/CMakeLists.txt
+index 36417d18e..c8050a1ca 100644
+--- a/ThirdParty/Ert/CMakeLists.txt
++++ b/ThirdParty/Ert/CMakeLists.txt
+@@ -346,6 +346,9 @@ if (ENABLE_PYTHON)
+    endif()
+ endif()
+ 
+-install(EXPORT ecl-config DESTINATION share/cmake/ecl)
++if (INSTALL_ERT)
++   install(EXPORT ecl-config DESTINATION share/cmake/ecl)
++endif()
++
+ export(TARGETS ecl FILE eclConfig.cmake)
+ export(PACKAGE ecl)
+diff --git a/ThirdParty/Ert/lib/CMakeLists.txt b/ThirdParty/Ert/lib/CMakeLists.txt
+index 079eb127d..ddf3e7821 100644
+--- a/ThirdParty/Ert/lib/CMakeLists.txt
++++ b/ThirdParty/Ert/lib/CMakeLists.txt
+@@ -200,7 +200,7 @@ endif ()
+ set_target_properties(ecl PROPERTIES
+                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
+                           SOVERSION ${ECL_VERSION_MAJOR})
+-
++if (INSTALL_ERT)
+ install(TARGETS ecl
+         EXPORT  ecl-config
+         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+@@ -212,6 +212,7 @@ install(DIRECTORY include/
+ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
+         DESTINATION include
+ )
++endif()
+ 
+ if (NOT BUILD_TESTS)
+     return ()
+-- 
+2.21.0.windows.1
+

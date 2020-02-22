@@ -51,6 +51,73 @@ using namespace cvf;
 
     P4 Combination pass
 
+    ====================================
+     Usage 
+    ====================================
+    class MyViewer : public caf::Viewer
+    {
+        Q_OBJECT;
+    public:
+        MyViewer(const QGLFormat& format, QWidget* parent)
+        : caf::Viewer(format, parent)
+        {
+            m_renderConf = new caf::TransparentWBRenderConfiguration;
+            m_renderConf->setUpRenderSequence(m_renderingSequence.p());
+        
+            // Cerate overlay item if needed
+            cvf::OverlayItem* overlayItem; // = new someTtem
+            m_renderConf->overlayRendering()->addOverlayItem(overlayItem);
+        }
+    
+        ~MyViewer();
+    
+        virtual void optimizeClippingPlanes()
+        {
+            // ... Do ordinary clipplane adjustments
+    
+            m_renderConf->prepareForRendering();
+        }
+        virtual void resizeGL(int width, int height)
+        {
+            m_renderConf->resize(width, height);
+            caf::Viewer::resizeGL(width, height);
+        }
+    
+    private:
+        cvf::ref<caf::TransparentWBRenderConfiguration> m_renderConf;
+    };
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    
+    ref<Part> createFacePartFromDrawableGeo(cvf::DrawableGeo* geo, 
+                                            const Color3f& color, 
+                                            float opacity, 
+                                            bool useSpecularReflection)
+    {
+        ref<Part> part = new Part;
+        part->setDrawable(geo);
+    
+        cvf::Color4f colorWithAlpha(color);
+        colorWithAlpha.a() = opacity;
+    
+        caf::WBTransparencySurfaceEffectGenerator effGen(colorWithAlpha, caf::PO_NONE, useSpecularReflection);
+        ref<Effect> eff = effGen.generateEffectFromCache();
+    
+        if (opacity < 1.0)
+        {
+            part->setPriority(100);
+        }
+    
+        part->setEffect(eff.p());
+    
+        return part;
+    }
+
+
+
+
 */
 
 class RenderPassPreparator : public cvf::DynamicUniformSet
@@ -61,8 +128,8 @@ public:
         CVF_ASSERT(renderConfiguration);
         m_renderConfiguration = renderConfiguration;
     }
-    virtual cvf::UniformSet* uniformSet()  { return NULL; }
-    virtual void        update(cvf::Rendering* rendering)
+    cvf::UniformSet* uniformSet() override  { return nullptr; }
+    void        update(cvf::Rendering* rendering) override
     {
         m_renderConfiguration->updateEffectsForRendering(rendering);
     }
@@ -84,7 +151,7 @@ public:
         m_isOpaquePass = isOpaquePass;
     }
 
-    virtual void    sort(cvf::RenderQueue* renderQueue) const
+    void    sort(cvf::RenderQueue* renderQueue) const override
     {
         using namespace cvf;
         std::vector<RenderItem*>* renderItems = renderQueue->renderItemsForSorting();

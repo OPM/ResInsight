@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -25,26 +25,28 @@
 
 #include <vector>
 
-class RimView;
+class RimGridView;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class RicLinkVisibleViewsFeatureUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicLinkVisibleViewsFeatureUi(void);
+    RicLinkVisibleViewsFeatureUi( void );
 
-    void                    setViews(const std::vector<RimView*>& allViews);
-    RimView*                masterView();
+    void                      setViews( const std::vector<RimGridView*>& allViews );
+    RimGridView*              masterView();
+    std::vector<RimGridView*> masterViewCandidates() const;
 
 protected:
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
 private:
-    caf::PdmPtrField<RimView*>  m_masterView;
+    caf::PdmPtrField<RimGridView*> m_masterView;
 
-    std::vector<RimView*>       m_allViews;
+    std::vector<RimGridView*> m_allViews;
 };

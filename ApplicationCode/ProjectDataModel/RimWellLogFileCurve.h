@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,17 +21,18 @@
 
 #include "RimWellLogCurve.h"
 
-#include "cafPdmPtrField.h"
 #include "cafPdmField.h"
+#include "cafPdmPtrField.h"
 
 #include <vector>
 
 class RimWellPath;
 class RimWellLogFileChannel;
+class RimWellLogFile;
 
 //==================================================================================================
-///  
-///  
+///
+///
 //==================================================================================================
 class RimWellLogFileCurve : public RimWellLogCurve
 {
@@ -39,30 +40,38 @@ class RimWellLogFileCurve : public RimWellLogCurve
 
 public:
     RimWellLogFileCurve();
-    virtual ~RimWellLogFileCurve();
+    ~RimWellLogFileCurve() override;
 
-    void setWellPath(RimWellPath* wellPath);
-    void setWellLogChannelName(const QString& name);
-    
+    void         setWellPath( RimWellPath* wellPath );
+    RimWellPath* wellPath() const;
+    void         setWellLogChannelName( const QString& name );
+    void         setWellLogFile( RimWellLogFile* wellLogFile );
+
     // Overrides from RimWellLogPlotCurve
-    virtual QString wellName() const;
-    virtual QString wellLogChannelName() const;
+    QString wellName() const override;
+    QString wellLogChannelUiName() const override;
+    QString wellLogChannelUnits() const override;
+
+    RimWellLogFile* wellLogFile() const;
 
 protected:
     // Overrides from RimWellLogPlotCurve
-    virtual QString createCurveAutoName();
-    virtual void onLoadDataAndUpdate();
+    QString createCurveAutoName() override;
+    void    onLoadDataAndUpdate( bool updateParentPlot ) override;
 
     // Pdm overrrides
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    void                          initAfterRead() override;
+
+    bool isRftPlotChild() const;
 
 protected:
-    caf::PdmPtrField<RimWellPath*>  m_wellPath;
-    caf::PdmField<QString>          m_wellLogChannnelName;
-    caf::PdmField<QString>          m_wellLogChannnelUnit;
+    caf::PdmPtrField<RimWellPath*>    m_wellPath;
+    caf::PdmPtrField<RimWellLogFile*> m_wellLogFile;
+    caf::PdmField<QString>            m_wellLogChannelName;
+    caf::PdmField<QString>            m_wellLogChannnelUnit;
 };
-
-

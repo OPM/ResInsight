@@ -138,7 +138,7 @@ bool Editor::eventFilter( QObject* object, QEvent* event )
                 const QMouseEvent* mouseEvent =
                     dynamic_cast<QMouseEvent* >( event );
 
-                if ( d_overlay == NULL && 
+                if ( d_overlay == NULL &&
                     mouseEvent->button() == Qt::LeftButton  )
                 {
                     const bool accepted = pressed( mouseEvent->pos() );
@@ -357,8 +357,8 @@ void Editor::setItemVisible( QwtPlotShapeItem *item, bool on )
     plot()->setAutoReplot( doAutoReplot );
 
     /*
-      Avoid replot with a full repaint of the canvas. 
-      For special combinations - f.e. using the 
+      Avoid replot with a full repaint of the canvas.
+      For special combinations - f.e. using the
       raster paint engine on a remote display -
       this makes a difference.
      */

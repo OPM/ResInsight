@@ -2,17 +2,17 @@
 //
 //  Copyright (C) 2015-     Statoil ASA
 //  Copyright (C) 2015-     Ceetron Solutions AS
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -21,16 +21,20 @@
 
 #include "RiaApplication.h"
 
+#include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
+#include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimMainPlotCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimWellLogPlotCollection.h"
 
 #include "RiuMainWindow.h"
@@ -42,166 +46,199 @@
 #include <QAction>
 #include <QMessageBox>
 
-CAF_CMD_SOURCE_INIT(RicCloseCaseFeature, "RicCloseCaseFeature");
+CAF_CMD_SOURCE_INIT( RicCloseCaseFeature, "RicCloseCaseFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicCloseCaseFeature::isCommandEnabled()
 {
-    return selectedEclipseCase() != NULL || selectedGeoMechCase() != NULL;
+    return !selectedCases().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicCloseCaseFeature::onActionTriggered(bool isChecked)
+void RicCloseCaseFeature::onActionTriggered( bool isChecked )
 {
-    RimEclipseCase* eclipseCase = selectedEclipseCase();
-    RimGeoMechCase* geoMechCase = selectedGeoMechCase();
-    if (eclipseCase)
+    std::vector<RimEclipseCase*> eclipseCases;
+    std::vector<RimGeoMechCase*> geoMechCases;
+    for ( RimCase* rimCase : selectedCases() )
     {
-        std::vector<RimEclipseCase*> casesToBeDeleted;
-        casesToBeDeleted.push_back(eclipseCase);
-        
-        if (userConfirmedGridCaseGroupChange(casesToBeDeleted))
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );
+        if ( eclipseCase )
         {
-            deleteEclipseCase(eclipseCase);
+            eclipseCases.push_back( eclipseCase );
+        }
+        else
+        {
+            RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( rimCase );
+            if ( geoMechCase )
+            {
+                geoMechCases.push_back( geoMechCase );
+            }
+        }
+    }
 
+    if ( !eclipseCases.empty() )
+    {
+        if ( userConfirmedGridCaseGroupChange( eclipseCases ) )
+        {
+            for ( RimEclipseCase* eclipseCase : eclipseCases )
+            {
+                deleteEclipseCase( eclipseCase );
+            }
             RiuMainWindow::instance()->cleanupGuiCaseClose();
         }
     }
-    else if (geoMechCase)
-    {
-        deleteGeoMechCase(geoMechCase);
 
+    if ( !geoMechCases.empty() )
+    {
+        for ( RimGeoMechCase* geoMechCase : geoMechCases )
+        {
+            deleteGeoMechCase( geoMechCase );
+        }
         RiuMainWindow::instance()->cleanupGuiCaseClose();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicCloseCaseFeature::setupActionLook(QAction* actionToSetup)
+void RicCloseCaseFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("Close");
-    actionToSetup->setIcon(QIcon(":/Erase.png"));
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimEclipseCase* RicCloseCaseFeature::selectedEclipseCase() const
-{
-    std::vector<RimEclipseCase*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-
-    if (selection.size() > 0)
-    {
-        return selection[0];
-    }
-
-    return NULL;
+    actionToSetup->setText( "Close" );
+    actionToSetup->setIcon( QIcon( ":/Erase.png" ) );
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase* RicCloseCaseFeature::selectedGeoMechCase() const
+std::vector<RimCase*> RicCloseCaseFeature::selectedCases() const
 {
-    std::vector<RimGeoMechCase*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-
-    if (selection.size() > 0)
-    {
-        return selection[0];
-    }
-
-    return NULL;
+    std::vector<RimCase*> selection;
+    caf::SelectionManager::instance()->objectsByType( &selection );
+    return selection;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicCloseCaseFeature::removeCaseFromAllGroups(RimEclipseCase* eclipseCase)
+void RicCloseCaseFeature::removeCaseFromAllGroups( RimEclipseCase* eclipseCase )
 {
-    CVF_ASSERT(eclipseCase);
+    CVF_ASSERT( eclipseCase );
 
-    RimProject* proj = RiaApplication::instance()->project();
-    RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-    RimEclipseCaseCollection* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
-    if (analysisModels)
+    RimProject*               proj           = RiaApplication::instance()->project();
+    RimOilField*              activeOilField = proj ? proj->activeOilField() : nullptr;
+    RimEclipseCaseCollection* analysisModels = ( activeOilField ) ? activeOilField->analysisModels() : nullptr;
+    if ( analysisModels )
     {
-        analysisModels->removeCaseFromAllGroups(eclipseCase);
+        analysisModels->removeCaseFromAllGroups( eclipseCase );
         analysisModels->updateConnectedEditors();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicCloseCaseFeature::deleteEclipseCase(RimEclipseCase* eclipseCase)
+void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
 {
-    CVF_ASSERT(eclipseCase);
+    CVF_ASSERT( eclipseCase );
 
     RimCaseCollection* caseCollection = eclipseCase->parentCaseCollection();
-    if (caseCollection)
+    if ( caseCollection )
     {
-        if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
+        if ( RimIdenticalGridCaseGroup::isStatisticsCaseCollection( caseCollection ) )
         {
             RimIdenticalGridCaseGroup* caseGroup = caseCollection->parentCaseGroup();
-            CVF_ASSERT(caseGroup);
+            CVF_ASSERT( caseGroup );
 
-            caseGroup->statisticsCaseCollection()->reservoirs.removeChildObject(eclipseCase);
+            caseGroup->statisticsCaseCollection()->reservoirs.removeChildObject( eclipseCase );
             caseGroup->updateConnectedEditors();
         }
         else
         {
             RimIdenticalGridCaseGroup* caseGroup = caseCollection->parentCaseGroup();
-            if (caseGroup)
+            if ( caseGroup )
             {
                 // When deleting the last source case for statistics, remove any views on statistics cases.
                 // This is done because the views do not work well
-                if (caseGroup->caseCollection()->reservoirs.size() == 1)
+                if ( caseGroup->caseCollection()->reservoirs.size() == 1 )
                 {
                     std::vector<caf::PdmObjectHandle*> children;
-                    caseGroup->statisticsCaseCollection()->reservoirs.childObjects(&children);
+                    caseGroup->statisticsCaseCollection()->reservoirs.childObjects( &children );
 
-                    for (size_t i = children.size(); i-- > 0;)
+                    for ( size_t i = children.size(); i-- > 0; )
                     {
                         caf::PdmObjectHandle* obj = children[i];
                         delete obj;
-                        caseGroup->statisticsCaseCollection()->reservoirs.erase(i);
+                        caseGroup->statisticsCaseCollection()->reservoirs.erase( i );
                     }
 
                     caseGroup->statisticsCaseCollection()->uiCapability()->updateConnectedEditors();
                 }
             }
-            removeCaseFromAllGroups(eclipseCase);
+            removeCaseFromAllGroups( eclipseCase );
         }
     }
     else
     {
-        removeCaseFromAllGroups(eclipseCase);
+        removeCaseFromAllGroups( eclipseCase );
+    }
+
+    RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>( eclipseCase );
+    if ( resultCase )
+    {
+        RimProject*                   project = RiaApplication::instance()->project();
+        RimSummaryCaseMainCollection* sumCaseColl =
+            project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
+        if ( sumCaseColl )
+        {
+            RimSummaryCase* summaryCase = sumCaseColl->findSummaryCaseFromEclipseResultCase( resultCase );
+            if ( summaryCase )
+            {
+                RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>( summaryCase );
+                sumCaseColl->convertGridSummaryCasesToFileSummaryCases( gridSummaryCase );
+            }
+        }
     }
 
     delete eclipseCase;
+
+    {
+        RimProject* project = RiaApplication::instance()->project();
+
+        std::vector<RimCase*> cases;
+        project->allCases( cases );
+
+        if ( cases.empty() )
+        {
+            project->multiSnapshotDefinitions.deleteAllChildObjects();
+        }
+        else
+        {
+            for ( RimAdvancedSnapshotExportDefinition* msd : project->multiSnapshotDefinitions() )
+            {
+                msd->additionalCases.removePtr( nullptr );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicCloseCaseFeature::deleteGeoMechCase(RimGeoMechCase* geoMechCase)
+void RicCloseCaseFeature::deleteGeoMechCase( RimGeoMechCase* geoMechCase )
 {
-    CVF_ASSERT(geoMechCase);
+    CVF_ASSERT( geoMechCase );
 
-    RimProject* proj = RiaApplication::instance()->project();
-    RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
-    RimGeoMechModels* models = (activeOilField) ? activeOilField->geoMechModels() : NULL;
-    if (models)
+    RimProject*       proj           = RiaApplication::instance()->project();
+    RimOilField*      activeOilField = proj ? proj->activeOilField() : nullptr;
+    RimGeoMechModels* models         = ( activeOilField ) ? activeOilField->geoMechModels() : nullptr;
+    if ( models )
     {
-        models->cases.removeChildObject(geoMechCase);
+        models->cases.removeChildObject( geoMechCase );
         models->updateConnectedEditors();
     }
 
@@ -209,18 +246,19 @@ void RicCloseCaseFeature::deleteGeoMechCase(RimGeoMechCase* geoMechCase)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RicCloseCaseFeature::hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gridCaseGroup)
+bool RicCloseCaseFeature::hasAnyStatisticsResults( RimIdenticalGridCaseGroup* gridCaseGroup )
 {
-    CVF_ASSERT(gridCaseGroup);
+    CVF_ASSERT( gridCaseGroup );
 
-    for (size_t i = 0; i < gridCaseGroup->statisticsCaseCollection()->reservoirs().size(); i++)
+    for ( size_t i = 0; i < gridCaseGroup->statisticsCaseCollection()->reservoirs().size(); i++ )
     {
-        RimEclipseStatisticsCase* rimStaticsCase = dynamic_cast<RimEclipseStatisticsCase*>(gridCaseGroup->statisticsCaseCollection()->reservoirs[i]);
-        if (rimStaticsCase)
+        RimEclipseStatisticsCase* rimStaticsCase =
+            dynamic_cast<RimEclipseStatisticsCase*>( gridCaseGroup->statisticsCaseCollection()->reservoirs[i] );
+        if ( rimStaticsCase )
         {
-            if (rimStaticsCase->hasComputedStatistics())
+            if ( rimStaticsCase->hasComputedStatistics() )
             {
                 return true;
             }
@@ -230,55 +268,55 @@ bool RicCloseCaseFeature::hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gri
     return false;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool RicCloseCaseFeature::userConfirmedGridCaseGroupChange(const std::vector<RimEclipseCase*>& casesToBeDeleted)
+bool RicCloseCaseFeature::userConfirmedGridCaseGroupChange( const std::vector<RimEclipseCase*>& casesToBeDeleted )
 {
     std::vector<RimIdenticalGridCaseGroup*> gridCaseGroups;
 
-    for (size_t i = 0; i < casesToBeDeleted.size(); i++)
+    for ( auto caseToDelete : casesToBeDeleted )
     {
-        RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
-        casesToBeDeleted[i]->firstAncestorOrThisOfType(gridCaseGroup);
+        RimIdenticalGridCaseGroup* gridCaseGroup = nullptr;
+        caseToDelete->firstAncestorOrThisOfType( gridCaseGroup );
 
-        if (gridCaseGroup && hasAnyStatisticsResults(gridCaseGroup))
+        if ( gridCaseGroup && hasAnyStatisticsResults( gridCaseGroup ) )
         {
-            gridCaseGroups.push_back(gridCaseGroup);
+            gridCaseGroups.push_back( gridCaseGroup );
         }
     }
 
-    if (gridCaseGroups.size() > 0)
+    if ( !gridCaseGroups.empty() )
     {
         RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
-        QMessageBox msgBox(mainWnd);
-        msgBox.setIcon(QMessageBox::Question);
+        QMessageBox msgBox( mainWnd );
+        msgBox.setIcon( QMessageBox::Question );
 
         QString questionText;
-        if (gridCaseGroups.size() == 1)
+        if ( gridCaseGroups.size() == 1 )
         {
-            questionText = QString("This operation will invalidate statistics results in grid case group\n\"%1\".\n").arg(gridCaseGroups[0]->name());
+            questionText = QString( "This operation will invalidate statistics results in grid case group\n\"%1\".\n" )
+                               .arg( gridCaseGroups[0]->name() );
             questionText += "Computed results in this group will be deleted if you continue.";
         }
         else
         {
             questionText = "This operation will invalidate statistics results in grid case groups\n";
-            for (size_t i = 0; i < gridCaseGroups.size(); i++)
+            for ( auto& gridCaseGroup : gridCaseGroups )
             {
-                questionText += QString("\"%1\"\n").arg(gridCaseGroups[i]->name());
+                questionText += QString( "\"%1\"\n" ).arg( gridCaseGroup->name() );
             }
 
             questionText += "Computed results in these groups will be deleted if you continue.";
         }
 
-        msgBox.setText(questionText);
-        msgBox.setInformativeText("Do you want to continue?");
-        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setText( questionText );
+        msgBox.setInformativeText( "Do you want to continue?" );
+        msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
 
         int ret = msgBox.exec();
-        if (ret == QMessageBox::No)
+        if ( ret == QMessageBox::No )
         {
             return false;
         }

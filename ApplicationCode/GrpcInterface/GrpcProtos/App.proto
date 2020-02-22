@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package rips;
+
+import "Definitions.proto";
+
+service App {
+  rpc GetVersion(Empty) returns (Version) {}
+  rpc Exit(Empty) returns (Empty) {}
+  rpc GetRuntimeInfo(Empty) returns (RuntimeInfo) {}
+}
+
+message Version {
+  int32 major_version = 1;
+  int32 minor_version = 2;
+  int32 patch_version = 3;
+}
+
+enum ApplicationTypeEnum
+{
+	GUI_APPLICATION     = 0;
+	CONSOLE_APPLICATION = 1;
+}
+
+message RuntimeInfo
+{
+	ApplicationTypeEnum app_type = 1;
+}

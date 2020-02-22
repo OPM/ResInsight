@@ -1,111 +1,118 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2016-     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicNewSummaryCurveFeature.h"
 
-#include "RiaApplication.h"
+#include "RiaColorTables.h"
+#include "RiaGuiApplication.h"
 
+#include "RiaSummaryTools.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-#include "RiuMainPlotWindow.h"
-
-#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
 
+#include "RicSummaryPlotFeatureImpl.h"
+#include "RiuPlotMainWindowTools.h"
 #include <QAction>
 
-
-CAF_CMD_SOURCE_INIT(RicNewSummaryCurveFeature, "RicNewSummaryCurveFeature");
+CAF_CMD_SOURCE_INIT( RicNewSummaryCurveFeature, "RicNewSummaryCurveFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryCurveFeature::isCommandEnabled()
 {
-    return (selectedSummaryPlot());
+    return ( selectedSummaryPlot() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
+void RicNewSummaryCurveFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
-
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CVF_ASSERT(mainPlotColl);
-
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-    CVF_ASSERT(summaryPlotColl);
+    RiaGuiApplication* app     = RiaGuiApplication::instance();
+    RimProject*        project = app->project();
+    CVF_ASSERT( project );
 
     RimSummaryPlot* plot = selectedSummaryPlot();
-    if (plot)
+    if ( plot )
     {
-        RimSummaryCurve* newCurve = new RimSummaryCurve();
-        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plot->curveCount());
-        newCurve->setColor(curveColor);
-
-        plot->addCurve(newCurve);
-
-        RimSummaryCase* defaultCase = nullptr; 
-        if (project->activeOilField()->summaryCaseCollection()->summaryCaseCount() > 0)
+        RimSummaryCase* defaultCase = nullptr;
+        if ( project->activeOilField()->summaryCaseMainCollection()->summaryCaseCount() > 0 )
         {
-            defaultCase = project->activeOilField()->summaryCaseCollection()->summaryCase(0);
-            newCurve->setSummaryCase(defaultCase);
-
-            newCurve->setSummaryAddress(RifEclipseSummaryAddress::fieldVarAddress("FOPT"));
-
-            newCurve->loadDataAndUpdate();
+            defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase( 0 );
         }
-        
+
+        if ( !defaultCase )
+        {
+            std::vector<RimSummaryCase*> allSummaryCases =
+                project->activeOilField()->summaryCaseMainCollection()->allSummaryCases();
+
+            if ( !allSummaryCases.empty() )
+            {
+                defaultCase = allSummaryCases.front();
+            }
+        }
+
+        RimSummaryCurve* newCurve = RicSummaryPlotFeatureImpl::addDefaultCurveToPlot( plot, defaultCase );
+
+        plot->applyDefaultCurveAppearances();
+        plot->loadDataAndUpdate();
         plot->updateConnectedEditors();
 
-        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newCurve);
+        app->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem( newCurve );
+
+        RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
+        mainPlotWindow->updateSummaryPlotToolBar();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
+void RicNewSummaryCurveFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText("New Summary Curve");
-    actionToSetup->setIcon(QIcon(":/SummaryCurve16x16.png"));
+    actionToSetup->setText( "New Summary Curve" );
+    actionToSetup->setIcon( QIcon( ":/SummaryCurve16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewSummaryCurveFeature::selectedSummaryPlot() const
 {
-    caf::PdmObject* selObj =  dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
-    RimSummaryPlot * sumPlot;
-    selObj->firstAncestorOrThisOfType(sumPlot);
+    RimSummaryPlot* sumPlot = nullptr;
+
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( selObj )
+    {
+        sumPlot = RiaSummaryTools::parentSummaryPlot( selObj );
+    }
 
     return sumPlot;
 }

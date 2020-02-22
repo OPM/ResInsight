@@ -1,0 +1,26 @@
+######################################################################
+# All this is based on the MANIFEST.in and setup.py in Python-folder
+######################################################################
+
+# 1. Make sure dist folder is clear
+del dist/*
+ 
+# 2. Update rips-version tag in setup.py (".N after ResInsight version"). This is generated from setup.py.cmake
+#    So that you for instance have version 2019.08.1 of rips.
+ 
+# 3. Build source distribution
+python setup.py sdist
+ 
+# 4. Test upload to test.pypi.org. This requires a ResInsight testpypi-user and you will be prompted for username and password
+python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+ 
+# 5. Test install rips module.
+pip install --index-url https://test.pypi.org/simple/ rips
+
+# 6. Test the newly installed module
+
+# 8. If anything is wrong, start again from 1. with an incremented rips-version (ResInsightVersion.2+)
+# These incremented versions are just for testpypi and you can reset back to the wanted version before real upload
+
+# 9. Upload to real Pypi. This requires a ResInsight pypi-user.
+python -m twine upload dist/*

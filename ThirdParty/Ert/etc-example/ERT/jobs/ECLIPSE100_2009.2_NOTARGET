@@ -1,2 +1,0 @@
-PORTABLE_EXE     ../Scripts/run_eclipse.py
-ARGLIST          2009.2  <ECLBASE>   <NUM_CPU>

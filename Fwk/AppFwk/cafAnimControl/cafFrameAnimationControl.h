@@ -53,7 +53,7 @@ class FrameAnimationControl : public QObject
     Q_OBJECT
 
 public:
-    explicit FrameAnimationControl(QObject* parent = 0);
+    explicit FrameAnimationControl(QObject* parent = nullptr);
 
     void    setNumFrames(int numFrames);
     int     numFrames() const;

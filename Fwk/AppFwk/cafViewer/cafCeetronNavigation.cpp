@@ -132,6 +132,8 @@ bool caf::CeetronNavigation::handleInputEvent(QInputEvent* inputEvent)
     case QEvent::Wheel:
         wheelEvent(static_cast<QWheelEvent*> ( inputEvent));
         break;
+    default:
+        break;
     }
 
     return false;

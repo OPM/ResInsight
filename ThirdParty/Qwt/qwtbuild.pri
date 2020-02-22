@@ -11,7 +11,7 @@
 # qmake internal options
 ######################################################################
 
-CONFIG           += qt     
+CONFIG           += qt
 CONFIG           += warn_on
 CONFIG           += no_keywords
 CONFIG           += silent
@@ -24,7 +24,7 @@ win32 {
     # On Windows you can't mix release and debug libraries.
     # The designer is built in release mode. If you like to use it
     # you need a release version. For your own application development you
-    # might need a debug version. 
+    # might need a debug version.
     # Enable debug_and_release + build_all if you want to build both.
 
     CONFIG           += debug_and_release
@@ -42,17 +42,17 @@ else {
 
 linux-g++ | linux-g++-64 {
     #CONFIG           += separate_debug_info
-    #QMAKE_CXXFLAGS   *= -Wfloat-equal 
-    #QMAKE_CXXFLAGS   *= -Wshadow 
-    #QMAKE_CXXFLAGS   *= -Wpointer-arith 
-    #QMAKE_CXXFLAGS   *= -Wconversion 
-    #QMAKE_CXXFLAGS   *= -Wsign-compare 
-    #QMAKE_CXXFLAGS   *= -Wsign-conversion 
+    #QMAKE_CXXFLAGS   *= -Wfloat-equal
+    #QMAKE_CXXFLAGS   *= -Wshadow
+    #QMAKE_CXXFLAGS   *= -Wpointer-arith
+    #QMAKE_CXXFLAGS   *= -Wconversion
+    #QMAKE_CXXFLAGS   *= -Wsign-compare
+    #QMAKE_CXXFLAGS   *= -Wsign-conversion
     #QMAKE_CXXFLAGS   *= -Wlogical-op
     #QMAKE_CXXFLAGS   *= -Werror=format-security
     #QMAKE_CXXFLAGS   *= -std=c++11
 
-    # when using the gold linker ( Qt < 4.8 ) - might be 
+    # when using the gold linker ( Qt < 4.8 ) - might be
     # necessary on non linux systems too
     #QMAKE_LFLAGS += -lrt
 }
@@ -69,18 +69,4 @@ RCC_DIR      = resources
     # in case of debug_and_release object files
     # are built in the release and debug subdirectories
     OBJECTS_DIR       = obj
-}
-
-unix {
-
-    exists( $${QMAKE_LIBDIR_QT}/libqwt.* ) {
-
-        # On some Linux distributions the Qwt libraries are installed 
-        # in the same directory as the Qt libraries. Unfortunately
-        # qmake always adds QMAKE_LIBDIR_QT at the beginning of the 
-        # linker path, so that the installed libraries will be
-        # used instead of the local ones.
-
-        error( "local build will conflict with $${QMAKE_LIBDIR_QT}/libqwt.*" )
-    }
 }

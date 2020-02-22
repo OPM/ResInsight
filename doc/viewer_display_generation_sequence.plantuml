@@ -1,0 +1,68 @@
+@startuml
+scale 2000 width
+
+actor RedrawScheduler
+
+box "Rim3dView" #White
+	participant createDisplayModelAndRedraw order 10
+	participant setCurrentTimeStepAndUpdate order 20
+	participant updateDisplayModelForCurrentTimeStepAndRedraw  order 30
+end box
+
+box "RimSpecialView" #LightBlue
+	participant onCreateDisplayModel order 40
+	participant onUpdateDisplayModelForCurrentTimeStep order 45
+end box	
+
+box "RiuViewer" #LightBlue
+	participant setCurrentFrame order 50
+end box	
+
+box "Rim3dView Comparison" #LightGray
+	participant createDisplayModelAndRedraw_c order 60
+
+end box
+
+box "RimSpecialView Comparison" #LightGray
+	participant onCreateDisplayModel_c order 70
+	participant onUpdateDisplayModelForCurrentTimeStep_c order 80
+
+end box	
+
+
+RedrawScheduler -> createDisplayModelAndRedraw ++
+
+createDisplayModelAndRedraw -> onCreateDisplayModel ++
+onCreateDisplayModel -> setCurrentFrame ++
+
+setCurrentFrame -> setCurrentTimeStepAndUpdate ++ 
+
+setCurrentTimeStepAndUpdate -> updateDisplayModelForCurrentTimeStepAndRedraw ++
+
+updateDisplayModelForCurrentTimeStepAndRedraw  -> onUpdateDisplayModelForCurrentTimeStep ++
+onUpdateDisplayModelForCurrentTimeStep --> updateDisplayModelForCurrentTimeStepAndRedraw -- :return
+
+updateDisplayModelForCurrentTimeStepAndRedraw  -> onUpdateDisplayModelForCurrentTimeStep_c ++
+onUpdateDisplayModelForCurrentTimeStep_c --> updateDisplayModelForCurrentTimeStepAndRedraw  -- :return
+
+updateDisplayModelForCurrentTimeStepAndRedraw --> setCurrentTimeStepAndUpdate -- : return 
+
+setCurrentTimeStepAndUpdate --> setCurrentFrame --: return 
+setCurrentFrame --> onCreateDisplayModel --: return
+
+onCreateDisplayModel --> createDisplayModelAndRedraw --: return
+
+createDisplayModelAndRedraw -> createDisplayModelAndRedraw_c ++
+createDisplayModelAndRedraw_c -> onCreateDisplayModel_c ++	
+onCreateDisplayModel_c --> createDisplayModelAndRedraw_c-- : return
+
+createDisplayModelAndRedraw_c --> createDisplayModelAndRedraw -- : return
+
+createDisplayModelAndRedraw -> onUpdateDisplayModelForCurrentTimeStep_c ++
+onUpdateDisplayModelForCurrentTimeStep_c  --> createDisplayModelAndRedraw --: return
+
+createDisplayModelAndRedraw --> RedrawScheduler -- : return
+
+
+
+@enduml

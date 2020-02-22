@@ -37,15 +37,15 @@
 
 #include "cafMessagePanel.h"
 
-#include <QtGui/QWidget>
-#include <QtGui/QDockWidget>
-#include <QtGui/QTextEdit>
-#include <QtGui/QBoxLayout>
+#include <QWidget>
+#include <QDockWidget>
+#include <QTextEdit>
+#include <QBoxLayout>
 
 namespace caf {
 
 
-MessagePanel* MessagePanel::sm_messagePanelInstance = NULL;
+MessagePanel* MessagePanel::sm_messagePanelInstance = nullptr;
 
 //==================================================================================================
 ///

@@ -1,5 +1,0 @@
-INTERNAL    True
-FUNCTION    enkf_main_scale_obs_std_JOB
-MIN_ARG     1
-MAX_ARG     1
-ARG_TYPE    0 FLOAT

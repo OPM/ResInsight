@@ -43,6 +43,7 @@
 #include "cvfMatrixState.h"
 #include "cvfRenderState_FF.h"
 #include "cvfRenderStateBlending.h"
+#include "cvfRenderStateColorMask.h"
 #include "cvfRenderStateCullFace.h"
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStateLine.h"
@@ -61,6 +62,21 @@
 #include <QtOpenGL/QGLFormat>
 
 namespace caf {
+
+//#############################################################################################################################
+//#############################################################################################################################
+static const char checkDiscard_Transparent_Fragments_inl[] =
+        "                                                                                                      \n"
+        "#define CVF_CHECK_DISCARD_FRAGMENT_IMPL                                                               \n"
+        "                                                                                                      \n"
+        "//--------------------------------------------------------------------------------------------------  \n"
+        "/// Check if fragment should be discarded based on alpha fragment value                               \n"
+        "//--------------------------------------------------------------------------------------------------  \n"
+        "void checkDiscardFragment()                                                                           \n"
+        "{                                                                                                     \n"
+        "    vec4 color = srcFragment();                                                                       \n"
+        "    if (color.a < 1.0) discard;                                                                       \n"
+        "}                                                                                                     \n";
 
 
 //=============================================================================================================================
@@ -120,6 +136,7 @@ cvf::ref<cvf::RenderStatePolygonOffset> EffectGenerator::createAndConfigurePolyg
     {
         case PO_1:          rs->setFactor(1.0f);  rs->setUnits(1.0f); break;
         case PO_2:          rs->setFactor(2.0f);  rs->setUnits(2.0f); break;
+        case PO_POS_LARGE:  rs->setFactor(3.0f);  rs->setUnits(50.0f); break;
         case PO_NEG_LARGE:  rs->setFactor(-1.0f); rs->setUnits(-30.0f); break;
         default:
             CVF_FAIL_MSG("Unhandled polygon offset enum");
@@ -199,13 +216,13 @@ cvf::ref<cvf::Effect> EffectGenerator::generateUnCachedEffect() const
 //--------------------------------------------------------------------------------------------------
 void EffectGenerator::updateEffect(cvf::Effect* effect) const
 {
-    CVF_ASSERT(effect != NULL);
+    CVF_ASSERT(effect != nullptr);
 
     // Clear effect
 
-    effect->setRenderStateSet(NULL);
-    effect->setUniformSet(NULL);
-    effect->setShaderProgram(NULL);
+    effect->setRenderStateSet(nullptr);
+    effect->setUniformSet(nullptr);
+    effect->setShaderProgram(nullptr);
 
     if (sm_renderingMode == SHADER_BASED)
     {
@@ -244,9 +261,13 @@ void EffectGenerator::releaseUnreferencedEffects()
 //--------------------------------------------------------------------------------------------------
 SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, PolygonOffset polygonOffset)
 {
+    CVF_ASSERT(color.isValid());
+
     m_color = color;
     m_polygonOffset = polygonOffset;
     m_cullBackfaces = FC_NONE;
+    m_enableColorMask = true;
+    m_enableDepthTest = true;
     m_enableDepthWrite = true;
     m_enableLighting = true;
 }
@@ -256,13 +277,16 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, Polygo
 //--------------------------------------------------------------------------------------------------
 SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color3f& color, PolygonOffset polygonOffset)
 {
+    CVF_ASSERT(color.isValid());
+
     m_color = cvf::Color4f(color, 1.0f);
     m_polygonOffset = polygonOffset;
     m_cullBackfaces = FC_NONE;
+    m_enableColorMask = true;
+    m_enableDepthTest = true;
     m_enableDepthWrite = true;
     m_enableLighting = true;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -354,10 +378,17 @@ void SurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
         effect->setRenderState(faceCulling.p());
     }
 
-    if (!m_enableDepthWrite)
+    if (!m_enableColorMask)
+    {
+        cvf::ref<cvf::RenderStateColorMask> color = new cvf::RenderStateColorMask(m_enableColorMask);
+        effect->setRenderState(color.p());
+    }
+
+    if (!m_enableDepthTest || !m_enableDepthWrite)
     {
         cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
-        depth->enableDepthWrite(false);
+        depth->enableDepthTest(m_enableDepthTest);
+        depth->enableDepthWrite(m_enableDepthWrite);
         effect->setRenderState(depth.p());
     }
 }
@@ -371,11 +402,13 @@ bool SurfaceEffectGenerator::isEqual(const EffectGenerator* other) const
 
     if (otherSurfaceEffect)
     {
-        if (m_color == otherSurfaceEffect->m_color 
+        if (m_color == otherSurfaceEffect->m_color
             && m_polygonOffset == otherSurfaceEffect->m_polygonOffset
+            && m_cullBackfaces == otherSurfaceEffect->m_cullBackfaces
+            && m_enableColorMask == otherSurfaceEffect->m_enableColorMask
+            && m_enableDepthTest == otherSurfaceEffect->m_enableDepthTest
             && m_enableDepthWrite == otherSurfaceEffect->m_enableDepthWrite
-            && m_enableLighting == otherSurfaceEffect->m_enableLighting
-            && m_cullBackfaces == otherSurfaceEffect->m_cullBackfaces)
+            && m_enableLighting == otherSurfaceEffect->m_enableLighting)
         {
             return true;
         }
@@ -391,6 +424,8 @@ EffectGenerator* SurfaceEffectGenerator::copy() const
 {
     SurfaceEffectGenerator* effGen = new SurfaceEffectGenerator(m_color, m_polygonOffset);
     effGen->m_cullBackfaces = m_cullBackfaces;
+    effGen->m_enableColorMask = m_enableColorMask;
+    effGen->m_enableDepthTest = m_enableDepthTest;
     effGen->m_enableDepthWrite = m_enableDepthWrite;
     effGen->m_enableLighting = m_enableLighting;
     return effGen;
@@ -419,6 +454,7 @@ ScalarMapperEffectGenerator::ScalarMapperEffectGenerator(const cvf::ScalarMapper
     m_faceCulling = FC_NONE;
     m_enableDepthWrite = true;
     m_disableLighting = false;
+    m_discardTransparentFragments = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -431,6 +467,11 @@ void ScalarMapperEffectGenerator::updateForShaderBasedRendering(cvf::Effect* eff
     cvf::ShaderProgramGenerator gen("ScalarMapperEffectGenerator", cvf::ShaderSourceProvider::instance());
     gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
     gen.addFragmentCode(cvf::ShaderSourceRepository::src_Texture);
+
+    if (m_discardTransparentFragments)
+    {
+        gen.addFragmentCode(checkDiscard_Transparent_Fragments_inl);
+    }
     
     if (m_disableLighting)
     {
@@ -441,6 +482,7 @@ void ScalarMapperEffectGenerator::updateForShaderBasedRendering(cvf::Effect* eff
         gen.addFragmentCode(CommonShaderSources::light_AmbientDiffuse());
         gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
     }
+
 
     cvf::ref<cvf::ShaderProgram> prog = gen.generate();
     eff->setShaderProgram(prog.p());
@@ -570,7 +612,8 @@ bool ScalarMapperEffectGenerator::isEqual(const EffectGenerator* other) const
             && m_undefinedColor == otherTextureResultEffect->m_undefinedColor
             && m_faceCulling == otherTextureResultEffect->m_faceCulling
             && m_enableDepthWrite == otherTextureResultEffect->m_enableDepthWrite
-            && m_disableLighting == otherTextureResultEffect->m_disableLighting)
+            && m_disableLighting == otherTextureResultEffect->m_disableLighting
+            && m_discardTransparentFragments == otherTextureResultEffect->m_discardTransparentFragments)
         {
             cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
             otherTextureResultEffect->m_scalarMapper->updateTexture(texImg2.p());
@@ -594,6 +637,7 @@ EffectGenerator* ScalarMapperEffectGenerator::copy() const
     scEffGen->m_faceCulling = m_faceCulling;
     scEffGen->m_enableDepthWrite = m_enableDepthWrite;
     scEffGen->m_disableLighting = m_disableLighting;
+    scEffGen->m_discardTransparentFragments = m_discardTransparentFragments;
 
     return scEffGen;
 }
@@ -605,7 +649,7 @@ EffectGenerator* ScalarMapperEffectGenerator::copy() const
 cvf::ref<cvf::TextureImage> 
 ScalarMapperEffectGenerator::addAlphaAndUndefStripes(const cvf::TextureImage* texImg, const cvf::Color3f& undefScalarColor, float opacityLevel)
 {
-    CVF_ASSERT(texImg != NULL);
+    CVF_ASSERT(texImg != nullptr);
     CVF_ASSERT(texImg->height() == 1);
 
     cvf::ref<cvf::TextureImage> modTexImg = new cvf::TextureImage;
@@ -631,9 +675,9 @@ ScalarMapperEffectGenerator::addAlphaAndUndefStripes(const cvf::TextureImage* te
 //--------------------------------------------------------------------------------------------------
 bool ScalarMapperEffectGenerator::isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2)
 {
-    if (texImg1 == NULL && texImg2 == NULL ) return true;
+    if (texImg1 == nullptr && texImg2 == nullptr ) return true;
 
-    if (   texImg1 != NULL && texImg2 != NULL 
+    if (   texImg1 != nullptr && texImg2 != nullptr 
         && texImg1->height() == texImg2->height() 
         && texImg1->width()  == texImg2->width()
         && texImg1->width() > 0 && texImg1->height() > 0
@@ -962,5 +1006,59 @@ void TextEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect) c
 {
 
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+VectorEffectGenerator::VectorEffectGenerator()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool VectorEffectGenerator::isEqual(const EffectGenerator* other) const
+{
+    const VectorEffectGenerator* otherSurfaceEffect = dynamic_cast<const VectorEffectGenerator*>(other);
+    if (otherSurfaceEffect)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+EffectGenerator* VectorEffectGenerator::copy() const
+{
+    VectorEffectGenerator* effGen = new VectorEffectGenerator;
+
+    return effGen;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void VectorEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) const
+{
+    cvf::ShaderProgramGenerator gen("VectorDrawerShaderProgram", cvf::ShaderSourceProvider::instance());
+    gen.addVertexCode(cvf::ShaderSourceRepository::vs_VectorDrawer);
+    gen.addFragmentCode(cvf::ShaderSourceRepository::fs_VectorDrawer);
+
+    cvf::ref<cvf::ShaderProgram> shaderProg = gen.generate();
+    shaderProg->disableUniformTrackingForUniform("u_transformationMatrix");
+    shaderProg->disableUniformTrackingForUniform("u_color");
+
+    cvf::ref<cvf::Effect> eff = effect;
+    eff->setShaderProgram(shaderProg.p());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void VectorEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect) const {}
 
 } // End namespace caf

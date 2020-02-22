@@ -34,7 +34,7 @@ option(CEE_WARNINGS_AS_ERRORS "Make all warnings into errors" ON)
 if (CMAKE_COMPILER_IS_GNUCXX)
 
     # Setup our BASE compile flags
-    set(CEE_BASE_CXX_FLAGS  "-Wall -Wextra -pedantic")
+    set(CEE_BASE_CXX_FLAGS  "-Wall -Wextra -pedantic -std=c++11")
 
     if (CEE_WARNINGS_AS_ERRORS)
         set(CEE_BASE_CXX_FLAGS  "-Werror ${CEE_BASE_CXX_FLAGS}")

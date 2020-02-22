@@ -1,0 +1,57 @@
+@startuml
+
+actor Client
+
+box "Server Side" #LightBlue
+	participant Server order 20
+	participant Service order 40
+	participant Callback order 30
+	participant ServerThread order 10
+	
+Server -> Service : Create
+activate Server
+Server -> Callback : Create(Service)
+Server -> ServerThread : Launch
+activate ServerThread
+deactivate Server
+Client -> ServerThread: Request #1
+ServerThread -> Server : Queue(Request #1)
+Server -> Server : Scheduled
+activate Server
+Server->ServerThread : Block
+deactivate ServerThread
+Server -> Server : Take Requests
+Server->ServerThread : Unblock
+activate ServerThread
+Server -> Callback : Init(Request #1)
+activate Callback
+Server -> Callback : Process(Request #1)
+Callback -> Service : Method
+activate Service
+return Result
+deactivate Service
+Client -> ServerThread: Request #2
+Callback --> Server : Finish #1
+deactivate Callback
+Server --> Client : Reply #1
+deactivate Server
+ServerThread -> Server : Queue(Request #2)
+Server -> Server : Scheduled
+activate Server
+Server->ServerThread : Block
+deactivate ServerThread
+Server->Server : Take Requests
+Server->ServerThread : Unblock
+activate ServerThread
+Server -> Callback : Process(Request #2)
+activate Callback
+Server -> Callback : Init(Request #1)
+Callback -> Service : Method
+activate Service
+return Result
+Callback --> Server : Finish #2
+deactivate Callback
+Server --> Client : Reply #2
+deactivate Server
+deactivate ServerThread
+@enduml

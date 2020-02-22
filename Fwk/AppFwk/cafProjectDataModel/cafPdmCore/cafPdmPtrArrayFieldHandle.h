@@ -14,7 +14,7 @@ class PdmPtrArrayFieldHandle : public PdmFieldHandle
 {
 public:
     PdmPtrArrayFieldHandle()          {}
-    virtual ~PdmPtrArrayFieldHandle() {}
+    ~PdmPtrArrayFieldHandle() override {}
 
     virtual size_t      size() const = 0;
     virtual bool        empty() const = 0;

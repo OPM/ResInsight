@@ -15,14 +15,16 @@ public:
 
     // Gui generalized interface
 public:
-    virtual QVariant    uiValue() const;
-    virtual void        setValueFromUiEditor(const QVariant& uiValue);
-    virtual QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly);
+    QVariant    uiValue() const override;
+    void        setValueFromUiEditor(const QVariant& uiValue) override;
+    QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly) const override;
 
-    virtual QVariant    toUiBasedQVariant() const;
+    QVariant    toUiBasedQVariant() const override;
 
 private:
-    QList<PdmOptionItemInfo> m_optionEntryCache;
+    bool isQVariantDataEqual(const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant) const override;
+
+    mutable QList<PdmOptionItemInfo> m_optionEntryCache;
 
 private:
     FieldType* m_field;
@@ -42,11 +44,11 @@ public:
 
     // Gui generalized interface
 public:
-    virtual QVariant    uiValue() const { return QVariant();}
-    virtual void        setValueFromUiEditor(const QVariant& uiValue) { }
-    virtual QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly)  { return  QList<PdmOptionItemInfo>(); }
+    QVariant    uiValue() const override { return QVariant();}
+    void        setValueFromUiEditor(const QVariant& uiValue) override { }
+    QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly) const override { return  QList<PdmOptionItemInfo>(); }
 
-    virtual QVariant    toUiBasedQVariant() const { return QVariant(); }
+    QVariant    toUiBasedQVariant() const override { return QVariant(); }
 };
 
 //
@@ -61,11 +63,11 @@ public:
 
     // Gui generalized interface
 public:
-    virtual QVariant    uiValue() const { return QVariant(); }
-    virtual void        setValueFromUiEditor(const QVariant& uiValue) { }
-    virtual QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly)  { return  QList<PdmOptionItemInfo>(); }
+    QVariant    uiValue() const override { return QVariant(); }
+    void        setValueFromUiEditor(const QVariant& uiValue) override { }
+    QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly) const override { return  QList<PdmOptionItemInfo>(); }
 
-    virtual QVariant    toUiBasedQVariant() const { return QVariant(); }
+    QVariant    toUiBasedQVariant() const override { return QVariant(); }
 };
 
 template<typename FieldType>

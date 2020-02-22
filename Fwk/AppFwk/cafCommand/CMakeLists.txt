@@ -1,31 +1,29 @@
-cmake_minimum_required (VERSION 2.8)
-
-# Qt
-find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
-include (${QT_USE_FILE})
+cmake_minimum_required (VERSION 2.8.12)
 
 project (cafCommand)
 
-include_directories(
-    ${cafProjectDataModel_SOURCE_DIR}
-)
-
-include_directories (
-    ${cafPdmCore_SOURCE_DIR}
-    ${cafPdmUiCore_SOURCE_DIR}
-    ${cafPdmXml_SOURCE_DIR}
-    .
-)
+# Unity Build
+if (CAF_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+  set(CMAKE_UNITY_BUILD true)
+endif()
 
 # These headers need to go through Qt's MOC compiler
-set( QOBJECT_HEADERS    
+set (MOC_HEADER_FILES    
     cafCmdFeature.h
 	cafCmdFeatureManager.h
 )
 
-if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
-    qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
-endif()
+# Qt
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+else()
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
+    include(${QT_USE_FILE})
+	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+endif(CEE_USE_QT5)
 
 set( PROJECT_FILES
 
@@ -34,20 +32,6 @@ set( PROJECT_FILES
     cafCmdExecuteCommand.h
     cafCmdUiCommandSystemImpl.h
     cafCmdUiCommandSystemImpl.cpp
-
-    # Default features
-    defaultfeatures/cafCmdAddItemExec.cpp
-    defaultfeatures/cafCmdAddItemExec.h
-    defaultfeatures/cafCmdAddItemExecData.cpp
-    defaultfeatures/cafCmdAddItemExecData.h
-    defaultfeatures/cafCmdAddItemFeature.cpp
-    defaultfeatures/cafCmdAddItemFeature.h
-    defaultfeatures/cafCmdDeleteItemExec.cpp
-    defaultfeatures/cafCmdDeleteItemExec.h
-    defaultfeatures/cafCmdDeleteItemExecData.cpp
-    defaultfeatures/cafCmdDeleteItemExecData.h
-    defaultfeatures/cafCmdDeleteItemFeature.cpp
-    defaultfeatures/cafCmdDeleteItemFeature.h
 
     cafCmdFieldChangeExec.cpp
     cafCmdFieldChangeExec.h
@@ -61,12 +45,33 @@ set( PROJECT_FILES
     cafCmdFeature.h
     cafCmdFeatureManager.cpp
     cafCmdFeatureManager.h
+	cafCmdFeatureMenuBuilder.cpp
+	cafCmdFeatureMenuBuilder.h
 )
 
 
 add_library( ${PROJECT_NAME}
  	${PROJECT_FILES}
-    ${MOC_FILES_CPP}
+    ${MOC_SOURCE_FILES}
 )
 
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries ( ${PROJECT_NAME}
+    cafProjectDataModel
+	${QT_LIBRARIES}
+)
+
+if (MSVC) 
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
+endif()
+
 source_group("" FILES ${PROJECT_FILES})
+
+# cotire
+if (COMMAND caf_apply_cotire)
+  caf_apply_cotire("${PROJECT_NAME}")
+endif()

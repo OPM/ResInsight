@@ -77,22 +77,13 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
             int translatedMousePosX, translatedMousePosY;
             cvfEventPos(me->x(), me->y(), &translatedMousePosX, &translatedMousePosY);
 
-           if (me->button() == Qt::MidButton && me->modifiers() == Qt::NoModifier)
+           if (me->button() == Qt::MidButton && me->modifiers() == Qt::NoModifier && isRotationEnabled())
             {
-                cvf::HitItemCollection hic;
-                bool hitSomething = m_viewer->rayPick( me->x(),  me->y(), &hic);
-
-                if (hitSomething)
-                { 
-                    cvf::Vec3d pointOfInterest = hic.firstItem()->intersectionPoint();
-                    this->setPointOfInterest(pointOfInterest);
-                }
-                else
-                {
-                    initializeRotationCenter();
-                }
+                this->pickAndSetPointOfInterest(me->x(), me->y());
 
                 m_trackball->startNavigation(cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY);
+                m_roationSensitivityCalculator.init(me);
+
                 m_isNavigating = true;
                 m_hasMovedMouseDuringNavigation = false;
                 isEventHandled = true;
@@ -104,6 +95,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 m_hasMovedMouseDuringNavigation = false;
                 isEventHandled = true;
             }
+           forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
     case QEvent::MouseButtonRelease: 
@@ -121,6 +113,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                     
                 }
             }
+            forcePointOfInterestUpdateDuringNextWheelZoom();
         }
         break;
     case QEvent::MouseMove:
@@ -135,6 +128,9 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
 
                 if (m_isNavigating)
                 {
+                    double sensitivity = m_roationSensitivityCalculator.calculateSensitivity(me);
+
+                    m_trackball->setRotationSensitivity(sensitivity);
                     bool needRedraw = m_trackball->updateNavigation(translatedMousePosX, translatedMousePosY);
                     if(needRedraw)
                     {
@@ -151,11 +147,12 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
         {
             if (inputEvent->modifiers() == Qt::NoModifier)
             {
-                initializeRotationCenter();
+                QWheelEvent* we = static_cast<QWheelEvent*>(inputEvent);
+
+                updatePointOfInterestDuringZoomIfNecessary(we->x(), we->y());
+
                 if (m_isRotCenterInitialized)
                 {
-                    QWheelEvent* we = static_cast<QWheelEvent*> ( inputEvent);
-
                     int translatedMousePosX, translatedMousePosY;
                     cvfEventPos(we->x(), we->y(), &translatedMousePosX, &translatedMousePosY);
 
@@ -166,6 +163,8 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 isEventHandled = true;
             }
         }
+        break;
+    default:
         break;
     }
 

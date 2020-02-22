@@ -34,14 +34,21 @@
 //
 //##################################################################################################
 
+#pragma warning( disable : 4125 )
+
 #include "QMinimizePanel.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QFrame>
 #include <QLabel>
 #include <QPixmap>
 #include <QPushButton>
 #include <QResizeEvent>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -117,6 +124,7 @@ static const QIcon& expandUpIcon()
 /// 
 //--------------------------------------------------------------------------------------------------
 QMinimizePanel::QMinimizePanel(QWidget* parent/*=0*/)
+    : QFrame(parent)
 {
     this->initialize("");
 }
@@ -125,47 +133,9 @@ QMinimizePanel::QMinimizePanel(QWidget* parent/*=0*/)
 /// 
 //--------------------------------------------------------------------------------------------------
 QMinimizePanel::QMinimizePanel(const QString &title, QWidget* parent/*=0*/)
+    : QFrame(parent)
 {
     this->initialize(title);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void QMinimizePanel::initialize(const QString &title)
-{
-    m_titleFrame = new QFrame(this);
-    m_titleFrame->setFrameStyle(QFrame::Box | QFrame::Plain);
-    m_titleFrame->setAutoFillBackground(true);
-
-    {
-        QLinearGradient titleGrad(QPointF(0, 0), QPointF(0, 1));
-        titleGrad.setCoordinateMode(QGradient::StretchToDeviceMode);
-        titleGrad.setColorAt(0, QColor(255, 255, 255, 20));
-        titleGrad.setColorAt(1, QColor(0, 0, 0, 30));
-
-        QPalette titleFramePalette = m_titleFrame->palette();
-        titleFramePalette.setBrush(QPalette::Window, titleGrad);
-        titleFramePalette.setBrush(QPalette::Foreground, titleFramePalette.dark());
-        m_titleFrame->setPalette(titleFramePalette);
-    }
-
-    m_titleLabel = new QLabel(title, m_titleFrame);
-    m_titleLabel->setPalette(QApplication::palette()); // To avoid title foreground color bleeding through
-
-    m_collapseButton = new QPushButton( m_titleFrame);
-    m_collapseButton->setFlat(true);
-    m_collapseButton->setIcon(expandUpIcon());
-
-    m_contentFrame = new QFrame(this);
-    m_contentFrame->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
-    m_contentFrame->setAutoFillBackground(true);
-
-    QPalette contentFramePalette = m_contentFrame->palette();
-    contentFramePalette.setBrush(QPalette::Window, QColor(255,250,250,85));
-    m_contentFrame->setPalette(contentFramePalette);
-
-    connect(m_collapseButton, SIGNAL(clicked()),this, SLOT(toggleExpanded()) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,6 +144,14 @@ void QMinimizePanel::initialize(const QString &title)
 QMinimizePanel::~QMinimizePanel()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QFrame* QMinimizePanel::contentFrame()
+{
+    return m_contentFrame;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,26 +171,34 @@ QString QMinimizePanel::title() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QSize QMinimizePanel::sizeHint() const
+void QMinimizePanel::enableFrame(bool showFrame)
 {
-    QSize labelSize = m_titleLabel->sizeHint();
-    QSize titleBarHint = labelSize + QSize(4 + labelSize.height() + 8 - 2 + 1, 8);
-
-    if (!m_contentFrame->isHidden())
+    if (showFrame)
     {
-        QSize titleBarMin(0, labelSize.height() + 8);
-        QSize contentsMin(m_contentFrame->sizeHint());
-        QSize total = contentsMin.expandedTo(titleBarMin);
-        total.rheight() += titleBarMin.height();
-        
-        return total;
+        this->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
+        m_titleFrame->show();
+        m_titleLabel->show();
+        m_collapseButton->show();
+        m_contentFrame->setObjectName("FramedGroupContent");
     }
     else
     {
-        return titleBarHint;
+        this->setFrameStyle(QFrame::NoFrame);
+        m_titleFrame->hide();
+        m_titleLabel->hide();
+        m_collapseButton->hide();
+        m_contentFrame->setObjectName("UnframedGroupContent");
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool QMinimizePanel::isExpanded() const
+{
+    return !m_contentFrame->isHidden();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,7 +209,17 @@ void QMinimizePanel::setExpanded(bool isExpanded)
     if (m_contentFrame->isHidden() != isExpanded) return;
 
     m_contentFrame->setVisible(isExpanded);
-    isExpanded ? m_collapseButton->setIcon(expandUpIcon()) : m_collapseButton->setIcon(expandDownIcon());
+    if (isExpanded)
+    {
+        m_collapseButton->setIcon(expandUpIcon());
+        this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    }
+    else
+    {
+        m_collapseButton->setIcon(expandDownIcon());
+        this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    }
+    
     this->QWidget::updateGeometry();
     
     emit expandedChanged(isExpanded);
@@ -240,56 +236,81 @@ void QMinimizePanel::toggleExpanded()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QSize QMinimizePanel::minimumSizeHint() const
+void QMinimizePanel::initialize(const QString &title)
 {
-    QSize labelSize =  m_titleLabel->sizeHint();
-    QSize titleBarHint = labelSize + QSize(4 + labelSize.height() + 8 - 2 + 1, 8);
+    this->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
+    QVBoxLayout* fullLayout = new QVBoxLayout(this);
 
-    if (!m_contentFrame->isHidden())
-    {
-        QSize titleBarMin(0, labelSize.height() + 8  );
-        QSize contentsMin(m_contentFrame->minimumSizeHint());
-        QSize total = contentsMin.expandedTo(titleBarMin);
-        total.rheight() +=  titleBarMin.height();
-        
-        return total;
+    fullLayout->setContentsMargins(0, 0, 0, 0);
+    fullLayout->setSpacing(0);
+    { // Title
+        m_titleFrame = new QFrame();
+        fullLayout->addWidget(m_titleFrame, 0);
+        fullLayout->setStretch(0, 0);
+        m_titleFrame->setObjectName("GroupTitleFrame");
+        m_titleFrame->setStyleSheet(titleFrameStyleSheet());
+
+        QHBoxLayout* titleLayout = new QHBoxLayout();
+        titleLayout->setContentsMargins(4, 2, 0, 2);
+        m_titleFrame->setLayout(titleLayout);
+        m_titleFrame->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        {
+            m_titleLabel = new QLabel(title);
+            QPalette titleLabelPalette = m_titleLabel->palette();
+            titleLabelPalette.setBrush(QPalette::Foreground, titleLabelPalette.windowText());
+            m_titleLabel->setPalette(titleLabelPalette);
+            titleLayout->addWidget(m_titleLabel, 1, Qt::AlignLeft);
+        }
+        {
+            m_collapseButton = new QPushButton();
+            m_collapseButton->setFlat(true);
+            m_collapseButton->setIcon(expandUpIcon());
+            m_collapseButton->setDefault(false);
+            m_collapseButton->setAutoDefault(false);        
+            m_collapseButton->setIconSize(QSize(16, 16));
+            m_collapseButton->setMaximumSize(QSize(16, 16));
+            titleLayout->addWidget(m_collapseButton, 0, Qt::AlignRight);
+        }
     }
-    else
     {
-        return titleBarHint;
+        m_contentFrame = new QFrame();
+        m_contentFrame->setStyleSheet(contentFrameStyleSheet());
+        m_contentFrame->setObjectName("GroupContentFrame");
+        fullLayout->addWidget(m_contentFrame, 1);
+        fullLayout->setStretch(1, 1);
     }
+
+    connect(m_collapseButton, SIGNAL(clicked()), this, SLOT(toggleExpanded()));
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void QMinimizePanel::resizeEvent(QResizeEvent *resizeEv )
+QString QMinimizePanel::titleFrameStyleSheet()
 {
-    QWidget::updateGeometry();
-
-    int width = resizeEv->size().width();
-    int heigth = resizeEv->size().height();
-    int labelHeight = m_titleLabel->sizeHint().height();
-    int titleHeight = labelHeight + 8;
-
-    int buttonSize = titleHeight - 2;
-
-    m_titleFrame->setGeometry(0,0,width, titleHeight);
-    m_titleLabel->setGeometry( 4, titleHeight - labelHeight - 4, width - 4 - buttonSize - 1, labelHeight);
-    m_collapseButton->setGeometry(width - buttonSize - 1, 1, buttonSize, buttonSize);
-    
-    m_contentFrame->setGeometry(0, titleHeight-1, width, heigth - (titleHeight-1));
+    return QString("QFrame#GroupTitleFrame "
+                   "{"
+                   "  border-top: none; border-left: none; border-right: none; border-bottom: none;"
+                   "  background: qlineargradient(spread:pad, x1:0 y1:0, x2:0 y2:1,"
+                   "                              stop:0 rgba(150, 150, 150, 20), stop:1 rgba(0, 0, 0, 50));"
+                   "}");
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool QMinimizePanel::event(QEvent* event)
+QString QMinimizePanel::contentFrameStyleSheet()
 {
-    if (event->type() == QEvent::LayoutRequest)
-    {
-        this->QWidget::updateGeometry();
-    }
-
-   return this->QWidget::event(event);    
+    return QString
+    (
+            "QFrame#FramedGroupContent"
+            "{"
+            "  border-top: 1px solid darkgray; border-left: none; border-right: none; border-bottom: none; "
+            "  background: rgba(255, 250, 250, 85)"
+            "}"
+            "QFrame#UnframedGroupContent"
+            "{"
+            "  border-top: none; border-left: none; border-right: none; border-bottom: none; "
+            "}"
+    );
 }

@@ -1,20 +1,25 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (cafPdmCvf)
 
+# Unity Build
+if (CAF_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+  set(CMAKE_UNITY_BUILD true)
+endif()
+
 # Qt
-find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
-include (${QT_USE_FILE})
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+else()
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
+    include(${QT_USE_FILE})
+	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+endif(CEE_USE_QT5)
 
-include_directories(
-    ${LibCore_SOURCE_DIR}
-    ${cafProjectDataModel_SOURCE_DIR}
-    ${cafUserInterface_SOURCE_DIR}
-
-    ${cafPdmCore_SOURCE_DIR}
-    ${cafPdmUiCore_SOURCE_DIR}
-)
-
+add_definitions(-DCVF_USING_CMAKE)
 
 add_library( ${PROJECT_NAME}
     cafPdmCoreColor3f.h
@@ -37,13 +42,27 @@ add_library( ${PROJECT_NAME}
     cafPdmXmlMat4d.cpp
     cafPdmXmlMat4d.h
     cafPdmFieldCvfMat4d.h
+
+	cafPdmMat3d/cafPdmCoreMat3d.h
+    cafPdmMat3d/cafPdmUiCoreMat3d.h
+    cafPdmMat3d/cafPdmXmlMat3d.cpp
+    cafPdmMat3d/cafPdmXmlMat3d.h
+    cafPdmMat3d/cafPdmFieldCvfMat3d.h
+
+	${MOC_HEADER_FILES}
+	${MOC_SOURCE_FILES}
+)
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/cafPdmMat3d
 )
 
 target_link_libraries ( ${PROJECT_NAME}
-    cafPdmCore
-    cafPdmUiCore
     cafUserInterface
-    cafProjectDataModel
     LibCore
     ${QT_LIBRARIES}
 )
+
+source_group("" FILES ${PROJECT_FILES})

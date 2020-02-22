@@ -41,10 +41,8 @@
 #include "cafCmdSelectionHelper.h"
 #include "cafFactory.h" 
 
-#include "defaultfeatures/cafCmdDeleteItemFeature.h"
-#include "defaultfeatures/cafCmdAddItemFeature.h"
-
 #include <QAction>
+#include <QKeySequence>
 
 namespace caf
 {
@@ -55,9 +53,6 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 CmdFeatureManager::CmdFeatureManager()
 {
-    CmdDeleteItemFeature::idNameStatic();
-    CmdAddItemFeature::idNameStatic();
-
     // Make sure all command features are created. The command feature is registered
     // in the command factory, and instantiated when required. This will enable possibility
     // of searching through all command features instead of having to use the string keys to 
@@ -65,7 +60,7 @@ CmdFeatureManager::CmdFeatureManager()
     std::vector<std::string> keys = CommandFeatureFactory::instance()->allKeys();
     for (size_t i = 0; i < keys.size(); i++)
     {
-        action(QString::fromStdString(keys[i]));
+        createFeature(keys[i]);
     }
 }
 
@@ -108,7 +103,21 @@ QAction* CmdFeatureManager::action(const QString& commandId, const QString& cust
 {
     std::pair<CmdFeature*, size_t> featurePair = createFeature(commandId.toStdString());
 
-    QAction* act = featurePair.first->action(customActionText);
+    QAction* act = featurePair.first->actionWithCustomText(customActionText);
+    m_actionToFeatureIdxMap[act] = featurePair.second;
+
+    return act;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Get action for the specified command, with custom action text 
+/// The action is owned by the PdmCommandItemManager
+//--------------------------------------------------------------------------------------------------
+QAction* CmdFeatureManager::actionWithUserData(const QString& commandId, const QString& customActionText, const QVariant& userData)
+{
+    std::pair<CmdFeature*, size_t> featurePair = createFeature(commandId.toStdString());
+
+    QAction* act = featurePair.first->actionWithUserData(customActionText, userData);
     m_actionToFeatureIdxMap[act] = featurePair.second;
 
     return act;
@@ -156,7 +165,7 @@ std::pair<CmdFeature*, size_t>  CmdFeatureManager::findExistingCmdFeature(const 
     }
     else
     {
-        return std::make_pair(static_cast<CmdFeature*>(NULL), -1);
+        return std::make_pair(static_cast<CmdFeature*>(nullptr), -1);
     }
 }
 
@@ -177,7 +186,7 @@ caf::CmdFeature* CmdFeatureManager::commandFeature(const std::string& commandId)
         return item;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -297,6 +306,45 @@ std::vector<CmdFeature*> CmdFeatureManager::commandFeaturesMatchingSubString(con
     }
 
     return matches;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<CmdFeature*> CmdFeatureManager::commandFeaturesMatchingKeyboardShortcut(const QKeySequence& keySequence) const
+{
+    std::vector<CmdFeature*> matches;
+
+    std::vector<std::string> keys = CommandFeatureFactory::instance()->allKeys();
+    for (size_t i = 0; i < keys.size(); i++)
+    {
+        caf::CmdFeature* cmdFeature = commandFeature(keys[i]);
+        if (cmdFeature)
+        {
+            if (cmdFeature->action()->shortcut().matches(keySequence) == QKeySequence::ExactMatch)
+            {
+                matches.push_back(cmdFeature);
+            }
+        }
+    }
+
+    return matches;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CmdFeatureManager::setCurrentContextMenuTargetWidget(QWidget * targetWidget)
+{
+    m_currentContextMenuTargetWidget = targetWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* CmdFeatureManager::currentContextMenuTargetWidget()
+{
+    return m_currentContextMenuTargetWidget;
 }
 
 } // end namespace caf

@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017     Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
+#include "RimSimWellInView.h"
 #include "RimViewManipulator.h"
 
 #include "RiuMainWindow.h"
@@ -33,36 +33,36 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicShowContributingWellsFeature, "RicShowContributingWellsFeature");
+CAF_CMD_SOURCE_INIT( RicShowContributingWellsFeature, "RicShowContributingWellsFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool RicShowContributingWellsFeature::isCommandEnabled()
 {
-    std::vector<RimEclipseWell*> collection;
-    caf::SelectionManager::instance()->objectsByType(&collection);
-    if (collection.size() == 1)
+    std::vector<RimSimWellInView*> collection;
+    caf::SelectionManager::instance()->objectsByType( &collection );
+    if ( collection.size() == 1 )
     {
-        RimEclipseWell* well = collection[0];
-        RimEclipseView* eclipseView = nullptr;
-        well->firstAncestorOrThisOfType(eclipseView);
+        RimSimWellInView* well        = collection[0];
+        RimEclipseView*   eclipseView = nullptr;
+        well->firstAncestorOrThisOfType( eclipseView );
 
-        if (eclipseView)
+        if ( eclipseView )
         {
             RimFlowDiagSolution* flowDiagSolution = eclipseView->cellResult()->flowDiagSolution();
-            if (!flowDiagSolution)
+            if ( !flowDiagSolution )
             {
                 RimEclipseResultCase* eclipseResultCase = nullptr;
-                well->firstAncestorOrThisOfTypeAsserted(eclipseResultCase);
+                well->firstAncestorOrThisOfType( eclipseResultCase );
 
-                if (eclipseResultCase)
+                if ( eclipseResultCase )
                 {
                     flowDiagSolution = eclipseResultCase->defaultFlowDiagSolution();
                 }
             }
 
-            if (flowDiagSolution)
+            if ( flowDiagSolution )
             {
                 return true;
             }
@@ -73,39 +73,42 @@ bool RicShowContributingWellsFeature::isCommandEnabled()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
+void RicShowContributingWellsFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimEclipseWell*> collection;
-    caf::SelectionManager::instance()->objectsByType(&collection);
+    std::vector<RimSimWellInView*> collection;
+    caf::SelectionManager::instance()->objectsByType( &collection );
 
-    CAF_ASSERT(collection.size() == 1);
+    CAF_ASSERT( collection.size() == 1 );
 
-    RimEclipseWell* well = collection[0];
-    RimEclipseView* eclipseView = nullptr;
-    well->firstAncestorOrThisOfTypeAsserted(eclipseView);
+    RimSimWellInView* well        = collection[0];
+    RimEclipseView*   eclipseView = nullptr;
+    well->firstAncestorOrThisOfTypeAsserted( eclipseView );
 
     RimEclipseResultCase* eclipseResultCase = nullptr;
-    well->firstAncestorOrThisOfTypeAsserted(eclipseResultCase);
+    well->firstAncestorOrThisOfTypeAsserted( eclipseResultCase );
 
-    RimEclipseView* modifiedView = RicShowContributingWellsFeatureImpl::maniuplateSelectedView(eclipseResultCase, well->name(), eclipseView->currentTimeStep());
-    if (modifiedView)
+    RimEclipseView* modifiedView =
+        RicShowContributingWellsFeatureImpl::manipulateSelectedView( eclipseResultCase,
+                                                                     well->name(),
+                                                                     eclipseView->currentTimeStep() );
+    if ( modifiedView )
     {
         modifiedView->createDisplayModelAndRedraw();
 
-        std::vector<RimView*> viewsToUpdate;
-        viewsToUpdate.push_back(modifiedView);
+        std::vector<RimGridView*> viewsToUpdate;
+        viewsToUpdate.push_back( modifiedView );
 
-        RimViewManipulator::applySourceViewCameraOnDestinationViews(eclipseView, viewsToUpdate);
+        RimViewManipulator::applySourceViewCameraOnDestinationViews( eclipseView, viewsToUpdate );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void RicShowContributingWellsFeature::setupActionLook(QAction* actionToSetup)
+void RicShowContributingWellsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon(QIcon(":/new_icon16x16.png"));
-    actionToSetup->setText("Show Contributing Wells");
+    actionToSetup->setIcon( QIcon( ":/new_icon16x16.png" ) );
+    actionToSetup->setText( "Show Contributing Wells" );
 }

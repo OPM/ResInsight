@@ -43,7 +43,7 @@ void CpuPieMarker::draw( QPainter *painter,
             const int value = static_cast<int>( 5760 * curve->sample( 0 ).y() / 100.0 );
 
             painter->save();
-            painter->setBrush( QBrush( curve->pen().color(), Qt::SolidPattern ) );
+            painter->setBrush( QBrush( curve->brush().color(), Qt::SolidPattern ) );
             if ( value != 0 )
                 painter->drawPie( pieRect, -angle, -value );
             painter->restore();
@@ -52,4 +52,3 @@ void CpuPieMarker::draw( QPainter *painter,
         }
     }
 }
-

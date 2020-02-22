@@ -29,11 +29,17 @@ class Tensor3
 {
     S m_tensor[6]; // SXX, SYY, SZZ, SXY, SYZ, SZX
 public:
-    Tensor3() {}
+    Tensor3();
     Tensor3(S sxx, S syy, S szz, S sxy, S syz, S szx); 
     Tensor3(const Tensor3& other);
+    template<typename T>
+    explicit Tensor3(const Tensor3<T>& other);
+
+    static Tensor3      invalid();
 
     inline Tensor3&     operator=(const Tensor3& rhs);
+    inline Tensor3      operator+(const Tensor3& rhs) const;
+    inline Tensor3      operator*(S scale) const;
 
     bool                equals(const Tensor3& mat) const;
     bool                operator==(const Tensor3& rhs) const;
@@ -53,6 +59,7 @@ public:
 };
 
 typedef Tensor3<float> Ten3f;
+typedef Tensor3<double> Ten3d;
 
 }
 

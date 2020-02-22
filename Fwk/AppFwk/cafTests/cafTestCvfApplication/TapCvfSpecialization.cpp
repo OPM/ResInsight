@@ -2,13 +2,10 @@
 
 #include "cafPdmUiListEditor.h"
 
-
-
 CAF_PDM_SOURCE_INIT(TapCvfSpecialization, "TapCvfSpecialization");
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TapCvfSpecialization::TapCvfSpecialization()
 {
@@ -24,9 +21,11 @@ TapCvfSpecialization::TapCvfSpecialization()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void TapCvfSpecialization::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void TapCvfSpecialization::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                            const QVariant&            oldValue,
+                                            const QVariant&            newValue)
 {
     if (changedField == &m_colorField)
     {
@@ -35,9 +34,11 @@ void TapCvfSpecialization::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void TapCvfSpecialization::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void TapCvfSpecialization::defineEditorAttribute(const caf::PdmFieldHandle* field,
+                                                 QString                    uiConfigName,
+                                                 caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &m_vecArrayField)
     {
@@ -48,4 +49,3 @@ void TapCvfSpecialization::defineEditorAttribute(const caf::PdmFieldHandle* fiel
         }
     }
 }
-

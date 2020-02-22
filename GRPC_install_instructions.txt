@@ -1,0 +1,97 @@
+########## Windows using vcpkg #############################################################################
+# gRPC should be built once and only updated when there is a specific requirement to do so
+# So Step 1-4 are rarely done.
+# While Step 5 is instructions for configuring the nightly-build of ResInsight
+# Step 5 is not fully described and assumes knowledge of how to build ResInsight normally. See README.md
+############################################################################################################
+1. Clone VCPKG
+git clone https://github.com/microsoft/vcpkg.git
+2. Install VCPKG from within vcpkg folder:
+.\boostrap-vcpkg.bat
+3. Install GRPC
+.\vcpkg install grpc --triplet x64-windows
+
+4. Python
+* Install Python 3
+* Execute the following using Python3
+  python -m pip install grpcio-tools
+* Make sure the python executable is found by setting -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
+   
+5. Run cmake with the following statements: 
+-DRESINSIGHT_ENABLE_GRPC=true
+-DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=LOCATION_OF_PYTHON.EXE
+-DCMAKE_TOOLCHAIN_FILE=LOCATION_OF_VCPKG/scripts/buildsystems/vcpkg.cmake
+NOTE: When using the CMake gui, you need to select "Specify toolchain for cross-compiling" 
+      and enter the "LOCATION_OF_VCPKG/scripts/buildsystems/vcpkg.cmake" there. 
+	  This path ends up in the CMAKE_TOOLCHAIN_FILE variable. If you do not, protobuffers are not found.
+-A x64
+
+############ Linux as STANDALONE GPRC ####################################################################
+# gRPC should be built once and only updated when there is a specific requirement to do so
+# So Step 1-5 are rarely done.
+# While Step 6 is instructions for configuring the nightly-build of ResInsight
+# Step 6 is not fully described and assumes knowledge of how to build ResInsight normally. See README.md
+##########################################################################################################
+
+#########################################################################################################
+# 1. install autotools, autoconf and libtool with your distributions package manager.
+#
+# On Centos 6 you will need a newer Python and newer version of GCC than the standard version
+# ResInsight AND gRPC will build with devtoolset-3+ but apparently devtoolset-3 is now gone
+# So you will need to install devtoolset-6, devtoolset-7 or devtoolset-8.
+# It makes sense to install devtoolset-6* (with asterix) to get all the necessary devtoolset packages
+# You will also need a version of Python 3.5
+#    
+##########################################################################################################
+
+sudo yum install autotools autoconf libtool devtoolset-6* rh-python35
+
+###################################################################
+# 2. Enable compiler and Python on Centos 6 (on other distributions, this may be different)   
+###################################################################
+
+scl enable devtoolset-6 rh-python35 bash
+
+################################################################################################################
+# 3. Run grpc install script and install to a user-writable directory. I.e, from within the ResInsight folder:
+# Most of this runs fine without root. But unfortunately grpc currently fails to install the C++ library without root.
+# So the script is required to be run as root even if the provided folders are writeable by the user
+#
+# WARNING: As of grpc 1.21.1 a long install directory may cause you to trigger a gRPC bug.
+# The installation directory is the second argument (/opt/grpc in the example, which isn't too long).
+#
+# Bug: https://github.com/grpc/grpc/issues/14844
+# A workaround patch is available in the issue, but the easiest thing to do is to ensure a short install path
+################################################################################################################
+
+sudo ./build-grpc-linux.sh /tmp/grpc /opt/grpc
+
+##############################################################################
+# Python GRPC module, OPTION 1
+# 5a. Install grpcio-tools for Python as root user. If you cannot install python packages as root user, see 4b.
+# NOTE: IF THIS FAILS WITH AN ERROR MESSAGE FROM PIP ABOUT 
+#       "YOU SHOULD CONSIDER UPGRADING VIA 'python -m pip install --upgrade pip'"
+#       Then performing this should fix the problem.
+#       It IS possible to upgrade pip as a regular user: python -m pip install --user --upgrade pip
+##############################################################################
+
+sudo python -m pip install grpcio-tools
+
+##############################################################################
+# Python GRPC module, OPTION 2
+# 5b. Install grpcio-tools for Python as regular user. 
+# NOTE: IF THIS FAILS WITH AN ERROR MESSAGE FROM PIP ABOUT 
+#       "YOU SHOULD CONSIDER UPGRADING VIA 'python -m pip install --upgrade pip'"
+#       Then performing this should fix the problem.
+##############################################################################
+
+python -m pip install --user grpcio-tools
+
+#################################################################################
+# 6. Building ResInsight with GRPC enabled:
+# Run cmake making sure of the following:
+#    * RESINSIGHT_ENABLE_GRPC = true
+#    * RESINSIGHT_GRPC_INSTALL_PREFIX is set to the Grpc install folder
+#    * RESINSIGHT_GRPC_PYTHON_EXECUTABLE set to a good python 3
+################################
+See regular build instructions for the rest

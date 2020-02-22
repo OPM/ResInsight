@@ -1,0 +1,52 @@
+@startuml
+/'
+package Viz{
+class RivWellPathPartMgr
+class RivFishbonesSubsPartMgr
+class RivWellFracturePartMgr
+}
+'/
+
+package Pdm{
+class RimView
+class RimOilField
+class RimEclipseCaseCollection
+class RimCase
+class RimWellPath
+class RimWellPathCollection
+class RimFishbonesMultipleSubs
+class RimWellPathCompletions
+class RimFishboneWellPathCollection
+class RimPerforationCollection
+class RimWellPathFractureCollection
+class RimFishbonesCollection
+class RimFracture
+}
+
+RivWellPathPartMgr ..> RimWellPath
+RimWellPath *-->  RivWellPathPartMgr
+
+RivWellPathPartMgr *--> "n" RivFishbonesSubsPartMgr 
+
+RivFishbonesSubsPartMgr ..> RimFishbonesMultipleSubs
+
+RivWellFracturePartMgr ...> RimFracture
+
+RimOilField *--> RimWellPathCollection
+RimOilField *--> RimEclipseCaseCollection
+RimEclipseCaseCollection *--> "n" RimCase
+
+RimCase *--> "n" RimView
+RimWellPathCollection *--> "n" RimWellPath
+RimWellPath *--> RimWellPathCompletions
+RimFishbonesCollection *--> RimFishbonesMultipleSubs
+RimFishbonesCollection *--> RimFishboneWellPathCollection
+RimWellPathCompletions *--> RimFishbonesCollection
+RimWellPathCompletions *--> RimPerforationCollection
+RimWellPathCompletions *--> RimWellPathFractureCollection
+
+RimWellPathFractureCollection *--> "n" RimFracture
+
+RimFracture *--> RivWellFracturePartMgr
+
+@enduml

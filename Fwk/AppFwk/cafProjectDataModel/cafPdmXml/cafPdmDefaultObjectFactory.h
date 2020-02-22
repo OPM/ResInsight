@@ -44,6 +44,7 @@
 #include <QString>
 
 #include <map>
+#include <vector>
 
 namespace caf
 {
@@ -61,7 +62,7 @@ class PdmDefaultObjectFactory : public PdmObjectFactory
 public:
     static PdmDefaultObjectFactory * instance();
 
-    virtual PdmObjectHandle* create(const QString& classNameKeyword);
+    PdmObjectHandle* create(const QString& classNameKeyword) override;
 
     template< typename PdmObjectBaseDerivative >
     bool                registerCreator()
@@ -84,9 +85,11 @@ public:
         }
     }
 
+    std::vector<QString> classKeywords() const;
+
 private:
     PdmDefaultObjectFactory()  {}
-    ~PdmDefaultObjectFactory() { /* Could clean up, but ... */ }
+    ~PdmDefaultObjectFactory() override { /* Could clean up, but ... */ }
 
     // Internal helper classes
 
@@ -102,7 +105,7 @@ private:
     class PdmObjectCreator : public PdmObjectCreatorBase
     {
     public:
-        virtual PdmObjectHandle * create() { return new PdmObjectBaseDerivative(); }
+        PdmObjectHandle * create() override { return new PdmObjectBaseDerivative(); }
     };
 
     // Map to store factory

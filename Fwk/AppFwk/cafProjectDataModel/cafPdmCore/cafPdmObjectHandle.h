@@ -38,6 +38,11 @@ public:
     template <typename T>
     void                    firstAncestorOrThisOfType(T*& ancestor) const;
 
+    /// Traverses parents recursively and returns first parent of the requested type.
+    /// Does NOT check _this_ object
+    template <typename T>
+    void                    firstAncestorOfType(T*& ancestor) const;
+
     /// Calls firstAncestorOrThisOfType, and asserts that a valid object is found 
     template <typename T>
     void                    firstAncestorOrThisOfTypeAsserted(T*& ancestor) const;
@@ -47,12 +52,18 @@ public:
     template <typename T>
     void                    descendantsIncludingThisOfType(std::vector<T*>& descendants) const;
 
-    // PtrReferences
+     // PtrReferences
     /// The PdmPtrField's containing pointers to this PdmObjecthandle 
     /// Use ownerObject() on the fieldHandle to get the PdmObjectHandle 
     void                    referringPtrFields(std::vector<PdmFieldHandle*>& fieldsReferringToMe) const;
     /// Convenience method to get the objects pointing to this field 
     void                    objectsWithReferringPtrFields(std::vector<PdmObjectHandle*>& objects) const;
+    /// Convenience method to get the objects of specified type pointing to this field
+    template <typename T>
+    void                    objectsWithReferringPtrFieldsOfType(std::vector<T*>& objectsOfType) const;
+
+    // Detach object from all referring fields
+    void                    prepareForDelete();
 
     // Object capabilities
     void                    addCapability(PdmObjectCapability* capability, bool takeOwnership) { m_capabilities.push_back(std::make_pair(capability, takeOwnership)); }
@@ -124,43 +135,34 @@ void PdmObjectHandle::firstAncestorOrThisOfType(T*& ancestor) const
 
     // Check if this matches the type
 
-    const T* objectOfType = dynamic_cast<const T*>(this);
-    if (objectOfType)
+    const T* objectOfTypeConst = dynamic_cast<const T*>(this);
+    if (objectOfTypeConst)
     {
-        ancestor = const_cast<T*>(objectOfType);
+        ancestor = const_cast<T*>(objectOfTypeConst);
         return;
     }
 
-    // Search parents for first type match
+    this->firstAncestorOfType<T>(ancestor);
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObjectHandle::firstAncestorOfType(T*& ancestor) const
+{
+    ancestor = nullptr;
+    
+    // Search parents for first type match
     PdmObjectHandle* parent = nullptr;
     PdmFieldHandle* parentField = this->parentField();
     if (parentField) parent = parentField->ownerObject();
 
-    while (parent != nullptr)
+    if (parent != nullptr)
     {
-        T* objectOfType = dynamic_cast<T*>(parent);
-        if (objectOfType)
-        {
-            ancestor = objectOfType;
-            return;
-        }
-
-        // Get next level parent
-
-        PdmFieldHandle*  nextParentField = parent->parentField();
-        
-        if (nextParentField)
-        {
-            parent = nextParentField->ownerObject();
-        }
-        else
-        {
-            parent = nullptr;
-        }
+        parent->firstAncestorOrThisOfType<T>(ancestor);
     }
 }
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -191,10 +193,32 @@ void PdmObjectHandle::descendantsIncludingThisOfType(std::vector<T*>& descendant
 
         for (auto childObject : childObjects)
         {
-            childObject->descendantsIncludingThisOfType(descendants);
+            if (childObject)
+            {
+                childObject->descendantsIncludingThisOfType(descendants);
+            }
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObjectHandle::objectsWithReferringPtrFieldsOfType(std::vector<T*>& objectsOfType) const
+{
+    std::vector<PdmObjectHandle*> objectsReferencingThis;
+    this->objectsWithReferringPtrFields(objectsReferencingThis);
+
+    for (auto object : objectsReferencingThis)
+    {
+        if (dynamic_cast<T*>(object))
+        {
+            objectsOfType.push_back(dynamic_cast<T*>(object));
+        }
+    }
+}
+
 
 } // End of namespace caf
 

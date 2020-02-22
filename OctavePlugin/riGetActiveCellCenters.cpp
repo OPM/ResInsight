@@ -112,7 +112,7 @@ DEFUN_DLD (riGetActiveCellCenters, args, nargout,
 
     if (nargin == 1)
     {
-        if (args(0).is_numeric_type())
+        if (riOctavePlugin::isOctaveValueNumeric(args(0)))
         {
             caseId = args(0).uint_value();
         }
@@ -123,7 +123,7 @@ DEFUN_DLD (riGetActiveCellCenters, args, nargout,
     }
     else if (nargin == 2)
     {
-        if (args(0).is_numeric_type())
+        if (riOctavePlugin::isOctaveValueNumeric(args(0)))
         {
             caseId        = args(0).uint_value();
             porosityModel = args(1).string_value();

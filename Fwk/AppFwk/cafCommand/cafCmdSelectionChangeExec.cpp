@@ -37,24 +37,13 @@
 
 #include "cafCmdSelectionChangeExec.h"
 #include "cafPdmReferenceHelper.h"
+#include "cafSelectionManager.h"
 
 
 namespace caf
 {
 
-
-    template<>
-    void AppEnum<SelectionManager::SelectionRole>::setUp()
-    {
-        addItem(SelectionManager::APPLICATION_GLOBAL,   "APPLICATION_GLOBAL",   "APPLICATION_GLOBAL");
-        addItem(SelectionManager::CURRENT,              "CURRENT",              "CURRENT");
-        addItem(SelectionManager::UNDEFINED,            "UNDEFINED",            "UNDEFINED");
-        setDefault(SelectionManager::UNDEFINED);
-    }
-
 CAF_PDM_SOURCE_INIT(CmdSelectionChangeExecData, "CmdSelectionChangeExecData");
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -69,7 +58,7 @@ QString CmdSelectionChangeExec::name()
 //--------------------------------------------------------------------------------------------------
 void CmdSelectionChangeExec::redo()
 {
-    SelectionManager::instance()->setSelectionFromReferences(m_commandData->m_newSelection.v(), m_commandData->m_selectionRole.v());
+    SelectionManager::instance()->setSelectionAtLevelFromReferences(m_commandData->m_newSelection.v(), m_commandData->m_selectionLevel.v());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +66,7 @@ void CmdSelectionChangeExec::redo()
 //--------------------------------------------------------------------------------------------------
 void CmdSelectionChangeExec::undo()
 {
-    SelectionManager::instance()->setSelectionFromReferences(m_commandData->m_previousSelection.v(), m_commandData->m_selectionRole.v());
+    SelectionManager::instance()->setSelectionAtLevelFromReferences(m_commandData->m_previousSelection.v(), m_commandData->m_selectionLevel.v());
 }
 
 //--------------------------------------------------------------------------------------------------

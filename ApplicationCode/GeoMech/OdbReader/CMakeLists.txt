@@ -1,6 +1,12 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (RifOdbReader)
+
+# Unity Build
+if (RESINSIGHT_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+  set(CMAKE_UNITY_BUILD true)
+endif()
 
 if (MSVC)
 	add_definitions(-DHKS_NT)
@@ -36,8 +42,6 @@ endif(MSVC)
 
 include_directories(
 	${RESINSIGHT_ODB_API_DIR}/include
-	${RigGeoMechDataModel_SOURCE_DIR}
-	${LibCore_SOURCE_DIR}
 )
 
 add_library( ${PROJECT_NAME}
@@ -86,4 +90,16 @@ else()
 	)
 endif(MSVC)
 
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 target_link_libraries(${PROJECT_NAME} ${RI_ODB_LIBS} RigGeoMechDataModel LibCore)
+
+source_group("" FILES ${PROJECT_FILES})
+
+# cotire
+if (COMMAND caf_apply_cotire)
+  caf_apply_cotire("${PROJECT_NAME}")
+endif()

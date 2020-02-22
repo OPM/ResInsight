@@ -1,28 +1,25 @@
 #pragma once
 
-#include <QtGui/QWidget>
-
+#include <QWidget>
 
 class QGridLayout;
 class QGroupBox;
-
-
 
 class WidgetLayoutTest : public QWidget
 {
     Q_OBJECT
 
 public:
-    WidgetLayoutTest(QWidget* parent = 0, Qt::WindowFlags f = 0);
-    ~WidgetLayoutTest();
+    WidgetLayoutTest(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
+    ~WidgetLayoutTest() override;
 
 private:
     QGridLayout* m_mainLayout;
 
-    QGroupBox* m_groupBoxA;
+    QGroupBox*   m_groupBoxA;
     QGridLayout* m_groupBoxALayout;
 
-    QGroupBox* m_groupBoxB;
+    QGroupBox*   m_groupBoxB;
     QGridLayout* m_groupBoxBLayout;
 
     QWidget* m_widget1;
@@ -36,6 +33,4 @@ private slots:
 
     void setUpInitialConfigurationA();
     void setUpInitialConfigurationB();
-
 };
-

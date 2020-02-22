@@ -42,9 +42,11 @@
 #include "cvfObject.h"
 #include "cvfCollection.h"
 #include "cvfVector3.h"
+#include "cvfRect.h"
 
 #include "cvfOpenGL.h"
 #include "cafOpenGLWidget.h"
+#include "cvfRenderingScissor.h"
 
 
 namespace cvf {
@@ -54,18 +56,19 @@ namespace cvf {
     class Model;
     class OverlayImage;
     class OverlayItem;
-    class OverlayScalarMapperLegend;
     class RenderSequence;
     class Rendering;
     class Scene;
     class Texture;
     class TextureImage;
+    class RayIntersectSpec;
 }
 
 namespace caf {
     class FrameAnimationControl;
     class NavigationPolicy;
     class Viewer;
+    class PointOfInterestVisualizer;
 }
 
 class QInputEvent;
@@ -76,51 +79,65 @@ namespace caf
 {
 
 class GlobalViewerDynUniformSet;
+class ScissorChanger;
 
 class Viewer : public caf::OpenGLWidget
 {
     Q_OBJECT
 public:
     Viewer(const QGLFormat& format, QWidget* parent);
-    ~Viewer();
+    ~Viewer() override;
 
     QWidget*                layoutWidget() { return m_layoutWidget; } // Use this when putting it into something
     cvf::Camera*            mainCamera();
+    cvf::Camera*            comparisonMainCamera();
+
+    void                    setComparisonViewEyePointOffset(const cvf::Vec3d& offset);
+    const cvf::Vec3d        comparisonViewEyePointOffset();
+
+    void                    setComparisonViewVisibleNormalizedRect( const cvf::Rectf& visibleRect );
+    cvf::Rectf              comparisonViewVisibleNormalizedRect() const;
+    bool                    isComparisonViewActive() const;
 
     // Set the main scene : the scene active when the animation is not active. (Stopped)
-    void                    setMainScene(cvf::Scene* scene);
-    cvf::Scene*             mainScene();
-    cvf::Scene*             currentScene(); // The scene currently rendered
+    void                    setMainScene(cvf::Scene* scene, bool isForComparisonView = false);
+    cvf::Scene*             mainScene( bool isForComparisonView = false );
+    cvf::Scene*             currentScene( bool isForComparisonView = false ); // The scene currently rendered
 
     // Frame scenes for animation control
-    void                    addFrame(cvf::Scene* scene);
-    size_t                  frameCount() const { return m_frameScenes.size(); }
-    cvf::Scene*             frame(size_t frameIndex); 
-    void                    removeAllFrames();
+    void                    addFrame(cvf::Scene* scene, bool isForComparisonView = false);
+    size_t                  frameCount() const { return std::max( m_frameScenes.size(), m_comparisonFrameScenes.size() ) ; }
+    cvf::Scene*             frame(size_t frameIndex, bool isForComparisonView = false); 
+    void                    removeAllFrames(bool isForComparisonView = false);
     int                     currentFrameIndex() const;
 
     // Static models to be shown in all frames
-    void                    addStaticModelOnce(cvf::Model* model);
+    void                    addStaticModelOnce(cvf::Model* model, bool isForComparisonView = false);
     void                    removeStaticModel(cvf::Model* model);
     void                    removeAllStaticModels();
 
+    // Part enable/ disable mask
+    void                    setEnableMask( unsigned int mask, bool isForComparisonView = false );
 
     // Recursively traverse all the scenes managed by the viewer and make sure all cached values are up-to-date
     // Use when changing the contents inside the objects in the scene.
     // As of yet: Only updates bounding boxes. Other things might be added later.
     void                    updateCachedValuesInScene();
 
-    bool                    isAnimationActive();
+    bool                    isAnimationActive(bool isForComparisonView = false);
     caf::FrameAnimationControl* 
                             animationControl()                                             { return m_animationControl;}
     void                    setReleaseOGLResourcesEachFrame(bool releaseOGLResourcesEachFrame) { m_releaseOGLResourcesEachFrame = releaseOGLResourcesEachFrame; }
 
     // Set the navigation policy
     void                    setNavigationPolicy(caf::NavigationPolicy* navigationPolicy);
+    const caf::NavigationPolicy* getNavigationPolicy() const;
     void                    enableNavigationPolicy(bool enable); 
     void                    setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
     void                    zoomAll();
     void                    enableParallelProjection(bool enable);
+    void                    setParallelProjectionHeadLightDirection(const cvf::Vec3f& direction);
+    void                    setPointOfInterestVisualizer(PointOfInterestVisualizer* poiVisualizer);
 
     // Interface for navigation policies
     void                    updateParallelProjectionHeightFromMoveZoom(const cvf::Vec3d& pointOfInterest);
@@ -135,13 +152,19 @@ public:
     // Test whether it is any point in doing navigation etc.
     bool                    canRender() const;
 
-    bool                    rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints) ;
+    cvf::ref<cvf::RayIntersectSpec> rayIntersectSpecFromWindowCoordinates(int winPosX, int winPosY, bool isForComparisonView);
+    cvf::ref<cvf::RayIntersectSpec> rayIntersectSpecFromWindowCoordinates(int winPosX, int winPosY);
+    bool                            rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints, cvf::Vec3d* rayGlobalOrigin = nullptr) ;
+
+    bool                    isMousePosWithinComparisonView(int winPosX, int winPosY);
+
     cvf::OverlayItem*       overlayItem(int winPosX, int winPosY);
 
     // QPainter based drawing on top of the OpenGL graphics
 
-    bool                    isOverlyPaintingEnabled() const;
-    void                    enableOverlyPainting(bool val);
+    bool                    isOverlayPaintingEnabled() const;
+    void                    enableOverlayPainting(bool val);
+    cvf::Rendering*         overlayItemsRendering();
 
     // Performance information for debugging etc.
     void                    enablePerfInfoHud(bool enable);
@@ -154,12 +177,17 @@ public:
 
     QImage                  snapshotImage();
 
+    static void             copyCameraView(cvf::Camera* srcCamera, cvf::Camera* dstCamera);
+
+    void                    setCurrentComparisonFrame(int frameIndex);
+    void                    setComparisonViewToFollowAnimation(bool isToFollow);
+
 public slots:
     virtual void            slotSetCurrentFrame(int frameIndex);
     virtual void            slotEndAnimation();
 
 public:
-    virtual QSize           sizeHint() const;
+    QSize           sizeHint() const override;
 
 protected:
     // Method to override if painting directly on the OpenGl Canvas is needed.
@@ -168,12 +196,18 @@ protected:
     // Overridable methods to setup the render system
     virtual void            optimizeClippingPlanes();
 
+    bool calculateNearFarPlanes(const cvf::Rendering* rendering, 
+                                const cvf::Vec3d& navPointOfinterest, 
+                                double *farPlaneDist, 
+                                double *nearPlaneDist);
+
     // Standard overrides. Not for overriding
-    virtual void            resizeGL(int width, int height);
-    virtual void            paintEvent(QPaintEvent* event);
+    void            resizeGL(int width, int height) override;
+    void            paintEvent(QPaintEvent* event) override;
 
     // Support the navigation policy concept
-    virtual bool                        event( QEvent* e );
+    bool                        event( QEvent* e ) override;
+
     cvf::ref<caf::NavigationPolicy>     m_navigationPolicy;
     bool                                m_navigationPolicyEnabled;
 
@@ -191,12 +225,11 @@ private:
     void                                setupMainRendering();
     void                                setupRenderingSequence();
     
-    void                                appendAllStaticModelsToFrame(cvf::Scene* scene);
-    void                                appendModelToAllFrames(cvf::Model* model);
+    void                                appendAllStaticModelsToFrame(cvf::Scene* scene, bool isForComparisonView = false);
+    void                                appendModelToAllFrames(cvf::Model* model, bool isForComparisonView = false);
     void                                removeModelFromAllFrames(cvf::Model* model);
 
     void                                updateCamera(int width, int height);
-
     void                                releaseOGlResourcesForCurrentFrame();
     void                                debugShowRenderingSequencePartNames();
 
@@ -216,17 +249,37 @@ private:
     // System to make sure we share OpenGL resources
     static Viewer*                      sharedWidget();
     static cvf::OpenGLContextGroup*     contextGroup();
+
     static std::list<Viewer*>           sm_viewers;
     static cvf::ref<cvf::OpenGLContextGroup> 
                                         sm_openGLContextGroup;
 
     caf::FrameAnimationControl*         m_animationControl;
+
     cvf::Collection<cvf::Scene>         m_frameScenes;
     cvf::Collection<cvf::Model>         m_staticModels;
+
+    cvf::ref<cvf::Rendering>            m_comparisonMainRendering;
+    cvf::ref<cvf::Camera>               m_comparisonMainCamera;
+
+    cvf::ref<cvf::Scene>                m_comparisonMainScene;
+    cvf::Collection<cvf::Scene>         m_comparisonFrameScenes;
+    cvf::Collection<cvf::Model>         m_comparisonStaticModels;
+    bool                                m_isComparisonFollowingAnimation;
+    bool                                m_isComparisonViewActiveFlag;
+    void                                updateComparisonViewActiveFlag();
+
+    cvf::Vec3d                          m_comparisonViewOffset;
+    cvf::ref<cvf::RenderingScissor>     m_comparisonRenderingScissor;
+    cvf::Rectf                          m_comparisonWindowNormalizedRect;
+
+    // Poi visualization
+    cvf::ref<PointOfInterestVisualizer> m_poiVisualizationManager;
 
     // Parallel projection light modification
 
     cvf::ref<GlobalViewerDynUniformSet> m_globalUniformSet;
+    cvf::Vec3f                          m_parallelProjectionLightDirection;
 
     // Offscreen render objects
     cvf::ref<cvf::FramebufferObject>    m_offscreenFbo;
@@ -234,6 +287,9 @@ private:
     int                                 m_offscreenViewportWidth;
     int                                 m_offscreenViewportHeight;
     cvf::ref<cvf::Rendering>            m_quadRendering;
+
+    cvf::ref<cvf::Rendering>            m_overlayItemsRendering;
+
 };
 
 } // End namespace caf

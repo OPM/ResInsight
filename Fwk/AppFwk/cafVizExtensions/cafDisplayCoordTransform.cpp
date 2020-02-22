@@ -45,8 +45,23 @@ cvf::Vec3d caf::DisplayCoordTransform::transformToDisplayCoord(const cvf::Vec3d&
     coord.x() *= m_scale.x();
     coord.y() *= m_scale.y();
     coord.z() *= m_scale.z();
-    
+
     return coord;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> caf::DisplayCoordTransform::transformToDisplayCoords(const std::vector<cvf::Vec3d>& domainCoords) const
+{
+    std::vector<cvf::Vec3d> displayCoords;
+
+    for (const auto& coord : domainCoords)
+    {
+        displayCoords.emplace_back(transformToDisplayCoord(coord));
+    }
+
+    return displayCoords;
 }
 
 //--------------------------------------------------------------------------------------------------

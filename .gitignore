@@ -59,9 +59,16 @@ CTest*.cmake
 ipch/
 Ankh.NoLoad
 
+#Visual Studio Code files
+.vscode
+
 #Temp files
 *.temp
 /Resinsight_Host.includes
 /Resinsight_Host.files
 /Resinsight_Host.creator
 /Resinsight_Host.config
+*.RESINSIGHT_IDX
+
+#Python
+*.pyc

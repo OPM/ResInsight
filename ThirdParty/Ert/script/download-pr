@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+import requests
+import json
+import os
+import sys
+
+url_fmt = "https://api.github.com/repos/Equinor/libecl/pulls/%d"
+
+def getPRList( api_token, pr1, pr2):
+    pr = pr1
+    pr_list = []
+    prev_len = 0
+    sys.stderr.write("Downloading PR: ")
+    while True:
+        url = url_fmt % pr
+        response = requests.get( url , params = {"access_token" : api_token})
+        for i in range(prev_len):
+            sys.stdout.write("\b")
+
+        sys.stdout.write("%d" % pr )
+        sys.stdout.flush()
+        prev_len = len("%s" % pr)
+
+        if response.status_code == 200:
+            pr_list.append( json.loads( response.content ) )
+        pr += 1
+
+        if pr > pr2:
+            break
+
+
+
+    return pr_list
+
+
+def printPRList( pr_list , fileH):
+    for pr in pr_list:
+        title = pr["title"]
+        body = pr["body"]
+        nr = pr["number"]
+        url = "https://github.com/Equinor/libecl/pull/{}/".format(nr)
+
+        try:
+            title = str(title)
+        except UnicodeEncodeError:
+            title = "UnicodeError"
+
+        fileH.write( "[`{nr} <{url}>`] : {title}".format(nr = nr, url=url, title = title))
+
+        try:
+            fileH.write( "%s\n\n\n" % body )
+        except UnicodeEncodeError:
+            fileH.write("UnicodeError")
+
+
+def main():
+    if "GITHUB_API_TOKEN" in os.environ:
+        github_api_token = os.getenv("GITHUB_API_TOKEN")
+    else:
+        sys.exit("You must create a github access token and set the environment variable 'GITHUB_API_TOKEN' to proceed")
+
+    pr1 = int(sys.argv[1])
+    pr2 = int(sys.argv[2])
+    pr_list = getPRList( github_api_token, pr1, pr2)
+
+    filename = "/tmp/relnotes-%d-%d" % (pr1 , pr2)
+    printPRList( pr_list , open(filename , "w"))
+
+    print "\nHave created file: %s which can be a starting point for release notes" % filename
+
+
+
+
+if __name__ == "__main__":
+    main( )
+
+

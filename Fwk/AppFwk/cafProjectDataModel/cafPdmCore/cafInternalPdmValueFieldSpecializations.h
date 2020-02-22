@@ -1,8 +1,10 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "cafFilePath.h"
 #include "cafPdmPointer.h"
 
+#include <type_traits>
 #include <vector>
 #include <assert.h>
 
@@ -59,12 +61,13 @@ public:
     static QVariant convert(const caf::AppEnum<T>& value)
     {
         T enumValue = value;
-        return QVariant(enumValue);
+        // Explicit cast to an int before storage in a QVariant. This allows the use of enum class instead of enum
+        return QVariant(static_cast<int>(enumValue));
     }
 
     static void setFromVariant(const QVariant& variantValue, caf::AppEnum<T>& value)
     {
-        value = (T)variantValue.toInt();
+        value = static_cast<T>(variantValue.toInt());
     }
  
     static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
@@ -136,8 +139,30 @@ public:
 
     static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
     {
-        assert(false); // Not sure this actually works JJS
         return variantValue == variantValue2;
+    }
+};
+
+//==================================================================================================
+/// Partial specialization for caf::FilePath
+//==================================================================================================
+template <>
+class PdmValueFieldSpecialization<FilePath>
+{
+public:
+    static QVariant convert(const FilePath& value)
+    {
+        return QVariant(value.path());
+    }
+
+    static void setFromVariant(const QVariant& variantValue, FilePath& value)
+    {
+        value.setPath(variantValue.toString());
+    }
+ 
+    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    {
+        return variantValue.toString() == variantValue2.toString();
     }
 };
 

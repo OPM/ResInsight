@@ -1,33 +1,48 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C)  Statoil ASA
-// 
+//
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
 //  the Free Software Foundation, either version 3 of the License, or
 //  (at your option) any later version.
-// 
+//
 //  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
 //  WARRANTY; without even the implied warranty of MERCHANTABILITY or
 //  FITNESS FOR A PARTICULAR PURPOSE.
-// 
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "gtest/gtest.h"
 
-#include "RifReaderEclipseSummary.h"
+#include "RiaTestDataDirectory.h"
+
 #include "RifEclipseSummaryTools.h"
+#include "RifReaderEclipseSummary.h"
 
-//#include "stringlist.h"
-
-#include <QDir>
 #include <QDateTime>
+#include <QDir>
 
 #include <memory>
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseSummaryTest, BasicTestSetCurrentFolder )
+{
+    RifReaderEclipseSummary eclSummary;
+
+    static const QString testDataRootFolder = QString( "%1/SummaryData/Reek/" ).arg( TEST_DATA_DIR );
+
+    QString summaryFileName = testDataRootFolder + "3_R001_REEK-1.SMSPEC";
+
+    bool                            hasWarning      = false;
+    std::vector<RifRestartFileInfo> originFileInfos = eclSummary.getRestartFiles( summaryFileName, &hasWarning );
+    EXPECT_TRUE( originFileInfos.empty() );
+}
 
 /*
 void printDateAndValues(const std::vector<QDateTime>& dates, const std::vector<double>& values)
@@ -43,7 +58,7 @@ void printDateAndValues(const std::vector<QDateTime>& dates, const std::vector<d
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, SummaryToolsFindSummaryFiles)
 {
@@ -62,20 +77,21 @@ TEST(RifEclipseSummaryTest, SummaryToolsFindSummaryFiles)
             std::vector<std::string> dataFiles = RifEclipseSummaryTools::findSummaryDataFiles(filename);
             EXPECT_TRUE(dataFiles.size() > 0);
 
-            std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
-            eclSummary->open(headerFile, dataFiles);
+            std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary); eclSummary->open(headerFile, dataFiles);
 
             RifEclipseSummaryTools::dumpMetaData(eclSummary.get());
 
-            // Create a vector of summary addresses based on type, item name and variable name, and compare the resulting
+            // Create a vector of summary addresses based on type, item name and variable name, and compare the
+resulting
             // resultAddressString to the original string
 
             std::vector<RifEclipseSummaryAddress> addresses = eclSummary->allResultAddresses();
             std::vector<RifEclipseSummaryAddress> myAddresses;
             for (size_t i = 0; i < addresses.size(); i++)
             {
-                RifEclipseSummaryAddress adr(addresses[i].category(), addresses[i].simulationItemName(), addresses[i].quantityName());
-                myAddresses.push_back(adr);
+                RifEclipseSummaryAddress adr(addresses[i].category(), addresses[i].simulationItemName(),
+addresses[i].quantityName()); myAddresses.push_back(adr);
             }
 
             for (size_t i = 0; i < addresses.size(); i++)
@@ -87,7 +103,7 @@ TEST(RifEclipseSummaryTest, SummaryToolsFindSummaryFiles)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, SummaryToolsFindSummaryFiles)
 {
@@ -121,13 +137,20 @@ TEST(RifEclipseSummaryTest, SummaryToolsFindSummaryFiles)
             std::vector<std::string> dataFiles = RifEclipseSummaryTools::findSummaryDataFiles(filename);
             EXPECT_TRUE(dataFiles.size() > 0);
 
-            std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
-            eclSummary->open(headerFile, dataFiles);
+            std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary); eclSummary->open(headerFile, dataFiles);
 
             RifEclipseSummaryTools::dumpMetaData(eclSummary.get());
         }
     }
-    
+
+
+
+
+
+
+
+
     {
         // MSJ TODO: Formatted output does not work now, should be reported?
 / *
@@ -144,14 +167,21 @@ TEST(RifEclipseSummaryTest, SummaryToolsFindSummaryFiles)
             std::vector<std::string> dataFiles = RifEclipseSummaryTools::findSummaryDataFiles(filename);
             EXPECT_TRUE(dataFiles.size() > 0);
 
-            std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
-            eclSummary->open(headerFile, dataFiles);
+            std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary); eclSummary->open(headerFile, dataFiles);
 
             RifEclipseSummaryTools::dumpMetaData(eclSummary.get());
         }
 * /
     }
-    
+
+
+
+
+
+
+
+
 / *
     {
         std::string path;
@@ -166,31 +196,54 @@ TEST(RifEclipseSummaryTest, SummaryToolsFindSummaryFiles)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, BasicReadKeywordTest)
 {
-    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
-    
+    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary);
+
+
+
+
+
+
+
+
     std::string filename = "g:\\Models\\Statoil\\testcase_juli_2011\\data\\TEST10K_FLT_LGR_NNC";
 
     std::string headerFileName;
     RifEclipseSummaryTools::findSummaryHeaderFile(filename, &headerFileName, NULL);
 
     std::vector<std::string> dataFileNames = RifEclipseSummaryTools::findSummaryDataFiles(filename);
-    
+
+
+
+
+
+
+
+
     eclSummary->open(headerFileName, dataFileNames);
 
     RifEclipseSummaryTools::dumpMetaData(eclSummary.get());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, DISABLE_BasicReadKeywordTest)
 {
-    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
-    
+    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary);
+
+
+
+
+
+
+
+
     std::string filename = "g:\\Models\\Statoil\\MultipleRealisations\\Case_without_p9\\Real10\\BRUGGE_0010.SMSPEC";
     std::vector<std::string> dataFileNames;
     dataFileNames.push_back("g:\\Models\\Statoil\\MultipleRealisations\\Case_without_p9\\Real10\\BRUGGE_0010.S0001");
@@ -232,12 +285,20 @@ TEST(RifEclipseSummaryTest, DISABLE_BasicReadKeywordTest)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, BasicReadDataTest)
 {
-    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
-    
+    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary);
+
+
+
+
+
+
+
+
     std::string filename = "g:\\Models\\Statoil\\MultipleRealisations\\Case_without_p9\\Real10\\BRUGGE_0010.SMSPEC";
     std::vector<std::string> dataFileNames;
     dataFileNames.push_back("g:\\Models\\Statoil\\MultipleRealisations\\Case_without_p9\\Real10\\BRUGGE_0010.S0001");
@@ -269,12 +330,19 @@ TEST(RifEclipseSummaryTest, BasicReadDataTest)
         printDateAndValues(dateTimes, values);
     }
 
-    
+
+
+
+
+
+
+
+
 }
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, DISABLED_StringlistSelectMatchingFiles)
 {
@@ -299,7 +367,7 @@ TEST(RifEclipseSummaryTest, DISABLED_StringlistSelectMatchingFiles)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, DISABLED_StringlistSelectMatchingFilesQuestion)
 {
@@ -623,13 +691,21 @@ YEARS
 * /
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, DISABLED_BasicTestSetCurrentFolder)
 {
 / *
-    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
-    
+    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary);
+
+
+
+
+
+
+
+
     QString currentFolderName = "g:\\Models\\Statoil\\MultipleRealisations\\Case_without_p9\\Real10";
     QDir::setCurrent(currentFolderName);
 
@@ -647,16 +723,31 @@ TEST(RifEclipseSummaryTest, DISABLED_BasicTestSetCurrentFolder)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, DISABLED_BasicTest)
 {
 / *
-    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
-    
+    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary);
+
+
+
+
+
+
+
+
     std::string filename = "g:\\Models\\Statoil\\MultipleRealisations\\Case_without_p9\\Real10\\BRUGGE_0010";
     eclSummary->open(filename);
-    
+
+
+
+
+
+
+
+
     std::vector<std::string> keywords;
     eclSummary->keywords(&keywords);
 

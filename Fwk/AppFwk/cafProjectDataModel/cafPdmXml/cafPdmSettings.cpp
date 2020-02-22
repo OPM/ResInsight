@@ -41,7 +41,6 @@
 #include "cafPdmXmlObjectHandle.h"
 
 
-
 namespace caf
 {
 
@@ -94,7 +93,7 @@ void PdmSettings::readFieldsFromApplicationStore(caf::PdmObjectHandle* object, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmSettings::writeFieldsToApplicationStore(caf::PdmObjectHandle* object, const QString context)
+void PdmSettings::writeFieldsToApplicationStore(const caf::PdmObjectHandle* object, const QString context)
 {
     CAF_ASSERT(object);
 
@@ -138,5 +137,88 @@ void PdmSettings::writeFieldsToApplicationStore(caf::PdmObjectHandle* object, co
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmSettings::readValueFieldsFromApplicationStore(caf::PdmObjectHandle* object, const QString folderName /*= ""*/)
+{
+    // Qt doc :
+    //
+    // Constructs a QSettings object for accessing settings of the application and organization
+    // set previously with a call to QCoreApplication::setOrganizationName(), 
+    // QCoreApplication::setOrganizationDomain(), and QCoreApplication::setApplicationName().
+    QSettings settings;
+
+    if ( folderName != "" )
+    {
+        settings.beginGroup(folderName);
+    }
+
+    std::vector<caf::PdmFieldHandle*> fields;
+
+    object->fields(fields);
+    size_t i;
+    for (i = 0; i < fields.size(); i++)
+    {
+        caf::PdmFieldHandle* fieldHandle = fields[i];
+        caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>(fieldHandle);
+
+        if (valueField)
+        {
+            QString key = fieldHandle->keyword();
+            if ( settings.contains(key) )
+            {
+                QVariant val = settings.value(key);
+
+                QString fieldText = "<Element>" + val.toString() + "</Element>";
+                QXmlStreamReader reader(fieldText);
+
+                // Make stream point to the text data for the field
+                reader.readNext(); // StartDocument 
+                reader.readNext(); // StartElement
+                reader.readNext(); // Characters
+                fieldHandle->xmlCapability()->readFieldData(reader, nullptr);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmSettings::writeValueFieldsToApplicationStore(const caf::PdmObjectHandle* object, const QString folderName /*= ""*/)
+{
+    CAF_ASSERT(object);
+
+    // Qt doc :
+    //
+    // Constructs a QSettings object for accessing settings of the application and organization
+    // set previously with a call to QCoreApplication::setOrganizationName(), 
+    // QCoreApplication::setOrganizationDomain(), and QCoreApplication::setApplicationName().
+    QSettings settings;
+
+    if ( folderName != "" )
+    {
+        settings.beginGroup(folderName);
+    }
+
+    std::vector<caf::PdmFieldHandle*> fields;
+    object->fields(fields);
+
+    size_t i;
+    for (i = 0; i < fields.size(); i++)
+    {
+        caf::PdmFieldHandle* fieldHandle = fields[i];
+        caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>(fieldHandle);
+        if (valueField)
+        {
+            QString fieldText;
+            QXmlStreamWriter writer(&fieldText);
+
+            fieldHandle->xmlCapability()->writeFieldData(writer);
+            settings.setValue(fieldHandle->keyword(), fieldText);
+        }
+    }
+}
 
 } // namespace caf

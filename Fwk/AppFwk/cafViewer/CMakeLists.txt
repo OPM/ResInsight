@@ -1,30 +1,29 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project (cafViewer)
 
+# Unity Build
+if (CAF_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+  set(CMAKE_UNITY_BUILD true)
+endif()
+
 # Qt
-find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
-include (${QT_USE_FILE})
-
-include_directories(
-    ${LibCore_SOURCE_DIR}
-    ${LibGeometry_SOURCE_DIR}
-    ${LibViewing_SOURCE_DIR}
-    ${LibRender_SOURCE_DIR}
-    ${LibGuiQt_SOURCE_DIR}
-
-    ${cafAnimControl_SOURCE_DIR}
-)
 
 # These headers need to go through Qt's MOC compiler
-set( QOBJECT_HEADERS    
+set( MOC_HEADER_FILES    
     cafViewer.h
 )
 
-if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
-    qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
-endif()
-
+if (CEE_USE_QT5)
+	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets OpenGL)
+	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )	
+else()
+    find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
+    include(${QT_USE_FILE})
+	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+endif(CEE_USE_QT5)
 
 add_library( ${PROJECT_NAME}
 	cafCadNavigation.cpp
@@ -37,10 +36,42 @@ add_library( ${PROJECT_NAME}
     cafTrackBallBasedNavigation.h
 	cafNavigationPolicy.cpp
 	cafNavigationPolicy.h
+	cafPointOfInterestVisualizer.h
 	cafOpenGLWidget.cpp
 	cafOpenGLWidget.h
 	cafViewer.cpp
 	cafViewer.h
 
-    ${MOC_FILES_CPP}
+    ${MOC_SOURCE_FILES}
 )
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries ( ${PROJECT_NAME}
+    LibCore
+    LibGeometry
+    LibViewing
+    LibRender
+    LibGuiQt
+
+    cafAnimControl
+
+    ${QT_LIBRARIES}
+)
+
+if (MSVC) 
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
+endif() 
+
+source_group("" FILES ${PROJECT_FILES})
+
+# cotire
+if (COMMAND caf_apply_cotire)
+  list(APPEND CAF_COTIRE_EXCLUDE_FILES
+    cafOpenGLWidget.cpp
+  )
+  caf_apply_cotire("${PROJECT_NAME}")
+endif()

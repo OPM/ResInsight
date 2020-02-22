@@ -44,6 +44,8 @@
 
 #include <math.h>
 
+#include <QMouseEvent>
+
 using cvfu::TestSnippet;
 
 

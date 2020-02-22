@@ -44,6 +44,8 @@
 #include "cvfShaderSourceProvider.h"
 #include "cvfqtUtils.h"
 
+#include <QApplication>
+#include <QMessageBox>
 
 
 //--------------------------------------------------------------------------------------------------

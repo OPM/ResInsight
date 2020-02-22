@@ -42,13 +42,19 @@
 
 #include "QMMainWindow.h"
 #include "QMWidget.h"
-
+#if QT_VERSION >= 0x050000
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QAction>
+#include <QMenu>
+#include <QMenuBar>
+#else
 #include <QtGui/QFrame>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QAction>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
-
+#endif
 using cvf::ref;
 
 

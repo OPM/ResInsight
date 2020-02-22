@@ -132,7 +132,7 @@ void PdmUiTreeView::slotOnSelectionChanged()
 
     std::vector<PdmUiItem*> objects;
     m_treeViewEditor->selectedUiItems(objects);
-    PdmObjectHandle* objHandle = NULL;
+    PdmObjectHandle* objHandle = nullptr;
 
     if (objects.size())
     {
@@ -166,9 +166,17 @@ void PdmUiTreeView::enableSelectionManagerUpdating(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::selectAsCurrentItem(PdmUiItem* uiItem)
+void PdmUiTreeView::selectAsCurrentItem(const PdmUiItem* uiItem)
 {
     m_treeViewEditor->selectAsCurrentItem(uiItem);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::selectItems(const std::vector<const PdmUiItem*>& uiItems)
+{
+    m_treeViewEditor->selectItems(uiItems);
 }
 
 //--------------------------------------------------------------------------------------------------

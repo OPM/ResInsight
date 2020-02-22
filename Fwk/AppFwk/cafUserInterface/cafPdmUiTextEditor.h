@@ -55,10 +55,20 @@ namespace caf
 class PdmUiTextEditorAttribute : public PdmUiEditorAttribute
 {
 public:
+    enum WrapMode {
+        NoWrap,
+        WordWrap,
+        ManualWrap,
+        WrapAnywhere,
+        WrapAtWordBoundaryOrAnywhere
+    };
+
     PdmUiTextEditorAttribute()
     {
         textMode = PLAIN;
         showSaveButton = false;
+        wrapMode = WrapAtWordBoundaryOrAnywhere;
+        heightHint = 2000;
     }
 
     enum TextMode 
@@ -70,6 +80,9 @@ public:
 public:
     TextMode    textMode;
     bool        showSaveButton;
+    WrapMode    wrapMode;
+    QFont       font;
+    int         heightHint;
 };
 
 //==================================================================================================
@@ -79,13 +92,19 @@ class TextEdit : public QTextEdit
 {
     Q_OBJECT
 public:
-    explicit TextEdit(QWidget *parent = 0);
+    explicit TextEdit(QWidget *parent = nullptr);
+
+    QSize sizeHint() const override;
+    void          setHeightHint(int heightHint);
 
 protected:
-    virtual void focusOutEvent(QFocusEvent *e);
+    void focusOutEvent(QFocusEvent *e) override;
 
 signals: 
     void editingFinished(); 
+
+private:
+    int m_heightHint;
 };
 
 
@@ -99,20 +118,24 @@ class PdmUiTextEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiTextEditor()          { m_textMode = PdmUiTextEditorAttribute::PLAIN; } 
-    virtual ~PdmUiTextEditor() {} 
+    ~PdmUiTextEditor() override {} 
 
 protected:
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    QWidget*    createEditorWidget(QWidget * parent) override;
+    QWidget*    createLabelWidget(QWidget * parent) override;
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    bool        isMultiRowEditor() const override;
 
 protected slots:
-    void                slotSetValueToField();
+    void        slotSetValueToField();
 
 private:
-    QPointer<TextEdit>      m_textEdit;
-    QPointer<QPushButton>   m_saveButton;
-    QPointer<QLabel>        m_label;
+    QTextOption::WrapMode   toQTextOptionWrapMode(PdmUiTextEditorAttribute::WrapMode wrapMode);
+
+private:
+    QPointer<TextEdit>        m_textEdit;
+    QPointer<QPushButton>     m_saveButton;
+    QPointer<QShortenedLabel> m_label;
 
     PdmUiTextEditorAttribute::TextMode m_textMode; 
 };

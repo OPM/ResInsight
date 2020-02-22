@@ -80,7 +80,7 @@ OpenGLWidget::OpenGLWidget(cvf::OpenGLContextGroup* contextGroup, const QGLForma
                     // the construction process above has already optimistically added the new context to the existing group.
                     // In this case, the newly context is basically defunct so we just shut it down (which will also remove it from the group)
                     myContext->shutdownContext();
-                    CVF_ASSERT(myContext->group() == NULL);
+                    CVF_ASSERT(myContext->group() == nullptr);
                 }
             }
             else
@@ -129,7 +129,7 @@ OpenGLWidget::OpenGLWidget(OpenGLWidget* shareWidget, QWidget* parent , Qt::Wind
             // the construction process above has already optimistically added the new context to the existing group.
             // In this case, the newly context is basically defunct so we just shut it down (which will also remove it from the group)
             myContext->shutdownContext();
-            CVF_ASSERT(myContext->group() == NULL);
+            CVF_ASSERT(myContext->group() == nullptr);
         }
     }
 }

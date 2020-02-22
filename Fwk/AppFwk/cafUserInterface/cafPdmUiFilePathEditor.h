@@ -36,7 +36,9 @@
 
 
 #pragma once
+
 #include "cafPdmUiFieldEditorHandle.h"
+
 #include <QString>
 #include <QWidget>
 #include <QPointer>
@@ -52,15 +54,14 @@ namespace caf
 //==================================================================================================
 /// 
 //==================================================================================================
-
 class PdmUiFilePathEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     PdmUiFilePathEditorAttribute()
     {
         m_selectSaveFileName = false;
-        m_fileSelectionFilter = "All files (*.* *)";
-        
+        m_fileSelectionFilter = "All files (*.*)";
+        m_defaultPath = QString();
         m_selectDirectory = false;
         m_appendUiSelectedFolderToText = false;
         m_multipleItemSeparator = ';';
@@ -69,12 +70,16 @@ public:
     bool    m_selectSaveFileName;
     QString m_fileSelectionFilter;
 
+    QString m_defaultPath;
     bool    m_selectDirectory;
     bool    m_appendUiSelectedFolderToText;
     QChar   m_multipleItemSeparator;
 };
 
 
+//==================================================================================================
+/// 
+//==================================================================================================
 class PdmUiFilePathEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
@@ -82,21 +87,21 @@ class PdmUiFilePathEditor : public PdmUiFieldEditorHandle
 
 public:
     PdmUiFilePathEditor()          {} 
-    virtual ~PdmUiFilePathEditor() {} 
+    ~PdmUiFilePathEditor() override {} 
 
 protected:
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
-    virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    QWidget*    createEditorWidget(QWidget * parent) override;
+    QWidget*    createLabelWidget(QWidget * parent) override;
+    void        configureAndUpdateUi(const QString& uiConfigName) override;
 
 protected slots:
-    void                slotEditingFinished();
-    void                fileSelectionClicked();
+    void        slotEditingFinished();
+    void        fileSelectionClicked();
 
 private:
-    QPointer<QLineEdit>     m_lineEdit;
-    QPointer<QLabel>        m_label;
-    QPointer<QToolButton>   m_button;
+    QPointer<QLineEdit>       m_lineEdit;
+    QPointer<QShortenedLabel> m_label;
+    QPointer<QToolButton>     m_button;
 
     PdmUiFilePathEditorAttribute m_attributes;
 };

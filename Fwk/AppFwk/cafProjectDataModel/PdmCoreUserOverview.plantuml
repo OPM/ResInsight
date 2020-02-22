@@ -1,0 +1,42 @@
+@startuml
+
+class PdmUiItem{
+}
+
+package PdmObject{
+
+PdmUiItem <|---- PdmUiObjectHandle 
+PdmObjectHandle -* "n" PdmObjectCapability
+
+PdmObjectCapability <|-- PdmUiObjectHandle 
+
+PdmObjectHandle    <|-- PdmObject
+PdmUiObjectHandle  <|-- PdmObject
+PdmXmlObjectHandle <|-- PdmObject
+
+PdmObjectCapability <|-- PdmXmlObjectHandle  
+}
+
+package PdmField{
+
+PdmUiItem <|---- PdmUiFieldHandle
+PdmFieldCapability <|-- PdmUiFieldHandle
+
+PdmObjectHandle -> "n" PdmFieldHandle
+
+PdmFieldHandle -* "n" PdmFieldCapability
+
+PdmFieldCapability <|-- PdmXmlFieldHandle
+
+PdmFieldHandle <|--- "PdmField<T>"
+PdmFieldHandle <|--- "PdmProxyField<T>"
+PdmFieldHandle <|--- "PdmPtrField<T*>"
+PdmFieldHandle <|--- "PdmChildField<T*>"
+PdmFieldHandle <|--- "PdmChildArrayField<T*>"
+
+}
+
+PdmObject <|-- YourClass
+
+@enduml
+		

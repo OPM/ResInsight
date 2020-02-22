@@ -85,6 +85,14 @@ namespace caf
 ///    for (size_t i = 0; i < caf::AppEnum<SomeClass::SomeEnumType>::size(); ++i)
 ///        cout << caf::AppEnum<SomeClass::SomeEnumType>::text(caf::AppEnum<SomeClass::SomeEnumType>::fromIndex(i)) << endl;
 ///
+///
+///
+///   Create a list of OptionItemInfos from AppEnum
+///     QList<caf::PdmOptionItemInfo> options;
+///     for (size_t i = 0; i < caf::AppEnum<TestEnumType>::size(); ++i)
+///     {     
+///         options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<TestEnumType>::uiTextFromIndex(i), caf::AppEnum<TestEnumType>::fromIndex(i)));
+///     }
 //==================================================================================================
 
 template <class T>
@@ -98,6 +106,8 @@ public:
     bool                operator!= (T value) const      { return m_value != value;}
                                               
                         operator T () const             { return m_value;}
+                        
+    T                   value() const                   { return m_value;  }
     size_t              index() const                   { return EnumMapper::instance()->index(m_value);}
     QString             text() const                    { return EnumMapper::instance()->text(m_value);}
     QString             uiText() const                  { return EnumMapper::instance()->uiText(m_value);}
@@ -319,15 +329,19 @@ bool operator != ( T value, const caf::AppEnum<T>& appEnum)
 //==================================================================================================
 
 template < typename T >
-void operator >> (QTextStream& str, caf::AppEnum<T>& appEnum)
+QTextStream& operator >> (QTextStream& str, caf::AppEnum<T>& appEnum)
 {
     QString text;
     str >> text;
     appEnum.setFromText(text);
+
+    return str;
 }
 
 template < typename T >
-void operator << (QTextStream& str, const caf::AppEnum<T>& appEnum)
+QTextStream& operator << (QTextStream& str, const caf::AppEnum<T>& appEnum)
 {
-    str << appEnum.text();  
+    str << appEnum.text();
+
+    return str;
 }

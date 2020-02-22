@@ -6,6 +6,10 @@
 #include "riSettings.h"
 #include "RiaSocketDataTransfer.cpp"  // NB! Include cpp-file to avoid linking of additional file in oct-compile configuration
 
+#ifdef WIN32
+#include <Windows.h>
+#endif //WIN32
+
 
 void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, quint16 port,
                         const qint64& caseId, const qint64& gridIndex, QString propertyName, const int32NDArray& timeStepIndices, QString porosityModel)
@@ -26,11 +30,11 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
 
     QString command = QString("SetGridProperty %1 %2 %3 %4").arg(caseId).arg(gridIndex).arg(propertyName).arg(porosityModel);
 
-    for (int i = 0; i < timeStepIndices.length(); ++i)
+    for (int i = 0; i < timeStepIndices.numel(); ++i)
     {
         if (i == 0) command += " ";
         command += QString::number(static_cast<int>(timeStepIndices.elem(i)) - 1); // To make the index 0-based
-        if (i != timeStepIndices.length() -1) command += " ";
+        if (i != timeStepIndices.numel() -1) command += " ";
     }
 
     QByteArray cmdBytes = command.toLatin1();
@@ -110,6 +114,15 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     {
         error("riSetGridProperty : ResInsight refused to accept the data. Maybe the dimensions or porosity model is wrong.\n");
     }
+
+#ifdef WIN32
+    // TODO: Due to synchronization issues seen on Windows 10, it is required to do a sleep here to be able to catch disconnect
+    // signals from the socket. No sleep causes the server to hang.
+
+    Sleep(100);
+
+#endif //WIN32
+
     return;
 }
 
@@ -224,7 +237,7 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
     if (argIndices[4] >= 0) timeStepIndices = args(argIndices[4]).int32_array_value();
     if (argIndices[5] >= 0) porosityModel   = args(argIndices[5]).string_value();
 
-    if (timeStepIndices.length() > 1)
+    if (timeStepIndices.numel() > 1)
     {
         if (mxDims.length() == 3)
         {
@@ -234,7 +247,7 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
         }
         
         int timeStepCount = mxDims.elem(3);
-        if (timeStepIndices.length() != timeStepCount)
+        if (timeStepIndices.numel() != timeStepCount)
         {
             error("riSetGridProperty: The number of time steps in the input matrix must match the number of time steps in the TimeStepIndices array.");
             print_usage();

@@ -61,6 +61,7 @@ class QXmlStreamWriter;
 #include "cafInternalPdmXmlFieldCapability.h"
 
 #include "cafPdmUiFieldSpecialization.h"
+#include "cafQIconProvider.h"
 
 
 namespace caf 
@@ -84,8 +85,9 @@ class PdmObjectCapability;
 { \
     this->isInheritedFromPdmUiObject(); \
     this->isInheritedFromPdmXmlSerializable(); \
+    this->registerClassKeyword(classKeywordStatic()); \
     \
-    static caf::PdmUiItemInfo objDescr(uiName, QIcon(QString(iconResourceName)), toolTip, whatsThis); \
+    static caf::PdmUiItemInfo objDescr(uiName, QString(iconResourceName), toolTip, whatsThis); \
     this->setUiItemInfo(&objDescr); \
 }
 
@@ -106,7 +108,7 @@ class PdmObjectCapability;
     AddXmlCapabilityToField(field); \
     AddUiCapabilityToField(field); \
     \
-    static caf::PdmUiItemInfo objDescr(uiName, QIcon(QString(iconResourceName)), toolTip, whatsThis); \
+    static caf::PdmUiItemInfo objDescr(uiName, QString(iconResourceName), toolTip, whatsThis, keyword); \
     addFieldUi(field, keyword, default, &objDescr); \
 }
 
@@ -124,7 +126,7 @@ class PdmObjectCapability;
     AddXmlCapabilityToField(field); \
     AddUiCapabilityToField(field); \
     \
-    static caf::PdmUiItemInfo objDescr(uiName, QIcon(QString(iconResourceName)), toolTip, whatsThis); \
+    static caf::PdmUiItemInfo objDescr(uiName, QString(iconResourceName), toolTip, whatsThis, keyword); \
     addFieldUiNoDefault(field, keyword, &objDescr); \
 }
 
@@ -139,8 +141,8 @@ namespace caf
 class PdmObject : public PdmObjectHandle, public PdmXmlObjectHandle, public PdmUiObjectHandle
 {
 public:
-    PdmObject() : PdmObjectHandle(), PdmUiObjectHandle(this, false), PdmXmlObjectHandle(this, false) {}
-    virtual ~PdmObject() {}
+    PdmObject() : PdmObjectHandle(), PdmXmlObjectHandle(this, false), PdmUiObjectHandle(this, false) {}
+    ~PdmObject() override {}
 
     /// Adds field to the internal data structure and sets the file keyword and Ui information 
     /// Consider this method private. Please use the CAF_PDM_InitField() macro instead
@@ -165,6 +167,22 @@ public:
         }
     }
 
+    /// Returns _this_ if _this_ has requested class keyword
+    /// Traverses parents recursively and returns first parent of the requested
+    /// type.
+    void firstAncestorOrThisFromClassKeyword(const QString& classKeyword,
+                                             PdmObject*& ancestor) const;
+
+    /// Traverses all children recursively to find objects of the requested
+    /// class keyword. This object is also
+    /// included if it has the requested class keyword
+    void descendantsIncludingThisFromClassKeyword(const QString& classKeyword,
+                                                  std::vector<PdmObject*>& descendants) const;
+
+    /// Gets all children matching class keyword. Not recursive.
+    void childrenFromClassKeyword(
+        const QString& classKeyword,
+        std::vector<PdmObject*>& children) const;
 };
 
 } // End of namespace caf

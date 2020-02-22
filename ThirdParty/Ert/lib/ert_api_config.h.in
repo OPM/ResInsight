@@ -1,0 +1,20 @@
+#cmakedefine ERT_HAVE_ZLIB
+#cmakedefine ERT_HAVE_ISFINITE
+#cmakedefine ERT_HAVE_GETOPT
+#cmakedefine ERT_HAVE_UNISTD
+#cmakedefine ERT_HAVE_SPAWN
+#cmakedefine ERT_HAVE_THREAD_POOL
+#cmakedefine ERT_HAVE_OPENDIR
+#cmakedefine ERT_HAVE_SYMLINK
+#cmakedefine ERT_HAVE_READLINKAT
+#cmakedefine ERT_HAVE_READLINKAT_DECLARATION
+#cmakedefine ERT_HAVE_GLOB
+#cmakedefine ERT_HAVE_GETUID
+#cmakedefine ERT_HAVE_REGEXP
+#cmakedefine ERT_HAVE_LOCKF
+#cmakedefine ERT_TIME_T_64BIT_ACCEPT_PRE1970
+#cmakedefine ERT_WINDOWS_LFS
+#cmakedefine ERT_HAVE_PING
+#cmakedefine PING_CMD "@PING_PATH@"
+
+

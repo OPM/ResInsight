@@ -446,6 +446,8 @@ int Nightcharts::GetQuater(double angle)
         return 3;
     if(angle>=270 && angle<360)
         return 4;
+
+    return 1;
 }
 
 double Nightcharts::Angle360(double angle)

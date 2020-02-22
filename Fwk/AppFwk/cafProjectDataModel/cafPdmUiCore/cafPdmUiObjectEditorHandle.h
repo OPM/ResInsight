@@ -2,6 +2,7 @@
 //
 //   Custom Visualization Core library
 //   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -41,10 +42,6 @@
 #include "cafPdmPointer.h"
 
 #include <QPointer>
-#include <QString>
-#include <QWidget>
-
-#include <vector>
 
 namespace caf 
 {
@@ -55,27 +52,26 @@ class PdmObjectHandle;
 /// Abstract class to handle editors for complete PdmObjects
 //==================================================================================================
 
-class PdmUiObjectEditorHandle: public PdmUiEditorHandle
+class PdmUiObjectEditorHandle : public PdmUiEditorHandle
 {
 public:
-    PdmUiObjectEditorHandle() {}
-    ~PdmUiObjectEditorHandle() {}
-   
-    QWidget*            getOrCreateWidget(QWidget* parent);
-    QWidget*            widget() { return m_widget; }
+    PdmUiObjectEditorHandle();
+    ~PdmUiObjectEditorHandle() override;
 
-    void                setPdmObject(PdmObjectHandle* object);
-    PdmObjectHandle*    pdmObject();
+    void                    setPdmObject(PdmObjectHandle* object);
+    PdmObjectHandle*        pdmObject();
+    const PdmObjectHandle*  pdmObject() const;
 
-protected:
-    virtual QWidget*    createWidget(QWidget* parent) = 0;
-    virtual void        cleanupBeforeSettingPdmObject() {};
+    /// This function is intended to be called after a PdmObject has been created or deleted
+    static void             updateUiAllObjectEditors();
 
 protected:
-    QPointer<QWidget>   m_widget;
+    virtual void            cleanupBeforeSettingPdmObject() {};
+
+private:
+
+    static std::set<QPointer<PdmUiObjectEditorHandle>> m_sRegisteredObjectEditors;
 };
-
-
 
 } // End of namespace caf
 

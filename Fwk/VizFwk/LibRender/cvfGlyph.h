@@ -55,6 +55,12 @@ class OpenGLContext;
 class Glyph : public Object
 {
 public:
+    enum TextureFilter
+    {
+        NEAREST,
+        LINEAR
+    };
+
     Glyph(wchar_t character);
     virtual ~Glyph();
 
@@ -78,6 +84,9 @@ public:
 
     void                setupAndBindTexture(OpenGLContext* oglContext, bool software);
 
+    void                setMinFilter(TextureFilter filter);
+    void                setMagFilter(TextureFilter filter);
+
 private:
     wchar_t           m_character;          // Character this glyph is generated from
 
@@ -95,6 +104,10 @@ private:
     ref<TextureImage> m_textureImage;       // Pre-rendered image of m_character
     ref<FloatArray>   m_textureCoordinates; // Texture coordinates of where in the m_texgtureImage to find the given pre-rendered character
     ref<RenderState>  m_textureBindings;    // For shader based rendering this is a TextureBindings object, while software rendering uses RenderStateTextureMapping_FF instead
+
+    // Texture filter options
+    TextureFilter     m_minFilter;
+    TextureFilter     m_magFilter;
 };
 
 } // namespace cvf

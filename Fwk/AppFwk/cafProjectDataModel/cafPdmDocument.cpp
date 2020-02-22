@@ -60,7 +60,7 @@ PdmDocument::PdmDocument()
 void PdmDocument::readFile()
 {
     QFile xmlFile(fileName);
-    if (!xmlFile.open(QIODevice::ReadOnly ))
+    if (!xmlFile.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
     readFile(&xmlFile);
@@ -84,7 +84,7 @@ void PdmDocument::readFile(QIODevice* xmlFile)
                 // Error: This is not a Ceetron Pdm based xml document
                 return;
             }
-            readFields(xmlStream, PdmDefaultObjectFactory::instance());
+            readFields(xmlStream, PdmDefaultObjectFactory::instance(), false);
         }
     }
 
@@ -101,7 +101,7 @@ void PdmDocument::readFile(QIODevice* xmlFile)
 bool PdmDocument::writeFile()
 {
     QFile xmlFile(fileName);
-    if (!xmlFile.open(QIODevice::WriteOnly ))
+    if (!xmlFile.open(QIODevice::WriteOnly | QIODevice::Text))
         return false;
 
     writeFile(&xmlFile);
@@ -135,7 +135,7 @@ void PdmDocument::writeFile(QIODevice* xmlFile)
 //--------------------------------------------------------------------------------------------------
 void PdmDocument::updateUiIconStateRecursively(PdmObjectHandle* object)
 {
-    if (object == NULL) return;
+    if (object == nullptr) return;
     std::vector<PdmFieldHandle*> fields;
     object->fields(fields);
     

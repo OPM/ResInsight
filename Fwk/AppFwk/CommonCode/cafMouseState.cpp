@@ -42,7 +42,7 @@
 #include <QMouseEvent>
 #include <QGraphicsSceneMouseEvent>
 
-#include <math.h>
+#include <cmath>
 
 namespace caf {
 
