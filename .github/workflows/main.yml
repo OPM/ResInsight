@@ -26,6 +26,8 @@ jobs:
           pip install pytest
       - name: Checkout
         uses: actions/checkout@v1
+        with:
+          submodules: true
       - name: Cache vcpkg artifacts
         uses: actions/cache@v1
         env:
