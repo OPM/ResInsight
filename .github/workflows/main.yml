@@ -60,4 +60,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: ResInsight
-          path: ${{ runner.workspace }}/ResInsight/cmakebuild/packages/*.zip
+          path: ${{ runner.workspace }}/ResInsight/cmakebuild/packages
