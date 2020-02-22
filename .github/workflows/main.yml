@@ -39,6 +39,7 @@ jobs:
         with:
           vcpkgArguments: '${{ matrix.vcpkgPackages }}'
           vcpkgTriplet: '${{ matrix.triplet }}'
+          vcpkgGitCommitId: '${{ matrix.vcpkgGitCommitId }}'
       - name: Prints outputs of run-vcpkg task
         run: echo "'${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}' '${{  steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET_OUT }}' "
               
