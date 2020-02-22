@@ -12,11 +12,11 @@ jobs:
         include:
           - os: windows-latest
             triplet: x64-windows
-            vcpkgCommitId: '2019.11'
+            vcpkgGitCommitId: '6282cab61d175974b1af06473db584b9b80dcd48'
             vcpkgPackages: 'grpc'
           - os: ubuntu-latest
             triplet: x64-linux
-            vcpkgCommitId: '2019.11'
+            vcpkgGitCommitId: '6282cab61d175974b1af06473db584b9b80dcd48'
             vcpkgPackages: 'grpc'
     steps:
       - name: Install Python dependencies
@@ -26,8 +26,6 @@ jobs:
           pip install pytest
       - name: Checkout
         uses: actions/checkout@v1
-        with:
-          submodules: true
       - name: Cache vcpkg artifacts
         uses: actions/cache@v1
         env:
