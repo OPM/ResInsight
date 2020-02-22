@@ -42,5 +42,11 @@ jobs:
           vcpkgGitCommitId: '${{ matrix.vcpkgGitCommitId }}'
       - name: Prints outputs of run-vcpkg task
         run: echo "'${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}' '${{  steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET_OUT }}' "
+      - name: Install Qt
+        uses: ouuan/install-qt-action@v2.3.1
+        with:
+          version: 5.9.1
+          target: desktop
+          modules: qtscript 
               
  
