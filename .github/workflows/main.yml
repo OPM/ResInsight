@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   ResInsight-x64:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -26,7 +26,6 @@ jobs:
           pip install pytest
       - name: Checkout
         uses: actions/checkout@v1
-      
       - name: Cache vcpkg artifacts
         uses: actions/cache@v1
         env:
