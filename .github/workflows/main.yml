@@ -73,6 +73,7 @@ jobs:
           cd ApplicationCode/GrpcInterface/Python/rips
           pytest --console
       - name: Upload artifact
+        if: "contains( matrix.os, 'windows')"
         uses: actions/upload-artifact@v1
         with:
           name: ResInsight
