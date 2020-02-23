@@ -24,6 +24,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install grpcio-tools
           pip install pytest
+      - name: Install xmllint
+        if: "contains( matrix.os, 'ubuntu')"
+        run: sudo libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
       - name: Checkout
         uses: actions/checkout@v1
       - name: Cache vcpkg artifacts
