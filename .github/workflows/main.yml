@@ -26,7 +26,7 @@ jobs:
           pip install pytest
       - name: Install xmllint
         if: "contains( matrix.os, 'ubuntu')"
-        run: sudo libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
+        run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
       - name: Checkout
         uses: actions/checkout@v1
       - name: Cache vcpkg artifacts
@@ -57,7 +57,7 @@ jobs:
           mkdir cmakebuild
           cd cmakebuild
           cmake .. -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
-          cmake --build . --config Release --target PACKAGE
+          cmake --build . --config Release --target 'PACKAGE'
       - name: Build ResInsight-x64 Linux
         if: "contains( matrix.os, 'ubuntu')"
         run: |
