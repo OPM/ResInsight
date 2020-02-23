@@ -24,7 +24,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install grpcio-tools
           pip install pytest
-      - name: Install xmllint
+      - name: Install Linux dependencies
         if: "contains( matrix.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
       - name: Checkout
@@ -56,7 +56,21 @@ jobs:
         run: |
           mkdir cmakebuild
           cd cmakebuild
-          cmake .. -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+          cmake .. -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -A x64
+          cmake --build . --config Release --target PACKAGE
+      - name: Test with pytest
+        env:
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/Release/ResInsight.exe
+        run: |
+          cd ApplicationCode/GrpcInterface/Python/rips
+          pytest --console
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: ResInsight
+          path: ${{ runner.workspace }}/ResInsight/cmakebuild/packages
+
           cmake --build . --config Release --target 'PACKAGE'
       - name: Build ResInsight-x64 Linux
         if: "contains( matrix.os, 'ubuntu')"
