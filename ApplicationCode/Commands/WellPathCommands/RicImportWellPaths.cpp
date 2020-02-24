@@ -71,21 +71,32 @@ RicfCommandResponse RicImportWellPaths::execute()
     QStringList errorMessages, warningMessages;
     QStringList wellPathFiles;
 
-    QDir wellPathFolder( m_wellPathFolder );
-
-    if ( wellPathFolder.exists() )
+    QDir wellPathDir;
+    if ( m_wellPathFolder().isEmpty() )
     {
-        QStringList nameFilters;
-        nameFilters << RicImportWellPaths::wellPathNameFilters();
-        QStringList relativePaths = wellPathFolder.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
-        for ( QString relativePath : relativePaths )
-        {
-            wellPathFiles.push_back( wellPathFolder.absoluteFilePath( relativePath ) );
-        }
+        wellPathDir = QDir( RiaApplication::instance()->startDir() );
     }
     else
     {
-        errorMessages << ( m_wellPathFolder() + " does not exist" );
+        wellPathDir = QDir( m_wellPathFolder );
+    }
+
+    if ( !m_wellPathFolder().isEmpty() )
+    {
+        if ( wellPathDir.exists() )
+        {
+            QStringList nameFilters;
+            nameFilters << RicImportWellPaths::wellPathNameFilters();
+            QStringList relativePaths = wellPathDir.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
+            for ( QString relativePath : relativePaths )
+            {
+                wellPathFiles.push_back( wellPathDir.absoluteFilePath( relativePath ) );
+            }
+        }
+        else
+        {
+            errorMessages << ( wellPathDir.absolutePath() + " does not exist" );
+        }
     }
 
     for ( QString wellPathFile : m_wellPathFiles() )
@@ -93,6 +104,10 @@ RicfCommandResponse RicImportWellPaths::execute()
         if ( QFileInfo::exists( wellPathFile ) )
         {
             wellPathFiles.push_back( wellPathFile );
+        }
+        else if ( QFileInfo::exists( wellPathDir.absoluteFilePath( wellPathFile ) ) )
+        {
+            wellPathFiles.push_back( wellPathDir.absoluteFilePath( wellPathFile ) );
         }
         else
         {
