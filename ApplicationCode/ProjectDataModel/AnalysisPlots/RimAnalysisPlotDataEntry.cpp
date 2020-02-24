@@ -69,9 +69,9 @@ void RimAnalysisPlotDataEntry::setFromCurveDefinition( const RiaSummaryCurveDefi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlotDataEntry::setSummaryCase( RimSummaryCase* sumCase )
+RiaSummaryCurveDefinition RimAnalysisPlotDataEntry::curveDefinition() const
 {
-    m_summaryCase = sumCase;
+    return RiaSummaryCurveDefinition( m_summaryCase(), m_summaryAddress->address(), m_ensemble() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,14 +88,6 @@ RimSummaryCase* RimAnalysisPlotDataEntry::summaryCase() const
 RimSummaryCaseCollection* RimAnalysisPlotDataEntry::ensemble() const
 {
     return m_ensemble;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlotDataEntry::setSummaryAddress( const RifEclipseSummaryAddress& address )
-{
-    m_summaryAddress->setAddress( address );
 }
 
 //--------------------------------------------------------------------------------------------------

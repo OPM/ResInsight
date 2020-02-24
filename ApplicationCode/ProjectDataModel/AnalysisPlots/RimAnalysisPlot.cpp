@@ -354,20 +354,8 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         // Do select variables
         RiuSummaryVectorSelectionDialog dlg( nullptr );
-        // RimSummaryCase*                   candidateCase    = m_yValuesSummaryCase();
-        // RifEclipseSummaryAddress          candicateAddress = m_yValuesSummaryAddress->address();
 
-        // if ( candidateCase == nullptr )
-        //{
-        //    candidateCase = m_xValuesSummaryCase();
-        //}
-        //
-        // if ( !candicateAddress.isValid() )
-        //{
-        //    candicateAddress = m_xValuesSummaryAddress->address();
-        //}
-
-        // dlg.hideEnsembles();
+        dlg.setCurveSelection( this->curveDefinitions() );
         dlg.enableMultiSelect( true );
         dlg.setCaseAndAddress( nullptr, RifEclipseSummaryAddress() );
 
@@ -549,4 +537,18 @@ void RimAnalysisPlot::updatePlotTitle()
         m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
         m_plotWidget->scheduleReplot();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitions()
+{
+    std::vector<RiaSummaryCurveDefinition> curveDefs;
+    for ( auto dataEntry : m_data )
+    {
+        curveDefs.push_back( dataEntry->curveDefinition() );
+    }
+
+    return curveDefs;
 }

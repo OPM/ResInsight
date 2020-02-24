@@ -110,6 +110,14 @@ void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseColle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionDialog::setCurveSelection( const std::vector<RiaSummaryCurveDefinition>& selection )
+{
+    summaryAddressSelection()->setSelectedCurveDefinitions( selection );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionDialog::curveSelection() const
 {
     return summaryAddressSelection()->selection();
@@ -132,11 +140,11 @@ void RiuSummaryVectorSelectionDialog::hideSummaryCases()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionDialog::enableMultiSelect( bool enable )
 {
-    summaryAddressSelection()->setMultiSelectionMode(enable);
+    summaryAddressSelection()->setMultiSelectionMode( enable );
 }
 
 //--------------------------------------------------------------------------------------------------

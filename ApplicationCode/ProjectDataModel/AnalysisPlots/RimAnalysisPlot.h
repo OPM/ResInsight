@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaSummaryCurveDefinition.h"
+
 #include "RimPlot.h"
 
 #include <QDateTime>
@@ -108,6 +110,8 @@ private:
     void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
     void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
     void updatePlotTitle();
+
+    std::vector<RiaSummaryCurveDefinition> curveDefinitions();
 
 private:
     QPointer<RiuQwtPlotWidget> m_plotWidget;
