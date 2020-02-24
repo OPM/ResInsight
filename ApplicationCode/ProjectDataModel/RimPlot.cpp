@@ -1,5 +1,6 @@
 #include "RimPlot.h"
 
+#include "RicfCommandObject.h"
 #include "RimMultiPlot.h"
 #include "RimPlotCurve.h"
 #include "RimPlotWindow.h"
@@ -25,14 +26,14 @@ void RimPlot::RowOrColSpanEnum::setUp()
 }
 } // namespace caf
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlot, "Plot", "RimPlot" ); // Do not use. Abstract class
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlot, "RimPlot" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlot::RimPlot()
 {
-    CAF_PDM_InitObject( "Plot", "", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "Plot", "", "", "", "Plot", "The Abstract Base Class for all Plot Objects" );
 
     CAF_PDM_InitFieldNoDefault( &m_rowSpan, "RowSpan", "Row Span", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_colSpan, "ColSpan", "Col Span", "", "", "" );

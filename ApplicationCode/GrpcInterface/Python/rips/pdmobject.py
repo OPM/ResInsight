@@ -78,6 +78,7 @@ def copy_from(self, object):
     for attribute in dir(object):
         if not attribute.startswith('__'):
             value = getattr(object, attribute)
+            # This is crucial to avoid overwriting methods
             if not callable(value):
                 setattr(self, attribute, value)   
 

@@ -7,11 +7,11 @@ import rips.generated.Commands_pb2 as Cmd
 
 import rips.case  # Circular import of Case, which already imports View. Use full name.
 from rips.pdmobject import add_method
-from rips.generated.pdm_objects import View, ViewWindow, ReservoirView, GeoMechView
+from rips.generated.pdm_objects import View, ViewWindow, EclipseView, GeoMechView
 
 @add_method(View)
 def is_eclipse_view(self):
-    return isinstance(self, ReservoirView)
+    return isinstance(self, EclipseView)
 
 @add_method(View)
 def is_geomech_view(self):

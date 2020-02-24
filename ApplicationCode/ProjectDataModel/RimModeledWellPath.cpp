@@ -18,6 +18,7 @@
 
 #include "RimModeledWellPath.h"
 
+#include "RicfCommandObject.h"
 #include "RimProject.h"
 #include "RimWellPathGeometryDef.h"
 
@@ -32,14 +33,14 @@
 #include "RimWellPathFractureCollection.h"
 #include "cafPdmUiTreeOrdering.h"
 
-CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimModeledWellPath, "ModeledWellPath" );
+CAF_PDM_SOURCE_INIT( RimModeledWellPath, "ModeledWellPath" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimModeledWellPath::RimModeledWellPath()
 {
-    CAF_PDM_InitObject( "Modeled WellPath", ":/EditableWell.png", "", "" );
+    RICF_InitObject( "Modeled WellPath", ":/EditableWell.png", "", "A Well Path created interactively in ResInsight" );
 
     CAF_PDM_InitFieldNoDefault( &m_geometryDefinition, "WellPathGeometryDef", "Trajectory", "", "", "" );
     m_geometryDefinition = new RimWellPathGeometryDef;

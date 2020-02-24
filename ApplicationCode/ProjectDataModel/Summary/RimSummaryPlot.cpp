@@ -25,6 +25,7 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
+#include "RicfCommandObject.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
@@ -74,7 +75,7 @@
 #include <limits>
 #include <set>
 
-CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
+CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 
 //--------------------------------------------------------------------------------------------------
 /// Internal types
@@ -142,16 +143,16 @@ CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData );
 RimSummaryPlot::RimSummaryPlot()
     : RimPlot()
 {
-    CAF_PDM_InitObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "" );
+    RICF_InitObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
+    RICF_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
     m_showPlotTitle.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
+    RICF_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
 
-    CAF_PDM_InitField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name", "", "", "" );
+    RICF_InitField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name", "", "", "" );
 
-    CAF_PDM_InitField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
+    RICF_InitField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );

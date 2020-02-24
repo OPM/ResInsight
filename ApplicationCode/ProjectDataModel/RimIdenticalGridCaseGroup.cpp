@@ -48,14 +48,19 @@
 #include <QDir>
 #include <QMessageBox>
 
-CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimIdenticalGridCaseGroup, "GridCaseGroup", "RimIdenticalGridCaseGroup" );
+CAF_PDM_SOURCE_INIT( RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 {
-    CAF_PDM_InitObject( "Grid Case Group", ":/GridCaseGroup16x16.png", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "Grid Case Group",
+                                             ":/GridCaseGroup16x16.png",
+                                             "",
+                                             "",
+                                             "GridCaseGroup",
+                                             "A statistics case group" );
 
     RICF_InitField( &name, "UserDescription", QString( "Grid Case Group" ), "Name", "", "", "" );
 

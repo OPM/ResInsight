@@ -19,6 +19,7 @@
 
 #include "RiaApplication.h"
 #include "RiaGrpcCallbacks.h"
+#include "RicfObjectCapability.h"
 #include "Rim3dView.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
@@ -36,8 +37,11 @@ grpc::Status RiaGrpcPdmObjectService::GetAncestorPdmObject( grpc::ServerContext*
 {
     RimProject*                  project = RiaApplication::instance()->project();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
-    project->descendantsIncludingThisFromClassKeyword( QString::fromStdString( request->object().class_keyword() ),
-                                                       objectsOfCurrentClass );
+
+    QString scriptClassName = QString::fromStdString( request->object().class_keyword() );
+    QString classKeyword    = RicfObjectCapability::classKeywordFromScriptClassName( scriptClassName );
+
+    project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 
     caf::PdmObject* matchingObject = nullptr;
     for ( caf::PdmObject* testObject : objectsOfCurrentClass )
@@ -50,9 +54,10 @@ grpc::Status RiaGrpcPdmObjectService::GetAncestorPdmObject( grpc::ServerContext*
 
     if ( matchingObject )
     {
-        caf::PdmObject* parentObject = nullptr;
-        matchingObject->firstAncestorOrThisFromClassKeyword( QString::fromStdString( request->parent_keyword() ),
-                                                             parentObject );
+        caf::PdmObject* parentObject       = nullptr;
+        QString         ancestorScriptName = QString::fromStdString( request->parent_keyword() );
+        QString ancestorClassKeyword = RicfObjectCapability::classKeywordFromScriptClassName( ancestorScriptName );
+        matchingObject->firstAncestorOrThisFromClassKeyword( ancestorClassKeyword, parentObject );
         if ( parentObject )
         {
             copyPdmObjectFromCafToRips( parentObject, reply );
@@ -71,8 +76,11 @@ grpc::Status RiaGrpcPdmObjectService::GetDescendantPdmObjects( grpc::ServerConte
 {
     RimProject*                  project = RiaApplication::instance()->project();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
-    project->descendantsIncludingThisFromClassKeyword( QString::fromStdString( request->object().class_keyword() ),
-                                                       objectsOfCurrentClass );
+
+    QString scriptClassName = QString::fromStdString( request->object().class_keyword() );
+    QString classKeyword    = RicfObjectCapability::classKeywordFromScriptClassName( scriptClassName );
+
+    project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 
     caf::PdmObject* matchingObject = nullptr;
     for ( caf::PdmObject* testObject : objectsOfCurrentClass )
@@ -86,8 +94,9 @@ grpc::Status RiaGrpcPdmObjectService::GetDescendantPdmObjects( grpc::ServerConte
     if ( matchingObject )
     {
         std::vector<caf::PdmObject*> childObjects;
-        matchingObject->descendantsIncludingThisFromClassKeyword( QString::fromStdString( request->child_keyword() ),
-                                                                  childObjects );
+        QString                      childClassKeyword =
+            RicfObjectCapability::classKeywordFromScriptClassName( QString::fromStdString( request->child_keyword() ) );
+        matchingObject->descendantsIncludingThisFromClassKeyword( childClassKeyword, childObjects );
         for ( auto pdmChild : childObjects )
         {
             rips::PdmObject* ripsChild = reply->add_objects();
@@ -107,8 +116,11 @@ grpc::Status RiaGrpcPdmObjectService::GetChildPdmObjects( grpc::ServerContext*  
 {
     RimProject*                  project = RiaApplication::instance()->project();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
-    project->descendantsIncludingThisFromClassKeyword( QString::fromStdString( request->object().class_keyword() ),
-                                                       objectsOfCurrentClass );
+
+    QString scriptClassName = QString::fromStdString( request->object().class_keyword() );
+    QString classKeyword    = RicfObjectCapability::classKeywordFromScriptClassName( scriptClassName );
+
+    project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 
     caf::PdmObject* matchingObject = nullptr;
     for ( caf::PdmObject* testObject : objectsOfCurrentClass )
@@ -152,8 +164,11 @@ grpc::Status RiaGrpcPdmObjectService::UpdateExistingPdmObject( grpc::ServerConte
 {
     RimProject*                  project = RiaApplication::instance()->project();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
-    project->descendantsIncludingThisFromClassKeyword( QString::fromStdString( request->class_keyword() ),
-                                                       objectsOfCurrentClass );
+
+    QString scriptClassName = QString::fromStdString( request->class_keyword() );
+    QString classKeyword    = RicfObjectCapability::classKeywordFromScriptClassName( scriptClassName );
+
+    project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 
     caf::PdmObject* matchingObject = nullptr;
     for ( caf::PdmObject* pdmObject : objectsOfCurrentClass )
@@ -196,8 +211,11 @@ grpc::Status RiaGrpcPdmObjectService::CreateChildPdmObject( grpc::ServerContext*
 {
     RimProject*                  project = RiaApplication::instance()->project();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
-    project->descendantsIncludingThisFromClassKeyword( QString::fromStdString( request->object().class_keyword() ),
-                                                       objectsOfCurrentClass );
+
+    QString scriptClassName = QString::fromStdString( request->object().class_keyword() );
+    QString classKeyword    = RicfObjectCapability::classKeywordFromScriptClassName( scriptClassName );
+
+    project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 
     caf::PdmObject* matchingObject = nullptr;
     for ( caf::PdmObject* testObject : objectsOfCurrentClass )

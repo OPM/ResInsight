@@ -77,8 +77,6 @@ class PdmObjectCapability;
 #define CAF_PDM_SOURCE_INIT CAF_PDM_XML_SOURCE_INIT
 #define CAF_PDM_ABSTRACT_SOURCE_INIT CAF_PDM_XML_ABSTRACT_SOURCE_INIT
 
-#define CAF_PDM_SCRIPTABLE_SOURCE_INIT CAF_PDM_XML_SCRIPTABLE_SOURCE_INIT
-
 /// InitObject sets up the user interface related information for the object
 /// Placed in the constructor of your PdmObject
 /// Note that classKeyword() is not virtual in the constructor of the PdmObject

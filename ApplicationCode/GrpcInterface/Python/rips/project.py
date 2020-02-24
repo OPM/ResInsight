@@ -90,12 +90,7 @@ def cases(self):
     Returns:
         A list of rips Case objects
     """
-    pdm_objects = self.descendants(Case.__name__)
-
-    cases = []
-    for pdm_object in pdm_objects:
-        cases.append(pdm_object.cast(Case))
-    return cases
+    return self.descendants(Case)
 
 @add_method(Project)
 def case(self, case_id):
@@ -142,11 +137,7 @@ def create_grid_case_group(self, case_paths):
 @add_method(Project)
 def views(self):
     """Get a list of views belonging to a project"""
-    pdm_objects = self.descendants("ReservoirView")
-    view_list = []
-    for pdm_object in pdm_objects:
-        view_list.append(View(pdm_object))
-    return view_list
+    return self.descendants(View)
 
 @add_method(Project)
 def view(self, view_id):

@@ -44,7 +44,7 @@ const QString RimSummaryCase::DEFAULT_DISPLAY_NAME = "Display Name";
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase::RimSummaryCase()
 {
-    CAF_PDM_InitObject( "Summary Case", ":/SummaryCase16x16.png", "", "" );
+    RICF_InitObject( "Summary Case", ":/SummaryCase16x16.png", "", "The Base Class for all Summary Cases" );
 
     RICF_InitField( &m_shortName, "ShortName", QString( "Display Name" ), DEFAULT_DISPLAY_NAME, "", "", "" );
     RICF_InitField( &m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
