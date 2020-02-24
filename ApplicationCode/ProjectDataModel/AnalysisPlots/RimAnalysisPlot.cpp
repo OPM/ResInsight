@@ -56,9 +56,9 @@ void caf::AppEnum<RimAnalysisPlot::SortGroupType>::setUp()
 template <>
 void caf::AppEnum<RimAnalysisPlot::BarOrientation>::setUp()
 {
-    addItem( RimAnalysisPlot::BAR_HORIZONTAL, "BAR_HORIZONTAL", "Horizontal" );
+    addItem( RimAnalysisPlot::BARS_HORIZONTAL, "BARS_HORIZONTAL", "Horizontal" );
     addItem( RimAnalysisPlot::BARS_VERTICAL, "BARS_VERTICAL", "Vertical" );
-    setDefault( RimAnalysisPlot::BAR_HORIZONTAL );
+    setDefault( RimAnalysisPlot::BARS_VERTICAL );
 }
 } // namespace caf
 
@@ -438,9 +438,9 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
         RiuGroupedBarChartBuilder chartBuilder;
 
         // buildTestPlot( chartBuilder );
-        buildChart( chartBuilder );
+        addDataToChartBuilder( chartBuilder );
 
-        chartBuilder.addBarChartToPlot( m_plotWidget, m_barOrientation == BAR_HORIZONTAL ? Qt::Horizontal : Qt::Vertical );
+        chartBuilder.addBarChartToPlot( m_plotWidget, m_barOrientation == BARS_HORIZONTAL ? Qt::Horizontal : Qt::Vertical );
 
         if ( m_showPlotLegends && m_plotWidget->legend() == nullptr )
         {
@@ -462,7 +462,7 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::buildChart( RiuGroupedBarChartBuilder& chartBuilder )
+void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder )
 {
     for ( const RimAnalysisPlotDataEntry* dataEntry : m_data )
     {

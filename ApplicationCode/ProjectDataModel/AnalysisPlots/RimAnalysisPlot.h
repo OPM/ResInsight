@@ -105,7 +105,7 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
 
-    void buildChart( RiuGroupedBarChartBuilder& chartBuilder );
+    void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
     void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
     void updatePlotTitle();
 
@@ -119,7 +119,7 @@ private:
 public:
     enum BarOrientation
     {
-        BAR_HORIZONTAL,
+        BARS_HORIZONTAL,
         BARS_VERTICAL
     };
 

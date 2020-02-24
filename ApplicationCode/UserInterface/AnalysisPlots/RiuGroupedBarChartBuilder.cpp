@@ -65,8 +65,8 @@ public:
                         }
 
                         painter->fillRect( r,
-                                           this->palette()
-                                               .window() ); // This line here is the difference. Qwt adds a 1 to width and height.
+                                           this->palette().window() ); // This line here is the difference. Qwt adds a 1
+                                                                       // to width and height.
                     }
                     break;
                     default:
@@ -185,7 +185,9 @@ protected:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGroupedBarChartBuilder::RiuGroupedBarChartBuilder() {}
+RiuGroupedBarChartBuilder::RiuGroupedBarChartBuilder()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -198,14 +200,13 @@ void RiuGroupedBarChartBuilder::addBarEntry( const QString& majorTickText,
                                              const QString& barText,
                                              const double   value )
 {
-    m_sortedBarEntries.insert(
-        BarEntry( majorTickText, midTickText, minTickText, sortValue, legendText, barText, value ) );
+    m_sortedBarEntries.insert( BarEntry( majorTickText, midTickText, minTickText, sortValue, legendText, barText, value ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientation orientation )
+void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientation barOrientation )
 {
     const double majGroupSpacing = 1.6;
     const double midGroupSpacing = 0.5;
@@ -382,16 +383,19 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
                         legendToBarPointsPair.second,
                         legendToBarPointsPair.first,
                         RiaColorTables::summaryCurveDefaultPaletteColors().cycledQColor( idx ),
-                        orientation );
+                        barOrientation );
         idx++;
     }
 
     // Set up the axis to contain group texts and tick marks
     {
-        QwtPlot::Axis axis = QwtPlot::xBottom;
-        if ( orientation == Qt::Horizontal )
+        QwtPlot::Axis axis      = QwtPlot::xBottom;
+        QwtPlot::Axis valueAxis = QwtPlot::yLeft;
+
+        if ( barOrientation == Qt::Horizontal )
         {
-            axis = QwtPlot::yLeft;
+            axis      = QwtPlot::yLeft;
+            valueAxis = QwtPlot::xBottom;
         }
 
         QwtScaleDiv groupAxisScaleDiv( 0, currentBarPosition );
@@ -400,7 +404,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
             if ( midTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MediumTick, midTickPositions );
             if ( minTickPositions.size() ) groupAxisScaleDiv.setTicks( QwtScaleDiv::MinorTick, minTickPositions );
 
-            if ( orientation == Qt::Horizontal )
+            if ( barOrientation == Qt::Horizontal )
             {
                 groupAxisScaleDiv.invert();
             }
@@ -410,14 +414,22 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
         plot->setAxisScaleDraw( axis, scaleDrawer );
         plot->setAxisScaleDiv( axis, groupAxisScaleDiv );
+
+        // Set up the value axis
+
+        plot->setAxisAutoScale( valueAxis, true );
+        plot->setAxisScaleDraw( valueAxis, new QwtScaleDraw() );
     }
 
     // Add texts on the bars inside the plot
     {
-        QwtScaleDraw::Alignment alignment = QwtScaleDraw::TopScale;
-        if ( orientation == Qt::Horizontal )
+        QwtScaleDraw::Alignment alignment      = QwtScaleDraw::TopScale;
+        double                  labelRotation  = -90.0;
+        Qt::Alignment           labelAlignment = Qt::AlignVCenter | Qt::AlignRight;
+        if ( barOrientation == Qt::Horizontal )
         {
-            alignment = QwtScaleDraw::RightScale;
+            alignment     = QwtScaleDraw::RightScale;
+            labelRotation = 0.0;
         }
 
         QwtScaleDiv barTextScaleDiv( 0, currentBarPosition );
@@ -430,7 +442,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
             }
 
             barTextScaleDiv.setTicks( QwtScaleDiv::MinorTick, onBarTickPositions );
-            if ( orientation == Qt::Horizontal )
+            if ( barOrientation == Qt::Horizontal )
             {
                 barTextScaleDiv.invert();
             }
@@ -438,6 +450,8 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
         RiuBarChartScaleDraw* barTextScaleDrawer = new RiuBarChartScaleDraw( positionedBarLabels );
         barTextScaleDrawer->setAlignment( alignment );
+        barTextScaleDrawer->setLabelRotation( labelRotation );
+        barTextScaleDrawer->setLabelAlignment( labelAlignment );
 
         QwtPlotScaleItem* barTextScale = new QwtPlotScaleItem( alignment, 0.0 );
         barTextScale->setScaleDraw( barTextScaleDrawer );
