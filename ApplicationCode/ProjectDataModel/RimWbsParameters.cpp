@@ -26,14 +26,14 @@
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
 
-CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimWbsParameters, "WbsParameters" );
+CAF_PDM_SOURCE_INIT( RimWbsParameters, "WbsParameters" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimWbsParameters::RimWbsParameters()
 {
-    CAF_PDM_InitObject( "Well Bore Stability Parameters", ":/WellLogPlot16x16.png", "", "" );
+    RICF_InitObject( "Well Bore Stability Parameters", ":/WellLogPlot16x16.png", "", "" );
 
     RICF_InitFieldNoDefault( &m_porePressureSource,
                              "PorePressureReservoirSource",

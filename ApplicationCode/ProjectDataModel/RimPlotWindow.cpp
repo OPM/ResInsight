@@ -30,14 +30,19 @@
 
 #include <QPainter>
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "PlotWindow", "RimPlotWindow" ); // Do not use. Abstract class
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "RimPlotWindow" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotWindow::RimPlotWindow()
 {
-    CAF_PDM_InitObject( "PlotWindow", "", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "PlotWindow",
+                                             "",
+                                             "",
+                                             "",
+                                             "PlotWindow",
+                                             "The Abstract base class for all MDI Windows in the Plot Window" );
 
     RICF_InitField( &m_id, "Id", -1, "View ID", "", "", "" );
     m_id.xmlCapability()->registerKeywordAlias( "ViewId" );

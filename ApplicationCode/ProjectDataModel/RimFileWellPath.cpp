@@ -1,18 +1,21 @@
 #include "RimFileWellPath.h"
-#include "QDir"
-#include "QFileInfo"
+
+#include "RicfCommandObject.h"
 #include "RifWellPathImporter.h"
 #include "RimTools.h"
 #include "cafUtils.h"
 
-CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimFileWellPath, "WellPath" );
+#include "QDir"
+#include "QFileInfo"
+
+CAF_PDM_SOURCE_INIT( RimFileWellPath, "WellPath" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimFileWellPath::RimFileWellPath()
 {
-    CAF_PDM_InitObject( "File Well Path", ":/Well.png", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "File Well Path", ":/Well.png", "", "", "FileWellPath", "Well Paths Loaded From File" );
 
     CAF_PDM_InitFieldNoDefault( &id, "WellPathId", "Id", "", "", "" );
     id.uiCapability()->setUiReadOnly( true );

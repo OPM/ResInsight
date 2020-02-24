@@ -37,6 +37,7 @@
 #include "RicfCommandFileExecutor.h"
 #include "RicfFieldHandle.h"
 #include "RicfMessages.h"
+#include "RicfObjectCapability.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
@@ -1708,8 +1709,7 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
     {
         return;
     }
-    QTextStream out( &pythonFile );
-    out << "import builtins\n\n";
+    QTextStream          out( &pythonFile );
     std::vector<QString> classKeywords = factory->classKeywords();
 
     std::vector<std::shared_ptr<const caf::PdmObject>> dummyObjects;
@@ -1718,9 +1718,10 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
         auto                  objectHandle = factory->create( classKeyword );
         const caf::PdmObject* object       = dynamic_cast<const caf::PdmObject*>( objectHandle );
         CAF_ASSERT( object );
-        if ( object->isScriptable() )
+
+        std::shared_ptr<const caf::PdmObject> sharedObject( object );
+        if ( RicfObjectCapability::isScriptable( sharedObject.get() ) )
         {
-            std::shared_ptr<const caf::PdmObject> sharedObject( object );
             dummyObjects.push_back( sharedObject );
         }
     }
@@ -1746,14 +1747,15 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
 
         for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
         {
-            const QString& classKeyword = *it;
+            const QString& classKeyword       = *it;
+            QString        scriptClassComment = RicfObjectCapability::scriptClassComment( classKeyword );
 
             std::map<QString, QString> attributesGenerated;
 
+            if ( !scriptClassComment.isEmpty() ) classCommentsGenerated[classKeyword] = scriptClassComment;
+
             if ( classKeyword == object->classKeyword() )
             {
-                if ( !object->uiWhatsThis().isEmpty() ) classCommentsGenerated[classKeyword] = object->uiWhatsThis();
-
                 std::vector<caf::PdmFieldHandle*> fields;
                 object->fields( fields );
                 for ( auto field : fields )
@@ -1768,7 +1770,7 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                             QString snake_field_name = RiaTextStringTools::camelToSnakeCase( ricfHandle->fieldName() );
                             if ( classesGenerated[field->ownerClass()].count( snake_field_name ) ) continue;
 
-                            QString fieldCode = QString( "        self.%1 = None\n" ).arg( snake_field_name );
+                            QString fieldPythonCode = QString( "        self.%1 = None\n" ).arg( snake_field_name );
 
                             QString comment;
                             {
@@ -1782,7 +1784,7 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                             QVariant valueVariant   = pdmValueField->toQVariant();
                             QString  dataTypeString = valueVariant.typeName();
 
-                            classesGenerated[field->ownerClass()][snake_field_name].first = fieldCode;
+                            classesGenerated[field->ownerClass()][snake_field_name].first = fieldPythonCode;
                             classesGenerated[field->ownerClass()][snake_field_name].second =
                                 QString( "%1 (%2): %3\n" ).arg( snake_field_name ).arg( dataTypeString ).arg( comment );
                         }
@@ -1797,22 +1799,24 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
     for ( std::shared_ptr<const caf::PdmObject> object : dummyObjects )
     {
         const std::list<QString>& classInheritanceStack = object->classInheritanceStack();
-        std::list<QString>        parentClassKeywords;
+        std::list<QString>        scriptSuperClassNames;
 
         for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
         {
-            const QString& classKeyword = *it;
+            const QString& classKeyword    = *it;
+            QString        scriptClassName = RicfObjectCapability::scriptClassNameFromClassKeyword( classKeyword );
+            if ( scriptClassName.isEmpty() ) scriptClassName = classKeyword;
 
             if ( !classesWritten.count( classKeyword ) )
             {
                 QString classCode;
-                if ( parentClassKeywords.empty() )
+                if ( scriptSuperClassNames.empty() )
                 {
-                    classCode = QString( "class %1:\n" ).arg( classKeyword );
+                    classCode = QString( "class %1:\n" ).arg( scriptClassName );
                 }
                 else
                 {
-                    classCode = QString( "class %1(%2):\n" ).arg( classKeyword ).arg( parentClassKeywords.back() );
+                    classCode = QString( "class %1(%2):\n" ).arg( scriptClassName ).arg( scriptSuperClassNames.back() );
                 }
 
                 if ( !classCommentsGenerated[classKeyword].isEmpty() || !classesGenerated[classKeyword].empty() )
@@ -1834,12 +1838,12 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                     QString( "    __custom_init__ = None #: Assign a custom init routine to be run at __init__\n\n" );
 
                 classCode += QString( "    def __init__(self, pb2_object=None, channel=None):\n" );
-                if ( !parentClassKeywords.empty() )
+                if ( !scriptSuperClassNames.empty() )
 
                 {
                     // Parent constructor
                     classCode +=
-                        QString( "        %1.__init__(self, pb2_object, channel)\n" ).arg( parentClassKeywords.back() );
+                        QString( "        %1.__init__(self, pb2_object, channel)\n" ).arg( scriptSuperClassNames.back() );
 
                     // Own attributes. This initializes a lot of attributes to None.
                     // This means it has to be done before we set any values.
@@ -1849,14 +1853,14 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                     }
                 }
 
-                classCode += QString( "        if %1.__custom_init__ is not None:\n" ).arg( classKeyword );
+                classCode += QString( "        if %1.__custom_init__ is not None:\n" ).arg( scriptClassName );
                 classCode += QString( "            %1.__custom_init__(self, pb2_object=pb2_object, channel=channel)\n" )
-                                 .arg( classKeyword );
+                                 .arg( scriptClassName );
 
                 out << classCode << "\n";
                 classesWritten.insert( classKeyword );
             }
-            parentClassKeywords.push_back( classKeyword );
+            scriptSuperClassNames.push_back( scriptClassName );
         }
     }
 }

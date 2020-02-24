@@ -24,6 +24,8 @@
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "RicfCommandObject.h"
+
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
@@ -77,17 +79,13 @@
 
 #include <QMessageBox>
 
-CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimGeoMechView, "GeoMechView" );
+CAF_PDM_SOURCE_INIT( RimGeoMechView, "GeoMechView" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView::RimGeoMechView( void )
 {
-    RiaApplication* app         = RiaApplication::instance();
-    RiaPreferences* preferences = app->preferences();
-    CVF_ASSERT( preferences );
-
-    CAF_PDM_InitObject( "Geomechanical View", ":/3DViewGeoMech16x16.png", "", "The Geomechanical 3d View" );
+    RICF_InitObject( "Geomechanical View", ":/3DViewGeoMech16x16.png", "", "The Geomechanical 3d View" );
 
     CAF_PDM_InitFieldNoDefault( &cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "" );
     cellResult = new RimGeoMechCellColors();

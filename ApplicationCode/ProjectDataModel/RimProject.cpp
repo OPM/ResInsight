@@ -27,6 +27,7 @@
 #include "RiaProjectFileVersionTools.h"
 #include "RiaVersionInfo.h"
 
+#include "RicfCommandObject.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 
@@ -101,7 +102,7 @@
 #include <QMenu>
 #include <algorithm>
 
-CAF_PDM_SCRIPTABLE_SOURCE_INIT( RimProject, "Project", "ResInsightProject" );
+CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +113,7 @@ RimProject::RimProject( void )
     , m_nextValidPlotId( 1 )
     , m_nextValidCalculationId( 1 )
 {
-    CAF_PDM_InitObject( "Project", "", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "Project", "", "", "", "Project", "The ResInsight Project" );
 
     CAF_PDM_InitFieldNoDefault( &m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "" );
     m_projectFileVersionString.uiCapability()->setUiHidden( true );
