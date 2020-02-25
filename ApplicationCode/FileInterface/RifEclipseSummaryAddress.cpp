@@ -659,7 +659,8 @@ std::string RifEclipseSummaryAddress::uiText() const
 //--------------------------------------------------------------------------------------------------
 /// Returns the stringified value for the specified identifier type
 //--------------------------------------------------------------------------------------------------
-std::string RifEclipseSummaryAddress::uiText( RifEclipseSummaryAddress::SummaryIdentifierType identifierType ) const
+std::string
+    RifEclipseSummaryAddress::addressComponentUiText( RifEclipseSummaryAddress::SummaryIdentifierType identifierType ) const
 {
     switch ( identifierType )
     {

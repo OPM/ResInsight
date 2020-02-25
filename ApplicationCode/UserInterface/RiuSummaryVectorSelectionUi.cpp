@@ -642,7 +642,8 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
         for ( const auto& identifierAndField : identifierAndFieldList )
         {
             bool isVectorField = identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
-            QString avalue = QString::fromStdString( summaryAddress.uiText( identifierAndField->summaryIdentifier() ) );
+            QString avalue =
+                QString::fromStdString( summaryAddress.addressComponentUiText( identifierAndField->summaryIdentifier() ) );
             if ( isVectorField && isObservedDataCase )
             {
                 avalue = avalue + QString( OBSERVED_DATA_AVALUE_POSTFIX );
@@ -1131,7 +1132,8 @@ bool RiuSummaryVectorSelectionUi::isAddressCompatibleWithControllingFieldSelecti
         bool match = false;
         for ( const auto& selectedText : identifierAndField->pdmField()->v() )
         {
-            if ( QString::compare( QString::fromStdString( address.uiText( identifierAndField->summaryIdentifier() ) ),
+            if ( QString::compare( QString::fromStdString(
+                                       address.addressComponentUiText( identifierAndField->summaryIdentifier() ) ),
                                    selectedText ) == 0 )
             {
                 match = true;
@@ -1440,7 +1442,7 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSubCategoriesAndVectors( Q
         {
             if ( address.isErrorResult() ) continue;
 
-            auto name = address.uiText( identifierAndField->summaryIdentifier() );
+            auto name = address.addressComponentUiText( identifierAndField->summaryIdentifier() );
             if ( name.size() > 0 )
             {
                 if ( i == CALCULATED_CURVES )
