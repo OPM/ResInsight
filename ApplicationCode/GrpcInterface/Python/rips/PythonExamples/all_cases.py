@@ -16,7 +16,7 @@ if resinsight is not None:
     for case in cases:
         print("Case id: " + str(case.id))
         print("Case name: " + case.name)
-        print("Case type: " + case.type)
+        print("Case type: " + case.class_keyword)
         print("Case file name: " + case.file_path)
         print("Case reservoir bounding box:", case.reservoir_boundingbox())
 
@@ -25,10 +25,12 @@ if resinsight is not None:
             print("Year: " + str(t.year))
             print("Month: " + str(t.month))
 
-        coarsening_info = case.coarsening_info()
-        if coarsening_info:
-            print("Coarsening information:")
+        if isinstance(case, rips.EclipseCase):
+            print ("Getting coarsening info for case: ", case.name, case.id)
+            coarsening_info = case.coarsening_info()
+            if coarsening_info:
+                print("Coarsening information:")
 
-        for c in coarsening_info:
-            print("[{}, {}, {}] - [{}, {}, {}]".format(c.min.x, c.min.y, c.min.z,
-                                                       c.max.x, c.max.y, c.max.z))
+            for c in coarsening_info:
+                print("[{}, {}, {}] - [{}, {}, {}]".format(c.min.x, c.min.y, c.min.z,
+                                                           c.max.x, c.max.y, c.max.z))

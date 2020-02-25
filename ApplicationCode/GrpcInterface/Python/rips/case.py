@@ -19,14 +19,13 @@ import rips.generated.Properties_pb2 as Properties_pb2
 import rips.generated.Properties_pb2_grpc as Properties_pb2_grpc
 import rips.generated.NNCProperties_pb2 as NNCProperties_pb2
 import rips.generated.NNCProperties_pb2_grpc as NNCProperties_pb2_grpc
-from rips.generated.pdm_objects import Case
+from rips.generated.pdm_objects import Case, EclipseCase, GeoMechCase
 
 import rips.project
 
 from rips.grid import Grid
 from rips.pdmobject import add_method, PdmObject
 from rips.view import View
-from rips.contour_map import ContourMap, ContourMapType
 from rips.well_bore_stability_plot import WellBoreStabilityPlot, WbsParameters
 from rips.simulation_well import SimulationWell
 
@@ -49,25 +48,26 @@ Attributes:
 @add_method(Case)
 def __custom_init__(self, pb2_object, channel):
     self.__case_stub = Case_pb2_grpc.CaseStub(self._channel)
-    self.__request = Case_pb2.CaseRequest(id=self.id)
 
-    info = self.__case_stub.GetCaseInfo(self.__request)
     self.__properties_stub = Properties_pb2_grpc.PropertiesStub(self._channel)
     self.__nnc_properties_stub = NNCProperties_pb2_grpc.NNCPropertiesStub(self._channel)
 
     # Public properties
-    self.type = info.type
     self.chunk_size = 8160
 
 @add_method(Case)
 def __grid_count(self):
     """Get number of grids in the case"""
     try:
-        return self.__case_stub.GetGridCount(self.__request).count
+        return self.__case_stub.GetGridCount(self.__request()).count
     except grpc.RpcError as exception:
         if exception.code() == grpc.StatusCode.NOT_FOUND:
             return 0
         return 0
+
+@add_method(Case)
+def __request(self):
+    return Case_pb2.CaseRequest(id=self.id)
 
 @add_method(Case)
 def __generate_property_input_iterator(self, values_iterator, parameters):
@@ -146,7 +146,7 @@ def cell_count(self, porosity_model="MATRIX_MODEL"):
             reservoir_cell_count: total number of reservoir cells
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
-    request = Case_pb2.CellInfoRequest(case_request=self.__request,
+    request = Case_pb2.CellInfoRequest(case_request=self.__request(),
                                         porosity_model=porosity_model_enum)
     return self.__case_stub.GetCellCount(request)
 
@@ -164,7 +164,7 @@ def cell_info_for_active_cells_async(self, porosity_model="MATRIX_MODEL"):
     See cell_info_for_active_cells() for detalis on the **CellInfo** class.
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
-    request = Case_pb2.CellInfoRequest(case_request=self.__request,
+    request = Case_pb2.CellInfoRequest(case_request=self.__request(),
                                         porosity_model=porosity_model_enum)
     return self.__case_stub.GetCellInfoForActiveCells(request)
 
@@ -223,14 +223,14 @@ def time_steps(self):
 
 
     """
-    return self.__case_stub.GetTimeSteps(self.__request).dates
+    return self.__case_stub.GetTimeSteps(self.__request()).dates
 
 @add_method(Case)
 def reservoir_boundingbox(self):
     """Get the reservoir bounding box
         Returns: A class with six double members: min_x, max_x, min_y, max_y, min_z, max_z
     """
-    return self.__case_stub.GetReservoirBoundingBox(self.__request)
+    return self.__case_stub.GetReservoirBoundingBox(self.__request())
 
 @add_method(Case)
 def reservoir_depth_range(self):
@@ -243,19 +243,12 @@ def reservoir_depth_range(self):
 @add_method(Case)
 def days_since_start(self):
     """Get a list of decimal values representing days since the start of the simulation"""
-    return self.__case_stub.GetDaysSinceStart(self.__request).day_decimals
+    return self.__case_stub.GetDaysSinceStart(self.__request()).day_decimals
 
 @add_method(Case)
 def views(self):
     """Get a list of views belonging to a case"""
-    pdm_objects = self.descendants("View")
-
-    view_list = []
-    for pdm_object in pdm_objects:
-        view_object = pdm_object.cast(View)
-        view_list.append(view_object)
-
-    return view_list
+    return self.descendants(View)
 
 @add_method(Case)
 def view(self, view_id):
@@ -278,21 +271,6 @@ def create_view(self):
     return self.view(
         self._execute_command(createView=Cmd.CreateViewRequest(
             caseId=self.id)).createViewResult.viewId)
-
-@add_method(Case)
-def contour_maps(self, map_type=ContourMapType.ECLIPSE):
-    """ Get a list of all contour maps belonging to a project
-
-    Arguments:
-        map_type (enum): ContourMapType.ECLIPSE or ContourMapType.GEO_MECH
-
-    """
-
-    pdm_objects = self.descendants(ContourMapType.get_identifier(map_type))
-    contour_maps = []
-    for pdm_object in pdm_objects:
-        contour_maps.append(ContourMap(pdm_object, map_type))
-    return contour_maps
 
 @add_method(Case)
 def export_snapshots_of_all_views(self, prefix="", export_folder=""):
@@ -539,7 +517,7 @@ def available_properties(self,
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Properties_pb2.AvailablePropertiesRequest(
-        case_request=self.__request,
+        case_request=self.__request(),
         property_type=property_type_enum,
         porosity_model=porosity_model_enum,
     )
@@ -567,7 +545,7 @@ def active_cell_property_async(self,
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Properties_pb2.PropertyRequest(
-        case_request=self.__request,
+        case_request=self.__request(),
         property_type=property_type_enum,
         property_name=property_name,
         time_step=time_step,
@@ -624,7 +602,7 @@ def selected_cell_property_async(self,
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Properties_pb2.PropertyRequest(
-        case_request=self.__request,
+        case_request=self.__request(),
         property_type=property_type_enum,
         property_name=property_name,
         time_step=time_step,
@@ -684,7 +662,7 @@ def grid_property_async(
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Properties_pb2.PropertyRequest(
-        case_request=self.__request,
+        case_request=self.__request(),
         property_type=property_type_enum,
         property_name=property_name,
         time_step=time_step,
@@ -743,7 +721,7 @@ def set_active_cell_property_async(
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Properties_pb2.PropertyRequest(
-        case_request=self.__request,
+        case_request=self.__request(),
         property_type=property_type_enum,
         property_name=property_name,
         time_step=time_step,
@@ -774,7 +752,7 @@ def set_active_cell_property(
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Properties_pb2.PropertyRequest(
-        case_request=self.__request,
+        case_request=self.__request(),
         property_type=property_type_enum,
         property_name=property_name,
         time_step=time_step,
@@ -808,7 +786,7 @@ def set_grid_property(
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Properties_pb2.PropertyRequest(
-        case_request=self.__request,
+        case_request=self.__request(),
         property_type=property_type_enum,
         property_name=property_name,
         time_step=time_step,
@@ -912,7 +890,7 @@ def active_cell_centers_async(
             Loop through the chunks and then the values within the chunk to get all values.
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
-    request = Case_pb2.CellInfoRequest(case_request=self.__request,
+    request = Case_pb2.CellInfoRequest(case_request=self.__request(),
                                         porosity_model=porosity_model_enum)
     return self.__case_stub.GetCellCenterForActiveCells(request)
 
@@ -949,7 +927,7 @@ def active_cell_corners_async(
             Loop through the chunks and then the values within the chunk to get all values.
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
-    request = Case_pb2.CellInfoRequest(case_request=self.__request,
+    request = Case_pb2.CellInfoRequest(case_request=self.__request(),
                                         porosity_model=porosity_model_enum)
     return self.__case_stub.GetCellCornersForActiveCells(request)
 
@@ -979,7 +957,7 @@ def selected_cells_async(self):
             An iterator to a chunk object containing an array of cells.
             Loop through the chunks and then the cells within the chunk to get all cells.
     """
-    return self.__case_stub.GetSelectedCells(self.__request)
+    return self.__case_stub.GetSelectedCells(self.__request())
 
 @add_method(Case)
 def selected_cells(self):
@@ -1003,13 +981,13 @@ def coarsening_info(self):
             A list of CoarseningInfo objects with two Vec3i min and max objects
             for each entry.
     """
-    return self.__case_stub.GetCoarseningInfoArray(self.__request).data
+    return self.__case_stub.GetCoarseningInfoArray(self.__request()).data
 
 @add_method(Case)
 def available_nnc_properties(self):
     """Get a list of available NNC properties
     """
-    return self.__nnc_properties_stub.GetAvailableNNCProperties(self.__request).properties
+    return self.__nnc_properties_stub.GetAvailableNNCProperties(self.__request()).properties
 
 @add_method(Case)
 def nnc_connections_async(self):
@@ -1018,7 +996,7 @@ def nnc_connections_async(self):
             An iterator to a chunk object containing an array NNCConnection objects.
             Loop through the chunks and then the connection within the chunk to get all connections.
     """
-    return self.__nnc_properties_stub.GetNNCConnections(self.__request)
+    return self.__nnc_properties_stub.GetNNCConnections(self.__request())
 
 @add_method(Case)
 def nnc_connections(self):

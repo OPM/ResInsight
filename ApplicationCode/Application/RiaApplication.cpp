@@ -1807,7 +1807,7 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
             QString        scriptClassName = RicfObjectCapability::scriptClassNameFromClassKeyword( classKeyword );
             if ( scriptClassName.isEmpty() ) scriptClassName = classKeyword;
 
-            if ( !classesWritten.count( classKeyword ) )
+            if ( !classesWritten.count( scriptClassName ) )
             {
                 QString classCode;
                 if ( scriptSuperClassNames.empty() )
@@ -1828,6 +1828,7 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                     }
 
                     classCode += "    Attributes\n";
+                    classCode += "        class_keyword (string): the class keyword that uniquely defines a class\n";
                     for ( auto keyWordValuePair : classesGenerated[classKeyword] )
                     {
                         classCode += "        " + keyWordValuePair.second.second;
@@ -1838,19 +1839,18 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                     QString( "    __custom_init__ = None #: Assign a custom init routine to be run at __init__\n\n" );
 
                 classCode += QString( "    def __init__(self, pb2_object=None, channel=None):\n" );
+                classCode += QString( "        self.class_keyword = \"%1\"\n" ).arg( scriptClassName );
                 if ( !scriptSuperClassNames.empty() )
-
                 {
-                    // Parent constructor
-                    classCode +=
-                        QString( "        %1.__init__(self, pb2_object, channel)\n" ).arg( scriptSuperClassNames.back() );
-
                     // Own attributes. This initializes a lot of attributes to None.
                     // This means it has to be done before we set any values.
                     for ( auto keyWordValuePair : classesGenerated[classKeyword] )
                     {
                         classCode += keyWordValuePair.second.first;
                     }
+                    // Parent constructor
+                    classCode +=
+                        QString( "        %1.__init__(self, pb2_object, channel)\n" ).arg( scriptSuperClassNames.back() );
                 }
 
                 classCode += QString( "        if %1.__custom_init__ is not None:\n" ).arg( scriptClassName );
@@ -1858,9 +1858,22 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                                  .arg( scriptClassName );
 
                 out << classCode << "\n";
-                classesWritten.insert( classKeyword );
+                classesWritten.insert( scriptClassName );
             }
             scriptSuperClassNames.push_back( scriptClassName );
         }
     }
+    out << "def class_dict():\n";
+    out << "    classes = {}\n";
+    for ( QString classKeyword : classesWritten )
+    {
+        out << QString( "    classes['%1'] = %1\n" ).arg( classKeyword );
+    }
+    out << "    return classes\n\n";
+
+    out << "def class_from_keyword(class_keyword):\n";
+    out << "    all_classes = class_dict()\n";
+    out << "    if class_keyword in all_classes.keys():\n";
+    out << "        return all_classes[class_keyword]\n";
+    out << "    return None\n";
 }
