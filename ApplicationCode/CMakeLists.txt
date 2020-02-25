@@ -541,8 +541,9 @@ endif()
 #########################################################
 if (RESINSIGHT_ENABLE_GRPC)
     add_custom_command(TARGET ResInsight POST_BUILD
-				COMMAND $<TARGET_FILE_DIR:ResInsight>/ResInsight ARGS --console --generate ${GRPC_PYTHON_SOURCE_PATH}/rips/Generated/pdm_objects.py
-                COMMENT "Generating ${GRPC_PYTHON_SOURCE_PATH}/Generated/pdm_objects.py"
+                BYPRODUCTS ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py
+				COMMAND $<TARGET_FILE_DIR:ResInsight>/ResInsight ARGS --console --generate ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py
+                COMMENT "Generating ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py"
 			)
 endif(RESINSIGHT_ENABLE_GRPC)
 
