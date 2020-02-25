@@ -15,7 +15,7 @@ import rips.generated.PdmObject_pb2 as PdmObject_pb2
 import rips.generated.PdmObject_pb2_grpc as PdmObject_pb2_grpc
 import rips.generated.Commands_pb2 as Cmd
 import rips.generated.Commands_pb2_grpc as CmdRpc
-from rips.generated.pdm_objects import PdmObject
+from rips.generated.pdm_objects import PdmObject, class_from_keyword
 
 def camel_to_snake(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
@@ -57,7 +57,7 @@ def __custom_init__(self, pb2_object, channel):
         self._pb2_object = pb2_object
     else:
         self._pb2_object = PdmObject_pb2.PdmObject(class_keyword=self.__class__.__name__)
-
+    self.class_keyword = self._pb2_object.class_keyword
     self._channel = channel
         
     if self.pb2_object() is not None and self.channel() is not None:        
@@ -69,7 +69,6 @@ def __custom_init__(self, pb2_object, channel):
             snake_keyword = camel_to_snake(camel_keyword)
             setattr(self, snake_keyword, self.__get_grpc_value(camel_keyword))
             self.__keyword_translation[snake_keyword] = camel_keyword   
-    self._superclasses = self.superclasses()
 
 @add_method(PdmObject)
 def copy_from(self, object):
@@ -80,15 +79,9 @@ def copy_from(self, object):
             value = getattr(object, attribute)
             # This is crucial to avoid overwriting methods
             if not callable(value):
-                setattr(self, attribute, value)   
-
-@add_method(PdmObject)
-def cast(self, class_definition):
-    if class_definition.__name__ == self.class_keyword() or class_definition.__name__ in self._superclasses:
-        new_object = class_definition(self.pb2_object(), self.channel())
-        new_object.copy_from(self)
-        return new_object
-    return None
+                setattr(self, attribute, value)  
+    if self.__custom_init__ is not None:
+        self.__custom_init__(self._pb2_object, self._channel)
 
 @add_method(PdmObject)
 def warnings(self):
@@ -120,11 +113,6 @@ def address(self):
     return self._pb2_object.address
 
 @add_method(PdmObject)
-def class_keyword(self):
-    """Get the class keyword in the ResInsight Data Model for the given PdmObject"""
-    return self._pb2_object.class_keyword
-
-@add_method(PdmObject)
 def set_visible(self, visible):
     """Set the visibility of the object in the ResInsight project tree"""
     self._pb2_object.visible = visible
@@ -137,7 +125,7 @@ def visible(self):
 @add_method(PdmObject)
 def print_object_info(self):
     """Print the structure and data content of the PdmObject"""
-    print("=========== " + self.class_keyword() + " =================")
+    print("=========== " + self.class_keyword + " =================")
     print("Object Attributes: ")
     for snake_kw, camel_kw in self.__keyword_translation.items():
         print("   " + snake_kw + " [" + type(getattr(self, snake_kw)).__name__ +
@@ -215,37 +203,39 @@ def __makelist(self, list_string):
     return values
 
 @add_method(PdmObject)
-def descendants(self, class_keyword_or_class):
+def __from_pb2_to_pdm_objects(self, pb2_object_list, super_class_definition):
+    pdm_object_list = []
+    for pb2_object in pb2_object_list:
+        child_class_definition = class_from_keyword(pb2_object.class_keyword)
+        if child_class_definition is None:
+            child_class_definition = super_class_definition
+
+        pdm_object = child_class_definition(pb2_object=pb2_object, channel=self.channel())
+        pdm_object_list.append(pdm_object)    
+    return pdm_object_list
+
+@add_method(PdmObject)
+def descendants(self, class_definition):
     """Get a list of all project tree descendants matching the class keyword
     Arguments:
-        class_keyword_or_class[str/Class]: A class keyword matching the type of class wanted or a Class definition
+        class_definition[class]: A class definition matching the type of class wanted
 
     Returns:
-        A list of PdmObjects matching the keyword provided
+        A list of PdmObjects matching the class_definition
     """
-    class_definition = PdmObject
-    class_keyword = ""
-    if isinstance(class_keyword_or_class, str):
-        class_keyword = class_keyword_or_class
-    else:
-        assert(inspect.isclass(class_keyword_or_class))
-        class_keyword = class_keyword_or_class.__name__
-        class_definition = class_keyword_or_class
+    assert(inspect.isclass(class_definition))
 
-    request = PdmObject_pb2.PdmDescendantObjectRequest(
-        object=self._pb2_object, child_keyword=class_keyword)
-    object_list = self._pdm_object_stub.GetDescendantPdmObjects(
-        request).objects
-    child_list = []
-    for pb2_object in object_list:
-        pdm_object = PdmObject(pb2_object=pb2_object, channel=self.channel())
-        if class_definition.__name__ == PdmObject.__name__:
-            child_list.append(pdm_object)    
-        else:
-            casted_object = pdm_object.cast(class_definition)
-            if casted_object:
-                child_list.append(casted_object)
-    return child_list
+    class_keyword = class_definition.__name__
+    try:
+        request = PdmObject_pb2.PdmDescendantObjectRequest(
+            object=self._pb2_object, child_keyword=class_keyword)
+        object_list = self._pdm_object_stub.GetDescendantPdmObjects(
+            request).objects
+        return self.__from_pb2_to_pdm_objects(object_list, class_definition)
+    except grpc.RpcError as e:
+        if e.code() == grpc.StatusCode.NOT_FOUND:
+            return [] # Valid empty result
+        raise e   
 
 @add_method(PdmObject)
 def children(self, child_field, class_definition=PdmObject):
@@ -259,44 +249,33 @@ def children(self, child_field, class_definition=PdmObject):
                                                     child_field=child_field)
     try:
         object_list = self._pdm_object_stub.GetChildPdmObjects(request).objects
-        child_list = []
-        for pb2_object in object_list:
-           pdm_object = PdmObject(pb2_object=pb2_object, channel=self.channel())
-        if class_definition.__name__ == PdmObject.__name__:
-            child_list.append(pdm_object)    
-        else:
-            child_list.append(pdm_object.cast(class_definition))
-        return child_list
+        return self.__from_pb2_to_pdm_objects(object_list, class_definition)
     except grpc.RpcError as e:
         if e.code() == grpc.StatusCode.NOT_FOUND:
             return []
         raise e
 
 @add_method(PdmObject)
-def ancestor(self, class_keyword_or_class):
+def ancestor(self, class_definition):
     """Find the first ancestor that matches the provided class_keyword
     Arguments:
-        class_keyword_or_class[str/Class]: A class keyword matching the type of class wanted or a Class definition
+        class_definition[class]: A class definition matching the type of class wanted
     """
-    class_definition = PdmObject
-    class_keyword = ""
-    if isinstance(class_keyword_or_class, str):
-        class_keyword = class_keyword_or_class
-    else:
-        assert(inspect.isclass(class_keyword_or_class))
-        class_keyword = class_keyword_or_class.__name__
-        class_definition = class_keyword_or_class
+    assert(inspect.isclass(class_definition))
+
+    class_keyword = class_definition.__name__
 
     request = PdmObject_pb2.PdmParentObjectRequest(
         object=self._pb2_object, parent_keyword=class_keyword)
     try:
         pb2_object = self._pdm_object_stub.GetAncestorPdmObject(request)
-        pdm_object = PdmObject(pb2_object=pb2_object,
-                               channel=self._channel)
-        if class_definition.__name__ == PdmObject.__name__:
-            return pdm_object
-        else:
-            return pdm_object.cast(class_definition)
+        child_class_definition = class_from_keyword(pb2_object.class_keyword)
+
+        if child_class_definition is None:
+            child_class_definition = class_definition
+
+        pdm_object = child_class_definition(pb2_object=pb2_object, channel=self.channel())
+        return pdm_object
     except grpc.RpcError as e:
         if e.code() == grpc.StatusCode.NOT_FOUND:
             return None
@@ -312,14 +291,3 @@ def update(self):
         self._pdm_object_stub.UpdateExistingPdmObject(self._pb2_object)
     else:
         raise Exception("Object is not connected to GRPC service so cannot update ResInsight")
-
-@add_method(PdmObject)
-def superclasses(self):
-    names = []
-    mod = importlib.import_module("rips.generated.pdm_objects")
-    for name, obj in inspect.getmembers(mod):
-        if (inspect.isclass(obj) and name == self.class_keyword()):
-            class_hierarchy = inspect.getmro(obj)
-            for cls in class_hierarchy:
-                names.append(cls.__name__)
-    return names

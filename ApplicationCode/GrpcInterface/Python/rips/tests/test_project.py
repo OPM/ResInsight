@@ -23,11 +23,9 @@ def test_well_log_plots(rips_instance, initialize_test):
     plots = project.plots()
     well_log_plots = []
     for plot in plots:
-        well_log_plot = plot.cast(rips.WellLogPlot)
-        if well_log_plot is not None:
-            well_log_plot.print_object_info()
-            assert(well_log_plot.depth_type == "MEASURED_DEPTH")
-            well_log_plots.append(well_log_plot)
+        if isinstance(plot, rips.WellLogPlot):
+            assert(plot.depth_type == "MEASURED_DEPTH")
+            well_log_plots.append(plot)
     assert(len(well_log_plots) == 2)
 
     with tempfile.TemporaryDirectory(prefix="rips") as tmpdirname:
@@ -45,10 +43,9 @@ def test_well_log_plots(rips_instance, initialize_test):
             assert(len(files) == 2)
     
     plots2 = project.plots()
-    for plot2 in plots2:
-        well_log_plot2 = plot2.cast(rips.WellLogPlot)
-        if well_log_plot2 is not None:
-            assert(well_log_plot2.depth_type == "TRUE_VERTICAL_DEPTH_RKB")
+    for plot2 in plots2:        
+        if isinstance(plot2, rips.WellLogPlot):
+            assert(plot2.depth_type == "TRUE_VERTICAL_DEPTH_RKB")
     
 @pytest.mark.skipif(sys.platform.startswith('linux'), reason="Brugge is currently exceptionally slow on Linux")
 def test_loadGridCaseGroup(rips_instance, initialize_test):
