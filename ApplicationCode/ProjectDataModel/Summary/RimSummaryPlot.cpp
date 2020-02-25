@@ -1107,6 +1107,30 @@ void RimSummaryPlot::updateTimeAxis()
                                                 alignment );
         m_plotWidget->setAxisTitleText( QwtPlot::xBottom, m_timeAxisProperties->title() );
         m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, m_timeAxisProperties->showTitle );
+
+        {
+            RimSummaryTimeAxisProperties::LegendTickmarkCount tickmarkCountEnum =
+                m_timeAxisProperties->majorTickmarkCount();
+
+            int maxTickmarkCount = 8;
+
+            switch ( tickmarkCountEnum )
+            {
+                case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_FEW:
+                    maxTickmarkCount = 4;
+                    break;
+                case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT:
+                    maxTickmarkCount = 8; // Taken from QwtPlot::initAxesData()
+                    break;
+                case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_MANY:
+                    maxTickmarkCount = 10;
+                    break;
+                default:
+                    break;
+            }
+
+            m_plotWidget->setAxisMaxMajor( QwtPlot::xBottom, maxTickmarkCount );
+        }
     }
 }
 

@@ -115,6 +115,8 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_timeFormat = RiaApplication::instance()->preferences()->timeFormat();
 
+    CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count", "", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_visibleDateTimeRangeMax_OBSOLETE, "VisibleRangeMax", "Max", "", "", "" );
     m_visibleDateTimeRangeMax_OBSOLETE.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
@@ -330,6 +332,22 @@ void RimSummaryTimeAxisProperties::setVisibleDateTimeMax( const QDateTime& dateT
 {
     m_visibleDateRangeMax = dateTime.date();
     m_visibleTimeRangeMax = dateTime.time();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryTimeAxisProperties::LegendTickmarkCount RimSummaryTimeAxisProperties::majorTickmarkCount() const
+{
+    return m_majorTickmarkCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::setMajorTickmarkCount( LegendTickmarkCount count )
+{
+    m_majorTickmarkCount = count;
 }
 
 //--------------------------------------------------------------------------------------------------
