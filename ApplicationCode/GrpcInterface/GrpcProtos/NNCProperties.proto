@@ -10,6 +10,7 @@ service NNCProperties
 	rpc GetAvailableNNCProperties(CaseRequest) returns (AvailableNNCProperties) {}
 	rpc GetNNCConnections(CaseRequest) returns (stream NNCConnections) {}
 	rpc GetNNCValues(NNCValuesRequest) returns (stream NNCValues) {}
+	rpc SetNNCValues(stream NNCValuesChunk) returns (ClientToServerStreamReply) {}
 }
 
 enum NNCPropertyType
@@ -54,4 +55,22 @@ message NNCValuesRequest
 message NNCValues
 {
 	repeated double values = 1;
+}
+
+message NNCValuesInputRequest
+{
+	int32                    case_id = 1;
+	string             property_name = 2;
+	PorosityModelType porosity_model = 3;
+	int32                  time_step = 4;
+}
+
+message NNCValuesChunk
+{
+	oneof ChunkType
+	{
+		// Params needs to be sent in the first message
+		NNCValuesInputRequest params = 1;
+		NNCValues             values = 2;
+	}
 }
