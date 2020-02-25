@@ -36,7 +36,9 @@ RimAnalysisPlotCollection::RimAnalysisPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAnalysisPlotCollection::~RimAnalysisPlotCollection() {}
+RimAnalysisPlotCollection::~RimAnalysisPlotCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -69,6 +71,14 @@ void RimAnalysisPlotCollection::updateSummaryNameHasChanged()
 void RimAnalysisPlotCollection::removeSummaryPlot( RimAnalysisPlot* analysisPlot )
 {
     m_analysisPlots.removeChildObject( analysisPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimAnalysisPlot*> RimAnalysisPlotCollection::plots()
+{
+    return m_analysisPlots.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

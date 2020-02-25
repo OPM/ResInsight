@@ -39,6 +39,8 @@ public:
     void             updateSummaryNameHasChanged();
     void             removeSummaryPlot( RimAnalysisPlot* analysisPlot );
 
+    std::vector<RimAnalysisPlot*> plots();
+
     void deleteAllChildObjects();
 
 private:

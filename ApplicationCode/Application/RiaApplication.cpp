@@ -40,6 +40,8 @@
 #include "RicfObjectCapability.h"
 
 #include "Rim2dIntersectionViewCollection.h"
+#include "RimAnalysisPlot.h"
+#include "RimAnalysisPlotCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimAnnotationTextAppearance.h"
@@ -1540,6 +1542,7 @@ void RiaApplication::loadAndUpdatePlotData()
     RimPltPlotCollection*                pltColl  = nullptr;
     RimGridCrossPlotCollection*          gcpColl  = nullptr;
     RimSaturationPressurePlotCollection* sppColl  = nullptr;
+    RimAnalysisPlotCollection*           alsColl  = nullptr;
     RimMultiPlotCollection*              gpwColl  = nullptr;
 
     if ( m_project->mainPlotCollection() )
@@ -1576,6 +1579,10 @@ void RiaApplication::loadAndUpdatePlotData()
         {
             sppColl = m_project->mainPlotCollection()->saturationPressurePlotCollection();
         }
+        if ( m_project->mainPlotCollection()->analysisPlotCollection() )
+        {
+            alsColl = m_project->mainPlotCollection()->analysisPlotCollection();
+        }
         if ( m_project->mainPlotCollection()->multiPlotCollection() )
         {
             gpwColl = m_project->mainPlotCollection()->multiPlotCollection();
@@ -1591,6 +1598,7 @@ void RiaApplication::loadAndUpdatePlotData()
     plotCount += pltColl ? pltColl->pltPlots().size() : 0;
     plotCount += gcpColl ? gcpColl->gridCrossPlots().size() : 0;
     plotCount += sppColl ? sppColl->plots().size() : 0;
+    plotCount += alsColl ? alsColl->plots().size() : 0;
     plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
 
     if ( plotCount > 0 )
@@ -1662,6 +1670,15 @@ void RiaApplication::loadAndUpdatePlotData()
             for ( const auto& sppPlot : sppColl->plots() )
             {
                 sppPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( alsColl )
+        {
+            for ( const auto& alsPlot : alsColl->plots() )
+            {
+                alsPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
