@@ -27,6 +27,7 @@
 class RiuSummaryQwtPlot;
 class RimAnalysisPlotDataEntry;
 class RiuGroupedBarChartBuilder;
+class RimCurveDefinitionSplitter;
 
 //==================================================================================================
 ///
@@ -78,6 +79,7 @@ public:
     {
         NONE,
         SUMMARY_ITEM,
+        QUANTITY,
         CASE,
         ENSEMBLE,
         VALUE,
@@ -108,6 +110,8 @@ private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
     void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
     void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
@@ -116,6 +120,8 @@ private:
     std::vector<RiaSummaryCurveDefinition> curveDefinitions();
 
 private:
+    std::unique_ptr<RimCurveDefinitionSplitter> m_curveDefSplitter;
+
     QPointer<RiuQwtPlotWidget> m_plotWidget;
 
     caf::PdmField<bool>    m_showPlotTitle;
@@ -143,12 +149,16 @@ private:
     caf::PdmField<SortGroupAppEnum> m_majorGroupType;
     caf::PdmField<SortGroupAppEnum> m_mediumGroupType;
     caf::PdmField<SortGroupAppEnum> m_minorGroupType;
-
     caf::PdmField<SortGroupAppEnum> m_valueSortOperation;
 
     caf::PdmField<SortGroupAppEnum> m_sortGroupForLegend;
 
+    caf::PdmField<bool> m_useBarText;
+    caf::PdmField<bool> m_useCaseInBarText;
+    caf::PdmField<bool> m_useEnsembleInBarText;
+    caf::PdmField<bool> m_useSummaryItemInBarText;
+    caf::PdmField<bool> m_useTimeStepInBarText;
+    caf::PdmField<bool> m_useQuantityInBarText;
+
 protected:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly ) override;
 };
