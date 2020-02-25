@@ -450,7 +450,7 @@ void RivSurfacePartMgr::calculateVertexTextureCoordinates( cvf::Vec2fArray*     
 {
     if ( !resultAccessor ) return;
 
-    size_t numVertices = vertexToCellIdxMap.size();
+    int numVertices = static_cast<int>( vertexToCellIdxMap.size() );
 
     textureCoords->resize( numVertices );
     cvf::Vec2f* rawPtr = textureCoords->ptr();

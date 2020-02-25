@@ -138,7 +138,7 @@ public:
         }
         else
         {
-            return "X"; // Just for debugging
+            return QwtText( QString( "X" ) ); // Just for debugging
         }
     }
 

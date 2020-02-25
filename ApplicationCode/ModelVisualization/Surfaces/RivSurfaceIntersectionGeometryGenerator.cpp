@@ -182,7 +182,7 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
         // End loop local memory
 
 #pragma omp for // default scheduling absolutely best
-        for ( int ntVxIdx = 0; ntVxIdx < nativeTriangleIndices.size(); ntVxIdx += 3 )
+        for ( int ntVxIdx = 0; ntVxIdx < static_cast<int>( nativeTriangleIndices.size() ); ntVxIdx += 3 )
         {
             cvf::Vec3d p0 = nativeVertices[nativeTriangleIndices[ntVxIdx + 0]];
             cvf::Vec3d p1 = nativeVertices[nativeTriangleIndices[ntVxIdx + 1]];

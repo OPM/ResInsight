@@ -707,7 +707,7 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
 
         for ( time_t tt : selectedTimesteps )
         {
-            for ( int timestepIdx = 0; timestepIdx < timesteps.size(); ++timestepIdx )
+            for ( int timestepIdx = 0; static_cast<unsigned>( timestepIdx ) < timesteps.size(); ++timestepIdx )
             {
                 if ( timesteps[timestepIdx] == tt )
                 {
