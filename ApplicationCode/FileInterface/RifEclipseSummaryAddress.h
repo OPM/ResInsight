@@ -183,6 +183,7 @@ public:
     // Derived properties
 
     std::string uiText() const;
+    std::string itemUiText() const;
     std::string addressComponentUiText( RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput ) const;
     bool        isUiTextMatchingFilterText( const QString& filterString ) const;
 
