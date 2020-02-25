@@ -25,7 +25,14 @@
 #include "RigEclipseResultAddress.h"
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
+
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
+#include "RimEclipseView.h"
+#include "RimIntersectionCollection.h"
 
 using namespace rips;
 
@@ -150,6 +157,9 @@ grpc::Status RiaNNCValuesStateHandler::init( const rips::NNCValuesRequest* reque
     return grpc::Status::OK;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::vector<double>* getScalarResultByName( const RigNNCData*         nncData,
                                                   RigNNCData::NNCResultType resultType,
                                                   const QString&            propertyName,
@@ -257,28 +267,261 @@ grpc::Status RiaGrpcNNCPropertiesService::GetAvailableNNCProperties( grpc::Serve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+static bool scalarResultExistsOrCreate( RigCaseCellResultsData* results, QString propertyName )
+{
+    RigEclipseResultAddress resAddr( RiaDefines::GENERATED, propertyName );
+
+    if ( !results->ensureKnownResultLoaded( resAddr ) )
+    {
+        results->createResultEntry( resAddr, true );
+    }
+
+    std::vector<std::vector<double>>* scalarResultFrames = results->modifiableCellScalarResultTimesteps( resAddr );
+    size_t                            timeStepCount      = results->maxTimeStepCount();
+    scalarResultFrames->resize( timeStepCount );
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+static bool createIJKCellResults( RigCaseCellResultsData* results, QString propertyName )
+{
+    bool ok;
+    ok = scalarResultExistsOrCreate( results, QString( "%1IJK" ).arg( propertyName ) );
+    if ( !ok ) return false;
+    ok = scalarResultExistsOrCreate( results, QString( "%1I" ).arg( propertyName ) );
+    if ( !ok ) return false;
+    ok = scalarResultExistsOrCreate( results, QString( "%1J" ).arg( propertyName ) );
+    if ( !ok ) return false;
+    ok = scalarResultExistsOrCreate( results, QString( "%1K" ).arg( propertyName ) );
+
+    return ok;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaNNCInputValuesStateHandler::RiaNNCInputValuesStateHandler( bool )
+    : m_eclipseCase( nullptr )
+    , m_streamedValueCount( 0u )
+    , m_cellCount( 0u )
+    , m_timeStep( 0u )
+{
+}
+
+std::vector<double>* getOrCreateConnectionScalarResultByName( RigNNCData* nncData, const QString propertyName, int timeStep )
+{
+    std::vector<double>* resultsToAdd = nncData->generatedConnectionScalarResultByName( propertyName, timeStep );
+    if ( resultsToAdd )
+    {
+        return resultsToAdd;
+    }
+    else
+    {
+        nncData->makeGeneratedConnectionScalarResult( propertyName, timeStep + 1 );
+        return nncData->generatedConnectionScalarResultByName( propertyName, timeStep );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaNNCInputValuesStateHandler::init( const NNCValuesInputRequest* request )
+{
+    int caseId    = request->case_id();
+    m_eclipseCase = dynamic_cast<RimEclipseCase*>( RiaGrpcServiceInterface::findCase( caseId ) );
+
+    if ( m_eclipseCase && m_eclipseCase->eclipseCaseData() && m_eclipseCase->eclipseCaseData()->mainGrid() )
+    {
+        auto caseData        = m_eclipseCase->eclipseCaseData();
+        auto m_porosityModel = static_cast<RiaDefines::PorosityModelType>( request->porosity_model() );
+        auto resultData      = caseData->results( m_porosityModel );
+        m_timeStep           = request->time_step();
+        m_propertyName       = QString::fromStdString( request->property_name() );
+
+        RigNNCData*          nncData      = m_eclipseCase->eclipseCaseData()->mainGrid()->nncData();
+        std::vector<double>* resultsToAdd = getOrCreateConnectionScalarResultByName( nncData, m_propertyName, m_timeStep );
+        if ( !resultsToAdd )
+        {
+            return grpc::Status( grpc::NOT_FOUND, "No results for scalar results found." );
+        }
+
+        if ( !m_eclipseCase->results( m_porosityModel ) )
+        {
+            return grpc::Status( grpc::NOT_FOUND, "No results for porosity model." );
+        }
+
+        bool ok = createIJKCellResults( m_eclipseCase->results( m_porosityModel ), m_propertyName );
+        if ( !ok )
+        {
+            return grpc::Status( grpc::NOT_FOUND, "Could not find the property results." );
+        }
+
+        RigEclipseResultAddress resAddr( QString( "%1IJK" ).arg( m_propertyName ) );
+        m_eclipseCase->results( m_porosityModel )->ensureKnownResultLoaded( resAddr );
+        nncData->setEclResultAddress( m_propertyName, resAddr );
+
+        m_cellCount = caseData->mainGrid()->nncData()->connections().size();
+
+        resultsToAdd->resize( m_cellCount, HUGE_VAL );
+
+        return Status::OK;
+    }
+
+    return grpc::Status( grpc::NOT_FOUND, "Couldn't find an Eclipse case matching the case Id" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaNNCInputValuesStateHandler::init( const rips::NNCValuesChunk* chunk )
+{
+    if ( chunk->has_params() )
+    {
+        return init( &( chunk->params() ) );
+    }
+    return grpc::Status( grpc::INVALID_ARGUMENT, "Need to have PropertyRequest parameters in first message" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaNNCInputValuesStateHandler::receiveStreamRequest( const NNCValuesChunk*      request,
+                                                                  ClientToServerStreamReply* reply )
+{
+    if ( request->has_values() )
+    {
+        auto values = request->values().values();
+        if ( !values.empty() )
+        {
+            RigNNCData* nncData = m_eclipseCase->eclipseCaseData()->mainGrid()->nncData();
+
+            std::vector<std::vector<double>>* resultsToAdd =
+                nncData->generatedConnectionScalarResultByName( m_propertyName );
+
+            size_t currentCellIdx = m_streamedValueCount;
+            m_streamedValueCount += values.size();
+
+            for ( int i = 0; i < values.size() && currentCellIdx < m_cellCount; ++i, ++currentCellIdx )
+            {
+                resultsToAdd->at( m_timeStep )[currentCellIdx] = values[i];
+            }
+
+            if ( m_streamedValueCount > m_cellCount )
+            {
+                return grpc::Status( grpc::OUT_OF_RANGE, "Attempting to write out of bounds" );
+            }
+            reply->set_accepted_value_count( static_cast<int64_t>( currentCellIdx ) );
+            return Status::OK;
+        }
+    }
+    return Status::OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RiaNNCInputValuesStateHandler::cellCount() const
+{
+    return m_cellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RiaNNCInputValuesStateHandler::streamedValueCount() const
+{
+    return m_streamedValueCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaNNCInputValuesStateHandler::finish()
+{
+    if ( m_eclipseCase != nullptr )
+    {
+        // Create a new input property if we have an input reservoir
+        RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>( m_eclipseCase );
+        if ( inputRes )
+        {
+            RimEclipseInputProperty* inputProperty =
+                inputRes->inputPropertyCollection()->findInputProperty( m_propertyName );
+            if ( !inputProperty )
+            {
+                inputProperty                 = new RimEclipseInputProperty;
+                inputProperty->resultName     = m_propertyName;
+                inputProperty->eclipseKeyword = "";
+                inputProperty->fileName       = QString( "" );
+                inputRes->inputPropertyCollection()->inputProperties.push_back( inputProperty );
+                inputRes->inputPropertyCollection()->updateConnectedEditors();
+            }
+            inputProperty->resolvedState = RimEclipseInputProperty::RESOLVED_NOT_SAVED;
+        }
+
+        for ( size_t i = 0; i < m_eclipseCase->reservoirViews.size(); ++i )
+        {
+            if ( m_eclipseCase->reservoirViews[i] )
+            {
+                // As new result might have been introduced, update all editors connected
+                m_eclipseCase->reservoirViews[i]->cellResult()->updateConnectedEditors();
+
+                // It is usually not needed to create new display model, but if any derived geometry based on
+                // generated data (from Octave) a full display model rebuild is required
+                m_eclipseCase->reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
+                m_eclipseCase->reservoirViews[i]->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcNNCPropertiesService::SetNNCValues( grpc::ServerContext*             context,
+                                                        const rips::NNCValuesChunk*      chunk,
+                                                        rips::ClientToServerStreamReply* reply,
+                                                        RiaNNCInputValuesStateHandler*   stateHandler )
+{
+    return stateHandler->receiveStreamRequest( chunk, reply );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcNNCPropertiesService::createCallbacks()
 {
     typedef RiaGrpcNNCPropertiesService Self;
 
     std::vector<RiaGrpcCallbackInterface*> callbacks;
-    callbacks = {new RiaGrpcUnaryCallback<Self, CaseRequest, AvailableNNCProperties>( this,
-                                                                                      &Self::GetAvailableNNCProperties,
-                                                                                      &Self::RequestGetAvailableNNCProperties ),
-                 new RiaGrpcServerToClientStreamCallback<Self,
-                                                         CaseRequest,
-                                                         rips::NNCConnections,
-                                                         RiaNNCConnectionsStateHandler>( this,
-                                                                                         &Self::GetNNCConnections,
-                                                                                         &Self::RequestGetNNCConnections,
-                                                                                         new RiaNNCConnectionsStateHandler ),
-                 new RiaGrpcServerToClientStreamCallback<Self,
-                                                         NNCValuesRequest,
-                                                         rips::NNCValues,
-                                                         RiaNNCValuesStateHandler>( this,
-                                                                                    &Self::GetNNCValues,
-                                                                                    &Self::RequestGetNNCValues,
-                                                                                    new RiaNNCValuesStateHandler )};
+    callbacks =
+        {new RiaGrpcUnaryCallback<Self, CaseRequest, AvailableNNCProperties>( this,
+                                                                              &Self::GetAvailableNNCProperties,
+                                                                              &Self::RequestGetAvailableNNCProperties ),
+         new RiaGrpcServerToClientStreamCallback<Self,
+                                                 CaseRequest,
+                                                 rips::NNCConnections,
+                                                 RiaNNCConnectionsStateHandler>( this,
+                                                                                 &Self::GetNNCConnections,
+                                                                                 &Self::RequestGetNNCConnections,
+                                                                                 new RiaNNCConnectionsStateHandler ),
+         new RiaGrpcServerToClientStreamCallback<Self,
+                                                 NNCValuesRequest,
+                                                 rips::NNCValues,
+                                                 RiaNNCValuesStateHandler>( this,
+                                                                            &Self::GetNNCValues,
+                                                                            &Self::RequestGetNNCValues,
+                                                                            new RiaNNCValuesStateHandler ),
+
+         new RiaGrpcClientToServerStreamCallback<Self,
+                                                 NNCValuesChunk,
+                                                 ClientToServerStreamReply,
+                                                 RiaNNCInputValuesStateHandler>( this,
+                                                                                 &Self::SetNNCValues,
+                                                                                 &Self::RequestSetNNCValues,
+                                                                                 new RiaNNCInputValuesStateHandler( true ) )};
 
     return callbacks;
 }

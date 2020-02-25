@@ -1097,3 +1097,49 @@ def nnc_connections_generated_values(self, property_name, time_step):
     """
     generator = self.nnc_connections_generated_values_async(property_name, time_step)
     return self.__nnc_values_generator_to_list(generator)
+
+@add_method(Case)
+def __generate_nnc_property_input_chunks(self, array, parameters):
+    index = -1
+    while index < len(array):
+        chunk = NNCProperties_pb2.NNCValuesChunk()
+        if index is -1:
+            chunk.params.CopyFrom(parameters)
+            index += 1
+        else:
+            actual_chunk_size = min(len(array) - index + 1, self.chunk_size)
+            chunk.values.CopyFrom(
+                NNCProperties_pb2.NNCValues(values=array[index:index + actual_chunk_size]))
+            index += actual_chunk_size
+
+        yield chunk
+    # Final empty message to signal completion
+    chunk = NNCProperties_pb2.NNCValuesChunk()
+    yield chunk
+
+@add_method(Case)
+def set_nnc_connections_values(
+        self,
+        values,
+        property_name,
+        time_step,
+        porosity_model="MATRIX_MODEL"):
+    """Set nnc connection values for all connections..
+
+        Arguments:
+            values(list): a list of double precision floating point numbers
+            property_name(str): name of an Eclipse property
+            time_step(int): the time step for which to get the property for
+            porosity_model(str): string enum. See available()
+    """
+    porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
+    request = NNCProperties_pb2.NNCValuesInputRequest(
+        case_id=self.id,
+        property_name=property_name,
+        time_step=time_step,
+        porosity_model=porosity_model_enum,
+    )
+    request_iterator = self.__generate_nnc_property_input_chunks(values, request)
+    reply = self.__nnc_properties_stub.SetNNCValues(request_iterator)
+    if reply.accepted_value_count < len(values):
+        raise IndexError

@@ -23,6 +23,8 @@
 #include <grpcpp/grpcpp.h>
 #include <vector>
 
+#include <QString>
+
 class RimEclipseCase;
 
 //==================================================================================================
@@ -67,6 +69,36 @@ protected:
 
 //==================================================================================================
 //
+// State handler for client-to-server streaming of NNC values
+//
+//==================================================================================================
+
+class RiaNNCInputValuesStateHandler
+{
+public:
+    typedef grpc::Status Status;
+
+public:
+    RiaNNCInputValuesStateHandler( bool t = true );
+    grpc::Status init( const rips::NNCValuesChunk* request );
+    grpc::Status init( const rips::NNCValuesInputRequest* request );
+    grpc::Status receiveStreamRequest( const rips::NNCValuesChunk* request, rips::ClientToServerStreamReply* reply );
+
+    size_t cellCount() const;
+    size_t streamedValueCount() const;
+    void   finish();
+
+protected:
+    const rips::NNCValuesInputRequest* m_request;
+    RimEclipseCase*                    m_eclipseCase;
+    size_t                             m_cellCount;
+    size_t                             m_streamedValueCount;
+    size_t                             m_timeStep;
+    QString                            m_propertyName;
+};
+
+//==================================================================================================
+//
 // gRPC-service answering requests about NNC property information for a given case and time step
 //
 //==================================================================================================
@@ -84,6 +116,10 @@ public:
                                const rips::NNCValuesRequest* request,
                                rips::NNCValues*              reply,
                                RiaNNCValuesStateHandler*     stateHandler );
+    grpc::Status SetNNCValues( grpc::ServerContext*             context,
+                               const rips::NNCValuesChunk*      chunk,
+                               rips::ClientToServerStreamReply* reply,
+                               RiaNNCInputValuesStateHandler*   stateHandler );
 
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 };
