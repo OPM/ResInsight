@@ -52,10 +52,6 @@ public:
         RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED );
 
     void useTimeBasedTimeAxis();
-
-    void setLegendFontSize( int fontSize );
-    void setLegendVisible( bool visible );
-
     void setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic );
 
 signals:

@@ -35,6 +35,7 @@
 #include "cafAssert.h"
 
 #include "qwt_legend.h"
+#include "qwt_legend_label.h"
 #include "qwt_plot_canvas.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
@@ -235,6 +236,41 @@ void RiuQwtPlotWidget::setPlotTitleEnabled( bool enabled )
 bool RiuQwtPlotWidget::plotTitleEnabled() const
 {
     return m_plotTitleEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setLegendFontSize( int fontSize )
+{
+    if ( legend() )
+    {
+        QFont font = legend()->font();
+        font.setPixelSize( RiaFontCache::pointSizeToPixelSize( fontSize ) );
+        legend()->setFont( font );
+        // Set font size for all existing labels
+        QList<QwtLegendLabel*> labels = legend()->findChildren<QwtLegendLabel*>();
+        for ( QwtLegendLabel* label : labels )
+        {
+            label->setFont( font );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setLegendVisible( bool visible )
+{
+    if ( visible )
+    {
+        QwtLegend* legend = new QwtLegend( this );
+        this->insertLegend( legend, BottomLegend );
+    }
+    else
+    {
+        this->insertLegend( nullptr );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

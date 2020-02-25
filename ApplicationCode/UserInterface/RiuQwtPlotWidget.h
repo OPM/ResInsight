@@ -84,6 +84,9 @@ public:
     void           setPlotTitleEnabled( bool enabled );
     bool           plotTitleEnabled() const;
 
+    void setLegendFontSize( int fontSize );
+    void setLegendVisible( bool visible );
+
     QwtInterval axisRange( QwtPlot::Axis axis );
     void        setAxisRange( QwtPlot::Axis axis, double min, double max );
 

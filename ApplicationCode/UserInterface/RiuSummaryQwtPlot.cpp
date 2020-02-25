@@ -158,41 +158,6 @@ void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::setLegendFontSize( int fontSize )
-{
-    if ( legend() )
-    {
-        QFont font = legend()->font();
-        font.setPixelSize( RiaFontCache::pointSizeToPixelSize( fontSize ) );
-        legend()->setFont( font );
-        // Set font size for all existing labels
-        QList<QwtLegendLabel*> labels = legend()->findChildren<QwtLegendLabel*>();
-        for ( QwtLegendLabel* label : labels )
-        {
-            label->setFont( font );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::setLegendVisible( bool visible )
-{
-    if ( visible )
-    {
-        QwtLegend* legend = new QwtLegend( this );
-        this->insertLegend( legend, BottomLegend );
-    }
-    else
-    {
-        this->insertLegend( nullptr );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic )
 {
     if ( m_wheelZoomer ) m_wheelZoomer->setAxisIsLogarithmic( axis, logarithmic );
