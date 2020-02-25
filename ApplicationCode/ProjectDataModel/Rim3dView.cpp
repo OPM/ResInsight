@@ -89,7 +89,7 @@ Rim3dView::Rim3dView( void )
     CAF_PDM_InitObject( "3d View", "", "", "" );
 
     RICF_InitField( &m_id, "Id", -1, "View ID", "", "", "" );
-    m_id.xmlCapability()->registerKeywordAlias( "ViewId" );
+    m_id.registerKeywordAlias( "ViewId" );
     m_id.uiCapability()->setUiReadOnly( true );
     m_id.uiCapability()->setUiHidden( true );
     m_id.capability<RicfFieldHandle>()->setIOWriteable( false );
@@ -114,7 +114,7 @@ Rim3dView::Rim3dView( void )
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
     RICF_InitField( &m_backgroundColor, "BackgroundColor", defBackgColor, "Background", "", "", "" );
-    m_backgroundColor.xmlCapability()->registerKeywordAlias( "ViewBackgroundColor" );
+    m_backgroundColor.registerKeywordAlias( "ViewBackgroundColor" );
 
     CAF_PDM_InitField( &maximumFrameRate, "MaximumFrameRate", 10, "Maximum Frame Rate", "", "", "" );
     maximumFrameRate.uiCapability()->setUiHidden( true );

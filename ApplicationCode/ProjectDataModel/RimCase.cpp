@@ -46,16 +46,16 @@ RimCase::RimCase()
     RICF_InitObjectWithScriptNameAndComment( "Case", ":/Case48x48.png", "", "", "Case", "The ResInsight base class for Cases" );
 
     RICF_InitField( &caseUserDescription, "Name", QString(), "Case Name", "", "", "" );
-    caseUserDescription.xmlCapability()->registerKeywordAlias( "CaseUserDescription" );
+    caseUserDescription.registerKeywordAlias( "CaseUserDescription" );
 
     RICF_InitField( &caseId, "Id", -1, "Case ID", "", "", "" );
-    caseId.xmlCapability()->registerKeywordAlias( "CaseId" );
+    caseId.registerKeywordAlias( "CaseId" );
     caseId.uiCapability()->setUiReadOnly( true );
     caseId.capability<RicfFieldHandle>()->setIOWriteable( false );
 
     RICF_InitFieldNoDefault( &m_caseFileName, "FilePath", "Case File Name", "", "", "" );
-    m_caseFileName.xmlCapability()->registerKeywordAlias( "CaseFileName" );
-    m_caseFileName.xmlCapability()->registerKeywordAlias( "GridFileName" );
+    m_caseFileName.registerKeywordAlias( "CaseFileName" );
+    m_caseFileName.registerKeywordAlias( "GridFileName" );
 
     m_caseFileName.uiCapability()->setUiReadOnly( true );
 

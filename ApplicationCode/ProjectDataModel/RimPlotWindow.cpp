@@ -45,7 +45,7 @@ RimPlotWindow::RimPlotWindow()
                                              "The Abstract base class for all MDI Windows in the Plot Window" );
 
     RICF_InitField( &m_id, "Id", -1, "View ID", "", "", "" );
-    m_id.xmlCapability()->registerKeywordAlias( "ViewId" );
+    m_id.registerKeywordAlias( "ViewId" );
     m_id.uiCapability()->setUiReadOnly( true );
     m_id.uiCapability()->setUiHidden( true );
     m_id.capability<RicfFieldHandle>()->setIOWriteable( false );

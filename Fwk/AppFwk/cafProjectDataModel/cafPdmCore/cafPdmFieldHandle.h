@@ -27,6 +27,9 @@ public:
     PdmObjectHandle* ownerObject();
     QString          ownerClass() const;
 
+    void registerKeywordAlias(const QString& alias);
+    bool matchesKeywordAlias(const QString& keyword) const;
+
     // Child objects
     bool             hasChildObjects();
     virtual void     childObjects(std::vector<PdmObjectHandle*>*)        {  }
@@ -55,14 +58,13 @@ protected:
 private:
     PDM_DISABLE_COPY_AND_ASSIGN(PdmFieldHandle);
     
-    bool matchesKeywordAlias(const QString& keyword) const;
-
     friend class PdmObjectHandle;   // Give access to m_ownerObject and set Keyword
     void             setKeyword(const QString& keyword);
     PdmObjectHandle* m_ownerObject;
     QString          m_ownerClass;
 
-    QString          m_keyword;
+    QString              m_keyword;
+    std::vector<QString> m_keywordAliases;
 
     std::vector<std::pair<PdmFieldCapability*, bool> > m_capabilities;
 };

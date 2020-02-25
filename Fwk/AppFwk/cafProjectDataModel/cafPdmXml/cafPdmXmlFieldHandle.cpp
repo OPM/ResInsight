@@ -62,26 +62,6 @@ QString PdmXmlFieldHandle::childClassKeyword()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void PdmXmlFieldHandle::registerKeywordAlias(const QString& alias)
-{
-    m_keywordAliases.push_back(alias);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool PdmXmlFieldHandle::matchesKeywordAlias(const QString& keyword) const
-{
-    for (const QString& alias : m_keywordAliases)
-    {
-        if (alias == keyword) return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Implementation of uiCapability() defined in cafPdmFieldHandle.h
 //--------------------------------------------------------------------------------------------------
 PdmXmlFieldHandle* PdmFieldHandle::xmlCapability()
@@ -92,14 +72,5 @@ PdmXmlFieldHandle* PdmFieldHandle::xmlCapability()
     return xmlField;
 }
 
-bool PdmFieldHandle::matchesKeywordAlias(const QString& keyword) const
-{
-    const PdmXmlFieldHandle* xmlField = capability<PdmXmlFieldHandle>();
-    if (xmlField)
-    {
-        return xmlField->matchesKeywordAlias(keyword);
-    }
-    return false;
-}
 
 } // End of namespace caf

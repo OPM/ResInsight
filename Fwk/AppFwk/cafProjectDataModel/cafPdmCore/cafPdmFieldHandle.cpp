@@ -104,6 +104,26 @@ bool PdmFieldHandle::hasPtrReferencedObjects()
     return (ptrReffedObjs.size() > 0);
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldHandle::registerKeywordAlias(const QString& alias)
+{
+    m_keywordAliases.push_back(alias);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmFieldHandle::matchesKeywordAlias(const QString& keyword) const
+{
+    for (const QString& alias : m_keywordAliases)
+    {
+        if (alias == keyword) return true;
+    }
+    return false;
+}
+
 // These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml
 /*
 PdmUiFieldHandle* PdmFieldHandle::uiCapability()

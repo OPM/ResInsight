@@ -65,7 +65,7 @@ RimSimWellInView::RimSimWellInView()
     RICF_InitObjectWithScriptNameAndComment( "Simulation Well", ":/Well.png", "", "", "SimulationWell", "An Eclipse Simulation Well" );
 
     RICF_InitFieldNoDefault( &name, "Name", "Name", "", "", "" );
-    name.xmlCapability()->registerKeywordAlias( "WellName" );
+    name.registerKeywordAlias( "WellName" );
 
     CAF_PDM_InitField( &showWell, "ShowWell", true, "Show well ", "", "", "" );
 

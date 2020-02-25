@@ -40,9 +40,6 @@ public:
 
     QString         childClassKeyword();
 
-    void registerKeywordAlias(const QString& alias);
-    bool matchesKeywordAlias(const QString& keyword) const;
-
     virtual void    readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory)  = 0;
     virtual void    writeFieldData(QXmlStreamWriter& xmlStream) const = 0;
 
@@ -58,7 +55,6 @@ private:
     bool                 m_isIOReadable;
     bool                 m_isIOWritable;
     bool                 m_isCopyable;
-    std::vector<QString> m_keywordAliases;
 
     PdmFieldHandle* m_owner;
 };

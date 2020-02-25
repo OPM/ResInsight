@@ -76,7 +76,7 @@ RimWellPath::RimWellPath()
     RICF_InitObject( "WellPath", ":/Well.png", "", "The Base class for Well Paths" );
 
     RICF_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
-    m_name.xmlCapability()->registerKeywordAlias( "WellPathName" );
+    m_name.registerKeywordAlias( "WellPathName" );
     m_name.uiCapability()->setUiReadOnly( true );
     m_name.uiCapability()->setUiHidden( true );
     m_name.xmlCapability()->disableIO();
