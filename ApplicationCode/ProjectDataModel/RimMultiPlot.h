@@ -15,9 +15,12 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
+#include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotWindow.h"
+
 #include "RiuMultiPlotBook.h"
 
 #include "cafAppEnum.h"
@@ -138,6 +141,8 @@ protected:
     caf::PdmField<ColumnCountEnum> m_columnCount;
     caf::PdmField<RowCountEnum>    m_rowsPerPage;
     caf::PdmField<bool>            m_showIndividualPlotTitles;
+
+    caf::PdmField<RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum> m_majorTickmarkCount;
 
     friend class RiuMultiPlotBook;
     QPointer<RiuMultiPlotBook> m_viewer;

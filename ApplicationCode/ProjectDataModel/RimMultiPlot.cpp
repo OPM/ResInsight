@@ -15,11 +15,13 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimMultiPlot.h"
 
 #include "RiaApplication.h"
 #include "RimPlot.h"
 #include "RimProject.h"
+#include "RimSummaryTimeAxisProperties.h"
 
 #include "RiuMultiPlotBook.h"
 #include "RiuPlotMainWindow.h"
@@ -73,6 +75,7 @@ RimMultiPlot::RimMultiPlot()
     CAF_PDM_InitFieldNoDefault( &m_rowsPerPage, "RowsPerPage", "Rows per Page", "", "", "" );
 
     CAF_PDM_InitField( &m_showIndividualPlotTitles, "ShowPlotTitles", true, "Show Sub Plot Titles", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count", "", "", "" );
 
     m_viewer = nullptr;
 }
@@ -529,6 +532,20 @@ void RimMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
         updateLayout();
         RiuPlotMainWindowTools::refreshToolbars();
     }
+    else if ( changedField = &m_majorTickmarkCount )
+    {
+        for ( RimPlot* plot : plots() )
+        {
+            std::vector<RimSummaryTimeAxisProperties*> timeAxisProps;
+            plot->descendantsIncludingThisOfType( timeAxisProps );
+            for ( auto tap : timeAxisProps )
+            {
+                tap->setMajorTickmarkCount( m_majorTickmarkCount() );
+            }
+        }
+
+        updatePlots();
+    }
     updateConnectedEditors();
 }
 
@@ -552,6 +569,7 @@ void RimMultiPlot::uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmU
     RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, uiOrdering );
     uiOrdering.add( &m_columnCount );
     uiOrdering.add( &m_rowsPerPage );
+    uiOrdering.add( &m_majorTickmarkCount );
 }
 
 //--------------------------------------------------------------------------------------------------
