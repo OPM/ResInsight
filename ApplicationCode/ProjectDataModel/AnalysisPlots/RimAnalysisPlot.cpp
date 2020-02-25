@@ -34,15 +34,54 @@
 #include "cafPdmUiGroup.h"
 
 #include "RifSummaryReaderInterface.h"
+
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+
+#include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiListEditor.h"
+
 #include <limits>
 #include <map>
+
+class RimCurveDefinitionSplitter
+{
+public:
+    RimCurveDefinitionSplitter( std::vector<RiaSummaryCurveDefinition> curveDefs )
+    {
+        for ( const auto& curveDef : curveDefs )
+        {
+            if ( curveDef.isEnsembleCurve() )
+            {
+                m_ensembles.insert( curveDef.ensemble() );
+            }
+            else
+            {
+                m_singleSummaryCases.insert( curveDef.summaryCase() );
+            }
+
+            RifEclipseSummaryAddress address = curveDef.summaryAddress();
+
+            m_quantityNames.insert( address.quantityName() );
+
+            address.setQuantityName( "" );
+            m_summaryItems.insert( address );
+        }
+    }
+
+    std::set<RimSummaryCase*>           m_singleSummaryCases;
+    std::set<RimSummaryCaseCollection*> m_ensembles;
+
+    std::set<RifEclipseSummaryAddress> m_summaryItems; // Quantity name set to "", stores only the identifiers
+    std::set<std::string>              m_quantityNames; // Quantity names from the addresses
+};
 
 namespace caf
 {
 template <>
 void caf::AppEnum<RimAnalysisPlot::SortGroupType>::setUp()
 {
+    addItem( RimAnalysisPlot::NONE, "NONE", "None" );
     addItem( RimAnalysisPlot::SUMMARY_ITEM, "SUMMARY_ITEM", "Summary Item" );
     addItem( RimAnalysisPlot::CASE, "CASE", "Case" );
     addItem( RimAnalysisPlot::ENSEMBLE, "ENSEMBLE", "Ensemble" );
@@ -51,6 +90,7 @@ void caf::AppEnum<RimAnalysisPlot::SortGroupType>::setUp()
     addItem( RimAnalysisPlot::OTHER_VALUE, "OTHER_VALUE", "Other Value" );
     addItem( RimAnalysisPlot::ABS_OTHER_VALUE, "ABS_OTHER_VALUE", "abs(Other Value)" );
     addItem( RimAnalysisPlot::TIME_STEP, "TIME_STEP", "Time Step" );
+    setDefault( RimAnalysisPlot::NONE );
 }
 
 template <>
@@ -94,10 +134,18 @@ RimAnalysisPlot::RimAnalysisPlot()
     m_data.uiCapability()->setUiTreeChildrenHidden( true );
     m_data.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_addTimestepUiField, "AddTimeStepsUiField", "Add Timestep:", "", "", "" );
+    m_addTimestepUiField.xmlCapability()->disableIO();
+    m_addTimestepUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_sortGroupSortingOrder, "sortingOrder", "Sort Order", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_sortGroupsToGroup, "grouping", "Grouping", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "", "", "", "" );
+    m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_majorGroupType, "MajorGroupType", "Major Grouping", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_mediumGroupType, "MediumGroupType", "Medium Grouping", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_minorGroupType, "MinorGroupType", "Minor Grouping", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_valueSortOperation, "ValueSortOperation", "Sort by Value", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_sortGroupForLegend, "groupForLegend", "Legend Using", "", "", "" );
 }
@@ -373,6 +421,12 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         m_selectVariablesButtonField = false;
     }
+    else if ( changedField == &m_addTimestepUiField )
+    {
+        m_selectedTimeSteps.v().push_back( m_addTimestepUiField() );
+        m_addTimestepUiField = QDateTime();
+    }
+
     this->loadDataAndUpdate();
 }
 
@@ -398,10 +452,14 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     selVectorsGrp->add( &m_selectVariablesButtonField, {false} );
 
     caf::PdmUiGroup* timeStepGrp = uiOrdering.addNewGroup( "Time Steps" );
+    timeStepGrp->add( &m_addTimestepUiField );
     timeStepGrp->add( &m_selectedTimeSteps );
 
     caf::PdmUiGroup* sortGrp = uiOrdering.addNewGroup( "Sorting and Grouping" );
-    sortGrp->add( &m_sortGroupSortingOrder );
+    sortGrp->add( &m_majorGroupType );
+    sortGrp->add( &m_mediumGroupType );
+    sortGrp->add( &m_minorGroupType );
+    sortGrp->add( &m_valueSortOperation );
 
     caf::PdmUiGroup* legendGrp = uiOrdering.addNewGroup( "Legends And Labels" );
     legendGrp->add( &m_showPlotLegends );
@@ -409,6 +467,68 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     legendGrp->add( &m_legendFontSize );
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                      bool*                      useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+
+    if ( !options.isEmpty() ) return options;
+
+    RimCurveDefinitionSplitter splittedCurveDefs( this->curveDefinitions() );
+
+    if ( fieldNeedingOptions == &m_addTimestepUiField )
+    {
+        options.push_back( {"None", QDateTime()} );
+
+        std::set<QDateTime> timeStepUnion;
+
+        std::set<RimSummaryCase*> timeStepDefiningSumCases = splittedCurveDefs.m_singleSummaryCases;
+        for ( RimSummaryCaseCollection* sumCaseColl : splittedCurveDefs.m_ensembles )
+        {
+            std::vector<RimSummaryCase*> sumCases = sumCaseColl->allSummaryCases();
+            if ( sumCases.size() )
+            {
+                timeStepDefiningSumCases.insert( sumCases[0] );
+            }
+        }
+
+        for ( RimSummaryCase* sumCase : timeStepDefiningSumCases )
+        {
+            const std::vector<time_t>& timeSteps = sumCase->summaryReader()->timeSteps( RifEclipseSummaryAddress() );
+
+            for ( time_t t : timeSteps )
+            {
+                timeStepUnion.insert( RiaQDateTimeTools::fromTime_t( t ) );
+            }
+        }
+
+        for ( const QDateTime& dateTime : timeStepUnion )
+        {
+            options.push_back( {dateTime.toString(), dateTime} );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_valueSortOperation )
+    {
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( NONE ), NONE ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( VALUE ), VALUE ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( ABS_VALUE ), ABS_VALUE ) );
+    }
+    else if ( fieldNeedingOptions == &m_majorGroupType || fieldNeedingOptions == &m_mediumGroupType ||
+              fieldNeedingOptions == &m_minorGroupType )
+    {
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( NONE ), NONE ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( SUMMARY_ITEM ), SUMMARY_ITEM ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( CASE ), CASE ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( ENSEMBLE ), ENSEMBLE ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( TIME_STEP ), TIME_STEP ) );
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -450,11 +570,67 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString assignGroupingText( RimAnalysisPlot::SortGroupType  sortGroup,
+                            const RimAnalysisPlotDataEntry* dataEntry,
+                            const QString&                  timestepString )
+{
+    QString groupingText;
+
+    switch ( sortGroup )
+    {
+        case RimAnalysisPlot::SUMMARY_ITEM:
+        {
+            RifEclipseSummaryAddress addr = dataEntry->summaryAddress();
+            addr.setQuantityName( "" );
+            groupingText = QString::fromStdString( addr.uiText() );
+        }
+        break;
+        case RimAnalysisPlot::CASE:
+        {
+            if ( dataEntry->summaryCase() )
+            {
+                groupingText = dataEntry->summaryCase()->displayCaseName();
+            }
+        }
+        break;
+        case RimAnalysisPlot::ENSEMBLE:
+        {
+            if ( dataEntry->ensemble() )
+            {
+                groupingText = dataEntry->ensemble()->name();
+            }
+        }
+        break;
+        case RimAnalysisPlot::TIME_STEP:
+        {
+            groupingText = timestepString;
+        }
+        break;
+        default:
+        {
+            // Return empty string
+        }
+        break;
+    }
+
+    return groupingText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder )
 {
+    std::vector<time_t> selectedTimesteps;
+    for ( const QDateTime& dateTime : m_selectedTimeSteps.v() )
+    {
+        selectedTimesteps.push_back( dateTime.toTime_t() );
+    }
+
     for ( const RimAnalysisPlotDataEntry* dataEntry : m_data )
     {
         if ( !dataEntry->summaryCase() ) continue; // Todo, ensembles
+
         RifSummaryReaderInterface* reader = dataEntry->summaryCase()->summaryReader();
         if ( !reader ) continue;
 
@@ -463,14 +639,50 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
         std::vector<double> values;
         reader->values( dataEntry->summaryAddress(), &values );
 
-        // Todo: find selected timestep indices
+        // Find selected timestep indices
 
-        int timestepIdx = values.size() * 0.5;
+        std::vector<int> selectedTimestepIndices;
 
-        QString description = dataEntry->summaryCase()->displayCaseName() + " : " +
+        for ( time_t tt : selectedTimesteps )
+        {
+            for ( int timestepIdx = 0; timestepIdx < timesteps.size(); ++timestepIdx )
+            {
+                if ( timesteps[timestepIdx] == tt )
+                {
+                    selectedTimestepIndices.push_back( timestepIdx );
+                    break;
+                }
+            }
+        }
+
+        for ( int timestepIdx : selectedTimestepIndices )
+        {
+            double sortValue = std::numeric_limits<double>::infinity();
+
+            QString timestepString = RiaQDateTimeTools::fromTime_t( timesteps[timestepIdx] ).toString();
+
+            QString majorText  = assignGroupingText( m_majorGroupType(), dataEntry, timestepString );
+            QString medText    = assignGroupingText( m_mediumGroupType(), dataEntry, timestepString );
+            QString minText    = assignGroupingText( m_minorGroupType(), dataEntry, timestepString );
+            QString legendText = assignGroupingText( m_sortGroupForLegend(), dataEntry, timestepString );
+
+            double value = values[timestepIdx];
+
+            switch ( m_valueSortOperation() )
+            {
+                case VALUE:
+                    sortValue = value;
+                    break;
+                case ABS_VALUE:
+                    sortValue = fabs( value );
+                    break;
+            }
+
+            QString barText = dataEntry->summaryCase()->displayCaseName() + " : " +
                               QString::fromStdString( dataEntry->summaryAddress().uiText() );
 
-        chartBuilder.addBarEntry( "", "", "", std::numeric_limits<double>::infinity(), "", description, values[timestepIdx] );
+            chartBuilder.addBarEntry( majorText, medText, minText, sortValue, legendText, barText, values[timestepIdx] );
+        }
     }
 }
 

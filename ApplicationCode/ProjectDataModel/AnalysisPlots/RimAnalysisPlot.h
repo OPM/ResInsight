@@ -76,6 +76,7 @@ public:
 
     enum SortGroupType
     {
+        NONE,
         SUMMARY_ITEM,
         CASE,
         ENSEMBLE,
@@ -85,6 +86,7 @@ public:
         ABS_OTHER_VALUE,
         TIME_STEP,
     };
+    typedef caf::AppEnum<SortGroupType> SortGroupAppEnum;
 
     QString description() const override;
 
@@ -135,10 +137,18 @@ private:
 
     caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_data;
 
+    caf::PdmField<QDateTime>              m_addTimestepUiField;
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
 
-    caf::PdmField<std::vector<caf::AppEnum<SortGroupType>>> m_sortGroupSortingOrder;
-    caf::PdmField<std::vector<caf::AppEnum<SortGroupType>>> m_sortGroupsToGroup;
+    caf::PdmField<SortGroupAppEnum> m_majorGroupType;
+    caf::PdmField<SortGroupAppEnum> m_mediumGroupType;
+    caf::PdmField<SortGroupAppEnum> m_minorGroupType;
 
-    caf::PdmField<caf::AppEnum<SortGroupType>> m_sortGroupForLegend;
+    caf::PdmField<SortGroupAppEnum> m_valueSortOperation;
+
+    caf::PdmField<SortGroupAppEnum> m_sortGroupForLegend;
+
+protected:
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                 bool*                      useOptionsOnly ) override;
 };
