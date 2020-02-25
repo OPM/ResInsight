@@ -12,7 +12,6 @@ from rips.pdmobject import PdmObject, add_method, add_static_method
 from rips.plot import Plot
 from rips.view import View
 from rips.wellpath import WellPathBase
-from rips.contour_map import ContourMap, ContourMapType
 
 import rips.generated.Commands_pb2 as Cmd
 from rips.generated.Definitions_pb2 import Empty
@@ -175,16 +174,6 @@ def plot(self, view_id):
         if plot_object.id == view_id:
             return plot_object
     return None
-
-@add_method(Project)
-def contour_maps(self, map_type=ContourMapType.ECLIPSE):
-    """Get a list of all contour maps belonging to a project"""
-
-    pdm_objects = self.descendants(ContourMapType.get_identifier(map_type))
-    contour_maps = []
-    for pdm_object in pdm_objects:
-        contour_maps.append(ContourMap(pdm_object, map_type))
-    return contour_maps
 
 @add_method(Project)
 def grid_case_groups(self):
