@@ -544,7 +544,6 @@ if (RESINSIGHT_ENABLE_GRPC)
 				COMMAND $<TARGET_FILE_DIR:ResInsight>/ResInsight ARGS --console --generate ${GRPC_PYTHON_SOURCE_PATH}/rips/Generated/pdm_objects.py
                 COMMENT "Generating ${GRPC_PYTHON_SOURCE_PATH}/Generated/pdm_objects.py"
 			)
-    list (APPEND GRPC_PYTHON_SOURCES_FULL_PATH ${GRPC_PYTHON_SOURCE_PATH}/rips/Generated/pdm_objects.py)
 endif(RESINSIGHT_ENABLE_GRPC)
 
 #############################################################################
@@ -784,6 +783,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 				)
 			endif()
 			install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
+            install(FILES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
 		endif()
 	endif()
 
