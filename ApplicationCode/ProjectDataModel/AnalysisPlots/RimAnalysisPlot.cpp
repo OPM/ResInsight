@@ -164,11 +164,11 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitField( &m_useBarText, "UseBarText", true, "Activate Bar Labels", "", "", "" );
     m_useBarText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &m_useCaseInBarText, "UseCaseInBarText", true, "Case Name", "", "", "" );
-    CAF_PDM_InitField( &m_useEnsembleInBarText, "UseEnsembleInBarText", true, "Ensemble", "", "", "" );
-    CAF_PDM_InitField( &m_useSummaryItemInBarText, "UseSummaryItemInBarText", true, "Summary Item", "", "", "" );
-    CAF_PDM_InitField( &m_useTimeStepInBarText, "UseTimeStepInBarText", true, "Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_useQuantityInBarText, "UseQuantityInBarText", true, "Quantity", "", "", "" );
+    CAF_PDM_InitField( &m_useCaseInBarText, "UseCaseInBarText", false, "Case Name", "", "", "" );
+    CAF_PDM_InitField( &m_useEnsembleInBarText, "UseEnsembleInBarText", false, "Ensemble", "", "", "" );
+    CAF_PDM_InitField( &m_useSummaryItemInBarText, "UseSummaryItemInBarText", false, "Summary Item", "", "", "" );
+    CAF_PDM_InitField( &m_useTimeStepInBarText, "UseTimeStepInBarText", false, "Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_useQuantityInBarText, "UseQuantityInBarText", false, "Quantity", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
