@@ -115,7 +115,7 @@ RimProject::RimProject( void )
 {
     RICF_InitObjectWithScriptNameAndComment( "Project", "", "", "", "Project", "The ResInsight Project" );
 
-    CAF_PDM_InitFieldNoDefault( &m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "" );
+    CAF_PDM_InitField( &m_projectFileVersionString, "ProjectFileVersionString", QString( STRPRODUCTVER ), "", "", "", "" );
     m_projectFileVersionString.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_globalPathList, "ReferencedExternalFiles", "", "", "", "" );
