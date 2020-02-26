@@ -78,9 +78,9 @@ else()
 endif()
 
 # Cannot use the nice new FindPackage modules for python since that is CMake 3.12+
-if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+if(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
     message(STATUS "Using Python ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}")
-endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 
 # Proto files
 set(PROTO_FILES
@@ -121,29 +121,25 @@ foreach(proto_file ${PROTO_FILES})
     )
     
     if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-		if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
-			set(rips_proto_python "rips/generated/${proto_file}_pb2.py")
-			set(rips_grpc_python "rips/generated/${proto_file}_pb2_grpc.py")
+		set(rips_proto_python "rips/generated/${proto_file}_pb2.py")
+		set(rips_grpc_python "rips/generated/${proto_file}_pb2_grpc.py")
 
-			add_custom_command(
-				OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${rips_proto_python}" "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}"
-				COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}
-				ARGS -m grpc_tools.protoc
-					-I "${rips_proto_path}"
-					--python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
-					--grpc_python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
-					"${rips_proto}"
-				DEPENDS "${rips_proto}"
-				COMMENT "Generating ${rips_proto_python} and ${rips_grpc_python}"
-				VERBATIM
-			)
-			list (APPEND GRPC_PYTHON_GENERATED_SOURCES
-				${rips_proto_python}
-				${rips_grpc_python}
-			)
-		else()
-			message(STATUS "Error generating Python for ${rips_proto}: RESINSIGHT_GRPC_PYTHON_EXECUTABLE set but ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} not found")
-		endif(EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+		add_custom_command(
+			OUTPUT "${GRPC_PYTHON_SOURCE_PATH}/${rips_proto_python}" "${GRPC_PYTHON_SOURCE_PATH}/${rips_grpc_python}"
+			COMMAND ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE}
+			ARGS -m grpc_tools.protoc
+				-I "${rips_proto_path}"
+				--python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
+				--grpc_python_out "${GRPC_PYTHON_SOURCE_PATH}/rips/generated"
+				"${rips_proto}"
+			DEPENDS "${rips_proto}"
+			COMMENT "Generating ${rips_proto_python} and ${rips_grpc_python}"
+			VERBATIM
+		)
+		list (APPEND GRPC_PYTHON_GENERATED_SOURCES
+			${rips_proto_python}
+			${rips_grpc_python}
+		)
 	else()
 		message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not generate GRPC Python code.")
 	endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)	
@@ -161,77 +157,73 @@ foreach(proto_file ${PROTO_FILES})
 endforeach(proto_file)
 
 if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-	if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
-		CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
-		                ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py)
-		CONFIGURE_FILE( ${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
-                        ${GRPC_PYTHON_SOURCE_PATH}/setup.py)
+	CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.py.cmake
+		            ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/RiaVersionInfo.py)
+	CONFIGURE_FILE( ${GRPC_PYTHON_SOURCE_PATH}/setup.py.cmake
+                    ${GRPC_PYTHON_SOURCE_PATH}/setup.py)
 
-	    list(APPEND GRPC_PYTHON_SOURCES
-			"rips/generated/RiaVersionInfo.py"
-			"rips/__init__.py"
-			"rips/case.py"
-			"rips/contour_map.py"
-			"rips/grid.py"
-			"rips/gridcasegroup.py"
-			"rips/project.py"
-			"rips/instance.py"	
-			"rips/pdmobject.py"
-			"rips/plot.py"
-			"rips/simulation_well.py"
-			"rips/view.py"
-			"rips/wellpath.py"
-			"rips/well_log_plot.py"
-			"rips/well_bore_stability_plot.py"
-			"rips/PythonExamples/instance_example.py"
-			"rips/PythonExamples/command_example.py"
-			"rips/PythonExamples/case_grid_group.py"
-			"rips/PythonExamples/case_info_streaming_example.py"
-			"rips/PythonExamples/create_wbs_plot.py"
-			"rips/PythonExamples/export_plots.py"
-			"rips/PythonExamples/export_snapshots.py"
-			"rips/PythonExamples/error_handling.py"
-			"rips/PythonExamples/import_well_paths_and_logs.py"
-			"rips/PythonExamples/soil_porv_async.py"
-			"rips/PythonExamples/soil_porv_sync.py"
-			"rips/PythonExamples/selected_cases.py"
-			"rips/PythonExamples/all_cases.py"
-			"rips/PythonExamples/set_grid_properties.py"
-			"rips/PythonExamples/set_cell_result.py"
-			"rips/PythonExamples/set_flow_diagnostics_result.py"
-			"rips/PythonExamples/grid_information.py"
-			"rips/PythonExamples/input_prop_test_sync.py"
-			"rips/PythonExamples/input_prop_test_async.py"
-			"rips/PythonExamples/soil_average_async.py"
-			"rips/PythonExamples/soil_average_sync.py"
-			"rips/PythonExamples/view_example.py"
-			"rips/tests/test_cases.py"
-			"rips/tests/test_grids.py"
-			"rips/tests/test_properties.py"
-			"rips/tests/test_project.py"
-			"rips/tests/conftest.py"
-			"rips/tests/dataroot.py"
-			"rips/tests/test_nnc_properties.py"
-			"rips/tests/test_simulation_wells.py"
-			"rips/tests/test_wells.py"
-			"requirements.txt"
-			"setup.py"
-			"README.md"
-			"LICENSE"
-		)
+	list(APPEND GRPC_PYTHON_SOURCES
+		"rips/generated/RiaVersionInfo.py"
+		"rips/__init__.py"
+		"rips/case.py"
+		"rips/contour_map.py"
+		"rips/grid.py"
+		"rips/gridcasegroup.py"
+		"rips/project.py"
+		"rips/instance.py"	
+		"rips/pdmobject.py"
+		"rips/plot.py"
+		"rips/simulation_well.py"
+		"rips/view.py"
+		"rips/wellpath.py"
+		"rips/well_log_plot.py"
+		"rips/well_bore_stability_plot.py"
+		"rips/PythonExamples/instance_example.py"
+		"rips/PythonExamples/command_example.py"
+		"rips/PythonExamples/case_grid_group.py"
+		"rips/PythonExamples/case_info_streaming_example.py"
+		"rips/PythonExamples/create_wbs_plot.py"
+		"rips/PythonExamples/export_plots.py"
+		"rips/PythonExamples/export_snapshots.py"
+		"rips/PythonExamples/error_handling.py"
+		"rips/PythonExamples/import_well_paths_and_logs.py"
+		"rips/PythonExamples/soil_porv_async.py"
+		"rips/PythonExamples/soil_porv_sync.py"
+		"rips/PythonExamples/selected_cases.py"
+		"rips/PythonExamples/all_cases.py"
+		"rips/PythonExamples/set_grid_properties.py"
+		"rips/PythonExamples/set_cell_result.py"
+		"rips/PythonExamples/set_flow_diagnostics_result.py"
+		"rips/PythonExamples/grid_information.py"
+		"rips/PythonExamples/input_prop_test_sync.py"
+		"rips/PythonExamples/input_prop_test_async.py"
+		"rips/PythonExamples/soil_average_async.py"
+		"rips/PythonExamples/soil_average_sync.py"
+		"rips/PythonExamples/view_example.py"
+		"rips/tests/test_cases.py"
+		"rips/tests/test_grids.py"
+		"rips/tests/test_properties.py"
+		"rips/tests/test_project.py"
+		"rips/tests/conftest.py"
+		"rips/tests/dataroot.py"
+		"rips/tests/test_nnc_properties.py"
+		"rips/tests/test_simulation_wells.py"
+		"rips/tests/test_wells.py"
+		"requirements.txt"
+		"setup.py"
+		"README.md"
+		"LICENSE"
+	)
 		
-		list(APPEND GRPC_PYTHON_SOURCES ${GRPC_PYTHON_GENERATED_SOURCES})
+	list(APPEND GRPC_PYTHON_SOURCES ${GRPC_PYTHON_GENERATED_SOURCES})
 
-		foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
-			list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")		
-		endforeach()
+	foreach(PYTHON_SCRIPT ${GRPC_PYTHON_SOURCES})
+		list(APPEND GRPC_PYTHON_SOURCES_FULL_PATH "${GRPC_PYTHON_SOURCE_PATH}/${PYTHON_SCRIPT}")		
+	endforeach()
 
-		if (MSVC)
-			source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
-		endif(MSVC)
-	else()
-		message(STATUS "Error copying GRPC Python Code to build folder: RESINSIGHT_GRPC_PYTHON_EXECUTABLE set but ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} not found")
-	endif(EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+	if (MSVC)
+		source_group(TREE ${GRPC_PYTHON_SOURCE_PATH} FILES ${GRPC_PYTHON_SOURCES_FULL_PATH} PREFIX "GrpcInterface\\Python")
+	endif(MSVC)
 else()
 	message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not copy grpc Python code to build folder")
 endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)	
