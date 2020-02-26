@@ -644,7 +644,7 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
 ///
 //--------------------------------------------------------------------------------------------------
 QString assignGroupingText( RimAnalysisPlot::SortGroupType  sortGroup,
-                            const RimAnalysisPlotDataEntry* dataEntry,
+                            const RiaSummaryCurveDefinition dataEntry,
                             const QString&                  timestepString )
 {
     QString groupingText;
@@ -653,29 +653,29 @@ QString assignGroupingText( RimAnalysisPlot::SortGroupType  sortGroup,
     {
         case RimAnalysisPlot::SUMMARY_ITEM:
         {
-            RifEclipseSummaryAddress addr = dataEntry->summaryAddress();
+            RifEclipseSummaryAddress addr = dataEntry.summaryAddress();
             groupingText                  = QString::fromStdString( addr.itemUiText() );
         }
         break;
         case RimAnalysisPlot::CASE:
         {
-            if ( dataEntry->summaryCase() )
+            if ( dataEntry.summaryCase() )
             {
-                groupingText = dataEntry->summaryCase()->displayCaseName();
+                groupingText = dataEntry.summaryCase()->displayCaseName();
             }
         }
         break;
         case RimAnalysisPlot::ENSEMBLE:
         {
-            if ( dataEntry->ensemble() )
+            if ( dataEntry.ensemble() )
             {
-                groupingText = dataEntry->ensemble()->name();
+                groupingText = dataEntry.ensemble()->name();
             }
         }
         break;
         case RimAnalysisPlot::QUANTITY:
         {
-            RifEclipseSummaryAddress addr = dataEntry->summaryAddress();
+            RifEclipseSummaryAddress addr = dataEntry.summaryAddress();
 
             groupingText = QString::fromStdString( addr.quantityName() );
         }
@@ -708,94 +708,113 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
 
     for ( const RimAnalysisPlotDataEntry* dataEntry : m_data )
     {
-        if ( !dataEntry->summaryCase() ) continue; // Todo, ensembles
+        RiaSummaryCurveDefinition orgBarDataEntry = dataEntry->curveDefinition();
 
-        RifSummaryReaderInterface* reader = dataEntry->summaryCase()->summaryReader();
-        if ( !reader ) continue;
+        std::vector<RiaSummaryCurveDefinition> barDataDefinitions;
 
-        // Todo:
-        // If is RimGridSummaryCase and using summary item ans legend and summary items are wells, then:
-        /// use color from eclCase->defaultWellColor( wellName );
-
-        const std::vector<time_t>& timesteps = reader->timeSteps( dataEntry->summaryAddress() );
-
-        std::vector<double> values;
-        reader->values( dataEntry->summaryAddress(), &values );
-
-        // Find selected timestep indices
-
-        std::vector<int> selectedTimestepIndices;
-
-        for ( time_t tt : selectedTimesteps )
+        if ( orgBarDataEntry.isEnsembleCurve() )
         {
-            for ( int timestepIdx = 0; static_cast<unsigned>( timestepIdx ) < timesteps.size(); ++timestepIdx )
+            std::vector<RimSummaryCase*> sumCases = orgBarDataEntry.ensemble()->allSummaryCases();
+            for ( auto sumCase : sumCases )
             {
-                if ( timesteps[timestepIdx] == tt )
-                {
-                    selectedTimestepIndices.push_back( timestepIdx );
-                    break;
-                }
+                barDataDefinitions.push_back(
+                    RiaSummaryCurveDefinition( sumCase, orgBarDataEntry.summaryAddress(), orgBarDataEntry.ensemble() ) );
             }
         }
-
-        for ( int timestepIdx : selectedTimestepIndices )
+        else
         {
-            double sortValue = std::numeric_limits<double>::infinity();
+            barDataDefinitions.push_back( orgBarDataEntry );
+        }
 
-            QDateTime dateTime     = RiaQDateTimeTools::fromTime_t( timesteps[timestepIdx] );
-            QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {dateTime} );
+        for ( const RiaSummaryCurveDefinition& curveDef : barDataDefinitions )
+        {
+            RifSummaryReaderInterface* reader = curveDef.summaryCase()->summaryReader();
+            if ( !reader ) continue;
 
-            QString timestepString = dateTime.toString( formatString );
+            // Todo:
+            // If is RimGridSummaryCase and using summary item as legend and summary items are wells, then:
+            /// use color from eclCase->defaultWellColor( wellName );
 
-            QString majorText  = assignGroupingText( m_majorGroupType(), dataEntry, timestepString );
-            QString medText    = assignGroupingText( m_mediumGroupType(), dataEntry, timestepString );
-            QString minText    = assignGroupingText( m_minorGroupType(), dataEntry, timestepString );
-            QString legendText = assignGroupingText( m_sortGroupForLegend(), dataEntry, timestepString );
+            const std::vector<time_t>& timesteps = reader->timeSteps( curveDef.summaryAddress() );
 
-            double value = values[timestepIdx];
+            std::vector<double> values;
+            reader->values( curveDef.summaryAddress(), &values );
 
-            switch ( m_valueSortOperation() )
+            // Find selected timestep indices
+
+            std::vector<int> selectedTimestepIndices;
+
+            for ( time_t tt : selectedTimesteps )
             {
-                case VALUE:
-                    sortValue = value;
-                    break;
-                case ABS_VALUE:
-                    sortValue = fabs( value );
-                    break;
-            }
-
-            QString barText;
-            QString separator = " ";
-
-            if ( m_useBarText() )
-            {
-                if ( m_useQuantityInBarText )
+                for ( int timestepIdx = 0; static_cast<unsigned>( timestepIdx ) < timesteps.size(); ++timestepIdx )
                 {
-                    barText += QString::fromStdString( dataEntry->summaryAddress().quantityName() ) + separator;
-                }
-
-                if ( m_useSummaryItemInBarText )
-                {
-                    barText += QString::fromStdString( dataEntry->summaryAddress().itemUiText() ) + separator;
-                }
-
-                if ( m_useCaseInBarText && dataEntry->summaryCase() )
-                {
-                    barText += dataEntry->summaryCase()->displayCaseName() + separator;
-                }
-
-                if ( m_useEnsembleInBarText && dataEntry->ensemble() )
-                {
-                    barText += dataEntry->ensemble()->name() + separator;
-                }
-
-                if ( m_useTimeStepInBarText )
-                {
-                    barText += timestepString + separator;
+                    if ( timesteps[timestepIdx] == tt )
+                    {
+                        selectedTimestepIndices.push_back( timestepIdx );
+                        break;
+                    }
                 }
             }
 
-            chartBuilder.addBarEntry( majorText, medText, minText, sortValue, legendText, barText, values[timestepIdx] );
+            for ( int timestepIdx : selectedTimestepIndices )
+            {
+                double sortValue = std::numeric_limits<double>::infinity();
+
+                QDateTime dateTime     = RiaQDateTimeTools::fromTime_t( timesteps[timestepIdx] );
+                QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {dateTime} );
+
+                QString timestepString = dateTime.toString( formatString );
+
+                QString majorText  = assignGroupingText( m_majorGroupType(), curveDef, timestepString );
+                QString medText    = assignGroupingText( m_mediumGroupType(), curveDef, timestepString );
+                QString minText    = assignGroupingText( m_minorGroupType(), curveDef, timestepString );
+                QString legendText = assignGroupingText( m_sortGroupForLegend(), curveDef, timestepString );
+
+                double value = values[timestepIdx];
+
+                switch ( m_valueSortOperation() )
+                {
+                    case VALUE:
+                        sortValue = value;
+                        break;
+                    case ABS_VALUE:
+                        sortValue = fabs( value );
+                        break;
+                }
+
+                QString barText;
+                QString separator = " ";
+
+                if ( m_useBarText() )
+                {
+                    if ( m_useQuantityInBarText )
+                    {
+                        barText += QString::fromStdString( curveDef.summaryAddress().quantityName() ) + separator;
+                    }
+
+                    if ( m_useSummaryItemInBarText )
+                    {
+                        barText += QString::fromStdString( curveDef.summaryAddress().itemUiText() ) + separator;
+                    }
+
+                    if ( m_useCaseInBarText && curveDef.summaryCase() )
+                    {
+                        barText += curveDef.summaryCase()->displayCaseName() + separator;
+                    }
+
+                    if ( m_useEnsembleInBarText && curveDef.ensemble() )
+                    {
+                        barText += curveDef.ensemble()->name() + separator;
+                    }
+
+                    if ( m_useTimeStepInBarText )
+                    {
+                        barText += timestepString + separator;
+                    }
+                }
+
+                chartBuilder.addBarEntry( majorText, medText, minText, sortValue, legendText, barText, values[timestepIdx] );
+            }
         }
     }
 }
