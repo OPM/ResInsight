@@ -19,11 +19,11 @@ def test_10kSync(rips_instance, initialize_test):
     assert(len(properties) == 3)
 
     assert("TRAN" == properties[0].name)
-    assert(NNCProperties_pb2.NNCPropertyType.NNC_STATIC == properties[0].property_type)
+    assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_STATIC') == properties[0].property_type)
     assert("Binary Formation Allen" == properties[1].name)
-    assert(NNCProperties_pb2.NNCPropertyType.NNC_GENERATED == properties[1].property_type)
+    assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_GENERATED') == properties[1].property_type)
     assert("Formation Allen" == properties[2].name)
-    assert(NNCProperties_pb2.NNCPropertyType.NNC_GENERATED == properties[2].property_type)
+    assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_GENERATED') == properties[2].property_type)
 
     nnc_connections = case.nnc_connections()
     assert(len(nnc_connections) == 84759)
