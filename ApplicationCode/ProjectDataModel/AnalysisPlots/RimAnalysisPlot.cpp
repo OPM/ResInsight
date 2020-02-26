@@ -38,6 +38,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
 
@@ -113,12 +114,15 @@ RimAnalysisPlot::RimAnalysisPlot()
 {
     CAF_PDM_InitObject( "Analysis Plot", ":/Histogram16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
+    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Title", "", "", "" );
     m_showPlotTitle.xmlCapability()->setIOWritable( false );
+    m_showPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
+    CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto", "", "", "" );
+    m_useAutoPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_description, "PlotDescription", QString( "Analysis Plot" ), "Title", "", "", "" );
+    m_description.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_barOrientation, "BarOrientation", "Bar Orientation", "", "", "" );
 
@@ -143,6 +147,12 @@ RimAnalysisPlot::RimAnalysisPlot()
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitField( &m_useTopBarsFilter, "UseTopBarsFilter", false, "Show Only Top", "", "", "" );
+    m_useTopBarsFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_maxBarCount, "MaxBarCount", 20, "Bar Count", "", "", "" );
+    m_maxBarCount.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitFieldNoDefault( &m_majorGroupType, "MajorGroupType", "Major Grouping", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_mediumGroupType, "MediumGroupType", "Medium Grouping", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_minorGroupType, "MinorGroupType", "Minor Grouping", "", "", "" );
@@ -151,7 +161,9 @@ RimAnalysisPlot::RimAnalysisPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_sortGroupForLegend, "groupForLegend", "Legend Using", "", "", "" );
 
-    CAF_PDM_InitField( &m_useBarText, "UseBarText", true, "Label Bars", "", "", "" );
+    CAF_PDM_InitField( &m_useBarText, "UseBarText", true, "Activate Bar Labels", "", "", "" );
+    m_useBarText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitField( &m_useCaseInBarText, "UseCaseInBarText", true, "Case Name", "", "", "" );
     CAF_PDM_InitField( &m_useEnsembleInBarText, "UseEnsembleInBarText", true, "Ensemble", "", "", "" );
     CAF_PDM_InitField( &m_useSummaryItemInBarText, "UseSummaryItemInBarText", true, "Summary Item", "", "", "" );
@@ -478,17 +490,20 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     timeStepGrp->add( &m_selectedTimeSteps );
 
     uiOrdering.add( &m_showPlotTitle );
-    uiOrdering.add( &m_useAutoPlotTitle );
-    uiOrdering.add( &m_description );
+    uiOrdering.add( &m_useAutoPlotTitle, {false} );
+    uiOrdering.add( &m_description, {false} );
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
 
-    uiOrdering.add( &m_barOrientation );
+    uiOrdering.add( &m_barOrientation, {true, 3, 2} );
 
     caf::PdmUiGroup* sortGrp = uiOrdering.addNewGroup( "Sorting and Grouping" );
     sortGrp->add( &m_majorGroupType );
     sortGrp->add( &m_mediumGroupType );
     sortGrp->add( &m_minorGroupType );
     sortGrp->add( &m_valueSortOperation );
+    sortGrp->add( &m_useTopBarsFilter );
+    sortGrp->add( &m_maxBarCount, {false} );
+    m_maxBarCount.uiCapability()->setUiReadOnly( !m_useTopBarsFilter() );
 
     caf::PdmUiGroup* legendGrp = uiOrdering.addNewGroup( "Legend" );
     legendGrp->add( &m_showPlotLegends );
@@ -498,7 +513,7 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     m_legendFontSize.uiCapability()->setUiReadOnly( !m_showPlotLegends() );
 
     caf::PdmUiGroup* barLabelGrp = uiOrdering.addNewGroup( "Bar Labels" );
-    barLabelGrp->add( &m_useBarText, {true, 4, 1} );
+    barLabelGrp->add( &m_useBarText );
     barLabelGrp->add( &m_useQuantityInBarText );
     barLabelGrp->add( &m_useSummaryItemInBarText, {false} );
     barLabelGrp->add( &m_useCaseInBarText );
@@ -603,7 +618,9 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
         // buildTestPlot( chartBuilder );
         addDataToChartBuilder( chartBuilder );
 
-        chartBuilder.addBarChartToPlot( m_plotWidget, m_barOrientation == BARS_HORIZONTAL ? Qt::Horizontal : Qt::Vertical );
+        chartBuilder.addBarChartToPlot( m_plotWidget,
+                                        m_barOrientation == BARS_HORIZONTAL ? Qt::Horizontal : Qt::Vertical,
+                                        m_useTopBarsFilter() ? m_maxBarCount : -1 );
 
         if ( m_showPlotLegends && m_plotWidget->legend() == nullptr )
         {
@@ -695,6 +712,10 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
 
         RifSummaryReaderInterface* reader = dataEntry->summaryCase()->summaryReader();
         if ( !reader ) continue;
+
+        // Todo:
+        // If is RimGridSummaryCase and using summary item ans legend and summary items are wells, then:
+        /// use color from eclCase->defaultWellColor( wellName );
 
         const std::vector<time_t>& timesteps = reader->timeSteps( dataEntry->summaryAddress() );
 
@@ -887,4 +908,21 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitions()
     }
 
     return curveDefs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                             QString                    uiConfigName,
+                                             caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_useTopBarsFilter || field == &m_useBarText || field == &m_showPlotTitle || field == &m_useAutoPlotTitle )
+    {
+        auto attrib = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->m_useNativeCheckBoxLabel = true;
+        }
+    }
 }

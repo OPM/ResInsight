@@ -21,6 +21,7 @@
 #include <QString>
 #include <QVector>
 
+#include <map>
 #include <set>
 
 class QwtPlot;
@@ -42,13 +43,12 @@ public:
                       const QString& barText,
                       const double   value );
 
-    void addBarChartToPlot( QwtPlot* plot, Qt::Orientation orientation );
+    void setLegendColorMap( const std::map<QString, QColor>& legendColors );
+
+    void addBarChartToPlot( QwtPlot* plot, Qt::Orientation orientation, int maxBarCount = -1 );
 
 private:
-    double midPoint( double v1, double v2 )
-    {
-        return v1 + 0.5 * ( v2 - 1.0 - v1 );
-    }
+    double midPoint( double v1, double v2 ) { return v1 + 0.5 * ( v2 - 1.0 - v1 ); }
 
     void addQwtBarChart( QwtPlot*                plot,
                          const QVector<QPointF>& posAndValue,
@@ -80,6 +80,7 @@ private:
         bool operator<( const BarEntry& other ) const;
     };
 
-    std::multiset<BarEntry> m_sortedBarEntries;
-    Qt::Orientation         m_orientation;
+    std::multiset<BarEntry>   m_sortedBarEntries;
+    Qt::Orientation           m_orientation;
+    std::map<QString, QColor> m_legendColors;
 };

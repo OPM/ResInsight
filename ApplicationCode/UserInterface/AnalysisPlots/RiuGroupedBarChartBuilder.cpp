@@ -206,7 +206,15 @@ void RiuGroupedBarChartBuilder::addBarEntry( const QString& majorTickText,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientation barOrientation )
+void RiuGroupedBarChartBuilder::setLegendColorMap( const std::map<QString, QColor>& legendColors )
+{
+    m_legendColors = legendColors;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientation barOrientation, int maxBarCount )
 {
     const double majGroupSpacing = 1.6;
     const double midGroupSpacing = 0.5;
@@ -234,6 +242,42 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
     QList<double> midTickPositions;
     QList<double> minTickPositions;
 
+    // Filter the entries according to value
+    std::multiset<BarEntry> filteredBarEntries;
+    if ( maxBarCount >= 0 )
+    {
+        std::map<double, BarEntry> valueFilteredBarEntries;
+        int                        mapSize = 0;
+
+        for ( const BarEntry& barDef : m_sortedBarEntries )
+        {
+            if ( mapSize < maxBarCount )
+            {
+                if ( valueFilteredBarEntries.insert( std::make_pair( fabs( barDef.m_value ), barDef ) ).second )
+                {
+                    mapSize++;
+                }
+            }
+            else if ( fabs( barDef.m_value ) > valueFilteredBarEntries.begin()->first )
+            {
+                if ( valueFilteredBarEntries.insert( std::make_pair( fabs( barDef.m_value ), barDef ) ).second )
+                {
+                    valueFilteredBarEntries.erase( valueFilteredBarEntries.begin() );
+                }
+            }
+        }
+
+        for ( auto valEntryPair : valueFilteredBarEntries )
+        {
+            filteredBarEntries.insert( valEntryPair.second );
+        }
+    }
+    else
+    {
+        // No filtering
+        filteredBarEntries = m_sortedBarEntries;
+    }
+
     // clang-format off
     auto addGroupTickText = [&]( double groupStartPos, QString tickText, QList<double>& groupTickPosList )
     {
@@ -259,7 +303,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
     // Loop over entries, calculate tick positions and bar positions as we go
 
-    for ( const BarEntry& barDef : m_sortedBarEntries )
+    for ( const BarEntry& barDef : filteredBarEntries )
     {
         bool hasAnyMajTics         = !majTickTexts.empty();
         auto majInsertResult       = majTickTexts.insert( barDef.m_majTickText );
@@ -379,11 +423,15 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
     int idx = 0;
     for ( const auto& legendToBarPointsPair : legendToBarPointsMap )
     {
-        addQwtBarChart( plot,
-                        legendToBarPointsPair.second,
-                        legendToBarPointsPair.first,
-                        RiaColorTables::summaryCurveDefaultPaletteColors().cycledQColor( idx ),
-                        barOrientation );
+        QColor legendColor = RiaColorTables::categoryPaletteColors().cycledQColor( idx );
+
+        auto legendColorPairIt = m_legendColors.find( legendToBarPointsPair.first );
+        if ( legendColorPairIt != m_legendColors.end() )
+        {
+            legendColor = legendColorPairIt->second;
+        }
+
+        addQwtBarChart( plot, legendToBarPointsPair.second, legendToBarPointsPair.first, legendColor, barOrientation );
         idx++;
     }
 
