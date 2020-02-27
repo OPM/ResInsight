@@ -49,6 +49,13 @@ jobs:
           vcpkgGitCommitId: '${{ matrix.vcpkgGitCommitId }}'
       - name: Prints outputs of run-vcpkg task
         run: echo "'${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}' '${{  steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET_OUT }}' "
+      - name: Cache cmakebuild folder
+        uses: actions/cache@v1
+        env:
+          cache-name: cache-cmakebuild
+        with:
+          path: ${{ github.workspace }}/cmakebuild/
+          key: ${{ env.cache-name }}-${{ runner.os }}
       - name: Build ResInsight-x64 Windows
         if: "contains( matrix.os, 'windows')"
         run: |
