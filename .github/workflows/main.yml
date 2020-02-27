@@ -66,7 +66,7 @@ jobs:
       - name: Build ResInsight-x64 Linux
         if: "contains( matrix.os, 'ubuntu')"
         run: |
-          mkdir cmakebuild
+          mkdir -p cmakebuild
           cd cmakebuild
           cmake .. -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
           cmake --build . --config Release 
