@@ -51,6 +51,7 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimElementVectorResult.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
@@ -137,6 +138,15 @@ RimEclipseView::RimEclipseView()
     m_cellEdgeResult = new RimCellEdgeColors();
     m_cellEdgeResult.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_elementVectorResult,
+                                "ElementVectorResult",
+                                "Element Vector Result",
+                                ":/CellResult.png",
+                                "",
+                                "" );
+    m_elementVectorResult = new RimElementVectorResult;
+    m_elementVectorResult.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_faultResultSettings, "FaultResultSettings", "Separate Fault Result", "", "", "" );
     m_faultResultSettings = new RimEclipseFaultColors();
     m_faultResultSettings.uiCapability()->setUiHidden( true );
@@ -198,6 +208,7 @@ RimEclipseView::~RimEclipseView()
     delete this->faultResultSettings();
     delete this->cellResult();
     delete this->cellEdgeResult();
+    delete this->elementVectorResult();
 
     delete m_propertyFilterCollection;
     delete wellCollection();
@@ -223,6 +234,14 @@ RimEclipseCellColors* RimEclipseView::cellResult() const
 RimCellEdgeColors* RimEclipseView::cellEdgeResult() const
 {
     return m_cellEdgeResult;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimElementVectorResult* RimEclipseView::elementVectorResult() const
+{
+    return m_elementVectorResult;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1305,6 +1324,12 @@ void RimEclipseView::onUpdateLegends()
         }
     }
 
+    if ( this->elementVectorResult()->showResult() )
+    {
+        this->elementVectorResult()->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(),
+                                                                          isUsingOverrideViewer() );
+    }
+
     {
         bool hasAnyVisibleFractures = false;
         {
@@ -1757,6 +1782,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
+    uiTreeOrdering.add( elementVectorResult() );
     uiTreeOrdering.add( faultResultSettings() );
     uiTreeOrdering.add( &m_intersectionResultDefCollection );
     uiTreeOrdering.add( &m_surfaceResultDefCollection );
