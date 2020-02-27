@@ -21,11 +21,14 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install future
           pip install grpcio-tools
           pip install pytest
       - name: Install Linux dependencies
         if: "contains( matrix.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
+      - name: Checkout
+        uses: actions/checkout@v1
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
@@ -47,7 +50,14 @@ jobs:
           cmake .. -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
           cmake --build . --config Release 
       - name: Test with pytest
-        if: "contains( matrix.os, '##-undefined-##')" # To be used when RESINSIGHT_GRPC_PYTHON_EXECUTABLE can be 'python' without extention in PATH
+        if: "contains( matrix.os, 'ubuntu')"
+        env:
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/ResInsight
+        run: |
+          cd ApplicationCode/GrpcInterface/Python/rips
+          python -m pytest --console
+      - name: Test with pytest
+        if: "contains( matrix.os, 'windows')"
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/Release/ResInsight.exe
         run: |
