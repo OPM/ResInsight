@@ -18,6 +18,13 @@ jobs:
             vcpkgGitCommitId: '6282cab61d175974b1af06473db584b9b80dcd48'
             vcpkgPackages: 'grpc'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Qt
+        uses: ouuan/install-qt-action@v2.3.1
+        with:
+          version: 5.9
+          modules: qtscript 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -27,14 +34,6 @@ jobs:
       - name: Install Linux dependencies
         if: "contains( matrix.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: 5.9.1
-          target: desktop
-          modules: qtscript 
       - name: Build ResInsight-x64 Windows
         if: "contains( matrix.os, 'windows')"
         run: |
