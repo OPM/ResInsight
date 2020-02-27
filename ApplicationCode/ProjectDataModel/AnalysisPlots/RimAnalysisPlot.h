@@ -22,6 +22,8 @@
 
 #include "RimPlot.h"
 
+#include "cafPdmPtrField.h"
+
 #include <QDateTime>
 
 class RiuSummaryQwtPlot;
@@ -148,6 +150,8 @@ private:
 
     caf::PdmField<QDateTime>              m_addTimestepUiField;
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
+
+    caf::PdmPtrField<RimSummaryCase*> m_referenceCase;
 
     caf::PdmField<bool> m_useTopBarsFilter;
     caf::PdmField<int>  m_maxBarCount;

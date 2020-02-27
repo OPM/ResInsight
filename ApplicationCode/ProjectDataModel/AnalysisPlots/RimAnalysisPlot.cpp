@@ -18,11 +18,19 @@
 
 #include "RimAnalysisPlot.h"
 
+#include "RiaApplication.h"
 #include "RiaColorTables.h"
-#include "RimAnalysisPlotDataEntry.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionDialog.h"
+
+#include "RifSummaryReaderInterface.h"
+
+#include "RimAnalysisPlotDataEntry.h"
+#include "RimDerivedSummaryCase.h"
+#include "RimProject.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
 #include "qwt_column_symbol.h"
 #include "qwt_legend.h"
@@ -31,15 +39,9 @@
 #include "qwt_scale_draw.h"
 
 #include "cafPdmUiActionPushButtonEditor.h"
-#include "cafPdmUiGroup.h"
-
-#include "RifSummaryReaderInterface.h"
-
-#include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
-
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiGroup.h"
 #include "cafPdmUiListEditor.h"
 
 #include <limits>
@@ -146,6 +148,8 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "", "", "", "" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_referenceCase, "ReferenceCase", "Reference Case", "", "", "" );
 
     CAF_PDM_InitField( &m_useTopBarsFilter, "UseTopBarsFilter", false, "Show Only Top", "", "", "" );
     m_useTopBarsFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -489,6 +493,8 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     timeStepGrp->add( &m_addTimestepUiField );
     timeStepGrp->add( &m_selectedTimeSteps );
 
+    uiOrdering.add( &m_referenceCase, {true, 3, 2} );
+
     uiOrdering.add( &m_showPlotTitle );
     uiOrdering.add( &m_useAutoPlotTitle, {false} );
     uiOrdering.add( &m_description, {false} );
@@ -593,6 +599,24 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( CASE ), CASE ) );
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( ENSEMBLE ), ENSEMBLE ) );
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( TIME_STEP ), TIME_STEP ) );
+    }
+    else if ( fieldNeedingOptions == &m_referenceCase )
+    {
+        std::vector<RimSummaryCase*> allSummaryCases = RiaApplication::instance()->project()->allSummaryCases();
+
+        options.push_back( {"None", nullptr} );
+
+        for ( auto sumCase : allSummaryCases )
+        {
+            QString displayName = sumCase->displayCaseName();
+            auto    caseColl    = dynamic_cast<RimSummaryCaseCollection*>( sumCase->parentField()->ownerObject() );
+            if ( caseColl )
+            {
+                displayName = caseColl->name() + "/" + displayName;
+            }
+
+            options.push_back( {displayName, sumCase} );
+        }
     }
 
     return options;
@@ -706,6 +730,10 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
         selectedTimesteps.push_back( dateTime.toTime_t() );
     }
 
+    RifSummaryReaderInterface* referenceCaseReader = nullptr;
+
+    if ( m_referenceCase ) referenceCaseReader = m_referenceCase->summaryReader();
+
     for ( const RimAnalysisPlotDataEntry* dataEntry : m_data )
     {
         RiaSummaryCurveDefinition orgBarDataEntry = dataEntry->curveDefinition();
@@ -729,16 +757,36 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
         for ( const RiaSummaryCurveDefinition& curveDef : barDataDefinitions )
         {
             RifSummaryReaderInterface* reader = curveDef.summaryCase()->summaryReader();
+
             if ( !reader ) continue;
 
             // Todo:
-            // If is RimGridSummaryCase and using summary item as legend and summary items are wells, then:
+            // If curveDef.summaryCase() is a RimGridSummaryCase and we are using summary item as legend and the summary
+            // items are wells, then:
             /// use color from eclCase->defaultWellColor( wellName );
 
-            const std::vector<time_t>& timesteps = reader->timeSteps( curveDef.summaryAddress() );
+            std::vector<time_t>        timeStepStorage;
+            const std::vector<time_t>* timeStepsPtr = &timeStepStorage;
+            std::vector<double>        values;
 
-            std::vector<double> values;
-            reader->values( curveDef.summaryAddress(), &values );
+            if ( referenceCaseReader )
+            {
+                std::pair<std::vector<time_t>, std::vector<double>> timeAndValues =
+                    RimDerivedSummaryCase::calculateDerivedValues( reader,
+                                                                   referenceCaseReader,
+                                                                   DerivedSummaryOperator::DERIVED_OPERATOR_SUB,
+                                                                   curveDef.summaryAddress() );
+                timeStepStorage.swap( timeAndValues.first );
+                values.swap( timeAndValues.second );
+            }
+            else
+            {
+                timeStepsPtr = &( reader->timeSteps( curveDef.summaryAddress() ) );
+
+                reader->values( curveDef.summaryAddress(), &values );
+            }
+
+            const std::vector<time_t>& timesteps = *timeStepsPtr;
 
             // Find selected timestep indices
 
@@ -813,7 +861,7 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
                     }
                 }
 
-                chartBuilder.addBarEntry( majorText, medText, minText, sortValue, legendText, barText, values[timestepIdx] );
+                chartBuilder.addBarEntry( majorText, medText, minText, sortValue, legendText, barText, value );
             }
         }
     }
@@ -901,6 +949,26 @@ void RimAnalysisPlot::updatePlotTitle()
         {
             if ( !autoTitle.isEmpty() ) autoTitle += separator;
             autoTitle += QString::fromStdString( quantName );
+        }
+
+        if ( m_referenceCase() )
+        {
+            if ( !autoTitle.isEmpty() ) autoTitle += separator;
+            autoTitle += "Compared to " + m_referenceCase->displayCaseName();
+        }
+
+        if ( m_useTopBarsFilter )
+        {
+            if ( !autoTitle.isEmpty() ) autoTitle += " - ";
+            autoTitle += "Top " + QString::number( m_maxBarCount() );
+        }
+
+        if ( m_selectedTimeSteps().size() == 1 )
+        {
+            if ( !autoTitle.isEmpty() ) autoTitle += " @ ";
+
+            QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {m_selectedTimeSteps()[0]} );
+            autoTitle += m_selectedTimeSteps()[0].toString( formatString );
         }
 
         m_description = autoTitle;
