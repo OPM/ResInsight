@@ -26,26 +26,8 @@ jobs:
       - name: Install Linux dependencies
         if: "contains( matrix.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Cache vcpkg artifacts
-        uses: actions/cache@v1
-        env:
-          cache-name: cache-vcpkg-modules
-        with:
-          path: ${{ github.workspace }}/vcpkg/
-          key: ${{ env.cache-name }}-${{ runner.os }}
-      - name: Run vcpkg
-        uses: lukka/run-vcpkg@v0.10
-        id: runvcpkg
-        with:
-          vcpkgArguments: '${{ matrix.vcpkgPackages }}'
-          vcpkgTriplet: '${{ matrix.triplet }}'
-          vcpkgGitCommitId: '${{ matrix.vcpkgGitCommitId }}'
-      - name: Prints outputs of run-vcpkg task
-        run: echo "'${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}' '${{  steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET_OUT }}' "
       - name: Install Qt
-        uses: ouuan/install-qt-action@v2.3.1
+        uses: jurplel/install-qt-action@v2
         with:
           version: 5.9.1
           target: desktop
