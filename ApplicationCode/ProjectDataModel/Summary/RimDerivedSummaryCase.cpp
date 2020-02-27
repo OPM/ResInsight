@@ -140,29 +140,49 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
 
     RifSummaryReaderInterface* reader1 = m_summaryCase1 ? m_summaryCase1->summaryReader() : nullptr;
     RifSummaryReaderInterface* reader2 = m_summaryCase2 ? m_summaryCase2->summaryReader() : nullptr;
-    if ( !reader1 || !reader2 ) return;
+
+    auto itAndIsInsertedPair =
+        m_dataCache.insert( std::make_pair( address, calculateDerivedValues( reader1, reader2, m_operator(), address ) ) );
+
+    // Check if we got any data. If not, erase the map entry to comply with previous behavior
+
+    if ( !itAndIsInsertedPair.first->second.first.size() )
+    {
+        m_dataCache.erase( itAndIsInsertedPair.first );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<time_t>, std::vector<double>>
+    RimDerivedSummaryCase::calculateDerivedValues( RifSummaryReaderInterface*      reader1,
+                                                   RifSummaryReaderInterface*      reader2,
+                                                   DerivedSummaryOperator          m_operator,
+                                                   const RifEclipseSummaryAddress& address )
+{
+    using ResultPair = std::pair<std::vector<time_t>, std::vector<double>>;
+
+    if ( !reader1 || !reader2 ) return ResultPair();
 
     if ( !reader1->hasAddress( address ) && !reader2->hasAddress( address ) )
     {
-        return;
+        return ResultPair();
     }
-    else if ( reader1->hasAddress( address ) && !reader2->hasAddress( address ) )
+
+    if ( reader1->hasAddress( address ) && !reader2->hasAddress( address ) )
     {
         std::vector<double> summaryValues;
         reader1->values( address, &summaryValues );
 
-        auto& dataItem  = m_dataCache[address];
-        dataItem.first  = reader1->timeSteps( address );
-        dataItem.second = summaryValues;
-
-        return;
+        return ResultPair( reader1->timeSteps( address ), summaryValues );
     }
     else if ( !reader1->hasAddress( address ) && reader2->hasAddress( address ) )
     {
         std::vector<double> summaryValues;
         reader2->values( address, &summaryValues );
 
-        if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
+        if ( m_operator == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
         {
             for ( auto& v : summaryValues )
             {
@@ -170,11 +190,7 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
             }
         }
 
-        auto& dataItem  = m_dataCache[address];
-        dataItem.first  = reader2->timeSteps( address );
-        dataItem.second = summaryValues;
-
-        return;
+        return ResultPair( reader2->timeSteps( address ), summaryValues );
     }
 
     RiaTimeHistoryCurveMerger merger;
@@ -191,24 +207,24 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
     const std::vector<double>& allValues1 = merger.interpolatedYValuesForAllXValues( 0 );
     const std::vector<double>& allValues2 = merger.interpolatedYValuesForAllXValues( 1 );
 
-    size_t              sampleCount = merger.allXValues().size();
+    size_t sampleCount = merger.allXValues().size();
+
     std::vector<double> calculatedValues;
     calculatedValues.reserve( sampleCount );
+
     for ( size_t i = 0; i < sampleCount; i++ )
     {
-        if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
+        if ( m_operator == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
         {
             calculatedValues.push_back( allValues1[i] - allValues2[i] );
         }
-        else if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_ADD )
+        else if ( m_operator == DerivedSummaryOperator::DERIVED_OPERATOR_ADD )
         {
             calculatedValues.push_back( allValues1[i] + allValues2[i] );
         }
     }
 
-    auto& dataItem  = m_dataCache[address];
-    dataItem.first  = merger.allXValues();
-    dataItem.second = calculatedValues;
+    return ResultPair( merger.allXValues(), calculatedValues );
 }
 
 //--------------------------------------------------------------------------------------------------

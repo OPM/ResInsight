@@ -60,6 +60,12 @@ public:
 
     void calculate( const RifEclipseSummaryAddress& address );
 
+    static std::pair<std::vector<time_t>, std::vector<double>>
+        calculateDerivedValues( RifSummaryReaderInterface*      reader1,
+                                RifSummaryReaderInterface*      reader2,
+                                DerivedSummaryOperator          m_operator,
+                                const RifEclipseSummaryAddress& address );
+
     void                       createSummaryReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
