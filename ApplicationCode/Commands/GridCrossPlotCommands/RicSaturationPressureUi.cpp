@@ -32,6 +32,7 @@ RicSaturationPressureUi::RicSaturationPressureUi()
     CAF_PDM_InitObject( "RicSaturationPressureUi", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_caseToApply, "CaseToApply", "Case to Apply", "", "", "" );
+    CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,6 +54,14 @@ RimEclipseCase* RicSaturationPressureUi::selectedCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RicSaturationPressureUi::selectedTimeStep() const
+{
+    return m_timeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
     RicSaturationPressureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
@@ -61,6 +70,19 @@ QList<caf::PdmOptionItemInfo>
     if ( fieldNeedingOptions == &m_caseToApply )
     {
         RimTools::caseOptionItems( &options );
+    }
+    else if ( fieldNeedingOptions == &m_timeStep )
+    {
+        QStringList timeStepNames;
+
+        if ( m_caseToApply )
+        {
+            timeStepNames = m_caseToApply->timeStepStrings();
+        }
+        for ( int i = 0; i < timeStepNames.size(); i++ )
+        {
+            options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
+        }
     }
 
     return options;

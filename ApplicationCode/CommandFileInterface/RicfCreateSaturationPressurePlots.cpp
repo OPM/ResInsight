@@ -83,7 +83,8 @@ RicfCommandResponse RicfCreateSaturationPressurePlots::execute()
         {
             if ( c->caseId == caseId )
             {
-                RicCreateSaturationPressurePlotsFeature::createPlots( eclipseResultCase );
+                int timeStep = 0;
+                RicCreateSaturationPressurePlotsFeature::createPlots( eclipseResultCase, timeStep );
             }
         }
     }
