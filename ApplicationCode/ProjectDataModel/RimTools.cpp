@@ -374,3 +374,21 @@ RimWellPathCollection* RimTools::wellPathCollection()
 
     return nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options )
+{
+    QStringList timeStepNames;
+
+    if ( gridCase )
+    {
+        timeStepNames = gridCase->timeStepStrings();
+    }
+
+    for ( int i = 0; i < timeStepNames.size(); i++ )
+    {
+        options->push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
+    }
+}

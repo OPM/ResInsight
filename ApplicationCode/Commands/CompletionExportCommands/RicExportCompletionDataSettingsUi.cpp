@@ -22,6 +22,7 @@
 #include "RicExportFractureCompletionsImpl.h"
 
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 
@@ -212,16 +213,7 @@ QList<caf::PdmOptionItemInfo>
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &timeStep )
     {
-        QStringList timeStepNames;
-
-        if ( caseToApply )
-        {
-            timeStepNames = caseToApply->timeStepStrings();
-        }
-        for ( int i = 0; i < timeStepNames.size(); i++ )
-        {
-            options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
-        }
+        RimTools::timeStepsForCase( caseToApply, &options );
     }
     else if ( fieldNeedingOptions == &transScalingTimeStep )
     {
