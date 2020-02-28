@@ -1185,7 +1185,8 @@ bool RimGridCrossPlotDataSet::isYAxisLogarithmic() const
 ///
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotDataSet::configureForPressureSaturationCurves( RimEclipseResultCase* eclipseCase,
-                                                                    const QString&        dynamicResultName )
+                                                                    const QString&        dynamicResultName,
+                                                                    int                   timeStep )
 {
     m_case = eclipseCase;
 
@@ -1206,7 +1207,7 @@ void RimGridCrossPlotDataSet::configureForPressureSaturationCurves( RimEclipseRe
     m_nameConfig->addTimestep      = false;
     m_nameConfig->addGrouping      = false;
 
-    m_timeStep = 0;
+    m_timeStep = timeStep;
 }
 
 //--------------------------------------------------------------------------------------------------

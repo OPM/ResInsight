@@ -49,7 +49,7 @@ CAF_CMD_SOURCE_INIT( RicCreateSaturationPressurePlotsFeature, "RicCreateSaturati
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSaturationPressurePlot*>
-    RicCreateSaturationPressurePlotsFeature::createPlots( RimEclipseResultCase* eclipseResultCase )
+    RicCreateSaturationPressurePlotsFeature::createPlots( RimEclipseResultCase* eclipseResultCase, int timeStep )
 {
     std::vector<RimSaturationPressurePlot*> plots;
 
@@ -99,7 +99,7 @@ std::vector<RimSaturationPressurePlot*>
         }
     }
 
-    plots = collection->createSaturationPressurePlots( eclipseResultCase );
+    plots = collection->createSaturationPressurePlots( eclipseResultCase, timeStep );
     for ( auto plot : plots )
     {
         plot->loadDataAndUpdate();
@@ -143,6 +143,7 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked 
     }
 
     RimEclipseResultCase* eclipseResultCase = nullptr;
+    int                   timeStep          = 0;
 
     if ( !eclipseCases.empty() )
     {
@@ -150,7 +151,8 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked 
         {
             eclipseResultCase = eclipseCases[0];
         }
-        else
+
+        if ( !eclipseResultCase || eclipseResultCase->timeStepDates().size() > 1 )
         {
             RicSaturationPressureUi saturationPressureUi;
             saturationPressureUi.setSelectedCase( eclipseCases[0] );
@@ -165,13 +167,14 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked 
             if ( propertyDialog.exec() == QDialog::Accepted )
             {
                 eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( saturationPressureUi.selectedCase() );
+                timeStep          = saturationPressureUi.selectedTimeStep();
             }
         }
     }
 
     caf::PdmObject* objectToSelect = nullptr;
 
-    std::vector<RimSaturationPressurePlot*> plots = createPlots( eclipseResultCase );
+    std::vector<RimSaturationPressurePlot*> plots = createPlots( eclipseResultCase, timeStep );
     if ( plots.empty() )
     {
         QString text = "No plots generated.\n\n";

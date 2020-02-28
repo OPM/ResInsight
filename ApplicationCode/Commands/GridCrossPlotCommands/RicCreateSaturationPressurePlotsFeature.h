@@ -31,7 +31,7 @@ class RicCreateSaturationPressurePlotsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static std::vector<RimSaturationPressurePlot*> createPlots( RimEclipseResultCase* eclipseCase );
+    static std::vector<RimSaturationPressurePlot*> createPlots( RimEclipseResultCase* eclipseCase, int timeStep );
 
 protected:
     bool isCommandEnabled() override;

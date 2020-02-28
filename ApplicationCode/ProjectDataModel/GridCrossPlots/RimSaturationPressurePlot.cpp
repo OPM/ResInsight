@@ -48,7 +48,8 @@ RimSaturationPressurePlot::RimSaturationPressurePlot()
 //--------------------------------------------------------------------------------------------------
 void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::PorosityModelType porosityModel,
                                                                 RimEclipseResultCase*         eclipseResultCase,
-                                                                int zeroBasedEquilRegionIndex )
+                                                                int                           zeroBasedEquilRegionIndex,
+                                                                int                           timeStep )
 {
     CVF_ASSERT( eclipseResultCase && eclipseResultCase->eclipseCaseData() );
 
@@ -76,7 +77,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
         // Blue PRESSURE curve with data for specified EQLNUM value
 
         RimGridCrossPlotDataSet* curveSet = createDataSet();
-        curveSet->configureForPressureSaturationCurves( eclipseResultCase, "PRESSURE" );
+        curveSet->configureForPressureSaturationCurves( eclipseResultCase, "PRESSURE", timeStep );
 
         cvf::Color3f curveColor = RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f( 0 );
         curveSet->setCustomColor( curveColor );
@@ -91,7 +92,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
         // Red dew pressure (PDEW) curve with data for specified EQLNUM value, filtered on depth by gasOilContact
 
         RimGridCrossPlotDataSet* curveSet = createDataSet();
-        curveSet->configureForPressureSaturationCurves( eclipseResultCase, "PDEW" );
+        curveSet->configureForPressureSaturationCurves( eclipseResultCase, "PDEW", timeStep );
 
         cvf::Color3f curveColor = RiaColorTables::summaryCurveRedPaletteColors().cycledColor3f( 0 );
         curveSet->setCustomColor( curveColor );
@@ -125,7 +126,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
         // gasOilContact and waterOilContactDepth
 
         RimGridCrossPlotDataSet* curveSet = createDataSet();
-        curveSet->configureForPressureSaturationCurves( eclipseResultCase, "PBUB" );
+        curveSet->configureForPressureSaturationCurves( eclipseResultCase, "PBUB", timeStep );
 
         cvf::Color3f curveColor = RiaColorTables::summaryCurveGreenPaletteColors().cycledColor3f( 0 );
         curveSet->setCustomColor( curveColor );
