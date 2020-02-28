@@ -314,65 +314,9 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
             m_wellDiskPart = part;
         }
 
-        // Add visual indicator for well type: producer or injector
-        if ( productionType == RigWellResultFrame::PRODUCER )
-        {
-            const uint numPolysZDir = 1;
-            float      bottomRadius = 0.5f;
-            float      topRadius    = 0.5f;
-            float      height       = 0.1f;
-            float      topOffsetX   = 0.0f;
-            float      topOffsetY   = 0.0f;
-
-            cvf::GeometryBuilderFaceList builder;
-            cvf::GeometryUtils::createObliqueCylinder( bottomRadius,
-                                                       topRadius,
-                                                       height,
-                                                       topOffsetX,
-                                                       topOffsetY,
-                                                       20,
-                                                       true,
-                                                       true,
-                                                       true,
-                                                       numPolysZDir,
-                                                       &builder );
-
-            cvf::ref<cvf::Vec3fArray> vertices = builder.vertices();
-            cvf::ref<cvf::UIntArray>  faceList = builder.faceList();
-
-            cvf::Mat4f matr;
-            matr( 0, 0 ) *= ijScaleFactor;
-            matr( 1, 1 ) *= ijScaleFactor;
-            matr( 2, 2 ) *= ijScaleFactor;
-            matr.setTranslation( cvf::Vec3f( diskPosition ) );
-
-            for ( size_t i = 0; i < vertices->size(); i++ )
-            {
-                cvf::Vec3f v = vertices->get( i );
-                v.transformPoint( matr );
-                vertices->set( i, v );
-            }
-
-            caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( cvf::Color3::BLACK ), caf::PO_1 );
-            surfaceGen.enableLighting( false );
-            cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
-
-            cvf::ref<cvf::DrawableGeo> injectorGeo = new cvf::DrawableGeo;
-            injectorGeo->setVertexArray( vertices.p() );
-            injectorGeo->setFromFaceList( *faceList );
-            injectorGeo->computeNormals();
-
-            cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName( "RivWellDiskPartMgr: producer " + cvfqt::Utils::toString( well->name() ) );
-            part->setDrawable( injectorGeo.p() );
-
-            part->setEffect( eff.p() );
-            part->setSourceInfo( sourceInfo.p() );
-
-            m_wellDiskInjectorPart = part;
-        }
-        else if ( productionType == RigWellResultFrame::OIL_INJECTOR || productionType == RigWellResultFrame::GAS_INJECTOR ||
-                  productionType == RigWellResultFrame::WATER_INJECTOR )
+        // Add visual indicator for well type injector
+        if ( productionType == RigWellResultFrame::OIL_INJECTOR || productionType == RigWellResultFrame::GAS_INJECTOR ||
+             productionType == RigWellResultFrame::WATER_INJECTOR )
         {
             cvf::GeometryBuilderFaceList builder;
             cvf::Vec3f                   pos( 0.0, 0.0, 0.0 );
