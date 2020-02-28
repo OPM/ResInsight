@@ -65,7 +65,7 @@ jobs:
           cmake --build . --config Release --target PACKAGE
 
       - name: Create folder and run cmake Ubuntu
-        if: "contains( matrix.os, 'ubuntu')" && steps.cache-cmakebuild.outputs.cache-hit != 'true'
+        if: "contains( matrix.os, 'ubuntu') && steps.cache-cmakebuild.outputs.cache-hit != 'true'"
         run: |
           mkdir -p cmakebuild
           cd cmakebuild
