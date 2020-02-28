@@ -20,7 +20,7 @@ def test_EmptyProject(rips_instance, initialize_test):
 def test_OneCase(rips_instance, initialize_test):
     case = rips_instance.project.load_case(dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID")
     assert(case.name == "TEST10K_FLT_LGR_NNC")
-    assert(case.case_id == 0)
+    assert(case.id == 0)
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
 
@@ -120,11 +120,9 @@ def test_10k(rips_instance, initialize_test):
 def test_PdmObject(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=case_path)
-    assert(case.case_id == 0)
+    assert(case.id == 0)
     assert(case.address() is not 0)
-    assert(case.class_keyword() == "EclipseCase")
-    case_id = case.get_value('CaseId')
-    assert(case_id == case.case_id)
+    assert(case.class_keyword == "EclipseCase")
 
 @pytest.mark.skipif(sys.platform.startswith('linux'), reason="Brugge is currently exceptionally slow on Linux")
 def test_brugge_0010(rips_instance, initialize_test):
@@ -146,21 +144,21 @@ def test_replaceCase(rips_instance, initialize_test):
     case = project.case(case_id=0)
     assert(case is not None)
     assert(case.name == "TEST10K_FLT_LGR_NNC")
-    assert(case.case_id == 0)
+    assert(case.id == 0)
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
 
     case.replace(new_grid_file=case_path)
     # Check that the case object has been changed
     assert(case.name == "Real0--BRUGGE_0000.EGRID")
-    assert(case.case_id == 0)
+    assert(case.id == 0)
 
     cases = rips_instance.project.cases()
     assert(len(cases) is 1)
     # Check that retrieving the case object again will yield the changed object
     case = project.case(case_id=0)
     assert(case.name == "Real0--BRUGGE_0000.EGRID")
-    assert(case.case_id == 0)
+    assert(case.id == 0)
     
 def test_loadNonExistingCase(rips_instance, initialize_test):
     case_path = "Nonsense/Nonsense/Nonsense"

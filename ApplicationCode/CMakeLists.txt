@@ -459,6 +459,7 @@ if (RESINSIGHT_ENABLE_GRPC)
 		foreach(GRPC_LIBRARY ${GRPC_LIBRARIES})
 			list(APPEND LINK_LIBRARIES "${GRPC_LIBRARY_DIRS}/lib${GRPC_LIBRARY}.a")
 		endforeach()
+		list(APPEND LINK_LIBRARIES ${GRPC_PACKAGE_LIBRARIES})
 	else()		
 		list(APPEND LINK_LIBRARIES ${GRPC_LIBRARIES})
 		set_target_properties(ResInsight PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/NODEFAULTLIB:MSVCRTD.lib")
@@ -539,8 +540,6 @@ endif()
 #############################################################################
 # Copy Dlls on MSVC
 #############################################################################
-
-
 if (MSVC)
 
     # Qt DLLs
@@ -607,16 +606,18 @@ foreach (FILE_TO_COPY ${RI_DLL_FILENAMES})
     endif()
 endforeach()
 
-# Make sure we perform the Python code generation by having a target which ResInsight depends on
+# Generate Python code in a target that is part of ALL_BUILD and depends on ResInsight
 if (RESINSIGHT_ENABLE_GRPC)	
     set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
     if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-		if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
-			add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
-			add_dependencies(ResInsight GeneratedPythonSources)
-		else()
-			message(STATUS "Error installing python code: RESINSIGHT_GRPC_PYTHON_EXECUTABLE set but ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} not found")
-		endif(EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+        add_custom_command(OUTPUT ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py
+				    COMMAND ResInsight ARGS --console --generate ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py
+                    DEPENDS ResInsight
+                    COMMENT "Generating ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py"
+	    )   
+        list(APPEND GRPC_GENERATED_PYTHON_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py)
+		add_custom_target(GeneratedPythonSources ALL DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
+		add_dependencies(GeneratedPythonSources ResInsight)
 	else()
 		message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install GRPC Python code.")
 	endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)	
@@ -764,7 +765,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     # install gRPC Python files
     if (RESINSIGHT_ENABLE_GRPC)
 		message(STATUS "GRPC enabled")
-		if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+		if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 			message(STATUS "Python found")
 			if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)	
 				message(STATUS "Bundling Python GRPC modules")
@@ -775,6 +776,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 				)
 			endif()
 			install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
+            install(FILES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
 		endif()
 	endif()
 

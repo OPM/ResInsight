@@ -18,6 +18,8 @@
 
 #include "RimEclipseContourMapView.h"
 
+#include "RicfCommandObject.h"
+
 #include "RiuViewer.h"
 #include "RivContourMapProjectionPartMgr.h"
 
@@ -51,7 +53,12 @@ const cvf::Mat4d RimEclipseContourMapView::sm_defaultViewMatrix =
 RimEclipseContourMapView::RimEclipseContourMapView()
     : m_cameraPositionLastUpdate( cvf::Vec3d::UNDEFINED )
 {
-    CAF_PDM_InitObject( "Contour Map View", ":/2DMap16x16.png", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "Contour Map View",
+                                             ":/2DMap16x16.png",
+                                             "",
+                                             "",
+                                             "EclipseContourMap",
+                                             "A contour map for Eclipse cases" );
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapProjection, "ContourMapProjection", "Contour Map Projection", "", "", "" );
     m_contourMapProjection = new RimEclipseContourMapProjection();

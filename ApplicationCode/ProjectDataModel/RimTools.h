@@ -35,6 +35,7 @@ class PdmOptionItemInfo;
 }
 
 class RimWellPathCollection;
+class RimCase;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -57,4 +58,6 @@ public:
     static void                   eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void                   geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static RimWellPathCollection* wellPathCollection();
+
+    static void timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options );
 };

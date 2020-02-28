@@ -27,6 +27,7 @@
 #include "RiaProjectFileVersionTools.h"
 #include "RiaVersionInfo.h"
 
+#include "RicfCommandObject.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 
@@ -112,9 +113,9 @@ RimProject::RimProject( void )
     , m_nextValidPlotId( 1 )
     , m_nextValidCalculationId( 1 )
 {
-    CAF_PDM_InitObject( "Project", "", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "Project", "", "", "", "Project", "The ResInsight Project" );
 
-    CAF_PDM_InitFieldNoDefault( &m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "" );
+    CAF_PDM_InitField( &m_projectFileVersionString, "ProjectFileVersionString", QString( STRPRODUCTVER ), "", "", "", "" );
     m_projectFileVersionString.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_globalPathList, "ReferencedExternalFiles", "", "", "", "" );

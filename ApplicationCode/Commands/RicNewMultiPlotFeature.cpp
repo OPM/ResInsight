@@ -41,7 +41,6 @@ RICF_SOURCE_INIT( RicNewMultiPlotFeature, "RicNewMultiPlotFeature", "createMulti
 //--------------------------------------------------------------------------------------------------
 RicNewMultiPlotFeature::RicNewMultiPlotFeature()
 {
-    CAF_PDM_InitObject( "Create Multi Plot", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_plots, "plots", "Plots", "", "", "" );
 }
 

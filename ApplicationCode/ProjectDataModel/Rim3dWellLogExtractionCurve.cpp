@@ -467,17 +467,9 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
-        QStringList timeStepNames;
-
-        if ( m_case )
-        {
-            timeStepNames = m_case->timeStepStrings();
-        }
         options.push_back( caf::PdmOptionItemInfo( QString( "Follow Animation Time Step" ), -1 ) );
-        for ( int i = 0; i < timeStepNames.size(); i++ )
-        {
-            options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
-        }
+
+        RimTools::timeStepsForCase( m_case, &options );
     }
 
     return options;

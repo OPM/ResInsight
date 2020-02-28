@@ -35,6 +35,7 @@ public:
 
     /// The classKeyword method is overridden in subclasses by the CAF_PDM_XML_HEADER_INIT macro
     virtual QString         classKeyword() const = 0;
+    virtual bool            matchesClassKeyword(const QString& classKeyword) const = 0;
 
     /// Convenience methods to serialize/de-serialize this particular object (with children)
     void                    readObjectFromXmlString(const QString& xmlString, PdmObjectFactory* objectFactory);
@@ -57,7 +58,9 @@ public:
     void                    setupBeforeSaveRecursively()       { setupBeforeSaveRecursively(this->m_owner); };
 
     void                    resolveReferencesRecursively(std::vector<PdmFieldHandle*>* fieldWithFailingResolve = nullptr);
-
+    bool                    inheritsClassWithKeyword(const QString& testClassKeyword) const;
+    
+    const std::list<QString>& classInheritanceStack() const;
 protected: // Virtual 
     /// Method gets called from PdmDocument after all objects are read. 
     /// Re-implement to set up internal pointers etc. in your data structure
@@ -71,7 +74,6 @@ protected: // Virtual
     bool                    isInheritedFromPdmXmlSerializable() { return true; }
 
     void                    registerClassKeyword(const QString& registerKeyword);
-    bool                    inheritsClassWithKeyword(const QString& testClassKeyword) const;
 
 private:
     void                    initAfterReadRecursively(PdmObjectHandle* object);

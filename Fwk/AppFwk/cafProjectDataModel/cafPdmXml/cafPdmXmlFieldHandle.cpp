@@ -72,4 +72,5 @@ PdmXmlFieldHandle* PdmFieldHandle::xmlCapability()
     return xmlField;
 }
 
+
 } // End of namespace caf

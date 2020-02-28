@@ -19,6 +19,7 @@
 
 #include "WellLogCommands/RicWellLogsImportFileFeature.h"
 
+#include "RiaApplication.h"
 #include "RimWellLogFile.h"
 
 #include <QDir>
@@ -52,15 +53,24 @@ RicfCommandResponse RicfImportWellLogFiles::execute()
     QStringList errorMessages, warningMessages;
     QStringList wellLogFilePaths;
 
-    QDir wellPathFolder( m_wellLogFileFolder );
-    if ( wellPathFolder.exists() )
+    QDir wellLogDir;
+    if ( m_wellLogFileFolder().isEmpty() )
+    {
+        wellLogDir = QDir( RiaApplication::instance()->startDir() );
+    }
+    else
+    {
+        wellLogDir = QDir( m_wellLogFileFolder );
+    }
+
+    if ( !m_wellLogFileFolder().isEmpty() )
     {
         QStringList nameFilters;
         nameFilters << RicWellLogsImportFileFeature::wellLogFileNameFilters();
-        QStringList relativePaths = wellPathFolder.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
+        QStringList relativePaths = wellLogDir.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
         for ( QString relativePath : relativePaths )
         {
-            wellLogFilePaths.push_back( wellPathFolder.absoluteFilePath( relativePath ) );
+            wellLogFilePaths.push_back( wellLogDir.absoluteFilePath( relativePath ) );
         }
     }
     else
@@ -73,6 +83,10 @@ RicfCommandResponse RicfImportWellLogFiles::execute()
         if ( QFileInfo::exists( wellLogFilePath ) )
         {
             wellLogFilePaths.push_back( wellLogFilePath );
+        }
+        else if ( QFileInfo::exists( wellLogDir.absoluteFilePath( wellLogFilePath ) ) )
+        {
+            wellLogFilePaths.push_back( wellLogDir.absoluteFilePath( wellLogFilePath ) );
         }
         else
         {

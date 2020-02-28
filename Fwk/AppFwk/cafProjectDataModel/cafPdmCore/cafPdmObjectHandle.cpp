@@ -18,6 +18,22 @@ PdmObjectHandle::~PdmObjectHandle()
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmObjectHandle::classKeywordStatic()
+{
+    return classKeywordAliases().front();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> PdmObjectHandle::classKeywordAliases()
+{
+    return { QString("PdmObjectHandle") };
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::fields(std::vector<PdmFieldHandle*>& fields) const
@@ -141,7 +157,7 @@ PdmFieldHandle* PdmObjectHandle::findField(const QString& keyword) const
     for (size_t it = 0; it < fields.size(); it++)
     {
         PdmFieldHandle* field = fields[it];
-        if (field->keyword() == keyword)
+        if (field->matchesKeyword(keyword))
         {
             return field;
         }

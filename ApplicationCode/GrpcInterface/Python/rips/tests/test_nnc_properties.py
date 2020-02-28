@@ -1,0 +1,60 @@
+import sys
+import os
+import grpc
+import pytest
+
+import rips.generated.NNCProperties_pb2 as NNCProperties_pb2
+
+sys.path.insert(1, os.path.join(sys.path[0], '../../'))
+import rips
+
+import dataroot
+
+
+def test_10kSync(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=casePath)
+
+    properties = case.available_nnc_properties()
+    assert(len(properties) == 3)
+
+    assert("TRAN" == properties[0].name)
+    assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_STATIC') == properties[0].property_type)
+    assert("Binary Formation Allen" == properties[1].name)
+    assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_GENERATED') == properties[1].property_type)
+    assert("Formation Allen" == properties[2].name)
+    assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_GENERATED') == properties[2].property_type)
+
+    nnc_connections = case.nnc_connections()
+    assert(len(nnc_connections) == 84759)
+
+    connection = nnc_connections[0]
+    assert(connection.cell1.i == 33)
+    assert(connection.cell1.j == 40)
+    assert(connection.cell1.k == 14)
+    assert(connection.cell_grid_index1 == 0)
+
+    tran_vals = case.nnc_connections_static_values("TRAN")
+    assert(len(tran_vals) == len(nnc_connections))
+
+    for t in tran_vals:
+        assert(isinstance(t, float))
+
+    allen_vals = case.nnc_connections_generated_values("Formation Allen", 0)
+    assert(len(allen_vals) == len(nnc_connections))
+
+    for a in allen_vals:
+        assert(isinstance(a, float))
+
+def test_non_existing_dynamic_values(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=casePath)
+
+    with pytest.raises(grpc.RpcError):
+        case.nnc_connections_dynamic_values("x", 0)
+
+def test_invalid_time_steps(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
+    case = rips_instance.project.load_case(path=casePath)
+    with pytest.raises(grpc.RpcError):
+        case.nnc_connections_generated_values("Formation Allen", 9999)

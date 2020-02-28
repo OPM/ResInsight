@@ -37,7 +37,8 @@ public:
 
     void assignCaseAndEquilibriumRegion( RiaDefines::PorosityModelType porosityModel,
                                          RimEclipseResultCase*         eclipseResultCase,
-                                         int                           zeroBasedEquilRegionIndex );
+                                         int                           zeroBasedEquilRegionIndex,
+                                         int                           timeStep );
 
 protected:
     void    initAfterRead() override;

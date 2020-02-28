@@ -16,14 +16,14 @@ if resinsight is not None:
         views = case.views()
         for view in views:
             # Set some parameters for the view
-            view.set_show_grid_box(not view.show_grid_box())
-            view.set_background_color("#3388AA")            
+            view.show_grid_box = not view.show_grid_box
+            view.background_color = "#3388AA"
             # Update the view in ResInsight
             view.update()
         # Clone the first view
         new_view = views[0].clone()
-        view.set_show_grid_box(False)
-        new_view.set_background_color("#FFAA33")
+        new_view.background_color = "#FFAA33"
         new_view.update()
+        view.show_grid_box = False
         view.set_visible(False)
         view.update()

@@ -15,7 +15,10 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
+
+#include "cafAppEnum.h"
 
 class RimPlotAxisPropertiesInterface
 {
@@ -25,6 +28,14 @@ public:
         AXIS_TITLE_CENTER,
         AXIS_TITLE_END
     };
+
+    enum class LegendTickmarkCount
+    {
+        TICKMARK_FEW,
+        TICKMARK_DEFAULT,
+        TICKMARK_MANY,
+    };
+    using LegendTickmarkCountEnum = caf::AppEnum<LegendTickmarkCount>;
 
 public:
     virtual AxisTitlePositionType titlePosition() const             = 0;

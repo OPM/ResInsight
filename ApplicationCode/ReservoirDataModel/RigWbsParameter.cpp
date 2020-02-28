@@ -99,6 +99,18 @@ std::vector<RigWbsParameter::Source> RigWbsParameter::sources() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigWbsParameter::hasExternalSource() const
+{
+    for ( auto sourcePair : m_sources )
+    {
+        if ( sourcePair.first != GRID ) return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RigWbsParameter::addressString( Source source ) const
 {
     SourceAddress sourceAddress;
@@ -227,8 +239,10 @@ bool RigWbsParameter::operator<( const RigWbsParameter& rhs ) const
 RigWbsParameter RigWbsParameter::PP_Reservoir()
 {
     SourceVector sources = {{GRID, SourceAddress( "POR-Bar", "", RiaWellLogUnitTools::barUnitString() )},
+                            {LAS_FILE, SourceAddress( "PP_RES_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )},
                             {LAS_FILE, SourceAddress( "POR_RES_INP", "", RiaWellLogUnitTools::gPerCm3UnitString() )},
-                            {ELEMENT_PROPERTY_TABLE, SourceAddress( "POR", "", RiaWellLogUnitTools::barUnitString() )}};
+                            {ELEMENT_PROPERTY_TABLE, SourceAddress( "POR", "", RiaWellLogUnitTools::barUnitString() )},
+                            {ELEMENT_PROPERTY_TABLE, SourceAddress( "PP", "", RiaWellLogUnitTools::sg_emwUnitString() )}};
     return RigWbsParameter( "PP Reservoir", true, sources );
 }
 
@@ -239,7 +253,8 @@ RigWbsParameter RigWbsParameter::PP_NonReservoir()
 {
     return RigWbsParameter( "PP Non-Reservoir",
                             true,
-                            {{LAS_FILE, SourceAddress( "POR_NONRES_INP", "", RiaWellLogUnitTools::gPerCm3UnitString() )},
+                            {{LAS_FILE, SourceAddress( "PP_NONRES_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )},
+                             {LAS_FILE, SourceAddress( "POR_NONRES_INP", "", RiaWellLogUnitTools::gPerCm3UnitString() )},
                              {HYDROSTATIC, SourceAddress( "Hydrostatic", "", RiaWellLogUnitTools::barUnitString() )},
                              {USER_DEFINED, SourceAddress( "", "", RiaWellLogUnitTools::barUnitString() )}} );
 }
@@ -295,9 +310,8 @@ RigWbsParameter RigWbsParameter::OBG0()
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::SH()
 {
-    std::vector<std::pair<Source, SourceAddress>> sources =
-        {{GRID, SourceAddress( "ST", "S3", RiaWellLogUnitTools::barUnitString() )},
-         {LAS_FILE, SourceAddress( "SH_INP", "", RiaWellLogUnitTools::barUnitString() )}};
+    std::vector<std::pair<Source, SourceAddress>> sources = {
+        {GRID, SourceAddress( "ST", "S3", RiaWellLogUnitTools::barUnitString() )}};
     return RigWbsParameter( "SH Input", true, sources );
 }
 
@@ -318,7 +332,10 @@ RigWbsParameter RigWbsParameter::DF()
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::K0_FG()
 {
-    return RigWbsParameter( "K0_FG", false, {{LAS_FILE, SourceAddress( "K0_FG_INP" )}, {USER_DEFINED, SourceAddress()}} );
+    return RigWbsParameter( "K0_FG",
+                            false,
+                            {{LAS_FILE, SourceAddress( "K0_FG_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )},
+                             {USER_DEFINED, SourceAddress()}} );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,7 +343,10 @@ RigWbsParameter RigWbsParameter::K0_FG()
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::K0_SH()
 {
-    return RigWbsParameter( "K0_SH", false, {{LAS_FILE, SourceAddress( "K0_SH_INP" )}, {USER_DEFINED, SourceAddress()}} );
+    return RigWbsParameter( "K0_SH",
+                            false,
+                            {{LAS_FILE, SourceAddress( "K0_SH_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )},
+                             {USER_DEFINED, SourceAddress()}} );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -338,7 +358,7 @@ RigWbsParameter RigWbsParameter::FG_Shale()
                            false,
                            {{DERIVED_FROM_K0FG, SourceAddress()},
                             {PROPORTIONAL_TO_SH, SourceAddress()},
-                            {LAS_FILE, SourceAddress( "FG_SHALE_INP" )}} );
+                            {LAS_FILE, SourceAddress( "FG_SHALE_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )}} );
     param.setOptionsExclusive( true );
     return param;
 }
@@ -348,7 +368,10 @@ RigWbsParameter RigWbsParameter::FG_Shale()
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::waterDensity()
 {
-    RigWbsParameter param( "Density of Sea Water", false, {{USER_DEFINED, SourceAddress()}} );
+    RigWbsParameter param( "Density of Sea Water",
+                           false,
+                           {{USER_DEFINED, SourceAddress()},
+                            {LAS_FILE, SourceAddress( "RHO_INP", "", RiaWellLogUnitTools::gPerCm3UnitString() )}} );
     return param;
 }
 //--------------------------------------------------------------------------------------------------

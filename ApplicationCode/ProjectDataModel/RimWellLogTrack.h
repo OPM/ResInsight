@@ -172,6 +172,8 @@ public:
 
     bool showWellPathAttributes() const;
     void setShowWellPathAttributes( bool on );
+    void setShowWellPathAttributesInLegend( bool on );
+    void setShowWellPathCompletionsInLegend( bool on );
     void setShowBothSidesOfWell( bool on );
     void setWellPathAttributesSource( RimWellPath* wellPath );
 

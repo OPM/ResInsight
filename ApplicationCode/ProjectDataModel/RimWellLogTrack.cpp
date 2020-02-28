@@ -235,9 +235,9 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitField( &m_showformationFluids, "ShowFormationFluids", false, "Show Fluids", "", "", "" );
 
     CAF_PDM_InitField( &m_showWellPathAttributes, "ShowWellPathAttributes", false, "Show Well Attributes", "", "", "" );
-    CAF_PDM_InitField( &m_wellPathAttributesInLegend, "WellPathAttributesInLegend", false, "Attributes in Legend", "", "", "" );
+    CAF_PDM_InitField( &m_wellPathAttributesInLegend, "WellPathAttributesInLegend", true, "Attributes in Legend", "", "", "" );
     CAF_PDM_InitField( &m_showWellPathCompletions, "ShowWellPathCompletions", true, "Show Well Completions", "", "", "" );
-    CAF_PDM_InitField( &m_wellPathCompletionsInLegend, "WellPathCompletionsInLegend", false, "Completions in Legend", "", "", "" );
+    CAF_PDM_InitField( &m_wellPathCompletionsInLegend, "WellPathCompletionsInLegend", true, "Completions in Legend", "", "", "" );
     CAF_PDM_InitField( &m_showWellPathComponentsBothSides, "ShowWellPathAttrBothSides", true, "Show Both Sides", "", "", "" );
     CAF_PDM_InitField( &m_showWellPathComponentLabels, "ShowWellPathAttrLabels", false, "Show Labels", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_wellPathComponentSource, "AttributesWellPathSource", "Well Path", "", "", "" );
@@ -1538,6 +1538,22 @@ void RimWellLogTrack::setShowWellPathAttributes( bool on )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setShowWellPathAttributesInLegend( bool on )
+{
+    m_wellPathAttributesInLegend = on;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setShowWellPathCompletionsInLegend( bool on )
+{
+    m_wellPathCompletionsInLegend = on;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setShowBothSidesOfWell( bool on )
 {
     m_showWellPathComponentsBothSides = on;
@@ -2311,19 +2327,22 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         // Attach water and rock base formations
         const std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
 
-        const caf::ColorTable                        waterAndRockColors = RiaColorTables::waterAndRockPaletteColors();
-        const std::vector<std::pair<double, double>> waterAndRockIntervals =
-            waterAndRockRegions( plot->depthType(), extractor );
-        m_annotationTool->attachNamedRegions( m_plotWidget,
-                                              {"Sea Level", ""},
-                                              xRange,
-                                              waterAndRockIntervals,
-                                              m_regionAnnotationDisplay(),
-                                              waterAndRockColors,
-                                              ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
-                                              m_showRegionLabels(),
-                                              RiuPlotAnnotationTool::LEFT_COLUMN,
-                                              {Qt::SolidPattern, Qt::Dense6Pattern} );
+        if ( geoMechWellLogExtractor )
+        {
+            const caf::ColorTable waterAndRockColors = RiaColorTables::waterAndRockPaletteColors();
+            const std::vector<std::pair<double, double>> waterAndRockIntervals =
+                waterAndRockRegions( plot->depthType(), extractor );
+            m_annotationTool->attachNamedRegions( m_plotWidget,
+                                                  {"Sea Level", ""},
+                                                  xRange,
+                                                  waterAndRockIntervals,
+                                                  m_regionAnnotationDisplay(),
+                                                  waterAndRockColors,
+                                                  ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
+                                                  m_showRegionLabels(),
+                                                  RiuPlotAnnotationTool::LEFT_COLUMN,
+                                                  {Qt::SolidPattern, Qt::Dense6Pattern} );
+        }
 
         if ( m_formationSource == CASE )
         {

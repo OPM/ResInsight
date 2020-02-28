@@ -24,6 +24,8 @@
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "RicfCommandObject.h"
+
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
@@ -83,11 +85,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechView, "GeoMechView" );
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView::RimGeoMechView( void )
 {
-    RiaApplication* app         = RiaApplication::instance();
-    RiaPreferences* preferences = app->preferences();
-    CVF_ASSERT( preferences );
-
-    CAF_PDM_InitObject( "Geomechanical View", ":/3DViewGeoMech16x16.png", "", "" );
+    RICF_InitObject( "Geomechanical View", ":/3DViewGeoMech16x16.png", "", "The Geomechanical 3d View" );
 
     CAF_PDM_InitFieldNoDefault( &cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "" );
     cellResult = new RimGeoMechCellColors();
@@ -150,7 +148,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
             if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
             {
                 QString displayMessage = errorMessage.empty()
-                                             ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName()
+                                             ? "Could not open the Odb file: \n" + m_geomechCase->gridFileName()
                                              : QString::fromStdString( errorMessage );
 
                 if ( RiaGuiApplication::isRunning() )

@@ -23,6 +23,7 @@
 
 #include "RicfFieldHandle.h"
 #include "RicfMessages.h"
+#include "RicfObjectCapability.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -69,7 +70,9 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
 {
     CAF_ASSERT( source && destination && source->xmlCapability() );
 
-    destination->set_class_keyword( source->xmlCapability()->classKeyword().toStdString() );
+    QString classKeyword = source->xmlCapability()->classKeyword();
+    QString scriptName   = RicfObjectCapability::scriptClassNameFromClassKeyword( classKeyword );
+    destination->set_class_keyword( scriptName.toStdString() );
     destination->set_address( reinterpret_cast<uint64_t>( source ) );
 
     bool visible = true;
@@ -100,7 +103,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
                 QString     text;
                 QTextStream outStream( &text );
                 ricfHandle->writeFieldData( outStream, false );
-                ( *parametersMap )[keyword.toStdString()] = text.toStdString();
+                ( *parametersMap )[ricfHandle->fieldName().toStdString()] = text.toStdString();
             }
         }
     }
@@ -112,7 +115,6 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
 void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination )
 {
     CAF_ASSERT( source && destination && destination->xmlCapability() );
-    CAF_ASSERT( source->class_keyword() == destination->xmlCapability()->classKeyword().toStdString() );
 
     if ( destination->uiCapability() && destination->uiCapability()->objectToggleField() )
     {
@@ -139,7 +141,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
             auto ricfHandle = pdmValueField->template capability<RicfFieldHandle>();
             if ( ricfHandle )
             {
-                QString keyword = pdmValueField->keyword();
+                QString keyword = ricfHandle->fieldName();
                 QString value   = QString::fromStdString( parametersMap[keyword.toStdString()] );
 
                 QVariant oldValue, newValue;

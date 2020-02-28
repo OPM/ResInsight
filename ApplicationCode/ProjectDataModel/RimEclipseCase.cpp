@@ -28,6 +28,7 @@
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
+#include "RicfCommandObject.h"
 #include "RifReaderSettings.h"
 
 #include "RigActiveCellInfo.h"
@@ -77,7 +78,12 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimEclipseCase, "RimReservoir" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::RimEclipseCase()
 {
-    CAF_PDM_InitObject( "EclipseCase", ":/Case48x48.png", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "EclipseCase",
+                                             ":/Case48x48.png",
+                                             "",
+                                             "",
+                                             "Reservoir",
+                                             "Abtract base class for Eclipse Cases" );
 
     CAF_PDM_InitFieldNoDefault( &reservoirViews, "ReservoirViews", "", "", "", "" );
     reservoirViews.uiCapability()->setUiHidden( true );

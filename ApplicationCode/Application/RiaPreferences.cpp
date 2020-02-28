@@ -376,6 +376,8 @@ RiaPreferences::RiaPreferences( void )
 
     caf::AppEnum<RiaFontCache::FontSize> invalidFontSize = RiaFontCache::INVALID;
     CAF_PDM_InitField( &m_defaultSceneFontSize_OBSOLETE, "fontSizeInScene", invalidFontSize, "Viewer Font Size", "", "", "" );
+    m_defaultSceneFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
+
     CAF_PDM_InitField( &m_defaultAnnotationFontSize_OBSOLETE,
                        "defaultAnnotationFontSize",
                        invalidFontSize,
@@ -383,6 +385,8 @@ RiaPreferences::RiaPreferences( void )
                        "",
                        "",
                        "" );
+    m_defaultAnnotationFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
+
     CAF_PDM_InitField( &m_defaultWellLabelFontSize_OBSOLETE,
                        "wellLabelFontSize",
                        invalidFontSize,
@@ -390,7 +394,10 @@ RiaPreferences::RiaPreferences( void )
                        "",
                        "",
                        "" );
+    m_defaultWellLabelFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
+
     CAF_PDM_InitField( &m_defaultPlotFontSize_OBSOLETE, "defaultPlotFontSize", invalidFontSize, "Plot Font Size", "", "", "" );
+    m_defaultPlotFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer", "", "", "" );
     m_openExportedPdfInViewer.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );

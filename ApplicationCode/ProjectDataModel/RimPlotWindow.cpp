@@ -37,9 +37,15 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "RimPlotWindow" ); // Do not us
 //--------------------------------------------------------------------------------------------------
 RimPlotWindow::RimPlotWindow()
 {
-    CAF_PDM_InitObject( "PlotWindow", "", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "PlotWindow",
+                                             "",
+                                             "",
+                                             "",
+                                             "PlotWindow",
+                                             "The Abstract base class for all MDI Windows in the Plot Window" );
 
-    RICF_InitField( &m_id, "ViewId", -1, "View ID", "", "", "" );
+    RICF_InitField( &m_id, "Id", -1, "View ID", "", "", "" );
+    m_id.registerKeywordAlias( "ViewId" );
     m_id.uiCapability()->setUiReadOnly( true );
     m_id.uiCapability()->setUiHidden( true );
     m_id.capability<RicfFieldHandle>()->setIOWriteable( false );

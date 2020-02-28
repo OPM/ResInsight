@@ -62,16 +62,20 @@
 #include <array>
 
 CAF_PDM_SOURCE_INIT( RimGeoMechCase, "ResInsightGeoMechCase" );
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase::RimGeoMechCase( void )
     : m_applyTimeFilter( false )
 {
-    CAF_PDM_InitObject( "Geomechanical Case", ":/GeoMechCase48x48.png", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "GeoMechanical Case",
+                                             ":/GeoMechCase48x48.png",
+                                             "",
+                                             "The GeoMechanical Results Case",
+                                             "GeoMechCase",
+                                             "The Abaqus Based GeoMech Case" );
 
-    RICF_InitFieldNoDefault( &m_caseFileName, "CaseFileName", "Case File Name", "", "", "" );
-    m_caseFileName.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitFieldNoDefault( &geoMechViews, "GeoMechViews", "", "", "", "" );
     geoMechViews.uiCapability()->setUiHidden( true );
 
@@ -130,22 +134,6 @@ RimGeoMechCase::~RimGeoMechCase( void )
         // At this point, we assume that memory should be released
         CVF_ASSERT( this->geoMechData()->refCount() == 1 );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechCase::setFileName( const QString& fileName )
-{
-    m_caseFileName.v().setPath( fileName );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimGeoMechCase::caseFileName() const
-{
-    return m_caseFileName().path();
 }
 
 //--------------------------------------------------------------------------------------------------

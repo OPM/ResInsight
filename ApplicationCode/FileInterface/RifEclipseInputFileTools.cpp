@@ -1600,8 +1600,16 @@ void RifEclipseInputFileTools::readKeywordDataContent( QFile&       data,
 
             return;
         }
+        else if ( line[0].isLetter() )
+        {
+            // If a letter is starting the line, this is a new keyword
+            return;
+        }
 
-        textContent->push_back( line );
+        if ( !line.isEmpty() )
+        {
+            textContent->push_back( line );
+        }
 
     } while ( !data.atEnd() );
 }

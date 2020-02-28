@@ -134,6 +134,13 @@ void AddXmlCapabilityToField(FieldType* field)
 }
 
 
+template<typename FieldType>
+void RegisterClassWithField(const QString& classKeyword, FieldType* field)
+{
+    field->setOwnerClass(classKeyword);
+}
+
+
 } // End of namespace caf
 
 #include "cafInternalPdmXmlFieldCapability.inl"

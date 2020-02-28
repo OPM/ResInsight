@@ -21,6 +21,7 @@
 #include "RimFlowDiagSolution.h"
 #include "RimPlot.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellDistributionPlot.h"
 
 #include "RigEclipseCaseData.h"
@@ -280,14 +281,7 @@ QList<caf::PdmOptionItemInfo>
 
     else if ( fieldNeedingOptions == &m_timeStepIndex )
     {
-        if ( m_case && m_case->eclipseCaseData() )
-        {
-            const QStringList timeStepNames = m_case->timeStepStrings();
-            for ( int i = 0; i < timeStepNames.size(); i++ )
-            {
-                options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
-            }
-        }
+        RimTools::timeStepsForCase( m_case, &options );
 
         if ( options.size() == 0 )
         {

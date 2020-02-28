@@ -132,7 +132,9 @@ public:
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;
 
-    void configureForPressureSaturationCurves( RimEclipseResultCase* eclipseResultCase, const QString& dynamicResultName );
+    void configureForPressureSaturationCurves( RimEclipseResultCase* eclipseResultCase,
+                                               const QString&        dynamicResultName,
+                                               int                   timeStep );
     void addCellFilter( RimPlotCellFilter* cellFilter );
     void setCustomColor( const cvf::Color3f color );
     void destroyCurves();

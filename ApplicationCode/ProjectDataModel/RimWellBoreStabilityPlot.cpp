@@ -18,6 +18,8 @@
 #include "RimWellBoreStabilityPlot.h"
 
 #include "RiaDefines.h"
+#include "RicfCommandObject.h"
+
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigGeoMechCaseData.h"
@@ -40,7 +42,7 @@ CAF_PDM_SOURCE_INIT( RimWellBoreStabilityPlot, "WellBoreStabilityPlot" );
 //--------------------------------------------------------------------------------------------------
 RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
 {
-    CAF_PDM_InitObject( "Well Bore Stability Plot", ":/WellBoreStability16x16.png", "", "" );
+    RICF_InitObject( "Well Bore Stability Plot", ":/WellBoreStability16x16.png", "", "A GeoMechanical Well Bore Stabilit Plot" );
 
     CAF_PDM_InitFieldNoDefault( &m_wbsParameters, "WbsParameters", "Well Bore Stability Parameters", "", "", "" );
     m_wbsParameters = new RimWbsParameters;

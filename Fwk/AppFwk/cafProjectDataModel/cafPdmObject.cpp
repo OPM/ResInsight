@@ -2,6 +2,17 @@
 
 using namespace caf;
 
+CAF_PDM_ABSTRACT_SOURCE_INIT(PdmObject, "PdmObject");
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObject::PdmObject() : PdmObjectHandle(), PdmXmlObjectHandle(this, false), PdmUiObjectHandle(this, false)
+{
+    CAF_PDM_InitObject("Base PDM Object", "", "", "The Abstract Base Class for the Project Data Model");
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -89,7 +100,7 @@ void PdmObject::childrenFromClassKeyword(
         for (auto childObject : childObjects)
         {
             PdmObject* pdmObjectChild = dynamic_cast<PdmObject*>(childObject);
-            if (pdmObjectChild && pdmObjectChild->classKeyword() == classKeyword)
+            if (pdmObjectChild && pdmObjectChild->matchesClassKeyword(classKeyword))
             {
                 children.push_back(pdmObjectChild);
             }

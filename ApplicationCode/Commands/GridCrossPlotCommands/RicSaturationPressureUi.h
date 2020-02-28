@@ -37,6 +37,7 @@ public:
 
     void            setSelectedCase( RimEclipseCase* eclipseCase );
     RimEclipseCase* selectedCase() const;
+    int             selectedTimeStep() const;
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -44,4 +45,5 @@ protected:
 
 private:
     caf::PdmPtrField<RimEclipseCase*> m_caseToApply;
+    caf::PdmField<int>                m_timeStep;
 };

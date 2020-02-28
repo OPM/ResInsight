@@ -764,6 +764,14 @@ QString RigGeoMechWellLogExtractor::parameterInputUnits( const RigWbsParameter& 
     {
         return RiaWellLogUnitTools::barUnitString();
     }
+    else if ( parameter == RigWbsParameter::poissonRatio() || parameter == RigWbsParameter::DF() )
+    {
+        return RiaWellLogUnitTools::noUnitString();
+    }
+    else if ( parameter == RigWbsParameter::waterDensity() )
+    {
+        return RiaWellLogUnitTools::gPerCm3UnitString();
+    }
     return RiaWellLogUnitTools::sg_emwUnitString();
 }
 

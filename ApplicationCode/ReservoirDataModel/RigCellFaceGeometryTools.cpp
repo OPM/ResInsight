@@ -193,6 +193,11 @@ std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const Rig
             size_t                             sourceReservoirCellIndex = f.m_nativeReservoirCellIndex;
             cvf::StructGridInterface::FaceType sourceCellFace           = f.m_nativeFace;
 
+            if ( sourceReservoirCellIndex >= mainGrid->cellCount() )
+            {
+                continue;
+            }
+
             const std::vector<cvf::Vec3d>& mainGridNodes = mainGrid->nodes();
 
             cvf::BoundingBox      bb;
@@ -239,6 +244,11 @@ std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const Rig
                 if ( candidateCellIndex == neighborCellIndex )
                 {
                     // Exclude direct neighbor
+                    continue;
+                }
+
+                if ( candidateCellIndex >= mainGrid->cellCount() )
+                {
                     continue;
                 }
 

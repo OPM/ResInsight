@@ -35,7 +35,7 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "RimCase" );
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "Case", "RimCase" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -43,13 +43,21 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "RimCase" );
 RimCase::RimCase()
     : m_isInActiveDestruction( false )
 {
-    CAF_PDM_InitObject( "Case", ":/Case48x48.png", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "Case", ":/Case48x48.png", "", "", "Case", "The ResInsight base class for Cases" );
 
-    RICF_InitField( &caseUserDescription, "CaseUserDescription", QString(), "Case Name", "", "", "" );
+    RICF_InitField( &caseUserDescription, "Name", QString(), "Case Name", "", "", "" );
+    caseUserDescription.registerKeywordAlias( "CaseUserDescription" );
 
-    RICF_InitField( &caseId, "CaseId", -1, "Case ID", "", "", "" );
+    RICF_InitField( &caseId, "Id", -1, "Case ID", "", "", "" );
+    caseId.registerKeywordAlias( "CaseId" );
     caseId.uiCapability()->setUiReadOnly( true );
     caseId.capability<RicfFieldHandle>()->setIOWriteable( false );
+
+    RICF_InitFieldNoDefault( &m_caseFileName, "FilePath", "Case File Name", "", "", "" );
+    m_caseFileName.registerKeywordAlias( "CaseFileName" );
+    m_caseFileName.registerKeywordAlias( "GridFileName" );
+
+    m_caseFileName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_activeFormationNames, "DefaultFormationNames", "Formation Names File", "", "", "" );
 
@@ -74,6 +82,22 @@ RimCase::RimCase()
 RimCase::~RimCase()
 {
     m_isInActiveDestruction = true; // Needed because destruction of m_intersectionViews results in call to views()
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase::setGridFileName( const QString& fileName )
+{
+    m_caseFileName.v().setPath( fileName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCase::gridFileName() const
+{
+    return m_caseFileName().path();
 }
 
 //--------------------------------------------------------------------------------------------------

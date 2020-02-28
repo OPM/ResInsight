@@ -246,7 +246,7 @@ TEST( RifEclipseInputFileToolsTest, FaultData )
                                                                                    &isStopParsingKeywordDetected,
                                                                                    includeStatementAbsolutePathPrefix );
 
-        EXPECT_EQ( (int)1041, keywordContent.size() );
+        EXPECT_EQ( (int)977, keywordContent.size() );
 
         /*
                 for (const auto& s : keywordContent)

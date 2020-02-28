@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 
+#include "RicfCommandObject.h"
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderEclipseRft.h"
 #include "RifReaderEclipseSummary.h"
@@ -41,6 +42,7 @@ CAF_PDM_SOURCE_INIT( RimFileSummaryCase, "FileSummaryCase" );
 //--------------------------------------------------------------------------------------------------
 RimFileSummaryCase::RimFileSummaryCase()
 {
+    RICF_InitObject( "File Summary Case ", "", "", "A Summary Case based on SMSPEC files" );
     CAF_PDM_InitField( &m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files", "", "", "" );
 
     m_includeRestartFiles.uiCapability()->setUiHidden( true );

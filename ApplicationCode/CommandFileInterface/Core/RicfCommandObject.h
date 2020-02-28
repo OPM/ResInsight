@@ -23,13 +23,67 @@
 #include "cafCmdFeature.h"
 #include "cafPdmObject.h"
 
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+class RicfCommandObject : public caf::PdmObject, public RicfObjectCapability
+{
+public:
+    RicfCommandObject();
+    ~RicfCommandObject() override;
+
+    virtual RicfCommandResponse execute() = 0;
+
+    static QString pythonHelpString( const QString& existingTooltip, const QString& keyword );
+};
+
 #define RICF_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ); \
-    AddRicfCapabilityToField( field )
+    CAF_PDM_InitField( field,                                                                   \
+                       keyword,                                                                 \
+                       default,                                                                 \
+                       uiName,                                                                  \
+                       iconResourceName,                                                        \
+                       RicfCommandObject::pythonHelpString( toolTip, keyword ),                 \
+                       whatsThis );                                                             \
+    AddRicfCapabilityToField( field, keyword )
 
 #define RICF_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis ); \
-    AddRicfCapabilityToField( field )
+    CAF_PDM_InitFieldNoDefault( field,                                                          \
+                                keyword,                                                        \
+                                uiName,                                                         \
+                                iconResourceName,                                               \
+                                RicfCommandObject::pythonHelpString( toolTip, keyword ),        \
+                                whatsThis );                                                    \
+    AddRicfCapabilityToField( field, keyword )
+
+#define RICF_InitFieldTranslated( field, keyword, scriptKeyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
+    CAF_PDM_InitField( field,                                                                                            \
+                       keyword,                                                                                          \
+                       default,                                                                                          \
+                       uiName,                                                                                           \
+                       iconResourceName,                                                                                 \
+                       RicfCommandObject::pythonHelpString( toolTip, scriptKeyword ),                                    \
+                       whatsThis );                                                                                      \
+    AddRicfCapabilityToField( field, scriptKeyword )
+
+#define RICF_InitFieldNoDefaultTranslated( field, keyword, scriptKeyword, uiName, iconResourceName, toolTip, whatsThis ) \
+    CAF_PDM_InitFieldNoDefault( field,                                                                                   \
+                                keyword,                                                                                 \
+                                uiName,                                                                                  \
+                                iconResourceName,                                                                        \
+                                RicfCommandObject::pythonHelpString( toolTip, scriptKeyword ),                           \
+                                whatsThis );                                                                             \
+    AddRicfCapabilityToField( field, scriptKeyword )
+
+#define RICF_InitObject( uiName, iconResourceName, toolTip, whatsThis ) \
+    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis ); \
+    RicfObjectCapability::addCapabilityToObject( this, classKeyword(), whatsThis );
+
+#define RICF_InitObjectWithScriptNameAndComment( uiName, iconResourceName, toolTip, whatsThis, scriptClassName, scriptComment ) \
+    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );                                                         \
+    RicfObjectCapability::addCapabilityToObject( this, scriptClassName, scriptComment );
 
 #define RICF_HEADER_INIT \
     CAF_CMD_HEADER_INIT; \
@@ -44,17 +98,3 @@
     }                                                                                            \
     CAF_FACTORY_REGISTER2( caf::CmdFeature, ClassName, std::string, ClassName::idNameStatic() ); \
     CAF_PDM_SOURCE_INIT( ClassName, CommandKeyword )
-
-//==================================================================================================
-//
-//
-//
-//==================================================================================================
-class RicfCommandObject : public caf::PdmObject, public RicfObjectCapability
-{
-public:
-    RicfCommandObject();
-    ~RicfCommandObject() override;
-
-    virtual RicfCommandResponse execute() = 0;
-};

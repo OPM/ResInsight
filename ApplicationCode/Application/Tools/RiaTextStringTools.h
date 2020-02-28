@@ -27,4 +27,5 @@ namespace RiaTextStringTools
 {
 bool    compare( const QString& expected, const QString& actual );
 QString trimAndRemoveDoubleSpaces( const QString& s );
+QString camelToSnakeCase( const QString& camelString );
 } // namespace RiaTextStringTools

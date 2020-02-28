@@ -33,7 +33,7 @@ CAF_PDM_SOURCE_INIT( RimWbsParameters, "WbsParameters" );
 //--------------------------------------------------------------------------------------------------
 RimWbsParameters::RimWbsParameters()
 {
-    CAF_PDM_InitObject( "Well Bore Stability Parameters", ":/WellLogPlot16x16.png", "", "" );
+    RICF_InitObject( "Well Bore Stability Parameters", ":/WellLogPlot16x16.png", "", "" );
 
     RICF_InitFieldNoDefault( &m_porePressureSource,
                              "PorePressureReservoirSource",
@@ -78,7 +78,7 @@ RimWbsParameters::RimWbsParameters()
                              "FG in shale = K0_FG * (OBG0-PP0)\nK0_FG = (FG-PP)/(OBG-PP)",
                              "" );
 
-    RICF_InitFieldNoDefault( &m_waterDensitySource, "WaterDensitySource", "Water Density", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_waterDensitySource, "WaterDensitySource", "Water Density", "", "", "" );
     m_waterDensitySource.uiCapability()->setUiHidden( true );
 
     RICF_InitField( &m_userDefinedPoissionRatio,

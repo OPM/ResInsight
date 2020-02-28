@@ -2,6 +2,7 @@
 
 #include "cafPdmFieldCapability.h"
 #include <QString>
+#include <vector>
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -51,9 +52,9 @@ protected:
     QString         m_childClassKeyword; ///< Must be set in constructor of derived XmlFieldHandle
 
 private:
-    bool            m_isIOReadable;
-    bool            m_isIOWritable;
-    bool            m_isCopyable;
+    bool                 m_isIOReadable;
+    bool                 m_isIOWritable;
+    bool                 m_isCopyable;
 
     PdmFieldHandle* m_owner;
 };

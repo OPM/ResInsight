@@ -152,6 +152,7 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
     {
         featureUi.filePrefix         = "WBS_";
         featureUi.capitalizeFileName = true;
+        featureUi.exportTvdrkb       = true;
         featureUi.setUnitConversionOptionEnabled( true );
     }
 

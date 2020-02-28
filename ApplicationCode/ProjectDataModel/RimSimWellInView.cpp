@@ -62,9 +62,10 @@ CAF_PDM_SOURCE_INIT( RimSimWellInView, "Well" );
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView::RimSimWellInView()
 {
-    CAF_PDM_InitObject( "Well", ":/Well.png", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "Simulation Well", ":/Well.png", "", "", "SimulationWell", "An Eclipse Simulation Well" );
 
-    RICF_InitFieldNoDefault( &name, "WellName", "Name", "", "", "" );
+    RICF_InitFieldNoDefault( &name, "Name", "Name", "", "", "" );
+    name.registerKeywordAlias( "WellName" );
 
     CAF_PDM_InitField( &showWell, "ShowWell", true, "Show well ", "", "", "" );
 

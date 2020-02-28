@@ -25,6 +25,7 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
+#include "RicfCommandObject.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
@@ -142,16 +143,16 @@ CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData );
 RimSummaryPlot::RimSummaryPlot()
     : RimPlot()
 {
-    CAF_PDM_InitObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "" );
+    RICF_InitObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
+    RICF_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
     m_showPlotTitle.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
+    RICF_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
 
-    CAF_PDM_InitField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name", "", "", "" );
+    RICF_InitField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name", "", "", "" );
 
-    CAF_PDM_InitField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
+    RICF_InitField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );
@@ -1107,6 +1108,30 @@ void RimSummaryPlot::updateTimeAxis()
                                                 alignment );
         m_plotWidget->setAxisTitleText( QwtPlot::xBottom, m_timeAxisProperties->title() );
         m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, m_timeAxisProperties->showTitle );
+
+        {
+            RimSummaryTimeAxisProperties::LegendTickmarkCount tickmarkCountEnum =
+                m_timeAxisProperties->majorTickmarkCount();
+
+            int maxTickmarkCount = 8;
+
+            switch ( tickmarkCountEnum )
+            {
+                case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_FEW:
+                    maxTickmarkCount = 4;
+                    break;
+                case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT:
+                    maxTickmarkCount = 8; // Taken from QwtPlot::initAxesData()
+                    break;
+                case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_MANY:
+                    maxTickmarkCount = 10;
+                    break;
+                default:
+                    break;
+            }
+
+            m_plotWidget->setAxisMaxMajor( QwtPlot::xBottom, maxTickmarkCount );
+        }
     }
 }
 

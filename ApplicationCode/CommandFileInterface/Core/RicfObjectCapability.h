@@ -19,8 +19,13 @@
 #pragma once
 #include "cafPdmObjectCapability.h"
 
+#include <QString>
+
+#include <map>
+
 namespace caf
 {
+class PdmObject;
 class PdmObjectHandle;
 class PdmObjectFactory;
 } // namespace caf
@@ -43,6 +48,21 @@ public:
     void readFields( QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, RicfMessages* errorMessageContainer );
     void writeFields( QTextStream& outputStream ) const;
 
+    static void    registerScriptClassNameAndComment( const QString& classKeyword,
+                                                      const QString& scriptClassName,
+                                                      const QString& scriptClassComment );
+    static QString scriptClassNameFromClassKeyword( const QString& classKeyword );
+    static QString classKeywordFromScriptClassName( const QString& scriptClassName );
+    static QString scriptClassComment( const QString& classKeyword );
+
+    static bool isScriptable( const caf::PdmObject* object );
+    static void
+        addCapabilityToObject( caf::PdmObject* object, const QString& scriptClassName, const QString& scriptClassComment );
+
 private:
     caf::PdmObjectHandle* m_owner;
+
+    static std::map<QString, QString> s_classKeywordToScriptClassName;
+    static std::map<QString, QString> s_scriptClassNameToClassKeyword;
+    static std::map<QString, QString> s_scriptClassComments;
 };

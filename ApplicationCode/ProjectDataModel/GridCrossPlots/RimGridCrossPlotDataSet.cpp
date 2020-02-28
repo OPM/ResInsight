@@ -932,17 +932,9 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
-        QStringList timeStepNames;
-
-        if ( m_case )
-        {
-            timeStepNames = m_case->timeStepStrings();
-        }
         options.push_back( caf::PdmOptionItemInfo( "All Time Steps", -1 ) );
-        for ( int i = 0; i < timeStepNames.size(); i++ )
-        {
-            options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
-        }
+
+        RimTools::timeStepsForCase( m_case, &options );
     }
     else if ( fieldNeedingOptions == &m_cellFilterView )
     {
@@ -1185,7 +1177,8 @@ bool RimGridCrossPlotDataSet::isYAxisLogarithmic() const
 ///
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotDataSet::configureForPressureSaturationCurves( RimEclipseResultCase* eclipseCase,
-                                                                    const QString&        dynamicResultName )
+                                                                    const QString&        dynamicResultName,
+                                                                    int                   timeStep )
 {
     m_case = eclipseCase;
 
@@ -1205,6 +1198,8 @@ void RimGridCrossPlotDataSet::configureForPressureSaturationCurves( RimEclipseRe
     m_nameConfig->addAxisVariables = false;
     m_nameConfig->addTimestep      = false;
     m_nameConfig->addGrouping      = false;
+
+    m_timeStep = timeStep;
 }
 
 //--------------------------------------------------------------------------------------------------

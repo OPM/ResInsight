@@ -13,7 +13,7 @@ if resinsight is not None:
     cases = resinsight.project.cases()
 
     for case in cases:
-        print("Case id: " + str(case.case_id))
+        print("Case id: " + str(case.id))
         print("Case name: " + case.name)
 
         timesteps = case.time_steps()

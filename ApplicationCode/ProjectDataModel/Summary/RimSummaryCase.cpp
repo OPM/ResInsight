@@ -19,6 +19,7 @@
 #include "RimSummaryCase.h"
 
 #include "RiaSummaryTools.h"
+#include "RicfCommandObject.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "RimMainPlotCollection.h"
@@ -43,12 +44,12 @@ const QString RimSummaryCase::DEFAULT_DISPLAY_NAME = "Display Name";
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase::RimSummaryCase()
 {
-    CAF_PDM_InitObject( "Summary Case", ":/SummaryCase16x16.png", "", "" );
+    RICF_InitObject( "Summary Case", ":/SummaryCase16x16.png", "", "The Base Class for all Summary Cases" );
 
-    CAF_PDM_InitField( &m_shortName, "ShortName", QString( "Display Name" ), DEFAULT_DISPLAY_NAME, "", "", "" );
-    CAF_PDM_InitField( &m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
+    RICF_InitField( &m_shortName, "ShortName", QString( "Display Name" ), DEFAULT_DISPLAY_NAME, "", "", "" );
+    RICF_InitField( &m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File", "", "", "" );
+    RICF_InitFieldNoDefault( &m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File", "", "", "" );
     m_summaryHeaderFilename.uiCapability()->setUiReadOnly( true );
 
     m_isObservedData = false;
