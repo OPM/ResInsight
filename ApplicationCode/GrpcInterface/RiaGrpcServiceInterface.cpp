@@ -29,6 +29,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmDataValueField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmXmlFieldHandle.h"
 
 #include <grpcpp/grpcpp.h>
@@ -100,10 +101,14 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
             auto    ricfHandle = field->template capability<RicfFieldHandle>();
             if ( ricfHandle != nullptr )
             {
-                QString     text;
-                QTextStream outStream( &text );
-                ricfHandle->writeFieldData( outStream, false );
-                ( *parametersMap )[ricfHandle->fieldName().toStdString()] = text.toStdString();
+                auto pdmProxyField = dynamic_cast<const caf::PdmProxyFieldHandle*>( field );
+                if ( !( pdmProxyField && pdmProxyField->isStreamingField() ) )
+                {
+                    QString     text;
+                    QTextStream outStream( &text );
+                    ricfHandle->writeFieldData( outStream, false );
+                    ( *parametersMap )[ricfHandle->fieldName().toStdString()] = text.toStdString();
+                }
             }
         }
     }

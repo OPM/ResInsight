@@ -8,21 +8,42 @@
 
 #include <QVariant>
 
+#include <type_traits>
+#include <vector>
+
 
 namespace caf
 {
+//==================================================================================================
+/// Abstract non-templated base class for PdmProxyValueField
+/// Exists only to be able to determine that a field is a proxy field
+//==================================================================================================
+
+class PdmProxyFieldHandle : public PdmValueField
+{
+public:
+    virtual bool isStreamingField() const = 0;    
+    virtual bool hasGetter() const = 0;
+    virtual bool hasSetter() const = 0;
+};
+
+//==================================================================================================
+/// Type traits magic to check if a template argument is a vector
+//==================================================================================================
+template<typename T> struct is_vector : public std::false_type {};
+template<typename T, typename A> struct is_vector<std::vector<T, A>> : public std::true_type{};
+
 //==================================================================================================
 /// Field class encapsulating data access through object setter/getter with input and output of this 
 /// data to/from a QXmlStream
 /// read/write-FieldData is supposed to be specialized for types needing specialization
 //==================================================================================================
-
 template<typename DataType >
-class PdmProxyValueField : public PdmValueField
+class PdmProxyValueField : public PdmProxyFieldHandle
 {
 public:
     typedef DataType FieldDataType;
-    PdmProxyValueField()                                                { m_valueSetter = NULL; m_valueGetter = NULL; }
+    PdmProxyValueField() { m_valueSetter = NULL; m_valueGetter = NULL; }
     ~PdmProxyValueField() override                                       { if (m_valueSetter) delete m_valueSetter; if (m_valueGetter) delete m_valueGetter; }
 
     // Assignment 
@@ -34,6 +55,10 @@ public:
     void                setValue(const DataType& fieldValue)            { CAF_ASSERT(isInitializedByInitFieldMacro()); if (m_valueSetter)      m_valueSetter->setValue(fieldValue); }
     DataType            value() const                                   { CAF_ASSERT(m_valueGetter);  return m_valueGetter->getValue(); }
    
+    bool isStreamingField() const override { return is_vector<DataType>(); }
+    bool hasGetter() const override { return m_valueGetter != nullptr; }
+    bool hasSetter() const override { return m_valueSetter != nullptr; }
+
     // Implementation of PdmValueField interface
 
     QVariant    toQVariant() const override                              { DataType val = value(); return PdmValueFieldSpecialization<DataType>::convert(val); }
@@ -130,6 +155,7 @@ private:
 
     SetValueInterface* m_valueSetter;
     GetValueInterface* m_valueGetter;
+
 };
 
 } // End of namespace caf

@@ -24,6 +24,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
 #include "cvfArray.h"
 
@@ -101,9 +102,12 @@ public:
     const RimEclipsePropertyFilterCollection* eclipsePropertyFilterCollection() const;
     void setOverridePropertyFilterCollection( RimEclipsePropertyFilterCollection* pfc );
 
-    RigCaseCellResultsData*  currentGridCellResults();
+    RigCaseCellResultsData*  currentGridCellResults() const;
     const RigActiveCellInfo* currentActiveCellInfo() const;
     RimEclipseCellColors*    currentFaultResultColors();
+
+    std::vector<double> currentCellResultData() const;
+    void                setCurrentCellResultData( const std::vector<double>& values );
 
     void            setEclipseCase( RimEclipseCase* reservoir );
     RimEclipseCase* eclipseCase() const;
@@ -205,6 +209,8 @@ private:
     caf::PdmChildField<RimEclipseFaultColors*>        m_faultResultSettings;
     caf::PdmChildField<RimStimPlanColors*>            m_fractureColors;
     caf::PdmChildField<RimVirtualPerforationResults*> m_virtualPerforationResult;
+
+    caf::PdmProxyValueField<std::vector<double>> m_cellResultData;
 
     caf::PdmChildField<RimSimWellInViewCollection*> m_wellCollection;
     caf::PdmChildField<RimFaultInViewCollection*>   m_faultCollection;

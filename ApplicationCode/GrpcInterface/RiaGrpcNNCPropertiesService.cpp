@@ -422,7 +422,7 @@ grpc::Status RiaNNCInputValuesStateHandler::receiveStreamRequest( const NNCValue
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RiaNNCInputValuesStateHandler::cellCount() const
+size_t RiaNNCInputValuesStateHandler::totalValueCount() const
 {
     return m_cellCount;
 }

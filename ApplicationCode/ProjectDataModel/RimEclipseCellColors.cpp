@@ -21,6 +21,7 @@
 #include "RimEclipseCellColors.h"
 
 #include "RiaColorTables.h"
+#include "RicfCommandObject.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
@@ -50,7 +51,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseCellColors, "ResultSlot" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors::RimEclipseCellColors()
 {
-    CAF_PDM_InitObject( "Cell Result", ":/CellResult.png", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "Cell Result", ":/CellResult.png", "", "", "CellColors", "Eclipse Cell Colors class" );
 
     CAF_PDM_InitFieldNoDefault( &obsoleteField_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
     this->obsoleteField_legendConfig.xmlCapability()->setIOWritable( false );

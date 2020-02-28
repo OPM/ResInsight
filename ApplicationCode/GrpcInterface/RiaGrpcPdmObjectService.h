@@ -23,6 +23,50 @@
 #include <grpcpp/grpcpp.h>
 #include <vector>
 
+namespace caf
+{
+class PdmProxyFieldHandle;
+}
+
+struct AbstractDataHolder
+{
+    virtual size_t dataCount() const                                                                = 0;
+    virtual size_t dataSizeOf() const                                                               = 0;
+    virtual void   reserveReplyStorage( rips::PdmObjectGetMethodReply* reply ) const                = 0;
+    virtual void   addValueToReply( size_t valueIndex, rips::PdmObjectGetMethodReply* reply ) const = 0;
+
+    virtual size_t getValuesFromChunk( size_t startIndex, const rips::PdmObjectSetMethodChunk* chunk ) = 0;
+    virtual void   applyValuesToProxyField( caf::PdmProxyFieldHandle* proxyField )                     = 0;
+};
+
+//==================================================================================================
+//
+// State handler for streaming of active cell info
+//
+//==================================================================================================
+class RiaPdmObjectMethodStateHandler
+{
+    typedef grpc::Status Status;
+
+public:
+    RiaPdmObjectMethodStateHandler( bool clientToServerStreamer = false );
+
+    Status init( const rips::PdmObjectMethodRequest* request );
+    Status init( const rips::PdmObjectSetMethodChunk* chunk );
+    Status assignReply( rips::PdmObjectGetMethodReply* reply );
+    Status receiveRequest( const rips::PdmObjectSetMethodChunk* chunk, rips::ClientToServerStreamReply* reply );
+    size_t streamedValueCount() const;
+    size_t totalValueCount() const;
+    void   finish();
+
+protected:
+    caf::PdmObject*                     m_fieldOwner;
+    caf::PdmProxyFieldHandle*           m_proxyField;
+    std::unique_ptr<AbstractDataHolder> m_dataHolder;
+    size_t                              m_currentDataIndex;
+    bool                                m_clientToServerStreamer;
+};
+
 //==================================================================================================
 //
 // gRPC-service answering request searching for PdmObjects in property tree
@@ -49,5 +93,16 @@ public:
                                           const rips::PdmObject* request,
                                           rips::Empty*           response ) override;
 
+    grpc::Status CallPdmObjectGetMethod( grpc::ServerContext*                context,
+                                         const rips::PdmObjectMethodRequest* request,
+                                         rips::PdmObjectGetMethodReply*      reply,
+                                         RiaPdmObjectMethodStateHandler*     stateHandler );
+    grpc::Status CallPdmObjectSetMethod( grpc::ServerContext*                 context,
+                                         const rips::PdmObjectSetMethodChunk* chunk,
+                                         rips::ClientToServerStreamReply*     reply,
+                                         RiaPdmObjectMethodStateHandler*      stateHandler );
+
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
+
+    static caf::PdmObject* findCafObjectFromRipsObject( const rips::PdmObject& ripsObject );
 };
