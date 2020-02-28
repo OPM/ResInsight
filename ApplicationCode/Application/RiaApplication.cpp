@@ -1737,7 +1737,8 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                    return lhs->classKeyword() < rhs->classKeyword();
                } );
 
-    std::map<QString, std::map<QString, std::pair<QString, QString>>> classesGenerated;
+    std::map<QString, std::map<QString, std::pair<QString, QString>>> classAttributesGenerated;
+    std::map<QString, std::map<QString, QString>>                     classMethodsGenerated;
     std::map<QString, QString>                                        classCommentsGenerated;
 
     // First generate all attributes and comments to go into each object
@@ -1767,10 +1768,13 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                         auto    ricfHandle = field->template capability<RicfFieldHandle>();
                         if ( ricfHandle != nullptr )
                         {
-                            QString snake_field_name = RiaTextStringTools::camelToSnakeCase( ricfHandle->fieldName() );
-                            if ( classesGenerated[field->ownerClass()].count( snake_field_name ) ) continue;
+                            bool shouldBeMethod = false;
+                            auto proxyField     = dynamic_cast<const caf::PdmProxyFieldHandle*>( field );
+                            if ( proxyField && proxyField->isStreamingField() ) shouldBeMethod = true;
 
-                            QString fieldPythonCode = QString( "        self.%1 = None\n" ).arg( snake_field_name );
+                            QString snake_field_name = RiaTextStringTools::camelToSnakeCase( ricfHandle->fieldName() );
+                            if ( classAttributesGenerated[field->ownerClass()].count( snake_field_name ) ) continue;
+                            if ( classMethodsGenerated[field->ownerClass()].count( snake_field_name ) ) continue;
 
                             QString comment;
                             {
@@ -1784,9 +1788,47 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                             QVariant valueVariant   = pdmValueField->toQVariant();
                             QString  dataTypeString = valueVariant.typeName();
 
-                            classesGenerated[field->ownerClass()][snake_field_name].first = fieldPythonCode;
-                            classesGenerated[field->ownerClass()][snake_field_name].second =
-                                QString( "%1 (%2): %3\n" ).arg( snake_field_name ).arg( dataTypeString ).arg( comment );
+                            if ( shouldBeMethod )
+                            {
+                                if ( proxyField->hasGetter() )
+                                {
+                                    QString fullComment =
+                                        QString( "        \"\"\"%1\n        Returns:\n             %2\n        \"\"\"" )
+                                            .arg( comment )
+                                            .arg( dataTypeString );
+
+                                    QString fieldCode = QString( "    def %1(self):\n%2\n        return "
+                                                                 "self._call_get_method(\"%3\")\n" )
+                                                            .arg( snake_field_name )
+                                                            .arg( fullComment )
+                                                            .arg( ricfHandle->fieldName() );
+                                    classMethodsGenerated[field->ownerClass()][snake_field_name] = fieldCode;
+                                }
+                                if ( proxyField->hasSetter() )
+                                {
+                                    QString fullComment = QString( "        \"\"\"Set %1\n        Attributes:\n"
+                                                                   "            values (%2): data\n        \"\"\"" )
+                                                              .arg( comment )
+                                                              .arg( dataTypeString );
+
+                                    QString fieldCode = QString( "    def set_%1(self, values):\n%2\n        "
+                                                                 "self._call_set_method(\"%3\", values)\n" )
+                                                            .arg( snake_field_name )
+                                                            .arg( fullComment )
+                                                            .arg( ricfHandle->fieldName() );
+                                    classMethodsGenerated[field->ownerClass()][QString( "set_%1" ).arg( snake_field_name )] =
+                                        fieldCode;
+                                }
+                            }
+                            else
+                            {
+                                QString fieldCode = QString( "        self.%1 = None\n" ).arg( snake_field_name );
+                                QString fullComment =
+                                    QString( "%1 (%2): %3\n" ).arg( snake_field_name ).arg( dataTypeString ).arg( comment );
+
+                                classAttributesGenerated[field->ownerClass()][snake_field_name].first  = fieldCode;
+                                classAttributesGenerated[field->ownerClass()][snake_field_name].second = fullComment;
+                            }
                         }
                     }
                 }
@@ -1818,20 +1860,23 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                 {
                     classCode = QString( "class %1(%2):\n" ).arg( scriptClassName ).arg( scriptSuperClassNames.back() );
                 }
-
-                if ( !classCommentsGenerated[classKeyword].isEmpty() || !classesGenerated[classKeyword].empty() )
+                if ( !classCommentsGenerated[classKeyword].isEmpty() || !classAttributesGenerated[classKeyword].empty() )
                 {
                     classCode += "    \"\"\"\n";
                     if ( !classCommentsGenerated[classKeyword].isEmpty() )
                     {
-                        classCode += QString( "    %1\n\n" ).arg( classCommentsGenerated[classKeyword] );
+                        if ( !classCommentsGenerated[classKeyword].isEmpty() )
+                        {
+                            classCode += QString( "    %1\n\n" ).arg( classCommentsGenerated[classKeyword] );
+                        }
                     }
-
-                    classCode += "    Attributes\n";
-                    classCode += "        class_keyword (string): the class keyword that uniquely defines a class\n";
-                    for ( auto keyWordValuePair : classesGenerated[classKeyword] )
+                    if ( !classAttributesGenerated[classKeyword].empty() )
                     {
-                        classCode += "        " + keyWordValuePair.second.second;
+                        classCode += "    Attributes\n";
+                        for ( auto keyWordValuePair : classAttributesGenerated[classKeyword] )
+                        {
+                            classCode += "        " + keyWordValuePair.second.second;
+                        }
                     }
                     classCode += "    \"\"\"\n";
                 }
@@ -1844,7 +1889,7 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                 {
                     // Own attributes. This initializes a lot of attributes to None.
                     // This means it has to be done before we set any values.
-                    for ( auto keyWordValuePair : classesGenerated[classKeyword] )
+                    for ( auto keyWordValuePair : classAttributesGenerated[classKeyword] )
                     {
                         classCode += keyWordValuePair.second.first;
                     }
@@ -1856,6 +1901,13 @@ void RiaApplication::generatePythonClasses( const QString& fileName )
                 classCode += QString( "        if %1.__custom_init__ is not None:\n" ).arg( scriptClassName );
                 classCode += QString( "            %1.__custom_init__(self, pb2_object=pb2_object, channel=channel)\n" )
                                  .arg( scriptClassName );
+
+                for ( auto keyWordValuePair : classMethodsGenerated[classKeyword] )
+                {
+                    classCode += "\n";
+                    classCode += keyWordValuePair.second;
+                    classCode += "\n";
+                }
 
                 out << classCode << "\n";
                 classesWritten.insert( scriptClassName );
