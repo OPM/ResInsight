@@ -83,6 +83,9 @@ public:
 
     void viewNavigationChanged();
 
+    // Font methods relates to RimPreferences settings
+    // When the preferences are changed, these methods are called to propagate the changes into the windows.
+
     virtual bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
     {
         return false;
