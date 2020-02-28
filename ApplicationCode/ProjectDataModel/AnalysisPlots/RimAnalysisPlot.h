@@ -27,9 +27,11 @@
 #include <QDateTime>
 
 class RiuSummaryQwtPlot;
-class RimAnalysisPlotDataEntry;
 class RiuGroupedBarChartBuilder;
-class RimCurveDefinitionSplitter;
+
+class RimAnalysisPlotDataEntry;
+class RimCurveDefinitionAnalyser;
+class RimPlotAxisPropertiesInterface;
 
 //==================================================================================================
 ///
@@ -43,39 +45,14 @@ public:
     RimAnalysisPlot();
     ~RimAnalysisPlot() override;
 
-    bool showPlotTitle() const;
-    void setShowPlotTitle( bool showTitle );
+    void updateCaseNameHasChanged();
 
-    void detachAllCurves() override;
-    void reattachAllCurves() override;
-
-    void              updateAxes() override;
-    QWidget*          viewWidget() override;
-    RiuQwtPlotWidget* viewer() override;
-
-    QString asciiDataForPlotExport() const override;
-
-    void updateLegend() override;
-
-    bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
-    bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                        int                         oldFontSize,
-                        int                         fontSize,
-                        bool                        forceChange = false ) override;
-
-    void setAutoScaleXEnabled( bool enabled ) override;
-    void setAutoScaleYEnabled( bool enabled ) override;
-
-    void zoomAll() override;
-    void updateZoomInQwt() override;
-    void updateZoomFromQwt() override;
-
-    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
-
-    void onAxisSelected( int axis, bool toggle ) override;
-
-    // RimViewWindow overrides
-    void deleteViewWidget() override;
+public: // Internal. Public needed for AppEnum setup
+    enum BarOrientation
+    {
+        BARS_HORIZONTAL,
+        BARS_VERTICAL
+    };
 
     enum SortGroupType
     {
@@ -92,56 +69,72 @@ public:
     };
     typedef caf::AppEnum<SortGroupType> SortGroupAppEnum;
 
-    QString description() const override;
-
-    void updateCaseNameHasChanged();
-
 private:
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
-    void              cleanupBeforeClose();
-
-    void doUpdateLayout() override;
-
-    void doRemoveFromCollection() override;
-
-    QImage snapshotWindowContent() override;
-    void   onLoadDataAndUpdate() override;
-
     // Overridden PDM methods
-    caf::PdmFieldHandle* userDescriptionField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
+
+    caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
+    // RimViewWindow overrides
 
+    QWidget* viewWidget() override;
+    void     deleteViewWidget() override;
+    void     onLoadDataAndUpdate() override;
+    void     zoomAll() override {}
+    QImage   snapshotWindowContent() override;
+    bool     applyFontSize( RiaDefines::FontSettingType fontSettingType,
+                            int                         oldFontSize,
+                            int                         fontSize,
+                            bool                        forceChange = false ) override;
+
+    // RimPlotWindow overrides
+
+    QString description() const override;
+    void    doUpdateLayout() override {}
+
+    // RimPlot Overrides
+
+    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+    RiuQwtPlotWidget* viewer() override;
+
+    void detachAllCurves() override;
+
+    void reattachAllCurves() override {}
+    void doRemoveFromCollection() override {}
+    void updateAxes() override {}
+    void onAxisSelected( int axis, bool toggle ) override {}
+    void updateZoomInQwt() override {}
+    void updateZoomFromQwt() override {}
+    void setAutoScaleXEnabled( bool enabled ) override {}
+    void setAutoScaleYEnabled( bool enabled ) override {}
+    void updateLegend() override{};
+
+    QString         asciiDataForPlotExport() const override { return ""; }
+    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override { return nullptr; }
+
+    // Private methods
+
+    void cleanupBeforeClose();
     void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
-    void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
     void updatePlotTitle();
 
-    std::vector<RiaSummaryCurveDefinition> curveDefinitions();
+    std::vector<RiaSummaryCurveDefinition>    curveDefinitions();
+    std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
+
+    void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
 
 private:
-    std::unique_ptr<RimCurveDefinitionSplitter> m_curveDefSplitter;
+    std::unique_ptr<RimCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
 
     QPointer<RiuQwtPlotWidget> m_plotWidget;
 
-    caf::PdmField<bool>    m_showPlotTitle;
-    caf::PdmField<bool>    m_useAutoPlotTitle;
-    caf::PdmField<QString> m_description;
-
-public:
-    enum BarOrientation
-    {
-        BARS_HORIZONTAL,
-        BARS_VERTICAL
-    };
-
-private:
-    caf::PdmField<caf::AppEnum<BarOrientation>> m_barOrientation;
+    // Fields
 
     caf::PdmField<QString> m_selectedVarsUiField;
     caf::PdmField<bool>    m_selectVariablesButtonField;
@@ -153,13 +146,19 @@ private:
 
     caf::PdmPtrField<RimSummaryCase*> m_referenceCase;
 
-    caf::PdmField<bool> m_useTopBarsFilter;
-    caf::PdmField<int>  m_maxBarCount;
+    caf::PdmField<bool>    m_showPlotTitle;
+    caf::PdmField<bool>    m_useAutoPlotTitle;
+    caf::PdmField<QString> m_description;
+
+    caf::PdmField<caf::AppEnum<BarOrientation>> m_barOrientation;
 
     caf::PdmField<SortGroupAppEnum> m_majorGroupType;
     caf::PdmField<SortGroupAppEnum> m_mediumGroupType;
     caf::PdmField<SortGroupAppEnum> m_minorGroupType;
     caf::PdmField<SortGroupAppEnum> m_valueSortOperation;
+
+    caf::PdmField<bool> m_useTopBarsFilter;
+    caf::PdmField<int>  m_maxBarCount;
 
     caf::PdmField<SortGroupAppEnum> m_sortGroupForLegend;
 
@@ -169,6 +168,4 @@ private:
     caf::PdmField<bool> m_useSummaryItemInBarText;
     caf::PdmField<bool> m_useTimeStepInBarText;
     caf::PdmField<bool> m_useQuantityInBarText;
-
-protected:
 };

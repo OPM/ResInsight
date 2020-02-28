@@ -28,6 +28,7 @@
 
 #include "RimAnalysisPlotDataEntry.h"
 #include "RimDerivedSummaryCase.h"
+#include "RimPlotAxisPropertiesInterface.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -47,10 +48,10 @@
 #include <limits>
 #include <map>
 
-class RimCurveDefinitionSplitter
+class RimCurveDefinitionAnalyser
 {
 public:
-    RimCurveDefinitionSplitter( std::vector<RiaSummaryCurveDefinition> curveDefs )
+    RimCurveDefinitionAnalyser( std::vector<RiaSummaryCurveDefinition> curveDefs )
     {
         for ( const auto& curveDef : curveDefs )
         {
@@ -116,6 +117,34 @@ RimAnalysisPlot::RimAnalysisPlot()
 {
     CAF_PDM_InitObject( "Analysis Plot", ":/Histogram16x16.png", "", "" );
 
+    // Variable selection
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "selectedVarsUiField", "Selected Variables", "", "", "" );
+    m_selectedVarsUiField.xmlCapability()->disableIO();
+    m_selectedVarsUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_selectedVarsUiField.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_selectVariablesButtonField, "BrowseButton", false, "...", "", "", "" );
+    caf::PdmUiActionPushButtonEditor::configureEditorForField( &m_selectVariablesButtonField );
+
+    CAF_PDM_InitFieldNoDefault( &m_data, "AnalysisPlotData", "", "", "", "" );
+    m_data.uiCapability()->setUiTreeChildrenHidden( true );
+    m_data.uiCapability()->setUiTreeHidden( true );
+
+    // Time Step Selection
+
+    CAF_PDM_InitFieldNoDefault( &m_addTimestepUiField, "AddTimeStepsUiField", "Add Timestep:", "", "", "" );
+    m_addTimestepUiField.xmlCapability()->disableIO();
+    m_addTimestepUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "", "", "", "" );
+    m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    // Options
+
+    CAF_PDM_InitFieldNoDefault( &m_referenceCase, "ReferenceCase", "Reference Case", "", "", "" );
+
     CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Title", "", "", "" );
     m_showPlotTitle.xmlCapability()->setIOWritable( false );
     m_showPlotTitle.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -128,34 +157,7 @@ RimAnalysisPlot::RimAnalysisPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_barOrientation, "BarOrientation", "Bar Orientation", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "selectedVarsUiField", "Selected Variables", "", "", "" );
-    m_selectedVarsUiField.xmlCapability()->disableIO();
-    m_selectedVarsUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_selectedVarsUiField.uiCapability()->setUiReadOnly( true );
-
-    // CAF_PDM_InitField( &m_selectVariablesButtonField, "BrowseButton", false, "...", ":/Histogram16x16.png", "", "" );
-    CAF_PDM_InitField( &m_selectVariablesButtonField, "BrowseButton", false, "...", "", "", "" );
-    caf::PdmUiActionPushButtonEditor::configureEditorForField( &m_selectVariablesButtonField );
-
-    CAF_PDM_InitFieldNoDefault( &m_data, "AnalysisPlotData", "", "", "", "" );
-    m_data.uiCapability()->setUiTreeChildrenHidden( true );
-    m_data.uiCapability()->setUiTreeHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_addTimestepUiField, "AddTimeStepsUiField", "Add Timestep:", "", "", "" );
-    m_addTimestepUiField.xmlCapability()->disableIO();
-    m_addTimestepUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "", "", "", "" );
-    m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
-    m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    CAF_PDM_InitFieldNoDefault( &m_referenceCase, "ReferenceCase", "Reference Case", "", "", "" );
-
-    CAF_PDM_InitField( &m_useTopBarsFilter, "UseTopBarsFilter", false, "Show Only Top", "", "", "" );
-    m_useTopBarsFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-
-    CAF_PDM_InitField( &m_maxBarCount, "MaxBarCount", 20, "Bar Count", "", "", "" );
-    m_maxBarCount.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    // Grouping
 
     CAF_PDM_InitFieldNoDefault( &m_majorGroupType, "MajorGroupType", "Major Grouping", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_mediumGroupType, "MediumGroupType", "Medium Grouping", "", "", "" );
@@ -164,6 +166,14 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitFieldNoDefault( &m_valueSortOperation, "ValueSortOperation", "Sort by Value", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_sortGroupForLegend, "groupForLegend", "Legend Using", "", "", "" );
+
+    CAF_PDM_InitField( &m_useTopBarsFilter, "UseTopBarsFilter", false, "Show Only Top", "", "", "" );
+    m_useTopBarsFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_maxBarCount, "MaxBarCount", 20, "Bar Count", "", "", "" );
+    m_maxBarCount.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    // Bar text
 
     CAF_PDM_InitField( &m_useBarText, "UseBarText", true, "Activate Bar Labels", "", "", "" );
     m_useBarText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -187,235 +197,10 @@ RimAnalysisPlot::~RimAnalysisPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::cleanupBeforeClose()
-{
-    detachAllCurves();
-
-    if ( m_plotWidget )
-    {
-        m_plotWidget->setParent( nullptr );
-        delete m_plotWidget;
-        m_plotWidget = nullptr;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimAnalysisPlot::showPlotTitle() const
-{
-    return m_showPlotTitle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::setShowPlotTitle( bool showTitle )
-{
-    m_showPlotTitle = showTitle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::detachAllCurves()
-{
-    if ( m_plotWidget ) m_plotWidget->detachItems();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::reattachAllCurves()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::updateAxes()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RimAnalysisPlot::viewWidget()
-{
-    return m_plotWidget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimAnalysisPlot::viewer()
-{
-    return m_plotWidget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimAnalysisPlot::asciiDataForPlotExport() const
-{
-    return "";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::updateLegend()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimAnalysisPlot::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimAnalysisPlot::applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                     int                         oldFontSize,
-                                     int                         fontSize,
-                                     bool                        forceChange /*= false */ )
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::setAutoScaleXEnabled( bool enabled )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::setAutoScaleYEnabled( bool enabled )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::zoomAll()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::updateZoomInQwt()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::updateZoomFromQwt()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimAnalysisPlot::findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const
-{
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::onAxisSelected( int axis, bool toggle )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::deleteViewWidget()
-{
-    cleanupBeforeClose();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimAnalysisPlot::description() const
-{
-    return m_description();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::updateCaseNameHasChanged()
 {
-    // Todo
+    this->onLoadDataAndUpdate();
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
-{
-    if ( !m_plotWidget )
-    {
-        m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
-
-        this->connect( m_plotWidget, SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
-
-        // updatePlotTitle();
-    }
-
-    return m_plotWidget;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::doUpdateLayout()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::doRemoveFromCollection()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QImage RimAnalysisPlot::snapshotWindowContent()
-{
-    QImage image;
-
-    if ( m_plotWidget )
-    {
-        QPixmap pix = m_plotWidget->grab();
-        image       = pix.toImage();
-    }
-
-    return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimAnalysisPlot::userDescriptionField()
-{
-    return &m_description;
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -460,13 +245,6 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* selVectorsGrp = uiOrdering.addNewGroup( "Selected Vectors" );
@@ -474,9 +252,9 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     selVectorsGrp->add( &m_selectVariablesButtonField, {false} );
 
     QString vectorNames;
-    if ( m_curveDefSplitter )
+    if ( m_analyserOfSelectedCurveDefs )
     {
-        for ( const std::string& quantityName : m_curveDefSplitter->m_quantityNames )
+        for ( const std::string& quantityName : m_analyserOfSelectedCurveDefs->m_quantityNames )
         {
             vectorNames += QString::fromStdString( quantityName ) + ", ";
         }
@@ -538,6 +316,31 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                             QString                    uiConfigName,
+                                             caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_useTopBarsFilter || field == &m_useBarText || field == &m_showPlotTitle || field == &m_useAutoPlotTitle )
+    {
+        auto attrib = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->m_useNativeCheckBoxLabel = true;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimAnalysisPlot::userDescriptionField()
+{
+    return &m_description;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                       bool*                      useOptionsOnly )
 {
@@ -545,10 +348,10 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
 
     if ( !options.isEmpty() ) return options;
 
-    if ( !m_curveDefSplitter )
+    if ( !m_analyserOfSelectedCurveDefs )
     {
-        m_curveDefSplitter =
-            std::unique_ptr<RimCurveDefinitionSplitter>( new RimCurveDefinitionSplitter( this->curveDefinitions() ) );
+        m_analyserOfSelectedCurveDefs =
+            std::unique_ptr<RimCurveDefinitionAnalyser>( new RimCurveDefinitionAnalyser( this->curveDefinitions() ) );
     }
 
     if ( fieldNeedingOptions == &m_addTimestepUiField )
@@ -557,8 +360,8 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
 
         std::set<QDateTime> timeStepUnion;
 
-        std::set<RimSummaryCase*> timeStepDefiningSumCases = m_curveDefSplitter->m_singleSummaryCases;
-        for ( RimSummaryCaseCollection* sumCaseColl : m_curveDefSplitter->m_ensembles )
+        std::set<RimSummaryCase*> timeStepDefiningSumCases = m_analyserOfSelectedCurveDefs->m_singleSummaryCases;
+        for ( RimSummaryCaseCollection* sumCaseColl : m_analyserOfSelectedCurveDefs->m_ensembles )
         {
             std::vector<RimSummaryCase*> sumCases = sumCaseColl->allSummaryCases();
             if ( sumCases.size() )
@@ -625,12 +428,28 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QWidget* RimAnalysisPlot::viewWidget()
+{
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::deleteViewWidget()
+{
+    cleanupBeforeClose();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    m_curveDefSplitter =
-        std::unique_ptr<RimCurveDefinitionSplitter>( new RimCurveDefinitionSplitter( this->curveDefinitions() ) );
+    m_analyserOfSelectedCurveDefs =
+        std::unique_ptr<RimCurveDefinitionAnalyser>( new RimCurveDefinitionAnalyser( this->curveDefinitions() ) );
 
     if ( m_plotWidget )
     {
@@ -662,6 +481,115 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
 
     this->updateAxes();
     this->updatePlotTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QImage RimAnalysisPlot::snapshotWindowContent()
+{
+    QImage image;
+
+    if ( m_plotWidget )
+    {
+        QPixmap pix = m_plotWidget->grab();
+        image       = pix.toImage();
+    }
+
+    return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimAnalysisPlot::applyFontSize( RiaDefines::FontSettingType fontSettingType,
+                                     int                         oldFontSize,
+                                     int                         fontSize,
+                                     bool                        forceChange /*= false */ )
+{
+    bool anyChange = false;
+
+    if ( fontSettingType == RiaDefines::PLOT_FONT && m_plotWidget )
+    {
+        for ( auto plotAxis : allPlotAxes() )
+        {
+            if ( forceChange || plotAxis->titleFontSize() == oldFontSize )
+            {
+                plotAxis->setTitleFontSize( fontSize );
+                anyChange = true;
+            }
+            if ( forceChange || plotAxis->valuesFontSize() == oldFontSize )
+            {
+                plotAxis->setValuesFontSize( fontSize );
+                anyChange = true;
+            }
+        }
+
+        if ( forceChange || m_legendFontSize() == oldFontSize )
+        {
+            m_legendFontSize = fontSize;
+            anyChange        = true;
+        }
+
+        if ( anyChange ) loadDataAndUpdate();
+    }
+    return anyChange;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimAnalysisPlot::description() const
+{
+    return m_description();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuQwtPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
+{
+    if ( !m_plotWidget )
+    {
+        m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+
+        this->connect( m_plotWidget, SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
+
+        // updatePlotTitle();
+    }
+
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuQwtPlotWidget* RimAnalysisPlot::viewer()
+{
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::detachAllCurves()
+{
+    if ( m_plotWidget ) m_plotWidget->detachItems();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::cleanupBeforeClose()
+{
+    detachAllCurves();
+
+    if ( m_plotWidget )
+    {
+        m_plotWidget->setParent( nullptr );
+        delete m_plotWidget;
+        m_plotWidget = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -870,82 +798,31 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder )
-{
-    chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R1", "", 0.4 );
-    chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R2", "", 0.45 );
-    chartBuilder.addBarEntry( "T1_The_red_Fox", "W1", "", std::numeric_limits<double>::infinity(), "R1", "", 0.5 );
-    chartBuilder.addBarEntry( "T1_The_red_Fox", "W1", "", std::numeric_limits<double>::infinity(), "R2", "", 0.55 );
-    chartBuilder.addBarEntry( "T1_The_red_Fox", "W3", "", std::numeric_limits<double>::infinity(), "R1", "", 0.7 );
-    chartBuilder.addBarEntry( "T1_The_red_Fox", "W3", "", std::numeric_limits<double>::infinity(), "R2", "", 0.75 );
-    chartBuilder.addBarEntry( "T1_The_red_Fox", "W2", "", std::numeric_limits<double>::infinity(), "R1", "", 1.05 );
-    chartBuilder.addBarEntry( "T1_The_red_Fox", "W2", "", std::numeric_limits<double>::infinity(), "R2", "", 1.0 );
-
-    chartBuilder.addBarEntry( "T2", "W1", "", std::numeric_limits<double>::infinity(), "R1", "", 1.5 );
-    chartBuilder.addBarEntry( "T2", "W1", "", std::numeric_limits<double>::infinity(), "R2", "", 1.5 );
-    chartBuilder.addBarEntry( "T2", "W2", "", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
-    chartBuilder.addBarEntry( "T2", "W2", "", std::numeric_limits<double>::infinity(), "R2", "", 2.0 );
-
-    chartBuilder.addBarEntry( "T3", "W1", "1", std::numeric_limits<double>::infinity(), "R1", "", 1.5 );
-    chartBuilder.addBarEntry( "T3", "W1", "2", std::numeric_limits<double>::infinity(), "R2", "", 1.5 );
-    chartBuilder.addBarEntry( "T3", "W2", "3", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
-    chartBuilder.addBarEntry( "T3", "W2", "4", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
-    chartBuilder.addBarEntry( "T3", "W2", "5", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
-
-    chartBuilder.addBarEntry( "T4", "W1", "1", std::numeric_limits<double>::infinity(), "R1", "", 1.5 );
-    chartBuilder.addBarEntry( "T4", "W1", "2", std::numeric_limits<double>::infinity(), "R2", "", 1.5 );
-    chartBuilder.addBarEntry( "T4", "W2", "3", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
-    chartBuilder.addBarEntry( "T4", "W2", "4", std::numeric_limits<double>::infinity(), "R2", "", 2.0 );
-    chartBuilder.addBarEntry( "T4", "W1", "1", std::numeric_limits<double>::infinity(), "R1", "", 1.6 );
-    chartBuilder.addBarEntry( "T4", "W1", "2", std::numeric_limits<double>::infinity(), "R2", "", 1.6 );
-    chartBuilder.addBarEntry( "T4", "W2", "3", std::numeric_limits<double>::infinity(), "R1", "", 2.6 );
-    chartBuilder.addBarEntry( "T4", "W2", "4", std::numeric_limits<double>::infinity(), "R2", "", -0.3 );
-
-    chartBuilder.addBarEntry( "T5", "", "", 1.5, "R3", "G1", 1.5 );
-    chartBuilder.addBarEntry( "T5", "", "", 1.5, "R3", "G2", 1.5 );
-    chartBuilder.addBarEntry( "T5", "", "", 2.0, "R3", "G3", 2.0 );
-    chartBuilder.addBarEntry( "T5", "", "", 2.0, "R3", "G4", 2.0 );
-    chartBuilder.addBarEntry( "T5", "", "", 1.6, "R3", "G5", 1.6 );
-    chartBuilder.addBarEntry( "T5", "", "", 1.6, "R3", "G6", 1.6 );
-    chartBuilder.addBarEntry( "T5", "", "", 2.6, "R3", "G7", 2.6 );
-    chartBuilder.addBarEntry( "T5", "", "", -0.1, "R3", "G8", -0.1 );
-
-    chartBuilder.addBarEntry( "", "", "", 1.2, "", "A", 1.2 );
-    chartBuilder.addBarEntry( "", "", "", 1.5, "", "B", 1.5 );
-    chartBuilder.addBarEntry( "", "", "", 2.3, "", "C", 2.3 );
-    chartBuilder.addBarEntry( "", "", "", 2.0, "", "D", 2.0 );
-    chartBuilder.addBarEntry( "", "", "", 1.6, "", "E", 1.6 );
-    chartBuilder.addBarEntry( "", "", "", 2.4, "", "F", -2.4 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::updatePlotTitle()
 {
-    if ( m_useAutoPlotTitle && m_curveDefSplitter )
+    if ( m_useAutoPlotTitle && m_analyserOfSelectedCurveDefs )
     {
         QString autoTitle;
         QString separator = ", ";
 
-        if ( m_curveDefSplitter->m_ensembles.size() == 1 )
+        if ( m_analyserOfSelectedCurveDefs->m_ensembles.size() == 1 )
         {
-            autoTitle += ( *m_curveDefSplitter->m_ensembles.begin() )->name();
+            autoTitle += ( *m_analyserOfSelectedCurveDefs->m_ensembles.begin() )->name();
         }
 
-        if ( m_curveDefSplitter->m_singleSummaryCases.size() == 1 )
-        {
-            if ( !autoTitle.isEmpty() ) autoTitle += separator;
-            autoTitle += ( *m_curveDefSplitter->m_singleSummaryCases.begin() )->displayCaseName();
-        }
-
-        if ( m_curveDefSplitter->m_summaryItems.size() == 1 )
+        if ( m_analyserOfSelectedCurveDefs->m_singleSummaryCases.size() == 1 )
         {
             if ( !autoTitle.isEmpty() ) autoTitle += separator;
-            autoTitle += QString::fromStdString( m_curveDefSplitter->m_summaryItems.begin()->itemUiText() );
+            autoTitle += ( *m_analyserOfSelectedCurveDefs->m_singleSummaryCases.begin() )->displayCaseName();
         }
 
-        for ( std::string quantName : m_curveDefSplitter->m_quantityNames )
+        if ( m_analyserOfSelectedCurveDefs->m_summaryItems.size() == 1 )
+        {
+            if ( !autoTitle.isEmpty() ) autoTitle += separator;
+            autoTitle += QString::fromStdString( m_analyserOfSelectedCurveDefs->m_summaryItems.begin()->itemUiText() );
+        }
+
+        for ( std::string quantName : m_analyserOfSelectedCurveDefs->m_quantityNames )
         {
             if ( !autoTitle.isEmpty() ) autoTitle += separator;
             autoTitle += QString::fromStdString( quantName );
@@ -1000,16 +877,58 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                             QString                    uiConfigName,
-                                             caf::PdmUiEditorAttribute* attribute )
+std::set<RimPlotAxisPropertiesInterface*> RimAnalysisPlot::allPlotAxes() const
 {
-    if ( field == &m_useTopBarsFilter || field == &m_useBarText || field == &m_showPlotTitle || field == &m_useAutoPlotTitle )
-    {
-        auto attrib = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_useNativeCheckBoxLabel = true;
-        }
-    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder )
+{
+    chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R1", "", 0.4 );
+    chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R2", "", 0.45 );
+    chartBuilder.addBarEntry( "T1_The_red_Fox", "W1", "", std::numeric_limits<double>::infinity(), "R1", "", 0.5 );
+    chartBuilder.addBarEntry( "T1_The_red_Fox", "W1", "", std::numeric_limits<double>::infinity(), "R2", "", 0.55 );
+    chartBuilder.addBarEntry( "T1_The_red_Fox", "W3", "", std::numeric_limits<double>::infinity(), "R1", "", 0.7 );
+    chartBuilder.addBarEntry( "T1_The_red_Fox", "W3", "", std::numeric_limits<double>::infinity(), "R2", "", 0.75 );
+    chartBuilder.addBarEntry( "T1_The_red_Fox", "W2", "", std::numeric_limits<double>::infinity(), "R1", "", 1.05 );
+    chartBuilder.addBarEntry( "T1_The_red_Fox", "W2", "", std::numeric_limits<double>::infinity(), "R2", "", 1.0 );
+
+    chartBuilder.addBarEntry( "T2", "W1", "", std::numeric_limits<double>::infinity(), "R1", "", 1.5 );
+    chartBuilder.addBarEntry( "T2", "W1", "", std::numeric_limits<double>::infinity(), "R2", "", 1.5 );
+    chartBuilder.addBarEntry( "T2", "W2", "", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
+    chartBuilder.addBarEntry( "T2", "W2", "", std::numeric_limits<double>::infinity(), "R2", "", 2.0 );
+
+    chartBuilder.addBarEntry( "T3", "W1", "1", std::numeric_limits<double>::infinity(), "R1", "", 1.5 );
+    chartBuilder.addBarEntry( "T3", "W1", "2", std::numeric_limits<double>::infinity(), "R2", "", 1.5 );
+    chartBuilder.addBarEntry( "T3", "W2", "3", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
+    chartBuilder.addBarEntry( "T3", "W2", "4", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
+    chartBuilder.addBarEntry( "T3", "W2", "5", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
+
+    chartBuilder.addBarEntry( "T4", "W1", "1", std::numeric_limits<double>::infinity(), "R1", "", 1.5 );
+    chartBuilder.addBarEntry( "T4", "W1", "2", std::numeric_limits<double>::infinity(), "R2", "", 1.5 );
+    chartBuilder.addBarEntry( "T4", "W2", "3", std::numeric_limits<double>::infinity(), "R1", "", 2.0 );
+    chartBuilder.addBarEntry( "T4", "W2", "4", std::numeric_limits<double>::infinity(), "R2", "", 2.0 );
+    chartBuilder.addBarEntry( "T4", "W1", "1", std::numeric_limits<double>::infinity(), "R1", "", 1.6 );
+    chartBuilder.addBarEntry( "T4", "W1", "2", std::numeric_limits<double>::infinity(), "R2", "", 1.6 );
+    chartBuilder.addBarEntry( "T4", "W2", "3", std::numeric_limits<double>::infinity(), "R1", "", 2.6 );
+    chartBuilder.addBarEntry( "T4", "W2", "4", std::numeric_limits<double>::infinity(), "R2", "", -0.3 );
+
+    chartBuilder.addBarEntry( "T5", "", "", 1.5, "R3", "G1", 1.5 );
+    chartBuilder.addBarEntry( "T5", "", "", 1.5, "R3", "G2", 1.5 );
+    chartBuilder.addBarEntry( "T5", "", "", 2.0, "R3", "G3", 2.0 );
+    chartBuilder.addBarEntry( "T5", "", "", 2.0, "R3", "G4", 2.0 );
+    chartBuilder.addBarEntry( "T5", "", "", 1.6, "R3", "G5", 1.6 );
+    chartBuilder.addBarEntry( "T5", "", "", 1.6, "R3", "G6", 1.6 );
+    chartBuilder.addBarEntry( "T5", "", "", 2.6, "R3", "G7", 2.6 );
+    chartBuilder.addBarEntry( "T5", "", "", -0.1, "R3", "G8", -0.1 );
+
+    chartBuilder.addBarEntry( "", "", "", 1.2, "", "A", 1.2 );
+    chartBuilder.addBarEntry( "", "", "", 1.5, "", "B", 1.5 );
+    chartBuilder.addBarEntry( "", "", "", 2.3, "", "C", 2.3 );
+    chartBuilder.addBarEntry( "", "", "", 2.0, "", "D", 2.0 );
+    chartBuilder.addBarEntry( "", "", "", 1.6, "", "E", 1.6 );
+    chartBuilder.addBarEntry( "", "", "", 2.4, "", "F", -2.4 );
 }
