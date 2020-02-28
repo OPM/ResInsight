@@ -65,6 +65,8 @@ jobs:
           cmake .. -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -A x64
       - name: Windows - Build ResInsight-x64
         if: "contains( matrix.os, 'windows')"
+        env:
+          RESINSIGHT_GRPC_PYTHON_EXECUTABLE: python
         run: |
           cd cmakebuild
           cmake --build . --config Release --target PACKAGE
@@ -78,6 +80,8 @@ jobs:
           cmake --build . --config Release 
       - name: Ubuntu - Build ResInsight-x64
         if: "contains( matrix.os, 'ubuntu')"
+        env:
+          RESINSIGHT_GRPC_PYTHON_EXECUTABLE: python
         run: |
           cd cmakebuild
           make package
