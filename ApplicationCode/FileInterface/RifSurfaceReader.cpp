@@ -51,7 +51,9 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceReader::read
     {
         std::ifstream stream( filename.toLatin1().data() );
 
-        bool isInTfaceSection = false;
+        bool           isInTfaceSection = false;
+        GocadZPositive zDir             = GocadZPositive::Unknown;
+
         while ( stream.good() )
         {
             std::string line;
@@ -60,8 +62,6 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceReader::read
             std::transform( line.begin(), line.end(), line.begin(), ::toupper );
 
             std::istringstream lineStream( line );
-
-            GocadZPositive zDir = GocadZPositive::Unknown;
 
             std::string firstToken;
             lineStream >> firstToken;
@@ -82,7 +82,10 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceReader::read
 
                         if ( vertexId > -1 )
                         {
-                            if ( zDir == GocadZPositive::Elevation ) z = -z;
+                            if ( zDir == GocadZPositive::Depth )
+                            {
+                                z = -z;
+                            }
 
                             vertices.emplace_back( cvf::Vec3d( x, y, z ) );
                             vertexIdToIndex[vertexId] = static_cast<unsigned>( vertices.size() - 1 );
