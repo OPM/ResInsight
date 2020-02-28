@@ -1205,6 +1205,8 @@ void RimGridCrossPlotDataSet::configureForPressureSaturationCurves( RimEclipseRe
     m_nameConfig->addAxisVariables = false;
     m_nameConfig->addTimestep      = false;
     m_nameConfig->addGrouping      = false;
+
+    m_timeStep = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
