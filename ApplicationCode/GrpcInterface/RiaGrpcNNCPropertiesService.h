@@ -84,7 +84,7 @@ public:
     grpc::Status init( const rips::NNCValuesInputRequest* request );
     grpc::Status receiveStreamRequest( const rips::NNCValuesChunk* request, rips::ClientToServerStreamReply* reply );
 
-    size_t cellCount() const;
+    size_t totalValueCount() const;
     size_t streamedValueCount() const;
     void   finish();
 

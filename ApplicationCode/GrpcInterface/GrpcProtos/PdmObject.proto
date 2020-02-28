@@ -11,6 +11,8 @@ service PdmObjectService
 	rpc GetAncestorPdmObject(PdmParentObjectRequest) returns (PdmObject) {}
 	rpc CreateChildPdmObject(CreatePdmChildObjectRequest) returns (PdmObject) {}
 	rpc UpdateExistingPdmObject(PdmObject) returns (Empty) {}
+	rpc CallPdmObjectGetMethod(PdmObjectMethodRequest) returns (stream PdmObjectGetMethodReply) {}
+	rpc CallPdmObjectSetMethod(stream PdmObjectSetMethodChunk) returns (ClientToServerStreamReply) {}
 }
 
 message PdmDescendantObjectRequest
@@ -48,4 +50,53 @@ message PdmObject
 message PdmObjectArray
 {
 	repeated PdmObject objects = 1;
+}
+
+message PdmObjectMethodRequest
+{
+	PdmObject object = 1;
+	string    method = 2;
+}
+
+message PdmObjectSetMethodRequest
+{
+	PdmObjectMethodRequest request = 1;
+	int32               data_count = 2;
+}
+
+message PdmObjectSetMethodChunk
+{
+	oneof data
+	{
+		PdmObjectSetMethodRequest set_request = 1;
+		DoubleArray                   doubles = 2;
+		IntArray                      ints    = 3;
+		StringArray                   strings = 4;
+	}
+}
+
+
+message DoubleArray
+{
+	repeated double data = 1;
+}
+
+message IntArray
+{
+	repeated int32 data = 1;
+}
+
+message StringArray
+{
+	repeated string data = 1;
+}
+
+message PdmObjectGetMethodReply
+{
+	oneof data
+	{
+		DoubleArray doubles = 1;
+		IntArray       ints = 2;
+		StringArray strings = 3;
+	}	
 }

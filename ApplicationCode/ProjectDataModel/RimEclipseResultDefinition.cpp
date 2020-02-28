@@ -95,7 +95,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     , m_labelPosition( labelPosition )
     , m_ternaryEnabled( true )
 {
-    CAF_PDM_InitObject( "Result Definition", "", "", "" );
+    RICF_InitObjectWithScriptNameAndComment( "Result Definition", "", "", "", "EclipseResult", "An eclipse result definition" );
 
     RICF_InitFieldNoDefault( &m_resultType, "ResultType", "Type", "", "", "" );
     m_resultType.uiCapability()->setUiHidden( true );

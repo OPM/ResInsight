@@ -172,8 +172,12 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
     CAF_PDM_InitField( &m_showInvalidCells, "ShowInvalidCells", false, "Show Invalid Cells", "", "", "" );
 
-    this->cellResult()->setReservoirView( this );
+    RICF_InitFieldNoDefault( &m_cellResultData, "CellResultData", "", "", "", "Current Eclipse Cell Result" );
+    m_cellResultData.xmlCapability()->disableIO();
+    m_cellResultData.registerGetMethod( this, &RimEclipseView::currentCellResultData );
+    m_cellResultData.registerSetMethod( this, &RimEclipseView::setCurrentCellResultData );
 
+    this->cellResult()->setReservoirView( this );
     this->cellEdgeResult()->setReservoirView( this );
     this->cellEdgeResult()->legendConfig()->setColorRange( RimRegularLegendConfig::PINK_WHITE );
 
@@ -350,6 +354,12 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         this->scheduleGeometryRegen( PROPERTY_FILTERED );
 
         scheduleCreateDisplayModelAndRedraw();
+    }
+    else if ( changedField == &m_cellResultData )
+    {
+        currentGridCellResults()->recalculateStatistics( m_cellResult->eclipseResultAddress() );
+        setCurrentTimeStepAndUpdate( currentTimeStep() );
+        createDisplayModelAndRedraw();
     }
 }
 
@@ -1120,7 +1130,7 @@ void RimEclipseView::onUpdateDisplayModelVisibility()
 //--------------------------------------------------------------------------------------------------
 /// Convenience for quick access to results
 //--------------------------------------------------------------------------------------------------
-RigCaseCellResultsData* RimEclipseView::currentGridCellResults()
+RigCaseCellResultsData* RimEclipseView::currentGridCellResults() const
 {
     if ( m_eclipseCase )
     {
@@ -1892,6 +1902,45 @@ RimEclipseCellColors* RimEclipseView::currentFaultResultColors()
     }
 
     return faultResultColors;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimEclipseView::currentCellResultData() const
+{
+    std::vector<double> resultData;
+    if ( currentGridCellResults() && cellResult() )
+    {
+        int timeStep = 0;
+        if ( cellResult()->hasDynamicResult() )
+        {
+            timeStep = this->currentTimeStep();
+        }
+        resultData = currentGridCellResults()->cellScalarResults( cellResult()->eclipseResultAddress() )[timeStep];
+    }
+    return resultData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::setCurrentCellResultData( const std::vector<double>& values )
+{
+    if ( currentGridCellResults() && cellResult() )
+    {
+        int timeStep = 0;
+        if ( cellResult()->hasDynamicResult() )
+        {
+            timeStep = this->currentTimeStep();
+        }
+        std::vector<double>* modResult =
+            currentGridCellResults()->modifiableCellScalarResult( cellResult()->eclipseResultAddress(), timeStep );
+        if ( modResult->size() == values.size() )
+        {
+            *modResult = values;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
