@@ -53,6 +53,7 @@ public:
     RimPlotAxisProperties();
 
     void                  setEnableTitleTextSettings( bool enable );
+    void                  enableRangeSettings( bool enable );
     void                  setNameAndAxis( const QString& name, QwtPlot::Axis axis );
     AxisTitlePositionType titlePosition() const override;
     int                   titleFontSize() const override;
@@ -117,6 +118,7 @@ private:
     QwtPlot::Axis          m_axis;
 
     bool m_enableTitleTextSettings;
+    bool m_isRangeSettingsEnabled;
 
     caf::PdmField<int>                                 m_titleFontSize;
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;

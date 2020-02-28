@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiuGroupedBarChartBuilder.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 
@@ -28,10 +29,12 @@
 
 #include "RimAnalysisPlotDataEntry.h"
 #include "RimDerivedSummaryCase.h"
+#include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryPlotAxisFormatter.h"
 
 #include "qwt_column_symbol.h"
 #include "qwt_legend.h"
@@ -183,6 +186,12 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitField( &m_useSummaryItemInBarText, "UseSummaryItemInBarText", false, "Summary Item", "", "", "" );
     CAF_PDM_InitField( &m_useTimeStepInBarText, "UseTimeStepInBarText", false, "Time Step", "", "", "" );
     CAF_PDM_InitField( &m_useQuantityInBarText, "UseQuantityInBarText", false, "Quantity", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_valueAxisProperties, "ValueAxisProperties", "ValueAxisProperties", "", "", "" );
+    m_valueAxisProperties.uiCapability()->setUiTreeHidden( true );
+    m_valueAxisProperties = new RimPlotAxisProperties;
+    m_valueAxisProperties->setNameAndAxis( "Value-Axis", QwtPlot::yLeft );
+    m_valueAxisProperties->enableRangeSettings( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -580,6 +589,82 @@ void RimAnalysisPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::updateAxes()
+{
+    if ( !m_plotWidget ) return;
+
+    QwtPlot::Axis qwtAxis = QwtPlot::yLeft;
+    if ( m_barOrientation == BARS_HORIZONTAL )
+    {
+        qwtAxis = QwtPlot::xBottom;
+        m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, false );
+    }
+    else
+    {
+        m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, false );
+    }
+
+    RimPlotAxisProperties* valAxisProperties = m_valueAxisProperties();
+    if ( valAxisProperties->isActive() )
+    {
+        m_plotWidget->enableAxis( qwtAxis, true );
+        m_valueAxisProperties->setNameAndAxis( "Value-Axis", qwtAxis );
+
+        std::set<QString> timeHistoryQuantities;
+
+        RimSummaryPlotAxisFormatter calc( valAxisProperties, {}, curveDefinitions(), {}, {} );
+        calc.applyAxisPropertiesToPlot( m_plotWidget );
+    }
+    else
+    {
+        m_plotWidget->enableAxis( qwtAxis, false );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::onAxisSelected( int axis, bool toggle )
+{
+    RiuPlotMainWindowTools::showPlotMainWindow();
+
+    caf::PdmObject* itemToSelect = nullptr;
+    if ( axis == QwtPlot::yLeft )
+    {
+        if ( m_barOrientation == BARS_VERTICAL )
+        {
+            itemToSelect = m_valueAxisProperties;
+        }
+        else
+        {
+            itemToSelect = this;
+        }
+    }
+    else if ( axis == QwtPlot::xBottom )
+    {
+        if ( m_barOrientation == BARS_HORIZONTAL )
+        {
+            itemToSelect = m_valueAxisProperties;
+        }
+        else
+        {
+            itemToSelect = this;
+        }
+    }
+
+    if ( toggle )
+    {
+        RiuPlotMainWindowTools::toggleItemInSelection( itemToSelect );
+    }
+    else
+    {
+        RiuPlotMainWindowTools::selectAsCurrentItem( itemToSelect );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::cleanupBeforeClose()
 {
     detachAllCurves();
@@ -879,7 +964,7 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitions()
 //--------------------------------------------------------------------------------------------------
 std::set<RimPlotAxisPropertiesInterface*> RimAnalysisPlot::allPlotAxes() const
 {
-    return {};
+    return {m_valueAxisProperties};
 }
 
 //--------------------------------------------------------------------------------------------------

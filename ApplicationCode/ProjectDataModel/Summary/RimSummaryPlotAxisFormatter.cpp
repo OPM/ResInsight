@@ -20,8 +20,12 @@
 
 #include "RiaDefines.h"
 
+#include "RifSummaryReaderInterface.h"
+
 #include "RimAsciiDataCurve.h"
 #include "RimPlotAxisProperties.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 
 #include "RiuSummaryQuantityNameInfoProvider.h"
@@ -90,12 +94,14 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotAxisFormatter::RimSummaryPlotAxisFormatter( RimPlotAxisProperties*                 axisProperties,
-                                                          const std::vector<RimSummaryCurve*>&   summaryCurves,
-                                                          const std::vector<RimAsciiDataCurve*>& asciiCurves,
+RimSummaryPlotAxisFormatter::RimSummaryPlotAxisFormatter( RimPlotAxisProperties*                        axisProperties,
+                                                          const std::vector<RimSummaryCurve*>&          summaryCurves,
+                                                          const std::vector<RiaSummaryCurveDefinition>& curveDefinitions,
+                                                          const std::vector<RimAsciiDataCurve*>&        asciiCurves,
                                                           const std::set<QString>& timeHistoryCurveQuantities )
     : m_axisProperties( axisProperties )
     , m_summaryCurves( summaryCurves )
+    , m_curveDefinitions( curveDefinitions )
     , m_asciiDataCurves( asciiCurves )
     , m_timeHistoryCurveQuantities( timeHistoryCurveQuantities )
 {
@@ -104,7 +110,7 @@ RimSummaryPlotAxisFormatter::RimSummaryPlotAxisFormatter( RimPlotAxisProperties*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuSummaryQwtPlot* qwtPlot )
+void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* qwtPlot )
 {
     if ( !qwtPlot ) return;
 
@@ -176,6 +182,46 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 {
     std::map<std::string, std::set<std::string>> unitToQuantityNameMap;
 
+    // clang-format off
+    auto addToUnitToQuantityMap =[&]( const std::string& unitText, 
+                                      const RifEclipseSummaryAddress& sumAddress ) 
+    {
+        std::string        quantityNameForDisplay;
+        const std::string& quantityName = sumAddress.quantityName();
+
+        if ( sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+        {
+            quantityNameForDisplay = shortCalculationName( quantityName );
+        }
+        else
+        {
+            if ( m_axisProperties->showDescription() )
+            {
+                quantityNameForDisplay =
+                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( quantityName );
+            }
+
+            if ( m_axisProperties->showAcronym() )
+            {
+                if ( !quantityNameForDisplay.empty() )
+                {
+                    quantityNameForDisplay += " (";
+                    quantityNameForDisplay += quantityName;
+                    quantityNameForDisplay += ")";
+                }
+            }
+
+            if ( quantityNameForDisplay.empty() )
+            {
+                quantityNameForDisplay = quantityName;
+            }
+        }
+
+        unitToQuantityNameMap[unitText].insert( quantityNameForDisplay );
+    };
+
+    // clang-format on
+
     for ( RimSummaryCurve* rimCurve : m_summaryCurves )
     {
         RifEclipseSummaryAddress sumAddress;
@@ -200,40 +246,27 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
             continue;
         }
 
-        std::string quantityNameForDisplay;
+        addToUnitToQuantityMap( unitText, sumAddress );
+    }
+
+    for ( const RiaSummaryCurveDefinition& curveDef : m_curveDefinitions )
+    {
+        RifEclipseSummaryAddress sumAddress = curveDef.summaryAddress();
+        std::string              unitText;
+        if ( curveDef.summaryCase() && curveDef.summaryCase()->summaryReader() )
         {
-            const std::string& quantityName = sumAddress.quantityName();
-
-            if ( sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
-            {
-                quantityNameForDisplay = shortCalculationName( quantityName );
-            }
-            else
-            {
-                if ( m_axisProperties->showDescription() )
-                {
-                    quantityNameForDisplay =
-                        RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( quantityName );
-                }
-
-                if ( m_axisProperties->showAcronym() )
-                {
-                    if ( !quantityNameForDisplay.empty() )
-                    {
-                        quantityNameForDisplay += " (";
-                        quantityNameForDisplay += quantityName;
-                        quantityNameForDisplay += ")";
-                    }
-                }
-
-                if ( quantityNameForDisplay.empty() )
-                {
-                    quantityNameForDisplay = quantityName;
-                }
-            }
-
-            unitToQuantityNameMap[unitText].insert( quantityNameForDisplay );
+            unitText = curveDef.summaryCase()->summaryReader()->unitName( sumAddress );
         }
+        else if ( curveDef.ensemble() )
+        {
+            std::vector<RimSummaryCase*> sumCases = curveDef.ensemble()->allSummaryCases();
+            if ( sumCases.size() && sumCases[0] && sumCases[0]->summaryReader() )
+            {
+                unitText = sumCases[0]->summaryReader()->unitName( sumAddress );
+            }
+        }
+
+        addToUnitToQuantityMap( unitText, sumAddress );
     }
 
     QString assembledYAxisText;

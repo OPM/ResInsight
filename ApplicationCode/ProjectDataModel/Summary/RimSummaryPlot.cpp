@@ -827,6 +827,7 @@ void RimSummaryPlot::updateYAxis( RiaDefines::PlotAxis plotAxis )
 
         RimSummaryPlotAxisFormatter calc( yAxisProperties,
                                           visibleSummaryCurvesForAxis( plotAxis ),
+                                          {},
                                           visibleAsciiDataCurvesForAxis( plotAxis ),
                                           timeHistoryQuantities );
         calc.applyAxisPropertiesToPlot( m_plotWidget );
@@ -1154,6 +1155,7 @@ void RimSummaryPlot::updateBottomXAxis()
 
         RimSummaryPlotAxisFormatter calc( bottomAxisProperties,
                                           visibleSummaryCurvesForAxis( RiaDefines::PLOT_AXIS_BOTTOM ),
+                                          {},
                                           visibleAsciiDataCurvesForAxis( RiaDefines::PLOT_AXIS_BOTTOM ),
                                           timeHistoryQuantities );
         calc.applyAxisPropertiesToPlot( m_plotWidget );

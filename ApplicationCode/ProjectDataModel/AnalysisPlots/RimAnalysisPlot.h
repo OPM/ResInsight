@@ -32,6 +32,7 @@ class RiuGroupedBarChartBuilder;
 class RimAnalysisPlotDataEntry;
 class RimCurveDefinitionAnalyser;
 class RimPlotAxisPropertiesInterface;
+class RimPlotAxisProperties;
 
 //==================================================================================================
 ///
@@ -107,8 +108,8 @@ private:
 
     void reattachAllCurves() override {}
     void doRemoveFromCollection() override {}
-    void updateAxes() override {}
-    void onAxisSelected( int axis, bool toggle ) override {}
+    void updateAxes() override;
+    void onAxisSelected( int axis, bool toggle ) override;
     void updateZoomInQwt() override {}
     void updateZoomFromQwt() override {}
     void setAutoScaleXEnabled( bool enabled ) override {}
@@ -168,4 +169,6 @@ private:
     caf::PdmField<bool> m_useSummaryItemInBarText;
     caf::PdmField<bool> m_useTimeStepInBarText;
     caf::PdmField<bool> m_useQuantityInBarText;
+
+    caf::PdmChildField<RimPlotAxisProperties*> m_valueAxisProperties;
 };

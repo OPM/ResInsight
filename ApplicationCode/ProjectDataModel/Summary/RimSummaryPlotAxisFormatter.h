@@ -24,23 +24,26 @@
 
 #include <qwt_plot.h>
 
+#include "RiaSummaryCurveDefinition.h"
+
 class RimAsciiDataCurve;
 class RimSummaryCurve;
 class RimPlotAxisProperties;
 
-class RiuSummaryQwtPlot;
+class RiuQwtPlotWidget;
 
 class QwtPlotCurve;
 
 class RimSummaryPlotAxisFormatter
 {
 public:
-    RimSummaryPlotAxisFormatter( RimPlotAxisProperties*                 axisProperties,
-                                 const std::vector<RimSummaryCurve*>&   summaryCurves,
-                                 const std::vector<RimAsciiDataCurve*>& asciiCurves,
-                                 const std::set<QString>&               timeHistoryCurveQuantities );
+    RimSummaryPlotAxisFormatter( RimPlotAxisProperties*                        axisProperties,
+                                 const std::vector<RimSummaryCurve*>&          summaryCurves,
+                                 const std::vector<RiaSummaryCurveDefinition>& curveDefinitions,
+                                 const std::vector<RimAsciiDataCurve*>&        asciiCurves,
+                                 const std::set<QString>&                      timeHistoryCurveQuantities );
 
-    void applyAxisPropertiesToPlot( RiuSummaryQwtPlot* qwtPlot );
+    void applyAxisPropertiesToPlot( RiuQwtPlotWidget* qwtPlot );
 
 private:
     QString autoAxisTitle() const;
@@ -48,8 +51,9 @@ private:
     static std::string shortCalculationName( const std::string& calculationName );
 
 private:
-    RimPlotAxisProperties*                m_axisProperties;
-    const std::vector<RimSummaryCurve*>   m_summaryCurves;
-    const std::vector<RimAsciiDataCurve*> m_asciiDataCurves;
-    const std::set<QString>               m_timeHistoryCurveQuantities;
+    RimPlotAxisProperties*                       m_axisProperties;
+    const std::vector<RimSummaryCurve*>          m_summaryCurves;
+    const std::vector<RiaSummaryCurveDefinition> m_curveDefinitions;
+    const std::vector<RimAsciiDataCurve*>        m_asciiDataCurves;
+    const std::set<QString>                      m_timeHistoryCurveQuantities;
 };

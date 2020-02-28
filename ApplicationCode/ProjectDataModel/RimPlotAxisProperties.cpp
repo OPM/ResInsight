@@ -57,6 +57,7 @@ CAF_PDM_SOURCE_INIT(RimPlotAxisProperties, "SummaryYAxisProperties");
 //--------------------------------------------------------------------------------------------------
 RimPlotAxisProperties::RimPlotAxisProperties()
     : m_enableTitleTextSettings(true)
+    , m_isRangeSettingsEnabled(true)
 {
     CAF_PDM_InitObject("Axis Properties", ":/LeftAxis16x16.png", "", "");
 
@@ -108,6 +109,14 @@ RimPlotAxisProperties::RimPlotAxisProperties()
 void RimPlotAxisProperties::setEnableTitleTextSettings( bool enable )
 {
     m_enableTitleTextSettings = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::enableRangeSettings( bool enable )
+{
+    m_isRangeSettingsEnabled = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,8 +202,11 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     }
 
     caf::PdmUiGroup& scaleGroup = *( uiOrdering.addNewGroup( "Axis Values" ) );
-    scaleGroup.add( &isLogarithmicScaleEnabled );
-    scaleGroup.add( &m_isAxisInverted );
+    if ( m_isRangeSettingsEnabled )
+    {
+        scaleGroup.add( &isLogarithmicScaleEnabled );
+        scaleGroup.add( &m_isAxisInverted );
+    }
     scaleGroup.add( &numberFormat );
 
     if ( numberFormat() != NUMBER_FORMAT_AUTO )
@@ -202,8 +214,11 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         scaleGroup.add( &numberOfDecimals );
     }
     scaleGroup.add( &scaleFactor );
-    scaleGroup.add( &visibleRangeMin );
-    scaleGroup.add( &visibleRangeMax );
+    if ( m_isRangeSettingsEnabled )
+    {
+        scaleGroup.add( &visibleRangeMin );
+        scaleGroup.add( &visibleRangeMax );
+    }
     scaleGroup.add( &m_valuesFontSize );
 
     uiOrdering.skipRemainingFields( true );
