@@ -133,7 +133,7 @@ RigEquil RigEquil::parseString( const QString& keywordData )
     QString line( keywordData );
     line.replace( "\t", " " );
 
-    QStringList items = line.split( " " );
+    QStringList items = line.split( " ", QString::SkipEmptyParts );
     if ( items.size() > 0 )
     {
         datumDepth = items.at( 0 ).toDouble();
