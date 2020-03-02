@@ -92,6 +92,34 @@ public:
     RiuBarChartScaleDraw( const std::map<double, std::pair<QwtScaleDiv::TickType, QString>>& posTickTypeAndTexts )
         : m_posTickTypeAndTexts( posTickTypeAndTexts )
     {
+        this->setTickLength( QwtScaleDiv::MajorTick, 0 );
+        this->setTickLength( QwtScaleDiv::MediumTick, 0 );
+        this->setTickLength( QwtScaleDiv::MinorTick, 0 );
+
+        bool hasMinorTickText   = false;
+        bool hasMediumTickText  = false;
+        int  minTickMaxTextSize = 0;
+        int  medTickMaxTextSize = 0;
+
+        for ( const auto& posTickTypeText : m_posTickTypeAndTexts )
+        {
+            if ( posTickTypeText.second.first == QwtScaleDiv::MediumTick )
+            {
+                hasMediumTickText  = true;
+                medTickMaxTextSize = std::max( posTickTypeText.second.second.size(), medTickMaxTextSize );
+            }
+            if ( posTickTypeText.second.first == QwtScaleDiv::MinorTick )
+            {
+                hasMinorTickText   = true;
+                minTickMaxTextSize = std::max( posTickTypeText.second.second.size(), minTickMaxTextSize );
+            }
+        }
+
+        m_medLineBreak = hasMinorTickText ? "\n" : "";
+        m_majLineBreak = m_medLineBreak + ( hasMediumTickText ? QString( "\n" ) : QString( "" ) );
+
+        m_medSpacing.fill( ' ', 2 * minTickMaxTextSize );
+        m_majSpacing = m_medSpacing + QString().fill( ' ', 2 * medTickMaxTextSize );
     }
 
     /// Override to add new lines to the labels according to the tick level
@@ -105,11 +133,11 @@ public:
             {
                 if ( posTypeTextPairIt->second.first == QwtScaleDiv::MediumTick )
                 {
-                    return "\n" + posTypeTextPairIt->second.second;
+                    return m_medLineBreak + posTypeTextPairIt->second.second;
                 }
                 else if ( posTypeTextPairIt->second.first == QwtScaleDiv::MajorTick )
                 {
-                    return "\n\n" + posTypeTextPairIt->second.second;
+                    return m_majLineBreak + posTypeTextPairIt->second.second;
                 }
                 else
                 {
@@ -120,11 +148,11 @@ public:
             {
                 if ( posTypeTextPairIt->second.first == QwtScaleDiv::MediumTick )
                 {
-                    return posTypeTextPairIt->second.second + "      ";
+                    return posTypeTextPairIt->second.second + m_medSpacing;
                 }
                 else if ( posTypeTextPairIt->second.first == QwtScaleDiv::MajorTick )
                 {
-                    return posTypeTextPairIt->second.second + "                   ";
+                    return posTypeTextPairIt->second.second + m_majSpacing;
                 }
 
                 else
@@ -174,13 +202,16 @@ public:
         }
     }
 
-private:
-    std::map<double, std::pair<QwtScaleDiv::TickType, QString>> m_posTickTypeAndTexts;
-    bool                                                        m_hasMinorTickText;
-    bool                                                        m_hasMediumTickText;
-
 protected:
     virtual void drawBackbone( QPainter* ) const override {}
+
+private:
+    std::map<double, std::pair<QwtScaleDiv::TickType, QString>> m_posTickTypeAndTexts;
+
+    QString m_medLineBreak;
+    QString m_majLineBreak;
+    QString m_medSpacing;
+    QString m_majSpacing;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -526,7 +557,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
                 groupGrid->setTitle( QString( "GroupGrid" ) );
                 groupGrid->attach( plot );
                 QPen gridPen( Qt::SolidLine );
-                gridPen.setColor( Qt::lightGray );
+                gridPen.setColor( Qt::lightGray ); // QColor( 240, 240, 240 ) );
                 groupGrid->setPen( gridPen );
                 groupGrid->enableYMin( true );
                 groupGrid->enableXMin( true );
