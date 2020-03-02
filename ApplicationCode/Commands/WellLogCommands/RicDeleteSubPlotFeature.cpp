@@ -27,6 +27,7 @@
 
 #include "RimMultiPlot.h"
 #include "RimPlotWindow.h"
+#include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
 #include "cafSelectionManager.h"
@@ -50,9 +51,11 @@ bool RicDeleteSubPlotFeature::isCommandEnabled()
         size_t plotsSelected = 0;
         for ( caf::PdmObject* object : selection )
         {
-            RimMultiPlot* multiPlot = nullptr;
+            RimMultiPlot*   multiPlot   = nullptr;
+            RimWellLogPlot* wellLogPlot = nullptr;
             object->firstAncestorOrThisOfType( multiPlot );
-            if ( dynamic_cast<RimPlotWindow*>( object ) && multiPlot )
+            object->firstAncestorOrThisOfType( wellLogPlot );
+            if ( dynamic_cast<RimPlotWindow*>( object ) && ( multiPlot || wellLogPlot ) )
             {
                 plotsSelected++;
             }
@@ -72,26 +75,34 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 
     std::vector<RimPlot*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    std::set<RimMultiPlot*> alteredPlotWindows;
+    std::set<RimPlotWindow*> alteredPlotWindows;
 
     for ( RimPlot* plot : selection )
     {
-        RimMultiPlot* plotWindow = nullptr;
-        plot->firstAncestorOrThisOfType( plotWindow );
-        if ( plot && plotWindow )
+        if ( !plot ) continue;
+
+        RimMultiPlot*   multiPlot   = nullptr;
+        RimWellLogPlot* wellLogPlot = nullptr;
+        plot->firstAncestorOrThisOfType( multiPlot );
+        plot->firstAncestorOrThisOfType( wellLogPlot );
+        if ( multiPlot )
         {
-            alteredPlotWindows.insert( plotWindow );
-            plotWindow->removePlot( plot );
+            alteredPlotWindows.insert( multiPlot );
+            multiPlot->removePlot( plot );
             caf::SelectionManager::instance()->removeObjectFromAllSelections( plot );
 
-            plotWindow->updateConnectedEditors();
+            multiPlot->updateConnectedEditors();
             delete plot;
         }
-    }
+        else if ( wellLogPlot )
+        {
+            alteredPlotWindows.insert( wellLogPlot );
+            wellLogPlot->removePlot( plot );
+            caf::SelectionManager::instance()->removeObjectFromAllSelections( plot );
 
-    for ( RimMultiPlot* plotWindow : alteredPlotWindows )
-    {
-        plotWindow->uiCapability()->updateConnectedEditors();
+            wellLogPlot->updateConnectedEditors();
+            delete plot;
+        }
     }
 }
 
