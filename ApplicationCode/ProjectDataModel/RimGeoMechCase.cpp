@@ -295,6 +295,7 @@ RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase( std::string* err
         fileNames.push_back( fileName.path() );
     }
     geoMechCaseData->femPartResults()->addElementPropertyFiles( fileNames );
+    geoMechCaseData->femPartResults()->setCalculationParameters( m_cohesion, cvf::Math::toRadians( m_frictionAngleDeg() ) );
 
     m_geoMechCaseData = geoMechCaseData;
 

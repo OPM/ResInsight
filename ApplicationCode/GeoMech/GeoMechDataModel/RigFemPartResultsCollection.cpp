@@ -1213,13 +1213,24 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNormalizedResult
 {
     CVF_ASSERT( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) );
 
-    RigFemResultAddress unscaledResult             = resVarAddr;
+    RigFemResultAddress unscaledResult = resVarAddr;
+    if ( unscaledResult.resultPosType == RIG_NODAL && unscaledResult.fieldName == "POR-Bar" )
+        unscaledResult.resultPosType = RIG_ELEMENT_NODAL;
     unscaledResult.normalizedByHydrostaticPressure = false;
 
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "Calculating Normalized Result" );
+    CAF_ASSERT( unscaledResult.resultPosType == RIG_ELEMENT_NODAL );
 
+    caf::ProgressInfo frameCountProgress( this->frameCount() * 4, "Calculating Normalized Result" );
+
+    RigFemScalarResultFrames* porDataFrames = nullptr;
     RigFemScalarResultFrames* srcDataFrames = nullptr;
     RigFemScalarResultFrames* dstDataFrames = nullptr;
+
+    {
+        auto task     = frameCountProgress.task( "Loading POR Result", this->frameCount() );
+        porDataFrames = this->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
+        if ( !porDataFrames ) return nullptr;
+    }
 
     {
         auto task     = frameCountProgress.task( "Loading Unscaled Result", this->frameCount() );
@@ -1235,7 +1246,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNormalizedResult
     frameCountProgress.setProgressDescription( "Normalizing Result" );
     frameCountProgress.setNextProgressIncrement( 1u );
 
-    const RigFemPart*              femPart      = m_femParts->part( partIndex );
+    const RigFemPart*     femPart     = m_femParts->part( partIndex );
+    const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
+
     float                          inf          = std::numeric_limits<float>::infinity();
     int                            elmNodeCount = femPart->elementCount();
     const std::vector<cvf::Vec3f>& nodeCoords   = femPart->nodes().coordinates;
@@ -1243,36 +1256,60 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNormalizedResult
     int frameCount = srcDataFrames->frameCount();
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
+        const std::vector<float>& porFrameData = porDataFrames->frameData( fIdx );
         const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
         std::vector<float>&       dstFrameData = dstDataFrames->frameData( fIdx );
 
         size_t resultCount = srcFrameData.size();
         dstFrameData.resize( resultCount );
 
-        if ( resVarAddr.resultPosType == RIG_ELEMENT_NODAL )
+        if ( unscaledResult.resultPosType == RIG_ELEMENT_NODAL )
         {
 #pragma omp parallel for schedule( dynamic )
-            for ( int elmNodeResIdx = 0; elmNodeResIdx < resultCount; ++elmNodeResIdx )
+            for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
             {
-                const int        nodeIdx             = femPart->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
-                const cvf::Vec3f node                = nodeCoords[nodeIdx];
-                double           tvdRKB              = std::abs( node.z() ) + m_normalizationAirGap;
-                double           hydrostaticPressure = RiaWellLogUnitTools::hydrostaticPorePressureBar( tvdRKB );
-                dstFrameData[elmNodeResIdx]          = srcFrameData[elmNodeResIdx] / hydrostaticPressure;
+                RigElementType elmType = femPart->elementType( elmIdx );
+                if ( !( elmType == HEX8 || elmType == HEX8P ) ) continue;
+
+                bool porRegion = false;
+                for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
+                {
+                    size_t    elmNodeResIdx     = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
+                    const int nodeIdx           = femPart->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
+                    dstFrameData[elmNodeResIdx] = srcFrameData[elmNodeResIdx];
+                    if ( porFrameData[elmNodeResIdx] != std::numeric_limits<float>::infinity() )
+                    {
+                        porRegion = true;
+                    }
+                }
+                if ( porRegion )
+                {
+                    // This is in the POR-region. Use hydrostatic pressure from the individual nodes
+                    for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
+                    {
+                        size_t    elmNodeResIdx       = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
+                        const int nodeIdx             = femPart->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
+                        double    tvdRKB              = std::abs( nodeCoords[nodeIdx].z() ) + m_normalizationAirGap;
+                        double    hydrostaticPressure = RiaWellLogUnitTools::hydrostaticPorePressureBar( tvdRKB );
+                        dstFrameData[elmNodeResIdx] /= hydrostaticPressure;
+                    }
+                }
+                else
+                {
+                    // Over/under/sideburden. Use hydrostatic pressure from cell centroid.
+                    cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
+                    double     cellCentroidTvdRKB = std::abs( cellCentroid.z() ) + m_normalizationAirGap;
+                    double     cellCenterHydroStaticPressure =
+                        RiaWellLogUnitTools::hydrostaticPorePressureBar( cellCentroidTvdRKB );
+
+                    for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
+                    {
+                        size_t elmNodeResIdx = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
+                        dstFrameData[elmNodeResIdx] /= cellCenterHydroStaticPressure;
+                    }
+                }
             }
         }
-        else if ( resVarAddr.resultPosType == RIG_NODAL )
-        {
-#pragma omp parallel for schedule( dynamic )
-            for ( int nodeResIdx = 0; nodeResIdx < resultCount; ++nodeResIdx )
-            {
-                const cvf::Vec3f node                = nodeCoords[nodeResIdx];
-                double           tvdRKB              = std::abs( node.z() ) + m_normalizationAirGap;
-                double           hydrostaticPressure = RiaWellLogUnitTools::hydrostaticPorePressureBar( tvdRKB );
-                dstFrameData[nodeResIdx]             = srcFrameData[nodeResIdx] / hydrostaticPressure;
-            }
-        }
-        frameCountProgress.incrementProgress();
     }
     return dstDataFrames;
 }
@@ -1655,7 +1692,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAngles( i
     int                            frameCount      = this->frameCount();
 
     // HACK ! Todo : make it robust against other elements than Hex8
-    size_t valCount = femPart->elementCount() * 24; // Number of Elm Node Face results 24 = 4 * num faces = 3* numElmNodes
+    size_t valCount = femPart->elementCount() * 24; // Number of Elm Node Face results 24 = 4 * num faces = 3*
+                                                    // numElmNodes
 
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
@@ -1693,8 +1731,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAngles( i
                     cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx( quadVxs[2] - quadVxs[0],
                                                                                              quadVxs[3] - quadVxs[1] );
                     RiaOffshoreSphericalCoords sphCoord(
-                        cvf::Vec3f( rotMx.rowCol( 0, 2 ), rotMx.rowCol( 1, 2 ), rotMx.rowCol( 2, 2 ) ) ); // Use Ez from
-                                                                                                          // the matrix
+                        cvf::Vec3f( rotMx.rowCol( 0, 2 ), rotMx.rowCol( 1, 2 ), rotMx.rowCol( 2, 2 ) ) ); // Use Ez
+                                                                                                          // from the
+                                                                                                          // matrix
                                                                                                           // as plane
                                                                                                           // normal
 
@@ -2654,7 +2693,8 @@ std::vector<RigFemResultAddress>
     if ( fcIt != fieldAndComponentNames.end() )
     {
         std::vector<std::string> compNames = fcIt->second;
-        if ( !resVarAddr.componentName.empty() ) // If we did not request a particular component, do not add the components
+        if ( !resVarAddr.componentName.empty() ) // If we did not request a particular component, do not add the
+                                                 // components
         {
             for ( const auto& compName : compNames )
             {

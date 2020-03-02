@@ -114,7 +114,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
                        "",
                        "",
                        "" );
-    CAF_PDM_InitField( &m_normalizationAirGap, "NormalizationAirGap", -1.0, "Air Gap", "", "", "" );
+    CAF_PDM_InitField( &m_normalizationAirGap, "NormalizationAirGap", 0.0, "Air Gap", "", "", "" );
     m_normalizationAirGap.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_compactionRefLayerUiField,
@@ -338,33 +338,13 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
             m_resultVariableUiField = "";
         }
     }
-    if ( &m_normalizeByHydrostaticPressure == changedField && m_normalizationAirGap < 0.0 )
+    if ( &m_normalizeByHydrostaticPressure == changedField && m_normalizationAirGap == 0.0 )
     {
-        RiaMedianCalculator<double> airGapCalc;
-        for ( auto wellPath : RiaApplication::instance()->project()->allWellPaths() )
+        calculateNormalizationAirGapDefault();
+        if ( m_normalizeByHydrostaticPressure )
         {
-            if ( wellPath->wellPathGeometry() )
-            {
-                double airGap = wellPath->wellPathGeometry()->rkbDiff();
-                if ( airGap > 0.0 )
-                {
-                    airGapCalc.add( airGap );
-                }
-            }
+            m_geomCase->geoMechData()->femPartResults()->setNormalizationAirGap( m_normalizationAirGap );
         }
-        if ( airGapCalc.valid() )
-        {
-            m_normalizationAirGap = airGapCalc.median();
-        }
-        else
-        {
-            m_normalizationAirGap = 0.0;
-        }
-    }
-
-    if ( m_normalizeByHydrostaticPressure && m_normalizationAirGap >= 0.0 )
-    {
-        m_geomCase->geoMechData()->femPartResults()->setNormalizationAirGap( m_normalizationAirGap );
     }
 
     // Get the possible property filter owner
@@ -453,6 +433,33 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
     if ( rim3dWellLogCurve )
     {
         rim3dWellLogCurve->resetMinMaxValues();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultDefinition::calculateNormalizationAirGapDefault()
+{
+    RiaMedianCalculator<double> airGapCalc;
+    for ( auto wellPath : RiaApplication::instance()->project()->allWellPaths() )
+    {
+        if ( wellPath->wellPathGeometry() )
+        {
+            double airGap = wellPath->wellPathGeometry()->rkbDiff();
+            if ( airGap > 0.0 )
+            {
+                airGapCalc.add( airGap );
+            }
+        }
+    }
+    if ( airGapCalc.valid() )
+    {
+        m_normalizationAirGap = airGapCalc.median();
+    }
+    else
+    {
+        m_normalizationAirGap = 0.0;
     }
 }
 
@@ -796,6 +803,22 @@ QString RimGeoMechResultDefinition::defaultLasUnits() const
         units = currentResultUnits();
     }
     return units;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGeoMechResultDefinition::normalizationAirGap() const
+{
+    return m_normalizationAirGap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultDefinition::setNormalizationAirGap( double airGap )
+{
+    m_normalizationAirGap = airGap;
 }
 
 //--------------------------------------------------------------------------------------------------

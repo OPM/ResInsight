@@ -169,6 +169,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
     CVF_ASSERT( this->cellResult() != nullptr );
     if ( this->hasUserRequestedAnimation() )
     {
+        m_geomechCase->geoMechData()->femPartResults()->setNormalizationAirGap( this->cellResult()->normalizationAirGap() );
         m_geomechCase->geoMechData()->femPartResults()->assertResultsLoaded( this->cellResult()->resultAddress() );
     }
     progress.incrementProgress();
