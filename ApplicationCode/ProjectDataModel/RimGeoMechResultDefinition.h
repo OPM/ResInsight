@@ -71,6 +71,9 @@ public:
     QString currentResultUnits() const;
     QString defaultLasUnits() const;
 
+    double normalizationAirGap() const;
+    void   setNormalizationAirGap( double airGap );
+
     bool hasCategoryResult() const { return m_resultPositionType() == RIG_FORMATION_NAMES; }
 
     void updateLegendTextAndRanges( RimRegularLegendConfig* legendConfigToUpdate,
@@ -89,10 +92,13 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                          initAfterRead() override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
+
+    void calculateNormalizationAirGapDefault();
+
+    void initAfterRead() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
     // Metadata and option build tools
 
     std::map<std::string, std::vector<std::string>> getResultMetaDataForUIFieldSetting();

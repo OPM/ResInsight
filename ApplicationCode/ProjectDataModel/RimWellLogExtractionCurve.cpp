@@ -222,6 +222,7 @@ void RimWellLogExtractionCurve::setPropertiesFromView( Rim3dView* view )
     if ( geoMechView )
     {
         m_geomResultDefinition->setResultAddress( geoMechView->cellResultResultDefinition()->resultAddress() );
+        m_geomResultDefinition->setNormalizationAirGap( geoMechView->cellResultResultDefinition()->normalizationAirGap() );
         m_timeStep = geoMechView->currentTimeStep();
     }
     else if ( geomCase )
