@@ -847,8 +847,7 @@ def create_well_bore_stability_plot(self, well_path, time_step, wbs_parameters=N
                                                                                             wbsParameters=pb2_parameters))
     project = self.ancestor(rips.project.Project)
     plot = project.plot(view_id=plot_result.createWbsPlotResult.viewId)
-    assert(plot)
-    return plot.cast(WellBoreStabilityPlot)
+    return plot
 
 @add_method(Case)
 def import_formation_names(self, formation_files=None):
