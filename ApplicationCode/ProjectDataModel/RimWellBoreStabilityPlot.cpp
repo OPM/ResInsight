@@ -85,6 +85,16 @@ void RimWellBoreStabilityPlot::copyWbsParameters( const RimWbsParameters* wbsPar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellBoreStabilityPlot::setCaseWellPathAndTimeStep( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep )
+{
+    m_wbsParameters->setGeoMechCase( geoMechCase );
+    m_wbsParameters->setWellPath( wellPath );
+    m_wbsParameters->setTimeStep( timeStep );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_commonDataSource->uiOrdering( RimWellLogCurveCommonDataSource::smoothingUiOrderinglabel(), uiOrdering );
