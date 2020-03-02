@@ -160,6 +160,7 @@ protected:
     void onUpdateDisplayModelForCurrentTimeStep() override;
     void updateVisibleGeometriesAndCellColors();
     void appendWellsAndFracturesToModel();
+    void appendElementVectorResultToModel();
 
     void                             onCreateDisplayModel() override;
     RimPropertyFilterCollection*     nativePropertyFilterCollection();

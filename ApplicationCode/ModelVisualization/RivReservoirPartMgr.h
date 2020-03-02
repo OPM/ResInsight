@@ -38,6 +38,7 @@ class RigEclipseCaseData;
 class RimEclipseView;
 class RivReservoirFaultsPartMgr;
 class RivGridPartMgr;
+class RivElementVectorResultPartMgr;
 
 //==================================================================================================
 ///
@@ -76,9 +77,13 @@ public:
     void appendFaultPartsToModel( cvf::ModelBasicList* model );
     void appendFaultLabelPartsToModel( cvf::ModelBasicList* model );
 
+    // Element Vector Result
+    void appendElementVectorResultPartsToModel( cvf::ModelBasicList* model, size_t timeStepIndex );
+
 private:
-    cvf::Collection<RivGridPartMgr>     m_allGrids; // Main grid and all LGR's
-    cvf::ref<RivReservoirFaultsPartMgr> m_faultsPartMgr;
+    cvf::Collection<RivGridPartMgr>         m_allGrids; // Main grid and all LGR's
+    cvf::ref<RivElementVectorResultPartMgr> m_elementVectorResultMgr;
+    cvf::ref<RivReservoirFaultsPartMgr>     m_faultsPartMgr;
 
     RivCellSetEnum m_cellSetType;
 };

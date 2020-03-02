@@ -657,6 +657,8 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     appendWellsAndFracturesToModel();
 
+    appendElementVectorResultToModel();
+
     m_overlayInfoConfig()->update3DInfo();
 
     // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
@@ -906,6 +908,37 @@ void RimEclipseView::appendWellsAndFracturesToModel()
                 simWellFracturesModelBasicList->updateBoundingBoxesRecursive();
                 frameScene->addModel( simWellFracturesModelBasicList.p() );
             }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::appendElementVectorResultToModel()
+{
+    if ( nativeOrOverrideViewer() )
+    {
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
+        if ( frameScene )
+        {
+            // Element Vector Results
+            cvf::String name = "ElementVectorModelMod";
+            this->removeModelByName( frameScene, name );
+
+            cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+            frameParts->setName( name );
+
+            m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
+                                                                                              PROPERTY_FILTERED,
+                                                                                              m_currentTimeStep );
+
+            // TODO: should this be ACTIVE?
+            m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
+                                                                                              PROPERTY_FILTERED_WELL_CELLS,
+                                                                                              m_currentTimeStep );
+
+            frameScene->addModel( frameParts.p() );
         }
     }
 }
