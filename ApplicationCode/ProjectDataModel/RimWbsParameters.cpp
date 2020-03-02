@@ -427,13 +427,18 @@ std::vector<RimWbsParameters::ParameterSource> RimWbsParameters::supportedSource
 {
     std::vector<RigGeoMechWellLogExtractor::WbsParameterSource> sources;
 
+    std::set<RimWbsParameters::ParameterSource> sourcesAlreadyAdded;
+
     for ( auto source : parameter.sources() )
     {
+        if ( sourcesAlreadyAdded.count( source ) ) continue;
+
         if ( source == RigWbsParameter::LAS_FILE )
         {
             if ( hasLasFileWithChannel( parameter.addressString( RigWbsParameter::LAS_FILE ) ) )
             {
                 sources.push_back( source );
+                sourcesAlreadyAdded.insert( source );
             }
         }
         else if ( source == RigWbsParameter::ELEMENT_PROPERTY_TABLE )
@@ -442,11 +447,13 @@ std::vector<RimWbsParameters::ParameterSource> RimWbsParameters::supportedSource
             if ( hasElementPropertyEntry( resAddr ) )
             {
                 sources.push_back( source );
+                sourcesAlreadyAdded.insert( source );
             }
         }
         else
         {
             sources.push_back( source );
+            sourcesAlreadyAdded.insert( source );
         }
     }
     return sources;
