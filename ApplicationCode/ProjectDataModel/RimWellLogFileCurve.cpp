@@ -108,6 +108,19 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         }
                     }
                 }
+                if ( tvdRkbValues.size() != values.size() )
+                {
+                    RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
+                    if ( rigWellPath )
+                    {
+                        tvdRkbValues.clear();
+                        for ( double measuredDepthValue : measuredDepthValues )
+                        {
+                            tvdRkbValues.push_back( -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() +
+                                                    m_wellPath->wellPathGeometry()->rkbDiff() );
+                        }
+                    }
+                }
 
                 std::map<RiaDefines::DepthTypeEnum, std::vector<double>> validDepths;
                 if ( values.size() == measuredDepthValues.size() )
