@@ -255,8 +255,8 @@ RigWbsParameter RigWbsParameter::PP_NonReservoir()
                             true,
                             {{LAS_FILE, SourceAddress( "PP_NONRES_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )},
                              {LAS_FILE, SourceAddress( "POR_NONRES_INP", "", RiaWellLogUnitTools::gPerCm3UnitString() )},
-                             {HYDROSTATIC, SourceAddress( "Hydrostatic", "", RiaWellLogUnitTools::barUnitString() )},
-                             {USER_DEFINED, SourceAddress( "", "", RiaWellLogUnitTools::barUnitString() )}} );
+                             {USER_DEFINED, SourceAddress( "", "", RiaWellLogUnitTools::barUnitString() )},
+                             {HYDROSTATIC, SourceAddress( "Hydrostatic", "", RiaWellLogUnitTools::barUnitString() )}} );
 }
 
 //--------------------------------------------------------------------------------------------------
