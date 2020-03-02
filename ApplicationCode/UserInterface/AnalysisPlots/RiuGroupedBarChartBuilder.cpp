@@ -25,6 +25,7 @@
 #include "qwt_painter.h"
 #include "qwt_plot.h"
 #include "qwt_plot_barchart.h"
+#include "qwt_plot_grid.h"
 #include "qwt_plot_scaleitem.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_widget.h"
@@ -242,6 +243,10 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
     QList<double> midTickPositions;
     QList<double> minTickPositions;
 
+    QList<double> majDividerPositions;
+    QList<double> midDividerPositions;
+    QList<double> minDividerPositions;
+
     // Filter the entries according to value
     std::multiset<BarEntry> filteredBarEntries;
     if ( maxBarCount >= 0 )
@@ -286,8 +291,8 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
         double tickPos = midPoint( groupStartPos, currentBarPosition );
 
         QwtScaleDiv::TickType ttyp = (&groupTickPosList == &majTickPositions ) ? QwtScaleDiv::MajorTick
-                                                                          : ( &groupTickPosList == &midTickPositions ) ? QwtScaleDiv::MediumTick
-                                                                                                                  : QwtScaleDiv::MinorTick;
+                                                                               : ( &groupTickPosList == &midTickPositions ) ? QwtScaleDiv::MediumTick
+                                                                                                                            : QwtScaleDiv::MinorTick;
 
         // Make sure we do not get ticks of different level exactly at the same spot, 
         // so that the drawing is able to distinguish
@@ -299,6 +304,24 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
         groupTickPosList.push_back( tickPos );
     };
+
+    auto addGroupDivider = [&]( double position, QList<double>& groupDividerPosList)
+    {
+        QwtScaleDiv::TickType ttyp =
+            (&groupDividerPosList == &majDividerPositions) ? QwtScaleDiv::MajorTick
+                                                           : (&groupDividerPosList == &midDividerPositions) ? QwtScaleDiv::MediumTick
+                                                                                                            : QwtScaleDiv::MinorTick;
+
+        // Make sure we do not get ticks of different level exactly at the same spot, 
+        // so that the drawing is able to distinguish
+        double spacing = majGroupSpacing;
+
+        if( ttyp == QwtScaleDiv::MediumTick ){ spacing = midGroupSpacing; }
+        if( ttyp == QwtScaleDiv::MinorTick ) { spacing = minGroupSpacing; }
+
+        groupDividerPosList.push_back(currentBarPosition - 0.5 - 0.5*spacing);
+    };
+
     // clang-format on
 
     // Loop over entries, calculate tick positions and bar positions as we go
@@ -317,6 +340,8 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
             addGroupTickText( currentMinGroupStartPos, previousMinText, minTickPositions );
 
             currentBarPosition += majGroupSpacing;
+
+            addGroupDivider( currentBarPosition, majDividerPositions );
         }
 
         if ( isStartingNewMajGroup )
@@ -344,6 +369,8 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
             addGroupTickText( currentMinGroupStartPos, previousMinText, minTickPositions );
 
             currentBarPosition += midGroupSpacing;
+
+            addGroupDivider( currentBarPosition, midDividerPositions );
         }
 
         if ( isStartingNewMidGroup )
@@ -467,6 +494,93 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
         plot->setAxisAutoScale( valueAxis, true );
         plot->setAxisScaleDraw( valueAxis, new QwtScaleDraw() );
+    }
+
+    // Setup grids
+    {
+        QwtPlotGrid* plotGrid  = nullptr;
+        QwtPlotGrid* groupGrid = nullptr;
+
+        // Get or create the two grids used in the plot
+        {
+            QwtPlotItemList gridList = plot->itemList( QwtPlotItem::Rtti_PlotGrid );
+            for ( QwtPlotItem* plItem : gridList )
+            {
+                QwtPlotGrid* someGrid = dynamic_cast<QwtPlotGrid*>( plItem );
+                if ( someGrid )
+                {
+                    if ( someGrid->title() == QString( "GroupGrid" ) )
+                    {
+                        groupGrid = someGrid;
+                    }
+                    else
+                    {
+                        plotGrid = someGrid;
+                    }
+                }
+            }
+
+            if ( !groupGrid )
+            {
+                groupGrid = new QwtPlotGrid;
+                groupGrid->setTitle( QString( "GroupGrid" ) );
+                groupGrid->attach( plot );
+                QPen gridPen( Qt::SolidLine );
+                gridPen.setColor( Qt::lightGray );
+                groupGrid->setPen( gridPen );
+                groupGrid->enableYMin( true );
+                groupGrid->enableXMin( true );
+            }
+        }
+
+        if ( groupGrid )
+        {
+            QwtScaleDiv gridDividerScaleDiv( 0, currentBarPosition );
+            if ( majDividerPositions.size() )
+            {
+                gridDividerScaleDiv.setTicks( QwtScaleDiv::MajorTick, majDividerPositions );
+            }
+
+            if ( midDividerPositions.size() )
+            {
+                gridDividerScaleDiv.setTicks( QwtScaleDiv::MediumTick, midDividerPositions );
+            }
+
+            if ( minDividerPositions.size() )
+            {
+                gridDividerScaleDiv.setTicks( QwtScaleDiv::MinorTick, minDividerPositions );
+            }
+
+            if ( barOrientation == Qt::Horizontal )
+            {
+                gridDividerScaleDiv.invert();
+                groupGrid->setYDiv( gridDividerScaleDiv );
+                groupGrid->enableX( false );
+                groupGrid->enableY( true );
+            }
+            else
+            {
+                groupGrid->setXDiv( gridDividerScaleDiv );
+                groupGrid->enableX( true );
+                groupGrid->enableY( false );
+            }
+
+            groupGrid->setItemInterest( QwtPlotItem::ScaleInterest, false );
+        }
+
+        if ( plotGrid )
+        {
+            if ( barOrientation == Qt::Horizontal )
+            {
+                plotGrid->enableX( true );
+                plotGrid->enableY( false );
+            }
+            else
+            {
+                plotGrid->enableX( false );
+                plotGrid->enableY( true );
+            }
+        }
     }
 
     // Add texts on the bars inside the plot
