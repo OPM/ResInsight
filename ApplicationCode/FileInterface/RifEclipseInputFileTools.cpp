@@ -473,6 +473,12 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
         CVF_ASSERT( !resultValues.empty() );
         if ( resultValues.empty() ) continue;
 
+        double defaultExportValue = 0.0;
+        if ( keyword.endsWith( "NUM" ) )
+        {
+            defaultExportValue = 1.0;
+        }
+
         std::vector<double> filteredResults;
         filteredResults.reserve( resultValues.size() );
 
@@ -492,6 +498,10 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
                     if ( resIndex != cvf::UNDEFINED_SIZE_T )
                     {
                         filteredResults.push_back( resultValues[resIndex] );
+                    }
+                    else
+                    {
+                        filteredResults.push_back( defaultExportValue );
                     }
                 }
             }
