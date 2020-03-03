@@ -29,6 +29,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmDataValueField.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptabilityRegister.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmXmlFieldHandle.h"
 
@@ -72,7 +73,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
     CAF_ASSERT( source && destination && source->xmlCapability() );
 
     QString classKeyword = source->xmlCapability()->classKeyword();
-    QString scriptName   = RicfObjectCapability::scriptClassNameFromClassKeyword( classKeyword );
+    QString scriptName   = caf::PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
     destination->set_class_keyword( scriptName.toStdString() );
     destination->set_address( reinterpret_cast<uint64_t>( source ) );
 
@@ -107,7 +108,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
                     QString     text;
                     QTextStream outStream( &text );
                     ricfHandle->writeFieldData( outStream, false );
-                    ( *parametersMap )[ricfHandle->fieldName().toStdString()] = text.toStdString();
+                    ( *parametersMap )[ricfHandle->scriptFieldName().toStdString()] = text.toStdString();
                 }
             }
         }
@@ -146,7 +147,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
             auto ricfHandle = pdmValueField->template capability<RicfFieldHandle>();
             if ( ricfHandle )
             {
-                QString keyword = ricfHandle->fieldName();
+                QString keyword = ricfHandle->scriptFieldName();
                 QString value   = QString::fromStdString( parametersMap[keyword.toStdString()] );
 
                 QVariant oldValue, newValue;

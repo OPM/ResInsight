@@ -25,6 +25,7 @@
 #include "RimProject.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptabilityRegister.h"
 
 using namespace rips;
 
@@ -336,7 +337,7 @@ grpc::Status RiaGrpcPdmObjectService::GetAncestorPdmObject( grpc::ServerContext*
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
 
     QString scriptClassName = QString::fromStdString( request->object().class_keyword() );
-    QString classKeyword    = RicfObjectCapability::classKeywordFromScriptClassName( scriptClassName );
+    QString classKeyword    = caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( scriptClassName );
 
     project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 
@@ -353,7 +354,8 @@ grpc::Status RiaGrpcPdmObjectService::GetAncestorPdmObject( grpc::ServerContext*
     {
         caf::PdmObject* parentObject       = nullptr;
         QString         ancestorScriptName = QString::fromStdString( request->parent_keyword() );
-        QString ancestorClassKeyword = RicfObjectCapability::classKeywordFromScriptClassName( ancestorScriptName );
+        QString         ancestorClassKeyword =
+            caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( ancestorScriptName );
         matchingObject->firstAncestorOrThisFromClassKeyword( ancestorClassKeyword, parentObject );
         if ( parentObject )
         {
@@ -376,8 +378,8 @@ grpc::Status RiaGrpcPdmObjectService::GetDescendantPdmObjects( grpc::ServerConte
     if ( matchingObject )
     {
         std::vector<caf::PdmObject*> childObjects;
-        QString                      childClassKeyword =
-            RicfObjectCapability::classKeywordFromScriptClassName( QString::fromStdString( request->child_keyword() ) );
+        QString childClassKeyword = caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName(
+            QString::fromStdString( request->child_keyword() ) );
         matchingObject->descendantsIncludingThisFromClassKeyword( childClassKeyword, childObjects );
         for ( auto pdmChild : childObjects )
         {
@@ -549,7 +551,7 @@ caf::PdmObject* RiaGrpcPdmObjectService::findCafObjectFromRipsObject( const rips
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
 
     QString scriptClassName = QString::fromStdString( ripsObject.class_keyword() );
-    QString classKeyword    = RicfObjectCapability::classKeywordFromScriptClassName( scriptClassName );
+    QString classKeyword    = caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( scriptClassName );
 
     project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 

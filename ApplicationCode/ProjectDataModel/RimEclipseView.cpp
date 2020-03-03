@@ -121,12 +121,12 @@ RimEclipseView::RimEclipseView()
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT( preferences );
 
-    RICF_InitObjectWithScriptNameAndComment( "Reservoir View",
-                                             ":/3DView16x16.png",
-                                             "",
-                                             "The Eclipse 3d Reservoir View",
-                                             "EclipseView",
-                                             "The Eclipse 3d Reservoir View" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Reservoir View",
+                                                    ":/3DView16x16.png",
+                                                    "",
+                                                    "The Eclipse 3d Reservoir View",
+                                                    "EclipseView",
+                                                    "The Eclipse 3d Reservoir View" );
 
     CAF_PDM_InitFieldNoDefault( &m_cellResult, "GridCellResult", "Cell Result", ":/CellResult.png", "", "" );
     m_cellResult = new RimEclipseCellColors();

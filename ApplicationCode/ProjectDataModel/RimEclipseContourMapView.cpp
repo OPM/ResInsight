@@ -53,12 +53,12 @@ const cvf::Mat4d RimEclipseContourMapView::sm_defaultViewMatrix =
 RimEclipseContourMapView::RimEclipseContourMapView()
     : m_cameraPositionLastUpdate( cvf::Vec3d::UNDEFINED )
 {
-    RICF_InitObjectWithScriptNameAndComment( "Contour Map View",
-                                             ":/2DMap16x16.png",
-                                             "",
-                                             "",
-                                             "EclipseContourMap",
-                                             "A contour map for Eclipse cases" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Contour Map View",
+                                                    ":/2DMap16x16.png",
+                                                    "",
+                                                    "",
+                                                    "EclipseContourMap",
+                                                    "A contour map for Eclipse cases" );
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapProjection, "ContourMapProjection", "Contour Map Projection", "", "", "" );
     m_contourMapProjection = new RimEclipseContourMapProjection();

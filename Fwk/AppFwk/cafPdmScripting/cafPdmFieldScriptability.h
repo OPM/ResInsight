@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -33,36 +33,31 @@
 //   for more details.
 //
 //##################################################################################################
-
-
 #pragma once
 
-#include <vector>
+#include <QString>
+#include "cafPdmFieldCapability.h"
 
-class QString;
+namespace caf {
 
-namespace caf
-{
+class PdmFieldHandle;
 
-class PdmObjectHandle;
-
-
-
-//==================================================================================================
-//
-// Factory interface for creating PDM objects derived from PdmObjectHandle based on class name keyword
-//
-//==================================================================================================
-class PdmObjectFactory
+class PdmFieldScriptability : public PdmFieldCapability
 {
 public:
+    PdmFieldScriptability(caf::PdmFieldHandle* owner, const QString& scriptFieldName, bool giveOwnership);
+    virtual ~PdmFieldScriptability();
 
-    virtual PdmObjectHandle* create(const QString& classNameKeyword) = 0;
-    virtual std::vector<QString> classKeywords() const = 0;
-protected:
-    PdmObjectFactory() {}
-    virtual ~PdmObjectFactory() {}
+    const QString scriptFieldName() const;
+
+    bool isIOWriteable() const;
+    void setIOWriteable(bool writeable);
+
+private:
+    caf::PdmFieldHandle* m_owner;
+    QString              m_scriptFieldName;
+    bool                 m_IOWriteable;
 };
 
+}
 
-} //End of namespace caf
