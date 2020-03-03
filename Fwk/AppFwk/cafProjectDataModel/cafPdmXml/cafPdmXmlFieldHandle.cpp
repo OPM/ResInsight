@@ -53,10 +53,10 @@ void PdmXmlFieldHandle::disableIO()
 
 //--------------------------------------------------------------------------------------------------
 /// Returns the classKeyword of the child class type, if this field is supposed to contain pointers 
-/// to PdmObjectHandle derived onbjects. 
-/// Returns empty string if the field is not containig some PdmObjectHandle type
+/// to PdmObjectHandle derived objects. 
+/// Returns typeid(DataType).name() if the field is not containing some PdmObjectHandle type
 //--------------------------------------------------------------------------------------------------
-QString PdmXmlFieldHandle::childClassKeyword()
+QString PdmXmlFieldHandle::childClassKeyword() const
 {
     return m_childClassKeyword;
 }

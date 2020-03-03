@@ -99,7 +99,10 @@ void RicfFieldReader<QString>::readFieldData( QString&      fieldValue,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldWriter<QString>::writeFieldData( const QString& fieldValue, QTextStream& outputStream, bool quoteStrings )
+void RicfFieldWriter<QString>::writeFieldData( const QString& fieldValue,
+                                               QTextStream&   outputStream,
+                                               bool           quoteStrings,
+                                               bool           quoteNonBuiltin )
 {
     outputStream << "\"";
     for ( int i = 0; i < fieldValue.size(); ++i )
@@ -155,7 +158,10 @@ void RicfFieldReader<bool>::readFieldData( bool&         fieldValue,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldWriter<bool>::writeFieldData( const bool& fieldValue, QTextStream& outputStream, bool quoteStrings )
+void RicfFieldWriter<bool>::writeFieldData( const bool&  fieldValue,
+                                            QTextStream& outputStream,
+                                            bool         quoteStrings,
+                                            bool         quoteNonBuiltin )
 {
     // Lower-case true/false is used in the documentation.
     outputStream << ( fieldValue ? "true" : "false" );
@@ -182,7 +188,10 @@ void RicfFieldReader<cvf::Color3f>::readFieldData( cvf::Color3f& fieldValue,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldWriter<cvf::Color3f>::writeFieldData( const cvf::Color3f& fieldValue, QTextStream& outputStream, bool quoteStrings )
+void RicfFieldWriter<cvf::Color3f>::writeFieldData( const cvf::Color3f& fieldValue,
+                                                    QTextStream&        outputStream,
+                                                    bool                quoteStrings,
+                                                    bool                quoteNonBuiltin )
 {
     QColor  qColor           = RiaColorTools::toQColor( fieldValue );
     QString fieldStringValue = qColor.name();
