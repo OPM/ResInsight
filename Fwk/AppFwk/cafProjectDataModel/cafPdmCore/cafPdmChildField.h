@@ -19,6 +19,7 @@ template< typename T> class PdmFieldXmlCap;
 class PdmChildFieldHandle : public PdmFieldHandle
 {
 public:
+    virtual void childObjects(std::vector<PdmObjectHandle*>* objects) = 0;
     virtual void setChildObject(PdmObjectHandle* object) = 0;
 };
 

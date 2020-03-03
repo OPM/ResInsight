@@ -39,6 +39,8 @@
 
 namespace caf {
 
+class PdmFieldHandle;
+
 //==================================================================================================
 /// Python skeleton generator from Project Data Model
 //==================================================================================================
@@ -48,6 +50,9 @@ class PdmPythonGenerator : public PdmCodeGenerator
 public:
     QString generate(PdmObjectFactory* factory) const override;
     static QString camelToSnakeCase(const QString& camelString);
+    static QString dataTypeString(const PdmFieldHandle* field, bool* isList = nullptr, bool* isBuiltinType = nullptr);
+
+    static QString pythonifyDataValue(const QString& dataValue);
 };
 
 }

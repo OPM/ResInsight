@@ -28,12 +28,6 @@ public:
 };
 
 //==================================================================================================
-/// Type traits magic to check if a template argument is a vector
-//==================================================================================================
-template<typename T> struct is_vector : public std::false_type {};
-template<typename T, typename A> struct is_vector<std::vector<T, A>> : public std::true_type{};
-
-//==================================================================================================
 /// Field class encapsulating data access through object setter/getter with input and output of this 
 /// data to/from a QXmlStream
 /// read/write-FieldData is supposed to be specialized for types needing specialization
@@ -42,6 +36,10 @@ template<typename DataType >
 class PdmProxyValueField : public PdmProxyFieldHandle
 {
 public:
+    // Type traits magic to check if a template argument is a vector
+    template<typename T> struct is_vector : public std::false_type {};
+    template<typename T, typename A> struct is_vector<std::vector<T, A>> : public std::true_type {};
+
     typedef DataType FieldDataType;
     PdmProxyValueField() { m_valueSetter = NULL; m_valueGetter = NULL; }
     ~PdmProxyValueField() override                                       { if (m_valueSetter) delete m_valueSetter; if (m_valueGetter) delete m_valueGetter; }

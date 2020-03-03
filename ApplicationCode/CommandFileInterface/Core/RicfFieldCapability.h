@@ -51,7 +51,10 @@ struct RicfFieldReader
 template <typename DataType>
 struct RicfFieldWriter
 {
-    static void writeFieldData( const DataType& fieldValue, QTextStream& outputStream, bool quoteStrings = true )
+    static void writeFieldData( const DataType& fieldValue,
+                                QTextStream&    outputStream,
+                                bool            quoteStrings     = true,
+                                bool            quoteNonBuiltins = false )
     {
         outputStream << fieldValue;
     }
@@ -69,7 +72,10 @@ struct RicfFieldReader<QString>
 template <>
 struct RicfFieldWriter<QString>
 {
-    static void writeFieldData( const QString& fieldValue, QTextStream& outputStream, bool quoteStrings = true );
+    static void writeFieldData( const QString& fieldValue,
+                                QTextStream&   outputStream,
+                                bool           quoteStrings     = true,
+                                bool           quoteNonBuiltins = false );
 };
 
 template <>
@@ -84,7 +90,10 @@ struct RicfFieldReader<bool>
 template <>
 struct RicfFieldWriter<bool>
 {
-    static void writeFieldData( const bool& fieldValue, QTextStream& outputStream, bool quoteStrings = true );
+    static void writeFieldData( const bool&  fieldValue,
+                                QTextStream& outputStream,
+                                bool         quoteStrings     = true,
+                                bool         quoteNonBuiltins = false );
 };
 
 template <>
@@ -99,7 +108,10 @@ struct RicfFieldReader<cvf::Color3f>
 template <>
 struct RicfFieldWriter<cvf::Color3f>
 {
-    static void writeFieldData( const cvf::Color3f& fieldValue, QTextStream& outputStream, bool quoteStrings = true );
+    static void writeFieldData( const cvf::Color3f& fieldValue,
+                                QTextStream&        outputStream,
+                                bool                quoteStrings     = true,
+                                bool                quoteNonBuiltins = false );
 };
 
 template <typename T>
@@ -141,9 +153,19 @@ struct RicfFieldReader<caf::AppEnum<T>>
 template <typename T>
 struct RicfFieldWriter<caf::AppEnum<T>>
 {
-    static void writeFieldData( const caf::AppEnum<T>& fieldValue, QTextStream& outputStream, bool quoteStrings = true )
+    static void writeFieldData( const caf::AppEnum<T>& fieldValue,
+                                QTextStream&           outputStream,
+                                bool                   quoteStrings     = true,
+                                bool                   quoteNonBuiltins = false )
     {
-        outputStream << fieldValue;
+        if ( quoteNonBuiltins )
+        {
+            outputStream << "\"" << fieldValue << "\"";
+        }
+        else
+        {
+            outputStream << fieldValue;
+        }
     }
 };
 
@@ -191,12 +213,15 @@ struct RicfFieldReader<std::vector<T>>
 template <typename T>
 struct RicfFieldWriter<std::vector<T>>
 {
-    static void writeFieldData( const std::vector<T>& fieldValue, QTextStream& outputStream, bool quoteStrings = true )
+    static void writeFieldData( const std::vector<T>& fieldValue,
+                                QTextStream&          outputStream,
+                                bool                  quoteStrings     = true,
+                                bool                  quoteNonBuiltins = false )
     {
         outputStream << "[";
         for ( size_t i = 0; i < fieldValue.size(); ++i )
         {
-            RicfFieldWriter<T>::writeFieldData( fieldValue[i], outputStream );
+            RicfFieldWriter<T>::writeFieldData( fieldValue[i], outputStream, quoteNonBuiltins );
             if ( i < fieldValue.size() - 1 )
             {
                 outputStream << ", ";
@@ -240,9 +265,12 @@ public:
         }
     }
 
-    void writeFieldData( QTextStream& outputStream, bool quoteStrings = true ) const override
+    void writeFieldData( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
     {
-        RicfFieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(), outputStream, quoteStrings );
+        RicfFieldWriter<typename FieldType::FieldDataType>::writeFieldData( m_field->value(),
+                                                                            outputStream,
+                                                                            quoteStrings,
+                                                                            quoteNonBuiltins );
     }
 
 private:

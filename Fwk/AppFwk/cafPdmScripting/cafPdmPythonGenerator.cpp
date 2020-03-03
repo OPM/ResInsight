@@ -40,6 +40,7 @@
 #include "cafPdmObjectFactory.h"
 #include "cafPdmObjectScriptabilityRegister.h"
 #include "cafPdmProxyValueField.h"
+#include "cafPdmXmlFieldHandle.h"
 
 #include <QRegularExpression>
 #include <QTextStream>
@@ -136,7 +137,9 @@ QString PdmPythonGenerator::generate(PdmObjectFactory* factory) const
                             }
 
                             QVariant valueVariant = pdmValueField->toQVariant();
-                            QString  dataTypeString = valueVariant.typeName();
+
+                            bool isList, isBuiltinType;
+                            QString  dataType = PdmPythonGenerator::dataTypeString(pdmValueField, &isList, &isBuiltinType);
 
                             if (shouldBeMethod)
                             {
@@ -145,7 +148,7 @@ QString PdmPythonGenerator::generate(PdmObjectFactory* factory) const
                                     QString fullComment =
                                         QString("        \"\"\"%1\n        Returns:\n             %2\n        \"\"\"")
                                         .arg(comment)
-                                        .arg(dataTypeString);
+                                        .arg(dataType);
 
                                     QString fieldCode = QString("    def %1(self):\n%2\n        return "
                                         "self._call_get_method(\"%3\")\n")
@@ -156,10 +159,10 @@ QString PdmPythonGenerator::generate(PdmObjectFactory* factory) const
                                 }
                                 if (proxyField->hasSetter())
                                 {
-                                    QString fullComment = QString("        \"\"\"Set %1\n        Attributes:\n"
+                                    QString fullComment = QString("        \"\"\"Set %1\n        Arguments:\n"
                                         "            values (%2): data\n        \"\"\"")
                                         .arg(comment)
-                                        .arg(dataTypeString);
+                                        .arg(dataType);
 
                                     QString fieldCode = QString("    def set_%1(self, values):\n%2\n        "
                                         "self._call_set_method(\"%3\", values)\n")
@@ -171,11 +174,18 @@ QString PdmPythonGenerator::generate(PdmObjectFactory* factory) const
                                 }
                             }
                             else
-                            {                               
-                                QString fieldCode = QString("        self.%1 = None\n").arg(snake_field_name);
+                            {                            
+                                QString valueString;
+                                QTextStream valueStream(&valueString);
+                                scriptability->writeFieldData(valueStream, true, true);
+                                if (valueString.isEmpty())
+                                    valueString = QString("\"\"");
+                                valueString = pythonifyDataValue(valueString);
+
+                                QString fieldCode = QString("        self.%1 = %2\n").arg(snake_field_name).arg(valueString);
                                 
                                 QString fullComment =
-                                    QString("%1 (%2): %3\n").arg(snake_field_name).arg(dataTypeString).arg(comment);
+                                    QString("%1 (%2): %3\n").arg(snake_field_name).arg(dataType).arg(comment);
 
                                 classAttributesGenerated[field->ownerClass()][snake_field_name].first = fieldCode;
                                 classAttributesGenerated[field->ownerClass()][snake_field_name].second = fullComment;
@@ -295,4 +305,61 @@ QString PdmPythonGenerator::camelToSnakeCase(const QString& camelString)
     snake_case.replace(re1, "\\1_\\2");
     snake_case.replace(re2, "\\1_\\2");
     return snake_case.toLower();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmPythonGenerator::dataTypeString(const PdmFieldHandle* field, bool* isList, bool* isBuiltinType)
+{
+    auto xmlObj = field->capability<PdmXmlFieldHandle>();
+    
+    QString dataType = xmlObj->childClassKeyword();
+    bool foundList   = xmlObj->isVectorField();
+
+    std::map<QString, QString> builtins =
+    { {QString::fromStdString(typeid(double).name()), "float"},
+      {QString::fromStdString(typeid(float).name()), "float"},
+      {QString::fromStdString(typeid(int).name()), "int"},
+      {QString::fromStdString(typeid(QString).name()), "str"}
+    };
+
+    bool foundBuiltin = false;
+    for (auto builtin : builtins)
+    {
+        if (dataType == builtin.first)
+        {
+            dataType.replace(builtin.first, builtin.second);
+            foundBuiltin = true;
+        }
+    }
+
+    if (isList)
+    {
+        *isList = foundList;
+    }
+    if (isBuiltinType)
+    {
+        *isBuiltinType = foundBuiltin;
+    }
+
+    if (!foundBuiltin)
+    {
+        dataType = "str";
+    }
+
+    if (foundList) return QString("List of %1").arg(dataType);
+
+    return dataType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString caf::PdmPythonGenerator::pythonifyDataValue(const QString& dataValue)
+{
+    QString outValue = dataValue;
+    outValue.replace("false", "False");
+    outValue.replace("true", "True");
+    return outValue;
 }
