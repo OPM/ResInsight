@@ -45,8 +45,7 @@ public:
     virtual void readFieldData( QTextStream&           inputStream,
                                 caf::PdmObjectFactory* objectFactory,
                                 RicfMessages*          errorMessageContainer,
-                                bool                   stringsAreQuoted = true )                               = 0;
-    virtual void writeFieldData( QTextStream& outputStream, bool quoteStrings = true ) const = 0;
+                                bool                   stringsAreQuoted = true ) = 0;
 
 private:
     caf::PdmFieldHandle* m_owner;

@@ -3,6 +3,8 @@
 #include "cafInternalPdmXmlFieldReaderWriter.h"
 #include "cafPdmXmlFieldHandle.h"
 
+#include <typeinfo>
+
 namespace caf
 {
 
@@ -10,7 +12,11 @@ template < typename FieldType>
 class PdmFieldXmlCap : public PdmXmlFieldHandle
 {
 public:
-    PdmFieldXmlCap(FieldType* field, bool giveOwnership) : PdmXmlFieldHandle(field, giveOwnership) { m_field = field; }
+    PdmFieldXmlCap(FieldType* field, bool giveOwnership) : PdmXmlFieldHandle(field, giveOwnership)
+    {
+        m_field = field;
+        m_childClassKeyword = QString("%1").arg(typeid(FieldType).name());
+    }
 
     // Xml Serializing
 public:
@@ -18,10 +24,11 @@ public:
     void        writeFieldData(QXmlStreamWriter& xmlStream) const override;
     bool        resolveReferences() override;
 
+    bool        isVectorField() const;
+
 private:
     FieldType* m_field;
 };
-
 
 template <typename DataType> class PdmPtrField;
 

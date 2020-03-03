@@ -38,6 +38,8 @@
 #include <QString>
 #include "cafPdmFieldCapability.h"
 
+class QTextStream;
+
 namespace caf {
 
 class PdmFieldHandle;
@@ -53,6 +55,7 @@ public:
     bool isIOWriteable() const;
     void setIOWriteable(bool writeable);
 
+    virtual void writeFieldData(QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false) const = 0;
 private:
     caf::PdmFieldHandle* m_owner;
     QString              m_scriptFieldName;
