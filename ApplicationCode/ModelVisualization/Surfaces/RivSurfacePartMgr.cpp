@@ -456,7 +456,7 @@ void RivSurfacePartMgr::calculateVertexTextureCoordinates( cvf::Vec2fArray*     
     cvf::Vec2f* rawPtr = textureCoords->ptr();
 
 #pragma omp parallel for
-    for ( int vxIdx = 0; vxIdx < numVertices; vxIdx++ )
+    for ( int vxIdx = 0; vxIdx < static_cast<int>( numVertices ); vxIdx++ )
     {
         double     cellScalarValue = resultAccessor->cellScalarGlobIdx( vertexToCellIdxMap[vxIdx] );
         cvf::Vec2f texCoord        = mapper->mapToTextureCoord( cellScalarValue );

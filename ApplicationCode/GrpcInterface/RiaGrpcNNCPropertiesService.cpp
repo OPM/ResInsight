@@ -337,7 +337,6 @@ grpc::Status RiaNNCInputValuesStateHandler::init( const NNCValuesInputRequest* r
     {
         auto caseData        = m_eclipseCase->eclipseCaseData();
         auto m_porosityModel = static_cast<RiaDefines::PorosityModelType>( request->porosity_model() );
-        auto resultData      = caseData->results( m_porosityModel );
         m_timeStep           = request->time_step();
         m_propertyName       = QString::fromStdString( request->property_name() );
 
