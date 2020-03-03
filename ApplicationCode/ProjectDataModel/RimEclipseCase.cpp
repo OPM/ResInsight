@@ -78,12 +78,12 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimEclipseCase, "RimReservoir" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::RimEclipseCase()
 {
-    RICF_InitObjectWithScriptNameAndComment( "EclipseCase",
-                                             ":/Case48x48.png",
-                                             "",
-                                             "",
-                                             "Reservoir",
-                                             "Abtract base class for Eclipse Cases" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "EclipseCase",
+                                                    ":/Case48x48.png",
+                                                    "",
+                                                    "",
+                                                    "Reservoir",
+                                                    "Abtract base class for Eclipse Cases" );
 
     CAF_PDM_InitFieldNoDefault( &reservoirViews, "ReservoirViews", "", "", "", "" );
     reservoirViews.uiCapability()->setUiHidden( true );

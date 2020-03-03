@@ -69,12 +69,12 @@ CAF_PDM_SOURCE_INIT( RimGeoMechCase, "ResInsightGeoMechCase" );
 RimGeoMechCase::RimGeoMechCase( void )
     : m_applyTimeFilter( false )
 {
-    RICF_InitObjectWithScriptNameAndComment( "GeoMechanical Case",
-                                             ":/GeoMechCase48x48.png",
-                                             "",
-                                             "The GeoMechanical Results Case",
-                                             "GeoMechCase",
-                                             "The Abaqus Based GeoMech Case" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "GeoMechanical Case",
+                                                    ":/GeoMechCase48x48.png",
+                                                    "",
+                                                    "The GeoMechanical Results Case",
+                                                    "GeoMechCase",
+                                                    "The Abaqus Based GeoMech Case" );
 
     CAF_PDM_InitFieldNoDefault( &geoMechViews, "GeoMechViews", "", "", "", "" );
     geoMechViews.uiCapability()->setUiHidden( true );

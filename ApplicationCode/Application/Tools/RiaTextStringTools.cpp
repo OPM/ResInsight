@@ -55,17 +55,3 @@ QString RiaTextStringTools::trimAndRemoveDoubleSpaces( const QString& s )
 
     return trimmed;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaTextStringTools::camelToSnakeCase( const QString& camelString )
-{
-    static QRegularExpression re1( "(.)([A-Z][a-z]+)" );
-    static QRegularExpression re2( "([a-z0-9])([A-Z])" );
-
-    QString snake_case = camelString;
-    snake_case.replace( re1, "\\1_\\2" );
-    snake_case.replace( re2, "\\1_\\2" );
-    return snake_case.toLower();
-}

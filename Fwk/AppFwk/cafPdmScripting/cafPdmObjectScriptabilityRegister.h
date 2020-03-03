@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -33,36 +33,43 @@
 //   for more details.
 //
 //##################################################################################################
-
-
 #pragma once
 
-#include <vector>
+#include <QString>
 
-class QString;
-
-namespace caf
-{
-
-class PdmObjectHandle;
+#include <map>
 
 
+#define CAF_PDM_InitScriptableObject( uiName, iconResourceName, toolTip, whatsThis ) \
+    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis ); \
+    caf::PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( classKeyword(), classKeyword(), whatsThis );
+
+#define CAF_PDM_InitScriptableObjectWithNameAndComment( uiName, iconResourceName, toolTip, whatsThis, scriptClassName, scriptComment ) \
+    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );                                                         \
+    caf::PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( classKeyword(), scriptClassName, scriptComment );
+
+namespace caf {
+class PdmObject;
 
 //==================================================================================================
-//
-// Factory interface for creating PDM objects derived from PdmObjectHandle based on class name keyword
-//
+/// Static register for object scriptability.
 //==================================================================================================
-class PdmObjectFactory
+class PdmObjectScriptabilityRegister
 {
 public:
+    static void    registerScriptClassNameAndComment(const QString& classKeyword,
+                                                     const QString& scriptClassName,
+                                                     const QString& scriptClassComment);
+    static QString scriptClassNameFromClassKeyword(const QString& classKeyword);
+    static QString classKeywordFromScriptClassName(const QString& scriptClassName);
+    static QString scriptClassComment(const QString& classKeyword);
 
-    virtual PdmObjectHandle* create(const QString& classNameKeyword) = 0;
-    virtual std::vector<QString> classKeywords() const = 0;
-protected:
-    PdmObjectFactory() {}
-    virtual ~PdmObjectFactory() {}
+    static bool isScriptable(const caf::PdmObject* object);
+
+private:
+    static std::map<QString, QString> s_classKeywordToScriptClassName;
+    static std::map<QString, QString> s_scriptClassNameToClassKeyword;
+    static std::map<QString, QString> s_scriptClassComments;
 };
 
-
-} //End of namespace caf
+}

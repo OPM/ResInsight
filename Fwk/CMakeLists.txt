@@ -19,6 +19,7 @@ add_subdirectory(AppFwk/cafProjectDataModel/cafPdmXml)
 add_subdirectory(AppFwk/cafProjectDataModel)
 add_subdirectory(AppFwk/cafCommand)
 add_subdirectory(AppFwk/cafUserInterface)
+add_subdirectory(AppFwk/cafPdmScripting)
 
 # Unit Tests
 add_subdirectory(AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
