@@ -21,6 +21,9 @@ def camel_to_snake(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
+def snake_to_camel(name):
+    return ''.join(word.title() for word in name.split('_'))
+
 def add_method(cls):
     def decorator(func):
         setattr(cls, func.__name__, func)
@@ -51,27 +54,26 @@ def _execute_command(self, **command_params):
 @add_method(PdmObject)
 def __custom_init__(self, pb2_object, channel):
     self.__warnings = []
-    self.__keyword_translation = {}
     self.__chunk_size = 8160
 
-    if pb2_object is not None:
-        assert(not isinstance(pb2_object, PdmObject))
-        self._pb2_object = pb2_object
-        
-    else:
-        self._pb2_object = PdmObject_pb2.PdmObject(class_keyword=self.__class__.__name__)
-    self.class_keyword = self._pb2_object.class_keyword
     self._channel = channel
-        
-    if self.pb2_object() is not None and self.channel() is not None:        
-        if self.channel() is not None:
-            self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(self.channel())
-            self._commands = CmdRpc.CommandsStub(self.channel())
     
+    # Create stubs
+    if self._channel:
+        self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(self._channel)
+        self._commands = CmdRpc.CommandsStub(self._channel)
+
+    if pb2_object is not None:
+        # Copy parameters from ResInsight
+        assert(not isinstance(pb2_object, PdmObject))
+        self._pb2_object = pb2_object        
         for camel_keyword in self._pb2_object.parameters:
             snake_keyword = camel_to_snake(camel_keyword)
             setattr(self, snake_keyword, self.__get_grpc_value(camel_keyword))
-            self.__keyword_translation[snake_keyword] = camel_keyword   
+    else:
+        # Copy parameters from PdmObject defaults
+        self._pb2_object = PdmObject_pb2.PdmObject(class_keyword=self.__class__.__name__)
+        self.__copy_to_pb2()
 
 @add_method(PdmObject)
 def copy_from(self, object):
@@ -90,10 +92,20 @@ def copy_from(self, object):
 def warnings(self):
     return self.__warnings
 
-@add_method(PdmObject)
-       
+@add_method(PdmObject)       
 def has_warnings(self):
     return len(self.__warnings) > 0
+
+@add_method(PdmObject)
+def __copy_to_pb2(self):
+    if self._pb2_object is not None:
+        for snake_kw in dir(self):
+            if not snake_kw.startswith('_'):
+                value = getattr(self, snake_kw)
+                # This is crucial to avoid overwriting methods
+                if not callable(value):
+                    camel_kw = snake_to_camel(snake_kw)
+                    self.__set_grpc_value(camel_kw, value)
 
 @add_method(PdmObject)
 def pb2_object(self):
@@ -128,15 +140,17 @@ def visible(self):
 @add_method(PdmObject)
 def print_object_info(self):
     """Print the structure and data content of the PdmObject"""
-    print("=========== " + self.class_keyword + " =================")
+    print("=========== " + self.__class__.__name__ + " =================")
     print("Object Attributes: ")
-    for snake_kw, camel_kw in self.__keyword_translation.items():
-        print("   " + snake_kw + " [" + type(getattr(self, snake_kw)).__name__ +
-                "]: " + str(getattr(self, snake_kw)))
+    for snake_kw in dir(self):
+        if not snake_kw.startswith("_") and not callable(getattr(self, snake_kw)):
+            camel_kw = snake_to_camel(snake_kw)
+            print("   " + snake_kw + " [" + type(getattr(self, snake_kw)).__name__ +
+                    "]: " + str(getattr(self, snake_kw)))
     print("Object Methods:")
-    for method in dir(self):
-        if not method.startswith("_") and callable(getattr(self, method)):
-            print ("   " + method)
+    for snake_kw in dir(self):
+        if not snake_kw.startswith("_") and callable(getattr(self, snake_kw)):
+            print ("   " + snake_kw)
 
 @add_method(PdmObject)
 def __convert_from_grpc_value(self, value):
@@ -342,10 +356,8 @@ def _call_set_method(self, method_name, values):
 @add_method(PdmObject)
 def update(self):
     """Sync all fields from the Python Object to ResInsight"""
-    if self._pdm_object_stub is not None and self._pb2_object is not None:
-        for snake_kw, camel_kw in self.__keyword_translation.items():
-            self.__set_grpc_value(camel_kw, getattr(self, snake_kw))
-
+    self.__copy_to_pb2()
+    if self._pdm_object_stub is not None:
         self._pdm_object_stub.UpdateExistingPdmObject(self._pb2_object)
     else:
         raise Exception("Object is not connected to GRPC service so cannot update ResInsight")

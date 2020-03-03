@@ -245,7 +245,6 @@ QString PdmPythonGenerator::generate(PdmObjectFactory* factory) const
                     QString("    __custom_init__ = None #: Assign a custom init routine to be run at __init__\n\n");
 
                 classCode += QString("    def __init__(self, pb2_object=None, channel=None):\n");
-                classCode += QString("        self.class_keyword = \"%1\"\n").arg(scriptClassName);
                 if (!scriptSuperClassNames.empty())
                 {
                     // Own attributes. This initializes a lot of attributes to None.
