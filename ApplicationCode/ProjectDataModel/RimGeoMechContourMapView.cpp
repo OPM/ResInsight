@@ -51,12 +51,12 @@ const cvf::Mat4d RimGeoMechContourMapView::sm_defaultViewMatrix =
 RimGeoMechContourMapView::RimGeoMechContourMapView()
     : m_cameraPositionLastUpdate( cvf::Vec3d::UNDEFINED )
 {
-    RICF_InitObjectWithScriptNameAndComment( "GeoMech Contour Map View",
-                                             ":/2DMap16x16.png",
-                                             "",
-                                             "",
-                                             "GeoMechContourMap",
-                                             "A contour map for GeoMech cases" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "GeoMech Contour Map View",
+                                                    ":/2DMap16x16.png",
+                                                    "",
+                                                    "",
+                                                    "GeoMechContourMap",
+                                                    "A contour map for GeoMech cases" );
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapProjection, "ContourMapProjection", "Contour Map Projection", "", "", "" );
     m_contourMapProjection = new RimGeoMechContourMapProjection();

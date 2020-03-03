@@ -137,7 +137,12 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
         CVF_ASSERT( o.valueCount() == 1 );
         QString outputFile = cvfqt::Utils::toQString( o.value( 0 ) );
 
-        RiaApplication::generatePythonClasses( outputFile );
+        QString errMsg;
+        if ( !RiaApplication::generateCode( outputFile, &errMsg ) )
+        {
+            RiaLogging::error( QString( "Error: %1" ).arg( errMsg ) );
+            return RiaApplication::EXIT_WITH_ERROR;
+        }
 
         return RiaApplication::EXIT_COMPLETED;
     }

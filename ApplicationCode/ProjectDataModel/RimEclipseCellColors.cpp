@@ -51,7 +51,12 @@ CAF_PDM_SOURCE_INIT( RimEclipseCellColors, "ResultSlot" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseCellColors::RimEclipseCellColors()
 {
-    RICF_InitObjectWithScriptNameAndComment( "Cell Result", ":/CellResult.png", "", "", "CellColors", "Eclipse Cell Colors class" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Cell Result",
+                                                    ":/CellResult.png",
+                                                    "",
+                                                    "",
+                                                    "CellColors",
+                                                    "Eclipse Cell Colors class" );
 
     CAF_PDM_InitFieldNoDefault( &obsoleteField_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
     this->obsoleteField_legendConfig.xmlCapability()->setIOWritable( false );

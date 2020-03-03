@@ -33,7 +33,7 @@ CAF_PDM_SOURCE_INIT( RimWbsParameters, "WbsParameters" );
 //--------------------------------------------------------------------------------------------------
 RimWbsParameters::RimWbsParameters()
 {
-    RICF_InitObject( "Well Bore Stability Parameters", ":/WellLogPlot16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Well Bore Stability Parameters", ":/WellLogPlot16x16.png", "", "" );
 
     RICF_InitFieldNoDefault( &m_porePressureSource,
                              "PorePressureReservoirSource",

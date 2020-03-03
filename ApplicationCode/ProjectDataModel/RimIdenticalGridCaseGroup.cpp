@@ -55,12 +55,12 @@ CAF_PDM_SOURCE_INIT( RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup" );
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 {
-    RICF_InitObjectWithScriptNameAndComment( "Grid Case Group",
-                                             ":/GridCaseGroup16x16.png",
-                                             "",
-                                             "",
-                                             "GridCaseGroup",
-                                             "A statistics case group" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Grid Case Group",
+                                                    ":/GridCaseGroup16x16.png",
+                                                    "",
+                                                    "",
+                                                    "GridCaseGroup",
+                                                    "A statistics case group" );
 
     RICF_InitField( &name, "UserDescription", QString( "Grid Case Group" ), "Name", "", "", "" );
 

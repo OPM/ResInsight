@@ -43,12 +43,12 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. 
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::RimViewWindow( void )
 {
-    RICF_InitObjectWithScriptNameAndComment( "View window",
-                                             "",
-                                             "",
-                                             "",
-                                             "ViewWindow",
-                                             "The Base Class for all Views and Plots in ResInsight" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "View window",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    "ViewWindow",
+                                                    "The Base Class for all Views and Plots in ResInsight" );
 
     CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "", "", "", "" );
     m_windowController.uiCapability()->setUiHidden( true );

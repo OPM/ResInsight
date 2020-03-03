@@ -20,8 +20,10 @@
 #include "RicfCommandResponse.h"
 #include "RicfFieldCapability.h"
 #include "RicfObjectCapability.h"
+
 #include "cafCmdFeature.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptabilityRegister.h"
 
 //==================================================================================================
 //
@@ -76,14 +78,6 @@ public:
                                 RicfCommandObject::pythonHelpString( toolTip, scriptKeyword ),                           \
                                 whatsThis );                                                                             \
     AddRicfCapabilityToField( field, scriptKeyword )
-
-#define RICF_InitObject( uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis ); \
-    RicfObjectCapability::addCapabilityToObject( this, classKeyword(), whatsThis );
-
-#define RICF_InitObjectWithScriptNameAndComment( uiName, iconResourceName, toolTip, whatsThis, scriptClassName, scriptComment ) \
-    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );                                                         \
-    RicfObjectCapability::addCapabilityToObject( this, scriptClassName, scriptComment );
 
 #define RICF_HEADER_INIT \
     CAF_CMD_HEADER_INIT; \

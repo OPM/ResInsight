@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -33,36 +33,35 @@
 //   for more details.
 //
 //##################################################################################################
-
-
 #pragma once
 
-#include <vector>
+#include "cafFactory.h"
 
-class QString;
+#include <QString>
 
-namespace caf
-{
+#define CAF_PDM_CODE_GENERATOR_HEADER_INIT \
+    public: \
+    static const std::string& fileExtension();
 
-class PdmObjectHandle;
+#define CAF_PDM_CODE_GENERATOR_SOURCE_INIT(ClassName, FileExtension)\
+    const std::string& ClassName::fileExtension() { static std::string ext = FileExtension; return ext;} \
+    CAF_FACTORY_REGISTER(caf::PdmCodeGenerator, ClassName, std::string, ClassName::fileExtension())
 
 
+namespace caf {
+
+class PdmObjectFactory;
 
 //==================================================================================================
-//
-// Factory interface for creating PDM objects derived from PdmObjectHandle based on class name keyword
-//
+/// Abstract skeleton code generator for the Project Data Model
 //==================================================================================================
-class PdmObjectFactory
+class PdmCodeGenerator
 {
 public:
-
-    virtual PdmObjectHandle* create(const QString& classNameKeyword) = 0;
-    virtual std::vector<QString> classKeywords() const = 0;
-protected:
-    PdmObjectFactory() {}
-    virtual ~PdmObjectFactory() {}
+    virtual QString generate(PdmObjectFactory* factory) const = 0;
 };
 
 
-} //End of namespace caf
+typedef Factory<PdmCodeGenerator, std::string> PdmCodeGeneratorFactory;
+
+}

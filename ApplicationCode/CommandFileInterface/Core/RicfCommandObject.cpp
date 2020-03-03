@@ -18,7 +18,7 @@
 
 #include "RicfCommandObject.h"
 
-#include "RiaTextStringTools.h"
+#include "cafPdmPythonGenerator.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -40,7 +40,7 @@ RicfCommandObject::~RicfCommandObject()
 //--------------------------------------------------------------------------------------------------
 QString RicfCommandObject::pythonHelpString( const QString& existingTooltip, const QString& keyword )
 {
-    QString snake_case = RiaTextStringTools::camelToSnakeCase( keyword );
+    QString snake_case = caf::PdmPythonGenerator::camelToSnakeCase( keyword );
 
     QString helpString = QString( "Available through python/rips as the attribute '%1'" ).arg( snake_case );
 
