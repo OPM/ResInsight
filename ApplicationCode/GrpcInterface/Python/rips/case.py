@@ -826,7 +826,7 @@ def export_property(
     ))
 
 @add_method(Case)
-def create_well_bore_stability_plot(self, well_path, time_step, wbs_parameters=None):
+def create_well_bore_stability_plot(self, well_path, time_step, parameters=None):
     """ Create a new well bore stability plot
 
     Arguments:
@@ -837,9 +837,9 @@ def create_well_bore_stability_plot(self, well_path, time_step, wbs_parameters=N
         A new plot object
     """
     pb2_parameters = None
-    if wbs_parameters is not None:
-        assert(isinstance(wbs_parameters, WbsParameters))
-        pb2_parameters = wbs_parameters.pb2_object()
+    if parameters is not None:
+        assert(isinstance(parameters, WbsParameters))
+        pb2_parameters = parameters.pb2_object()
 
     plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.id,
                                                                                             wellPath=well_path,
