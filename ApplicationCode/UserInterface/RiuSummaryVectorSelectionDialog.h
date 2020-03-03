@@ -47,6 +47,7 @@ public:
     void hideEnsembles();
     void hideSummaryCases();
     void enableMultiSelect( bool enable );
+    void enableIndividualEnsembleCaseSelection( bool enable );
 
 private:
     RiuSummaryVectorSelectionUi* summaryAddressSelection() const;

@@ -148,6 +148,14 @@ void RiuSummaryVectorSelectionDialog::enableMultiSelect( bool enable )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionDialog::enableIndividualEnsembleCaseSelection( bool enable )
+{
+    summaryAddressSelection()->enableIndividualEnsembleCaseSelection( enable );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryVectorSelectionUi* RiuSummaryVectorSelectionDialog::summaryAddressSelection() const

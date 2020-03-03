@@ -133,6 +133,7 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
           {RifEclipseSummaryAddress::SUMMARY_IMPORTED,
            {{new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME )}}},
       } )
+    , m_showIndividualEnsembleCases( false )
 {
     CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Cases", "", "", "" );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
@@ -488,7 +489,10 @@ std::vector<RiaCurveSetDefinition> RiuSummaryVectorSelectionUi::allCurveSetDefin
 }
 
 //--------------------------------------------------------------------------------------------------
-/// One CurveDefinition pr ensemble curve set
+/// One CurveDefinition pr ensemble curve set,
+/// but if enableIndividualEnsembleCaseSelection has been enabled,
+/// the ensembles are never available for direct selection, and this method will always return the
+/// "expanded" set of curvedefinitions
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaSummaryCurveDefinition> RiuSummaryVectorSelectionUi::selection() const
 {
@@ -550,6 +554,14 @@ void RiuSummaryVectorSelectionUi::hideEnsembles( bool hide )
 void RiuSummaryVectorSelectionUi::hideSummaryCases( bool hide )
 {
     m_hideSummaryCases = hide;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionUi::enableIndividualEnsembleCaseSelection( bool enable )
+{
+    m_showIndividualEnsembleCases = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1339,9 +1351,26 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSources( QList<caf::PdmOpt
                         ensembleHeaderCreated = true;
                     }
 
-                    auto optionItem = caf::PdmOptionItemInfo( sumCaseColl->name(), sumCaseColl );
-                    optionItem.setLevel( 1 );
-                    options.push_back( optionItem );
+                    if ( !m_showIndividualEnsembleCases )
+                    {
+                        auto optionItem = caf::PdmOptionItemInfo( sumCaseColl->name(), sumCaseColl );
+                        optionItem.setLevel( 1 );
+                        options.push_back( optionItem );
+                    }
+                    else
+                    {
+                        caf::PdmOptionItemInfo ensembleOpt =
+                            caf::PdmOptionItemInfo::createHeader( sumCaseColl->name(), true );
+                        ensembleOpt.setLevel( 1 );
+                        options.push_back( ensembleOpt );
+
+                        for ( const auto& sumCase : sumCaseColl->allSummaryCases() )
+                        {
+                            auto optionItem = caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase );
+                            optionItem.setLevel( 2 );
+                            options.push_back( optionItem );
+                        }
+                    }
                 }
             }
 

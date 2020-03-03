@@ -61,6 +61,8 @@ public:
     void setMultiSelectionMode( bool multiSelectionMode );
     void hideEnsembles( bool hide );
     void hideSummaryCases( bool hide );
+    void enableIndividualEnsembleCaseSelection( bool enable );
+
     void setFieldChangedHandler( const std::function<void()>& handlerFunc );
 
     void setDefaultSelection( const std::vector<SummarySource*>& defaultCases );
@@ -121,6 +123,7 @@ private:
 
     bool m_hideEnsembles;
     bool m_hideSummaryCases;
+    bool m_showIndividualEnsembleCases;
 
     std::function<void()> m_toggleChangedHandler;
 

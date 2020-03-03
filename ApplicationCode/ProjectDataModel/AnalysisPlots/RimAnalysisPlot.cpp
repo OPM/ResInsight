@@ -224,8 +224,10 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         // Do select variables
         RiuSummaryVectorSelectionDialog dlg( nullptr );
 
-        dlg.setCurveSelection( this->curveDefinitions() );
         dlg.enableMultiSelect( true );
+        dlg.enableIndividualEnsembleCaseSelection( true );
+
+        dlg.setCurveSelection( this->curveDefinitions() );
         dlg.setCaseAndAddress( nullptr, RifEclipseSummaryAddress() );
 
         if ( dlg.exec() == QDialog::Accepted )
@@ -751,6 +753,9 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
     {
         RiaSummaryCurveDefinition orgBarDataEntry = dataEntry->curveDefinition();
 
+        // Unpack ensemble curves and make one curve definition for each individual curve.
+        // Store both ensemble and summary case in the definition
+
         std::vector<RiaSummaryCurveDefinition> barDataDefinitions;
 
         if ( orgBarDataEntry.isEnsembleCurve() )
@@ -764,7 +769,16 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
         }
         else
         {
-            barDataDefinitions.push_back( orgBarDataEntry );
+            if ( orgBarDataEntry.summaryCase() && orgBarDataEntry.summaryCase()->ensemble() )
+            {
+                barDataDefinitions.push_back( RiaSummaryCurveDefinition( orgBarDataEntry.summaryCase(),
+                                                                         orgBarDataEntry.summaryAddress(),
+                                                                         orgBarDataEntry.summaryCase()->ensemble() ) );
+            }
+            else
+            {
+                barDataDefinitions.push_back( orgBarDataEntry );
+            }
         }
 
         for ( const RiaSummaryCurveDefinition& curveDef : barDataDefinitions )
