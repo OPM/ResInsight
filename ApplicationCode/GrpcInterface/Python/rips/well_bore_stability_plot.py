@@ -28,18 +28,6 @@ def __custom_init__(self, pb2_object=None, channel=None):
     self.user_k0fg             = 0.75
 
 @add_method(WellBoreStabilityPlot)
-def parameters(self):
-    """Retrieve the parameters of the Plot
-    """
-    children = self.children("WbsParameters", WbsParameters)
-    if len(children) == 1:
-        child = children[0]
-        return child
-    return None
-
-@add_method(WellBoreStabilityPlot)
-def set_parameters(self, wbs_parameters):
-    children = self.children("WbsParameters", WbsParameters)
-    if len(children) == 1:
-        pdm_params = children[0]
-        pdm_params.copy_from(wbs_parameters)
+def set_parameters(self, new_parameters):
+    current_params = self.parameters()
+    current_params.copy_from(new_parameters)

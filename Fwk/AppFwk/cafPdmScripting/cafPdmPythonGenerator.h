@@ -50,7 +50,7 @@ class PdmPythonGenerator : public PdmCodeGenerator
 public:
     QString generate(PdmObjectFactory* factory) const override;
     static QString camelToSnakeCase(const QString& camelString);
-    static QString dataTypeString(const PdmFieldHandle* field, bool* isList = nullptr, bool* isBuiltinType = nullptr);
+    static QString dataTypeString(const PdmFieldHandle* field, bool useStrForUnknownDataTypes);
 
     static QString pythonifyDataValue(const QString& dataValue);
     static QString pythonHelpString(const QString& existingTooltip, const QString& keyword);

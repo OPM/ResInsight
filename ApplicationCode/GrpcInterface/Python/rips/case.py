@@ -246,11 +246,6 @@ def days_since_start(self):
     return self.__case_stub.GetDaysSinceStart(self.__request()).day_decimals
 
 @add_method(Case)
-def views(self):
-    """Get a list of views belonging to a case"""
-    return self.descendants(View)
-
-@add_method(Case)
 def view(self, view_id):
     """Get a particular view belonging to a case by providing view id
     Arguments:

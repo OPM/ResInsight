@@ -49,7 +49,7 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
 
     CAF_PDM_InitScriptableFieldWithKeywordNoDefault( &m_wbsParameters,
                                                      "WbsParameters",
-                                                     "Params",
+                                                     "Parameters",
                                                      "Well Bore Stability Parameters",
                                                      "",
                                                      "",
