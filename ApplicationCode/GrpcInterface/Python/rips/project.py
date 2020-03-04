@@ -11,14 +11,13 @@ from rips.gridcasegroup import GridCaseGroup
 from rips.pdmobject import PdmObject, add_method, add_static_method
 from rips.plot import Plot
 from rips.view import View
-from rips.wellpath import WellPathBase
 
 import rips.generated.Commands_pb2 as Cmd
 from rips.generated.Definitions_pb2 import Empty
 import rips.generated.Project_pb2_grpc as Project_pb2_grpc
 import rips.generated.Project_pb2 as Project_pb2
 import rips.generated.PdmObject_pb2 as PdmObject_pb2
-from rips.generated.pdm_objects import Project, PlotWindow
+from rips.generated.pdm_objects import Project, PlotWindow, WellPath
 
 
 @add_method(Project)
@@ -277,7 +276,7 @@ def import_well_paths(self, well_path_files=None, well_path_folder=''):
         well_path_folder(str): A folder path containing files to import
 
     Returns:
-        A list of WellPathBase objects
+        A list of WellPath objects
     """
     if well_path_files is None:
         well_path_files = []
@@ -294,16 +293,16 @@ def well_paths(self):
     """Get a list of all well paths in the project
 
     Returns:
-        A list of rips WellPathBase objects
+        A list of rips WellPath objects
     """
-    return self.descendants(WellPathBase)
+    return self.descendants(WellPath)
 
 @add_method(Project)
 def well_path_by_name(self, well_path_name):
     """Get a specific well path by name from the project
 
     Returns:
-        A WellPathBase object
+        A WellPath object
     """
     all_well_paths = self.well_paths()
     for well_path in all_well_paths:
