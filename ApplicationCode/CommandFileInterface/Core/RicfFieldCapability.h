@@ -31,10 +31,10 @@
 template <typename DataType>
 struct RicfFieldIOHandler
 {
-    static void writeToField( DataType&            fieldValue,
-                              QTextStream&         inputStream,
+    static void writeToField( DataType&                 fieldValue,
+                              QTextStream&              inputStream,
                               caf::PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true )
+                              bool                      stringsAreQuoted = true )
     {
         inputStream >> fieldValue;
         if ( inputStream.status() == QTextStream::ReadCorruptData )
@@ -72,10 +72,10 @@ struct RicfFieldIOHandler<QString>
 template <>
 struct RicfFieldIOHandler<bool>
 {
-    static void writeToField( bool&                fieldValue,
-                              QTextStream&         inputStream,
+    static void writeToField( bool&                     fieldValue,
+                              QTextStream&              inputStream,
                               caf::PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true );
+                              bool                      stringsAreQuoted = true );
     static void readFromField( const bool&  fieldValue,
                                QTextStream& outputStream,
                                bool         quoteStrings     = true,
@@ -85,10 +85,10 @@ struct RicfFieldIOHandler<bool>
 template <>
 struct RicfFieldIOHandler<cvf::Color3f>
 {
-    static void writeToField( cvf::Color3f&        fieldValue,
-                              QTextStream&         inputStream,
+    static void writeToField( cvf::Color3f&             fieldValue,
+                              QTextStream&              inputStream,
                               caf::PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true );
+                              bool                      stringsAreQuoted = true );
     static void readFromField( const cvf::Color3f& fieldValue,
                                QTextStream&        outputStream,
                                bool                quoteStrings     = true,
@@ -98,10 +98,10 @@ struct RicfFieldIOHandler<cvf::Color3f>
 template <typename T>
 struct RicfFieldIOHandler<caf::AppEnum<T>>
 {
-    static void writeToField( caf::AppEnum<T>&     fieldValue,
-                              QTextStream&         inputStream,
+    static void writeToField( caf::AppEnum<T>&          fieldValue,
+                              QTextStream&              inputStream,
                               caf::PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true )
+                              bool                      stringsAreQuoted = true )
     {
         errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
         QString accumulatedFieldValue;
@@ -149,10 +149,10 @@ struct RicfFieldIOHandler<caf::AppEnum<T>>
 template <typename T>
 struct RicfFieldIOHandler<std::vector<T>>
 {
-    static void writeToField( std::vector<T>&      fieldValue,
-                              QTextStream&         inputStream,
+    static void writeToField( std::vector<T>&           fieldValue,
+                              QTextStream&              inputStream,
                               caf::PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true )
+                              bool                      stringsAreQuoted = true )
     {
         errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
         QChar chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
@@ -221,10 +221,10 @@ public:
 
     // Xml Serializing
 public:
-    void readFieldData( QTextStream&           inputStream,
-                        caf::PdmObjectFactory* objectFactory,
-                        caf::PdmScriptIOMessages*   errorMessageContainer,
-                        bool                   stringsAreQuoted = true ) override
+    void writeToField( QTextStream&              inputStream,
+                       caf::PdmObjectFactory*    objectFactory,
+                       caf::PdmScriptIOMessages* errorMessageContainer,
+                       bool                      stringsAreQuoted = true ) override
     {
         typename FieldType::FieldDataType value;
         RicfFieldIOHandler<typename FieldType::FieldDataType>::writeToField( value,
@@ -238,7 +238,7 @@ public:
         }
     }
 
-    void writeFieldData( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
+    void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
     {
         RicfFieldIOHandler<typename FieldType::FieldDataType>::readFromField( m_field->value(),
                                                                               outputStream,

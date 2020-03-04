@@ -136,7 +136,7 @@ void RicfObjectCapability::readFields( QTextStream&              inputStream,
                 if ( xmlFieldHandle->isIOReadable() )
                 {
                     errorMessageContainer->currentArgument = keyword;
-                    rcfField->readFieldData( inputStream, objectFactory, errorMessageContainer );
+                    rcfField->writeToField( inputStream, objectFactory, errorMessageContainer );
                     errorMessageContainer->currentArgument = keyword;
                 }
             }
@@ -213,7 +213,7 @@ void RicfObjectCapability::writeFields( QTextStream& outputStream ) const
             }
 
             outputStream << keyword << " = ";
-            rcfField->writeFieldData( outputStream );
+            rcfField->readFromField( outputStream );
 
             writtenFieldCount++;
         }

@@ -177,7 +177,7 @@ QString PdmPythonGenerator::generate(PdmObjectFactory* factory) const
                             {                            
                                 QString valueString;
                                 QTextStream valueStream(&valueString);
-                                scriptability->writeFieldData(valueStream, true, true);
+                                scriptability->readFromField(valueStream, true, true);
                                 if (valueString.isEmpty())
                                     valueString = QString("\"\"");
                                 valueString = pythonifyDataValue(valueString);
@@ -355,10 +355,23 @@ QString PdmPythonGenerator::dataTypeString(const PdmFieldHandle* field, bool* is
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString caf::PdmPythonGenerator::pythonifyDataValue(const QString& dataValue)
+QString PdmPythonGenerator::pythonifyDataValue(const QString& dataValue)
 {
     QString outValue = dataValue;
     outValue.replace("false", "False");
     outValue.replace("true", "True");
     return outValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmPythonGenerator::pythonHelpString(const QString& existingTooltip, const QString& keyword)
+{
+    QString snake_case = caf::PdmPythonGenerator::camelToSnakeCase(keyword);
+
+    QString helpString = QString("Available through python/rips as the attribute '%1'").arg(snake_case);
+
+    if (!existingTooltip.isEmpty()) return existingTooltip + "\n\n" + helpString;
+    return helpString;
 }

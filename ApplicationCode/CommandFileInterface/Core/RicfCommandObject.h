@@ -24,6 +24,7 @@
 #include "cafCmdFeature.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptabilityRegister.h"
+#include "cafPdmPythonGenerator.h"
 
 //==================================================================================================
 //
@@ -37,8 +38,6 @@ public:
     ~RicfCommandObject() override;
 
     virtual RicfCommandResponse execute() = 0;
-
-    static QString pythonHelpString( const QString& existingTooltip, const QString& keyword );
 };
 
 #define RICF_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
@@ -47,7 +46,7 @@ public:
                        default,                                                                 \
                        uiName,                                                                  \
                        iconResourceName,                                                        \
-                       RicfCommandObject::pythonHelpString( toolTip, keyword ),                 \
+                       caf::PdmPythonGenerator::pythonHelpString( toolTip, keyword ),           \
                        whatsThis );                                                             \
     AddRicfCapabilityToField( field, keyword )
 
@@ -56,7 +55,7 @@ public:
                                 keyword,                                                        \
                                 uiName,                                                         \
                                 iconResourceName,                                               \
-                                RicfCommandObject::pythonHelpString( toolTip, keyword ),        \
+                                caf::PdmPythonGenerator::pythonHelpString( toolTip, keyword ),  \
                                 whatsThis );                                                    \
     AddRicfCapabilityToField( field, keyword )
 
@@ -66,7 +65,7 @@ public:
                        default,                                                                                          \
                        uiName,                                                                                           \
                        iconResourceName,                                                                                 \
-                       RicfCommandObject::pythonHelpString( toolTip, scriptKeyword ),                                    \
+                       caf::PdmPythonGenerator::pythonHelpString( toolTip, scriptKeyword ),                              \
                        whatsThis );                                                                                      \
     AddRicfCapabilityToField( field, scriptKeyword )
 
@@ -75,7 +74,7 @@ public:
                                 keyword,                                                                                 \
                                 uiName,                                                                                  \
                                 iconResourceName,                                                                        \
-                                RicfCommandObject::pythonHelpString( toolTip, scriptKeyword ),                           \
+                                caf::PdmPythonGenerator::pythonHelpString( toolTip, scriptKeyword ),                     \
                                 whatsThis );                                                                             \
     AddRicfCapabilityToField( field, scriptKeyword )
 
