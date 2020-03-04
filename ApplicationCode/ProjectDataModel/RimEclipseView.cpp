@@ -172,7 +172,7 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
     CAF_PDM_InitField( &m_showInvalidCells, "ShowInvalidCells", false, "Show Invalid Cells", "", "", "" );
 
-    RICF_InitFieldNoDefault( &m_cellResultData, "CellResultData", "", "", "", "Current Eclipse Cell Result" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_cellResultData, "CellResultData", "", "", "", "Current Eclipse Cell Result" );
     m_cellResultData.xmlCapability()->disableIO();
     m_cellResultData.registerGetMethod( this, &RimEclipseView::currentCellResultData );
     m_cellResultData.registerSetMethod( this, &RimEclipseView::setCurrentCellResultData );
