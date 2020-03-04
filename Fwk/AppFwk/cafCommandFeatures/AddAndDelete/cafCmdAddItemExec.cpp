@@ -63,7 +63,7 @@ QString CmdAddItemExec::name()
     if (listField)
     {
         PdmXmlFieldHandle* xfh = listField->xmlCapability();
-        containedObjectType = xfh->childClassKeyword();
+        containedObjectType = xfh->dataTypeName();
     }
 
     return QString("Create new '%1'").arg(containedObjectType);
@@ -79,7 +79,7 @@ void CmdAddItemExec::redo()
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>(field);
     if (listField && field->xmlCapability())
     {
-        QString classKeyword = field->xmlCapability()->childClassKeyword();
+        QString classKeyword = field->xmlCapability()->dataTypeName();
 
         if (classKeyword.isEmpty()) return;
 

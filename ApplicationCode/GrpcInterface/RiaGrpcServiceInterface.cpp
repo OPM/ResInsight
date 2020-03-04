@@ -212,7 +212,7 @@ caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmObject
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmChildFieldHandle* childField )
 {
-    QString childClassKeyword = childField->xmlCapability()->childClassKeyword();
+    QString childClassKeyword = childField->xmlCapability()->dataTypeName();
 
     auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create( childClassKeyword );
     CAF_ASSERT( pdmObjectHandle );
@@ -225,7 +225,7 @@ caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmChildF
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildArrayField( caf::PdmChildArrayFieldHandle* childArrayField )
 {
-    QString childClassKeyword = childArrayField->xmlCapability()->childClassKeyword();
+    QString childClassKeyword = childArrayField->xmlCapability()->dataTypeName();
 
     auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create( childClassKeyword );
     CAF_ASSERT( pdmObjectHandle );

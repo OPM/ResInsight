@@ -313,7 +313,7 @@ QString PdmPythonGenerator::dataTypeString(const PdmFieldHandle* field, bool* is
 {
     auto xmlObj = field->capability<PdmXmlFieldHandle>();
     
-    QString dataType = xmlObj->childClassKeyword();
+    QString dataType = xmlObj->dataTypeName();
     bool foundList   = xmlObj->isVectorField();
 
     std::map<QString, QString> builtins =
