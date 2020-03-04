@@ -25,6 +25,7 @@ jobs:
         with:
           version: 5.9
           modules: qtscript 
+          aqtversion: '==0.8a2'
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
