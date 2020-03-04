@@ -15,7 +15,7 @@ public:
     PdmFieldXmlCap(FieldType* field, bool giveOwnership) : PdmXmlFieldHandle(field, giveOwnership)
     {
         m_field = field;
-        m_childClassKeyword = QString("%1").arg(typeid(FieldType).name());
+        m_dataTypeName = QString("%1").arg(typeid(FieldType).name());
     }
 
     // Xml Serializing
@@ -40,7 +40,7 @@ public:
     PdmFieldXmlCap(FieldType* field, bool giveOwnership) : PdmXmlFieldHandle(field, giveOwnership)
     { 
         m_field = field;
-        m_childClassKeyword = DataType::classKeywordStatic();
+        m_dataTypeName = DataType::classKeywordStatic();
         m_isResolved = false;
         m_referenceString = "";
     }
@@ -70,7 +70,7 @@ public:
     PdmFieldXmlCap(FieldType* field, bool giveOwnership) : PdmXmlFieldHandle(field, giveOwnership)
     {
         m_field = field;
-        m_childClassKeyword = DataType::classKeywordStatic();
+        m_dataTypeName = DataType::classKeywordStatic();
         m_isResolved = false;
         m_referenceString = "";
     }
@@ -97,7 +97,7 @@ class PdmFieldXmlCap< PdmChildField<DataType*> > : public PdmXmlFieldHandle
 {
     typedef PdmChildField<DataType*> FieldType;
 public:
-    PdmFieldXmlCap(FieldType* field, bool giveOwnership) : PdmXmlFieldHandle(field, giveOwnership) { m_field = field; m_childClassKeyword = DataType::classKeywordStatic(); }
+    PdmFieldXmlCap(FieldType* field, bool giveOwnership) : PdmXmlFieldHandle(field, giveOwnership) { m_field = field; m_dataTypeName = DataType::classKeywordStatic(); }
 
     // Xml Serializing
 public:
@@ -117,7 +117,7 @@ class PdmFieldXmlCap< PdmChildArrayField<DataType*> > : public PdmXmlFieldHandle
 {
     typedef PdmChildArrayField<DataType*> FieldType;
 public:
-    PdmFieldXmlCap(FieldType* field, bool giveOwnership) : PdmXmlFieldHandle(field, giveOwnership) { m_field = field; m_childClassKeyword = DataType::classKeywordStatic();}
+    PdmFieldXmlCap(FieldType* field, bool giveOwnership) : PdmXmlFieldHandle(field, giveOwnership) { m_field = field; m_dataTypeName = DataType::classKeywordStatic();}
 
     // Xml Serializing
 public:
