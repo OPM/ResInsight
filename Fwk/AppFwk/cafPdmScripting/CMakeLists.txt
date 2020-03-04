@@ -10,6 +10,8 @@ set( PROJECT_FILES
      cafPdmObjectScriptabilityRegister.cpp
      cafPdmPythonGenerator.h
      cafPdmPythonGenerator.cpp
+     cafPdmScriptIOMessages.h
+     cafPdmScriptIOMessages.cpp
 )
 
 

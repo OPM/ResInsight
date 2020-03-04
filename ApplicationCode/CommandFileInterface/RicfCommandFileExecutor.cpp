@@ -61,7 +61,7 @@ RicfCommandFileExecutor::~RicfCommandFileExecutor()
 //--------------------------------------------------------------------------------------------------
 void RicfCommandFileExecutor::executeCommands( QTextStream& stream )
 {
-    RicfMessages                    messages;
+    caf::PdmScriptIOMessages        messages;
     std::vector<RicfCommandObject*> executableCommands;
     {
         clearCachedData();
@@ -70,7 +70,7 @@ void RicfCommandFileExecutor::executeCommands( QTextStream& stream )
             RicfCommandFileReader::readCommands( stream, caf::PdmDefaultObjectFactory::instance(), &messages );
         for ( auto message : messages.m_messages )
         {
-            if ( message.first == RicfMessages::MESSAGE_WARNING )
+            if ( message.first == caf::PdmScriptIOMessages::MESSAGE_WARNING )
             {
                 RiaLogging::warning( QString( "Command file parsing warning: %1" ).arg( message.second ) );
             }

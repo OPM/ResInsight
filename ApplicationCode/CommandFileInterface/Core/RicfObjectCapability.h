@@ -28,10 +28,10 @@ namespace caf
 class PdmObject;
 class PdmObjectHandle;
 class PdmObjectFactory;
+class PdmScriptIOMessages;
 } // namespace caf
 
 class QTextStream;
-class RicfMessages;
 
 //==================================================================================================
 //
@@ -45,7 +45,9 @@ public:
 
     ~RicfObjectCapability() override;
 
-    void readFields( QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, RicfMessages* errorMessageContainer );
+    void readFields( QTextStream&              inputStream,
+                     caf::PdmObjectFactory*    objectFactory,
+                     caf::PdmScriptIOMessages* errorMessageContainer );
     void writeFields( QTextStream& outputStream ) const;
 
 private:

@@ -25,9 +25,8 @@ namespace caf
 {
 class PdmObjectFactory;
 class PdmFieldHandle;
+class PdmScriptIOMessages;
 } // namespace caf
-
-class RicfMessages;
 
 class QTextStream;
 
@@ -42,10 +41,10 @@ public:
     RicfFieldHandle( caf::PdmFieldHandle* owner, const QString& scriptFieldName, bool giveOwnership );
     ~RicfFieldHandle() override;
 
-    virtual void readFieldData( QTextStream&           inputStream,
-                                caf::PdmObjectFactory* objectFactory,
-                                RicfMessages*          errorMessageContainer,
-                                bool                   stringsAreQuoted = true ) = 0;
+    virtual void readFieldData( QTextStream&              inputStream,
+                                caf::PdmObjectFactory*    objectFactory,
+                                caf::PdmScriptIOMessages* errorMessageContainer,
+                                bool                      stringsAreQuoted = true ) = 0;
 
 private:
     caf::PdmFieldHandle* m_owner;

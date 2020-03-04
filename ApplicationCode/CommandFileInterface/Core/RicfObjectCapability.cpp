@@ -18,10 +18,10 @@
 
 #include "RicfObjectCapability.h"
 #include "RicfFieldHandle.h"
-#include "RicfMessages.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmScriptIOMessages.h"
 #include "cafPdmXmlFieldHandle.h"
 
 #include <QTextStream>
@@ -45,9 +45,9 @@ RicfObjectCapability::~RicfObjectCapability()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfObjectCapability::readFields( QTextStream&           inputStream,
-                                       caf::PdmObjectFactory* objectFactory,
-                                       RicfMessages*          errorMessageContainer )
+void RicfObjectCapability::readFields( QTextStream&              inputStream,
+                                       caf::PdmObjectFactory*    objectFactory,
+                                       caf::PdmScriptIOMessages* errorMessageContainer )
 {
     std::set<QString> readFields;
     bool              isLastArgumentRead = false;

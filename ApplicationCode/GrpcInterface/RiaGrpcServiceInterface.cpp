@@ -22,7 +22,6 @@
 #include "RimProject.h"
 
 #include "RicfFieldHandle.h"
-#include "RicfMessages.h"
 #include "RicfObjectCapability.h"
 
 #include "cafPdmChildArrayField.h"
@@ -31,6 +30,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptabilityRegister.h"
 #include "cafPdmProxyValueField.h"
+#include "cafPdmScriptIOMessages.h"
 #include "cafPdmXmlFieldHandle.h"
 
 #include <grpcpp/grpcpp.h>
@@ -173,8 +173,8 @@ bool RiaGrpcServiceInterface::assignFieldValue( const QString&      stringValue,
     auto ricfHandle = field->template capability<RicfFieldHandle>();
     if ( field && ricfHandle != nullptr )
     {
-        QTextStream  stream( stringValue.toLatin1() );
-        RicfMessages messages;
+        QTextStream              stream( stringValue.toLatin1() );
+        caf::PdmScriptIOMessages messages;
         *oldValue = field->toQVariant();
         ricfHandle->readFieldData( stream, nullptr, &messages, false );
         *newValue = field->toQVariant();
