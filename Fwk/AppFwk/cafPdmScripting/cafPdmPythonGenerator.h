@@ -53,6 +53,8 @@ public:
     static QString dataTypeString(const PdmFieldHandle* field, bool* isList = nullptr, bool* isBuiltinType = nullptr);
 
     static QString pythonifyDataValue(const QString& dataValue);
+    static QString pythonHelpString(const QString& existingTooltip, const QString& keyword);
+
 };
 
 }

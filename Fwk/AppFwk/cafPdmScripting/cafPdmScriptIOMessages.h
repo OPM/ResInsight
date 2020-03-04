@@ -15,34 +15,44 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
-#include "cafPdmFieldScriptability.h"
 
 #include <QString>
-
-namespace caf
-{
-class PdmObjectFactory;
-class PdmFieldHandle;
-class PdmScriptIOMessages;
-} // namespace caf
+#include <vector>
 
 class QTextStream;
 
-//==================================================================================================
-//
-//
-//
-//==================================================================================================
-class RicfFieldHandle : public caf::PdmFieldScriptability
+namespace caf {
+
+class PdmScriptIOMessages
 {
 public:
-    RicfFieldHandle( caf::PdmFieldHandle* owner, const QString& scriptFieldName, bool giveOwnership );
-    ~RicfFieldHandle() override;
+    PdmScriptIOMessages()
+        : m_currentLineNumber( 1 )
+    {
+    }
+
+    enum MessageType
+    {
+        MESSAGE_WARNING,
+        MESSAGE_ERROR
+    };
+
+    void addWarning( const QString& message );
+    void addError( const QString& message );
+
+    void skipWhiteSpaceWithLineNumberCount( QTextStream& inputStream );
+    void skipLineWithLineNumberCount( QTextStream& inputStream );
+
+    QChar readCharWithLineNumberCount( QTextStream& inputStream );
+    QChar peekNextChar( QTextStream& inputStream );
+
+    QString                                      currentCommand;
+    QString                                      currentArgument;
+    std::vector<std::pair<MessageType, QString>> m_messages;
 
 private:
-    caf::PdmFieldHandle* m_owner;
-    QString              m_fieldName;
-    bool                 m_IOWriteable;
+    int m_currentLineNumber;
 };
+
+}

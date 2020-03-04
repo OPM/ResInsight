@@ -82,3 +82,30 @@ void PdmFieldScriptability::setIOWriteable(bool writeable)
 {
     m_IOWriteable = writeable;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Empty default implementation that doesn't offer any script IO for the field
+//--------------------------------------------------------------------------------------------------
+void PdmFieldScriptability::readFromField(QTextStream& outputStream, bool quoteStrings /*= true*/, bool quoteNonBuiltins /*= false*/) const
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Empty default implementation that doesn't offer any script IO for the field
+//--------------------------------------------------------------------------------------------------
+void PdmFieldScriptability::writeToField(QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, caf::PdmScriptIOMessages* errorMessageContainer, bool stringsAreQuoted /*= true*/)
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldScriptability::addToField(caf::PdmFieldHandle* field, const QString& fieldName)
+{
+    if (field->template capability<PdmFieldScriptability>() == nullptr)
+    {
+        new PdmFieldScriptability(field, fieldName, true);
+    }
+}
