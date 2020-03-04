@@ -45,7 +45,7 @@ public:
     void            setIOReadable(bool isReadable)      { m_isIOReadable = isReadable; }
     void            setCopyable(bool isCopyable)        { m_isCopyable  = isCopyable; }
 
-    QString         childClassKeyword() const;
+    QString         dataTypeName() const;
 
     virtual void    readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory)  = 0;
     virtual void    writeFieldData(QXmlStreamWriter& xmlStream) const = 0;
@@ -56,7 +56,7 @@ public:
 
 protected:
     bool            assertValid() const;
-    QString         m_childClassKeyword; ///< Must be set in constructor of derived XmlFieldHandle
+    QString         m_dataTypeName; ///< Must be set in constructor of derived XmlFieldHandle
 
 private:
     bool                 m_isIOReadable;

@@ -56,9 +56,9 @@ void PdmXmlFieldHandle::disableIO()
 /// to PdmObjectHandle derived objects. 
 /// Returns typeid(DataType).name() if the field is not containing some PdmObjectHandle type
 //--------------------------------------------------------------------------------------------------
-QString PdmXmlFieldHandle::childClassKeyword() const
+QString PdmXmlFieldHandle::dataTypeName() const
 {
-    return m_childClassKeyword;
+    return m_dataTypeName;
 }
 
 //--------------------------------------------------------------------------------------------------
