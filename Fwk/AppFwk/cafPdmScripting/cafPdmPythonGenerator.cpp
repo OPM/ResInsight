@@ -35,6 +35,8 @@
 //##################################################################################################
 #include "cafPdmPythonGenerator.h"
 
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmFieldScriptability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectFactory.h"
@@ -112,34 +114,39 @@ QString PdmPythonGenerator::generate(PdmObjectFactory* factory) const
                 object->fields(fields);
                 for (auto field : fields)
                 {
-                    auto pdmValueField = dynamic_cast<const PdmValueField*>(field);
-                    if (pdmValueField)
+                    auto    scriptability = field->template capability<PdmFieldScriptability>();
+                    if (scriptability != nullptr)
                     {
-                        QString keyword = pdmValueField->keyword();
-                        auto    scriptability = field->template capability<PdmFieldScriptability>();
-                        if (scriptability != nullptr)
+                        QString snake_field_name = camelToSnakeCase(scriptability->scriptFieldName());
+
+                        QString comment;
                         {
+                            QStringList commentComponents;
+                            commentComponents << field->capability<PdmUiFieldHandle>()->uiName();
+                            commentComponents << field->capability<PdmUiFieldHandle>()->uiWhatsThis();
+                            commentComponents.removeAll(QString(""));
+                            comment = commentComponents.join(". ");
+                        }
+
+                        auto pdmValueField = dynamic_cast<const PdmValueField*>(field);
+                        auto pdmChildField = dynamic_cast<const PdmChildFieldHandle*>(field);
+                        auto pdmChildArrayField = dynamic_cast<const PdmChildArrayFieldHandle*>(field);
+                        if (pdmValueField)
+                        {
+                            QString  dataType = PdmPythonGenerator::dataTypeString(field, true);
+                            if (field->xmlCapability()->isVectorField())
+                            {
+                                dataType = QString("List of %1").arg(dataType);
+                            }
+
                             bool shouldBeMethod = false;
                             auto proxyField = dynamic_cast<const PdmProxyFieldHandle*>(field);
                             if (proxyField && proxyField->isStreamingField()) shouldBeMethod = true;
 
-                            QString snake_field_name = camelToSnakeCase(scriptability->scriptFieldName());
                             if (classAttributesGenerated[field->ownerClass()].count(snake_field_name)) continue;
                             if (classMethodsGenerated[field->ownerClass()].count(snake_field_name)) continue;
 
-                            QString comment;
-                            {
-                                QStringList commentComponents;
-                                commentComponents << pdmValueField->capability<PdmUiFieldHandle>()->uiName();
-                                commentComponents << pdmValueField->capability<PdmUiFieldHandle>()->uiWhatsThis();
-                                commentComponents.removeAll(QString(""));
-                                comment = commentComponents.join(". ");
-                            }
-
                             QVariant valueVariant = pdmValueField->toQVariant();
-
-                            bool isList, isBuiltinType;
-                            QString  dataType = PdmPythonGenerator::dataTypeString(pdmValueField, &isList, &isBuiltinType);
 
                             if (shouldBeMethod)
                             {
@@ -174,7 +181,7 @@ QString PdmPythonGenerator::generate(PdmObjectFactory* factory) const
                                 }
                             }
                             else
-                            {                            
+                            {                        
                                 QString valueString;
                                 QTextStream valueStream(&valueString);
                                 scriptability->readFromField(valueStream, true, true);
@@ -190,6 +197,29 @@ QString PdmPythonGenerator::generate(PdmObjectFactory* factory) const
                                 classAttributesGenerated[field->ownerClass()][snake_field_name].first = fieldCode;
                                 classAttributesGenerated[field->ownerClass()][snake_field_name].second = fullComment;
                             }
+                        }
+                        else if (pdmChildField || pdmChildArrayField)
+                        {
+                            QString dataType = PdmPythonGenerator::dataTypeString(field, false);
+                            QString scriptDataType = PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword(dataType);
+
+                            QString commentDataType = field->xmlCapability()->isVectorField() ?
+                                QString("List of %1").arg(scriptDataType) : scriptDataType;
+
+                            QString firstItemTag = pdmChildField ? QString("[0]") : QString("");
+                            QString fullComment =
+                                QString("        \"\"\"%1\n        Returns:\n             %2\n        \"\"\"")
+                                .arg(comment)
+                                .arg(commentDataType);
+
+                            QString fieldCode = QString("    def %1(self):\n%2\n        return "
+                                "self.children(\"%3\", %4)%5\n")
+                                .arg(snake_field_name)
+                                .arg(fullComment)
+                                .arg(scriptability->scriptFieldName())
+                                .arg(scriptDataType)
+                                .arg(firstItemTag);
+                            classMethodsGenerated[field->ownerClass()][snake_field_name] = fieldCode;
                         }
                     }
                 }
@@ -309,12 +339,11 @@ QString PdmPythonGenerator::camelToSnakeCase(const QString& camelString)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmPythonGenerator::dataTypeString(const PdmFieldHandle* field, bool* isList, bool* isBuiltinType)
+QString PdmPythonGenerator::dataTypeString(const PdmFieldHandle* field, bool useStrForUnknownDataTypes)
 {
     auto xmlObj = field->capability<PdmXmlFieldHandle>();
     
     QString dataType = xmlObj->dataTypeName();
-    bool foundList   = xmlObj->isVectorField();
 
     std::map<QString, QString> builtins =
     { {QString::fromStdString(typeid(double).name()), "float"},
@@ -333,22 +362,11 @@ QString PdmPythonGenerator::dataTypeString(const PdmFieldHandle* field, bool* is
         }
     }
 
-    if (isList)
-    {
-        *isList = foundList;
-    }
-    if (isBuiltinType)
-    {
-        *isBuiltinType = foundBuiltin;
-    }
-
-    if (!foundBuiltin)
+    if (!foundBuiltin && useStrForUnknownDataTypes)
     {
         dataType = "str";
     }
-
-    if (foundList) return QString("List of %1").arg(dataType);
-
+    
     return dataType;
 }
 

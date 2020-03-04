@@ -85,7 +85,13 @@ RimEclipseCase::RimEclipseCase()
                                                     "Reservoir",
                                                     "Abtract base class for Eclipse Cases" );
 
-    CAF_PDM_InitFieldNoDefault( &reservoirViews, "ReservoirViews", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithKeywordNoDefault( &reservoirViews,
+                                                     "ReservoirViews",
+                                                     "Views",
+                                                     "",
+                                                     "",
+                                                     "",
+                                                     "All Eclipse Views in the case" );
     reservoirViews.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "", "", "", "" );

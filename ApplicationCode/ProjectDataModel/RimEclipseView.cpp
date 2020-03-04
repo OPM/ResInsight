@@ -128,7 +128,13 @@ RimEclipseView::RimEclipseView()
                                                     "EclipseView",
                                                     "The Eclipse 3d Reservoir View" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellResult, "GridCellResult", "Cell Result", ":/CellResult.png", "", "" );
+    CAF_PDM_InitScriptableFieldWithKeywordNoDefault( &m_cellResult,
+                                                     "GridCellResult",
+                                                     "CellResult",
+                                                     "Cell Result",
+                                                     ":/CellResult.png",
+                                                     "",
+                                                     "" );
     m_cellResult = new RimEclipseCellColors();
     m_cellResult.uiCapability()->setUiHidden( true );
     m_cellResult->setDiffResultOptionsEnabled( true );
