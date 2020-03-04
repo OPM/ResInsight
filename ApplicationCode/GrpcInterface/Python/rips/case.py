@@ -26,7 +26,7 @@ import rips.project
 from rips.grid import Grid
 from rips.pdmobject import add_method, PdmObject
 from rips.view import View
-from rips.well_bore_stability_plot import WellBoreStabilityPlot, WbsParameters
+from rips.generated.pdm_objects import WellBoreStabilityPlot, WbsParameters
 from rips.simulation_well import SimulationWell
 
 """ResInsight case class

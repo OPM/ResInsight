@@ -13,6 +13,6 @@ from rips.project import Project
 from rips.plot import Plot, PlotWindow
 from rips.contour_map import EclipseContourMap, GeoMechContourMap
 from rips.well_log_plot import WellLogPlot
-from rips.well_bore_stability_plot import WellBoreStabilityPlot, WbsParameters
 from rips.simulation_well import SimulationWell
-from rips.wellpath import WellPathBase
+
+from rips.generated.pdm_objects import *

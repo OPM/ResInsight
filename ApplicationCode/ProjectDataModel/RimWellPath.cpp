@@ -73,7 +73,7 @@ const char RimWellPath::SIM_WELL_NONE_UI_TEXT[] = "None";
 //--------------------------------------------------------------------------------------------------
 RimWellPath::RimWellPath()
 {
-    CAF_PDM_InitScriptableObject( "WellPath", ":/Well.png", "", "The Base class for Well Paths" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "WellPath", ":/Well.png", "", "", "WellPath", "The Base class for Well Paths" );
 
     RICF_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
     m_name.registerKeywordAlias( "WellPathName" );
