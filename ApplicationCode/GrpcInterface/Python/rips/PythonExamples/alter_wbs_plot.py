@@ -20,7 +20,7 @@ for wbsplot in wbsplots:
 
     # Example of setting parameters for existing plots
     params = wbsplot.parameters()
-    params.user_poisson_ratio = 0.654321
+    params.user_poisson_ratio = 0.12345
     params.update()
     wbsplot.update()    
     wbsplot.export_snapshot(export_folder=dirname)

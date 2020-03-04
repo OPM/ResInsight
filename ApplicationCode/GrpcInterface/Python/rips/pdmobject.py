@@ -87,6 +87,7 @@ def copy_from(self, object):
                 setattr(self, attribute, value)  
     if self.__custom_init__ is not None:
         self.__custom_init__(self._pb2_object, self._channel)
+    self.update()
 
 @add_method(PdmObject)
 def warnings(self):

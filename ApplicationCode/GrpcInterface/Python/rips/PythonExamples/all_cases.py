@@ -16,7 +16,7 @@ if resinsight is not None:
     for case in cases:
         print("Case id: " + str(case.id))
         print("Case name: " + case.name)
-        print("Case type: " + case.class_keyword)
+        print("Case type: " + case.__class__.__name__)
         print("Case file name: " + case.file_path)
         print("Case reservoir bounding box:", case.reservoir_boundingbox())
 

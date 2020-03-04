@@ -24,6 +24,7 @@
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
 
+#include "cafPdmFieldScriptability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptabilityRegister.h"
 
@@ -171,7 +172,8 @@ Status RiaPdmObjectMethodStateHandler::init( const rips::PdmObjectMethodRequest*
     m_fieldOwner->fields( fields );
     for ( auto field : fields )
     {
-        if ( field->keyword() == fieldName )
+        auto scriptability = field->capability<caf::PdmFieldScriptability>();
+        if ( scriptability && scriptability->scriptFieldName() == fieldName )
         {
             caf::PdmProxyFieldHandle* proxyField = dynamic_cast<caf::PdmProxyFieldHandle*>( field );
             if ( proxyField )
@@ -224,7 +226,8 @@ Status RiaPdmObjectMethodStateHandler::init( const rips::PdmObjectSetMethodChunk
     m_fieldOwner->fields( fields );
     for ( auto field : fields )
     {
-        if ( field->keyword() == fieldName )
+        auto scriptability = field->capability<caf::PdmFieldScriptability>();
+        if ( scriptability && scriptability->scriptFieldName() == fieldName )
         {
             caf::PdmProxyFieldHandle* proxyField = dynamic_cast<caf::PdmProxyFieldHandle*>( field );
             if ( proxyField )
@@ -406,7 +409,8 @@ grpc::Status RiaGrpcPdmObjectService::GetChildPdmObjects( grpc::ServerContext*  
         matchingObject->fields( fields );
         for ( auto field : fields )
         {
-            if ( field->keyword() == fieldName )
+            auto scriptability = field->capability<caf::PdmFieldScriptability>();
+            if ( scriptability && scriptability->scriptFieldName() == fieldName )
             {
                 std::vector<caf::PdmObjectHandle*> childObjects;
                 field->childObjects( &childObjects );
