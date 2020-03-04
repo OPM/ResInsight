@@ -18,9 +18,8 @@
 
 #pragma once
 
-#include "RicfMessages.h"
-
 #include "cafAppEnum.h"
+#include "cafPdmScriptIOMessages.h"
 
 #include <map>
 #include <vector>

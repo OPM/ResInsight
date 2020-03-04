@@ -19,19 +19,19 @@
 #include "RifcCommandFileReader.h"
 
 #include "RicfCommandObject.h"
-#include "RicfMessages.h"
 #include "RicfObjectCapability.h"
 
 #include "cafPdmObjectFactory.h"
+#include "cafPdmScriptIOMessages.h"
 
 #include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands( QTextStream&           inputStream,
-                                                                     caf::PdmObjectFactory* objectFactory,
-                                                                     RicfMessages*          errorMessageContainer )
+std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands( QTextStream&              inputStream,
+                                                                     caf::PdmObjectFactory*    objectFactory,
+                                                                     caf::PdmScriptIOMessages* errorMessageContainer )
 {
     std::vector<RicfCommandObject*> readCommands;
 

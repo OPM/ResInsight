@@ -6,7 +6,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfFieldCapability.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfFieldHandle.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfObjectCapability.h
 ${CMAKE_CURRENT_LIST_DIR}/RifcCommandFileReader.h
-${CMAKE_CURRENT_LIST_DIR}/RicfMessages.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -16,7 +15,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfFieldCapability.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfFieldHandle.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfObjectCapability.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifcCommandFileReader.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicfMessages.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

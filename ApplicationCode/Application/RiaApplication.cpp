@@ -36,7 +36,6 @@
 #include "RicImportGeneralDataFeature.h"
 #include "RicfCommandFileExecutor.h"
 #include "RicfFieldHandle.h"
-#include "RicfMessages.h"
 #include "RicfObjectCapability.h"
 
 #include "Rim2dIntersectionViewCollection.h"
@@ -98,6 +97,7 @@
 #include "cafPdmCodeGenerator.h"
 #include "cafPdmDataValueField.h"
 #include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmScriptIOMessages.h"
 #include "cafPdmSettings.h"
 #include "cafPdmUiModelChangeDetector.h"
 #include "cafProgressInfo.h"
@@ -1260,8 +1260,8 @@ QVariant RiaApplication::cacheDataObject( const QString& key ) const
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::executeCommandFile( const QString& commandFile )
 {
-    QFile        file( commandFile );
-    RicfMessages messages;
+    QFile               file( commandFile );
+    caf::PdmScriptIOMessages messages;
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
     {
         // TODO : Error logging?
