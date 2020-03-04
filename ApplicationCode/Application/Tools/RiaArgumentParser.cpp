@@ -31,13 +31,13 @@
 #include "RiuPlotMainWindow.h"
 
 #include "RicfCommandFileExecutor.h"
-#include "RicfMessages.h"
 
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
 #include "RicImportSummaryCasesFeature.h"
 
+#include "cafPdmScriptIOMessages.h"
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
