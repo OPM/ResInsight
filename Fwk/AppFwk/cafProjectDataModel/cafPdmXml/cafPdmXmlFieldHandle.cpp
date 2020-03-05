@@ -54,7 +54,9 @@ void PdmXmlFieldHandle::disableIO()
 //--------------------------------------------------------------------------------------------------
 /// Returns the classKeyword of the child class type, if this field is supposed to contain pointers 
 /// to PdmObjectHandle derived objects. 
-/// Returns typeid(DataType).name() if the field is not containing some PdmObjectHandle type
+/// Returns typeid(DataType).name() if the field is not containing some PdmObjectHandle type.
+/// Warning: typeid(DataType).name() is compiler implementation specific and thus you should not
+/// Compare this with a predefined literal, like "double" or "float". Instead compare with typeid(double).name().
 //--------------------------------------------------------------------------------------------------
 QString PdmXmlFieldHandle::dataTypeName() const
 {
