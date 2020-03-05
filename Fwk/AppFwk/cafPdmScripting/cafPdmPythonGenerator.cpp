@@ -213,8 +213,8 @@ QString PdmPythonGenerator::generate(PdmObjectFactory* factory) const
 
                             if (pdmChildField)
                             {
-                                QString fieldCode = QString("    def %1(self):\n%2\n        return "
-                                    "self.children(\"%3\", %4)[0] if len(self.children) > 0 else None\n")
+                                QString fieldCode = QString("    def %1(self):\n%2\n        children = "
+                                    "self.children(\"%3\", %4)\n        return children[0] if len(children) > 0 else None\n")
                                     .arg(snake_field_name)
                                     .arg(fullComment)
                                     .arg(scriptability->scriptFieldName())
