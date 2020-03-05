@@ -206,20 +206,31 @@ QString PdmPythonGenerator::generate(PdmObjectFactory* factory) const
                             QString commentDataType = field->xmlCapability()->isVectorField() ?
                                 QString("List of %1").arg(scriptDataType) : scriptDataType;
 
-                            QString firstItemTag = pdmChildField ? QString("[0]") : QString("");
                             QString fullComment =
                                 QString("        \"\"\"%1\n        Returns:\n             %2\n        \"\"\"")
                                 .arg(comment)
                                 .arg(commentDataType);
 
-                            QString fieldCode = QString("    def %1(self):\n%2\n        return "
-                                "self.children(\"%3\", %4)%5\n")
-                                .arg(snake_field_name)
-                                .arg(fullComment)
-                                .arg(scriptability->scriptFieldName())
-                                .arg(scriptDataType)
-                                .arg(firstItemTag);
-                            classMethodsGenerated[field->ownerClass()][snake_field_name] = fieldCode;
+                            if (pdmChildField)
+                            {
+                                QString fieldCode = QString("    def %1(self):\n%2\n        return "
+                                    "self.children(\"%3\", %4)[0] if len(self.children) > 0 else None\n")
+                                    .arg(snake_field_name)
+                                    .arg(fullComment)
+                                    .arg(scriptability->scriptFieldName())
+                                    .arg(scriptDataType);                                    
+                                classMethodsGenerated[field->ownerClass()][snake_field_name] = fieldCode;
+                            }
+                            else
+                            {
+                                QString fieldCode = QString("    def %1(self):\n%2\n        return "
+                                    "self.children(\"%3\", %4)\n")
+                                    .arg(snake_field_name)
+                                    .arg(fullComment)
+                                    .arg(scriptability->scriptFieldName())
+                                    .arg(scriptDataType);
+                                classMethodsGenerated[field->ownerClass()][snake_field_name] = fieldCode;
+                            }
                         }
                     }
                 }
