@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicfFieldCapability.h"
-#include "RicfMessages.h"
 
 #include "RiaColorTools.h"
 
@@ -26,10 +25,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldReader<QString>::readFieldData( QString&      fieldValue,
-                                              QTextStream&  inputStream,
-                                              RicfMessages* errorMessageContainer,
-                                              bool          stringsAreQuoted )
+void RicfFieldIOHandler<QString>::writeToField( QString&                  fieldValue,
+                                                QTextStream&              inputStream,
+                                                caf::PdmScriptIOMessages* errorMessageContainer,
+                                                bool                      stringsAreQuoted )
 {
     fieldValue = "";
 
@@ -99,7 +98,10 @@ void RicfFieldReader<QString>::readFieldData( QString&      fieldValue,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldWriter<QString>::writeFieldData( const QString& fieldValue, QTextStream& outputStream, bool quoteStrings )
+void RicfFieldIOHandler<QString>::readFromField( const QString& fieldValue,
+                                                 QTextStream&   outputStream,
+                                                 bool           quoteStrings,
+                                                 bool           quoteNonBuiltin )
 {
     outputStream << "\"";
     for ( int i = 0; i < fieldValue.size(); ++i )
@@ -116,10 +118,10 @@ void RicfFieldWriter<QString>::writeFieldData( const QString& fieldValue, QTextS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldReader<bool>::readFieldData( bool&         fieldValue,
-                                           QTextStream&  inputStream,
-                                           RicfMessages* errorMessageContainer,
-                                           bool          stringsAreQuoted )
+void RicfFieldIOHandler<bool>::writeToField( bool&                     fieldValue,
+                                             QTextStream&              inputStream,
+                                             caf::PdmScriptIOMessages* errorMessageContainer,
+                                             bool                      stringsAreQuoted )
 {
     errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
     QString accumulatedFieldValue;
@@ -155,7 +157,10 @@ void RicfFieldReader<bool>::readFieldData( bool&         fieldValue,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldWriter<bool>::writeFieldData( const bool& fieldValue, QTextStream& outputStream, bool quoteStrings )
+void RicfFieldIOHandler<bool>::readFromField( const bool&  fieldValue,
+                                              QTextStream& outputStream,
+                                              bool         quoteStrings,
+                                              bool         quoteNonBuiltin )
 {
     // Lower-case true/false is used in the documentation.
     outputStream << ( fieldValue ? "true" : "false" );
@@ -164,13 +169,13 @@ void RicfFieldWriter<bool>::writeFieldData( const bool& fieldValue, QTextStream&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldReader<cvf::Color3f>::readFieldData( cvf::Color3f& fieldValue,
-                                                   QTextStream&  inputStream,
-                                                   RicfMessages* errorMessageContainer,
-                                                   bool          stringsAreQuoted )
+void RicfFieldIOHandler<cvf::Color3f>::writeToField( cvf::Color3f&             fieldValue,
+                                                     QTextStream&              inputStream,
+                                                     caf::PdmScriptIOMessages* errorMessageContainer,
+                                                     bool                      stringsAreQuoted )
 {
     QString fieldStringValue;
-    RicfFieldReader<QString>::readFieldData( fieldStringValue, inputStream, errorMessageContainer, stringsAreQuoted );
+    RicfFieldIOHandler<QString>::writeToField( fieldStringValue, inputStream, errorMessageContainer, stringsAreQuoted );
 
     QColor qColor( fieldStringValue );
     if ( qColor.isValid() )
@@ -182,9 +187,12 @@ void RicfFieldReader<cvf::Color3f>::readFieldData( cvf::Color3f& fieldValue,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldWriter<cvf::Color3f>::writeFieldData( const cvf::Color3f& fieldValue, QTextStream& outputStream, bool quoteStrings )
+void RicfFieldIOHandler<cvf::Color3f>::readFromField( const cvf::Color3f& fieldValue,
+                                                      QTextStream&        outputStream,
+                                                      bool                quoteStrings,
+                                                      bool                quoteNonBuiltin )
 {
     QColor  qColor           = RiaColorTools::toQColor( fieldValue );
     QString fieldStringValue = qColor.name();
-    RicfFieldWriter<QString>::writeFieldData( fieldStringValue, outputStream, quoteStrings );
+    RicfFieldIOHandler<QString>::readFromField( fieldStringValue, outputStream, quoteStrings );
 }

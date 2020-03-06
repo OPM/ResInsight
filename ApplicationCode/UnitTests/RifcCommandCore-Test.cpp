@@ -2,10 +2,10 @@
 
 #include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
-#include "RicfMessages.h"
 #include "RifcCommandFileReader.h"
 
 #include "cafPdmField.h"
+#include "cafPdmScriptIOMessages.h"
 
 class TestCommand1 : public RicfCommandObject
 {
@@ -80,8 +80,8 @@ TEST( RicfCommands, Test1 )
 
     // std::cout << commandString.toStdString() << std::endl;
 
-    QTextStream  inputStream( &commandString );
-    RicfMessages errors;
+    QTextStream         inputStream( &commandString );
+    caf::PdmScriptIOMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands( inputStream, caf::PdmDefaultObjectFactory::instance(), &errors );
     EXPECT_EQ( (size_t)5, objects.size() );
@@ -138,8 +138,8 @@ TEST( RicfCommands, ErrorMessages )
 
     std::cout << commandString.toStdString() << std::endl;
 
-    QTextStream  inputStream( &commandString );
-    RicfMessages errors;
+    QTextStream         inputStream( &commandString );
+    caf::PdmScriptIOMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands( inputStream, caf::PdmDefaultObjectFactory::instance(), &errors );
 
@@ -155,7 +155,7 @@ TEST( RicfCommands, ErrorMessages )
     for ( const auto& msg : errors.m_messages )
     {
         QString label;
-        if ( msg.first == RicfMessages::MESSAGE_ERROR )
+        if ( msg.first == caf::PdmScriptIOMessages::MESSAGE_ERROR )
         {
             label = "Error  : ";
         }
@@ -180,8 +180,8 @@ TEST( RicfCommands, EmptyArgumentList )
     // Ensure no error messages when command with no arguments is read
     QString commandString( "TestCommand1()" );
 
-    QTextStream  inputStream( &commandString );
-    RicfMessages errors;
+    QTextStream         inputStream( &commandString );
+    caf::PdmScriptIOMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands( inputStream, caf::PdmDefaultObjectFactory::instance(), &errors );
 
@@ -215,8 +215,8 @@ TEST( RicfCommands, TransformFileCommandObjectsToExecutableCommandObjects )
 
     )";
 
-    QTextStream  inputStream( &commandString );
-    RicfMessages errors;
+    QTextStream         inputStream( &commandString );
+    caf::PdmScriptIOMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands( inputStream, caf::PdmDefaultObjectFactory::instance(), &errors );
     EXPECT_TRUE( errors.m_messages.empty() );
@@ -252,8 +252,8 @@ TEST( RicfCommands, IgnoreCommentLines )
 
     )";
 
-    QTextStream  inputStream( &commandString );
-    RicfMessages errors;
+    QTextStream         inputStream( &commandString );
+    caf::PdmScriptIOMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands( inputStream, caf::PdmDefaultObjectFactory::instance(), &errors );
     EXPECT_TRUE( errors.m_messages.empty() );
@@ -283,8 +283,8 @@ TEST( RicfCommands, IgnoreCommentLinesShowErrorLine )
 
     )";
 
-    QTextStream  inputStream( &commandString );
-    RicfMessages errors;
+    QTextStream         inputStream( &commandString );
+    caf::PdmScriptIOMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands( inputStream, caf::PdmDefaultObjectFactory::instance(), &errors );
     EXPECT_EQ( (size_t)1, errors.m_messages.size() );
@@ -315,8 +315,8 @@ TEST( RicfCommands, WriteCommand )
     }
 
     {
-        QTextStream  inputStream( &commandString );
-        RicfMessages errors;
+        QTextStream         inputStream( &commandString );
+        caf::PdmScriptIOMessages errors;
 
         auto objects =
             RicfCommandFileReader::readCommands( inputStream, caf::PdmDefaultObjectFactory::instance(), &errors );

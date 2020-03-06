@@ -385,8 +385,8 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
     }
 
     // Do not perform the transformation (applyMapaxes == false):
-    // The coordinates have been transformed to the mapaxes coordinate system already.
-    // However, send the mapaxes data in to libecl so that the coordinate system description is saved.
+    // The coordinates have been transformed to the map axes coordinate system already.
+    // However, send the map axes data in to libecl so that the coordinate system description is saved.
     bool           applyMapaxes = false;
     ecl_grid_type* mainEclGrid  = ecl_grid_alloc_GRID_data( (int)ecl_coords.size(),
                                                            ecl_nx,
@@ -473,6 +473,12 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
         CVF_ASSERT( !resultValues.empty() );
         if ( resultValues.empty() ) continue;
 
+        double defaultExportValue = 0.0;
+        if ( keyword.endsWith( "NUM" ) )
+        {
+            defaultExportValue = 1.0;
+        }
+
         std::vector<double> filteredResults;
         filteredResults.reserve( resultValues.size() );
 
@@ -492,6 +498,10 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
                     if ( resIndex != cvf::UNDEFINED_SIZE_T )
                     {
                         filteredResults.push_back( resultValues[resIndex] );
+                    }
+                    else
+                    {
+                        filteredResults.push_back( defaultExportValue );
                     }
                 }
             }

@@ -45,6 +45,7 @@
 
 #include <QVariant>
 
+#include <typeinfo>
 #include <vector>
 
 
@@ -62,6 +63,10 @@ template<typename DataType >
 class PdmDataValueField : public PdmValueField
 {
 public:
+    // Type traits magic to check if a template argument is a vector
+    template<typename T> struct is_vector : public std::false_type {};
+    template<typename T, typename A> struct is_vector<std::vector<T, A>> : public std::true_type {};
+
     typedef DataType FieldDataType;
     PdmDataValueField() {}
     PdmDataValueField(const PdmDataValueField& other)                   {  m_fieldValue = other.m_fieldValue; }
@@ -95,6 +100,7 @@ public:
 
     bool                operator== (const DataType& fieldValue) const   { return m_fieldValue == fieldValue; }
     bool                operator!= (const DataType& fieldValue) const   { return m_fieldValue != fieldValue; }
+
 protected:
     DataType            m_fieldValue;
 

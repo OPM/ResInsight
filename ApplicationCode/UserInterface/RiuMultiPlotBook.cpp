@@ -483,9 +483,18 @@ void RiuMultiPlotBook::createPages()
         page->addPlot( plotWidgets[visibleIndex] );
         page->performUpdate();
     }
+
+    // Set page numbers in title when there's more than one page
+    if ( m_pages.size() > 1 )
+    {
+        for ( int i = 0; i < m_pages.size(); ++i )
+        {
+            int pageNumber = i + 1;
+            m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( pageNumber ).arg( m_pages.size() ) );
+        }
+    }
     m_book->adjustSize();
 }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -502,8 +511,7 @@ RiuMultiPlotPage* RiuMultiPlotBook::createPage()
     RiuMultiPlotPage* page = new RiuMultiPlotPage( m_plotDefinition, this );
 
     // Reapply plot settings
-    size_t pageNumber = m_pages.size() + 1;
-    page->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( pageNumber ).arg( pageNumber ) );
+    page->setPlotTitle( m_plotTitle );
     page->setFontSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() );
     page->setTitleVisible( m_titleVisible );
     page->setSubTitlesVisible( m_subTitlesVisible );

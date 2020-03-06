@@ -43,7 +43,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "Case", "RimCase" );
 RimCase::RimCase()
     : m_isInActiveDestruction( false )
 {
-    RICF_InitObjectWithScriptNameAndComment( "Case", ":/Case48x48.png", "", "", "Case", "The ResInsight base class for Cases" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Case", ":/Case48x48.png", "", "", "Case", "The ResInsight base class for Cases" );
 
     RICF_InitField( &caseUserDescription, "Name", QString(), "Case Name", "", "", "" );
     caseUserDescription.registerKeywordAlias( "CaseUserDescription" );

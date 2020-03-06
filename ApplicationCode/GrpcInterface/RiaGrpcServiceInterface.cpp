@@ -22,13 +22,15 @@
 #include "RimProject.h"
 
 #include "RicfFieldHandle.h"
-#include "RicfMessages.h"
 #include "RicfObjectCapability.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmDataValueField.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptabilityRegister.h"
+#include "cafPdmProxyValueField.h"
+#include "cafPdmScriptIOMessages.h"
 #include "cafPdmXmlFieldHandle.h"
 
 #include <grpcpp/grpcpp.h>
@@ -71,7 +73,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
     CAF_ASSERT( source && destination && source->xmlCapability() );
 
     QString classKeyword = source->xmlCapability()->classKeyword();
-    QString scriptName   = RicfObjectCapability::scriptClassNameFromClassKeyword( classKeyword );
+    QString scriptName   = caf::PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
     destination->set_class_keyword( scriptName.toStdString() );
     destination->set_address( reinterpret_cast<uint64_t>( source ) );
 
@@ -100,10 +102,14 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
             auto    ricfHandle = field->template capability<RicfFieldHandle>();
             if ( ricfHandle != nullptr )
             {
-                QString     text;
-                QTextStream outStream( &text );
-                ricfHandle->writeFieldData( outStream, false );
-                ( *parametersMap )[ricfHandle->fieldName().toStdString()] = text.toStdString();
+                auto pdmProxyField = dynamic_cast<const caf::PdmProxyFieldHandle*>( field );
+                if ( !( pdmProxyField && pdmProxyField->isStreamingField() ) )
+                {
+                    QString     text;
+                    QTextStream outStream( &text );
+                    ricfHandle->readFromField( outStream, false );
+                    ( *parametersMap )[ricfHandle->scriptFieldName().toStdString()] = text.toStdString();
+                }
             }
         }
     }
@@ -141,7 +147,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
             auto ricfHandle = pdmValueField->template capability<RicfFieldHandle>();
             if ( ricfHandle )
             {
-                QString keyword = ricfHandle->fieldName();
+                QString keyword = ricfHandle->scriptFieldName();
                 QString value   = QString::fromStdString( parametersMap[keyword.toStdString()] );
 
                 QVariant oldValue, newValue;
@@ -167,10 +173,10 @@ bool RiaGrpcServiceInterface::assignFieldValue( const QString&      stringValue,
     auto ricfHandle = field->template capability<RicfFieldHandle>();
     if ( field && ricfHandle != nullptr )
     {
-        QTextStream  stream( stringValue.toLatin1() );
-        RicfMessages messages;
+        QTextStream              stream( stringValue.toLatin1() );
+        caf::PdmScriptIOMessages messages;
         *oldValue = field->toQVariant();
-        ricfHandle->readFieldData( stream, nullptr, &messages, false );
+        ricfHandle->writeToField( stream, nullptr, &messages, false );
         *newValue = field->toQVariant();
         return true;
     }
@@ -206,7 +212,7 @@ caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmObject
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmChildFieldHandle* childField )
 {
-    QString childClassKeyword = childField->xmlCapability()->childClassKeyword();
+    QString childClassKeyword = childField->xmlCapability()->dataTypeName();
 
     auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create( childClassKeyword );
     CAF_ASSERT( pdmObjectHandle );
@@ -219,7 +225,7 @@ caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmChildF
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildArrayField( caf::PdmChildArrayFieldHandle* childArrayField )
 {
-    QString childClassKeyword = childArrayField->xmlCapability()->childClassKeyword();
+    QString childClassKeyword = childArrayField->xmlCapability()->dataTypeName();
 
     auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create( childClassKeyword );
     CAF_ASSERT( pdmObjectHandle );

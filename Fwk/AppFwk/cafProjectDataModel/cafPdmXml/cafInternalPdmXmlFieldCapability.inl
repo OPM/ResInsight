@@ -15,6 +15,16 @@ namespace caf
 /// 
 //==================================================================================================
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template < typename FieldType>
+bool caf::PdmFieldXmlCap<FieldType>::isVectorField() const
+{
+    return is_vector<FieldType>();
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -208,7 +218,15 @@ bool caf::PdmFieldXmlCap<FieldType>::resolveReferences()
 
      return foundValidObjectFromString;
  }
-
+ 
+ //--------------------------------------------------------------------------------------------------
+ ///
+ //--------------------------------------------------------------------------------------------------
+ template < typename DataType>
+ bool caf::PdmFieldXmlCap< caf::PdmPtrArrayField<DataType*> >::isVectorField() const
+ {
+     return true;
+ }
 
 //==================================================================================================
 /// XML Implementation for PdmChildField<>
@@ -418,6 +436,15 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
 //--------------------------------------------------------------------------------------------------
 template < typename DataType>
 bool caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType *>>::resolveReferences()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template < typename DataType>
+bool caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::isVectorField() const
 {
     return true;
 }

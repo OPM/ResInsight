@@ -87,7 +87,7 @@ public:
         return true;
     }
 
-    std::vector<QString> classKeywords() const;
+    std::vector<QString> classKeywords() const override;
 
 private:
     PdmDefaultObjectFactory()  {}

@@ -114,7 +114,7 @@ RimProject::RimProject( void )
     , m_nextValidPlotId( 1 )
     , m_nextValidCalculationId( 1 )
 {
-    RICF_InitObjectWithScriptNameAndComment( "Project", "", "", "", "Project", "The ResInsight Project" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Project", "", "", "", "Project", "The ResInsight Project" );
 
     CAF_PDM_InitField( &m_projectFileVersionString, "ProjectFileVersionString", QString( STRPRODUCTVER ), "", "", "", "" );
     m_projectFileVersionString.uiCapability()->setUiHidden( true );

@@ -143,7 +143,7 @@ CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData );
 RimSummaryPlot::RimSummaryPlot()
     : RimPlot()
 {
-    RICF_InitObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
+    CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
     RICF_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
     m_showPlotTitle.xmlCapability()->setIOWritable( false );

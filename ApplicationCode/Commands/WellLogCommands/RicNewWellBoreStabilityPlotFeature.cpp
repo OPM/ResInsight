@@ -78,6 +78,7 @@ RimWellBoreStabilityPlot*
 
     RimWellBoreStabilityPlot* plot =
         RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( false, "Well Bore Stability", parameters );
+    plot->setCaseWellPathAndTimeStep( geoMechCase, wellPath, timeStep );
 
     {
         auto task = progInfo.task( "Creating formation track", 2 );

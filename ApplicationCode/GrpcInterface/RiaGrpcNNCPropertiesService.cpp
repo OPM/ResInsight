@@ -337,7 +337,6 @@ grpc::Status RiaNNCInputValuesStateHandler::init( const NNCValuesInputRequest* r
     {
         auto caseData        = m_eclipseCase->eclipseCaseData();
         auto m_porosityModel = static_cast<RiaDefines::PorosityModelType>( request->porosity_model() );
-        auto resultData      = caseData->results( m_porosityModel );
         m_timeStep           = request->time_step();
         m_propertyName       = QString::fromStdString( request->property_name() );
 
@@ -423,7 +422,7 @@ grpc::Status RiaNNCInputValuesStateHandler::receiveStreamRequest( const NNCValue
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RiaNNCInputValuesStateHandler::cellCount() const
+size_t RiaNNCInputValuesStateHandler::totalValueCount() const
 {
     return m_cellCount;
 }

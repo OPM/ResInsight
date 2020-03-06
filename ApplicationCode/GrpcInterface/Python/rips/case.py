@@ -26,7 +26,7 @@ import rips.project
 from rips.grid import Grid
 from rips.pdmobject import add_method, PdmObject
 from rips.view import View
-from rips.well_bore_stability_plot import WellBoreStabilityPlot, WbsParameters
+from rips.generated.pdm_objects import WellBoreStabilityPlot, WbsParameters
 from rips.simulation_well import SimulationWell
 
 """ResInsight case class
@@ -244,11 +244,6 @@ def reservoir_depth_range(self):
 def days_since_start(self):
     """Get a list of decimal values representing days since the start of the simulation"""
     return self.__case_stub.GetDaysSinceStart(self.__request()).day_decimals
-
-@add_method(Case)
-def views(self):
-    """Get a list of views belonging to a case"""
-    return self.descendants(View)
 
 @add_method(Case)
 def view(self, view_id):
@@ -826,7 +821,7 @@ def export_property(
     ))
 
 @add_method(Case)
-def create_well_bore_stability_plot(self, well_path, time_step, wbs_parameters=None):
+def create_well_bore_stability_plot(self, well_path, time_step, parameters=None):
     """ Create a new well bore stability plot
 
     Arguments:
@@ -837,9 +832,9 @@ def create_well_bore_stability_plot(self, well_path, time_step, wbs_parameters=N
         A new plot object
     """
     pb2_parameters = None
-    if wbs_parameters is not None:
-        assert(isinstance(wbs_parameters, WbsParameters))
-        pb2_parameters = wbs_parameters.pb2_object()
+    if parameters is not None:
+        assert(isinstance(parameters, WbsParameters))
+        pb2_parameters = parameters.pb2_object()
 
     plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.id,
                                                                                             wellPath=well_path,
@@ -847,8 +842,7 @@ def create_well_bore_stability_plot(self, well_path, time_step, wbs_parameters=N
                                                                                             wbsParameters=pb2_parameters))
     project = self.ancestor(rips.project.Project)
     plot = project.plot(view_id=plot_result.createWbsPlotResult.viewId)
-    assert(plot)
-    return plot.cast(WellBoreStabilityPlot)
+    return plot
 
 @add_method(Case)
 def import_formation_names(self, formation_files=None):

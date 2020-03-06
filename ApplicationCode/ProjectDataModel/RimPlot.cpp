@@ -33,7 +33,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlot, "RimPlot" ); // Do not use. Abstract 
 //--------------------------------------------------------------------------------------------------
 RimPlot::RimPlot()
 {
-    RICF_InitObjectWithScriptNameAndComment( "Plot", "", "", "", "Plot", "The Abstract Base Class for all Plot Objects" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Plot", "", "", "", "Plot", "The Abstract Base Class for all Plot Objects" );
 
     CAF_PDM_InitFieldNoDefault( &m_rowSpan, "RowSpan", "Row Span", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_colSpan, "ColSpan", "Col Span", "", "", "" );

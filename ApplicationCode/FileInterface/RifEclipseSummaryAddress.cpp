@@ -83,6 +83,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory          
         case SUMMARY_WELL_SEGMENT:
             m_wellName          = identifiers[INPUT_WELL_NAME];
             m_wellSegmentNumber = RiaStdStringTools::toInt( identifiers[INPUT_SEGMENT_NUMBER] );
+            break;
         case SUMMARY_BLOCK:
             ijkTuple = ijkTupleFromUiText( identifiers[INPUT_CELL_IJK] );
             m_cellI  = std::get<0>( ijkTuple );

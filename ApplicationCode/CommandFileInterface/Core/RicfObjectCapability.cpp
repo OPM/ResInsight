@@ -18,17 +18,13 @@
 
 #include "RicfObjectCapability.h"
 #include "RicfFieldHandle.h"
-#include "RicfMessages.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmScriptIOMessages.h"
 #include "cafPdmXmlFieldHandle.h"
 
 #include <QTextStream>
-
-std::map<QString, QString> RicfObjectCapability::s_classKeywordToScriptClassName;
-std::map<QString, QString> RicfObjectCapability::s_scriptClassNameToClassKeyword;
-std::map<QString, QString> RicfObjectCapability::s_scriptClassComments;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -49,9 +45,9 @@ RicfObjectCapability::~RicfObjectCapability()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfObjectCapability::readFields( QTextStream&           inputStream,
-                                       caf::PdmObjectFactory* objectFactory,
-                                       RicfMessages*          errorMessageContainer )
+void RicfObjectCapability::readFields( QTextStream&              inputStream,
+                                       caf::PdmObjectFactory*    objectFactory,
+                                       caf::PdmScriptIOMessages* errorMessageContainer )
 {
     std::set<QString> readFields;
     bool              isLastArgumentRead = false;
@@ -140,7 +136,7 @@ void RicfObjectCapability::readFields( QTextStream&           inputStream,
                 if ( xmlFieldHandle->isIOReadable() )
                 {
                     errorMessageContainer->currentArgument = keyword;
-                    rcfField->readFieldData( inputStream, objectFactory, errorMessageContainer );
+                    rcfField->writeToField( inputStream, objectFactory, errorMessageContainer );
                     errorMessageContainer->currentArgument = keyword;
                 }
             }
@@ -217,82 +213,9 @@ void RicfObjectCapability::writeFields( QTextStream& outputStream ) const
             }
 
             outputStream << keyword << " = ";
-            rcfField->writeFieldData( outputStream );
+            rcfField->readFromField( outputStream );
 
             writtenFieldCount++;
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicfObjectCapability::registerScriptClassNameAndComment( const QString& classKeyword,
-                                                              const QString& scriptClassName,
-                                                              const QString& scriptClassComment )
-{
-    s_classKeywordToScriptClassName[classKeyword]    = scriptClassName;
-    s_scriptClassNameToClassKeyword[scriptClassName] = classKeyword;
-    s_scriptClassComments[classKeyword]              = scriptClassComment;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicfObjectCapability::scriptClassNameFromClassKeyword( const QString& classKeyword )
-{
-    auto it = s_classKeywordToScriptClassName.find( classKeyword );
-    if ( it != s_classKeywordToScriptClassName.end() )
-    {
-        return it->second;
-    }
-    return classKeyword;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicfObjectCapability::classKeywordFromScriptClassName( const QString& scriptClassName )
-{
-    auto it = s_scriptClassNameToClassKeyword.find( scriptClassName );
-    if ( it != s_scriptClassNameToClassKeyword.end() )
-    {
-        return it->second;
-    }
-    return scriptClassName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicfObjectCapability::scriptClassComment( const QString& classKeyword )
-{
-    auto it = s_scriptClassComments.find( classKeyword );
-    if ( it != s_scriptClassComments.end() )
-    {
-        return it->second;
-    }
-    return "";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RicfObjectCapability::isScriptable( const caf::PdmObject* object )
-{
-    return s_classKeywordToScriptClassName.find( object->classKeyword() ) != s_classKeywordToScriptClassName.end();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicfObjectCapability::addCapabilityToObject( caf::PdmObject* object,
-                                                  const QString&  scriptClassName,
-                                                  const QString&  scriptClassComment )
-{
-    if ( !object->capability<RicfObjectCapability>() )
-    {
-        new RicfObjectCapability( object, true );
-    }
-    RicfObjectCapability::registerScriptClassNameAndComment( object->classKeyword(), scriptClassName, scriptClassComment );
 }

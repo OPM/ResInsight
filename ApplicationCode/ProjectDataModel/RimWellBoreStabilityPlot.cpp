@@ -42,9 +42,18 @@ CAF_PDM_SOURCE_INIT( RimWellBoreStabilityPlot, "WellBoreStabilityPlot" );
 //--------------------------------------------------------------------------------------------------
 RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
 {
-    RICF_InitObject( "Well Bore Stability Plot", ":/WellBoreStability16x16.png", "", "A GeoMechanical Well Bore Stabilit Plot" );
+    CAF_PDM_InitScriptableObject( "Well Bore Stability Plot",
+                                  ":/WellBoreStability16x16.png",
+                                  "",
+                                  "A GeoMechanical Well Bore Stabilit Plot" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wbsParameters, "WbsParameters", "Well Bore Stability Parameters", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithKeywordNoDefault( &m_wbsParameters,
+                                                     "WbsParameters",
+                                                     "Parameters",
+                                                     "Well Bore Stability Parameters",
+                                                     "",
+                                                     "",
+                                                     "" );
     m_wbsParameters = new RimWbsParameters;
     m_wbsParameters.uiCapability()->setUiTreeHidden( true );
     m_wbsParameters.uiCapability()->setUiTreeChildrenHidden( true );
@@ -80,6 +89,16 @@ void RimWellBoreStabilityPlot::copyWbsParameters( const RimWbsParameters* wbsPar
     {
         *m_wbsParameters = *wbsParameters;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellBoreStabilityPlot::setCaseWellPathAndTimeStep( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep )
+{
+    m_wbsParameters->setGeoMechCase( geoMechCase );
+    m_wbsParameters->setWellPath( wellPath );
+    m_wbsParameters->setTimeStep( timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -10,19 +10,6 @@ from rips.pdmobject import add_method
 from rips.generated.pdm_objects import View, ViewWindow, EclipseView, GeoMechView
 
 @add_method(View)
-def is_eclipse_view(self):
-    return isinstance(self, EclipseView)
-
-@add_method(View)
-def is_geomech_view(self):
-    return isinstance(self, GeoMechView)
-
-@add_method(View)
-def cell_result(self):
-    """Retrieve the current cell results"""
-    return self.children("GridCellResult")[0]
-
-@add_method(View)
 def apply_cell_result(self, result_type, result_variable):
     """Apply a regular cell result
 

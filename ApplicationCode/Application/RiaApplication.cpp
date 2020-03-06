@@ -36,7 +36,6 @@
 #include "RicImportGeneralDataFeature.h"
 #include "RicfCommandFileExecutor.h"
 #include "RicfFieldHandle.h"
-#include "RicfMessages.h"
 #include "RicfObjectCapability.h"
 
 #include "Rim2dIntersectionViewCollection.h"
@@ -97,7 +96,10 @@
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
 
+#include "cafPdmCodeGenerator.h"
+#include "cafPdmDataValueField.h"
 #include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmScriptIOMessages.h"
 #include "cafPdmSettings.h"
 #include "cafPdmUiModelChangeDetector.h"
 #include "cafProgressInfo.h"
@@ -1260,8 +1262,8 @@ QVariant RiaApplication::cacheDataObject( const QString& key ) const
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::executeCommandFile( const QString& commandFile )
 {
-    QFile        file( commandFile );
-    RicfMessages messages;
+    QFile               file( commandFile );
+    caf::PdmScriptIOMessages messages;
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
     {
         // TODO : Error logging?
@@ -1717,180 +1719,26 @@ void RiaApplication::resetProject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::generatePythonClasses( const QString& fileName )
+bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 {
-    auto factory = caf::PdmDefaultObjectFactory::instance();
+    CAF_ASSERT( errMsg );
 
-    QFile pythonFile( fileName );
-    if ( !pythonFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+    QFile outputFile( fileName );
+    if ( !outputFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
-        return;
+        *errMsg = QString( "Could not open file %1 for writing" ).arg( fileName );
+        return false;
     }
-    QTextStream          out( &pythonFile );
-    std::vector<QString> classKeywords = factory->classKeywords();
+    QTextStream out( &outputFile );
 
-    std::vector<std::shared_ptr<const caf::PdmObject>> dummyObjects;
-    for ( QString classKeyword : classKeywords )
+    std::string fileExt = QFileInfo( fileName ).suffix().toStdString();
+
+    std::unique_ptr<caf::PdmCodeGenerator> generator( caf::PdmCodeGeneratorFactory::instance()->create( fileExt ) );
+    if ( !generator )
     {
-        auto                  objectHandle = factory->create( classKeyword );
-        const caf::PdmObject* object       = dynamic_cast<const caf::PdmObject*>( objectHandle );
-        CAF_ASSERT( object );
-
-        std::shared_ptr<const caf::PdmObject> sharedObject( object );
-        if ( RicfObjectCapability::isScriptable( sharedObject.get() ) )
-        {
-            dummyObjects.push_back( sharedObject );
-        }
+        *errMsg = QString( "No code generator matches the provided file extension" );
+        return false;
     }
-
-    // Sort to make sure super classes get created before sub classes
-    std::sort( dummyObjects.begin(),
-               dummyObjects.end(),
-               []( std::shared_ptr<const caf::PdmObject> lhs, std::shared_ptr<const caf::PdmObject> rhs ) {
-                   if ( lhs->inheritsClassWithKeyword( rhs->classKeyword() ) )
-                   {
-                       return false;
-                   }
-                   return lhs->classKeyword() < rhs->classKeyword();
-               } );
-
-    std::map<QString, std::map<QString, std::pair<QString, QString>>> classesGenerated;
-    std::map<QString, QString>                                        classCommentsGenerated;
-
-    // First generate all attributes and comments to go into each object
-    for ( std::shared_ptr<const caf::PdmObject> object : dummyObjects )
-    {
-        const std::list<QString>& classInheritanceStack = object->classInheritanceStack();
-
-        for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
-        {
-            const QString& classKeyword       = *it;
-            QString        scriptClassComment = RicfObjectCapability::scriptClassComment( classKeyword );
-
-            std::map<QString, QString> attributesGenerated;
-
-            if ( !scriptClassComment.isEmpty() ) classCommentsGenerated[classKeyword] = scriptClassComment;
-
-            if ( classKeyword == object->classKeyword() )
-            {
-                std::vector<caf::PdmFieldHandle*> fields;
-                object->fields( fields );
-                for ( auto field : fields )
-                {
-                    auto pdmValueField = dynamic_cast<const caf::PdmValueField*>( field );
-                    if ( pdmValueField )
-                    {
-                        QString keyword    = pdmValueField->keyword();
-                        auto    ricfHandle = field->template capability<RicfFieldHandle>();
-                        if ( ricfHandle != nullptr )
-                        {
-                            QString snake_field_name = RiaTextStringTools::camelToSnakeCase( ricfHandle->fieldName() );
-                            if ( classesGenerated[field->ownerClass()].count( snake_field_name ) ) continue;
-
-                            QString fieldPythonCode = QString( "        self.%1 = None\n" ).arg( snake_field_name );
-
-                            QString comment;
-                            {
-                                QStringList commentComponents;
-                                commentComponents << pdmValueField->capability<caf::PdmUiFieldHandle>()->uiName();
-                                commentComponents << pdmValueField->capability<caf::PdmUiFieldHandle>()->uiWhatsThis();
-                                commentComponents.removeAll( QString( "" ) );
-                                comment = commentComponents.join( ". " );
-                            }
-
-                            QVariant valueVariant   = pdmValueField->toQVariant();
-                            QString  dataTypeString = valueVariant.typeName();
-
-                            classesGenerated[field->ownerClass()][snake_field_name].first = fieldPythonCode;
-                            classesGenerated[field->ownerClass()][snake_field_name].second =
-                                QString( "%1 (%2): %3\n" ).arg( snake_field_name ).arg( dataTypeString ).arg( comment );
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Write out classes
-    std::set<QString> classesWritten;
-    for ( std::shared_ptr<const caf::PdmObject> object : dummyObjects )
-    {
-        const std::list<QString>& classInheritanceStack = object->classInheritanceStack();
-        std::list<QString>        scriptSuperClassNames;
-
-        for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
-        {
-            const QString& classKeyword    = *it;
-            QString        scriptClassName = RicfObjectCapability::scriptClassNameFromClassKeyword( classKeyword );
-            if ( scriptClassName.isEmpty() ) scriptClassName = classKeyword;
-
-            if ( !classesWritten.count( scriptClassName ) )
-            {
-                QString classCode;
-                if ( scriptSuperClassNames.empty() )
-                {
-                    classCode = QString( "class %1:\n" ).arg( scriptClassName );
-                }
-                else
-                {
-                    classCode = QString( "class %1(%2):\n" ).arg( scriptClassName ).arg( scriptSuperClassNames.back() );
-                }
-
-                if ( !classCommentsGenerated[classKeyword].isEmpty() || !classesGenerated[classKeyword].empty() )
-                {
-                    classCode += "    \"\"\"\n";
-                    if ( !classCommentsGenerated[classKeyword].isEmpty() )
-                    {
-                        classCode += QString( "    %1\n\n" ).arg( classCommentsGenerated[classKeyword] );
-                    }
-
-                    classCode += "    Attributes\n";
-                    classCode += "        class_keyword (string): the class keyword that uniquely defines a class\n";
-                    for ( auto keyWordValuePair : classesGenerated[classKeyword] )
-                    {
-                        classCode += "        " + keyWordValuePair.second.second;
-                    }
-                    classCode += "    \"\"\"\n";
-                }
-                classCode +=
-                    QString( "    __custom_init__ = None #: Assign a custom init routine to be run at __init__\n\n" );
-
-                classCode += QString( "    def __init__(self, pb2_object=None, channel=None):\n" );
-                classCode += QString( "        self.class_keyword = \"%1\"\n" ).arg( scriptClassName );
-                if ( !scriptSuperClassNames.empty() )
-                {
-                    // Own attributes. This initializes a lot of attributes to None.
-                    // This means it has to be done before we set any values.
-                    for ( auto keyWordValuePair : classesGenerated[classKeyword] )
-                    {
-                        classCode += keyWordValuePair.second.first;
-                    }
-                    // Parent constructor
-                    classCode +=
-                        QString( "        %1.__init__(self, pb2_object, channel)\n" ).arg( scriptSuperClassNames.back() );
-                }
-
-                classCode += QString( "        if %1.__custom_init__ is not None:\n" ).arg( scriptClassName );
-                classCode += QString( "            %1.__custom_init__(self, pb2_object=pb2_object, channel=channel)\n" )
-                                 .arg( scriptClassName );
-
-                out << classCode << "\n";
-                classesWritten.insert( scriptClassName );
-            }
-            scriptSuperClassNames.push_back( scriptClassName );
-        }
-    }
-    out << "def class_dict():\n";
-    out << "    classes = {}\n";
-    for ( QString classKeyword : classesWritten )
-    {
-        out << QString( "    classes['%1'] = %1\n" ).arg( classKeyword );
-    }
-    out << "    return classes\n\n";
-
-    out << "def class_from_keyword(class_keyword):\n";
-    out << "    all_classes = class_dict()\n";
-    out << "    if class_keyword in all_classes.keys():\n";
-    out << "        return all_classes[class_keyword]\n";
-    out << "    return None\n";
+    out << generator->generate( caf::PdmDefaultObjectFactory::instance() );
+    return true;
 }

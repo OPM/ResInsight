@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "cafPdmFieldCapability.h"
+#include "cafPdmFieldScriptability.h"
 
 #include <QString>
 
@@ -25,9 +25,8 @@ namespace caf
 {
 class PdmObjectFactory;
 class PdmFieldHandle;
+class PdmScriptIOMessages;
 } // namespace caf
-
-class RicfMessages;
 
 class QTextStream;
 
@@ -36,23 +35,11 @@ class QTextStream;
 //
 //
 //==================================================================================================
-class RicfFieldHandle : public caf::PdmFieldCapability
+class RicfFieldHandle : public caf::PdmFieldScriptability
 {
 public:
-    RicfFieldHandle( caf::PdmFieldHandle* owner, const QString& fieldName, bool giveOwnership );
+    RicfFieldHandle( caf::PdmFieldHandle* owner, const QString& scriptFieldName, bool giveOwnership );
     ~RicfFieldHandle() override;
-
-    const QString& fieldName() const;
-
-    bool isIOWriteable() const { return m_IOWriteable; }
-
-    void setIOWriteable( bool writeable ) { m_IOWriteable = writeable; }
-
-    virtual void readFieldData( QTextStream&           inputStream,
-                                caf::PdmObjectFactory* objectFactory,
-                                RicfMessages*          errorMessageContainer,
-                                bool                   stringsAreQuoted = true )                               = 0;
-    virtual void writeFieldData( QTextStream& outputStream, bool quoteStrings = true ) const = 0;
 
 private:
     caf::PdmFieldHandle* m_owner;

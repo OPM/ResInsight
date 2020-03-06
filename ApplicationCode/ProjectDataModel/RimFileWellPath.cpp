@@ -15,7 +15,12 @@ CAF_PDM_SOURCE_INIT( RimFileWellPath, "WellPath" );
 //--------------------------------------------------------------------------------------------------
 RimFileWellPath::RimFileWellPath()
 {
-    RICF_InitObjectWithScriptNameAndComment( "File Well Path", ":/Well.png", "", "", "FileWellPath", "Well Paths Loaded From File" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "File Well Path",
+                                                    ":/Well.png",
+                                                    "",
+                                                    "",
+                                                    "FileWellPath",
+                                                    "Well Paths Loaded From File" );
 
     CAF_PDM_InitFieldNoDefault( &id, "WellPathId", "Id", "", "", "" );
     id.uiCapability()->setUiReadOnly( true );
