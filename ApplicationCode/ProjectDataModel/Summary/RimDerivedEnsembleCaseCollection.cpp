@@ -59,6 +59,8 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
     CAF_PDM_InitField( &m_caseCount, "CaseCount", QString( "" ), "Matching Cases", "", "", "" );
     m_caseCount.uiCapability()->setUiReadOnly( true );
 
+    CAF_PDM_InitField( &m_matchOnParameters, "MatchOnParameters", false, "Match On Parameters", "", "", "" );
+
     // Do not show child cases
     uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -136,11 +138,19 @@ void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
         auto crp = sumCase1->caseRealizationParameters();
         if ( !crp ) continue;
 
-        const auto& sumCase2 = findCaseByParametersHash( cases2, crp->parametersHash() );
-        if ( !sumCase2 ) continue;
+        RimSummaryCase* summaryCase2 = nullptr;
+        if ( m_matchOnParameters )
+        {
+            summaryCase2 = findCaseByParametersHash( cases2, crp->parametersHash() );
+        }
+        else
+        {
+            summaryCase2 = findCaseByRealizationNumber( cases2, crp->realizationNumber() );
+        }
+        if ( !summaryCase2 ) continue;
 
         auto derivedCase = firstCaseNotInUse();
-        derivedCase->setSummaryCases( sumCase1, sumCase2 );
+        derivedCase->setSummaryCases( sumCase1, summaryCase2 );
         derivedCase->setOperator( m_operator() );
         derivedCase->createSummaryReaderInterface();
         derivedCase->setCaseRealizationParameters( crp );
@@ -220,6 +230,7 @@ void RimDerivedEnsembleCaseCollection::defineUiOrdering( QString uiConfigName, c
     uiOrdering.add( &m_operator );
     uiOrdering.add( &m_ensemble2 );
     uiOrdering.add( &m_swapEnsemblesButton );
+    uiOrdering.add( &m_matchOnParameters );
 
     uiOrdering.skipRemainingFields( true );
 
@@ -238,7 +249,7 @@ void RimDerivedEnsembleCaseCollection::fieldChangedByUi( const caf::PdmFieldHand
     bool doUpdateCases = false;
     bool doShowDialog  = false;
 
-    if ( changedField == &m_ensemble1 || changedField == &m_ensemble2 )
+    if ( changedField == &m_ensemble1 || changedField == &m_ensemble2 || m_matchOnParameters )
     {
         doUpdate      = true;
         doUpdateCases = true;
@@ -404,6 +415,20 @@ RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByParametersHash( cons
     {
         auto ensembleParameters = sumCase->caseRealizationParameters();
         if ( ensembleParameters && ensembleParameters->parametersHash() == hash ) return sumCase;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByRealizationNumber( const std::vector<RimSummaryCase*>& cases,
+                                                                               int realizationNumber ) const
+{
+    for ( auto sumCase : cases )
+    {
+        auto ensembleParameters = sumCase->caseRealizationParameters();
+        if ( ensembleParameters && ensembleParameters->realizationNumber() == realizationNumber ) return sumCase;
     }
     return nullptr;
 }
