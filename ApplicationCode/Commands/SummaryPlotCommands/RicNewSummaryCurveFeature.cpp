@@ -63,7 +63,11 @@ void RicNewSummaryCurveFeature::onActionTriggered( bool isChecked )
     if ( plot )
     {
         RimSummaryCase* defaultCase = nullptr;
-        if ( project->activeOilField()->summaryCaseMainCollection()->summaryCaseCount() > 0 )
+        if ( !plot->summaryCurves().empty() )
+        {
+            defaultCase = plot->summaryCurves().back()->summaryCaseY();
+        }
+        else if ( project->activeOilField()->summaryCaseMainCollection()->summaryCaseCount() > 0 )
         {
             defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase( 0 );
         }
@@ -79,9 +83,16 @@ void RicNewSummaryCurveFeature::onActionTriggered( bool isChecked )
             }
         }
 
-        RimSummaryCurve* newCurve = RicSummaryPlotFeatureImpl::addDefaultCurveToPlot( plot, defaultCase );
+        RimSummaryCurve* newCurve = new RimSummaryCurve();
 
-        plot->applyDefaultCurveAppearances();
+        // Use same counting as RicNewSummaryEnsembleCurveSetFeature::onActionTriggered
+        cvf::Color3f curveColor =
+            RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( plot->singleColorCurveCount() );
+        newCurve->setColor( curveColor );
+
+        plot->addCurveNoUpdate( newCurve );
+        newCurve->setSummaryCaseY( defaultCase );
+
         plot->loadDataAndUpdate();
         plot->updateConnectedEditors();
 
