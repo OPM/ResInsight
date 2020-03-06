@@ -57,7 +57,7 @@ jobs:
       - name: Remove packages/_CPack_Packages
         shell: bash
         run: |
-          rm -rf packages/_CPack_Packages
+          rm -rf cmakebuild/packages/_CPack_Packages
       - name: dir
         run: find ${{ runner.workspace }}
         if: "!contains( matrix.os, 'windows')"
