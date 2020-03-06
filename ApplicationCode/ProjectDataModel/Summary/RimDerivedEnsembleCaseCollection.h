@@ -73,7 +73,10 @@ private:
     RimDerivedSummaryCase*              firstCaseNotInUse();
     std::vector<RimDerivedSummaryCase*> allDerivedCases( bool activeOnly ) const;
     void                                updateAutoName();
+
     RimSummaryCase* findCaseByParametersHash( const std::vector<RimSummaryCase*>& cases, size_t hash ) const;
+    RimSummaryCase* findCaseByRealizationNumber( const std::vector<RimSummaryCase*>& cases, int realizationNumber ) const;
+
     std::vector<RimDerivedEnsembleCaseCollection*> findReferringEnsembles() const;
 
 private:
@@ -85,4 +88,5 @@ private:
     caf::PdmField<caf::AppEnum<DerivedSummaryOperator>> m_operator;
     caf::PdmField<bool>                                 m_swapEnsemblesButton;
     caf::PdmField<QString>                              m_caseCount;
+    caf::PdmField<bool>                                 m_matchOnParameters;
 };

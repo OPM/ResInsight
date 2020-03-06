@@ -66,7 +66,7 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
 
     int realizationNumber = RifCaseRealizationParametersFileLocator::realizationNumber( modelFolderOrFile );
     parameters->setRealizationNumber( realizationNumber );
-    parameters->addParameter( "REALIZATION_NUM", realizationNumber );
+    parameters->addParameter( "RI:REALIZATION_NUM", realizationNumber );
 
     sumCase.setCaseRealizationParameters( parameters );
 }
