@@ -276,3 +276,32 @@ QString RifCaseRealizationParametersFileLocator::locate( const QString& modelPat
 
     return "";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifCaseRealizationParametersFileLocator::realizationNumber( const QString& modelPath )
+{
+    QDir    dir( modelPath );
+    QString absolutePath = dir.absolutePath();
+
+    int resultIndex = -1;
+
+    // Use parenthesis to indicate capture of sub string
+    QString pattern = "(realization-\\d+)";
+
+    QRegExp regexp( pattern, Qt::CaseInsensitive );
+    if ( regexp.indexIn( absolutePath ) )
+    {
+        QString tempText = regexp.cap( 1 );
+
+        QRegExp rx( "(\\d+)" ); // Find number
+        int     digitPos = rx.indexIn( tempText );
+        if ( digitPos > -1 )
+        {
+            resultIndex = rx.cap( 0 ).toInt();
+        }
+    }
+
+    return resultIndex;
+}
