@@ -52,7 +52,7 @@ bool RicNewDerivedEnsembleFeature::showWarningDialogWithQuestion()
     msgBox.setIcon( QMessageBox::Question );
     msgBox.setWindowTitle( "Ensemble Matching" );
     msgBox.setText( "None of the cases in the ensembles match" );
-    msgBox.setInformativeText( "Do you want to keep the derived ensemble?" );
+    msgBox.setInformativeText( "Do you want to keep the delta ensemble?" );
     msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
 
     int ret = msgBox.exec();
@@ -113,6 +113,6 @@ void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewDerivedEnsembleFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Derived Ensemble" );
+    actionToSetup->setText( "New Delta Ensemble" );
     actionToSetup->setIcon( QIcon( ":/SummaryEnsemble16x16.png" ) );
 }

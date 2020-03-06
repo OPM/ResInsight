@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT( RimDerivedEnsembleCaseCollection, "RimDerivedEnsembleCaseCo
 //--------------------------------------------------------------------------------------------------
 RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
 {
-    CAF_PDM_InitObject( "Derived Ensemble", ":/SummaryEnsemble16x16.png", "", "" );
+    CAF_PDM_InitObject( "Delta Ensemble", ":/SummaryEnsemble16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensemble1, "Ensemble1", "Ensemble 1", "", "", "" );
     m_ensemble1.uiCapability()->setUiTreeChildrenHidden( true );
@@ -68,7 +68,7 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
     m_cases.xmlCapability()->disableIO();
 
     setNameAsReadOnly();
-    setName( "Derived Ensemble" );
+    setName( "Delta Ensemble" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,7 +249,7 @@ void RimDerivedEnsembleCaseCollection::fieldChangedByUi( const caf::PdmFieldHand
     bool doUpdateCases = false;
     bool doShowDialog  = false;
 
-    if ( changedField == &m_ensemble1 || changedField == &m_ensemble2 || m_matchOnParameters )
+    if ( changedField == &m_ensemble1 || changedField == &m_ensemble2 || changedField == &m_matchOnParameters )
     {
         doUpdate      = true;
         doUpdateCases = true;
