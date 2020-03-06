@@ -56,14 +56,9 @@ public:
     static QString runSpecificationFileName();
 
 protected:
-    QFile* openFile();
-    void   closeFile();
-
     std::shared_ptr<RigCaseRealizationParameters> m_parameters;
 
-private:
     QString m_fileName;
-    QFile*  m_file;
 };
 
 //==================================================================================================
@@ -77,13 +72,6 @@ public:
     ~RifCaseRealizationParametersReader() override;
 
     void parse() override;
-
-private:
-    QTextStream* openDataStream();
-    void         closeDataStream();
-
-private:
-    QTextStream* m_textStream;
 };
 
 //==================================================================================================
