@@ -1237,6 +1237,7 @@ int RimContextCommandBuilder::appendCreateCompletions( caf::CmdFeatureMenuBuilde
     candidates << "RicNewValveFeature";
     candidates << "RicNewFishbonesSubsFeature";
     candidates << "RicNewWellPathFractureFeature";
+    candidates << "RicNewFractureModelFeature";
     candidates << "Separator";
     candidates << "RicCreateMultipleFracturesFeature";
     candidates << "RicNewWellPathAttributeFeature";

@@ -15,6 +15,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainment.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainmentTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureExportSettings.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplate.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModel.h
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCompletionTemplateCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplateCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimValveTemplateCollection.h
@@ -51,6 +53,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainment.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureContainmentTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureExportSettings.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplate.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModel.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCompletionTemplateCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureTemplateCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimValveTemplateCollection.cpp

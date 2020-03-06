@@ -27,6 +27,7 @@ class RimPerforationCollection;
 class RimWellPathFractureCollection;
 class RimWellPathComponentInterface;
 class RimWellPathValve;
+class RimFractureModelCollection;
 
 //==================================================================================================
 ///
@@ -74,6 +75,7 @@ public:
     RimFishbonesCollection*        fishbonesCollection() const;
     RimPerforationCollection*      perforationCollection() const;
     RimWellPathFractureCollection* fractureCollection() const;
+    RimFractureModelCollection*    fractureModelCollection() const;
     std::vector<RimWellPathValve*> valves() const;
 
     std::vector<const RimWellPathComponentInterface*> allCompletions() const;
@@ -112,6 +114,7 @@ private:
     caf::PdmChildField<RimFishbonesCollection*>        m_fishbonesCollection;
     caf::PdmChildField<RimPerforationCollection*>      m_perforationCollection;
     caf::PdmChildField<RimWellPathFractureCollection*> m_fractureCollection;
+    caf::PdmChildField<RimFractureModelCollection*>    m_fractureModelCollection;
 
     caf::PdmField<QString> m_wellNameForExport;
     caf::PdmField<QString> m_wellGroupName;
