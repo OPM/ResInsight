@@ -27,6 +27,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfSetTimeStep, "setTimeStep" );
 
 //--------------------------------------------------------------------------------------------------
@@ -34,9 +36,9 @@ CAF_PDM_SOURCE_INIT( RicfSetTimeStep, "setTimeStep" );
 //--------------------------------------------------------------------------------------------------
 RicfSetTimeStep::RicfSetTimeStep()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
-    RICF_InitField( &m_timeStepIndex, "timeStep", -1, "Time Step Index", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_timeStepIndex, "timeStep", -1, "Time Step Index", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

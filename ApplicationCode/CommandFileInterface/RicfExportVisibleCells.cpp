@@ -38,8 +38,7 @@
 
 #include "RifEclipseInputFileTools.h"
 
-#include <QDir>
-
+#include "cafPdmValueFieldScriptability.h"
 #include <cafUtils.h>
 
 #include <QDir>
@@ -63,19 +62,31 @@ void AppEnum<RicfExportVisibleCells::ExportKeyword>::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfExportVisibleCells::RicfExportVisibleCells()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
-    RICF_InitField( &m_viewName, "viewName", QString(), "View Name", "", "", "" );
-    RICF_InitField( &m_exportKeyword,
-                    "exportKeyword",
-                    caf::AppEnum<RicfExportVisibleCells::ExportKeyword>(),
-                    "Export Keyword",
-                    "",
-                    "",
-                    "" );
-    RICF_InitField( &m_visibleActiveCellsValue, "visibleActiveCellsValue", 1, "Visible Active Cells Value", "", "", "" );
-    RICF_InitField( &m_hiddenActiveCellsValue, "hiddenActiveCellsValue", 0, "Hidden Active Cells Value", "", "", "" );
-    RICF_InitField( &m_inactiveCellsValue, "inactiveCellsValue", 0, "Inactive Cells Value", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_viewName, "viewName", QString(), "View Name", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_exportKeyword,
+                                      "exportKeyword",
+                                      caf::AppEnum<RicfExportVisibleCells::ExportKeyword>(),
+                                      "Export Keyword",
+                                      "",
+                                      "",
+                                      "" );
+    CAF_PDM_InitScriptableValueField( &m_visibleActiveCellsValue,
+                                      "visibleActiveCellsValue",
+                                      1,
+                                      "Visible Active Cells Value",
+                                      "",
+                                      "",
+                                      "" );
+    CAF_PDM_InitScriptableValueField( &m_hiddenActiveCellsValue,
+                                      "hiddenActiveCellsValue",
+                                      0,
+                                      "Hidden Active Cells Value",
+                                      "",
+                                      "",
+                                      "" );
+    CAF_PDM_InitScriptableValueField( &m_inactiveCellsValue, "inactiveCellsValue", 0, "Inactive Cells Value", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

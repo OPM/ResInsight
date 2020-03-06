@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QDir>
 
 CAF_PDM_SOURCE_INIT( RicfSetExportFolder, "setExportFolder" );
@@ -31,9 +33,9 @@ CAF_PDM_SOURCE_INIT( RicfSetExportFolder, "setExportFolder" );
 RicfSetExportFolder::RicfSetExportFolder()
 {
     // clang-format off
-    RICF_InitField(&m_type,  "type",  RicfCommandFileExecutor::ExportTypeEnum(RicfCommandFileExecutor::COMPLETIONS), "Type",  "", "", "");
-    RICF_InitField(&m_path,  "path",  QString(),                                                                     "Path",  "", "", "");
-    RICF_InitField(&m_createFolder, "createFolder", false, "Create Folder", "", "", "");
+    CAF_PDM_InitScriptableValueField(&m_type,  "type",  RicfCommandFileExecutor::ExportTypeEnum(RicfCommandFileExecutor::COMPLETIONS), "Type",  "", "", "");
+    CAF_PDM_InitScriptableValueField(&m_path,  "path",  QString(),                                                                     "Path",  "", "", "");
+    CAF_PDM_InitScriptableValueField(&m_createFolder, "createFolder", false, "Create Folder", "", "", "");
     // clang-format on
 }
 

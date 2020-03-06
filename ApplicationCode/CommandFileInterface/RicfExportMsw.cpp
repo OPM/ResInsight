@@ -36,6 +36,8 @@
 #include "CompletionExportCommands/RicExportCompletionDataSettingsUi.h"
 #include "CompletionExportCommands/RicWellPathExportMswCompletionsImpl.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfExportMsw, "exportMsw" );
 
 //--------------------------------------------------------------------------------------------------
@@ -43,12 +45,18 @@ CAF_PDM_SOURCE_INIT( RicfExportMsw, "exportMsw" );
 //--------------------------------------------------------------------------------------------------
 RicfExportMsw::RicfExportMsw()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_wellPathName, "wellPath", QString(), "Well Path Name", "", "", "" );
-    RICF_InitField( &m_includePerforations, "includePerforations", true, "Include Perforations", "", "", "" );
-    RICF_InitField( &m_includeFishbones, "includeFishbones", true, "Include Fishbones", "", "", "" );
-    RICF_InitField( &m_includeFractures, "includeFractures", true, "Include Fractures", "", "", "" );
-    RICF_InitField( &m_fileSplit, "fileSplit", RicExportCompletionDataSettingsUi::ExportSplitType(), "File Split", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_wellPathName, "wellPath", QString(), "Well Path Name", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_includePerforations, "includePerforations", true, "Include Perforations", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_includeFishbones, "includeFishbones", true, "Include Fishbones", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_includeFractures, "includeFractures", true, "Include Fractures", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_fileSplit,
+                                      "fileSplit",
+                                      RicExportCompletionDataSettingsUi::ExportSplitType(),
+                                      "File Split",
+                                      "",
+                                      "",
+                                      "" );
 }
 
 //--------------------------------------------------------------------------------------------------

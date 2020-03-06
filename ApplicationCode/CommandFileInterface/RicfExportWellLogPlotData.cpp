@@ -26,6 +26,8 @@
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QDir>
 #include <QFileInfo>
 #include <QStringList>
@@ -59,14 +61,14 @@ CAF_PDM_SOURCE_INIT( RicfExportWellLogPlotData, "exportWellLogPlotData" );
 //--------------------------------------------------------------------------------------------------
 RicfExportWellLogPlotData::RicfExportWellLogPlotData()
 {
-    RICF_InitFieldNoDefault( &m_format, "exportFormat", "", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "", "", "", "" );
-    RICF_InitField( &m_folder, "exportFolder", QString(), "", "", "", "" );
-    RICF_InitField( &m_filePrefix, "filePrefix", QString(), "", "", "", "" );
-    RICF_InitField( &m_exportTvdRkb, "exportTvdRkb", false, "", "", "", "" );
-    RICF_InitField( &m_capitalizeFileNames, "capitalizeFileNames", false, "", "", "", "" );
-    RICF_InitField( &m_resampleInterval, "resampleInterval", 0.0, "", "", "", "" );
-    RICF_InitField( &m_convertCurveUnits, "convertCurveUnits", false, "", "", "", "" );
+    CAF_PDM_InitScriptableValueFieldNoDefault( &m_format, "exportFormat", "", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_viewId, "viewId", -1, "", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_folder, "exportFolder", QString(), "", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_filePrefix, "filePrefix", QString(), "", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_exportTvdRkb, "exportTvdRkb", false, "", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_capitalizeFileNames, "capitalizeFileNames", false, "", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_resampleInterval, "resampleInterval", 0.0, "", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_convertCurveUnits, "convertCurveUnits", false, "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

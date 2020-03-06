@@ -18,13 +18,11 @@
 
 #include "RicfCommandObject.h"
 
-#include "cafPdmPythonGenerator.h"
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicfCommandObject::RicfCommandObject()
-    : RicfObjectCapability( this, false )
+    : PdmObjectScriptability( this, false )
 {
 }
 

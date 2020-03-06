@@ -14,6 +14,7 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmValueFieldScriptability.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -25,7 +26,7 @@ CAF_PDM_SOURCE_INIT( RicfCloneView, "cloneView" );
 //--------------------------------------------------------------------------------------------------
 RicfCloneView::RicfCloneView()
 {
-    RICF_InitField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

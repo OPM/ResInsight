@@ -18,9 +18,8 @@
 
 #pragma once
 
-#include "RicfFieldHandle.h"
-
 #include "cafAppEnum.h"
+#include "cafPdmFieldScriptability.h"
 #include "cafPdmScriptIOMessages.h"
 
 #include "cvfColor3.h"
@@ -29,7 +28,7 @@
 #include <QTextStream>
 
 template <typename DataType>
-struct RicfFieldIOHandler
+struct PdmFieldScriptabilityIOHandler
 {
     static void writeToField( DataType&                 fieldValue,
                               QTextStream&              inputStream,
@@ -57,7 +56,7 @@ struct RicfFieldIOHandler
 };
 
 template <>
-struct RicfFieldIOHandler<QString>
+struct PdmFieldScriptabilityIOHandler<QString>
 {
     static void writeToField( QString&                  fieldValue,
                               QTextStream&              inputStream,
@@ -70,7 +69,7 @@ struct RicfFieldIOHandler<QString>
 };
 
 template <>
-struct RicfFieldIOHandler<bool>
+struct PdmFieldScriptabilityIOHandler<bool>
 {
     static void writeToField( bool&                     fieldValue,
                               QTextStream&              inputStream,
@@ -83,7 +82,7 @@ struct RicfFieldIOHandler<bool>
 };
 
 template <>
-struct RicfFieldIOHandler<cvf::Color3f>
+struct PdmFieldScriptabilityIOHandler<cvf::Color3f>
 {
     static void writeToField( cvf::Color3f&             fieldValue,
                               QTextStream&              inputStream,
@@ -96,7 +95,7 @@ struct RicfFieldIOHandler<cvf::Color3f>
 };
 
 template <typename T>
-struct RicfFieldIOHandler<caf::AppEnum<T>>
+struct PdmFieldScriptabilityIOHandler<caf::AppEnum<T>>
 {
     static void writeToField( caf::AppEnum<T>&          fieldValue,
                               QTextStream&              inputStream,
@@ -147,7 +146,7 @@ struct RicfFieldIOHandler<caf::AppEnum<T>>
 };
 
 template <typename T>
-struct RicfFieldIOHandler<std::vector<T>>
+struct PdmFieldScriptabilityIOHandler<std::vector<T>>
 {
     static void writeToField( std::vector<T>&           fieldValue,
                               QTextStream&              inputStream,
@@ -174,7 +173,7 @@ struct RicfFieldIOHandler<std::vector<T>>
                 }
 
                 T value;
-                RicfFieldIOHandler<T>::writeToField( value, inputStream, errorMessageContainer, true );
+                PdmFieldScriptabilityIOHandler<T>::writeToField( value, inputStream, errorMessageContainer, true );
                 fieldValue.push_back( value );
             }
         }
@@ -194,7 +193,7 @@ struct RicfFieldIOHandler<std::vector<T>>
         outputStream << "[";
         for ( size_t i = 0; i < fieldValue.size(); ++i )
         {
-            RicfFieldIOHandler<T>::readFromField( fieldValue[i], outputStream, quoteNonBuiltins );
+            PdmFieldScriptabilityIOHandler<T>::readFromField( fieldValue[i], outputStream, quoteNonBuiltins );
             if ( i < fieldValue.size() - 1 )
             {
                 outputStream << ", ";
@@ -210,11 +209,11 @@ struct RicfFieldIOHandler<std::vector<T>>
 //
 //==================================================================================================
 template <typename FieldType>
-class RicfFieldCapability : public RicfFieldHandle
+class RicfFieldCapability : public caf::PdmFieldScriptability
 {
 public:
     RicfFieldCapability( FieldType* field, const QString& fieldName, bool giveOwnership )
-        : RicfFieldHandle( field, fieldName, giveOwnership )
+        : caf::PdmFieldScriptability( field, fieldName, giveOwnership )
     {
         m_field = field;
     }
@@ -227,10 +226,10 @@ public:
                        bool                      stringsAreQuoted = true ) override
     {
         typename FieldType::FieldDataType value;
-        RicfFieldIOHandler<typename FieldType::FieldDataType>::writeToField( value,
-                                                                             inputStream,
-                                                                             errorMessageContainer,
-                                                                             stringsAreQuoted );
+        PdmFieldScriptabilityIOHandler<typename FieldType::FieldDataType>::writeToField( value,
+                                                                                         inputStream,
+                                                                                         errorMessageContainer,
+                                                                                         stringsAreQuoted );
 
         if ( this->isIOWriteable() )
         {
@@ -240,10 +239,10 @@ public:
 
     void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
     {
-        RicfFieldIOHandler<typename FieldType::FieldDataType>::readFromField( m_field->value(),
-                                                                              outputStream,
-                                                                              quoteStrings,
-                                                                              quoteNonBuiltins );
+        PdmFieldScriptabilityIOHandler<typename FieldType::FieldDataType>::readFromField( m_field->value(),
+                                                                                          outputStream,
+                                                                                          quoteStrings,
+                                                                                          quoteNonBuiltins );
     }
 
 private:

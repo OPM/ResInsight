@@ -24,6 +24,8 @@
 #include "RimFormationNames.h"
 #include "RimProject.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RicfImportFormationNames, "importFormationNames" );
@@ -33,8 +35,8 @@ CAF_PDM_SOURCE_INIT( RicfImportFormationNames, "importFormationNames" );
 //--------------------------------------------------------------------------------------------------
 RicfImportFormationNames::RicfImportFormationNames()
 {
-    RICF_InitFieldNoDefault( &m_formationFiles, "formationFiles", "", "", "", "" );
-    RICF_InitField( &m_applyToCaseId, "applyToCaseId", -1, "", "", "", "" );
+    CAF_PDM_InitScriptableValueFieldNoDefault( &m_formationFiles, "formationFiles", "", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_applyToCaseId, "applyToCaseId", -1, "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

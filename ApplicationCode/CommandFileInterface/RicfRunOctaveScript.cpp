@@ -26,6 +26,8 @@
 #include "RimEclipseCase.h"
 #include "RimProject.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RicfRunOctaveScript, "runOctaveScript" );
@@ -35,8 +37,8 @@ CAF_PDM_SOURCE_INIT( RicfRunOctaveScript, "runOctaveScript" );
 //--------------------------------------------------------------------------------------------------
 RicfRunOctaveScript::RicfRunOctaveScript()
 {
-    RICF_InitField( &m_path, "path", QString(), "Path", "", "", "" );
-    RICF_InitField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_path, "path", QString(), "Path", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

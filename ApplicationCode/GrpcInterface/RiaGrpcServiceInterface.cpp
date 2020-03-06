@@ -21,13 +21,12 @@
 #include "RimCase.h"
 #include "RimProject.h"
 
-#include "RicfFieldHandle.h"
-#include "RicfObjectCapability.h"
-
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmDataValueField.h"
+#include "cafPdmFieldScriptability.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafPdmObjectScriptabilityRegister.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmScriptIOMessages.h"
@@ -99,7 +98,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
         if ( pdmValueField )
         {
             QString keyword    = pdmValueField->keyword();
-            auto    ricfHandle = field->template capability<RicfFieldHandle>();
+            auto    ricfHandle = field->template capability<caf::PdmFieldScriptability>();
             if ( ricfHandle != nullptr )
             {
                 auto pdmProxyField = dynamic_cast<const caf::PdmProxyFieldHandle*>( field );
@@ -144,7 +143,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
         auto pdmValueField = dynamic_cast<caf::PdmValueField*>( field );
         if ( pdmValueField )
         {
-            auto ricfHandle = pdmValueField->template capability<RicfFieldHandle>();
+            auto ricfHandle = pdmValueField->template capability<caf::PdmFieldScriptability>();
             if ( ricfHandle )
             {
                 QString keyword = ricfHandle->scriptFieldName();
@@ -170,7 +169,7 @@ bool RiaGrpcServiceInterface::assignFieldValue( const QString&      stringValue,
 {
     CAF_ASSERT( oldValue && newValue );
 
-    auto ricfHandle = field->template capability<RicfFieldHandle>();
+    auto ricfHandle = field->template capability<caf::PdmFieldScriptability>();
     if ( field && ricfHandle != nullptr )
     {
         QTextStream              stream( stringValue.toLatin1() );

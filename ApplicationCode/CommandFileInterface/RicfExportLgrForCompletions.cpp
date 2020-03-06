@@ -36,6 +36,8 @@
 #include "RiaWellNameComparer.h"
 
 #include "cafCmdFeatureManager.h"
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QStringList>
 
 CAF_PDM_SOURCE_INIT( RicfExportLgrForCompletions, "exportLgrForCompletions" );
@@ -45,13 +47,13 @@ CAF_PDM_SOURCE_INIT( RicfExportLgrForCompletions, "exportLgrForCompletions" );
 //--------------------------------------------------------------------------------------------------
 RicfExportLgrForCompletions::RicfExportLgrForCompletions()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
-    RICF_InitField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
-    RICF_InitField( &m_refinementI, "refinementI", -1, "RefinementI", "", "", "" );
-    RICF_InitField( &m_refinementJ, "refinementJ", -1, "RefinementJ", "", "", "" );
-    RICF_InitField( &m_refinementK, "refinementK", -1, "RefinementK", "", "", "" );
-    RICF_InitField( &m_splitType, "splitType", Lgr::SplitTypeEnum(), "SplitType", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_refinementI, "refinementI", -1, "RefinementI", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_refinementJ, "refinementJ", -1, "RefinementJ", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_refinementK, "refinementK", -1, "RefinementK", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_splitType, "splitType", Lgr::SplitTypeEnum(), "SplitType", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

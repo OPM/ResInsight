@@ -29,6 +29,8 @@
 #include "RimProject.h"
 #include "RimSaturationPressurePlotCollection.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfCreateSaturationPressurePlots, "createSaturationPressurePlots" );
 
 //--------------------------------------------------------------------------------------------------
@@ -36,7 +38,7 @@ CAF_PDM_SOURCE_INIT( RicfCreateSaturationPressurePlots, "createSaturationPressur
 //--------------------------------------------------------------------------------------------------
 RicfCreateSaturationPressurePlots::RicfCreateSaturationPressurePlots()
 {
-    RICF_InitField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

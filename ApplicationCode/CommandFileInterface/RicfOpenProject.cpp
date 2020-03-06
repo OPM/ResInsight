@@ -23,6 +23,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QDir>
 #include <QFileInfo>
 
@@ -33,7 +35,7 @@ CAF_PDM_SOURCE_INIT( RicfOpenProject, "openProject" );
 //--------------------------------------------------------------------------------------------------
 RicfOpenProject::RicfOpenProject()
 {
-    RICF_InitField( &m_path, "path", QString(), "Path", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_path, "path", QString(), "Path", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

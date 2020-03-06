@@ -23,6 +23,8 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QDir>
 #include <QFileInfo>
 #include <QStringList>
@@ -45,7 +47,7 @@ CAF_PDM_SOURCE_INIT( RicfLoadCase, "loadCase" );
 //--------------------------------------------------------------------------------------------------
 RicfLoadCase::RicfLoadCase()
 {
-    RICF_InitField( &m_path, "path", QString(), "Path to Case File", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_path, "path", QString(), "Path to Case File", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -36,6 +36,7 @@
 #include "RiaWellNameComparer.h"
 
 #include "cafCmdFeatureManager.h"
+#include "cafPdmValueFieldScriptability.h"
 
 CAF_PDM_SOURCE_INIT( RicfExportWellPaths, "exportWellPaths" );
 
@@ -44,8 +45,8 @@ CAF_PDM_SOURCE_INIT( RicfExportWellPaths, "exportWellPaths" );
 //--------------------------------------------------------------------------------------------------
 RicfExportWellPaths::RicfExportWellPaths()
 {
-    RICF_InitField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
-    RICF_InitField( &m_mdStepSize, "mdStepSize", 5.0, "MD Step Size", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_mdStepSize, "mdStepSize", 5.0, "MD Step Size", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

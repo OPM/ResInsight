@@ -23,6 +23,8 @@
 
 #include "RimIdenticalGridCaseGroup.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QDir>
 #include <QFileInfo>
 #include <QStringList>
@@ -47,7 +49,7 @@ CAF_PDM_SOURCE_INIT( RicfCreateGridCaseGroup, "createGridCaseGroup" );
 //--------------------------------------------------------------------------------------------------
 RicfCreateGridCaseGroup::RicfCreateGridCaseGroup()
 {
-    RICF_InitFieldNoDefault( &m_casePaths, "casePaths", "List of Paths to Case Files", "", "", "" );
+    CAF_PDM_InitScriptableValueFieldNoDefault( &m_casePaths, "casePaths", "List of Paths to Case Files", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -24,6 +24,8 @@
 #include "RiaLogging.h"
 #include "RiaProjectModifier.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfReplaceSourceCases, "replaceSourceCases" );
 
 //--------------------------------------------------------------------------------------------------
@@ -31,8 +33,8 @@ CAF_PDM_SOURCE_INIT( RicfReplaceSourceCases, "replaceSourceCases" );
 //--------------------------------------------------------------------------------------------------
 RicfReplaceSourceCases::RicfReplaceSourceCases()
 {
-    RICF_InitField( &m_caseGroupId, "caseGroupId", -1, "Case Group ID", "", "", "" );
-    RICF_InitField( &m_gridListFile, "gridListFile", QString(), "Grid List File", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseGroupId, "caseGroupId", -1, "Case Group ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_gridListFile, "gridListFile", QString(), "Grid List File", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

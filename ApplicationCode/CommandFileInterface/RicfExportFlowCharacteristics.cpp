@@ -29,6 +29,8 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
@@ -40,13 +42,13 @@ CAF_PDM_SOURCE_INIT( RicfExportFlowCharacteristics, "exportFlowCharacteristics" 
 //--------------------------------------------------------------------------------------------------
 RicfExportFlowCharacteristics::RicfExportFlowCharacteristics()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_selectedTimeSteps, "timeSteps", std::vector<int>(), "Selected Time Steps", "", "", "" );
-    RICF_InitField( &m_injectors, "injectors", std::vector<QString>(), "Injectors", "", "", "" );
-    RICF_InitField( &m_producers, "producers", std::vector<QString>(), "Producers", "", "", "" );
-    RICF_InitField( &m_fileName, "fileName", QString(), "Export File Name", "", "", "" );
-    RICF_InitField( &m_minCommunication, "minimumCommunication", 0.0, "Minimum Communication", "", "", "" );
-    RICF_InitField( &m_maxPvFraction, "aquiferCellThreshold", 0.1, "Aquifer Cell Threshold", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_selectedTimeSteps, "timeSteps", std::vector<int>(), "Selected Time Steps", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_injectors, "injectors", std::vector<QString>(), "Injectors", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_producers, "producers", std::vector<QString>(), "Producers", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_fileName, "fileName", QString(), "Export File Name", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_minCommunication, "minimumCommunication", 0.0, "Minimum Communication", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_maxPvFraction, "aquiferCellThreshold", 0.1, "Aquifer Cell Threshold", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

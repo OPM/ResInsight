@@ -30,6 +30,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfComputeCaseGroupStatistics, "computeCaseGroupStatistics" );
 
 //--------------------------------------------------------------------------------------------------
@@ -37,8 +39,8 @@ CAF_PDM_SOURCE_INIT( RicfComputeCaseGroupStatistics, "computeCaseGroupStatistics
 //--------------------------------------------------------------------------------------------------
 RicfComputeCaseGroupStatistics::RicfComputeCaseGroupStatistics()
 {
-    RICF_InitField( &m_groupId, "caseGroupId", -1, "Case Group ID", "", "", "" );
-    RICF_InitField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_groupId, "caseGroupId", -1, "Case Group ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

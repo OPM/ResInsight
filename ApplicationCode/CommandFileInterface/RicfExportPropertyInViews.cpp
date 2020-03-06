@@ -34,6 +34,7 @@
 #include "RimEclipseView.h"
 #include "RimProject.h"
 
+#include "cafPdmValueFieldScriptability.h"
 #include "cafUtils.h"
 
 #include <limits>
@@ -47,10 +48,10 @@ CAF_PDM_SOURCE_INIT( RicfExportPropertyInViews, "exportPropertyInViews" );
 //--------------------------------------------------------------------------------------------------
 RicfExportPropertyInViews::RicfExportPropertyInViews()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_viewIds, "viewIds", std::vector<int>(), "View IDs", "", "", "" );
-    RICF_InitField( &m_viewNames, "viewNames", std::vector<QString>(), "View Names", "", "", "" );
-    RICF_InitField( &m_undefinedValue, "undefinedValue", 0.0, "Undefined Value", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_viewIds, "viewIds", std::vector<int>(), "View IDs", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_viewNames, "viewNames", std::vector<QString>(), "View Names", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_undefinedValue, "undefinedValue", 0.0, "Undefined Value", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

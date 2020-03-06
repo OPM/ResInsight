@@ -38,6 +38,7 @@
 #include "RiaWellNameComparer.h"
 
 #include "cafCmdFeatureManager.h"
+#include "cafPdmValueFieldScriptability.h"
 
 CAF_PDM_SOURCE_INIT( RicfCreateMultipleFractures, "createMultipleFractures" );
 
@@ -58,21 +59,21 @@ void AppEnum<MultipleFractures::Action>::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfCreateMultipleFractures::RicfCreateMultipleFractures()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
-    RICF_InitField( &m_minDistFromWellTd, "minDistFromWellTd", 100.0, "Min Distance From Well TD", "", "", "" );
-    RICF_InitField( &m_maxFracturesPerWell, "maxFracturesPerWell", 100, "Max Fractures per Well", "", "", "" );
-    RICF_InitField( &m_templateId, "templateId", -1, "Template ID", "", "", "" );
-    RICF_InitField( &m_topLayer, "topLayer", -1, "Top Layer", "", "", "" );
-    RICF_InitField( &m_baseLayer, "baseLayer", -1, "Base Layer", "", "", "" );
-    RICF_InitField( &m_spacing, "spacing", 300.0, "Spacing", "", "", "" );
-    RICF_InitField( &m_action,
-                    "action",
-                    caf::AppEnum<MultipleFractures::Action>( MultipleFractures::APPEND_FRACTURES ),
-                    "Action",
-                    "",
-                    "",
-                    "" );
+    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_minDistFromWellTd, "minDistFromWellTd", 100.0, "Min Distance From Well TD", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_maxFracturesPerWell, "maxFracturesPerWell", 100, "Max Fractures per Well", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_templateId, "templateId", -1, "Template ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_topLayer, "topLayer", -1, "Top Layer", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_baseLayer, "baseLayer", -1, "Base Layer", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_spacing, "spacing", 300.0, "Spacing", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_action,
+                                      "action",
+                                      caf::AppEnum<MultipleFractures::Action>( MultipleFractures::APPEND_FRACTURES ),
+                                      "Action",
+                                      "",
+                                      "",
+                                      "" );
 }
 
 //--------------------------------------------------------------------------------------------------

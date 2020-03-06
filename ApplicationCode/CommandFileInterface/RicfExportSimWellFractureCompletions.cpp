@@ -37,6 +37,8 @@
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfExportSimWellFractureCompletions, "exportSimWellFractureCompletions" );
 
 //--------------------------------------------------------------------------------------------------
@@ -44,19 +46,31 @@ CAF_PDM_SOURCE_INIT( RicfExportSimWellFractureCompletions, "exportSimWellFractur
 //--------------------------------------------------------------------------------------------------
 RicfExportSimWellFractureCompletions::RicfExportSimWellFractureCompletions()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
-    RICF_InitField( &m_viewName, "viewName", QString( "" ), "View Name", "", "", "" );
-    RICF_InitField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
-    RICF_InitField( &m_simWellNames, "simulationWellNames", std::vector<QString>(), "Simulation Well Names", "", "", "" );
-    RICF_InitField( &m_fileSplit, "fileSplit", RicExportCompletionDataSettingsUi::ExportSplitType(), "File Split", "", "", "" );
-    RICF_InitField( &m_compdatExport,
-                    "compdatExport",
-                    RicExportCompletionDataSettingsUi::CompdatExportType(),
-                    "Compdat Export",
-                    "",
-                    "",
-                    "" );
+    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_viewName, "viewName", QString( "" ), "View Name", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_simWellNames,
+                                      "simulationWellNames",
+                                      std::vector<QString>(),
+                                      "Simulation Well Names",
+                                      "",
+                                      "",
+                                      "" );
+    CAF_PDM_InitScriptableValueField( &m_fileSplit,
+                                      "fileSplit",
+                                      RicExportCompletionDataSettingsUi::ExportSplitType(),
+                                      "File Split",
+                                      "",
+                                      "",
+                                      "" );
+    CAF_PDM_InitScriptableValueField( &m_compdatExport,
+                                      "compdatExport",
+                                      RicExportCompletionDataSettingsUi::CompdatExportType(),
+                                      "Compdat Export",
+                                      "",
+                                      "",
+                                      "" );
 }
 
 //--------------------------------------------------------------------------------------------------

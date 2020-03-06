@@ -31,6 +31,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -62,8 +64,8 @@ RICF_SOURCE_INIT( RicImportWellPaths, "RicWellPathsImportFileFeature", "importWe
 //--------------------------------------------------------------------------------------------------
 RicImportWellPaths::RicImportWellPaths()
 {
-    RICF_InitFieldNoDefault( &m_wellPathFolder, "wellPathFolder", "", "", "", "" );
-    RICF_InitFieldNoDefault( &m_wellPathFiles, "wellPathFiles", "", "", "", "" );
+    CAF_PDM_InitScriptableValueFieldNoDefault( &m_wellPathFolder, "wellPathFolder", "", "", "", "" );
+    CAF_PDM_InitScriptableValueFieldNoDefault( &m_wellPathFiles, "wellPathFiles", "", "", "", "" );
 }
 
 RicfCommandResponse RicImportWellPaths::execute()

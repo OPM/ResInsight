@@ -34,6 +34,8 @@
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfExportWellPathCompletions, "exportWellPathCompletions" );
 
 //--------------------------------------------------------------------------------------------------
@@ -41,49 +43,73 @@ CAF_PDM_SOURCE_INIT( RicfExportWellPathCompletions, "exportWellPathCompletions" 
 //--------------------------------------------------------------------------------------------------
 RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
-    RICF_InitField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
 
-    RICF_InitField( &m_fileSplit, "fileSplit", RicExportCompletionDataSettingsUi::ExportSplitType(), "File Split", "", "", "" );
-    RICF_InitField( &m_compdatExport,
-                    "compdatExport",
-                    RicExportCompletionDataSettingsUi::CompdatExportType(),
-                    "Compdat Export",
-                    "",
-                    "",
-                    "" );
-    RICF_InitField( &m_combinationMode,
-                    "combinationMode",
-                    RicExportCompletionDataSettingsUi::CombinationModeType(),
-                    "Combination Mode",
-                    "",
-                    "",
-                    "" );
+    CAF_PDM_InitScriptableValueField( &m_fileSplit,
+                                      "fileSplit",
+                                      RicExportCompletionDataSettingsUi::ExportSplitType(),
+                                      "File Split",
+                                      "",
+                                      "",
+                                      "" );
+    CAF_PDM_InitScriptableValueField( &m_compdatExport,
+                                      "compdatExport",
+                                      RicExportCompletionDataSettingsUi::CompdatExportType(),
+                                      "Compdat Export",
+                                      "",
+                                      "",
+                                      "" );
+    CAF_PDM_InitScriptableValueField( &m_combinationMode,
+                                      "combinationMode",
+                                      RicExportCompletionDataSettingsUi::CombinationModeType(),
+                                      "Combination Mode",
+                                      "",
+                                      "",
+                                      "" );
 
-    RICF_InitField( &m_useLateralNTG, "useNtgHorizontally", false, "Use NTG Horizontally", "", "", "" );
-    RICF_InitField( &m_includePerforations, "includePerforations", true, "Include Perforations", "", "", "" );
-    RICF_InitField( &m_includeFishbones, "includeFishbones", true, "Include Fishbones", "", "", "" );
-    RICF_InitField( &m_includeFractures, "includeFractures", true, "Include Fractures", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_useLateralNTG, "useNtgHorizontally", false, "Use NTG Horizontally", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_includePerforations, "includePerforations", true, "Include Perforations", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_includeFishbones, "includeFishbones", true, "Include Fishbones", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_includeFractures, "includeFractures", true, "Include Fractures", "", "", "" );
 
-    RICF_InitField( &m_excludeMainBoreForFishbones,
-                    "excludeMainBoreForFishbones",
-                    false,
-                    "Exclude Main Bore for Fishbones",
-                    "",
-                    "",
-                    "" );
+    CAF_PDM_InitScriptableValueField( &m_excludeMainBoreForFishbones,
+                                      "excludeMainBoreForFishbones",
+                                      false,
+                                      "Exclude Main Bore for Fishbones",
+                                      "",
+                                      "",
+                                      "" );
 
-    RICF_InitField( &m_performTransScaling, "performTransScaling", false, "Perform Transmissibility Scaling", "", "", "" );
-    RICF_InitField( &m_transScalingTimeStep, "transScalingTimeStep", 0, "Transmissibility Scaling Pressure Time Step", "", "", "" );
-    RICF_InitField( &m_transScalingInitialWBHP,
-                    "transScalingWBHPFromSummary",
-                    RicExportCompletionDataSettingsUi::TransScalingWBHPSource(),
-                    "Transmissibility Scaling WBHP from summary",
-                    "",
-                    "",
-                    "" );
-    RICF_InitField( &m_transScalingWBHP, "transScalingWBHP", 200.0, "Transmissibility Scaling Constant WBHP Value", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_performTransScaling,
+                                      "performTransScaling",
+                                      false,
+                                      "Perform Transmissibility Scaling",
+                                      "",
+                                      "",
+                                      "" );
+    CAF_PDM_InitScriptableValueField( &m_transScalingTimeStep,
+                                      "transScalingTimeStep",
+                                      0,
+                                      "Transmissibility Scaling Pressure Time Step",
+                                      "",
+                                      "",
+                                      "" );
+    CAF_PDM_InitScriptableValueField( &m_transScalingInitialWBHP,
+                                      "transScalingWBHPFromSummary",
+                                      RicExportCompletionDataSettingsUi::TransScalingWBHPSource(),
+                                      "Transmissibility Scaling WBHP from summary",
+                                      "",
+                                      "",
+                                      "" );
+    CAF_PDM_InitScriptableValueField( &m_transScalingWBHP,
+                                      "transScalingWBHP",
+                                      200.0,
+                                      "Transmissibility Scaling Constant WBHP Value",
+                                      "",
+                                      "",
+                                      "" );
 }
 
 //--------------------------------------------------------------------------------------------------

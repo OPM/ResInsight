@@ -26,6 +26,8 @@
 
 #include "RimProject.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QDir>
 #include <QFileInfo>
 
@@ -36,8 +38,8 @@ CAF_PDM_SOURCE_INIT( RicfSingleCaseReplace, "replaceCase" );
 //--------------------------------------------------------------------------------------------------
 RicfSingleCaseReplace::RicfSingleCaseReplace()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_newGridFile, "newGridFile", QString(), "New Grid File", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_newGridFile, "newGridFile", QString(), "New Grid File", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

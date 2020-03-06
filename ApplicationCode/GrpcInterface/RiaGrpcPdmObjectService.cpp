@@ -19,13 +19,13 @@
 
 #include "RiaApplication.h"
 #include "RiaGrpcCallbacks.h"
-#include "RicfObjectCapability.h"
 #include "Rim3dView.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimProject.h"
 
 #include "cafPdmFieldScriptability.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafPdmObjectScriptabilityRegister.h"
 
 using namespace rips;

@@ -49,9 +49,11 @@
 #include "RimTools.h"
 #include "RimWellLogPlotCollection.h"
 
+#include "cafPdmObjectScriptability.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmValueFieldScriptability.h"
 #include "cafUtils.h"
 
 #include "cvfVector3.h"

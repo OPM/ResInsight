@@ -18,20 +18,17 @@
 
 #pragma once
 #include "RicfCommandResponse.h"
-#include "RicfFieldCapability.h"
-#include "RicfObjectCapability.h"
 
 #include "cafCmdFeature.h"
 #include "cafPdmObject.h"
-#include "cafPdmObjectScriptabilityRegister.h"
-#include "cafPdmPythonGenerator.h"
+#include "cafPdmObjectScriptability.h"
 
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RicfCommandObject : public caf::PdmObject, public RicfObjectCapability
+class RicfCommandObject : public caf::PdmObject, public caf::PdmObjectScriptability
 {
 public:
     RicfCommandObject();
@@ -39,55 +36,3 @@ public:
 
     virtual RicfCommandResponse execute() = 0;
 };
-
-#define RICF_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitField( field,                                                                   \
-                       keyword,                                                                 \
-                       default,                                                                 \
-                       uiName,                                                                  \
-                       iconResourceName,                                                        \
-                       caf::PdmPythonGenerator::pythonHelpString( toolTip, keyword ),           \
-                       whatsThis );                                                             \
-    AddRicfCapabilityToField( field, keyword )
-
-#define RICF_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitFieldNoDefault( field,                                                          \
-                                keyword,                                                        \
-                                uiName,                                                         \
-                                iconResourceName,                                               \
-                                caf::PdmPythonGenerator::pythonHelpString( toolTip, keyword ),  \
-                                whatsThis );                                                    \
-    AddRicfCapabilityToField( field, keyword )
-
-#define RICF_InitFieldTranslated( field, keyword, scriptKeyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitField( field,                                                                                            \
-                       keyword,                                                                                          \
-                       default,                                                                                          \
-                       uiName,                                                                                           \
-                       iconResourceName,                                                                                 \
-                       caf::PdmPythonGenerator::pythonHelpString( toolTip, scriptKeyword ),                              \
-                       whatsThis );                                                                                      \
-    AddRicfCapabilityToField( field, scriptKeyword )
-
-#define RICF_InitFieldNoDefaultTranslated( field, keyword, scriptKeyword, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitFieldNoDefault( field,                                                                                   \
-                                keyword,                                                                                 \
-                                uiName,                                                                                  \
-                                iconResourceName,                                                                        \
-                                caf::PdmPythonGenerator::pythonHelpString( toolTip, scriptKeyword ),                     \
-                                whatsThis );                                                                             \
-    AddRicfCapabilityToField( field, scriptKeyword )
-
-#define RICF_HEADER_INIT \
-    CAF_CMD_HEADER_INIT; \
-    CAF_PDM_HEADER_INIT
-
-// RICF_SOURCE_INIT calls CAF_FACTORY_REGISTER2 to avoid name conflicts with CAF_PDM_SOURCE_INIT
-#define RICF_SOURCE_INIT( ClassName, CommandIdName, CommandKeyword )                             \
-    const std::string& ClassName::idNameStatic()                                                 \
-    {                                                                                            \
-        static std::string id = CommandIdName;                                                   \
-        return id;                                                                               \
-    }                                                                                            \
-    CAF_FACTORY_REGISTER2( caf::CmdFeature, ClassName, std::string, ClassName::idNameStatic() ); \
-    CAF_PDM_SOURCE_INIT( ClassName, CommandKeyword )

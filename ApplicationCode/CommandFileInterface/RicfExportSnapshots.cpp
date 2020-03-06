@@ -29,6 +29,8 @@
 
 #include "RiuMainWindow.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RicfExportSnapshots, "exportSnapshots" );
@@ -58,12 +60,12 @@ void RicfExportSnapshots::SnapshotsTypeEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfExportSnapshots::RicfExportSnapshots()
 {
-    RICF_InitField( &m_type, "type", RicfExportSnapshots::SnapshotsTypeEnum(), "Type", "", "", "" );
-    RICF_InitField( &m_prefix, "prefix", QString(), "Prefix", "", "", "" );
-    RICF_InitField( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
-    RICF_InitField( &m_exportFolder, "exportFolder", QString(), "Export Folder", "", "", "" );
-    RICF_InitFieldNoDefault( &m_plotOutputFormat, "plotOutputFormat", "Output Format", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_type, "type", RicfExportSnapshots::SnapshotsTypeEnum(), "Type", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_prefix, "prefix", QString(), "Prefix", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_exportFolder, "exportFolder", QString(), "Export Folder", "", "", "" );
+    CAF_PDM_InitScriptableValueFieldNoDefault( &m_plotOutputFormat, "plotOutputFormat", "Output Format", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

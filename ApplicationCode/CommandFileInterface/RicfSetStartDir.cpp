@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "cafPdmValueFieldScriptability.h"
+
 #include <QDir>
 
 CAF_PDM_SOURCE_INIT( RicfSetStartDir, "setStartDir" );
@@ -30,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RicfSetStartDir, "setStartDir" );
 //--------------------------------------------------------------------------------------------------
 RicfSetStartDir::RicfSetStartDir()
 {
-    RICF_InitField( &m_path, "path", QString(), "Path", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_path, "path", QString(), "Path", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

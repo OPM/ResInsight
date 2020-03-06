@@ -30,9 +30,12 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
 
+#include "RimObservedSummaryData.h"
+
+#include "cafPdmValueFieldScriptability.h"
+
 #include "cvfAssert.h"
 
-#include "RimObservedSummaryData.h"
 #include <QFileInfo>
 
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimSummaryCase, "SummaryCase" );
@@ -46,10 +49,15 @@ RimSummaryCase::RimSummaryCase()
 {
     CAF_PDM_InitScriptableObject( "Summary Case", ":/SummaryCase16x16.png", "", "The Base Class for all Summary Cases" );
 
-    RICF_InitField( &m_shortName, "ShortName", QString( "Display Name" ), DEFAULT_DISPLAY_NAME, "", "", "" );
-    RICF_InitField( &m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_shortName, "ShortName", QString( "Display Name" ), DEFAULT_DISPLAY_NAME, "", "", "" );
+    CAF_PDM_InitScriptableValueField( &m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
 
-    RICF_InitFieldNoDefault( &m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File", "", "", "" );
+    CAF_PDM_InitScriptableValueFieldNoDefault( &m_summaryHeaderFilename,
+                                               "SummaryHeaderFilename",
+                                               "Summary Header File",
+                                               "",
+                                               "",
+                                               "" );
     m_summaryHeaderFilename.uiCapability()->setUiReadOnly( true );
 
     m_isObservedData = false;
