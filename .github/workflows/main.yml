@@ -10,9 +10,9 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         include:
           - os: windows-latest
-            triplet: x64-windows
+            vcpkg-response-file: vcpkg_x64-windows.txt
           - os: ubuntu-latest
-            triplet: x64-linux
+            vcpkg-response-file: vcpkg_x64-linux.txt
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -34,19 +34,15 @@ jobs:
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
       - name: Cache vcpkg artifacts
         uses: actions/cache@v1
-        env:
-          vcpkgResponseFile: '${{ github.workspace }}/vcpkg_${{ matrix.triplet }}.txt'
         with:
           path: ${{ github.workspace }}/vcpkg/
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
-          key: ${{ hashFiles( env.vcpkgResponseFile ) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}
+          key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v0
         id: runvcpkg
-        env:
-          vcpkgResponseFile: '${{ github.workspace }}/vcpkg_${{ matrix.triplet }}.txt'
         with:
-          vcpkgArguments: '@${{ env.vcpkgResponseFile }}'
+          vcpkgArguments: '@${{ github.workspace }}/${{ matrix.vcpkg-response-file }}'
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
       - name: Prints outputs of run-vcpkg task
         run: echo "'${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}' '${{  steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET_OUT }}' "
