@@ -66,6 +66,7 @@ public:
 
     RigCaseRealizationParameters()
         : m_parametersHash( 0 )
+        , m_realizationNumber( -1 )
     {
     }
 
@@ -79,10 +80,14 @@ public:
     size_t parameterHash( const QString& name ) const;
     size_t parametersHash();
 
+    int  realizationNumber() const;
+    void setRealizationNumber( int realization );
+
     void clearParametersHash();
     void calculateParametersHash( const std::set<QString>& paramNames = std::set<QString>() );
 
 private:
     std::map<QString, Value> m_parameters;
     size_t                   m_parametersHash;
+    int                      m_realizationNumber;
 };

@@ -41,6 +41,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryCaseMainCollection, "SummaryCaseCollection" );
 //--------------------------------------------------------------------------------------------------
 void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString modelFolderOrFile )
 {
+    std::shared_ptr<RigCaseRealizationParameters> parameters;
     QString parametersFile = RifCaseRealizationParametersFileLocator::locate( modelFolderOrFile );
     if ( !parametersFile.isEmpty() )
     {
@@ -51,13 +52,23 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
             try
             {
                 reader->parse();
-                sumCase.setCaseRealizationParameters( reader->parameters() );
+                parameters = reader->parameters();
             }
             catch ( ... )
             {
             }
         }
     }
+    else
+    {
+        parameters = std::shared_ptr<RigCaseRealizationParameters>( new RigCaseRealizationParameters() );
+    }
+
+    int realizationNumber = RifCaseRealizationParametersFileLocator::realizationNumber( modelFolderOrFile );
+    parameters->setRealizationNumber( realizationNumber );
+    parameters->addParameter( "REALIZATION_NUM", realizationNumber );
+
+    sumCase.setCaseRealizationParameters( parameters );
 }
 
 //--------------------------------------------------------------------------------------------------
