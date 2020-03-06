@@ -599,7 +599,7 @@ void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_curveColor );
     uiOrdering.add( &m_pointSymbol );
-    if ( !RiuQwtSymbol::isFilledSymbol( m_pointSymbol() ) )
+    if ( RiuQwtSymbol::isFilledSymbol( m_pointSymbol() ) )
     {
         uiOrdering.add( &m_symbolEdgeColor );
     }
