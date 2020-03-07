@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "Rim3dPropertiesInterface.h"
+
 #include "RigWellDiskData.h"
 
 #include "cafAppEnum.h"
@@ -46,7 +48,7 @@ class RimWellDiskConfig;
 ///
 ///
 //==================================================================================================
-class RimSimWellInView : public caf::PdmObject
+class RimSimWellInView : public caf::PdmObject, public Rim3dPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -104,6 +106,8 @@ public:
 
     double calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig, bool* isOk );
     void   scaleDisk( double minValue, double maxValue );
+
+    cvf::BoundingBox boundingBoxInDomainCoords() const override;
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

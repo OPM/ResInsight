@@ -79,6 +79,12 @@ void RicFlyToObjectFeature::onActionTriggered( bool isChecked )
         directionNormalToLargesExtent = cvf::Vec3d::Y_AXIS;
     }
 
+    double zExtent = fabs( bb.extent().z() ) * activeView->scaleZ();
+    largesExtent   = std::max( largesExtent, zExtent );
+
+    // Scale to make the object fit in view
+    largesExtent *= 2.0;
+
     cvf::Vec3d cameraEye = centerInDisplayCoords + directionNormalToLargesExtent * std::max( largesExtent, 30.0 );
     cvf::Vec3d cameraViewRefPoint = centerInDisplayCoords;
     cvf::Vec3d cameraUp           = cvf::Vec3d::Z_AXIS;
@@ -113,7 +119,11 @@ cvf::BoundingBox RicFlyToObjectFeature::boundingBoxForSelectedObjects()
     {
         if ( obj )
         {
-            bb.add( obj->boundingBoxInDomainCoords() );
+            auto candidate = obj->boundingBoxInDomainCoords();
+            if ( candidate.isValid() )
+            {
+                bb.add( candidate );
+            }
         }
     }
 
