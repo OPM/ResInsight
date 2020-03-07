@@ -748,6 +748,37 @@ void RimSimWellInView::scaleDisk( double minValue, double maxValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimSimWellInView::boundingBoxInDomainCoords() const
+{
+    std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
+    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
+
+    auto noConst = const_cast<RimSimWellInView*>( this );
+    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( noConst,
+                                                                              pipeBranchesCLCoords,
+                                                                              pipeBranchesCellIds );
+
+    cvf::BoundingBox bb;
+    for ( auto branch : pipeBranchesCLCoords )
+    {
+        if ( !branch.empty() )
+        {
+            // Estimate the bounding box based on first, middle and last coordinate of branches
+            bb.add( branch.front() );
+
+            size_t mid = branch.size() / 2;
+            bb.add( branch[mid] );
+
+            bb.add( branch.back() );
+        }
+    }
+
+    return bb;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isValidDisk() const
 {
     return m_isValidDisk;
