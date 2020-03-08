@@ -57,7 +57,7 @@ RicfExportPropertyInViews::RicfExportPropertyInViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportPropertyInViews::execute()
+caf::PdmScriptResponse RicfExportPropertyInViews::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -66,7 +66,7 @@ RicfCommandResponse RicfExportPropertyInViews::execute()
     {
         QString error( QString( "exportProperty: Could not find case with ID %1" ).arg( m_caseId() ) );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     std::vector<RimEclipseView*> viewsForExport;
@@ -111,7 +111,7 @@ RicfCommandResponse RicfExportPropertyInViews::execute()
         }
     }
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
 
     for ( const auto& view : viewsForExport )
     {
@@ -135,7 +135,7 @@ RicfCommandResponse RicfExportPropertyInViews::execute()
                     .arg( view->currentTimeStep() )
                     .arg( propertyName );
             RiaLogging::warning( warning );
-            response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
             continue;
         }
 
@@ -161,7 +161,7 @@ RicfCommandResponse RicfExportPropertyInViews::execute()
                                                                              &errorMsg );
         if ( !worked )
         {
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errorMsg );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errorMsg );
         }
     }
     return response;

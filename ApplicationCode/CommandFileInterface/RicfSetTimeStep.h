@@ -38,7 +38,7 @@ public:
     void setViewId( int viewId );
     void setTimeStepIndex( int timeStepIndex );
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<int> m_caseId;

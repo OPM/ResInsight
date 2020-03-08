@@ -60,7 +60,7 @@ RicfExportProperty::RicfExportProperty()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportProperty::execute()
+caf::PdmScriptResponse RicfExportProperty::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -70,7 +70,7 @@ RicfCommandResponse RicfExportProperty::execute()
         {
             QString error = QString( "exportProperty: Could not find case with ID %1" ).arg( m_caseId() );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
 
         if ( !eclipseCase->eclipseCaseData() )
@@ -79,7 +79,7 @@ RicfCommandResponse RicfExportProperty::execute()
             {
                 QString error = QString( "exportProperty: Could not find eclipseCaseData with ID %1" ).arg( m_caseId() );
                 RiaLogging::error( error );
-                return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+                return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
             }
         }
     }
@@ -92,7 +92,7 @@ RicfCommandResponse RicfExportProperty::execute()
     {
         QString error = QString( "exportProperty: Could not find result property : %1" ).arg( m_propertyName() );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     QString filePath = m_exportFileName;
@@ -119,8 +119,8 @@ RicfCommandResponse RicfExportProperty::execute()
                                                                    m_undefinedValue,
                                                                    &errMsg ) )
     {
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errMsg );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

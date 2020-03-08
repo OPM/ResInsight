@@ -74,11 +74,11 @@ RicfExportWellLogPlotData::RicfExportWellLogPlotData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportWellLogPlotData::execute()
+caf::PdmScriptResponse RicfExportWellLogPlotData::execute()
 {
     QStringList errorMessages;
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
 
     if ( QFileInfo::exists( m_folder ) )
     {
@@ -135,7 +135,7 @@ RicfCommandResponse RicfExportWellLogPlotData::execute()
 
     for ( QString errorMessage : errorMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
     return response;
 }

@@ -43,13 +43,13 @@ RicfSetFractureContainment::RicfSetFractureContainment()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfSetFractureContainment::execute()
+caf::PdmScriptResponse RicfSetFractureContainment::execute()
 {
     if ( m_id < 0 || m_topLayer < 0 || m_baseLayer < 0 )
     {
         QString error( "setFractureContainment: Required argument missing" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     RimProject* project = RiaApplication::instance()->project();
@@ -58,7 +58,7 @@ RicfCommandResponse RicfSetFractureContainment::execute()
     {
         QString error( "setFractureContainment: Project not found" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     RimFractureTemplateCollection* templColl =
@@ -69,11 +69,11 @@ RicfCommandResponse RicfSetFractureContainment::execute()
     {
         QString error = QString( "setFractureContainment: Fracture template not found. Id=%1" ).arg( m_id );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     templ->setContainmentTopKLayer( m_topLayer );
     templ->setContainmentBaseKLayer( m_baseLayer );
     templ->loadDataAndUpdateGeometryHasChanged();
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

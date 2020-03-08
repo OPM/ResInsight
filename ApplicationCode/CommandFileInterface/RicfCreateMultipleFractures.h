@@ -49,7 +49,7 @@ class RicfCreateMultipleFractures : public RicfCommandObject
 public:
     RicfCreateMultipleFractures();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     bool                 validateArguments() const;

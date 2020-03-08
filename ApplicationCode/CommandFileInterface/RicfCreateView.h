@@ -50,7 +50,7 @@ class RicfCreateView : public RicfCommandObject
 public:
     RicfCreateView();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<int> m_caseId;

@@ -59,7 +59,7 @@ RicfExportLgrForCompletions::RicfExportLgrForCompletions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportLgrForCompletions::execute()
+caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -74,7 +74,7 @@ RicfCommandResponse RicfExportLgrForCompletions::execute()
             QString error( QString( "exportLgrForCompletions: These well paths were not found: " ) +
                            wellsNotFound.join( ", " ) );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
 
@@ -82,7 +82,7 @@ RicfCommandResponse RicfExportLgrForCompletions::execute()
     {
         QString error( "exportLgrForCompletions: Could not find any well paths" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::LGRS );
@@ -99,7 +99,7 @@ RicfCommandResponse RicfExportLgrForCompletions::execute()
     {
         QString error( QString( "exportLgrForCompletions: Could not find case with ID %1" ).arg( m_caseId() ) );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     caf::VecIjk lgrCellCounts( m_refinementI, m_refinementJ, m_refinementK );
@@ -114,7 +114,7 @@ RicfCommandResponse RicfExportLgrForCompletions::execute()
                                      {RigCompletionData::PERFORATION, RigCompletionData::FRACTURE, RigCompletionData::FISHBONES},
                                      &wellsIntersectingOtherLgrs );
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
     if ( !wellsIntersectingOtherLgrs.empty() )
     {
         auto    wellsList = wellsIntersectingOtherLgrs.join( ", " );
@@ -122,7 +122,7 @@ RicfCommandResponse RicfExportLgrForCompletions::execute()
             "exportLgrForCompletions: No export for some wells due to existing intersecting LGR(s).Affected wells : " +
             wellsList );
         RiaLogging::warning( warning );
-        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
     }
     return response;
 }

@@ -50,7 +50,7 @@ RicfImportWellLogFiles::RicfImportWellLogFiles()
     CAF_PDM_InitScriptableValueFieldNoDefault( &m_wellLogFilePaths, "wellLogFiles", "", "", "", "" );
 }
 
-RicfCommandResponse RicfImportWellLogFiles::execute()
+caf::PdmScriptResponse RicfImportWellLogFiles::execute()
 {
     QStringList errorMessages, warningMessages;
     QStringList wellLogFilePaths;
@@ -96,7 +96,7 @@ RicfCommandResponse RicfImportWellLogFiles::execute()
         }
     }
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
 
     if ( !wellLogFilePaths.empty() )
     {
@@ -119,12 +119,12 @@ RicfCommandResponse RicfImportWellLogFiles::execute()
 
     for ( QString warningMessage : warningMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warningMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warningMessage );
     }
 
     for ( QString errorMessage : errorMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
 
     return response;

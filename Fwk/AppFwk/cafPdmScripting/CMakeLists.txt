@@ -6,8 +6,10 @@ set( PROJECT_FILES
      cafPdmCodeGenerator.h
      cafPdmFieldScriptability.h
      cafPdmFieldScriptability.cpp
-	 cafPdmValueFieldScriptability.h
+     cafPdmValueFieldScriptability.h
      cafPdmValueFieldScriptability.cpp
+	 cafPdmObjectMethod.h
+	 cafPdmObjectMethod.cpp
      cafPdmObjectScriptabilityRegister.h
      cafPdmObjectScriptabilityRegister.cpp
      cafPdmPythonGenerator.h
@@ -16,6 +18,8 @@ set( PROJECT_FILES
      cafPdmScriptIOMessages.cpp
      cafPdmObjectScriptability.h
      cafPdmObjectScriptability.cpp
+     cafPdmScriptResponse.h
+     cafPdmScriptResponse.cpp
 )
 
 

@@ -35,50 +35,49 @@
 //##################################################################################################
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObjectCapability.h"
-#include "cafPdmObjectMethod.h"
-#include "cafPdmObjectScriptabilityRegister.h"
+#include "cafPdmObject.h"
+#include "cafPdmPointer.h"
 
 #include <QString>
+#include <QStringList>
 
-#include <map>
 #include <memory>
-#include <vector>
-
-class QTextStream;
-
-#define CAF_PDM_InitScriptableObject( uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );              \
-    caf::PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( classKeyword(), classKeyword(), whatsThis );
-
-#define CAF_PDM_InitScriptableObjectWithNameAndComment( uiName, iconResourceName, toolTip, whatsThis, scriptClassName, scriptComment ) \
-    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );                                                                \
-    caf::PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( classKeyword(), scriptClassName, scriptComment );
 
 namespace caf
 {
-class PdmObject;
-class PdmObjectHandle;
-class PdmObjectFactory;
-class PdmScriptIOMessages;
-
 //==================================================================================================
 //
-//
+// Command response which contains status and possibly a result
 //
 //==================================================================================================
-class PdmObjectScriptability : public PdmObjectCapability
+class PdmScriptResponse
 {
 public:
-    PdmObjectScriptability( PdmObjectHandle* owner, bool giveOwnership );
+    // Status in order of severity from ok to critical
+    enum Status
+    {
+        COMMAND_OK,
+        COMMAND_WARNING,
+        COMMAND_ERROR
+    };
 
-    ~PdmObjectScriptability() override;
+public:
+    PdmScriptResponse( Status status = COMMAND_OK, const QString& message = "" );
+    explicit PdmScriptResponse( PdmObject* ok_result );
 
-    void readFields( QTextStream& inputStream, PdmObjectFactory* objectFactory, PdmScriptIOMessages* errorMessageContainer );
-    void writeFields( QTextStream& outputStream ) const;
+    Status      status() const;
+    QString     sanitizedResponseMessage() const;
+    QStringList messages() const;
+    PdmObject*  result() const;
+    void        setResult( PdmObject* result );
+    void        updateStatus( Status status, const QString& message );
 
 private:
-    PdmObjectHandle* m_owner;
+    static QString statusLabel( Status status );
+
+private:
+    Status                     m_status;
+    QStringList                m_messages;
+    std::unique_ptr<PdmObject> m_result;
 };
 } // namespace caf

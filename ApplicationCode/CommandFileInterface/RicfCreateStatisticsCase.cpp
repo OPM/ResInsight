@@ -56,7 +56,7 @@ RicfCreateStatisticsCase::RicfCreateStatisticsCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfCreateStatisticsCase::execute()
+caf::PdmScriptResponse RicfCreateStatisticsCase::execute()
 {
     RimProject* project = RiaApplication::instance()->project();
 
@@ -69,10 +69,10 @@ RicfCommandResponse RicfCreateStatisticsCase::execute()
             RimEclipseStatisticsCase* createdObject = gridCaseGroup->createAndAppendStatisticsCase();
             project->assignCaseIdToCase( createdObject );
             gridCaseGroup->updateConnectedEditors();
-            RicfCommandResponse response;
+            caf::PdmScriptResponse response;
             response.setResult( new RicfCreateStatisticsCaseResult( createdObject->caseId() ) );
             return response;
         }
     }
-    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, "Could not find grid case group" );
+    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, "Could not find grid case group" );
 }

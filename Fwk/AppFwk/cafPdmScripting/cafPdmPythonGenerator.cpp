@@ -40,6 +40,7 @@
 #include "cafPdmFieldScriptability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectFactory.h"
+#include "cafPdmObjectMethod.h"
 #include "cafPdmObjectScriptabilityRegister.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmXmlFieldHandle.h"
@@ -65,14 +66,14 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
 
     std::vector<QString> classKeywords = factory->classKeywords();
 
-    std::vector<std::shared_ptr<const PdmObject>> dummyObjects;
+    std::vector<std::shared_ptr<PdmObject>> dummyObjects;
     for ( QString classKeyword : classKeywords )
     {
-        auto             objectHandle = factory->create( classKeyword );
-        const PdmObject* object       = dynamic_cast<const PdmObject*>( objectHandle );
+        auto       objectHandle = factory->create( classKeyword );
+        PdmObject* object       = dynamic_cast<PdmObject*>( objectHandle );
         CAF_ASSERT( object );
 
-        std::shared_ptr<const PdmObject> sharedObject( object );
+        std::shared_ptr<PdmObject> sharedObject( object );
         if ( PdmObjectScriptabilityRegister::isScriptable( sharedObject.get() ) )
         {
             dummyObjects.push_back( sharedObject );
@@ -80,22 +81,20 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
     }
 
     // Sort to make sure super classes get created before sub classes
-    std::sort( dummyObjects.begin(),
-               dummyObjects.end(),
-               []( std::shared_ptr<const PdmObject> lhs, std::shared_ptr<const PdmObject> rhs ) {
-                   if ( lhs->inheritsClassWithKeyword( rhs->classKeyword() ) )
-                   {
-                       return false;
-                   }
-                   return lhs->classKeyword() < rhs->classKeyword();
-               } );
+    std::sort( dummyObjects.begin(), dummyObjects.end(), []( std::shared_ptr<PdmObject> lhs, std::shared_ptr<PdmObject> rhs ) {
+        if ( lhs->inheritsClassWithKeyword( rhs->classKeyword() ) )
+        {
+            return false;
+        }
+        return lhs->classKeyword() < rhs->classKeyword();
+    } );
 
     std::map<QString, std::map<QString, std::pair<QString, QString>>> classAttributesGenerated;
     std::map<QString, std::map<QString, QString>>                     classMethodsGenerated;
     std::map<QString, QString>                                        classCommentsGenerated;
 
     // First generate all attributes and comments to go into each object
-    for ( std::shared_ptr<const PdmObject> object : dummyObjects )
+    for ( std::shared_ptr<PdmObject> object : dummyObjects )
     {
         const std::list<QString>& classInheritanceStack = object->classInheritanceStack();
 
@@ -236,6 +235,26 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                             }
                         }
                     }
+
+                    for ( QString methodName : PdmObjectMethodFactory::instance()->registeredMethodNames( object.get() ) )
+                    {
+                        std::shared_ptr<PdmObjectMethod> method =
+                            PdmObjectMethodFactory::instance()->createMethod( object.get(), methodName );
+                        std::vector<PdmFieldHandle*> arguments;
+                        method->fields( arguments );
+
+                        QString     snake_method_name = camelToSnakeCase( method->classKeyword() );
+                        QStringList argumentNames;
+                        for ( auto field : arguments )
+                        {
+                            auto scriptability = field->capability<PdmFieldScriptability>();
+                            argumentNames.push_back( camelToSnakeCase( scriptability->scriptFieldName() ) );
+                        }
+                        QString methodCode = QString( "    def %1(self, %2):\n        pass\n" )
+                                                 .arg( snake_method_name )
+                                                 .arg( argumentNames.join( ", " ) );
+                        classMethodsGenerated[field->ownerClass()][snake_method_name] = methodCode;
+                    }
                 }
             }
         }
@@ -243,7 +262,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
 
     // Write out classes
     std::set<QString> classesWritten;
-    for ( std::shared_ptr<const PdmObject> object : dummyObjects )
+    for ( std::shared_ptr<PdmObject> object : dummyObjects )
     {
         const std::list<QString>& classInheritanceStack = object->classInheritanceStack();
         std::list<QString>        scriptSuperClassNames;

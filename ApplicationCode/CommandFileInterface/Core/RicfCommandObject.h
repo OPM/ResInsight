@@ -17,11 +17,25 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "RicfCommandResponse.h"
 
 #include "cafCmdFeature.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptability.h"
+#include "cafPdmScriptResponse.h"
+
+#define RICF_HEADER_INIT \
+    CAF_CMD_HEADER_INIT; \
+    CAF_PDM_HEADER_INIT
+
+// RICF_SOURCE_INIT calls CAF_FACTORY_REGISTER2 to avoid name conflicts with CAF_PDM_SOURCE_INIT
+#define RICF_SOURCE_INIT( ClassName, CommandIdName, CommandKeyword )                             \
+    const std::string& ClassName::idNameStatic()                                                 \
+    {                                                                                            \
+        static std::string id = CommandIdName;                                                   \
+        return id;                                                                               \
+    }                                                                                            \
+    CAF_FACTORY_REGISTER2( caf::CmdFeature, ClassName, std::string, ClassName::idNameStatic() ); \
+    CAF_PDM_SOURCE_INIT( ClassName, CommandKeyword )
 
 //==================================================================================================
 //
@@ -34,5 +48,5 @@ public:
     RicfCommandObject();
     ~RicfCommandObject() override;
 
-    virtual RicfCommandResponse execute() = 0;
+    virtual caf::PdmScriptResponse execute() = 0;
 };

@@ -40,7 +40,7 @@ class RicImportWellPaths : public caf::CmdFeature, public RicfCommandObject
 
 public:
     RicImportWellPaths();
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 protected:
     static std::vector<RimWellPath*> importWellPaths( const QStringList& wellPathFilePaths, QStringList* errorMessages );

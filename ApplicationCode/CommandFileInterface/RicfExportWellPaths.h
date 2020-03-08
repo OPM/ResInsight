@@ -37,7 +37,7 @@ class RicfExportWellPaths : public RicfCommandObject
 public:
     RicfExportWellPaths();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<std::vector<QString>> m_wellPathNames;

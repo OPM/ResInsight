@@ -37,13 +37,13 @@ RicfSetPlotWindowSize::RicfSetPlotWindowSize()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfSetPlotWindowSize::execute()
+caf::PdmScriptResponse RicfSetPlotWindowSize::execute()
 {
     RiaGuiApplication* guiApp = RiaGuiApplication::instance();
     if ( guiApp )
     {
         guiApp->getOrCreateAndShowMainPlotWindow()->resize( m_width, m_height );
-        return RicfCommandResponse();
+        return caf::PdmScriptResponse();
     }
-    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, "Need GUI ResInsight to set plot window size" );
+    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, "Need GUI ResInsight to set plot window size" );
 }

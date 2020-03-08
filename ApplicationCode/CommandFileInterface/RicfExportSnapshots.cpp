@@ -71,13 +71,13 @@ RicfExportSnapshots::RicfExportSnapshots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportSnapshots::execute()
+caf::PdmScriptResponse RicfExportSnapshots::execute()
 {
     if ( !RiaGuiApplication::isRunning() )
     {
         QString error( "RicfExportSnapshot: Command cannot run without a GUI" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
@@ -131,5 +131,5 @@ RicfCommandResponse RicfExportSnapshots::execute()
     mainWnd->loadWinGeoAndDockToolBarLayout();
     RiaGuiApplication::instance()->processEvents();
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

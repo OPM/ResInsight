@@ -68,7 +68,7 @@ RicImportWellPaths::RicImportWellPaths()
     CAF_PDM_InitScriptableValueFieldNoDefault( &m_wellPathFiles, "wellPathFiles", "", "", "", "" );
 }
 
-RicfCommandResponse RicImportWellPaths::execute()
+caf::PdmScriptResponse RicImportWellPaths::execute()
 {
     QStringList errorMessages, warningMessages;
     QStringList wellPathFiles;
@@ -117,7 +117,7 @@ RicfCommandResponse RicImportWellPaths::execute()
         }
     }
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
     if ( !wellPathFiles.empty() )
     {
         std::vector<RimWellPath*> importedWellPaths = importWellPaths( wellPathFiles, &warningMessages );
@@ -139,12 +139,12 @@ RicfCommandResponse RicImportWellPaths::execute()
 
     for ( QString warningMessage : warningMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warningMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warningMessage );
     }
 
     for ( QString errorMessage : errorMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
 
     return response;
@@ -221,9 +221,9 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
 
     if ( wellPathFilePaths.size() >= 1 )
     {
-        m_wellPathFiles.v()          = std::vector<QString>( wellPathFilePaths.begin(), wellPathFilePaths.end() );
-        RicfCommandResponse response = execute();
-        QStringList         messages = response.messages();
+        m_wellPathFiles.v()             = std::vector<QString>( wellPathFilePaths.begin(), wellPathFilePaths.end() );
+        caf::PdmScriptResponse response = execute();
+        QStringList            messages = response.messages();
 
         if ( !messages.empty() )
         {
@@ -233,7 +233,7 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
             {
                 QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "Well Path Loading", displayMessage );
             }
-            if ( response.status() == RicfCommandResponse::COMMAND_ERROR )
+            if ( response.status() == caf::PdmScriptResponse::COMMAND_ERROR )
             {
                 RiaLogging::error( displayMessage );
             }

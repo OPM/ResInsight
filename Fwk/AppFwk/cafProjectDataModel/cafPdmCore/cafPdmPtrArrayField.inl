@@ -213,6 +213,23 @@ void PdmPtrArrayField<DataType*>::removePtr(PdmObjectHandle* object)
 /// 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
+std::vector<DataType*> PdmPtrArrayField<DataType*>::ptrReferencedObjects() const
+{
+    std::vector<DataType*> objects;
+
+    size_t i;
+    for (i = 0; i < m_pointers.size(); ++i)
+    {
+        objects.push_back(m_pointers[i].p());
+    }
+
+    return objects;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
 void PdmPtrArrayField<DataType*>::ptrReferencedObjects(std::vector<PdmObjectHandle*>* objects)
 {
     if(!objects) return;

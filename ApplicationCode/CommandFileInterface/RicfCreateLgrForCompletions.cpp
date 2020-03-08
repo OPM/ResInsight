@@ -61,7 +61,7 @@ RicfCreateLgrForCompletions::RicfCreateLgrForCompletions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfCreateLgrForCompletions::execute()
+caf::PdmScriptResponse RicfCreateLgrForCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -76,7 +76,7 @@ RicfCommandResponse RicfCreateLgrForCompletions::execute()
             QString error = QString( "createLgrForCompletions: These well paths were not found: " ) +
                             wellsNotFound.join( ", " );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
 
@@ -84,7 +84,7 @@ RicfCommandResponse RicfCreateLgrForCompletions::execute()
     {
         QString error( "No well paths found" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
@@ -105,7 +105,7 @@ RicfCommandResponse RicfCreateLgrForCompletions::execute()
         {
             QString error( QString( "createLgrForCompletions: Could not find case with ID %1" ).arg( m_caseId() ) );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
 
@@ -124,7 +124,7 @@ RicfCommandResponse RicfCreateLgrForCompletions::execute()
 
     feature->updateViews( eclipseCase );
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
     if ( !wellsIntersectingOtherLgrs.empty() )
     {
         auto    wellsList = wellsIntersectingOtherLgrs.join( ", " );
@@ -132,7 +132,7 @@ RicfCommandResponse RicfCreateLgrForCompletions::execute()
                          "LGR(s).Affected wells : " +
                          wellsList );
         RiaLogging::warning( warning );
-        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
     }
     return response;
 }

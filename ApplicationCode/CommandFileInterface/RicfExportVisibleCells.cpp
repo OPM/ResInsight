@@ -92,13 +92,13 @@ RicfExportVisibleCells::RicfExportVisibleCells()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportVisibleCells::execute()
+caf::PdmScriptResponse RicfExportVisibleCells::execute()
 {
     if ( m_caseId < 0 || ( m_viewName().isEmpty() && m_viewId() < 0 ) )
     {
         QString error( "exportVisibleCells: CaseId or view name or view id not specified" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
     RimEclipseView* eclipseView = nullptr;
     if ( m_viewId() >= 0 )
@@ -116,7 +116,7 @@ RicfCommandResponse RicfExportVisibleCells::execute()
                            .arg( m_viewName )
                            .arg( m_caseId ) );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::CELLS );
@@ -131,7 +131,7 @@ RicfCommandResponse RicfExportVisibleCells::execute()
     buildExportSettings( exportFolder, &exportSettings );
     RicSaveEclipseInputVisibleCellsFeature::executeCommand( eclipseView, exportSettings, "exportVisibleCells" );
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -54,7 +54,7 @@ RicfExportFlowCharacteristics::RicfExportFlowCharacteristics()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportFlowCharacteristics::execute()
+caf::PdmScriptResponse RicfExportFlowCharacteristics::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -63,7 +63,7 @@ RicfCommandResponse RicfExportFlowCharacteristics::execute()
     {
         QString error = QString( "exportFlowCharacteristics: Could not find case with ID %1." ).arg( m_caseId() );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     {
@@ -81,7 +81,7 @@ RicfCommandResponse RicfExportFlowCharacteristics::execute()
                 if ( !exportDir.mkpath( "." ) )
                 {
                     QString msg = QString( "Failed to create folder - %1" ).arg( exportFolder );
-                    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, msg );
+                    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, msg );
                 }
             }
 
@@ -113,10 +113,10 @@ RicfCommandResponse RicfExportFlowCharacteristics::execute()
                 else
                 {
                     QString msg = QString( "Failed to export file - %1" ).arg( exportFileName );
-                    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, msg );
+                    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, msg );
                 }
             }
         }
     }
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

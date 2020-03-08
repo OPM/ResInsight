@@ -76,7 +76,7 @@ RicfExportSimWellFractureCompletions::RicfExportSimWellFractureCompletions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportSimWellFractureCompletions::execute()
+caf::PdmScriptResponse RicfExportSimWellFractureCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -93,7 +93,7 @@ RicfCommandResponse RicfExportSimWellFractureCompletions::execute()
         {
             QString error = QString( "exportSimWellCompletions: Could not find case with ID %1" ).arg( m_caseId() );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
         exportSettings->caseToApply = eclipseCase;
     }
@@ -122,10 +122,10 @@ RicfCommandResponse RicfExportSimWellFractureCompletions::execute()
                             .arg( m_viewName )
                             .arg( m_caseId() );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
 
     std::vector<RimSimWellInView*> simWells;
     if ( m_simWellNames().empty() )
@@ -160,7 +160,7 @@ RicfCommandResponse RicfExportSimWellFractureCompletions::execute()
                                           .arg( m_viewName )
                                           .arg( m_caseId() );
                     RiaLogging::warning( warning );
-                    response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
+                    response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
                 }
             }
         }

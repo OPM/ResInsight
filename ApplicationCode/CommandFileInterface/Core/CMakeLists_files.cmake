@@ -1,13 +1,11 @@
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicfCommandObject.h
-${CMAKE_CURRENT_LIST_DIR}/RicfCommandResponse.h
 ${CMAKE_CURRENT_LIST_DIR}/RifcCommandFileReader.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicfCommandObject.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicfCommandResponse.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifcCommandFileReader.cpp
 )
 

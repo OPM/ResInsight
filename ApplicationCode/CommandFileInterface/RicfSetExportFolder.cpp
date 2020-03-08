@@ -42,7 +42,7 @@ RicfSetExportFolder::RicfSetExportFolder()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfSetExportFolder::execute()
+caf::PdmScriptResponse RicfSetExportFolder::execute()
 {
     if ( m_createFolder )
     {
@@ -56,12 +56,12 @@ RicfCommandResponse RicfSetExportFolder::execute()
             {
                 QString error = QString( "Could not create folder : %1" ).arg( m_path );
                 RiaLogging::error( error );
-                return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+                return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
             }
         }
     }
 
     RicfCommandFileExecutor* executor = RicfCommandFileExecutor::instance();
     executor->setExportPath( m_type(), m_path );
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

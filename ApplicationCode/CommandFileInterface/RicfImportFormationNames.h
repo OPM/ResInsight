@@ -35,7 +35,7 @@ class RicfImportFormationNames : public RicfCommandObject
 public:
     RicfImportFormationNames();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<std::vector<QString>> m_formationFiles;

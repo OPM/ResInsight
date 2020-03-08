@@ -62,7 +62,7 @@ RicfExportMsw::RicfExportMsw()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportMsw::execute()
+caf::PdmScriptResponse RicfExportMsw::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -73,7 +73,7 @@ RicfCommandResponse RicfExportMsw::execute()
     {
         QString error = QString( "exportMsw: Could not find case with ID %1." ).arg( m_caseId() );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::COMPLETIONS );
@@ -93,10 +93,10 @@ RicfCommandResponse RicfExportMsw::execute()
     {
         QString error = QString( "exportMsw: Could not find well path with name %1" ).arg( m_wellPathName() );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions( exportSettings, {wellPath} );
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

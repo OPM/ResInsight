@@ -46,9 +46,9 @@ RicfComputeCaseGroupStatistics::RicfComputeCaseGroupStatistics()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfComputeCaseGroupStatistics::execute()
+caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
 {
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
 
     std::vector<int> caseIds = m_caseIds.v();
 
@@ -85,7 +85,7 @@ RicfCommandResponse RicfComputeCaseGroupStatistics::execute()
                                                    "statistics case, cannot compute statistics." )
                                               .arg( caseId );
                         RiaLogging::warning( warning );
-                        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
+                        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
                     }
                     foundCase = true;
                     break;
@@ -101,7 +101,7 @@ RicfCommandResponse RicfComputeCaseGroupStatistics::execute()
                 QString( "computeCaseGroupStatistics: Could not find statistics case with ID %1." ).arg( caseId );
 
             RiaLogging::warning( warning );
-            response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
         }
     }
     return response;

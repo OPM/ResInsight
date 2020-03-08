@@ -39,20 +39,20 @@ RicfExportMultiCaseSnapshots::RicfExportMultiCaseSnapshots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportMultiCaseSnapshots::execute()
+caf::PdmScriptResponse RicfExportMultiCaseSnapshots::execute()
 {
     RiaGuiApplication* app = RiaGuiApplication::instance();
     if ( !app )
     {
         QString error( "exportMultiCaseSnapshots: Requires GUI Application" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
     if ( m_gridListFile().isNull() )
     {
         QString error( "exportMultiCaseSnapshots: Required parameter gridListFile." );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
@@ -61,7 +61,7 @@ RicfCommandResponse RicfExportMultiCaseSnapshots::execute()
         QString error( "exportMultiCaseSnapshots: 'openProject' must be called before 'exportMultiCaseSnapshots' to "
                        "specify project file to replace cases in." );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     std::vector<QString> listFileNames = RiaApplication::readFileListFromTextFile( m_gridListFile() );
@@ -69,5 +69,5 @@ RicfCommandResponse RicfExportMultiCaseSnapshots::execute()
                                 listFileNames,
                                 RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::SNAPSHOTS ) );
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

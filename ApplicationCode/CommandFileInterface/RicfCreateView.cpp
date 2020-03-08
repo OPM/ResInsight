@@ -41,7 +41,7 @@ RicfCreateView::RicfCreateView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfCreateView::execute()
+caf::PdmScriptResponse RicfCreateView::execute()
 {
     RimProject*           project = RiaApplication::instance()->project();
     std::vector<RimCase*> allCases;
@@ -73,7 +73,7 @@ RicfCommandResponse RicfCreateView::execute()
 
             if ( viewId >= 0 )
             {
-                RicfCommandResponse response;
+                caf::PdmScriptResponse response;
                 response.setResult( new RicfCreateViewResult( viewId ) );
                 return response;
             }
@@ -82,5 +82,5 @@ RicfCommandResponse RicfCreateView::execute()
 
     QString error = QString( "createView: Could not create view for case id %1" ).arg( m_caseId() );
     RiaLogging::error( error );
-    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
 }

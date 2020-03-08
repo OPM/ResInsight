@@ -61,7 +61,7 @@ QString RicfSingleCaseReplace::filePath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfSingleCaseReplace::execute()
+caf::PdmScriptResponse RicfSingleCaseReplace::execute()
 {
     QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
     if ( lastProjectPath.isNull() )
@@ -69,7 +69,7 @@ RicfCommandResponse RicfSingleCaseReplace::execute()
         QString errMsg( "replaceCase: 'openProject' must be called before 'replaceCase' to specify project file to "
                         "replace case in." );
         RiaLogging::error( errMsg );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errMsg );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 
     cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
@@ -95,10 +95,10 @@ RicfCommandResponse RicfSingleCaseReplace::execute()
     {
         QString errMsg( "Could not reload project" );
         RiaLogging::error( errMsg );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errMsg );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }
 
 CAF_PDM_SOURCE_INIT( RicfMultiCaseReplace, "replaceMultipleCases" );
@@ -121,13 +121,13 @@ void RicfMultiCaseReplace::setCaseReplacePairs( const std::map<int, QString>& ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfMultiCaseReplace::execute()
+caf::PdmScriptResponse RicfMultiCaseReplace::execute()
 {
     if ( m_caseIdToGridFileNameMap.empty() )
     {
         QString errMsg( "replaceCaseImpl: No replacements available." );
         RiaLogging::error( errMsg );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errMsg );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 
     QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
@@ -136,7 +136,7 @@ RicfCommandResponse RicfMultiCaseReplace::execute()
         QString errMsg( "replaceCase: 'openProject' must be called before 'replaceCase' to specify project file to "
                         "replace case in." );
         RiaLogging::error( errMsg );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errMsg );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 
     cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
@@ -165,8 +165,8 @@ RicfCommandResponse RicfMultiCaseReplace::execute()
     {
         QString errMsg( "Could not reload project" );
         RiaLogging::error( errMsg );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errMsg );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

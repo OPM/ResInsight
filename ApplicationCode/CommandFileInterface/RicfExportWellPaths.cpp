@@ -52,7 +52,7 @@ RicfExportWellPaths::RicfExportWellPaths()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportWellPaths::execute()
+caf::PdmScriptResponse RicfExportWellPaths::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -67,7 +67,7 @@ RicfCommandResponse RicfExportWellPaths::execute()
             QString error( QString( "exportWellPaths: These well paths were not found: " ) +
                            wellsNotFound.join( ", " ) );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
 
@@ -75,7 +75,7 @@ RicfCommandResponse RicfExportWellPaths::execute()
     {
         QString error( "No well paths found" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::WELLPATHS );
@@ -95,5 +95,5 @@ RicfCommandResponse RicfExportWellPaths::execute()
             feature->exportWellPath( wellPath, m_mdStepSize, exportFolder, false );
         }
     }
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

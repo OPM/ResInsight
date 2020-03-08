@@ -46,7 +46,7 @@ class RicfCreateGridCaseGroup : public RicfCommandObject
 public:
     RicfCreateGridCaseGroup();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<std::vector<QString>> m_casePaths;

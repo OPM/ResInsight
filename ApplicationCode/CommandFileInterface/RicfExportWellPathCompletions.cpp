@@ -115,7 +115,7 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportWellPathCompletions::execute()
+caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -153,7 +153,7 @@ RicfCommandResponse RicfExportWellPathCompletions::execute()
         {
             QString error = QString( "exportWellPathCompletions: Could not find case with ID %1" ).arg( m_caseId() );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
         exportSettings->caseToApply = eclipseCase;
     }
@@ -165,7 +165,7 @@ RicfCommandResponse RicfExportWellPathCompletions::execute()
     }
     exportSettings->folder = exportFolder;
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
 
     std::vector<RimWellPath*> wellPaths;
     if ( m_wellPathNames().empty() )
@@ -193,7 +193,7 @@ RicfCommandResponse RicfExportWellPathCompletions::execute()
                 QString warning =
                     QString( "exportWellPathCompletions: Could not find well path with name %1" ).arg( wellPathName );
                 RiaLogging::warning( warning );
-                response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
+                response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
             }
         }
     }

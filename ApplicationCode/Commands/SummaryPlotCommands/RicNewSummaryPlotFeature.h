@@ -18,10 +18,14 @@
 
 #pragma once
 
+#include "RicfCommandObject.h"
+
 #include "cafCmdFeature.h"
+#include "cafPdmPtrArrayField.h"
 
 class RimSummaryPlotCollection;
 class RimSummaryCase;
+class RimSummaryCaseCollection;
 class RimSummaryPlot;
 
 //==================================================================================================
@@ -45,9 +49,30 @@ class RicNewDefaultSummaryPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static RimSummaryPlot* createFromSummaryCases( RimSummaryPlotCollection*           plotCollection,
+                                                   const std::vector<RimSummaryCase*>& summaryCases );
+
 protected:
     // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicSummaryPlotCollection_newSummaryPlot : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RicSummaryPlotCollection_newSummaryPlot( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle* execute();
+
+private:
+    caf::PdmPtrArrayField<RimSummaryCase*>           m_summaryCases;
+    caf::PdmPtrArrayField<RimSummaryCaseCollection*> m_ensembles;
 };

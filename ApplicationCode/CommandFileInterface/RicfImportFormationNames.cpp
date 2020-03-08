@@ -42,7 +42,7 @@ RicfImportFormationNames::RicfImportFormationNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfImportFormationNames::execute()
+caf::PdmScriptResponse RicfImportFormationNames::execute()
 {
     QStringList errorMessages, warningMessages;
 
@@ -89,14 +89,14 @@ RicfCommandResponse RicfImportFormationNames::execute()
         errorMessages << "No formation files provided";
     }
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
     for ( QString warningMessage : warningMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warningMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warningMessage );
     }
     for ( QString errorMessage : errorMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
     return response;
 }

@@ -55,7 +55,7 @@ RicfCreateGridCaseGroup::RicfCreateGridCaseGroup()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfCreateGridCaseGroup::execute()
+caf::PdmScriptResponse RicfCreateGridCaseGroup::execute()
 {
     QStringList casePaths;
     for ( QString casePath : m_casePaths() )
@@ -73,10 +73,10 @@ RicfCommandResponse RicfCreateGridCaseGroup::execute()
 
     if ( RiaImportEclipseCaseTools::addEclipseCases( casePaths, &caseGroup ) && caseGroup )
     {
-        RicfCommandResponse response;
+        caf::PdmScriptResponse response;
         response.setResult( new RicfCreateGridCaseGroupResult( caseGroup->groupId(), caseGroup->name() ) );
         return response;
     }
 
-    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, "Could not load grid case group" );
+    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, "Could not load grid case group" );
 }

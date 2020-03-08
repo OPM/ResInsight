@@ -61,7 +61,7 @@ RicfCreateWellBoreStabilityPlotFeature::RicfCreateWellBoreStabilityPlotFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfCreateWellBoreStabilityPlotFeature::execute()
+caf::PdmScriptResponse RicfCreateWellBoreStabilityPlotFeature::execute()
 {
     RimProject* project = RiaApplication::instance()->project();
 
@@ -95,17 +95,17 @@ RicfCommandResponse RicfCreateWellBoreStabilityPlotFeature::execute()
             QString error = QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" )
                                 .arg( chosenWellPath->name() );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
 
         RimWellBoreStabilityPlot* wbsPlot =
             RicNewWellBoreStabilityPlotFeature::createPlot( chosenCase, chosenWellPath, m_timeStep(), m_wbsParameters() );
-        RicfCommandResponse response;
+        caf::PdmScriptResponse response;
         response.setResult( new RicfCreateWbsPlotResult( wbsPlot->id() ) );
         return response;
     }
 
     QString error = QString( "createWellBoreStabilityPlot: Could not find GeoMech case with id %1" ).arg( m_caseId() );
     RiaLogging::error( error );
-    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
 }

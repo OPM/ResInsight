@@ -40,7 +40,7 @@ public:
     int     caseId() const;
     QString filePath() const;
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<QString> m_newGridFile;
@@ -63,7 +63,7 @@ public:
 
     void setCaseReplacePairs( const std::map<int, QString>& caseIdToGridFileNameMap );
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     std::map<int, QString> m_caseIdToGridFileNameMap;

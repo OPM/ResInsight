@@ -68,7 +68,7 @@ void RicfSetTimeStep::setTimeStepIndex( int timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfSetTimeStep::execute()
+caf::PdmScriptResponse RicfSetTimeStep::execute()
 {
     RimCase*              rimCase = nullptr;
     std::vector<RimCase*> allCases;
@@ -90,7 +90,7 @@ RicfCommandResponse RicfSetTimeStep::execute()
         {
             QString error = QString( "setTimeStep: Could not find case with ID %1" ).arg( m_caseId() );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
 
@@ -102,7 +102,7 @@ RicfCommandResponse RicfSetTimeStep::execute()
                             .arg( maxTimeStep )
                             .arg( m_caseId() );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     for ( Rim3dView* view : rimCase->views() )
@@ -114,5 +114,5 @@ RicfCommandResponse RicfSetTimeStep::execute()
         }
     }
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

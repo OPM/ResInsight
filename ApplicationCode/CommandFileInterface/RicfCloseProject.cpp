@@ -32,8 +32,8 @@ RicfCloseProject::RicfCloseProject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfCloseProject::execute()
+caf::PdmScriptResponse RicfCloseProject::execute()
 {
     RiaApplication::instance()->closeProject();
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

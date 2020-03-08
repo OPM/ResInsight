@@ -41,7 +41,7 @@ RicfOpenProject::RicfOpenProject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfOpenProject::execute()
+caf::PdmScriptResponse RicfOpenProject::execute()
 {
     QString   projectPath = m_path;
     QFileInfo projectPathInfo( projectPath );
@@ -55,10 +55,10 @@ RicfCommandResponse RicfOpenProject::execute()
     {
         QString errMsg = QString( "openProject: Unable to open project at %1" ).arg( m_path() );
         RiaLogging::error( errMsg );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errMsg );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 
     RicfCommandFileExecutor::instance()->setLastProjectPath( projectPath );
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }
