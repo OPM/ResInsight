@@ -29,7 +29,7 @@
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellPath.h"
 
-#include "cafPdmValueFieldScriptability.h"
+#include "cafPdmFieldIOScriptability.h"
 
 #include <QAction>
 
@@ -51,9 +51,9 @@ CAF_PDM_SOURCE_INIT( RicfCreateWellBoreStabilityPlotFeature, "createWellBoreStab
 //--------------------------------------------------------------------------------------------------
 RicfCreateWellBoreStabilityPlotFeature::RicfCreateWellBoreStabilityPlotFeature()
 {
-    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "GeoMech Case Id", "", "", "" );
-    CAF_PDM_InitScriptableValueField( &m_wellPath, "wellPath", QString( "" ), "Well Path", "", "", "" );
-    CAF_PDM_InitScriptableValueField( &m_timeStep, "timeStep", -1, "Time Step", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "GeoMech Case Id", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_wellPath, "wellPath", QString( "" ), "Well Path", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_timeStep, "timeStep", -1, "Time Step", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wbsParameters, "wbsParameters", "WbsParameters", "", "", "" );
 }

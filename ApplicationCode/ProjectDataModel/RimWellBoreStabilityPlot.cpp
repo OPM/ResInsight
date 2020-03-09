@@ -31,11 +31,11 @@
 #include "RimWellLogFile.h"
 
 #include "cafPdmBase.h"
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiGroup.h"
-#include "cafPdmValueFieldScriptability.h"
 
 CAF_PDM_SOURCE_INIT( RimWellBoreStabilityPlot, "WellBoreStabilityPlot" );
 

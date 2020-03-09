@@ -47,8 +47,8 @@
 
 #include "RivReservoirViewPartMgr.h"
 
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmUiTreeOrdering.h"
-#include "cafPdmValueFieldScriptability.h"
 
 #include "cvfMath.h"
 
@@ -71,7 +71,7 @@ RimSimWellInView::RimSimWellInView()
                                                     "SimulationWell",
                                                     "An Eclipse Simulation Well" );
 
-    CAF_PDM_InitScriptableValueFieldNoDefault( &name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &name, "Name", "Name", "", "", "" );
     name.registerKeywordAlias( "WellName" );
 
     CAF_PDM_InitField( &showWell, "ShowWell", true, "Show well ", "", "", "" );

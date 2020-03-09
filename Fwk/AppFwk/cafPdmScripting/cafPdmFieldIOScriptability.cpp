@@ -33,7 +33,7 @@
 //   for more details.
 //
 //##################################################################################################
-#include "cafPdmValueFieldScriptability.h"
+#include "cafPdmFieldIOScriptability.h"
 
 #include <QColor>
 

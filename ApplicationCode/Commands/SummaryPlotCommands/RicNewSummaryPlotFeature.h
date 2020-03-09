@@ -63,14 +63,15 @@ protected:
 //==================================================================================================
 ///
 //==================================================================================================
-class RicSummaryPlotCollection_newSummaryPlot : public caf::PdmObjectMethod
+class RimSummaryPlotCollection_newSummaryPlot : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicSummaryPlotCollection_newSummaryPlot( caf::PdmObjectHandle* self );
+    RimSummaryPlotCollection_newSummaryPlot( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle* execute();
+    bool                  deleteObjectAfterReply() const override;
 
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>           m_summaryCases;

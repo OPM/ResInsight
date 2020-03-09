@@ -40,6 +40,7 @@
 
 #include "RiuPlotMainWindow.h"
 
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmFieldScriptability.h"
 #include "cafSelectionManagerTools.h"
 #include "cvfAssert.h"
@@ -288,31 +289,41 @@ void RicNewDefaultSummaryPlotFeature::setupActionLook( QAction* actionToSetup )
     actionToSetup->setIcon( QIcon( ":/SummaryPlotLight16x16.png" ) );
 }
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryPlotCollection, RicSummaryPlotCollection_newSummaryPlot, "NewSummaryPlot" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryPlotCollection, RimSummaryPlotCollection_newSummaryPlot, "NewSummaryPlot" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryPlotCollection_newSummaryPlot::RicSummaryPlotCollection_newSummaryPlot( caf::PdmObjectHandle* self )
+RimSummaryPlotCollection_newSummaryPlot::RimSummaryPlotCollection_newSummaryPlot( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
-    CAF_PDM_InitScriptableFieldNoDefault( &m_summaryCases, "SummaryCases", "", "", "", "Summary Cases" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_ensembles, "Ensembles", "", "", "", "Summary Cases" );
+    CAF_PDM_InitObject( "Create Summary Plot", "", "", "Create a new Summary Plot" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_summaryCases, "SummaryCases", "", "", "", "Summary Cases" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_ensembles, "Ensembles", "", "", "", "Ensembles" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RicSummaryPlotCollection_newSummaryPlot::execute()
+caf::PdmObjectHandle* RimSummaryPlotCollection_newSummaryPlot::execute()
 {
     if ( !m_summaryCases.empty() )
     {
-        RicNewDefaultSummaryPlotFeature::createFromSummaryCases( self<RimSummaryPlotCollection>(),
-                                                                 m_summaryCases.ptrReferencedObjects() );
+        return RicNewDefaultSummaryPlotFeature::createFromSummaryCases( self<RimSummaryPlotCollection>(),
+                                                                        m_summaryCases.ptrReferencedObjects() );
     }
     else if ( !m_ensembles.empty() )
     {
         return RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( m_ensembles.ptrReferencedObjects() );
     }
+
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlotCollection_newSummaryPlot::deleteObjectAfterReply() const
+{
+    return false;
 }

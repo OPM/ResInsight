@@ -21,7 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiuPlotMainWindow.h"
 
-#include "cafPdmValueFieldScriptability.h"
+#include "cafPdmFieldIOScriptability.h"
 
 CAF_PDM_SOURCE_INIT( RicfSetPlotWindowSize, "setPlotWindowSize" );
 
@@ -30,8 +30,8 @@ CAF_PDM_SOURCE_INIT( RicfSetPlotWindowSize, "setPlotWindowSize" );
 //--------------------------------------------------------------------------------------------------
 RicfSetPlotWindowSize::RicfSetPlotWindowSize()
 {
-    CAF_PDM_InitScriptableValueField( &m_height, "height", -1, "Height", "", "", "" );
-    CAF_PDM_InitScriptableValueField( &m_width, "width", -1, "Width", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_height, "height", -1, "Height", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_width, "width", -1, "Width", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

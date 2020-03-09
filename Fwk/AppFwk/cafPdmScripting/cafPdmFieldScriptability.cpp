@@ -97,7 +97,8 @@ void PdmFieldScriptability::readFromField( QTextStream& outputStream,
 void PdmFieldScriptability::writeToField( QTextStream&              inputStream,
                                           caf::PdmObjectFactory*    objectFactory,
                                           caf::PdmScriptIOMessages* errorMessageContainer,
-                                          bool                      stringsAreQuoted /*= true*/ )
+                                          bool                      stringsAreQuoted /*= true*/,
+                                          caf::PdmObjectHandle*     existingObjectsRoot /*= nullptr*/ )
 {
 }
 

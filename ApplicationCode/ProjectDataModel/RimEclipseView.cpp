@@ -98,9 +98,9 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafOverlayScalarMapperLegend.h"
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmObjectScriptability.h"
 #include "cafPdmUiTreeOrdering.h"
-#include "cafPdmValueFieldScriptability.h"
 
 #include "cvfDrawable.h"
 #include "cvfModelBasicList.h"

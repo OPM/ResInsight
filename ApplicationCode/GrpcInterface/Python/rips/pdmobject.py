@@ -179,10 +179,12 @@ def __convert_to_grpc_value(self, value):
         if value:
             return "true"
         return "false"
+    if isinstance(value, PdmObject):
+        return value.__class__.__name__ + ":" + str(value.address())
     if isinstance(value, list):
         list_of_strings = []
         for val in value:
-            list_of_strings.append(self.__convert_to_grpc_value('\"' + val + '\"'))
+            list_of_strings.append('\"' + self.__convert_to_grpc_value(val) + '\"')
         return "[" + ", ".join(list_of_strings) + "]"
     return str(value)
 
@@ -353,6 +355,14 @@ def _call_set_method(self, method_name, values):
     reply = self._pdm_object_stub.CallPdmObjectSetter(request_iterator)
     if reply.accepted_value_count < len(values):
         raise IndexError
+
+@add_method(PdmObject)
+def _call_pdm_method(self, method_name, **kwargs):
+    pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
+    for key, value in kwargs.items():
+        pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(value)
+    request = PdmObject_pb2.PdmObjectMethodRequest(object=self._pb2_object, method=method_name, params=pb2_params)
+    return self._pdm_object_stub.CallPdmObjectMethod(request)
 
 @add_method(PdmObject)
 def update(self):

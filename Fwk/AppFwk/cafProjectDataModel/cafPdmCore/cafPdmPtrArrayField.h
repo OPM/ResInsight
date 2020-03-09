@@ -41,6 +41,8 @@ public:
 
     void                setValue(const std::vector< PdmPointer<DataType> >& fieldValue);
     const std::vector< PdmPointer<DataType> >& value() const;
+
+    void                setValue(const std::vector< DataType* >& fieldValue);
      
     // Reimplementation of PdmPointersFieldHandle methods
   

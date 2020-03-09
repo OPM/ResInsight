@@ -26,7 +26,7 @@
 #include "RimFractureTemplateCollection.h"
 #include "RimProject.h"
 
-#include "cafPdmValueFieldScriptability.h"
+#include "cafPdmFieldIOScriptability.h"
 
 CAF_PDM_SOURCE_INIT( RicfScaleFractureTemplate, "scaleFractureTemplate" );
 
@@ -37,13 +37,13 @@ RicfScaleFractureTemplate::RicfScaleFractureTemplate()
 {
     // clang-format off
 
-    CAF_PDM_InitScriptableValueField(&m_id,                       "id",            -1, "Id",  "", "", "");
-    CAF_PDM_InitScriptableValueField(&m_halfLengthScaleFactor,    "halfLength",   1.0, "HalfLengthScaleFactor", "", "", "");
-    CAF_PDM_InitScriptableValueField(&m_heightScaleFactor,        "height",       1.0, "HeightScaleFactor", "", "", "");
-    CAF_PDM_InitScriptableValueField(&m_dFactorScaleFactor,       "dFactor",      1.0, "DFactorScaleFactor", "", "", "");
-    CAF_PDM_InitScriptableValueField(&m_conductivityScaleFactor,  "conductivity", 1.0, "ConductivityScaleFactor", "", "", "");
+    CAF_PDM_InitScriptableFieldWithIO(&m_id,                       "id",            -1, "Id",  "", "", "");
+    CAF_PDM_InitScriptableFieldWithIO(&m_halfLengthScaleFactor,    "halfLength",   1.0, "HalfLengthScaleFactor", "", "", "");
+    CAF_PDM_InitScriptableFieldWithIO(&m_heightScaleFactor,        "height",       1.0, "HeightScaleFactor", "", "", "");
+    CAF_PDM_InitScriptableFieldWithIO(&m_dFactorScaleFactor,       "dFactor",      1.0, "DFactorScaleFactor", "", "", "");
+    CAF_PDM_InitScriptableFieldWithIO(&m_conductivityScaleFactor,  "conductivity", 1.0, "ConductivityScaleFactor", "", "", "");
     
-    CAF_PDM_InitScriptableValueField(&m_OBSOLETE_widthScaleFactor, "width",       1.0, "WidthScaleFactor", "", "", "");
+    CAF_PDM_InitScriptableFieldWithIO(&m_OBSOLETE_widthScaleFactor, "width",       1.0, "WidthScaleFactor", "", "", "");
 
     // clang-format on
 }

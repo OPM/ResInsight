@@ -32,7 +32,7 @@
 
 #include "RimObservedSummaryData.h"
 
-#include "cafPdmValueFieldScriptability.h"
+#include "cafPdmFieldIOScriptability.h"
 
 #include "cvfAssert.h"
 
@@ -49,15 +49,15 @@ RimSummaryCase::RimSummaryCase()
 {
     CAF_PDM_InitScriptableObject( "Summary Case", ":/SummaryCase16x16.png", "", "The Base Class for all Summary Cases" );
 
-    CAF_PDM_InitScriptableValueField( &m_shortName, "ShortName", QString( "Display Name" ), DEFAULT_DISPLAY_NAME, "", "", "" );
-    CAF_PDM_InitScriptableValueField( &m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_shortName, "ShortName", QString( "Display Name" ), DEFAULT_DISPLAY_NAME, "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_useAutoShortName, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
 
-    CAF_PDM_InitScriptableValueFieldNoDefault( &m_summaryHeaderFilename,
-                                               "SummaryHeaderFilename",
-                                               "Summary Header File",
-                                               "",
-                                               "",
-                                               "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_summaryHeaderFilename,
+                                                "SummaryHeaderFilename",
+                                                "Summary Header File",
+                                                "",
+                                                "",
+                                                "" );
     m_summaryHeaderFilename.uiCapability()->setUiReadOnly( true );
 
     m_isObservedData = false;

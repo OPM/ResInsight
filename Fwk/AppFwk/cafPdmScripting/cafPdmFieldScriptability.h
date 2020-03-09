@@ -44,6 +44,7 @@ namespace caf
 {
 class PdmFieldHandle;
 class PdmObjectFactory;
+class PdmObjectHandle;
 class PdmScriptIOMessages;
 
 #define CAF_PDM_InitScriptableField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
@@ -99,15 +100,16 @@ public:
     virtual void writeToField( QTextStream&              inputStream,
                                caf::PdmObjectFactory*    objectFactory,
                                caf::PdmScriptIOMessages* errorMessageContainer,
-                               bool                      stringsAreQuoted = true );
+                               bool                      stringsAreQuoted    = true,
+                               caf::PdmObjectHandle*     existingObjectsRoot = nullptr );
 
     static void    addToField( caf::PdmFieldHandle* field, const QString& fieldName );
     static QString helpString( const QString& existingTooltip, const QString& keyword );
 
-private:
-    caf::PdmFieldHandle* m_owner;
-    QString              m_scriptFieldName;
-    bool                 m_IOWriteable;
+protected:
+    PdmFieldHandle* m_owner;
+    QString         m_scriptFieldName;
+    bool            m_IOWriteable;
 };
 
 } // namespace caf

@@ -12,7 +12,7 @@
 
 #include "Riu3DMainWindowTools.h"
 
-#include "cafPdmValueFieldScriptability.h"
+#include "cafPdmFieldIOScriptability.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -35,7 +35,7 @@ CAF_PDM_SOURCE_INIT( RicfCreateView, "createView" );
 //--------------------------------------------------------------------------------------------------
 RicfCreateView::RicfCreateView()
 {
-    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

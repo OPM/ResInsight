@@ -243,16 +243,40 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                         std::vector<PdmFieldHandle*> arguments;
                         method->fields( arguments );
 
-                        QString     snake_method_name = camelToSnakeCase( method->classKeyword() );
-                        QStringList argumentNames;
+                        QString methodComment = method->uiCapability()->uiWhatsThis();
+
+                        QString     snake_method_name = camelToSnakeCase( methodName );
+                        QStringList inputArgumentStrings;
+                        QStringList outputArgumentStrings;
+                        QStringList argumentComments;
+
+                        outputArgumentStrings.push_back( QString( "\"%1\"" ).arg( methodName ) );
                         for ( auto field : arguments )
                         {
-                            auto scriptability = field->capability<PdmFieldScriptability>();
-                            argumentNames.push_back( camelToSnakeCase( scriptability->scriptFieldName() ) );
+                            bool    isList        = field->xmlCapability()->isVectorField();
+                            QString defaultValue  = isList ? "[]" : "None";
+                            auto    scriptability = field->capability<PdmFieldScriptability>();
+                            auto    argumentName  = camelToSnakeCase( scriptability->scriptFieldName() );
+                            auto    dataType      = dataTypeString( field, false );
+                            if ( isList ) dataType = "List of " + dataType;
+                            inputArgumentStrings.push_back( QString( "%1=%2" ).arg( argumentName ).arg( defaultValue ) );
+                            outputArgumentStrings.push_back( QString( "%1=%1" ).arg( argumentName ) );
+                            argumentComments.push_back( QString( "%1 (%2): %3" )
+                                                            .arg( argumentName )
+                                                            .arg( dataType )
+                                                            .arg( field->uiCapability()->uiWhatsThis() ) );
                         }
-                        QString methodCode = QString( "    def %1(self, %2):\n        pass\n" )
+                        QString fullComment =
+                            QString( "        \"\"\"\n        %1\n        Arguments:\n            %2\n        \"\"\"" )
+                                .arg( methodComment )
+                                .arg( argumentComments.join( "\n            " ) );
+
+                        QString methodCode = QString( "    def %1(self, %2):\n%3\n        return "
+                                                      "self._call_pdm_method(%4)\n" )
                                                  .arg( snake_method_name )
-                                                 .arg( argumentNames.join( ", " ) );
+                                                 .arg( inputArgumentStrings.join( ", " ) )
+                                                 .arg( fullComment )
+                                                 .arg( outputArgumentStrings.join( ", " ) );
                         classMethodsGenerated[field->ownerClass()][snake_method_name] = methodCode;
                     }
                 }

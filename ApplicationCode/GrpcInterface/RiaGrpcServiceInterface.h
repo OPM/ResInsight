@@ -28,9 +28,9 @@ namespace caf
 {
 class PdmChildArrayFieldHandle;
 class PdmChildFieldHandle;
+class PdmFieldHandle;
 class PdmObject;
 class PdmObjectHandle;
-class PdmValueField;
 } // namespace caf
 
 namespace rips
@@ -58,7 +58,7 @@ public:
     static void copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination );
 
     static bool
-        assignFieldValue( const QString& stringValue, caf::PdmValueField* field, QVariant* oldValue, QVariant* newValue );
+        assignFieldValue( const QString& stringValue, caf::PdmFieldHandle* field, QVariant* oldValue, QVariant* newValue );
 
     static caf::PdmObjectHandle* emplaceChildField( caf::PdmObject* parent, const QString& fieldLabel );
 

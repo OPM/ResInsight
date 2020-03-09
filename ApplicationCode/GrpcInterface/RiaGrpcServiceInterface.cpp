@@ -140,20 +140,16 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
     auto parametersMap = source->parameters();
     for ( auto field : fields )
     {
-        auto pdmValueField = dynamic_cast<caf::PdmValueField*>( field );
-        if ( pdmValueField )
+        auto scriptability = field->template capability<caf::PdmFieldScriptability>();
+        if ( scriptability )
         {
-            auto ricfHandle = pdmValueField->template capability<caf::PdmFieldScriptability>();
-            if ( ricfHandle )
-            {
-                QString keyword = ricfHandle->scriptFieldName();
-                QString value   = QString::fromStdString( parametersMap[keyword.toStdString()] );
+            QString keyword = scriptability->scriptFieldName();
+            QString value   = QString::fromStdString( parametersMap[keyword.toStdString()] );
 
-                QVariant oldValue, newValue;
-                if ( assignFieldValue( value, pdmValueField, &oldValue, &newValue ) )
-                {
-                    destination->uiCapability()->fieldChangedByUi( field, oldValue, newValue );
-                }
+            QVariant oldValue, newValue;
+            if ( assignFieldValue( value, field, &oldValue, &newValue ) )
+            {
+                destination->uiCapability()->fieldChangedByUi( field, oldValue, newValue );
             }
         }
     }
@@ -162,21 +158,22 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaGrpcServiceInterface::assignFieldValue( const QString&      stringValue,
-                                                caf::PdmValueField* field,
-                                                QVariant*           oldValue,
-                                                QVariant*           newValue )
+bool RiaGrpcServiceInterface::assignFieldValue( const QString&       stringValue,
+                                                caf::PdmFieldHandle* field,
+                                                QVariant*            oldValue,
+                                                QVariant*            newValue )
 {
     CAF_ASSERT( oldValue && newValue );
 
-    auto ricfHandle = field->template capability<caf::PdmFieldScriptability>();
-    if ( field && ricfHandle != nullptr )
+    auto scriptability = field->template capability<caf::PdmFieldScriptability>();
+    if ( field && scriptability != nullptr )
     {
+        caf::PdmValueField*      valueField = dynamic_cast<caf::PdmValueField*>( field );
         QTextStream              stream( stringValue.toLatin1() );
         caf::PdmScriptIOMessages messages;
-        *oldValue = field->toQVariant();
-        ricfHandle->writeToField( stream, nullptr, &messages, false );
-        *newValue = field->toQVariant();
+        if ( valueField ) *oldValue = valueField->toQVariant();
+        scriptability->writeToField( stream, nullptr, &messages, false, RiaApplication::instance()->project() );
+        if ( valueField ) *newValue = valueField->toQVariant();
         return true;
     }
     return false;

@@ -101,8 +101,12 @@ public:
                                       const rips::PdmObjectSetterChunk* chunk,
                                       rips::ClientToServerStreamReply*  reply,
                                       RiaPdmObjectMethodStateHandler*   stateHandler );
+    grpc::Status CallPdmObjectMethod( grpc::ServerContext*                context,
+                                      const rips::PdmObjectMethodRequest* request,
+                                      rips::PdmObject*                    reply ) override;
 
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 
     static caf::PdmObject* findCafObjectFromRipsObject( const rips::PdmObject& ripsObject );
+    static caf::PdmObject* findCafObjectFromScriptNameAndAddress( const QString& scriptClassName, uint64_t address );
 };

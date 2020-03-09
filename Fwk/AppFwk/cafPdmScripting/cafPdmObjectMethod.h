@@ -65,6 +65,9 @@ public:
     virtual PdmObjectHandle* execute() = 0;
     virtual QString          selfClassKeyword() const { return m_self->xmlCapability()->classKeyword(); }
 
+    // False if object is a persistent project tree item. True if the object is to be deleted on completion.
+    virtual bool deleteObjectAfterReply() const = 0;
+
 protected:
     // Basically the "this" pointer to the object the method belongs to
     template <typename PdmObjectType>

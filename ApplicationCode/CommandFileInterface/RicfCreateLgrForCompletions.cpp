@@ -38,7 +38,7 @@
 #include "RiaWellNameComparer.h"
 
 #include "cafCmdFeatureManager.h"
-#include "cafPdmValueFieldScriptability.h"
+#include "cafPdmFieldIOScriptability.h"
 
 #include <QStringList>
 
@@ -49,13 +49,13 @@ CAF_PDM_SOURCE_INIT( RicfCreateLgrForCompletions, "createLgrForCompletions" );
 //--------------------------------------------------------------------------------------------------
 RicfCreateLgrForCompletions::RicfCreateLgrForCompletions()
 {
-    CAF_PDM_InitScriptableValueField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableValueField( &m_timeStep, "timeStep", 0, "Time Step Index", "", "", "" );
-    CAF_PDM_InitScriptableValueField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
-    CAF_PDM_InitScriptableValueField( &m_refinementI, "refinementI", -1, "RefinementI", "", "", "" );
-    CAF_PDM_InitScriptableValueField( &m_refinementJ, "refinementJ", -1, "RefinementJ", "", "", "" );
-    CAF_PDM_InitScriptableValueField( &m_refinementK, "refinementK", -1, "RefinementK", "", "", "" );
-    CAF_PDM_InitScriptableValueField( &m_splitType, "splitType", Lgr::SplitTypeEnum(), "SplitType", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_timeStep, "timeStep", 0, "Time Step Index", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_refinementI, "refinementI", -1, "RefinementI", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_refinementJ, "refinementJ", -1, "RefinementJ", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_refinementK, "refinementK", -1, "RefinementK", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_splitType, "splitType", Lgr::SplitTypeEnum(), "SplitType", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

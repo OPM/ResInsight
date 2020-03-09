@@ -25,6 +25,7 @@
 
 #include "cafPdmFieldScriptability.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectMethod.h"
 #include "cafPdmObjectScriptability.h"
 #include "cafPdmObjectScriptabilityRegister.h"
 
@@ -510,40 +511,75 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectSetter( grpc::ServerContext* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext*                context,
+                                                           const rips::PdmObjectMethodRequest* request,
+                                                           rips::PdmObject*                    reply )
+{
+    auto matchingObject = findCafObjectFromRipsObject( request->object() );
+    if ( matchingObject )
+    {
+        QString methodKeyword = QString::fromStdString( request->method() );
+
+        std::shared_ptr<caf::PdmObjectMethod> method =
+            caf::PdmObjectMethodFactory::instance()->createMethod( matchingObject, methodKeyword );
+        if ( method )
+        {
+            copyPdmObjectFromRipsToCaf( &( request->params() ), method.get() );
+
+            caf::PdmObjectHandle* result = method->execute();
+            copyPdmObjectFromCafToRips( result, reply );
+            if ( method->deleteObjectAfterReply() )
+            {
+                delete result;
+            }
+            return grpc::Status::OK;
+        }
+        return grpc::Status( grpc::NOT_FOUND, "Could not find Method" );
+    }
+    return grpc::Status( grpc::NOT_FOUND, "Could not find PdmObject" );
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcPdmObjectService::createCallbacks()
 {
     typedef RiaGrpcPdmObjectService Self;
-    return {new RiaGrpcUnaryCallback<Self, PdmParentObjectRequest, PdmObject>( this,
-                                                                               &Self::GetAncestorPdmObject,
-                                                                               &Self::RequestGetAncestorPdmObject ),
-            new RiaGrpcUnaryCallback<Self, PdmDescendantObjectRequest, PdmObjectArray>( this,
-                                                                                        &Self::GetDescendantPdmObjects,
-                                                                                        &Self::RequestGetDescendantPdmObjects ),
-            new RiaGrpcUnaryCallback<Self, PdmChildObjectRequest, PdmObjectArray>( this,
-                                                                                   &Self::GetChildPdmObjects,
-                                                                                   &Self::RequestGetChildPdmObjects ),
-            new RiaGrpcUnaryCallback<Self, PdmObject, Empty>( this,
-                                                              &Self::UpdateExistingPdmObject,
-                                                              &Self::RequestUpdateExistingPdmObject ),
-            new RiaGrpcUnaryCallback<Self, CreatePdmChildObjectRequest, PdmObject>( this,
-                                                                                    &Self::CreateChildPdmObject,
-                                                                                    &Self::RequestCreateChildPdmObject ),
-            new RiaGrpcServerToClientStreamCallback<Self,
-                                                    PdmObjectGetterRequest,
-                                                    PdmObjectGetterReply,
-                                                    RiaPdmObjectMethodStateHandler>( this,
-                                                                                     &Self::CallPdmObjectGetter,
-                                                                                     &Self::RequestCallPdmObjectGetter,
-                                                                                     new RiaPdmObjectMethodStateHandler ),
+    return {
+        new RiaGrpcUnaryCallback<Self, PdmParentObjectRequest, PdmObject>( this,
+                                                                           &Self::GetAncestorPdmObject,
+                                                                           &Self::RequestGetAncestorPdmObject ),
+        new RiaGrpcUnaryCallback<Self, PdmDescendantObjectRequest, PdmObjectArray>( this,
+                                                                                    &Self::GetDescendantPdmObjects,
+                                                                                    &Self::RequestGetDescendantPdmObjects ),
+        new RiaGrpcUnaryCallback<Self, PdmChildObjectRequest, PdmObjectArray>( this,
+                                                                               &Self::GetChildPdmObjects,
+                                                                               &Self::RequestGetChildPdmObjects ),
+        new RiaGrpcUnaryCallback<Self, PdmObject, Empty>( this,
+                                                          &Self::UpdateExistingPdmObject,
+                                                          &Self::RequestUpdateExistingPdmObject ),
+        new RiaGrpcUnaryCallback<Self, CreatePdmChildObjectRequest, PdmObject>( this,
+                                                                                &Self::CreateChildPdmObject,
+                                                                                &Self::RequestCreateChildPdmObject ),
+        new RiaGrpcServerToClientStreamCallback<Self,
+                                                PdmObjectGetterRequest,
+                                                PdmObjectGetterReply,
+                                                RiaPdmObjectMethodStateHandler>( this,
+                                                                                 &Self::CallPdmObjectGetter,
+                                                                                 &Self::RequestCallPdmObjectGetter,
+                                                                                 new RiaPdmObjectMethodStateHandler ),
 
-            new RiaGrpcClientToServerStreamCallback<Self,
-                                                    PdmObjectSetterChunk,
-                                                    ClientToServerStreamReply,
-                                                    RiaPdmObjectMethodStateHandler>( this,
-                                                                                     &Self::CallPdmObjectSetter,
-                                                                                     &Self::RequestCallPdmObjectSetter,
-                                                                                     new RiaPdmObjectMethodStateHandler(
-                                                                                         true ) )};
+        new RiaGrpcClientToServerStreamCallback<Self,
+                                                PdmObjectSetterChunk,
+                                                ClientToServerStreamReply,
+                                                RiaPdmObjectMethodStateHandler>( this,
+                                                                                 &Self::CallPdmObjectSetter,
+                                                                                 &Self::RequestCallPdmObjectSetter,
+                                                                                 new RiaPdmObjectMethodStateHandler( true ) ),
+        new RiaGrpcUnaryCallback<Self, PdmObjectMethodRequest, PdmObject>( this,
+                                                                           &Self::CallPdmObjectMethod,
+                                                                           &Self::RequestCallPdmObjectMethod ),
+
+    };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -551,18 +587,28 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcPdmObjectService::createCallbacks(
 //--------------------------------------------------------------------------------------------------
 caf::PdmObject* RiaGrpcPdmObjectService::findCafObjectFromRipsObject( const rips::PdmObject& ripsObject )
 {
+    QString  scriptClassName = QString::fromStdString( ripsObject.class_keyword() );
+    uint64_t address         = ripsObject.address();
+    return findCafObjectFromScriptNameAndAddress( scriptClassName, address );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObject* RiaGrpcPdmObjectService::findCafObjectFromScriptNameAndAddress( const QString& scriptClassName,
+                                                                                uint64_t       address )
+{
     RimProject*                  project = RiaApplication::instance()->project();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
 
-    QString scriptClassName = QString::fromStdString( ripsObject.class_keyword() );
-    QString classKeyword    = caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( scriptClassName );
+    QString classKeyword = caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( scriptClassName );
 
     project->descendantsIncludingThisFromClassKeyword( classKeyword, objectsOfCurrentClass );
 
     caf::PdmObject* matchingObject = nullptr;
     for ( caf::PdmObject* testObject : objectsOfCurrentClass )
     {
-        if ( reinterpret_cast<uint64_t>( testObject ) == ripsObject.address() )
+        if ( reinterpret_cast<uint64_t>( testObject ) == address )
         {
             matchingObject = testObject;
         }
