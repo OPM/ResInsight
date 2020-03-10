@@ -269,7 +269,7 @@ RigWbsParameter RigWbsParameter::poissonRatio()
     return RigWbsParameter( "Poisson Ratio",
                             false,
                             {{LAS_FILE, SourceAddress( "POISSON_RATIO_INP" )},
-                             {ELEMENT_PROPERTY_TABLE, SourceAddress( "RATIO" )},
+                             {ELEMENT_PROPERTY_TABLE, SourceAddress( "POISSON_RATIO_INP" )},
                              {USER_DEFINED, SourceAddress()}} );
 }
 
@@ -281,7 +281,7 @@ RigWbsParameter RigWbsParameter::UCS()
     return RigWbsParameter( "UCS",
                             false,
                             {{LAS_FILE, SourceAddress( "UCS_INP", "", RiaWellLogUnitTools::MPaUnitString() )},
-                             {ELEMENT_PROPERTY_TABLE, SourceAddress( "UCS", RiaWellLogUnitTools::barUnitString() )},
+                             {ELEMENT_PROPERTY_TABLE, SourceAddress( "UCS_INP", RiaWellLogUnitTools::barUnitString() )},
                              {USER_DEFINED, SourceAddress( "", "", RiaWellLogUnitTools::barUnitString() )}} );
 }
 
@@ -325,7 +325,7 @@ RigWbsParameter RigWbsParameter::DF()
     return RigWbsParameter( "DF",
                             false,
                             {{LAS_FILE, SourceAddress( "DF_INP" )},
-                             {ELEMENT_PROPERTY_TABLE, SourceAddress( "DF" )},
+                             {ELEMENT_PROPERTY_TABLE, SourceAddress( "DF_INP" )},
                              {USER_DEFINED, SourceAddress()}} );
 }
 
@@ -337,6 +337,7 @@ RigWbsParameter RigWbsParameter::K0_FG()
     return RigWbsParameter( "K0_FG",
                             false,
                             {{LAS_FILE, SourceAddress( "K0_FG_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )},
+                             {ELEMENT_PROPERTY_TABLE, SourceAddress( "K0_FG_INP" )},
                              {USER_DEFINED, SourceAddress()}} );
 }
 
@@ -348,6 +349,7 @@ RigWbsParameter RigWbsParameter::K0_SH()
     return RigWbsParameter( "K0_SH",
                             false,
                             {{LAS_FILE, SourceAddress( "K0_SH_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )},
+                             {ELEMENT_PROPERTY_TABLE, SourceAddress( "K0_SH_INP" )},
                              {USER_DEFINED, SourceAddress()}} );
 }
 
