@@ -242,8 +242,9 @@ RigWbsParameter RigWbsParameter::PP_Reservoir()
                             {LAS_FILE, SourceAddress( "PP_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )},
                             {LAS_FILE, SourceAddress( "PP_RES_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )},
                             {LAS_FILE, SourceAddress( "POR_RES_INP", "", RiaWellLogUnitTools::gPerCm3UnitString() )},
-                            {ELEMENT_PROPERTY_TABLE, SourceAddress( "POR", "", RiaWellLogUnitTools::barUnitString() )},
-                            {ELEMENT_PROPERTY_TABLE, SourceAddress( "PP", "", RiaWellLogUnitTools::sg_emwUnitString() )}};
+                            {ELEMENT_PROPERTY_TABLE, SourceAddress( "POR_INP", "", RiaWellLogUnitTools::barUnitString() )},
+                            {ELEMENT_PROPERTY_TABLE,
+                             SourceAddress( "PP_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )}};
     return RigWbsParameter( "PP Reservoir", true, sources );
 }
 
