@@ -781,6 +781,17 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
     {
         return "GPa";
     }
+    else
+    {
+        for ( auto resultName : RiaDefines::wbsDerivedResultNames() )
+        {
+            if ( resultName == this->resultFieldName() )
+            {
+                return RiaWellLogUnitTools::sg_emwUnitString();
+            }
+        }
+    }
+
     return RiaWellLogUnitTools::noUnitString();
 }
 
@@ -789,20 +800,15 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechResultDefinition::defaultLasUnits() const
 {
-    QString units;
     if ( m_resultPositionType == RIG_WELLPATH_DERIVED )
     {
         RigWbsParameter param;
         if ( RigWbsParameter::findParameter( resultFieldName(), &param ) )
         {
-            units = param.units( RigWbsParameter::LAS_FILE );
+            return param.units( RigWbsParameter::LAS_FILE );
         }
     }
-    if ( units.isEmpty() )
-    {
-        units = currentResultUnits();
-    }
-    return units;
+    return currentResultUnits();
 }
 
 //--------------------------------------------------------------------------------------------------
