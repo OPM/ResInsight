@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QDir>
 
 CAF_PDM_SOURCE_INIT( RicfSetStartDir, "setStartDir" );
@@ -30,28 +32,28 @@ CAF_PDM_SOURCE_INIT( RicfSetStartDir, "setStartDir" );
 //--------------------------------------------------------------------------------------------------
 RicfSetStartDir::RicfSetStartDir()
 {
-    RICF_InitField( &m_path, "path", QString(), "Path", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_path, "path", QString(), "Path", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfSetStartDir::execute()
+caf::PdmScriptResponse RicfSetStartDir::execute()
 {
     QDir directory( m_path );
     if ( !directory.exists() )
     {
         QString error = QString( "Path does not exist: %1" ).arg( m_path );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
     if ( !directory.isReadable() )
     {
         QString error = QString( "Path does not exist: %1" ).arg( m_path );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     RiaApplication::instance()->setStartDir( m_path );
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

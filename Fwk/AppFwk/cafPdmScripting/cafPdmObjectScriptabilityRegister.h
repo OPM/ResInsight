@@ -39,16 +39,8 @@
 
 #include <map>
 
-
-#define CAF_PDM_InitScriptableObject( uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis ); \
-    caf::PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( classKeyword(), classKeyword(), whatsThis );
-
-#define CAF_PDM_InitScriptableObjectWithNameAndComment( uiName, iconResourceName, toolTip, whatsThis, scriptClassName, scriptComment ) \
-    CAF_PDM_InitObject( uiName, iconResourceName, toolTip, whatsThis );                                                         \
-    caf::PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( classKeyword(), scriptClassName, scriptComment );
-
-namespace caf {
+namespace caf
+{
 class PdmObject;
 
 //==================================================================================================
@@ -57,14 +49,14 @@ class PdmObject;
 class PdmObjectScriptabilityRegister
 {
 public:
-    static void    registerScriptClassNameAndComment(const QString& classKeyword,
-                                                     const QString& scriptClassName,
-                                                     const QString& scriptClassComment);
-    static QString scriptClassNameFromClassKeyword(const QString& classKeyword);
-    static QString classKeywordFromScriptClassName(const QString& scriptClassName);
-    static QString scriptClassComment(const QString& classKeyword);
+    static void    registerScriptClassNameAndComment( const QString& classKeyword,
+                                                      const QString& scriptClassName,
+                                                      const QString& scriptClassComment );
+    static QString scriptClassNameFromClassKeyword( const QString& classKeyword );
+    static QString classKeywordFromScriptClassName( const QString& scriptClassName );
+    static QString scriptClassComment( const QString& classKeyword );
 
-    static bool isScriptable(const caf::PdmObject* object);
+    static bool isScriptable( const caf::PdmObject* object );
 
 private:
     static std::map<QString, QString> s_classKeywordToScriptClassName;
@@ -72,4 +64,4 @@ private:
     static std::map<QString, QString> s_scriptClassComments;
 };
 
-}
+} // namespace caf

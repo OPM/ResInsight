@@ -24,6 +24,8 @@
 #include "RimFormationNames.h"
 #include "RimProject.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RicfImportFormationNames, "importFormationNames" );
@@ -33,14 +35,14 @@ CAF_PDM_SOURCE_INIT( RicfImportFormationNames, "importFormationNames" );
 //--------------------------------------------------------------------------------------------------
 RicfImportFormationNames::RicfImportFormationNames()
 {
-    RICF_InitFieldNoDefault( &m_formationFiles, "formationFiles", "", "", "", "" );
-    RICF_InitField( &m_applyToCaseId, "applyToCaseId", -1, "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_formationFiles, "formationFiles", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_applyToCaseId, "applyToCaseId", -1, "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfImportFormationNames::execute()
+caf::PdmScriptResponse RicfImportFormationNames::execute()
 {
     QStringList errorMessages, warningMessages;
 
@@ -87,14 +89,14 @@ RicfCommandResponse RicfImportFormationNames::execute()
         errorMessages << "No formation files provided";
     }
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
     for ( QString warningMessage : warningMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warningMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warningMessage );
     }
     for ( QString errorMessage : errorMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
     return response;
 }

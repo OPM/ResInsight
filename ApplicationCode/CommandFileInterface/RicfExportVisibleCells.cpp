@@ -38,8 +38,7 @@
 
 #include "RifEclipseInputFileTools.h"
 
-#include <QDir>
-
+#include "cafPdmFieldIOScriptability.h"
 #include <cafUtils.h>
 
 #include <QDir>
@@ -63,31 +62,43 @@ void AppEnum<RicfExportVisibleCells::ExportKeyword>::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfExportVisibleCells::RicfExportVisibleCells()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
-    RICF_InitField( &m_viewName, "viewName", QString(), "View Name", "", "", "" );
-    RICF_InitField( &m_exportKeyword,
-                    "exportKeyword",
-                    caf::AppEnum<RicfExportVisibleCells::ExportKeyword>(),
-                    "Export Keyword",
-                    "",
-                    "",
-                    "" );
-    RICF_InitField( &m_visibleActiveCellsValue, "visibleActiveCellsValue", 1, "Visible Active Cells Value", "", "", "" );
-    RICF_InitField( &m_hiddenActiveCellsValue, "hiddenActiveCellsValue", 0, "Hidden Active Cells Value", "", "", "" );
-    RICF_InitField( &m_inactiveCellsValue, "inactiveCellsValue", 0, "Inactive Cells Value", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewName, "viewName", QString(), "View Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_exportKeyword,
+                                       "exportKeyword",
+                                       caf::AppEnum<RicfExportVisibleCells::ExportKeyword>(),
+                                       "Export Keyword",
+                                       "",
+                                       "",
+                                       "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_visibleActiveCellsValue,
+                                       "visibleActiveCellsValue",
+                                       1,
+                                       "Visible Active Cells Value",
+                                       "",
+                                       "",
+                                       "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_hiddenActiveCellsValue,
+                                       "hiddenActiveCellsValue",
+                                       0,
+                                       "Hidden Active Cells Value",
+                                       "",
+                                       "",
+                                       "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_inactiveCellsValue, "inactiveCellsValue", 0, "Inactive Cells Value", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportVisibleCells::execute()
+caf::PdmScriptResponse RicfExportVisibleCells::execute()
 {
     if ( m_caseId < 0 || ( m_viewName().isEmpty() && m_viewId() < 0 ) )
     {
         QString error( "exportVisibleCells: CaseId or view name or view id not specified" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
     RimEclipseView* eclipseView = nullptr;
     if ( m_viewId() >= 0 )
@@ -105,7 +116,7 @@ RicfCommandResponse RicfExportVisibleCells::execute()
                            .arg( m_viewName )
                            .arg( m_caseId ) );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::CELLS );
@@ -120,7 +131,7 @@ RicfCommandResponse RicfExportVisibleCells::execute()
     buildExportSettings( exportFolder, &exportSettings );
     RicSaveEclipseInputVisibleCellsFeature::executeCommand( eclipseView, exportSettings, "exportVisibleCells" );
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }
 
 //--------------------------------------------------------------------------------------------------

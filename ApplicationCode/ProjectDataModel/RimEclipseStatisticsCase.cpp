@@ -38,6 +38,7 @@
 
 #include "RiuMainWindow.h"
 
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 #include "cafProgressInfo.h"
@@ -76,20 +77,50 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectionSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_selectionSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    RICF_InitFieldNoDefault( &m_resultType, "ResultType", "Result Type", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_resultType, "ResultType", "Result Type", "", "", "" );
     m_resultType.xmlCapability()->setIOWritable( false );
-    RICF_InitFieldNoDefault( &m_porosityModel, "PorosityModel", "Porosity Model", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_porosityModel, "PorosityModel", "Porosity Model", "", "", "" );
     m_porosityModel.xmlCapability()->setIOWritable( false );
 
-    RICF_InitFieldNoDefault( &m_selectedDynamicProperties, "DynamicPropertiesToCalculate", "Dyn Prop", "", "", "" );
-    RICF_InitFieldNoDefault( &m_selectedStaticProperties, "StaticPropertiesToCalculate", "Stat Prop", "", "", "" );
-    RICF_InitFieldNoDefault( &m_selectedGeneratedProperties, "GeneratedPropertiesToCalculate", "", "", "", "" );
-    RICF_InitFieldNoDefault( &m_selectedInputProperties, "InputPropertiesToCalculate", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedDynamicProperties,
+                                                "DynamicPropertiesToCalculate",
+                                                "Dyn Prop",
+                                                "",
+                                                "",
+                                                "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedStaticProperties,
+                                                "StaticPropertiesToCalculate",
+                                                "Stat Prop",
+                                                "",
+                                                "",
+                                                "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedGeneratedProperties, "GeneratedPropertiesToCalculate", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedInputProperties, "InputPropertiesToCalculate", "", "", "", "" );
 
-    RICF_InitFieldNoDefault( &m_selectedFractureDynamicProperties, "FractureDynamicPropertiesToCalculate", "", "", "", "" );
-    RICF_InitFieldNoDefault( &m_selectedFractureStaticProperties, "FractureStaticPropertiesToCalculate", "", "", "", "" );
-    RICF_InitFieldNoDefault( &m_selectedFractureGeneratedProperties, "FractureGeneratedPropertiesToCalculate", "", "", "", "" );
-    RICF_InitFieldNoDefault( &m_selectedFractureInputProperties, "FractureInputPropertiesToCalculate", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedFractureDynamicProperties,
+                                                "FractureDynamicPropertiesToCalculate",
+                                                "",
+                                                "",
+                                                "",
+                                                "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedFractureStaticProperties,
+                                                "FractureStaticPropertiesToCalculate",
+                                                "",
+                                                "",
+                                                "",
+                                                "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedFractureGeneratedProperties,
+                                                "FractureGeneratedPropertiesToCalculate",
+                                                "",
+                                                "",
+                                                "",
+                                                "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedFractureInputProperties,
+                                                "FractureInputPropertiesToCalculate",
+                                                "",
+                                                "",
+                                                "",
+                                                "" );
 
     m_selectedDynamicProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedStaticProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -101,28 +132,28 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectedFractureGeneratedProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedFractureInputProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    RICF_InitField( &m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles", "", "", "" );
-    RICF_InitFieldNoDefault( &m_percentileCalculationType, "PercentileCalculationType", "Method", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_percentileCalculationType, "PercentileCalculationType", "Method", "", "", "" );
 
-    RICF_InitField( &m_lowPercentile, "LowPercentile", 10.0, "Low", "", "", "" );
-    RICF_InitField( &m_midPercentile, "MidPercentile", 50.0, "Mid", "", "", "" );
-    RICF_InitField( &m_highPercentile, "HighPercentile", 90.0, "High", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_lowPercentile, "LowPercentile", 10.0, "Low", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_midPercentile, "MidPercentile", 50.0, "Mid", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_highPercentile, "HighPercentile", 90.0, "High", "", "", "" );
 
-    RICF_InitField( &m_wellDataSourceCase,
-                    "WellDataSourceCase",
-                    RiaDefines::undefinedResultName(),
-                    "Well Data Source Case",
-                    "",
-                    "",
-                    "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_wellDataSourceCase,
+                                       "WellDataSourceCase",
+                                       RiaDefines::undefinedResultName(),
+                                       "Well Data Source Case",
+                                       "",
+                                       "",
+                                       "" );
 
-    RICF_InitField( &m_useZeroAsInactiveCellValue,
-                    "UseZeroAsInactiveCellValue",
-                    false,
-                    "Use Zero as Inactive Cell Value",
-                    "",
-                    "",
-                    "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_useZeroAsInactiveCellValue,
+                                       "UseZeroAsInactiveCellValue",
+                                       false,
+                                       "Use Zero as Inactive Cell Value",
+                                       "",
+                                       "",
+                                       "" );
 
     m_populateSelectionAfterLoadingGrid = false;
 

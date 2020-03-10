@@ -79,14 +79,14 @@ grpc::Status RiaGrpcCommandService::Execute( grpc::ServerContext* context, const
             }
 
             // Execute command
-            RicfCommandResponse response = commandHandle->execute();
+            caf::PdmScriptResponse response = commandHandle->execute();
 
             // Copy results
-            if ( response.status() == RicfCommandResponse::COMMAND_ERROR )
+            if ( response.status() == caf::PdmScriptResponse::COMMAND_ERROR )
             {
                 return grpc::Status( grpc::FAILED_PRECONDITION, response.sanitizedResponseMessage().toStdString() );
             }
-            else if ( response.status() == RicfCommandResponse::COMMAND_WARNING )
+            else if ( response.status() == caf::PdmScriptResponse::COMMAND_WARNING )
             {
                 context->AddTrailingMetadata( "warning", response.sanitizedResponseMessage().toStdString() );
             }

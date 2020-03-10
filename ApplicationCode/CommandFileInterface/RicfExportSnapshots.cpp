@@ -29,6 +29,8 @@
 
 #include "RiuMainWindow.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RicfExportSnapshots, "exportSnapshots" );
@@ -58,24 +60,24 @@ void RicfExportSnapshots::SnapshotsTypeEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfExportSnapshots::RicfExportSnapshots()
 {
-    RICF_InitField( &m_type, "type", RicfExportSnapshots::SnapshotsTypeEnum(), "Type", "", "", "" );
-    RICF_InitField( &m_prefix, "prefix", QString(), "Prefix", "", "", "" );
-    RICF_InitField( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
-    RICF_InitField( &m_exportFolder, "exportFolder", QString(), "Export Folder", "", "", "" );
-    RICF_InitFieldNoDefault( &m_plotOutputFormat, "plotOutputFormat", "Output Format", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_type, "type", RicfExportSnapshots::SnapshotsTypeEnum(), "Type", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_prefix, "prefix", QString(), "Prefix", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_exportFolder, "exportFolder", QString(), "Export Folder", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_plotOutputFormat, "plotOutputFormat", "Output Format", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportSnapshots::execute()
+caf::PdmScriptResponse RicfExportSnapshots::execute()
 {
     if ( !RiaGuiApplication::isRunning() )
     {
         QString error( "RicfExportSnapshot: Command cannot run without a GUI" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
@@ -129,5 +131,5 @@ RicfCommandResponse RicfExportSnapshots::execute()
     mainWnd->loadWinGeoAndDockToolBarLayout();
     RiaGuiApplication::instance()->processEvents();
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

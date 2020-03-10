@@ -36,7 +36,7 @@ class RicfScaleFractureTemplate : public RicfCommandObject
 public:
     RicfScaleFractureTemplate();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     void initAfterRead() override;

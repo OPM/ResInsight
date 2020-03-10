@@ -53,7 +53,7 @@ public:
 public:
     RicfExportSnapshots();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<SnapshotsTypeEnum>         m_type;

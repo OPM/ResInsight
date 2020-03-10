@@ -30,13 +30,13 @@ class PdmProxyFieldHandle;
 
 struct AbstractDataHolder
 {
-    virtual size_t dataCount() const                                                                = 0;
-    virtual size_t dataSizeOf() const                                                               = 0;
-    virtual void   reserveReplyStorage( rips::PdmObjectGetMethodReply* reply ) const                = 0;
-    virtual void   addValueToReply( size_t valueIndex, rips::PdmObjectGetMethodReply* reply ) const = 0;
+    virtual size_t dataCount() const                                                             = 0;
+    virtual size_t dataSizeOf() const                                                            = 0;
+    virtual void   reserveReplyStorage( rips::PdmObjectGetterReply* reply ) const                = 0;
+    virtual void   addValueToReply( size_t valueIndex, rips::PdmObjectGetterReply* reply ) const = 0;
 
-    virtual size_t getValuesFromChunk( size_t startIndex, const rips::PdmObjectSetMethodChunk* chunk ) = 0;
-    virtual void   applyValuesToProxyField( caf::PdmProxyFieldHandle* proxyField )                     = 0;
+    virtual size_t getValuesFromChunk( size_t startIndex, const rips::PdmObjectSetterChunk* chunk ) = 0;
+    virtual void   applyValuesToProxyField( caf::PdmProxyFieldHandle* proxyField )                  = 0;
 };
 
 //==================================================================================================
@@ -51,10 +51,10 @@ class RiaPdmObjectMethodStateHandler
 public:
     RiaPdmObjectMethodStateHandler( bool clientToServerStreamer = false );
 
-    Status init( const rips::PdmObjectMethodRequest* request );
-    Status init( const rips::PdmObjectSetMethodChunk* chunk );
-    Status assignReply( rips::PdmObjectGetMethodReply* reply );
-    Status receiveRequest( const rips::PdmObjectSetMethodChunk* chunk, rips::ClientToServerStreamReply* reply );
+    Status init( const rips::PdmObjectGetterRequest* request );
+    Status init( const rips::PdmObjectSetterChunk* chunk );
+    Status assignReply( rips::PdmObjectGetterReply* reply );
+    Status receiveRequest( const rips::PdmObjectSetterChunk* chunk, rips::ClientToServerStreamReply* reply );
     size_t streamedValueCount() const;
     size_t totalValueCount() const;
     void   finish();
@@ -93,16 +93,20 @@ public:
                                           const rips::PdmObject* request,
                                           rips::Empty*           response ) override;
 
-    grpc::Status CallPdmObjectGetMethod( grpc::ServerContext*                context,
-                                         const rips::PdmObjectMethodRequest* request,
-                                         rips::PdmObjectGetMethodReply*      reply,
-                                         RiaPdmObjectMethodStateHandler*     stateHandler );
-    grpc::Status CallPdmObjectSetMethod( grpc::ServerContext*                 context,
-                                         const rips::PdmObjectSetMethodChunk* chunk,
-                                         rips::ClientToServerStreamReply*     reply,
-                                         RiaPdmObjectMethodStateHandler*      stateHandler );
+    grpc::Status CallPdmObjectGetter( grpc::ServerContext*                context,
+                                      const rips::PdmObjectGetterRequest* request,
+                                      rips::PdmObjectGetterReply*         reply,
+                                      RiaPdmObjectMethodStateHandler*     stateHandler );
+    grpc::Status CallPdmObjectSetter( grpc::ServerContext*              context,
+                                      const rips::PdmObjectSetterChunk* chunk,
+                                      rips::ClientToServerStreamReply*  reply,
+                                      RiaPdmObjectMethodStateHandler*   stateHandler );
+    grpc::Status CallPdmObjectMethod( grpc::ServerContext*                context,
+                                      const rips::PdmObjectMethodRequest* request,
+                                      rips::PdmObject*                    reply ) override;
 
     std::vector<RiaGrpcCallbackInterface*> createCallbacks() override;
 
     static caf::PdmObject* findCafObjectFromRipsObject( const rips::PdmObject& ripsObject );
+    static caf::PdmObject* findCafObjectFromScriptNameAndAddress( const QString& scriptClassName, uint64_t address );
 };

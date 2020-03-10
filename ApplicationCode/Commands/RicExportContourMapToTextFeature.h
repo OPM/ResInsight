@@ -39,7 +39,7 @@ class RicExportContourMapToTextFeature : public caf::CmdFeature, public RicfComm
 
 public:
     RicExportContourMapToTextFeature();
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 protected:
     bool isCommandEnabled() override;

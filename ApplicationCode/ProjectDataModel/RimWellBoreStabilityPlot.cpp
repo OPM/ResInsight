@@ -31,7 +31,9 @@
 #include "RimWellLogFile.h"
 
 #include "cafPdmBase.h"
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiGroup.h"
 
