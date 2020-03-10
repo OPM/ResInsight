@@ -339,6 +339,10 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         curve->loadDataAndUpdate( false );
         curve->setSmoothCurve( true );
         curve->setSmoothingThreshold( 0.002 );
+        if ( resultNames[i] == RiaDefines::wbsSHMkResult() )
+        {
+            curve->setCurveVisiblity( false );
+        }
     }
 
     RimWellPathCollection* wellPathCollection = nullptr;
