@@ -35,8 +35,6 @@
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicfCommandFileExecutor.h"
-#include "RicfFieldHandle.h"
-#include "RicfObjectCapability.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
@@ -1260,7 +1258,7 @@ QVariant RiaApplication::cacheDataObject( const QString& key ) const
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::executeCommandFile( const QString& commandFile )
 {
-    QFile               file( commandFile );
+    QFile                    file( commandFile );
     caf::PdmScriptIOMessages messages;
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
     {

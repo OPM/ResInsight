@@ -30,6 +30,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfComputeCaseGroupStatistics, "computeCaseGroupStatistics" );
 
 //--------------------------------------------------------------------------------------------------
@@ -37,16 +39,16 @@ CAF_PDM_SOURCE_INIT( RicfComputeCaseGroupStatistics, "computeCaseGroupStatistics
 //--------------------------------------------------------------------------------------------------
 RicfComputeCaseGroupStatistics::RicfComputeCaseGroupStatistics()
 {
-    RICF_InitField( &m_groupId, "caseGroupId", -1, "Case Group ID", "", "", "" );
-    RICF_InitField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_groupId, "caseGroupId", -1, "Case Group ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfComputeCaseGroupStatistics::execute()
+caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
 {
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
 
     std::vector<int> caseIds = m_caseIds.v();
 
@@ -83,7 +85,7 @@ RicfCommandResponse RicfComputeCaseGroupStatistics::execute()
                                                    "statistics case, cannot compute statistics." )
                                               .arg( caseId );
                         RiaLogging::warning( warning );
-                        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
+                        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
                     }
                     foundCase = true;
                     break;
@@ -99,7 +101,7 @@ RicfCommandResponse RicfComputeCaseGroupStatistics::execute()
                 QString( "computeCaseGroupStatistics: Could not find statistics case with ID %1." ).arg( caseId );
 
             RiaLogging::warning( warning );
-            response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
         }
     }
     return response;

@@ -21,6 +21,8 @@
 #include "RiaGuiApplication.h"
 #include "RiuPlotMainWindow.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfSetPlotWindowSize, "setPlotWindowSize" );
 
 //--------------------------------------------------------------------------------------------------
@@ -28,20 +30,20 @@ CAF_PDM_SOURCE_INIT( RicfSetPlotWindowSize, "setPlotWindowSize" );
 //--------------------------------------------------------------------------------------------------
 RicfSetPlotWindowSize::RicfSetPlotWindowSize()
 {
-    RICF_InitField( &m_height, "height", -1, "Height", "", "", "" );
-    RICF_InitField( &m_width, "width", -1, "Width", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_height, "height", -1, "Height", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_width, "width", -1, "Width", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfSetPlotWindowSize::execute()
+caf::PdmScriptResponse RicfSetPlotWindowSize::execute()
 {
     RiaGuiApplication* guiApp = RiaGuiApplication::instance();
     if ( guiApp )
     {
         guiApp->getOrCreateAndShowMainPlotWindow()->resize( m_width, m_height );
-        return RicfCommandResponse();
+        return caf::PdmScriptResponse();
     }
-    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, "Need GUI ResInsight to set plot window size" );
+    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, "Need GUI ResInsight to set plot window size" );
 }

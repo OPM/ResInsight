@@ -36,7 +36,7 @@ class RicfSetFractureContainment : public RicfCommandObject
 public:
     RicfSetFractureContainment();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<int> m_id;

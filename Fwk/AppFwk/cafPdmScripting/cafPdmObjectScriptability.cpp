@@ -1,24 +1,41 @@
-/////////////////////////////////////////////////////////////////////////////////
+//##################################################################################################
 //
-//  Copyright (C) 2017 Statoil ASA
+//   Custom Visualization Core library
+//   Copyright (C) Ceetron Solutions AS
 //
-//  ResInsight is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
+//   This library may be used under the terms of either the GNU General Public License or
+//   the GNU Lesser General Public License as follows:
 //
-//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
-//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//  FITNESS FOR A PARTICULAR PURPOSE.
+//   GNU General Public License Usage
+//   This library is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
 //
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
-//  for more details.
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
 //
-/////////////////////////////////////////////////////////////////////////////////
+//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//   for more details.
+//
+//   GNU Lesser General Public License Usage
+//   This library is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as published by
+//   the Free Software Foundation; either version 2.1 of the License, or
+//   (at your option) any later version.
+//
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
+//
+//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//   for more details.
+//
+//##################################################################################################
+#include "cafPdmObjectScriptability.h"
 
-#include "RicfObjectCapability.h"
-#include "RicfFieldHandle.h"
-
+#include "cafPdmFieldScriptability.h"
 #include "cafPdmObject.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmScriptIOMessages.h"
@@ -26,10 +43,12 @@
 
 #include <QTextStream>
 
+using namespace caf;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfObjectCapability::RicfObjectCapability( caf::PdmObjectHandle* owner, bool giveOwnership )
+PdmObjectScriptability::PdmObjectScriptability( PdmObjectHandle* owner, bool giveOwnership )
     : m_owner( owner )
 {
     m_owner->addCapability( this, giveOwnership );
@@ -38,16 +57,16 @@ RicfObjectCapability::RicfObjectCapability( caf::PdmObjectHandle* owner, bool gi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfObjectCapability::~RicfObjectCapability()
+PdmObjectScriptability::~PdmObjectScriptability()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfObjectCapability::readFields( QTextStream&              inputStream,
-                                       caf::PdmObjectFactory*    objectFactory,
-                                       caf::PdmScriptIOMessages* errorMessageContainer )
+void PdmObjectScriptability::readFields( QTextStream&         inputStream,
+                                         PdmObjectFactory*    objectFactory,
+                                         PdmScriptIOMessages* errorMessageContainer )
 {
     std::set<QString> readFields;
     bool              isLastArgumentRead = false;
@@ -127,16 +146,16 @@ void RicfObjectCapability::readFields( QTextStream&              inputStream,
         {
             // Make field read its data
 
-            caf::PdmFieldHandle* fieldHandle = m_owner->findField( keyword );
-            if ( fieldHandle && fieldHandle->xmlCapability() && fieldHandle->capability<RicfFieldHandle>() )
+            PdmFieldHandle* fieldHandle = m_owner->findField( keyword );
+            if ( fieldHandle && fieldHandle->xmlCapability() && fieldHandle->capability<PdmFieldScriptability>() )
             {
-                caf::PdmXmlFieldHandle* xmlFieldHandle = fieldHandle->xmlCapability();
-                RicfFieldHandle*        rcfField       = fieldHandle->capability<RicfFieldHandle>();
+                PdmXmlFieldHandle*     xmlFieldHandle = fieldHandle->xmlCapability();
+                PdmFieldScriptability* scriptability  = fieldHandle->capability<PdmFieldScriptability>();
 
                 if ( xmlFieldHandle->isIOReadable() )
                 {
                     errorMessageContainer->currentArgument = keyword;
-                    rcfField->writeToField( inputStream, objectFactory, errorMessageContainer );
+                    scriptability->writeToField( inputStream, objectFactory, errorMessageContainer );
                     errorMessageContainer->currentArgument = keyword;
                 }
             }
@@ -193,19 +212,19 @@ void RicfObjectCapability::readFields( QTextStream&              inputStream,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfObjectCapability::writeFields( QTextStream& outputStream ) const
+void PdmObjectScriptability::writeFields( QTextStream& outputStream ) const
 {
-    std::vector<caf::PdmFieldHandle*> fields;
+    std::vector<PdmFieldHandle*> fields;
     m_owner->fields( fields );
     int writtenFieldCount = 0;
     for ( size_t it = 0; it < fields.size(); ++it )
     {
-        const caf::PdmXmlFieldHandle* xmlField = fields[it]->xmlCapability();
-        const RicfFieldHandle*        rcfField = fields[it]->capability<RicfFieldHandle>();
-        if ( rcfField && xmlField && xmlField->isIOWritable() )
+        const PdmXmlFieldHandle*     xmlField      = fields[it]->xmlCapability();
+        const PdmFieldScriptability* scriptability = fields[it]->capability<PdmFieldScriptability>();
+        if ( scriptability && xmlField && xmlField->isIOWritable() )
         {
             QString keyword = xmlField->fieldHandle()->keyword();
-            CAF_ASSERT( caf::PdmXmlObjectHandle::isValidXmlElementName( keyword ) );
+            CAF_ASSERT( PdmXmlObjectHandle::isValidXmlElementName( keyword ) );
 
             if ( writtenFieldCount >= 1 )
             {
@@ -213,7 +232,7 @@ void RicfObjectCapability::writeFields( QTextStream& outputStream ) const
             }
 
             outputStream << keyword << " = ";
-            rcfField->readFromField( outputStream );
+            scriptability->readFromField( outputStream );
 
             writtenFieldCount++;
         }

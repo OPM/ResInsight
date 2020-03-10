@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QDir>
 
 CAF_PDM_SOURCE_INIT( RicfSetExportFolder, "setExportFolder" );
@@ -31,16 +33,16 @@ CAF_PDM_SOURCE_INIT( RicfSetExportFolder, "setExportFolder" );
 RicfSetExportFolder::RicfSetExportFolder()
 {
     // clang-format off
-    RICF_InitField(&m_type,  "type",  RicfCommandFileExecutor::ExportTypeEnum(RicfCommandFileExecutor::COMPLETIONS), "Type",  "", "", "");
-    RICF_InitField(&m_path,  "path",  QString(),                                                                     "Path",  "", "", "");
-    RICF_InitField(&m_createFolder, "createFolder", false, "Create Folder", "", "", "");
+    CAF_PDM_InitScriptableFieldWithIO(&m_type,  "type",  RicfCommandFileExecutor::ExportTypeEnum(RicfCommandFileExecutor::COMPLETIONS), "Type",  "", "", "");
+    CAF_PDM_InitScriptableFieldWithIO(&m_path,  "path",  QString(),                                                                     "Path",  "", "", "");
+    CAF_PDM_InitScriptableFieldWithIO(&m_createFolder, "createFolder", false, "Create Folder", "", "", "");
     // clang-format on
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfSetExportFolder::execute()
+caf::PdmScriptResponse RicfSetExportFolder::execute()
 {
     if ( m_createFolder )
     {
@@ -54,12 +56,12 @@ RicfCommandResponse RicfSetExportFolder::execute()
             {
                 QString error = QString( "Could not create folder : %1" ).arg( m_path );
                 RiaLogging::error( error );
-                return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+                return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
             }
         }
     }
 
     RicfCommandFileExecutor* executor = RicfCommandFileExecutor::instance();
     executor->setExportPath( m_type(), m_path );
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

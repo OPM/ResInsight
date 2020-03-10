@@ -45,7 +45,7 @@ class RicfCreateStatisticsCase : public RicfCommandObject
 public:
     RicfCreateStatisticsCase();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<int> m_caseGroupId;

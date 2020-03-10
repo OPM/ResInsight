@@ -34,7 +34,7 @@ class RicfCloseProject : public RicfCommandObject
 public:
     RicfCloseProject();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
 };

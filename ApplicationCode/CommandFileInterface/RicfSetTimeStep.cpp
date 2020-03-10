@@ -27,6 +27,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfSetTimeStep, "setTimeStep" );
 
 //--------------------------------------------------------------------------------------------------
@@ -34,9 +36,9 @@ CAF_PDM_SOURCE_INIT( RicfSetTimeStep, "setTimeStep" );
 //--------------------------------------------------------------------------------------------------
 RicfSetTimeStep::RicfSetTimeStep()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
-    RICF_InitField( &m_timeStepIndex, "timeStep", -1, "Time Step Index", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_timeStepIndex, "timeStep", -1, "Time Step Index", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +68,7 @@ void RicfSetTimeStep::setTimeStepIndex( int timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfSetTimeStep::execute()
+caf::PdmScriptResponse RicfSetTimeStep::execute()
 {
     RimCase*              rimCase = nullptr;
     std::vector<RimCase*> allCases;
@@ -88,7 +90,7 @@ RicfCommandResponse RicfSetTimeStep::execute()
         {
             QString error = QString( "setTimeStep: Could not find case with ID %1" ).arg( m_caseId() );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
 
@@ -100,7 +102,7 @@ RicfCommandResponse RicfSetTimeStep::execute()
                             .arg( maxTimeStep )
                             .arg( m_caseId() );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     for ( Rim3dView* view : rimCase->views() )
@@ -112,5 +114,5 @@ RicfCommandResponse RicfSetTimeStep::execute()
         }
     }
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

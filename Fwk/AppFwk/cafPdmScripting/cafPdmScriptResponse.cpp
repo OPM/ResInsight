@@ -1,26 +1,46 @@
-/////////////////////////////////////////////////////////////////////////////////
+//##################################################################################################
 //
-//  Copyright (C) 2019- Equinor ASA
+//   Custom Visualization Core library
+//   Copyright (C) Ceetron Solutions AS
 //
-//  ResInsight is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
+//   This library may be used under the terms of either the GNU General Public License or
+//   the GNU Lesser General Public License as follows:
 //
-//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
-//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//  FITNESS FOR A PARTICULAR PURPOSE.
+//   GNU General Public License Usage
+//   This library is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
 //
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
-//  for more details.
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
 //
-/////////////////////////////////////////////////////////////////////////////////
-#include "RicfCommandResponse.h"
+//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//   for more details.
+//
+//   GNU Lesser General Public License Usage
+//   This library is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as published by
+//   the Free Software Foundation; either version 2.1 of the License, or
+//   (at your option) any later version.
+//
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
+//
+//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//   for more details.
+//
+//##################################################################################################
+#include "cafPdmScriptResponse.h"
+
+using namespace caf;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse::RicfCommandResponse( Status status, const QString& message )
+PdmScriptResponse::PdmScriptResponse( Status status, const QString& message )
     : m_status( COMMAND_OK )
 {
     updateStatus( status, message );
@@ -29,7 +49,7 @@ RicfCommandResponse::RicfCommandResponse( Status status, const QString& message 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse::RicfCommandResponse( caf::PdmObject* ok_result )
+PdmScriptResponse::PdmScriptResponse( PdmObject* ok_result )
     : m_status( COMMAND_OK )
     , m_result( ok_result )
 {
@@ -38,7 +58,7 @@ RicfCommandResponse::RicfCommandResponse( caf::PdmObject* ok_result )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse::Status RicfCommandResponse::status() const
+PdmScriptResponse::Status PdmScriptResponse::status() const
 {
     return m_status;
 }
@@ -46,7 +66,7 @@ RicfCommandResponse::Status RicfCommandResponse::status() const
 //--------------------------------------------------------------------------------------------------
 /// The resulting message is sent in HTTP metadata and must not have any newlines.
 //--------------------------------------------------------------------------------------------------
-QString RicfCommandResponse::sanitizedResponseMessage() const
+QString PdmScriptResponse::sanitizedResponseMessage() const
 {
     QString completeMessage = m_messages.join( ";;" );
     completeMessage.replace( '\n', ";;" );
@@ -56,7 +76,7 @@ QString RicfCommandResponse::sanitizedResponseMessage() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RicfCommandResponse::messages() const
+QStringList PdmScriptResponse::messages() const
 {
     return m_messages;
 }
@@ -64,7 +84,7 @@ QStringList RicfCommandResponse::messages() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RicfCommandResponse::result() const
+PdmObject* PdmScriptResponse::result() const
 {
     return m_result.get();
 }
@@ -72,7 +92,7 @@ caf::PdmObject* RicfCommandResponse::result() const
 //--------------------------------------------------------------------------------------------------
 /// Takes ownership of the result object
 //--------------------------------------------------------------------------------------------------
-void RicfCommandResponse::setResult( caf::PdmObject* result )
+void PdmScriptResponse::setResult( PdmObject* result )
 {
     m_result.reset( result );
 }
@@ -80,7 +100,7 @@ void RicfCommandResponse::setResult( caf::PdmObject* result )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfCommandResponse::updateStatus( Status status, const QString& message )
+void PdmScriptResponse::updateStatus( Status status, const QString& message )
 {
     m_status = std::max( m_status, status );
     if ( !message.isEmpty() )
@@ -92,7 +112,7 @@ void RicfCommandResponse::updateStatus( Status status, const QString& message )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicfCommandResponse::statusLabel( Status status )
+QString PdmScriptResponse::statusLabel( Status status )
 {
     switch ( status )
     {

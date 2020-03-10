@@ -59,7 +59,7 @@ public:
 public:
     RicfExportWellLogPlotData();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<ExportFormatEnum> m_format;

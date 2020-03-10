@@ -11,8 +11,9 @@ service PdmObjectService
 	rpc GetAncestorPdmObject(PdmParentObjectRequest) returns (PdmObject) {}
 	rpc CreateChildPdmObject(CreatePdmChildObjectRequest) returns (PdmObject) {}
 	rpc UpdateExistingPdmObject(PdmObject) returns (Empty) {}
-	rpc CallPdmObjectGetMethod(PdmObjectMethodRequest) returns (stream PdmObjectGetMethodReply) {}
-	rpc CallPdmObjectSetMethod(stream PdmObjectSetMethodChunk) returns (ClientToServerStreamReply) {}
+	rpc CallPdmObjectGetter(PdmObjectGetterRequest) returns (stream PdmObjectGetterReply) {}
+	rpc CallPdmObjectSetter(stream PdmObjectSetterChunk) returns (ClientToServerStreamReply) {}
+	rpc CallPdmObjectMethod(PdmObjectMethodRequest) returns (PdmObject) {}
 }
 
 message PdmDescendantObjectRequest
@@ -45,6 +46,7 @@ message PdmObject
 	uint64                 address = 2;
 	map<string, string> parameters = 3;
 	bool                   visible = 4;
+	bool                persistent = 5; // Does this object live on in ResInsight?
 }
 
 message PdmObjectArray
@@ -52,26 +54,26 @@ message PdmObjectArray
 	repeated PdmObject objects = 1;
 }
 
-message PdmObjectMethodRequest
+message PdmObjectGetterRequest
 {
 	PdmObject object = 1;
 	string    method = 2;
 }
 
-message PdmObjectSetMethodRequest
+message PdmObjectSetterRequest
 {
-	PdmObjectMethodRequest request = 1;
+	PdmObjectGetterRequest request = 1;
 	int32               data_count = 2;
 }
 
-message PdmObjectSetMethodChunk
+message PdmObjectSetterChunk
 {
 	oneof data
 	{
-		PdmObjectSetMethodRequest set_request = 1;
-		DoubleArray                   doubles = 2;
-		IntArray                      ints    = 3;
-		StringArray                   strings = 4;
+		PdmObjectSetterRequest set_request = 1;
+		DoubleArray                doubles = 2;
+		IntArray                   ints    = 3;
+		StringArray                strings = 4;
 	}
 }
 
@@ -91,7 +93,7 @@ message StringArray
 	repeated string data = 1;
 }
 
-message PdmObjectGetMethodReply
+message PdmObjectGetterReply
 {
 	oneof data
 	{
@@ -99,4 +101,11 @@ message PdmObjectGetMethodReply
 		IntArray       ints = 2;
 		StringArray strings = 3;
 	}	
+}
+
+message PdmObjectMethodRequest
+{
+	PdmObject object = 1;
+	string    method = 2;
+	PdmObject params = 3;
 }

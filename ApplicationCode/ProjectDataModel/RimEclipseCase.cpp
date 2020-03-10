@@ -65,6 +65,8 @@
 #include "RimWellPathCollection.h"
 
 #include "cafPdmDocument.h"
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 

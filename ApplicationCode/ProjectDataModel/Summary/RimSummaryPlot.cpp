@@ -54,6 +54,7 @@
 
 #include "cvfColor3.h"
 
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafSelectionManager.h"
@@ -145,14 +146,20 @@ RimSummaryPlot::RimSummaryPlot()
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
-    RICF_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "" );
     m_showPlotTitle.xmlCapability()->setIOWritable( false );
 
-    RICF_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto Title", "", "", "" );
 
-    RICF_InitField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name", "", "", "" );
 
-    RICF_InitField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_normalizeCurveYValues,
+                                       "normalizeCurveYValues",
+                                       false,
+                                       "Normalize all curves",
+                                       "",
+                                       "",
+                                       "" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );

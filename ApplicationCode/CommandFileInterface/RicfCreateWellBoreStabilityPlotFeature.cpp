@@ -29,6 +29,8 @@
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellPath.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QAction>
 
 CAF_PDM_SOURCE_INIT( RicfCreateWbsPlotResult, "createWbsPlotResult" );
@@ -49,9 +51,9 @@ CAF_PDM_SOURCE_INIT( RicfCreateWellBoreStabilityPlotFeature, "createWellBoreStab
 //--------------------------------------------------------------------------------------------------
 RicfCreateWellBoreStabilityPlotFeature::RicfCreateWellBoreStabilityPlotFeature()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "GeoMech Case Id", "", "", "" );
-    RICF_InitField( &m_wellPath, "wellPath", QString( "" ), "Well Path", "", "", "" );
-    RICF_InitField( &m_timeStep, "timeStep", -1, "Time Step", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "GeoMech Case Id", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_wellPath, "wellPath", QString( "" ), "Well Path", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_timeStep, "timeStep", -1, "Time Step", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wbsParameters, "wbsParameters", "WbsParameters", "", "", "" );
 }
@@ -59,7 +61,7 @@ RicfCreateWellBoreStabilityPlotFeature::RicfCreateWellBoreStabilityPlotFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfCreateWellBoreStabilityPlotFeature::execute()
+caf::PdmScriptResponse RicfCreateWellBoreStabilityPlotFeature::execute()
 {
     RimProject* project = RiaApplication::instance()->project();
 
@@ -93,17 +95,17 @@ RicfCommandResponse RicfCreateWellBoreStabilityPlotFeature::execute()
             QString error = QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" )
                                 .arg( chosenWellPath->name() );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
 
         RimWellBoreStabilityPlot* wbsPlot =
             RicNewWellBoreStabilityPlotFeature::createPlot( chosenCase, chosenWellPath, m_timeStep(), m_wbsParameters() );
-        RicfCommandResponse response;
+        caf::PdmScriptResponse response;
         response.setResult( new RicfCreateWbsPlotResult( wbsPlot->id() ) );
         return response;
     }
 
     QString error = QString( "createWellBoreStabilityPlot: Could not find GeoMech case with id %1" ).arg( m_caseId() );
     RiaLogging::error( error );
-    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
 }

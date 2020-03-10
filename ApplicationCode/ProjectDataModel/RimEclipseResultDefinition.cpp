@@ -66,6 +66,7 @@
 #include "RimWellLogExtractionCurve.h"
 
 #include "cafCategoryMapper.h"
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -97,13 +98,19 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Result Definition", "", "", "", "EclipseResult", "An eclipse result definition" );
 
-    RICF_InitFieldNoDefault( &m_resultType, "ResultType", "Type", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_resultType, "ResultType", "Type", "", "", "" );
     m_resultType.uiCapability()->setUiHidden( true );
 
-    RICF_InitFieldNoDefault( &m_porosityModel, "PorosityModelType", "Porosity", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_porosityModel, "PorosityModelType", "Porosity", "", "", "" );
     m_porosityModel.uiCapability()->setUiHidden( true );
 
-    RICF_InitField( &m_resultVariable, "ResultVariable", RiaDefines::undefinedResultName(), "Variable", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_resultVariable,
+                                       "ResultVariable",
+                                       RiaDefines::undefinedResultName(),
+                                       "Variable",
+                                       "",
+                                       "",
+                                       "" );
     m_resultVariable.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowSolution, "FlowDiagSolution", "Solution", "", "", "" );
@@ -124,17 +131,27 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitFieldNoDefault( &m_selectedTracers_OBSOLETE, "SelectedTracers", "Tracers", "", "", "" );
     m_selectedTracers_OBSOLETE.uiCapability()->setUiHidden( true );
 
-    RICF_InitFieldNoDefault( &m_selectedInjectorTracers, "SelectedInjectorTracers", "Injector Tracers", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedInjectorTracers,
+                                                "SelectedInjectorTracers",
+                                                "Injector Tracers",
+                                                "",
+                                                "",
+                                                "" );
     m_selectedInjectorTracers.uiCapability()->setUiHidden( true );
 
-    RICF_InitFieldNoDefault( &m_selectedProducerTracers, "SelectedProducerTracers", "Producer Tracers", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedProducerTracers,
+                                                "SelectedProducerTracers",
+                                                "Producer Tracers",
+                                                "",
+                                                "",
+                                                "" );
     m_selectedProducerTracers.uiCapability()->setUiHidden( true );
 
-    RICF_InitFieldNoDefault( &m_selectedSouringTracers, "SelectedSouringTracers", "Tracers", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedSouringTracers, "SelectedSouringTracers", "Tracers", "", "", "" );
     m_selectedSouringTracers.uiCapability()->setUiHidden( true );
 
-    RICF_InitFieldNoDefault( &m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "" );
-    RICF_InitFieldNoDefault( &m_phaseSelection, "PhaseSelection", "Phases", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_phaseSelection, "PhaseSelection", "Phases", "", "", "" );
     m_phaseSelection.uiCapability()->setUiLabelPosition( m_labelPosition );
     // Ui only fields
 

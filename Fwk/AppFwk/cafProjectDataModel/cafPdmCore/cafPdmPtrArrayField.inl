@@ -43,6 +43,19 @@ const std::vector< PdmPointer<DataType> >& PdmPtrArrayField<DataType*>::value() 
 /// 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
+void PdmPtrArrayField<DataType*>::setValue(const std::vector< DataType* >& fieldValue)
+{
+    this->clear();
+    for (DataType* rawPtr : fieldValue)
+    {
+        this->push_back(PdmPointer<DataType>(rawPtr));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
 DataType* PdmPtrArrayField<DataType*>::operator[](size_t index) const
 {
     return m_pointers[index];
@@ -207,6 +220,23 @@ void PdmPtrArrayField<DataType*>::removePtr(PdmObjectHandle* object)
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
+std::vector<DataType*> PdmPtrArrayField<DataType*>::ptrReferencedObjects() const
+{
+    std::vector<DataType*> objects;
+
+    size_t i;
+    for (i = 0; i < m_pointers.size(); ++i)
+    {
+        objects.push_back(m_pointers[i].p());
+    }
+
+    return objects;
 }
 
 //--------------------------------------------------------------------------------------------------

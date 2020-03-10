@@ -6,12 +6,20 @@ set( PROJECT_FILES
      cafPdmCodeGenerator.h
      cafPdmFieldScriptability.h
      cafPdmFieldScriptability.cpp
+     cafPdmFieldIOScriptability.h
+     cafPdmFieldIOScriptability.cpp
+	 cafPdmObjectMethod.h
+	 cafPdmObjectMethod.cpp
      cafPdmObjectScriptabilityRegister.h
      cafPdmObjectScriptabilityRegister.cpp
      cafPdmPythonGenerator.h
      cafPdmPythonGenerator.cpp
      cafPdmScriptIOMessages.h
      cafPdmScriptIOMessages.cpp
+     cafPdmObjectScriptability.h
+     cafPdmObjectScriptability.cpp
+     cafPdmScriptResponse.h
+     cafPdmScriptResponse.cpp
 )
 
 
@@ -24,7 +32,7 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries( ${PROJECT_NAME} cafProjectDataModel ${QT_LIBRARIES} )
+target_link_libraries( ${PROJECT_NAME} LibCore cafProjectDataModel ${QT_LIBRARIES} )
 
 source_group("" FILES ${PROJECT_FILES})
 

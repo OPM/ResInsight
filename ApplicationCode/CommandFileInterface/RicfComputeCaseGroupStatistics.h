@@ -34,7 +34,7 @@ class RicfComputeCaseGroupStatistics : public RicfCommandObject
 public:
     RicfComputeCaseGroupStatistics();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<int>              m_groupId;

@@ -26,6 +26,8 @@
 #include "RimProject.h"
 #include "RimWellLogPlot.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QDir>
 #include <QFileInfo>
 #include <QStringList>
@@ -59,24 +61,24 @@ CAF_PDM_SOURCE_INIT( RicfExportWellLogPlotData, "exportWellLogPlotData" );
 //--------------------------------------------------------------------------------------------------
 RicfExportWellLogPlotData::RicfExportWellLogPlotData()
 {
-    RICF_InitFieldNoDefault( &m_format, "exportFormat", "", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "", "", "", "" );
-    RICF_InitField( &m_folder, "exportFolder", QString(), "", "", "", "" );
-    RICF_InitField( &m_filePrefix, "filePrefix", QString(), "", "", "", "" );
-    RICF_InitField( &m_exportTvdRkb, "exportTvdRkb", false, "", "", "", "" );
-    RICF_InitField( &m_capitalizeFileNames, "capitalizeFileNames", false, "", "", "", "" );
-    RICF_InitField( &m_resampleInterval, "resampleInterval", 0.0, "", "", "", "" );
-    RICF_InitField( &m_convertCurveUnits, "convertCurveUnits", false, "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_format, "exportFormat", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_folder, "exportFolder", QString(), "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_filePrefix, "filePrefix", QString(), "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_exportTvdRkb, "exportTvdRkb", false, "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_capitalizeFileNames, "capitalizeFileNames", false, "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_resampleInterval, "resampleInterval", 0.0, "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_convertCurveUnits, "convertCurveUnits", false, "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportWellLogPlotData::execute()
+caf::PdmScriptResponse RicfExportWellLogPlotData::execute()
 {
     QStringList errorMessages;
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
 
     if ( QFileInfo::exists( m_folder ) )
     {
@@ -133,7 +135,7 @@ RicfCommandResponse RicfExportWellLogPlotData::execute()
 
     for ( QString errorMessage : errorMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
     return response;
 }

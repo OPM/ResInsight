@@ -32,7 +32,7 @@ class RicSaveProjectFeature : public caf::CmdFeature, public RicfCommandObject
 
 public:
     RicSaveProjectFeature();
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 protected:
     // Overrides

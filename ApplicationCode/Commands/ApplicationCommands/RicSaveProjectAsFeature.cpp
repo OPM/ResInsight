@@ -23,6 +23,8 @@
 #include "RicSaveProjectFeature.h"
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QAction>
 #include <QMessageBox>
 
@@ -33,21 +35,21 @@ RICF_SOURCE_INIT( RicSaveProjectAsFeature, "RicSaveProjectAsFeature", "saveProje
 //--------------------------------------------------------------------------------------------------
 RicSaveProjectAsFeature::RicSaveProjectAsFeature()
 {
-    RICF_InitFieldNoDefault( &m_filePath, "filePath", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_filePath, "filePath", "", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicSaveProjectAsFeature::execute()
+caf::PdmScriptResponse RicSaveProjectAsFeature::execute()
 {
     this->disableModelChangeContribution();
     QString errorMessage;
     if ( !RiaApplication::instance()->saveProjectAs( m_filePath(), &errorMessage ) )
     {
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,7 +75,7 @@ void RicSaveProjectAsFeature::onActionTriggered( bool isChecked )
         }
         auto response = execute();
 
-        if ( response.status() != RicfCommandResponse::COMMAND_OK )
+        if ( response.status() != caf::PdmScriptResponse::COMMAND_OK )
         {
             QString displayMessage = response.messages().join( "\n" );
             if ( RiaGuiApplication::isRunning() )

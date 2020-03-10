@@ -14,6 +14,7 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmFieldIOScriptability.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -25,13 +26,13 @@ CAF_PDM_SOURCE_INIT( RicfCloneView, "cloneView" );
 //--------------------------------------------------------------------------------------------------
 RicfCloneView::RicfCloneView()
 {
-    RICF_InitField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View Id", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfCloneView::execute()
+caf::PdmScriptResponse RicfCloneView::execute()
 {
     RimProject*             project = RiaApplication::instance()->project();
     std::vector<Rim3dView*> allViews;
@@ -66,7 +67,7 @@ RicfCommandResponse RicfCloneView::execute()
 
             if ( newViewId >= 0 )
             {
-                RicfCommandResponse response;
+                caf::PdmScriptResponse response;
                 response.setResult( new RicfCreateViewResult( newViewId ) );
                 return response;
             }
@@ -75,5 +76,5 @@ RicfCommandResponse RicfCloneView::execute()
 
     QString error = QString( "cloneView: Could not clone view with id %1" ).arg( m_viewId() );
     RiaLogging::error( error );
-    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
 }

@@ -47,7 +47,7 @@ RicNewMultiPlotFeature::RicNewMultiPlotFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicNewMultiPlotFeature::execute()
+caf::PdmScriptResponse RicNewMultiPlotFeature::execute()
 {
     RimProject*             project        = RiaApplication::instance()->project();
     RimMultiPlotCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
@@ -84,7 +84,7 @@ RicfCommandResponse RicNewMultiPlotFeature::execute()
     RiuPlotMainWindowTools::setExpanded( plotCollection, true );
     RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }
 
 //--------------------------------------------------------------------------------------------------

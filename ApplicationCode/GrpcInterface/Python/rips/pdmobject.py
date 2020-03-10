@@ -179,10 +179,12 @@ def __convert_to_grpc_value(self, value):
         if value:
             return "true"
         return "false"
+    if isinstance(value, PdmObject):
+        return value.__class__.__name__ + ":" + str(value.address())
     if isinstance(value, list):
         list_of_strings = []
         for val in value:
-            list_of_strings.append(self.__convert_to_grpc_value('\"' + val + '\"'))
+            list_of_strings.append('\"' + self.__convert_to_grpc_value(val) + '\"')
         return "[" + ", ".join(list_of_strings) + "]"
     return str(value)
 
@@ -301,8 +303,8 @@ def ancestor(self, class_definition):
 
 @add_method(PdmObject)
 def _call_get_method_async(self, method_name):
-    request = PdmObject_pb2.PdmObjectMethodRequest(object=self._pb2_object, method=method_name)
-    for chunk in self._pdm_object_stub.CallPdmObjectGetMethod(request):
+    request = PdmObject_pb2.PdmObjectGetterRequest(object=self._pb2_object, method=method_name)
+    for chunk in self._pdm_object_stub.CallPdmObjectGetter(request):
         yield chunk
 
 @add_method(PdmObject)
@@ -320,39 +322,47 @@ def __generate_set_method_chunks(self, array, method_request):
     index = -1
 
     while index < len(array):
-        chunk = PdmObject_pb2.PdmObjectSetMethodChunk()
+        chunk = PdmObject_pb2.PdmObjectSetterChunk()
         if index is -1:
-            chunk.set_request.CopyFrom(PdmObject_pb2.PdmObjectSetMethodRequest(request=method_request, data_count=len(array)))
+            chunk.set_request.CopyFrom(PdmObject_pb2.PdmObjectSetterRequest(request=method_request, data_count=len(array)))
             index += 1
         else:
             actual_chunk_size = min(len(array) - index + 1, self.__chunk_size)
             if isinstance(array[0], float):
                 chunk.CopyFrom(
-                    PdmObject_pb2.PdmObjectSetMethodChunk(doubles=PdmObject_pb2.DoubleArray(data=array[index:index +
+                    PdmObject_pb2.PdmObjectSetterChunk(doubles=PdmObject_pb2.DoubleArray(data=array[index:index +
                                                             actual_chunk_size])))
             elif isinstance(array[0], int):
                 chunk.CopyFrom(
-                    PdmObject_pb2.PdmObjectSetMethodChunk(ints=PdmObject_pb2.IntArray(data=array[index:index +
+                    PdmObject_pb2.PdmObjectSetterChunk(ints=PdmObject_pb2.IntArray(data=array[index:index +
                                                             actual_chunk_size])))
             elif isinstance(array[0], str):
                 chunk.CopyFrom(
-                    PdmObject_pb2.PdmObjectSetMethodChunk(strings=PdmObject_pb2.StringArray(data=array[index:index +
+                    PdmObject_pb2.PdmObjectSetterChunk(strings=PdmObject_pb2.StringArray(data=array[index:index +
                                                             actual_chunk_size])))
             else:
                 raise Exception("Wrong data type for set method")
             index += actual_chunk_size
         yield chunk
     # Final empty message to signal completion
-    chunk = PdmObject_pb2.PdmObjectSetMethodChunk()
+    chunk = PdmObject_pb2.PdmObjectSetterChunk()
     yield chunk
 
 @add_method(PdmObject)
 def _call_set_method(self, method_name, values):
-    method_request = PdmObject_pb2.PdmObjectMethodRequest(object=self._pb2_object, method=method_name)
+    method_request = PdmObject_pb2.PdmObjectGetterRequest(object=self._pb2_object, method=method_name)
     request_iterator = self.__generate_set_method_chunks(values, method_request)
-    reply = self._pdm_object_stub.CallPdmObjectSetMethod(request_iterator)
+    reply = self._pdm_object_stub.CallPdmObjectSetter(request_iterator)
     if reply.accepted_value_count < len(values):
         raise IndexError
+
+@add_method(PdmObject)
+def _call_pdm_method(self, method_name, **kwargs):
+    pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
+    for key, value in kwargs.items():
+        pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(value)
+    request = PdmObject_pb2.PdmObjectMethodRequest(object=self._pb2_object, method=method_name, params=pb2_params)
+    return self._pdm_object_stub.CallPdmObjectMethod(request)
 
 @add_method(PdmObject)
 def update(self):
