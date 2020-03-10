@@ -239,6 +239,7 @@ bool RigWbsParameter::operator<( const RigWbsParameter& rhs ) const
 RigWbsParameter RigWbsParameter::PP_Reservoir()
 {
     SourceVector sources = {{GRID, SourceAddress( "POR-Bar", "", RiaWellLogUnitTools::barUnitString() )},
+                            {LAS_FILE, SourceAddress( "PP_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )},
                             {LAS_FILE, SourceAddress( "PP_RES_INP", "", RiaWellLogUnitTools::sg_emwUnitString() )},
                             {LAS_FILE, SourceAddress( "POR_RES_INP", "", RiaWellLogUnitTools::gPerCm3UnitString() )},
                             {ELEMENT_PROPERTY_TABLE, SourceAddress( "POR", "", RiaWellLogUnitTools::barUnitString() )},
