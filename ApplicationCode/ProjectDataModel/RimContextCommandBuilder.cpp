@@ -68,6 +68,7 @@
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFractureModel.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -423,6 +424,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimWellPathAttributeCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicDeleteWellPathAttributeFeature";
+        }
+        else if ( dynamic_cast<RimFractureModel*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewFractureModelPlotFeature";
         }
         else if ( dynamic_cast<Rim3dWellLogCurveCollection*>( firstUiItem ) ||
                   dynamic_cast<Rim3dWellLogExtractionCurve*>( firstUiItem ) ||

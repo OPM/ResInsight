@@ -1827,6 +1827,8 @@ size_t RimWellLogTrack::curveIndex( RimWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateAxisScaleEngine()
 {
+    if ( !m_plotWidget ) return;
+
     if ( m_isLogarithmicScaleEnabled )
     {
         m_plotWidget->setAxisScaleEngine( QwtPlot::xTop, new QwtLogScaleEngine );
@@ -1875,9 +1877,9 @@ void RimWellLogTrack::updateWellPathAttributesCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RimWellLogTrack::parentWellLogPlot() const
+RimDepthTrackPlot* RimWellLogTrack::parentWellLogPlot() const
 {
-    RimWellLogPlot* wellLogPlot = nullptr;
+    RimDepthTrackPlot* wellLogPlot = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
     return wellLogPlot;
 }
@@ -2283,7 +2285,7 @@ void RimWellLogTrack::updateRegionAnnotationsOnPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateFormationNamesOnPlot()
 {
-    RimWellLogPlot* plot = nullptr;
+    RimDepthTrackPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
 
     if ( m_formationSource() == WELL_PICK_FILTER )
@@ -2622,7 +2624,7 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
             completionsAssignedToLegend.insert( legendTitle );
         }
 
-        RimWellLogPlot* wellLogPlot;
+        RimDepthTrackPlot* wellLogPlot;
         this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
         RimWellLogPlot::DepthTypeEnum depthType = wellLogPlot->depthType();
 

@@ -46,6 +46,7 @@ class RimWellPathAttributeCollection;
 class RimWellFlowRateCurve;
 class RimWellLogCurve;
 class RimWellPath;
+class RimDepthTrackPlot;
 class RiuWellPathComponentPlotItem;
 class RiuWellLogTrack;
 class RigEclipseWellLogExtractor;
@@ -275,7 +276,7 @@ private:
 
     void updateWellPathAttributesCollection();
 
-    RimWellLogPlot* parentWellLogPlot() const;
+    RimDepthTrackPlot* parentWellLogPlot() const;
 
     void handleWheelEvent( QWheelEvent* event ) override;
     void doUpdateLayout() override;

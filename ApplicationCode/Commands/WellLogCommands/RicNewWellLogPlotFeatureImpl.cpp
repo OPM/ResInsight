@@ -21,6 +21,8 @@
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
+#include "RimFractureModelPlot.h"
+#include "RimFractureModelPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimWellBoreStabilityPlot.h"
@@ -115,11 +117,11 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool            updateAfter,
-                                                                       const QString&  trackDescription,
-                                                                       RimWellLogPlot* existingPlot )
+RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool               updateAfter,
+                                                                       const QString&     trackDescription,
+                                                                       RimDepthTrackPlot* existingPlot )
 {
-    RimWellLogPlot* plot = existingPlot;
+    RimDepthTrackPlot* plot = existingPlot;
     if ( plot == nullptr )
     {
         plot = createWellLogPlot();
@@ -223,7 +225,7 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool     
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimWellLogPlot* plot )
+void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimDepthTrackPlot* plot )
 {
     CVF_ASSERT( plot );
     plot->loadDataAndUpdate();

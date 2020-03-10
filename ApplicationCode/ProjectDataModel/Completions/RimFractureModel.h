@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-2018 Statoil ASA
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -36,11 +35,8 @@
 #include "cafPdmPtrField.h"
 
 class RimEclipseCase;
-class RimEllipseFractureTemplate;
-class RivWellFracturePartMgr;
-class RimFractureTemplate;
-class RigFracturedEclipseCellExportData;
-class RigMainGrid;
+class RimWellPath;
+class RimModeledWellPath;
 
 //==================================================================================================
 ///
@@ -61,6 +57,7 @@ public:
     ~RimFractureModel( void ) override;
 
     cvf::Vec3d anchorPosition() const;
+    cvf::Vec3d thicknessDirection() const;
 
     cvf::Mat4d transformMatrix() const;
 
@@ -76,6 +73,11 @@ public:
     double                            endMD() const override;
     bool                              isEnabled() const override;
 
+    RimWellPath* wellPath() const;
+
+    RimModeledWellPath* thicknessDirectionWellPath() const;
+    void                setThicknessDirectionWellPath( RimModeledWellPath* thicknessDirectionWellPath );
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
@@ -87,6 +89,9 @@ private:
     void             updatePositionFromMeasuredDepth();
     void             updateThicknessDirection();
     cvf::Vec3d       calculateTSTDirection() const;
+    void             findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
+
+    static cvf::Mat4d rotationMatrixBetweenVectors( const cvf::Vec3d& v1, const cvf::Vec3d& v2 );
 
 protected:
     caf::PdmField<double>                                                 m_MD;
@@ -97,4 +102,7 @@ protected:
     caf::PdmField<double>                                                 m_tilt;
     caf::PdmField<cvf::Vec3d>                                             m_anchorPosition;
     caf::PdmField<cvf::Vec3d>                                             m_thicknessDirection;
+    caf::PdmField<double>                                                 m_boundingBoxVertical;
+    caf::PdmField<double>                                                 m_boundingBoxHorizontal;
+    caf::PdmPtrField<RimModeledWellPath*>                                 m_thicknessDirectionWellPath;
 };

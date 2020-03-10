@@ -18,27 +18,27 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
-class RimFractureModelCollection;
-class RimWellPath;
-class RimWellPathCollection;
+class RimFractureModelPlot;
 
 //==================================================================================================
 ///
+///
 //==================================================================================================
-class RicNewFractureModelFeature : public caf::CmdFeature
+class RimFractureModelPlotCollection : public caf::PdmObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    static void addFractureModel( RimWellPath* wellPath, RimWellPathCollection* wellPathCollection );
+    RimFractureModelPlotCollection();
+    ~RimFractureModelPlotCollection() override;
 
-protected:
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
+    void reloadAllPlots();
 
-private:
-    static RimFractureModelCollection* selectedFractureModelCollection();
+    void deleteAllExtractors();
+
+    caf::PdmChildArrayField<RimFractureModelPlot*> fractureModelPlots;
 };

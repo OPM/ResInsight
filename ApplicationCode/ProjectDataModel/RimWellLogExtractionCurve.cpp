@@ -338,7 +338,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
         bool isUsingPseudoLength = false;
         performDataExtraction( &isUsingPseudoLength );
 
-        RimWellLogPlot* wellLogPlot;
+        RimDepthTrackPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );
         if ( !wellLogPlot ) return;
 

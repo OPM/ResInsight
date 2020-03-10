@@ -20,25 +20,37 @@
 
 #include "cafCmdFeature.h"
 
-class RimFractureModelCollection;
-class RimWellPath;
-class RimWellPathCollection;
+class RimEclipseCase;
+class RimFractureModelPlot;
+class RimFractureModelPlotCollection;
+class RimFractureModel;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewFractureModelFeature : public caf::CmdFeature
+class RicNewFractureModelPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void addFractureModel( RimWellPath* wellPath, RimWellPathCollection* wellPathCollection );
+    static RimFractureModelPlot* createPlot( RimEclipseCase* eclipseCase, RimFractureModel* fractureModel, int timeStep );
 
 protected:
+    // Overrides
+    bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
 
 private:
-    static RimFractureModelCollection* selectedFractureModelCollection();
+    static void
+                createFormationTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
+    static void createParametersTrack( RimFractureModelPlot* plot,
+                                       RimFractureModel*     fractureModel,
+                                       RimEclipseCase*       eclipseCase,
+                                       int                   timeStep,
+                                       const QString&        resultVariable );
+
+    static RimFractureModelPlot* createFractureModelPlot( bool showAfterCreation, const QString& plotDescription );
+
+    static RimFractureModelPlotCollection* fractureModelPlotCollection();
 };

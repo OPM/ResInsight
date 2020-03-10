@@ -15,105 +15,86 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+#include "RimFractureModelPlot.h"
 
-#include "RimFractureModelCollection.h"
+#include "RiaDefines.h"
+#include "RicfCommandObject.h"
 
+#include "RimEclipseCase.h"
 #include "RimFractureModel.h"
-#include "RimProject.h"
 
+#include "cafPdmBase.h"
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiGroup.h"
 
-CAF_PDM_SOURCE_INIT( RimFractureModelCollection, "FractureModelCollection" );
+CAF_PDM_SOURCE_INIT( RimFractureModelPlot, "FractureModelPlot" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureModelCollection::RimFractureModelCollection( void )
+RimFractureModelPlot::RimFractureModelPlot()
 {
-    CAF_PDM_InitObject( "Fracture Models", "", "", "" );
+    CAF_PDM_InitScriptableObject( "Fracture Model Plot", "", "", "A fracture model plot" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureModels, "FractureModels", "", "", "", "" );
-    m_fractureModels.uiCapability()->setUiHidden( true );
-
-    setName( "Fracture Models" );
-    nameField()->uiCapability()->setUiHidden( true );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_fractureModel, "FractureModel", "Fracture Model", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_timeStep, "TimeStep", "Time Step", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureModelCollection::~RimFractureModelCollection()
+void RimFractureModelPlot::setFractureModel( RimFractureModel* fractureModel )
 {
+    m_fractureModel = fractureModel;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureModelCollection::addFractureModel( RimFractureModel* fracture )
+void RimFractureModelPlot::setEclipseCase( RimEclipseCase* eclipseCase )
 {
-    m_fractureModels.push_back( fracture );
+    m_eclipseCase = eclipseCase;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureModelCollection::deleteFractureModels()
+void RimFractureModelPlot::setTimeStep( int timeStep )
 {
-    m_fractureModels.deleteAllChildObjects();
+    m_timeStep = timeStep;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFractureModel*> RimFractureModelCollection::allFractureModels() const
+void RimFractureModelPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    return m_fractureModels.childObjects();
-}
+    caf::PdmUiGroup* depthGroup = uiOrdering.addNewGroup( "Depth Axis" );
+    RimDepthTrackPlot::uiOrderingForDepthAxis( uiConfigName, *depthGroup );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimFractureModel*> RimFractureModelCollection::activeFractureModels() const
-{
-    std::vector<RimFractureModel*> active;
+    caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup( "Plot Title" );
+    RimDepthTrackPlot::uiOrderingForAutoName( uiConfigName, *titleGroup );
 
-    if ( isChecked() )
-    {
-        for ( const auto& f : allFractureModels() )
-        {
-            if ( f->isChecked() )
-            {
-                active.push_back( f );
-            }
-        }
-    }
+    caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
+    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
 
-    return active;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFractureModelCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
     uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureModelCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimFractureModelPlot::onLoadDataAndUpdate()
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
-    if ( changedField == &m_isChecked )
-    {
-        proj->reloadCompletionTypeResultsInAllViews();
-    }
-    else
-    {
-        proj->scheduleCreateDisplayModelAndRedrawAllViews();
-    }
+    RimDepthTrackPlot::onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelPlot::applyDataSource()
+{
+    this->updateConnectedEditors();
 }

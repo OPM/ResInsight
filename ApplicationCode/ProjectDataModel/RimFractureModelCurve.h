@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2019-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,27 +18,34 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RimWellLogExtractionCurve.h"
 
-class RimFractureModelCollection;
+#include "RiuQwtSymbol.h"
+
+#include "cafPdmField.h"
+#include "cafPdmPtrField.h"
+
+#include <vector>
+
 class RimWellPath;
-class RimWellPathCollection;
+class RimWellMeasurement;
+class RimFractureModel;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewFractureModelFeature : public caf::CmdFeature
+class RimFractureModelCurve : public RimWellLogExtractionCurve
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    static void addFractureModel( RimWellPath* wellPath, RimWellPathCollection* wellPathCollection );
+    RimFractureModelCurve();
+    ~RimFractureModelCurve() override;
+
+    void setFractureModel( RimFractureModel* fractureModel );
 
 protected:
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
+    void performDataExtraction( bool* isUsingPseudoLength ) override;
 
-private:
-    static RimFractureModelCollection* selectedFractureModelCollection();
+    caf::PdmPtrField<RimFractureModel*> m_fractureModel;
 };

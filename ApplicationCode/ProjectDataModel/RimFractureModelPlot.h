@@ -15,30 +15,35 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RimDepthTrackPlot.h"
 
-class RimFractureModelCollection;
-class RimWellPath;
-class RimWellPathCollection;
+#include "cafPdmField.h"
+#include "cafPdmPtrField.h"
 
-//==================================================================================================
-///
-//==================================================================================================
-class RicNewFractureModelFeature : public caf::CmdFeature
+class RimEclipseCase;
+class RimFractureModel;
+
+class RimFractureModelPlot : public RimDepthTrackPlot
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    static void addFractureModel( RimWellPath* wellPath, RimWellPathCollection* wellPathCollection );
+    RimFractureModelPlot();
+    void setFractureModel( RimFractureModel* fractureModel );
+    void setTimeStep( int timeStep );
+    void setEclipseCase( RimEclipseCase* eclipseCase );
 
 protected:
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-    bool isCommandEnabled() override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    void onLoadDataAndUpdate() override;
 
 private:
-    static RimFractureModelCollection* selectedFractureModelCollection();
+    void applyDataSource();
+
+    caf::PdmPtrField<RimEclipseCase*>   m_eclipseCase;
+    caf::PdmPtrField<RimFractureModel*> m_fractureModel;
+    caf::PdmField<int>                  m_timeStep;
 };

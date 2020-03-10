@@ -210,7 +210,7 @@ std::pair<RimWellPathTarget*, RimWellPathTarget*>
         if ( wt->isEnabled() && !foundTarget ) before = wt;
     }
 
-    return { before, after };
+    return {before, after};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,6 +232,14 @@ void RimWellPathGeometryDef::deleteTarget( RimWellPathTarget* targetTodelete )
 {
     m_wellTargets.removeChildObject( targetTodelete );
     delete targetTodelete;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathGeometryDef::deleteAllTargets()
+{
+    m_wellTargets.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -451,7 +459,7 @@ void RimWellPathGeometryDef::updateTargetAtSeaLevel()
         newPos     = firstTarget->targetPointXYZ() - horizontalLengthFromTarget * tangentInHorizontalPlane;
         newPos.z() = -referencePointXyz().z();
 
-        m_autoTargetAtSeaLevel->setAsPointXYZAndTangentTarget( { newPos[0], newPos[1], newPos[2] }, 0, 0 );
+        m_autoTargetAtSeaLevel->setAsPointXYZAndTangentTarget( {newPos[0], newPos[1], newPos[2]}, 0, 0 );
     }
 }
 

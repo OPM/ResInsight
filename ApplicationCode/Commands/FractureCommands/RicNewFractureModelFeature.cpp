@@ -24,9 +24,11 @@
 
 #include "RimFractureModel.h"
 #include "RimFractureModelCollection.h"
+#include "RimModeledWellPath.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -44,7 +46,7 @@ CAF_CMD_SOURCE_INIT( RicNewFractureModelFeature, "RicNewFractureModelFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewFractureModelFeature::addFractureModel( RimWellPath* wellPath )
+void RicNewFractureModelFeature::addFractureModel( RimWellPath* wellPath, RimWellPathCollection* wellPathCollection )
 {
     CVF_ASSERT( wellPath );
 
@@ -60,10 +62,20 @@ void RicNewFractureModelFeature::addFractureModel( RimWellPath* wellPath )
     fractureModelCollection->firstAncestorOrThisOfType( oilfield );
     if ( !oilfield ) return;
 
-    fractureModel->setName( RicFractureNameGenerator::nameForNewFractureModel() );
+    QString fractureModelName = RicFractureNameGenerator::nameForNewFractureModel();
+    fractureModel->setName( fractureModelName );
 
     RimProject* project = nullptr;
     fractureModelCollection->firstAncestorOrThisOfType( project );
+
+    // Add a "fake" well path for thickess direction
+    RimModeledWellPath* thicknessDirectionWellPath = new RimModeledWellPath;
+    thicknessDirectionWellPath->setName( QString( "Thickness Direction for %1" ).arg( fractureModelName ) );
+    fractureModel->setThicknessDirectionWellPath( thicknessDirectionWellPath );
+
+    std::vector<RimWellPath*> wellPaths = {thicknessDirectionWellPath};
+    wellPathCollection->addWellPaths( wellPaths );
+
     if ( project )
     {
         project->reloadCompletionTypeResultsInAllViews();
@@ -84,7 +96,10 @@ void RicNewFractureModelFeature::onActionTriggered( bool isChecked )
     RimWellPath* wellPath = nullptr;
     fractureColl->firstAncestorOrThisOfTypeAsserted( wellPath );
 
-    RicNewFractureModelFeature::addFractureModel( wellPath );
+    RimWellPathCollection* wellPathCollection = nullptr;
+    fractureColl->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
+
+    RicNewFractureModelFeature::addFractureModel( wellPath, wellPathCollection );
 }
 
 //--------------------------------------------------------------------------------------------------
