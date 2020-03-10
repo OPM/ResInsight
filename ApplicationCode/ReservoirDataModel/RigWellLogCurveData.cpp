@@ -35,7 +35,7 @@ RigWellLogCurveData::RigWellLogCurveData()
 {
     m_isExtractionCurve = false;
     m_depthUnit         = RiaDefines::UNIT_METER;
-    m_xUnitString       = RiaWellLogUnitTools::noUnitString();
+    m_xUnitString       = RiaWellLogUnitTools<double>::noUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,11 +117,11 @@ std::vector<double> RigWellLogCurveData::xValues() const
 std::vector<double> RigWellLogCurveData::xValues( const QString& units ) const
 {
     std::vector<double> convertedValues;
-    if ( units != m_xUnitString && RiaWellLogUnitTools::convertValues( depths( RiaDefines::TRUE_VERTICAL_DEPTH_RKB ),
-                                                                       m_xValues,
-                                                                       &convertedValues,
-                                                                       m_xUnitString,
-                                                                       units ) )
+    if ( units != m_xUnitString && RiaWellLogUnitTools<double>::convertValues( depths( RiaDefines::TRUE_VERTICAL_DEPTH_RKB ),
+                                                                               m_xValues,
+                                                                               &convertedValues,
+                                                                               m_xUnitString,
+                                                                               units ) )
     {
         return convertedValues;
     }
@@ -228,7 +228,7 @@ std::vector<double> RigWellLogCurveData::depthPlotValues( RiaDefines::DepthTypeE
         else
         {
             std::vector<double> convertedValues =
-                RiaWellLogUnitTools().convertDepths( depthValues, m_depthUnit, destinationDepthUnit );
+                RiaWellLogUnitTools<double>::convertDepths( depthValues, m_depthUnit, destinationDepthUnit );
             RiaCurveDataTools::getValuesByIntervals( convertedValues, m_intervalsOfContinousValidValues, &filteredValues );
         }
     }

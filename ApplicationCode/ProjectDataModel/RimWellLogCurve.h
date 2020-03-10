@@ -49,20 +49,20 @@ public:
                              double                     rkbDiff,
                              RiaDefines::DepthUnitType  depthUnit,
                              bool                       isExtractionCurve,
-                             const QString&             xUnits = RiaWellLogUnitTools::noUnitString() );
+                             const QString&             xUnits = RiaWellLogUnitTools<double>::noUnitString() );
     void setValuesWithMdAndTVD( const std::vector<double>& xValues,
                                 const std::vector<double>& measuredDepths,
                                 const std::vector<double>& tvDepths,
                                 double                     rkbDiff,
                                 RiaDefines::DepthUnitType  depthUnit,
                                 bool                       isExtractionCurve,
-                                const QString&             xUnits = RiaWellLogUnitTools::noUnitString() );
+                                const QString&             xUnits = RiaWellLogUnitTools<double>::noUnitString() );
     void setValuesAndDepths( const std::vector<double>&                                      xValues,
                              const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
                              double                                                          rkbDiff,
                              RiaDefines::DepthUnitType                                       depthUnit,
                              bool                                                            isExtractionCurve,
-                             const QString& xUnits = RiaWellLogUnitTools::noUnitString() );
+                             const QString& xUnits = RiaWellLogUnitTools<double>::noUnitString() );
 
     const RigWellLogCurveData* curveData() const;
 

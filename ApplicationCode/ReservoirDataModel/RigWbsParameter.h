@@ -96,7 +96,9 @@ private:
         QString             primary; // i.e. grid field name, las entry, etc.
         QString             secondary; // i.e. grid component name
         QString             units; // The unit string
-        SourceAddress( QString primary = "", QString secondary = "", QString units = RiaWellLogUnitTools::noUnitString() )
+        SourceAddress( QString primary   = "",
+                       QString secondary = "",
+                       QString units     = RiaWellLogUnitTools<double>::noUnitString() )
             : primary( primary )
             , secondary( secondary )
             , units( units )

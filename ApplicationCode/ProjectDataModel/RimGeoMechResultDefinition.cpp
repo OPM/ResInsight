@@ -787,12 +787,12 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
         {
             if ( resultName == this->resultFieldName() )
             {
-                return RiaWellLogUnitTools::sg_emwUnitString();
+                return RiaWellLogUnitTools<double>::sg_emwUnitString();
             }
         }
     }
 
-    return RiaWellLogUnitTools::noUnitString();
+    return RiaWellLogUnitTools<double>::noUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -919,7 +919,7 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
     }
 
     QString unitString = currentResultUnits();
-    if ( unitString != RiaWellLogUnitTools::noUnitString() )
+    if ( unitString != RiaWellLogUnitTools<double>::noUnitString() )
     {
         legendTitle += QString( " [%1]" ).arg( unitString );
     }

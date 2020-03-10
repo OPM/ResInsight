@@ -1287,10 +1287,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNormalizedResult
                     // This is in the POR-region. Use hydrostatic pressure from the individual nodes
                     for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
                     {
-                        size_t    elmNodeResIdx       = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
-                        const int nodeIdx             = femPart->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
-                        double    tvdRKB              = std::abs( nodeCoords[nodeIdx].z() ) + m_normalizationAirGap;
-                        double    hydrostaticPressure = RiaWellLogUnitTools::hydrostaticPorePressureBar( tvdRKB );
+                        size_t    elmNodeResIdx    = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
+                        const int nodeIdx          = femPart->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
+                        double    tvdRKB           = std::abs( nodeCoords[nodeIdx].z() ) + m_normalizationAirGap;
+                        double hydrostaticPressure = RiaWellLogUnitTools<double>::hydrostaticPorePressureBar( tvdRKB );
                         dstFrameData[elmNodeResIdx] /= hydrostaticPressure;
                     }
                 }
@@ -1300,7 +1300,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNormalizedResult
                     cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
                     double     cellCentroidTvdRKB = std::abs( cellCentroid.z() ) + m_normalizationAirGap;
                     double     cellCenterHydroStaticPressure =
-                        RiaWellLogUnitTools::hydrostaticPorePressureBar( cellCentroidTvdRKB );
+                        RiaWellLogUnitTools<double>::hydrostaticPorePressureBar( cellCentroidTvdRKB );
 
                     for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
                     {
