@@ -180,6 +180,10 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
                         }
                         return RiaWellLogUnitTools::barX100UnitString();
                     }
+                    else if ( param == RigWbsParameter::DF() || param == RigWbsParameter::poissonRatio() )
+                    {
+                        return RiaWellLogUnitTools::noUnitString();
+                    }
                 }
             }
         }
