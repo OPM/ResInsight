@@ -38,6 +38,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmFieldScriptability.h"
 #include "cafPdmPtrArrayField.h"
+#include "cafPdmPtrField.h"
 #include "cafPdmScriptIOMessages.h"
 
 #include "cvfColor3.h"
@@ -124,52 +125,6 @@ struct PdmFieldScriptabilityIOHandler
                                bool            quoteNonBuiltins = false )
     {
         outputStream << fieldValue;
-    }
-};
-
-template <typename DataType>
-struct PdmFieldScriptabilityIOHandler<DataType*>
-{
-    static void writeToField( DataType*&                    fieldValue,
-                              const std::vector<DataType*>& allObjectsOfType,
-                              QTextStream&                  inputStream,
-                              PdmScriptIOMessages*          errorMessageContainer )
-    {
-        QString fieldString;
-        PdmFieldScriptabilityIOHandler<QString>::writeToField( fieldString, inputStream, errorMessageContainer, true );
-
-        if ( inputStream.status() == QTextStream::ReadCorruptData )
-        {
-            errorMessageContainer->addError( "Argument value is unreadable in the argument: \"" +
-                                             errorMessageContainer->currentArgument + "\" in the command: \"" +
-                                             errorMessageContainer->currentCommand + "\"" );
-
-            inputStream.setStatus( QTextStream::Ok );
-            return;
-        }
-
-        QStringList classAndAddress = fieldString.split( ":" );
-        CAF_ASSERT( classAndAddress.size() == 2 );
-
-        qulonglong address = classAndAddress[1].toULongLong();
-        fieldValue         = nullptr;
-        for ( DataType* object : allObjectsOfType )
-        {
-            if ( reinterpret_cast<qulonglong>( object ) == address )
-            {
-                fieldValue = object;
-                break;
-            }
-        }
-    }
-
-    static void readFromField( const DataType* fieldValue,
-                               QTextStream&    outputStream,
-                               bool            quoteStrings     = true,
-                               bool            quoteNonBuiltins = false )
-    {
-        outputStream
-            << QString( "%1:%2" ).arg( DataType::classKeywordStatic() ).arg( reinterpret_cast<uint64_t>( fieldValue ) );
     }
 };
 
@@ -379,6 +334,52 @@ struct PdmFieldScriptabilityIOHandler<std::vector<T*>>
     }
 };
 
+template <typename DataType>
+struct PdmFieldScriptabilityIOHandler<DataType*>
+{
+    static void writeToField( DataType*&                    fieldValue,
+                              const std::vector<DataType*>& allObjectsOfType,
+                              QTextStream&                  inputStream,
+                              PdmScriptIOMessages*          errorMessageContainer )
+    {
+        QString fieldString;
+        PdmFieldScriptabilityIOHandler<QString>::writeToField( fieldString, inputStream, errorMessageContainer, true );
+
+        if ( inputStream.status() == QTextStream::ReadCorruptData )
+        {
+            errorMessageContainer->addError( "Argument value is unreadable in the argument: \"" +
+                                             errorMessageContainer->currentArgument + "\" in the command: \"" +
+                                             errorMessageContainer->currentCommand + "\"" );
+
+            inputStream.setStatus( QTextStream::Ok );
+            return;
+        }
+
+        QStringList classAndAddress = fieldString.split( ":" );
+        CAF_ASSERT( classAndAddress.size() == 2 );
+
+        qulonglong address = classAndAddress[1].toULongLong();
+        fieldValue         = nullptr;
+        for ( DataType* object : allObjectsOfType )
+        {
+            if ( reinterpret_cast<qulonglong>( object ) == address )
+            {
+                fieldValue = object;
+                break;
+            }
+        }
+    }
+
+    static void readFromField( const DataType* fieldValue,
+                               QTextStream&    outputStream,
+                               bool            quoteStrings     = true,
+                               bool            quoteNonBuiltins = false )
+    {
+        outputStream
+            << QString( "%1:%2" ).arg( DataType::classKeywordStatic() ).arg( reinterpret_cast<uint64_t>( fieldValue ) );
+    }
+};
+
 //==================================================================================================
 //
 //
@@ -447,11 +448,11 @@ public:
         std::vector<DataType*> allObjectsOfType;
         existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
 
-        typename DataType* object;
-        PdmFieldScriptabilityIOHandler<typename std::vector<DataType*>>::writeToField( object,
-                                                                                       allObjectsOfType,
-                                                                                       inputStream,
-                                                                                       errorMessageContainer );
+        DataType* object;
+        PdmFieldScriptabilityIOHandler<std::vector<DataType*>>::writeToField( object,
+                                                                              allObjectsOfType,
+                                                                              inputStream,
+                                                                              errorMessageContainer );
 
         if ( this->isIOWriteable() )
         {
@@ -461,10 +462,10 @@ public:
 
     void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
     {
-        PdmFieldScriptabilityIOHandler<typename DataType*>::readFromField( m_field->value(),
-                                                                           outputStream,
-                                                                           quoteStrings,
-                                                                           quoteNonBuiltins );
+        PdmFieldScriptabilityIOHandler<DataType*>::readFromField( m_field->value(),
+                                                                  outputStream,
+                                                                  quoteStrings,
+                                                                  quoteNonBuiltins );
     }
 
 private:
@@ -492,11 +493,11 @@ public:
         std::vector<DataType*> allObjectsOfType;
         existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
 
-        typename std::vector<DataType*> objects;
-        PdmFieldScriptabilityIOHandler<typename std::vector<DataType*>>::writeToField( objects,
-                                                                                       allObjectsOfType,
-                                                                                       inputStream,
-                                                                                       errorMessageContainer );
+        std::vector<DataType*> objects;
+        PdmFieldScriptabilityIOHandler<std::vector<DataType*>>::writeToField( objects,
+                                                                              allObjectsOfType,
+                                                                              inputStream,
+                                                                              errorMessageContainer );
 
         if ( this->isIOWriteable() )
         {
@@ -506,10 +507,10 @@ public:
 
     void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
     {
-        PdmFieldScriptabilityIOHandler<typename std::vector<DataType*>>::readFromField( m_field->ptrReferencedObjects(),
-                                                                                        outputStream,
-                                                                                        quoteStrings,
-                                                                                        quoteNonBuiltins );
+        PdmFieldScriptabilityIOHandler<std::vector<DataType*>>::readFromField( m_field->ptrReferencedObjects(),
+                                                                               outputStream,
+                                                                               quoteStrings,
+                                                                               quoteNonBuiltins );
     }
 
 private:

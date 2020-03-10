@@ -6,8 +6,8 @@ set( PROJECT_FILES
      cafPdmCodeGenerator.h
      cafPdmFieldScriptability.h
      cafPdmFieldScriptability.cpp
-     cafPdmValueFieldScriptability.h
-     cafPdmValueFieldScriptability.cpp
+     cafPdmFieldIOScriptability.h
+     cafPdmFieldIOScriptability.cpp
 	 cafPdmObjectMethod.h
 	 cafPdmObjectMethod.cpp
      cafPdmObjectScriptabilityRegister.h

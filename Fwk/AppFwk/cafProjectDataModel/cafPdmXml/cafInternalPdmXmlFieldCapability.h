@@ -19,7 +19,7 @@ public:
     PdmFieldXmlCap(FieldType* field, bool giveOwnership) : PdmXmlFieldHandle(field, giveOwnership)
     {
         m_field = field;
-        m_dataTypeName = QString("%1").arg(typeid(FieldType::FieldDataType).name());
+        m_dataTypeName = QString("%1").arg(typeid(typename FieldType::FieldDataType).name());
     }
 
     // Xml Serializing
