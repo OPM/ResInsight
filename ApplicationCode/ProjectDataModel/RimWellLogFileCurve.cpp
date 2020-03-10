@@ -439,7 +439,7 @@ QString RimWellLogFileCurve::wellLogChannelUnits() const
     {
         return m_wellLogFile->wellLogFileData()->wellLogChannelUnitString( m_wellLogChannelName );
     }
-    return RiaWellLogUnitTools::noUnitString();
+    return RiaWellLogUnitTools<double>::noUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -178,16 +178,16 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
                         {
                             if ( isValid( value ) ) value /= 100.0;
                         }
-                        return RiaWellLogUnitTools::barX100UnitString();
+                        return RiaWellLogUnitTools<double>::barX100UnitString();
                     }
                     else if ( param == RigWbsParameter::DF() || param == RigWbsParameter::poissonRatio() )
                     {
-                        return RiaWellLogUnitTools::noUnitString();
+                        return RiaWellLogUnitTools<double>::noUnitString();
                     }
                 }
             }
         }
-        return RiaWellLogUnitTools::sg_emwUnitString();
+        return RiaWellLogUnitTools<double>::sg_emwUnitString();
     }
     else if ( resAddr.isValid() )
     {
@@ -215,7 +215,7 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
             }
         }
     }
-    return RiaWellLogUnitTools::barUnitString();
+    return RiaWellLogUnitTools<double>::barUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,11 +268,23 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
     const std::vector<std::pair<double, double>>& lasFileValues    = m_lasFileValues.at( parameter );
     const double&                                 userDefinedValue = m_userDefinedValues.at( parameter );
 
-    const std::vector<float>* elementPropertyValues = nullptr;
+    std::vector<float> elementPropertyValues;
     if ( std::find( allSources.begin(), allSources.end(), RigWbsParameter::ELEMENT_PROPERTY_TABLE ) != allSources.end() )
     {
+        const std::vector<float>* elementPropertyValuesInput = nullptr;
+
+        std::vector<float> tvdRKBs;
+        for ( double tvdValue : m_intersectionTVDs )
+        {
+            tvdRKBs.push_back( tvdValue + m_wellPath->rkbDiff() );
+        }
         RigFemResultAddress elementPropertyAddr = parameter.femAddress( RigWbsParameter::ELEMENT_PROPERTY_TABLE );
-        elementPropertyValues = &( resultCollection->resultValues( elementPropertyAddr, 0, frameIndex ) );
+        elementPropertyValuesInput = &( resultCollection->resultValues( elementPropertyAddr, 0, frameIndex ) );
+        RiaWellLogUnitTools<float>::convertValues( tvdRKBs,
+                                                   *elementPropertyValuesInput,
+                                                   &elementPropertyValues,
+                                                   parameter.units( RigWbsParameter::ELEMENT_PROPERTY_TABLE ),
+                                                   parameterInputUnits( parameter ) );
     }
 
     std::vector<double> unscaledValues( m_intersections.size(), std::numeric_limits<double>::infinity() );
@@ -310,11 +322,11 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
             }
             else if ( *it == RigWbsParameter::ELEMENT_PROPERTY_TABLE ) // Priority 2: Element property table value
             {
-                CVF_ASSERT( elementPropertyValues );
+                CVF_ASSERT( !elementPropertyValues.empty() );
                 size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
-                if ( elmIdx < elementPropertyValues->size() )
+                if ( elmIdx < elementPropertyValues.size() )
                 {
-                    unscaledValues[intersectionIdx]         = ( *elementPropertyValues )[elmIdx];
+                    unscaledValues[intersectionIdx]         = elementPropertyValues[elmIdx];
                     finalSourcesPerSegment[intersectionIdx] = RigWbsParameter::ELEMENT_PROPERTY_TABLE;
                     break;
                 }
@@ -767,17 +779,17 @@ QString RigGeoMechWellLogExtractor::parameterInputUnits( const RigWbsParameter& 
     if ( parameter == RigWbsParameter::PP_NonReservoir() || parameter == RigWbsParameter::PP_Reservoir() ||
          parameter == RigWbsParameter::UCS() )
     {
-        return RiaWellLogUnitTools::barUnitString();
+        return RiaWellLogUnitTools<double>::barUnitString();
     }
     else if ( parameter == RigWbsParameter::poissonRatio() || parameter == RigWbsParameter::DF() )
     {
-        return RiaWellLogUnitTools::noUnitString();
+        return RiaWellLogUnitTools<double>::noUnitString();
     }
     else if ( parameter == RigWbsParameter::waterDensity() )
     {
-        return RiaWellLogUnitTools::gPerCm3UnitString();
+        return RiaWellLogUnitTools<double>::gPerCm3UnitString();
     }
-    return RiaWellLogUnitTools::sg_emwUnitString();
+    return RiaWellLogUnitTools<double>::sg_emwUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------
