@@ -91,7 +91,7 @@ void RiuWellLogPlot::reinsertScrollbar()
     int                               rowCount    = this->m_gridLayout->rowCount();
     int                               colCount    = this->m_gridLayout->columnCount();
 
-    m_gridLayout->addLayout( m_trackScrollBarLayout, 2, colCount, rowCount * 2 - 1, 1 );
+    m_gridLayout->addLayout( m_trackScrollBarLayout, 2, colCount, 1, 1 );
     m_trackScrollBar->setVisible( !plotWidgets.empty() );
     m_gridLayout->setColumnStretch( colCount, 0 );
 }
