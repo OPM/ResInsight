@@ -1737,7 +1737,7 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 
             {
                 out << "+++ \n";
-                out << "title =  \"Class Documentation\" \n";
+                out << "title =  \"Python Classes\" \n";
                 out << "published = true \n";
                 out << "weight = 42 \n";
                 out << "+++ \n";
@@ -1759,7 +1759,7 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 
             {
                 out << "+++ \n";
-                out << "title =  \"Command Object Documentation\" \n";
+                out << "title =  \"Command Reference\" \n";
                 out << "published = true \n";
                 out << "weight = 43 \n";
                 out << "+++ \n";
@@ -1767,12 +1767,17 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 
             std::vector<std::shared_ptr<const caf::PdmObject>> commandObjects;
 
+            QStringList excludedClassNames{"TestCommand1", "TC2"}; // See RifCommandCore-Text.cpp
+
             auto allObjects = caf::PdmMarkdownBuilder::createAllObjects( caf::PdmDefaultObjectFactory::instance() );
             for ( auto classObject : allObjects )
             {
                 if ( dynamic_cast<const RicfCommandObject*>( classObject.get() ) )
                 {
-                    commandObjects.push_back( classObject );
+                    if ( !excludedClassNames.contains( classObject->classKeyword(), Qt::CaseInsensitive ) )
+                    {
+                        commandObjects.push_back( classObject );
+                    }
                 }
             }
 
