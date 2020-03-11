@@ -25,11 +25,13 @@
 
 class RigWellPath;
 
+template <typename FloatType>
 class RiaWellLogUnitTools
 {
 public:
-    static const double GRAVITY_ACCEL;
-    static const double UNIT_WEIGHT_OF_WATER;
+    static const FloatType gravityAcceleration();
+    static const FloatType unitWeightOfWater();
+    static bool            stringsMatch( const QString& lhs, const QString& rhs );
 
     static QString noUnitString();
     static QString sg_emwUnitString();
@@ -39,35 +41,38 @@ public:
     static QString gPerCm3UnitString();
     static QString kgPerM3UnitString();
     static QString pascalUnitString();
+    static QString pascalUnitStringShort();
 
 public:
-    static std::vector<double> convertDepths( const std::vector<double>& depthsIn,
-                                              RiaDefines::DepthUnitType  unitsIn,
-                                              RiaDefines::DepthUnitType  unitsOut );
-    static bool                convertValues( const std::vector<double>& tvdRKBs,
-                                              const std::vector<double>& valuesIn,
-                                              std::vector<double>*       valuesOut,
-                                              const QString&             unitsIn,
-                                              const QString&             unitsOut );
-    static bool                convertValues( std::vector<std::pair<double, double>>* measuredDepthsAndValues,
-                                              const QString&                          unitsIn,
-                                              const QString&                          unitsOut,
-                                              const RigWellPath*                      wellPath );
+    static std::vector<FloatType> convertDepths( const std::vector<FloatType>& depthsIn,
+                                                 RiaDefines::DepthUnitType     unitsIn,
+                                                 RiaDefines::DepthUnitType     unitsOut );
+    static bool                   convertValues( const std::vector<FloatType>& tvdRKBs,
+                                                 const std::vector<FloatType>& valuesIn,
+                                                 std::vector<FloatType>*       valuesOut,
+                                                 const QString&                unitsIn,
+                                                 const QString&                unitsOut );
+    static bool                   convertValues( std::vector<std::pair<FloatType, FloatType>>* measuredDepthsAndValues,
+                                                 const QString&                                unitsIn,
+                                                 const QString&                                unitsOut,
+                                                 const RigWellPath*                            wellPath );
 
-    static std::vector<double> tvdRKBs( const std::vector<double>& measuredDepths, const RigWellPath* wellPath );
+    static std::vector<FloatType> tvdRKBs( const std::vector<FloatType>& measuredDepths, const RigWellPath* wellPath );
 
     // Supported conversions
-    static std::vector<double> convertGpcm3ToBar( const std::vector<double>& tvdRKBs,
-                                                  const std::vector<double>& valuesInGpcm3 );
-    static std::vector<double> convertBarToGpcm3( const std::vector<double>& tvdRKBs,
-                                                  const std::vector<double>& valuesInBar );
+    static std::vector<FloatType> convertGpcm3ToBar( const std::vector<FloatType>& tvdRKBs,
+                                                     const std::vector<FloatType>& valuesInGpcm3 );
+    static std::vector<FloatType> convertBarToGpcm3( const std::vector<FloatType>& tvdRKBs,
+                                                     const std::vector<FloatType>& valuesInBar );
 
-    static std::vector<double> convertNormalizedByPPToBar( const std::vector<double>& tvdRKBs,
-                                                           const std::vector<double>& valuesInBar );
-    static std::vector<double> convertBarToNormalizedByPP( const std::vector<double>& tvdRKBs,
-                                                           const std::vector<double>& valuesInBar );
-    static std::vector<double> multiply( const std::vector<double>& values, double factor );
-    static double              pascalPerBar();
-    static double              MPaPerBar();
-    static double              hydrostaticPorePressureBar( double tvdRKB );
+    static std::vector<FloatType> convertNormalizedByPPToBar( const std::vector<FloatType>& tvdRKBs,
+                                                              const std::vector<FloatType>& valuesInBar );
+    static std::vector<FloatType> convertBarToNormalizedByPP( const std::vector<FloatType>& tvdRKBs,
+                                                              const std::vector<FloatType>& valuesInBar );
+    static std::vector<FloatType> multiply( const std::vector<FloatType>& values, FloatType factor );
+    static FloatType              pascalPerBar();
+    static FloatType              MPaPerBar();
+    static FloatType              hydrostaticPorePressureBar( FloatType tvdRKB );
 };
+
+#include "RiaWellLogUnitTools.inl"
