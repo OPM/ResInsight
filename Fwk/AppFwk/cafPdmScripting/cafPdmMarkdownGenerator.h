@@ -59,10 +59,6 @@ class PdmMarkdownGenerator : public PdmCodeGenerator
 
 public:
     QString generate( PdmObjectFactory* factory ) const override;
-
-private:
-    QString generateDocDataModelObjects( std::vector<std::shared_ptr<const PdmObject>>& dataModelObjects ) const;
-    QString generateDocCommandObjects( std::vector<std::shared_ptr<const PdmObject>>& commandObjects ) const;
 };
 
 } // namespace caf

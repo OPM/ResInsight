@@ -34,38 +34,30 @@
 //
 //##################################################################################################
 
-#include "cafPdmMarkdownGenerator.h"
+#pragma once
 
-#include "cafPdmMarkdownBuilder.h"
-#include "cafPdmObjectScriptabilityRegister.h"
+#include "cafPdmObject.h"
 
-using namespace caf;
-
-CAF_PDM_CODE_GENERATOR_SOURCE_INIT( PdmMarkdownGenerator, "md" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString caf::PdmMarkdownGenerator::generate( PdmObjectFactory* factory ) const
+namespace caf
 {
-    QString     generatedCode;
-    QTextStream out( &generatedCode );
+//==================================================================================================
+///
+//==================================================================================================
+class PdmMarkdownBuilder
+{
+public:
+    static QString generateDocCommandObjects( std::vector<std::shared_ptr<const PdmObject>>& commandObjects );
+    static QString generateDocDataModelObjects( std::vector<std::shared_ptr<const PdmObject>>& dataModelObjects );
 
-    std::vector<QString> classKeywords = factory->classKeywords();
+    static std::vector<std::shared_ptr<const PdmObject>> createAllObjects( caf::PdmObjectFactory* factory );
 
-    std::vector<std::shared_ptr<const PdmObject>> scriptableObjects;
-
+private:
+    struct AttributeItem
     {
-        std::vector<std::shared_ptr<const PdmObject>> allObjects = caf::PdmMarkdownBuilder::createAllObjects( factory );
-        for ( auto obj : allObjects )
-        {
-            if ( PdmObjectScriptabilityRegister::isScriptable( obj.get() ) )
-            {
-                scriptableObjects.push_back( obj );
-            }
-        }
-    }
-    out << caf::PdmMarkdownBuilder::generateDocDataModelObjects( scriptableObjects );
+        QString name;
+        QString description;
+        QString type;
+    };
+};
 
-    return generatedCode;
-}
+} // namespace caf

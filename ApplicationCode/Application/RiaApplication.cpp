@@ -35,6 +35,7 @@
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicfCommandFileExecutor.h"
+#include "RicfCommandObject.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
@@ -95,6 +96,8 @@
 #include "cafPdmCodeGenerator.h"
 #include "cafPdmDataValueField.h"
 #include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmMarkdownBuilder.h"
+#include "cafPdmMarkdownGenerator.h"
 #include "cafPdmScriptIOMessages.h"
 #include "cafPdmSettings.h"
 #include "cafPdmUiModelChangeDetector.h"
@@ -1704,14 +1707,6 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 {
     CAF_ASSERT( errMsg );
 
-    QFile outputFile( fileName );
-    if ( !outputFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
-    {
-        *errMsg = QString( "Could not open file %1 for writing" ).arg( fileName );
-        return false;
-    }
-    QTextStream out( &outputFile );
-
     std::string fileExt = QFileInfo( fileName ).suffix().toStdString();
 
     std::unique_ptr<caf::PdmCodeGenerator> generator( caf::PdmCodeGeneratorFactory::instance()->create( fileExt ) );
@@ -1720,6 +1715,82 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
         *errMsg = QString( "No code generator matches the provided file extension" );
         return false;
     }
-    out << generator->generate( caf::PdmDefaultObjectFactory::instance() );
+
+    auto markdownGenerator = dynamic_cast<caf::PdmMarkdownGenerator*>( generator.get() );
+    if ( markdownGenerator )
+    {
+        QFileInfo fi( fileName );
+        QDir      dir( fi.absoluteDir() );
+
+        QString baseName = fi.baseName();
+
+        {
+            QString outputFileName = dir.absoluteFilePath( baseName + "_class.md" );
+
+            QFile outputFile( outputFileName );
+            if ( !outputFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+            {
+                *errMsg = QString( "Could not open file %1 for writing" ).arg( outputFileName );
+                return false;
+            }
+            QTextStream out( &outputFile );
+
+            {
+                out << "+++ \n";
+                out << "title =  \"Class Documentation\" \n";
+                out << "published = true \n";
+                out << "weight = 42 \n";
+                out << "+++ \n";
+            }
+
+            out << generator->generate( caf::PdmDefaultObjectFactory::instance() );
+        }
+
+        {
+            QString outputFileName = dir.absoluteFilePath( baseName + "_commands.md" );
+
+            QFile outputFile( outputFileName );
+            if ( !outputFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+            {
+                *errMsg = QString( "Could not open file %1 for writing" ).arg( outputFileName );
+                return false;
+            }
+            QTextStream out( &outputFile );
+
+            {
+                out << "+++ \n";
+                out << "title =  \"Command Object Documentation\" \n";
+                out << "published = true \n";
+                out << "weight = 43 \n";
+                out << "+++ \n";
+            }
+
+            std::vector<std::shared_ptr<const caf::PdmObject>> commandObjects;
+
+            auto allObjects = caf::PdmMarkdownBuilder::createAllObjects( caf::PdmDefaultObjectFactory::instance() );
+            for ( auto classObject : allObjects )
+            {
+                if ( dynamic_cast<const RicfCommandObject*>( classObject.get() ) )
+                {
+                    commandObjects.push_back( classObject );
+                }
+            }
+
+            out << caf::PdmMarkdownBuilder::generateDocCommandObjects( commandObjects );
+        }
+    }
+    else
+    {
+        QFile outputFile( fileName );
+        if ( !outputFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+        {
+            *errMsg = QString( "Could not open file %1 for writing" ).arg( fileName );
+            return false;
+        }
+        QTextStream out( &outputFile );
+
+        out << generator->generate( caf::PdmDefaultObjectFactory::instance() );
+    }
+
     return true;
 }

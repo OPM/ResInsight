@@ -22,6 +22,8 @@ set( PROJECT_FILES
      cafPdmScriptResponse.cpp
      cafPdmMarkdownGenerator.h
      cafPdmMarkdownGenerator.cpp
+     cafPdmMarkdownBuilder.h
+     cafPdmMarkdownBuilder.cpp
 )
 
 
