@@ -1737,10 +1737,16 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 
             {
                 out << "+++ \n";
-                out << "title =  \"Python Classes\" \n";
+                out << "title =  \"Python Classes (BETA)\" \n";
                 out << "published = true \n";
-                out << "weight = 42 \n";
+                out << "weight = 95 \n";
                 out << "+++ \n";
+
+                out << "# Introduction\n\n";
+                out << "As the Python interface is growing release by release, we are investigating how to automate "
+                       "the building of documentation. This document shows the inheritance relationship between "
+                       "objects derived from **PdmObject**. The **PdmObject** is the base object for all "
+                       "objects automatically created based on the data model in ResInsight.";
             }
 
             out << generator->generate( caf::PdmDefaultObjectFactory::instance() );
@@ -1759,10 +1765,21 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 
             {
                 out << "+++ \n";
-                out << "title =  \"Command Reference\" \n";
+                out << "title =  \"Command Reference (BETA)\" \n";
                 out << "published = true \n";
-                out << "weight = 43 \n";
+                out << "weight = 96 \n";
                 out << "+++ \n";
+
+                out << "# Introduction\n\n";
+                out << "As the Python interface is growing release by release, we are investigating how to automate "
+                       "the building of reference documentation. This document is not complete, but will improve as "
+                       "the automation "
+                       "moves forward.\n";
+
+                out << "## Currently missing features\n\n";
+                out << " - Description of enums\n";
+                out << " - Description of return values/classes\n";
+                out << " - Description of each object\n";
             }
 
             std::vector<std::shared_ptr<const caf::PdmObject>> commandObjects;
