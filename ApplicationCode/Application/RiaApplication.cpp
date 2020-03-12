@@ -1709,6 +1709,12 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 
     std::string fileExt = QFileInfo( fileName ).suffix().toStdString();
 
+    {
+        // TODO: Manually instantiate the markdown generator until cmake issues are fixed
+        // This will make sure the markdown generator is registered in the factory in the cafPdmScripting library
+        caf::PdmMarkdownGenerator testObj;
+    }
+
     std::unique_ptr<caf::PdmCodeGenerator> generator( caf::PdmCodeGeneratorFactory::instance()->create( fileExt ) );
     if ( !generator )
     {
