@@ -432,6 +432,9 @@ if (RESINSIGHT_INCLUDE_APPFWK_TESTS)
     add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
     set_property(TARGET cafPdmXml_UnitTests PROPERTY FOLDER "AppFwkTests")
 
+    add_subdirectory(Fwk/AppFwk/cafPdmScripting/cafPdmScripting_UnitTests)
+    set_property(TARGET cafPdmScripting_UnitTests PROPERTY FOLDER "AppFwkTests")
+
     # Executables
     add_subdirectory(Fwk/AppFwk/cafTests/cafTestApplication)
     set_property(TARGET cafTestApplication PROPERTY FOLDER "AppFwkTests")
