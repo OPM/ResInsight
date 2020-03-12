@@ -228,6 +228,7 @@ def time_steps(self):
 @add_method(Case)
 def reservoir_boundingbox(self):
     """Get the reservoir bounding box
+
         Returns: A class with six double members: min_x, max_x, min_y, max_y, min_z, max_z
     """
     return self.__case_stub.GetReservoirBoundingBox(self.__request())
@@ -235,7 +236,8 @@ def reservoir_boundingbox(self):
 @add_method(Case)
 def reservoir_depth_range(self):
     """Get the reservoir depth range
-        Returns: A tuple with two members. The first is the minimum depth, the second is the maximum depth
+        
+    Returns: A tuple with two members. The first is the minimum depth, the second is the maximum depth
     """
     bbox = self.reservoir_boundingbox()
     return -bbox.max_z, -bbox.min_z
@@ -865,7 +867,7 @@ def simulation_wells(self):
     """Get a list of all simulation wells for a case
 
     Returns:
-        A list of rips SimulationWell objects
+        A list of rips **SimulationWell** objects
     """
     wells = self.descendants(SimulationWell)
     return wells
@@ -947,6 +949,7 @@ def active_cell_corners(
 @add_method(Case)
 def selected_cells_async(self):
     """Get the selected cells. Async, so returns an iterator.
+    
         Returns:
             An iterator to a chunk object containing an array of cells.
             Loop through the chunks and then the cells within the chunk to get all cells.
@@ -986,6 +989,7 @@ def available_nnc_properties(self):
 @add_method(Case)
 def nnc_connections_async(self):
     """Get the NNC connections. Async, so returns an iterator.
+
         Returns:
             An iterator to a chunk object containing an array NNCConnection objects.
             Loop through the chunks and then the connection within the chunk to get all connections.
@@ -1026,6 +1030,7 @@ def __nnc_values_generator_to_list(self, generator):
 @add_method(Case)
 def nnc_connections_static_values_async(self, property_name):
     """Get the static NNC values. Async, so returns an iterator.
+    
         Returns:
             An iterator to a chunk object containing an list of doubles.
             Loop through the chunks and then the values within the chunk to get values
@@ -1038,6 +1043,7 @@ def nnc_connections_static_values_async(self, property_name):
 @add_method(Case)
 def nnc_connections_static_values(self, property_name):
     """Get the static NNC values.
+    
         Returns:
             A list of doubles. The order of the list matches the list from
             nnc_connections, i.e. the nth object of nnc_connections() refers to nth
@@ -1049,6 +1055,7 @@ def nnc_connections_static_values(self, property_name):
 @add_method(Case)
 def nnc_connections_dynamic_values_async(self, property_name, time_step):
     """Get the dynamic NNC values. Async, so returns an iterator.
+    
         Returns:
             An iterator to a chunk object containing an list of doubles.
             Loop through the chunks and then the values within the chunk to get values
@@ -1061,6 +1068,7 @@ def nnc_connections_dynamic_values_async(self, property_name, time_step):
 @add_method(Case)
 def nnc_connections_dynamic_values(self, property_name, time_step):
     """Get the dynamic NNC values.
+    
         Returns:
             A list of doubles. The order of the list matches the list from
             nnc_connections, i.e. the nth object of nnc_connections() refers to nth
@@ -1072,6 +1080,7 @@ def nnc_connections_dynamic_values(self, property_name, time_step):
 @add_method(Case)
 def nnc_connections_generated_values_async(self, property_name, time_step):
     """Get the generated NNC values. Async, so returns an iterator.
+    
         Returns:
             An iterator to a chunk object containing an list of doubles.
             Loop through the chunks and then the values within the chunk to get values
@@ -1084,6 +1093,7 @@ def nnc_connections_generated_values_async(self, property_name, time_step):
 @add_method(Case)
 def nnc_connections_generated_values(self, property_name, time_step):
     """Get the generated NNC values.
+    
         Returns:
             A list of doubles. The order of the list matches the list from
             nnc_connections, i.e. the nth object of nnc_connections() refers to nth
