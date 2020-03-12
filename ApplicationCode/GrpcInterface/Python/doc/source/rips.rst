@@ -28,7 +28,10 @@ Example
 Contour Map Module
 ==================
 
-.. autoclass:: rips.contour_map.ContourMap
+.. autoclass:: rips.contour_map.EclipseContourMap
+    :members:
+
+.. autoclass:: rips.contour_map.GeoMechContourMap
     :members:
 
 Grid Module
@@ -57,6 +60,12 @@ GridCaseGroup Module
     :members:
 
 
+Plot Module
+==============
+
+.. autoclass:: rips.project.Plot
+    :members:
+
 Project Module
 ==============
 
@@ -64,12 +73,19 @@ Project Module
     :members:
 
 
+Simulation Well Module
+======================
+
+.. autoclass:: rips.simulation_well.SimulationWell
+    :members:
+
 View Module
 ===========
 
 .. autoclass:: rips.view.View
     :members:
 
+    
 Synchronous Example
 -------------------
 Read two properties, multiply them together and push the results back to ResInsight in a naïve way, by reading PORO into a list, then reading PERMX into a list, then multiplying them both in a resulting list and finally transferring back the list.
