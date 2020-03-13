@@ -7,7 +7,5 @@ project = resinsight.project
 
 summary_cases = project.descendants(rips.SummaryCase)
 summary_plot_collection = project.descendants(rips.SummaryPlotCollection)[0]
-
-
-
-summary_plot = summary_plot_collection.new_summary_plot(summary_cases=summary_cases)
+if len(summary_cases) > 0:    
+    summary_plot = summary_plot_collection.new_summary_plot(summary_cases=summary_cases, address="FOP*")

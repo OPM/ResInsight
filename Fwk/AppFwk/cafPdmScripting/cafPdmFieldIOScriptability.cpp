@@ -109,7 +109,10 @@ void PdmFieldScriptabilityIOHandler<QString>::writeToField( QString&            
         // Could interpret as unquoted text
     }
 
-    fieldValue = accumulatedFieldValue;
+    if ( accumulatedFieldValue != "None" )
+    {
+        fieldValue = accumulatedFieldValue;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,7 +21,6 @@
 #include "RicfCommandObject.h"
 
 #include "cafCmdFeature.h"
-#include "cafPdmPtrArrayField.h"
 
 class RimSummaryPlotCollection;
 class RimSummaryCase;
@@ -58,22 +57,4 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-};
-
-//==================================================================================================
-///
-//==================================================================================================
-class RimSummaryPlotCollection_newSummaryPlot : public caf::PdmObjectMethod
-{
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimSummaryPlotCollection_newSummaryPlot( caf::PdmObjectHandle* self );
-
-    caf::PdmObjectHandle* execute();
-    bool                  deleteObjectAfterReply() const override;
-
-private:
-    caf::PdmPtrArrayField<RimSummaryCase*>           m_summaryCases;
-    caf::PdmPtrArrayField<RimSummaryCaseCollection*> m_ensembles;
 };

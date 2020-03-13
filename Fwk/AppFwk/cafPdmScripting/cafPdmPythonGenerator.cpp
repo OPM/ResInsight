@@ -251,6 +251,12 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                         QStringList argumentComments;
 
                         outputArgumentStrings.push_back( QString( "\"%1\"" ).arg( methodName ) );
+                        QString returnComment( "Data object" );
+                        if ( method->resultIsPersistent() )
+                        {
+                            returnComment = method->defaultResult()->xmlCapability()->classKeyword();
+                        }
+
                         for ( auto field : arguments )
                         {
                             bool    isList        = field->xmlCapability()->isVectorField();
@@ -266,10 +272,11 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                                                             .arg( dataType )
                                                             .arg( field->uiCapability()->uiWhatsThis() ) );
                         }
-                        QString fullComment =
-                            QString( "        \"\"\"\n        %1\n        Arguments:\n            %2\n        \"\"\"" )
-                                .arg( methodComment )
-                                .arg( argumentComments.join( "\n            " ) );
+                        QString fullComment = QString( "        \"\"\"\n        %1\n        Arguments:\n            "
+                                                       "%2\n        Returns:\n            %3\n        \"\"\"" )
+                                                  .arg( methodComment )
+                                                  .arg( argumentComments.join( "\n            " ) )
+                                                  .arg( returnComment );
 
                         QString methodCode = QString( "    def %1(self, %2):\n%3\n        return "
                                                       "self._call_pdm_method(%4)\n" )
