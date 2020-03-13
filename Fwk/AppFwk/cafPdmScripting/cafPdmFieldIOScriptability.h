@@ -41,8 +41,6 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmScriptIOMessages.h"
 
-#include "cvfColor3.h"
-
 #include <QString>
 #include <QStringList>
 #include <QTextStream>
@@ -152,19 +150,6 @@ struct PdmFieldScriptabilityIOHandler<bool>
                                QTextStream& outputStream,
                                bool         quoteStrings     = true,
                                bool         quoteNonBuiltins = false );
-};
-
-template <>
-struct PdmFieldScriptabilityIOHandler<cvf::Color3f>
-{
-    static void writeToField( cvf::Color3f&        fieldValue,
-                              QTextStream&         inputStream,
-                              PdmScriptIOMessages* errorMessageContainer,
-                              bool                 stringsAreQuoted = true );
-    static void readFromField( const cvf::Color3f& fieldValue,
-                               QTextStream&        outputStream,
-                               bool                quoteStrings     = true,
-                               bool                quoteNonBuiltins = false );
 };
 
 template <typename T>

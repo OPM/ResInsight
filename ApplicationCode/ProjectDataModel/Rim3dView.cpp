@@ -52,6 +52,7 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldIOScriptabilityCvfColor3.h"
 
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
