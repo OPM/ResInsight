@@ -528,7 +528,7 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
 
             caf::PdmObjectHandle* result = method->execute();
             copyPdmObjectFromCafToRips( result, reply );
-            if ( method->deleteObjectAfterReply() )
+            if ( !method->resultIsPersistent() )
             {
                 delete result;
             }
