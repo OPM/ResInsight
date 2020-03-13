@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <QPointF>
 #include <QString>
 #include <QVector>
 
