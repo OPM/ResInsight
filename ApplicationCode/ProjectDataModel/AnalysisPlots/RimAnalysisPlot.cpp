@@ -118,7 +118,7 @@ CAF_PDM_SOURCE_INIT( RimAnalysisPlot, "AnalysisPlot" );
 RimAnalysisPlot::RimAnalysisPlot()
     : RimPlot()
 {
-    CAF_PDM_InitObject( "Analysis Plot", ":/Histogram16x16.png", "", "" );
+    CAF_PDM_InitObject( "Analysis Plot", ":/AnalysisPlot16x16.png", "", "" );
 
     // Variable selection
 
