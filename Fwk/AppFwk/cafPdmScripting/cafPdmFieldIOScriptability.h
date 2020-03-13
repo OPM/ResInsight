@@ -342,6 +342,8 @@ struct PdmFieldScriptabilityIOHandler<DataType*>
                               QTextStream&                  inputStream,
                               PdmScriptIOMessages*          errorMessageContainer )
     {
+        fieldValue = nullptr; // Default initialized to nullptr
+
         QString fieldString;
         PdmFieldScriptabilityIOHandler<QString>::writeToField( fieldString, inputStream, errorMessageContainer, true );
 
@@ -355,11 +357,12 @@ struct PdmFieldScriptabilityIOHandler<DataType*>
             return;
         }
 
+        if ( fieldString.isEmpty() ) return;
+
         QStringList classAndAddress = fieldString.split( ":" );
         CAF_ASSERT( classAndAddress.size() == 2 );
 
         qulonglong address = classAndAddress[1].toULongLong();
-        fieldValue         = nullptr;
         for ( DataType* object : allObjectsOfType )
         {
             if ( reinterpret_cast<qulonglong>( object ) == address )
@@ -448,13 +451,10 @@ public:
         std::vector<DataType*> allObjectsOfType;
         existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
 
-        DataType* object;
-        PdmFieldScriptabilityIOHandler<std::vector<DataType*>>::writeToField( object,
-                                                                              allObjectsOfType,
-                                                                              inputStream,
-                                                                              errorMessageContainer );
+        DataType* object = nullptr;
+        PdmFieldScriptabilityIOHandler<DataType*>::writeToField( object, allObjectsOfType, inputStream, errorMessageContainer );
 
-        if ( this->isIOWriteable() )
+        if ( object && this->isIOWriteable() )
         {
             m_field->setValue( object );
         }

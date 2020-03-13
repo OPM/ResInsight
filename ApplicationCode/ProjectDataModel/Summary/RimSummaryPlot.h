@@ -29,6 +29,7 @@
 #include "qwt_plot_textlabel.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
 #include <QPointer>

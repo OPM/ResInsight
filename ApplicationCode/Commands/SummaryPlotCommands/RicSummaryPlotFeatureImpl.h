@@ -19,6 +19,8 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include <QString>
+
 #include <set>
 #include <vector>
 
@@ -30,6 +32,7 @@ class PdmObject;
 class RimSummaryCurve;
 class RimSummaryPlot;
 class RimSummaryCase;
+class RimSummaryCaseCollection;
 class RimSummaryPlotCollection;
 
 class QStringList;
@@ -37,12 +40,38 @@ class QStringList;
 class RicSummaryPlotFeatureImpl
 {
 public:
+    enum class EnsembleColoringType
+    {
+        SINGLE_COLOR,
+        PARAMETER,
+        LOG_PARAMETER,
+        NONE
+    };
+
     static RimSummaryCurve*              addDefaultCurveToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase );
     static std::vector<RimSummaryCurve*> addDefaultCurvesToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase );
     static void ensureAtLeastOnePlot( RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase );
     static caf::PdmObject* createDefaultSummaryPlot( RimSummaryCase* summaryCase );
 
     static void createSummaryPlotsFromArgumentLine( const QStringList& arguments );
+
+    static RimSummaryPlot*
+        createSummaryPlotFromAddresses( RimSummaryPlotCollection*           sumPlotColl,
+                                        const std::vector<RimSummaryCase*>& summaryCasesToUse,
+                                        RimSummaryCaseCollection*           ensemble,
+                                        QStringList                         summaryAddressFilters,
+                                        bool                                addHistoryCurves = false,
+                                        EnsembleColoringType ensembleColoringStyle     = EnsembleColoringType::NONE,
+                                        QString              ensembleColoringParameter = "" );
+
+    static std::vector<RimSummaryPlot*>
+        createMultipleSummaryPlotsFromAddresses( RimSummaryPlotCollection*           sumPlotColl,
+                                                 const std::vector<RimSummaryCase*>& summaryCasesToUse,
+                                                 RimSummaryCaseCollection*           ensemble,
+                                                 QStringList                         summaryAddressFilters,
+                                                 bool                                addHistoryCurves = false,
+                                                 EnsembleColoringType ensembleColoringStyle = EnsembleColoringType::NONE,
+                                                 QString              ensembleColoringParameter = "" );
 
     static void filteredSummaryAdressesFromCase( const QStringList&                        curveFilters,
                                                  const std::set<RifEclipseSummaryAddress>& allAddressesInCase,

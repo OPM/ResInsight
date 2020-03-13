@@ -88,7 +88,6 @@ void RiuWellLogPlot::reinsertScrollbar()
 {
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets = this->visiblePlotWidgets();
     QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
-    int                               rowCount    = this->m_gridLayout->rowCount();
     int                               colCount    = this->m_gridLayout->columnCount();
 
     m_gridLayout->addLayout( m_trackScrollBarLayout, 2, colCount, 1, 1 );
