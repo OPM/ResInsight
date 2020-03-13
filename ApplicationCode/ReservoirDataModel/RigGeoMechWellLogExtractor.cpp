@@ -280,11 +280,14 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         }
         RigFemResultAddress elementPropertyAddr = parameter.femAddress( RigWbsParameter::ELEMENT_PROPERTY_TABLE );
         elementPropertyValuesInput = &( resultCollection->resultValues( elementPropertyAddr, 0, frameIndex ) );
-        RiaWellLogUnitTools<float>::convertValues( tvdRKBs,
-                                                   *elementPropertyValuesInput,
-                                                   &elementPropertyValues,
-                                                   parameter.units( RigWbsParameter::ELEMENT_PROPERTY_TABLE ),
-                                                   parameterInputUnits( parameter ) );
+        if ( elementPropertyValuesInput )
+        {
+            RiaWellLogUnitTools<float>::convertValues( tvdRKBs,
+                                                       *elementPropertyValuesInput,
+                                                       &elementPropertyValues,
+                                                       parameter.units( RigWbsParameter::ELEMENT_PROPERTY_TABLE ),
+                                                       parameterInputUnits( parameter ) );
+        }
     }
 
     std::vector<double> unscaledValues( m_intersections.size(), std::numeric_limits<double>::infinity() );
@@ -322,13 +325,15 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
             }
             else if ( *it == RigWbsParameter::ELEMENT_PROPERTY_TABLE ) // Priority 2: Element property table value
             {
-                CVF_ASSERT( !elementPropertyValues.empty() );
-                size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
-                if ( elmIdx < elementPropertyValues.size() )
+                if ( !elementPropertyValues.empty() )
                 {
-                    unscaledValues[intersectionIdx]         = elementPropertyValues[elmIdx];
-                    finalSourcesPerSegment[intersectionIdx] = RigWbsParameter::ELEMENT_PROPERTY_TABLE;
-                    break;
+                    size_t elmIdx = m_intersectedCellsGlobIdx[intersectionIdx];
+                    if ( elmIdx < elementPropertyValues.size() )
+                    {
+                        unscaledValues[intersectionIdx]         = elementPropertyValues[elmIdx];
+                        finalSourcesPerSegment[intersectionIdx] = RigWbsParameter::ELEMENT_PROPERTY_TABLE;
+                        break;
+                    }
                 }
             }
             else if ( *it == RigWbsParameter::HYDROSTATIC && isPPresult )
