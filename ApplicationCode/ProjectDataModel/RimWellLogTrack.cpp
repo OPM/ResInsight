@@ -784,28 +784,54 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
         curvesPlotXValues.push_back( xPlotValues );
     }
 
-    for ( size_t i = 0; i < curveDepths.size(); ++i )
-    {
-        if ( i == 0 )
-        {
-            if ( depthType == RiaDefines::CONNECTION_NUMBER )
-                out += "Connection";
-            else if ( depthType == RiaDefines::MEASURED_DEPTH )
-                out += "MD   ";
-            else if ( depthType == RiaDefines::PSEUDO_LENGTH )
-                out += "PL   ";
-            else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
-                out += "TVDMSL  ";
-            else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
-                out += "TVDRKB  ";
+    // Header
 
-            for ( QString name : curveNames )
-                out += "  \t" + name;
-            out += "\n";
-        }
-        else if ( curveDepths[i] == curveDepths[i - 1] )
+    if ( depthType == RiaDefines::CONNECTION_NUMBER )
+    {
+        out += "Connection";
+    }
+    else if ( depthType == RiaDefines::MEASURED_DEPTH )
+    {
+        out += "MD   ";
+    }
+    else if ( depthType == RiaDefines::PSEUDO_LENGTH )
+    {
+        out += "PL   ";
+    }
+    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+    {
+        out += "TVDMSL  ";
+    }
+    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+    {
+        out += "TVDRKB  ";
+    }
+
+    for ( QString name : curveNames )
+    {
+        out += "  \t" + name;
+    }
+    out += "\n";
+
+    for ( size_t dIdx = 0; dIdx < curveDepths.size(); ++dIdx )
+    {
+        size_t i = dIdx;
+        if ( depthType == RiaDefines::CONNECTION_NUMBER )
         {
-            continue;
+            i = curveDepths.size() - 1 - dIdx; // Reverse the order, since the connections are coming bottom to top
+
+            if ( i == 0 )
+            {
+                if ( curveDepths.size() > 1 && curveDepths[i] == curveDepths[i + 1] )
+                {
+                    continue; // Skip double depth at last connection
+                }
+            }
+
+            if ( curveDepths[i] == 0.0 )
+            {
+                continue; // Skip the dummy connection number 0
+            }
         }
 
         out += QString::number( curveDepths[i], 'f', 3 );
@@ -815,6 +841,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
         }
         out += "\n";
     }
+
     return out;
 }
 
