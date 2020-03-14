@@ -85,6 +85,11 @@ View Module
 .. autoclass:: rips.view.View
     :members:
 
+Well Log Plot Module
+====================
+
+.. autoclass:: rips.well_log_plot.WellLogPlot
+    :members:
     
 Synchronous Example
 -------------------
