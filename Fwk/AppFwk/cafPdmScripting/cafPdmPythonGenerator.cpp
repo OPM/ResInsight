@@ -327,7 +327,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                     }
                     if ( !classAttributesGenerated[classKeyword].empty() )
                     {
-                        classCode += "    Attributes\n";
+                        classCode += "    Attributes:\n";
                         for ( auto keyWordValuePair : classAttributesGenerated[classKeyword] )
                         {
                             classCode += "        " + keyWordValuePair.second.second;
