@@ -13,6 +13,18 @@ AllCases
 --------
 .. literalinclude:: ../../rips/PythonExamples/all_cases.py
 
+AllSimulationWells  
+------------------
+.. literalinclude:: ../../rips/PythonExamples/all_simulation_wells.py
+
+AllWells
+--------
+.. literalinclude:: ../../rips/PythonExamples/all_wells.py
+
+AlterWbsPlot
+------------
+.. literalinclude:: ../../rips/PythonExamples/alter_wbs_plot.py 
+
 CaseGridGroup
 -------------
 .. literalinclude:: ../../rips/PythonExamples/case_grid_group.py
@@ -20,6 +32,10 @@ CaseGridGroup
 CaseInfoStreamingExample
 ------------------------
 .. literalinclude:: ../../rips/PythonExamples/case_info_streaming_example.py
+
+CellResultData
+--------------
+.. literalinclude:: ../../rips/PythonExamples/cell_result_data.py
 
 CommandExample
 --------------
@@ -69,9 +85,21 @@ LaunchWithCommandLineOptions
 ----------------------------
 .. literalinclude:: ../../rips/PythonExamples/launch_with_commandline_options.py
 
+Launch Using Command Line Options
+---------------------------------
+.. literalinclude:: ../../rips/PythonExamples/launch_with_commandline_options.py
+
+NewSummaryPlot
+--------------
+.. literalinclude:: ../../rips/PythonExamples/new_summary_plot.py
+
 SelectedCases
 -------------
 .. literalinclude:: ../../rips/PythonExamples/selected_cases.py
+
+SelectedCells
+-------------
+.. literalinclude:: ../../rips/PythonExamples/selected_cells.py
 
 SetCellResult
 -------------
