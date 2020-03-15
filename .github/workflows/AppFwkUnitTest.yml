@@ -52,5 +52,7 @@ jobs:
       - name: xvfb - Run Unit Tests Linux
         if: "!contains( matrix.os, 'windows')"
         uses: GabrielBB/xvfb-action@v1.0
-        env: QT_PLUGIN_PATH: /home/runner/work/ResInsight/Qt/5.9.9/gcc_64/plugins
-        run: cmakebuild/cafUserInterface/cafUserInterface_UnitTests/cafUserInterface_UnitTests
+        env:
+          QT_PLUGIN_PATH: /home/runner/work/ResInsight/Qt/5.9.9/gcc_64/plugins
+        with:
+          run: cmakebuild/cafUserInterface/cafUserInterface_UnitTests/cafUserInterface_UnitTests
