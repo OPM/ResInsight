@@ -394,6 +394,8 @@ TEST(BaseTest, FilePathSerializing)
     delete s1;
 }
 
+// Type deduction is different on other platforms than Windows
+#ifdef WIN32
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -429,5 +431,5 @@ TEST(BaseTest, TestDataType)
 
     delete s1;
 }
-
+#endif
 
