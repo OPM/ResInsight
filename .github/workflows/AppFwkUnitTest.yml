@@ -49,3 +49,8 @@ jobs:
           cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
           cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/cafPdmXml_UnitTests
           cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
+      - name: xvfb - Run Unit Tests Linux
+        if: "!contains( matrix.os, 'windows')"
+        uses: GabrielBB/xvfb-action@v1.0
+        env: QT_PLUGIN_PATH: /home/runner/work/ResInsight/Qt/5.9.9/gcc_64/plugins
+        run: cmakebuild/cafUserInterface/cafUserInterface_UnitTests/cafUserInterface_UnitTests
