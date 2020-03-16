@@ -81,6 +81,7 @@ public:
     caf::PdmObject*                      plotLegend();
     RimEclipseResultCase*                rimCase();
     int                                  timeStep();
+    FlowType                             flowType();
 
     QString wellName() const;
 
