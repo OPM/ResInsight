@@ -323,10 +323,21 @@ void RimWellAllocationPlot::updateFromWell()
                     curveDepthValues.insert( curveDepthValues.begin(), curveDepthValues[0] );
                     accFlow.insert( accFlow.begin(), 0.0 );
 
-                    if ( brIdx == 0 && !accFlow.empty() ) // Add fictitious point to 0 for first branch
+                    if ( m_flowType == ACCUMULATED && brIdx == 0 && !accFlow.empty() ) // Add fictitious point to -1 for
+                                                                                       // first branch
                     {
                         accFlow.push_back( accFlow.back() );
-                        curveDepthValues.push_back( 0.0 );
+                        curveDepthValues.push_back( -1.0 );
+                    }
+
+                    // Shift the "bars" to make connection number tick at the midpoint of the constant value
+                    // when showing in flow rate
+                    if ( m_flowType == INFLOW )
+                    {
+                        for ( double& connNum : curveDepthValues )
+                        {
+                            connNum += 0.5;
+                        }
                     }
                 }
                 else if ( depthType == RiaDefines::PSEUDO_LENGTH || depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
@@ -674,6 +685,14 @@ RimEclipseResultCase* RimWellAllocationPlot::rimCase()
 int RimWellAllocationPlot::timeStep()
 {
     return m_timeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellAllocationPlot::FlowType RimWellAllocationPlot::flowType()
+{
+    return m_flowType();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -51,6 +51,7 @@
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimTools.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurve.h"
@@ -754,8 +755,17 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
     std::vector<double>              curveDepths;
     std::vector<std::vector<double>> curvesPlotXValues;
 
-    auto depthType = parentWellLogPlot()->depthType();
-    auto depthUnit = parentWellLogPlot()->depthUnit();
+    auto depthType             = parentWellLogPlot()->depthType();
+    auto depthUnit             = parentWellLogPlot()->depthUnit();
+    bool isWellAllocInflowPlot = false;
+    {
+        RimWellAllocationPlot* wapl = nullptr;
+        parentWellLogPlot()->firstAncestorOfType( wapl );
+        if ( wapl )
+        {
+            isWellAllocInflowPlot = ( wapl->flowType() == RimWellAllocationPlot::INFLOW );
+        }
+    }
 
     for ( RimWellLogCurve* curve : m_curves() )
     {
@@ -815,9 +825,16 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 
     for ( size_t dIdx = 0; dIdx < curveDepths.size(); ++dIdx )
     {
-        size_t i = dIdx;
+        size_t i          = dIdx;
+        double curveDepth = curveDepths[i];
+
         if ( depthType == RiaDefines::CONNECTION_NUMBER )
         {
+            if ( dIdx == 0 )
+                continue; // Skip the first line. (shallow depth, which is last)
+                          // as it is a fictious value added to make
+                          // the plot easier to read
+
             i = curveDepths.size() - 1 - dIdx; // Reverse the order, since the connections are coming bottom to top
 
             if ( i == 0 )
@@ -828,13 +845,15 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
                 }
             }
 
-            if ( curveDepths[i] == 0.0 )
+            curveDepth = curveDepths[i];
+
+            if ( isWellAllocInflowPlot )
             {
-                continue; // Skip the dummy connection number 0
+                curveDepth -= 0.5; // To shift the values that was shifted to get the numbers between the changes
             }
         }
 
-        out += QString::number( curveDepths[i], 'f', 3 );
+        out += QString::number( curveDepth, 'f', 3 );
         for ( std::vector<double> plotVector : curvesPlotXValues )
         {
             out += " \t" + QString::number( plotVector[i], 'g' );

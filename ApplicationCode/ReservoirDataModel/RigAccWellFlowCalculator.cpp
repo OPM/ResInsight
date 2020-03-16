@@ -74,7 +74,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(
     m_tracerNames.push_back( RIG_RESERVOIR_TRACER_NAME );
 
     initializePipeBranchesMeasuredDepths();
-    calculateAccumulatedFlowPrConnection( 0, 1 );
+    calculateAccumulatedFlowPrConnection( 0, 0 );
     calculateFlowPrPseudoLength( 0, 0.0 );
     sortTracers();
     groupSmallContributions();
@@ -109,7 +109,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<std::vecto
     }
 
     initializePipeBranchesMeasuredDepths();
-    calculateAccumulatedFlowPrConnection( 0, 1 );
+    calculateAccumulatedFlowPrConnection( 0, 0 );
     calculateFlowPrPseudoLength( 0, 0.0 );
 
     if ( !m_useTotalWellPhaseRateOnly ) sortTracers();
@@ -147,7 +147,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<cvf::Vec3d
     }
 
     initializePipeBranchesMeasuredDepths();
-    calculateAccumulatedFlowPrConnection( 0, 1 );
+    calculateAccumulatedFlowPrConnection( 0, 0 );
     calculateFlowPrPseudoLength( 0, 0.0 );
 
     if ( !m_useTotalWellPhaseRateOnly ) sortTracers();
