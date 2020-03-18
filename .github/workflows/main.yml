@@ -80,7 +80,7 @@ jobs:
         if: "!contains( matrix.os, 'windows')"
         shell: bash
         run: |
-          cmakebuild/ApplicationCode/resinsight --unittest
+          cmakebuild/ApplicationCode/ResInsight --unittest
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
