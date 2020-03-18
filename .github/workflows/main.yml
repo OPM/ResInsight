@@ -71,6 +71,16 @@ jobs:
         run: |
           cd ApplicationCode/GrpcInterface/Python/rips
           pytest --console
+      - name: Run Unit Tests Windows
+        if: contains( matrix.os, 'windows')  
+        shell: bash
+        run: |
+          cmakebuild/ApplicationCode/Release/ResInsight --unittest
+      - name: Run Unit Tests Linux
+        if: "!contains( matrix.os, 'windows')"
+        shell: bash
+        run: |
+          cmakebuild/ApplicationCode/ResInsight --unittest
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
