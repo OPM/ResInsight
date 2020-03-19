@@ -2260,7 +2260,7 @@ void appendToExportDataForCase( QString& out, const std::vector<time_t>& timeSte
             QString valueText;
             if ( j < curveData[k].values.size() )
             {
-                valueText = QString::number( curveData[k].values[j], 'g', 6 );
+                valueText = QString::number( curveData[k].values[j], 'g', RimSummaryPlot::precision() );
             }
             out += "\t" + valueText.rightJustified( 13 );
         }
@@ -2377,7 +2377,8 @@ void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData
                     QString valueText;
                     if ( timeStepExists )
                     {
-                        valueText = QString::number( data.allCurveData[i][j].values[currIndex], 'g', 6 );
+                        valueText =
+                            QString::number( data.allCurveData[i][j].values[currIndex], 'g', RimSummaryPlot::precision() );
                     }
                     else
                     {

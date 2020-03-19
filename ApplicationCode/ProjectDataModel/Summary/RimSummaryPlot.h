@@ -169,6 +169,12 @@ public:
 
     void onAxisSelected( int axis, bool toggle ) override;
 
+    static constexpr int precision()
+    {
+        // Set precision to 8, as this is the precision used in summary data in libEcl
+        return 8;
+    }
+
 public:
     // RimViewWindow overrides
     void deleteViewWidget() override;
