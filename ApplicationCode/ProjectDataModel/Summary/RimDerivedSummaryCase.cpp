@@ -216,17 +216,6 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
 //--------------------------------------------------------------------------------------------------
 QString RimDerivedSummaryCase::caseName() const
 {
-    if ( m_summaryCase1 && m_summaryCase2 )
-    {
-        auto case1Name = m_summaryCase1->displayCaseName();
-        auto case2Name = m_summaryCase2->displayCaseName();
-
-        if ( case1Name == case2Name )
-            return case1Name;
-        else
-            return QString( "%1/%2" ).arg( case1Name ).arg( case2Name );
-    }
-
     return m_shortName;
 }
 
@@ -294,6 +283,33 @@ void RimDerivedSummaryCase::clearData( const RifEclipseSummaryAddress& address )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimDerivedSummaryCase::updateNameFromInputCases()
+{
+    QString case1Name = "None";
+    QString case2Name = "None";
+
+    if ( m_summaryCase1 )
+    {
+        case1Name = m_summaryCase1->displayCaseName();
+    }
+
+    if ( m_summaryCase2 )
+    {
+        case2Name = m_summaryCase2->displayCaseName();
+    }
+
+    QString operatorText;
+    if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
+        operatorText = "Delta";
+    else if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_ADD )
+        operatorText = "Sum";
+
+    m_shortName = QString( "%1 (%2, %3)" ).arg( operatorText ).arg( case1Name ).arg( case2Name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimDerivedSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     // Base class
@@ -354,6 +370,8 @@ void RimDerivedSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changed
 
     if ( reloadData )
     {
+        updateNameFromInputCases();
+
         m_dataCache.clear();
 
         std::vector<caf::PdmObjectHandle*> referringObjects;

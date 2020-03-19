@@ -75,6 +75,7 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     void clearData( const RifEclipseSummaryAddress& address );
+    void updateNameFromInputCases();
 
 private:
     caf::PdmPtrField<RimSummaryCase*>                   m_summaryCase1;
