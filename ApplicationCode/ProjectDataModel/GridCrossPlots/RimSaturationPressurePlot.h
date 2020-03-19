@@ -40,6 +40,8 @@ public:
                                          int                           zeroBasedEquilRegionIndex,
                                          int                           timeStep );
 
+    static void fixPointersAfterCopy( RimSaturationPressurePlot* source, RimSaturationPressurePlot* copy );
+
 protected:
     void    initAfterRead() override;
     QString xAxisParameterString() const override;

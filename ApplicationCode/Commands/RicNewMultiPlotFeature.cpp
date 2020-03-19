@@ -26,6 +26,7 @@
 #include "RimMultiPlotCollection.h"
 #include "RimPlot.h"
 #include "RimProject.h"
+#include "RimSaturationPressurePlot.h"
 
 #include "RiuPlotMainWindowTools.h"
 #include <QAction>
@@ -68,6 +69,21 @@ caf::PdmScriptResponse RicNewMultiPlotFeature::execute()
         for ( auto plot : plots )
         {
             auto copy = dynamic_cast<RimPlot*>( plot->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+
+            {
+                // TODO: Workaround for fixing the PdmPointer in RimEclipseResultDefinition
+                //    caf::PdmPointer<RimEclipseCase> m_eclipseCase;
+                // This pdmpointer must be changed to a ptrField
+
+                auto saturationPressurePlotOriginal = dynamic_cast<RimSaturationPressurePlot*>( plot );
+                auto saturationPressurePlotCopy     = dynamic_cast<RimSaturationPressurePlot*>( copy );
+                if ( saturationPressurePlotCopy && saturationPressurePlotOriginal )
+                {
+                    RimSaturationPressurePlot::fixPointersAfterCopy( saturationPressurePlotOriginal,
+                                                                     saturationPressurePlotCopy );
+                }
+            }
+
             plotWindow->addPlot( copy );
 
             copy->resolveReferencesRecursively();
