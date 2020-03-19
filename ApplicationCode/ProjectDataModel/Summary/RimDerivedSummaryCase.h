@@ -64,6 +64,8 @@ public:
     RifSummaryReaderInterface* summaryReader() override;
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
+    void updateDisplayNameFromCases();
+
 protected:
     QString caseName() const override;
 
@@ -75,7 +77,6 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     void clearData( const RifEclipseSummaryAddress& address );
-    void updateNameFromInputCases();
 
 private:
     caf::PdmPtrField<RimSummaryCase*>                   m_summaryCase1;
