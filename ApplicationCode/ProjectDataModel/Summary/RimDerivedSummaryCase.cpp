@@ -283,7 +283,7 @@ void RimDerivedSummaryCase::clearData( const RifEclipseSummaryAddress& address )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::updateNameFromInputCases()
+void RimDerivedSummaryCase::updateDisplayNameFromCases()
 {
     QString case1Name = "None";
     QString case2Name = "None";
@@ -370,7 +370,7 @@ void RimDerivedSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changed
 
     if ( reloadData )
     {
-        updateNameFromInputCases();
+        updateDisplayNameFromCases();
 
         m_dataCache.clear();
 

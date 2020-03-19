@@ -37,10 +37,9 @@ CAF_CMD_SOURCE_INIT( RicNewDerivedSummaryFeature, "RicNewDerivedSummaryFeature" 
 //--------------------------------------------------------------------------------------------------
 bool RicNewDerivedSummaryFeature::isCommandEnabled()
 {
-    std::vector<RimSummaryCaseMainCollection*> mainColls =
-        caf::selectedObjectsByTypeStrict<RimSummaryCaseMainCollection*>();
+    if ( mainCollection() ) return true;
 
-    return mainColls.size() == 1;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,13 +47,20 @@ bool RicNewDerivedSummaryFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewDerivedSummaryFeature::onActionTriggered( bool isChecked )
 {
-    if ( isCommandEnabled() )
+    auto mainColl = mainCollection();
+    if ( mainColl )
     {
-        auto project  = RiaApplication::instance()->project();
-        auto mainColl = project->firstSummaryCaseMainCollection();
-
         auto derivedCase = new RimDerivedSummaryCase;
+
+        auto selectedCases = twoSelectedSummaryCases();
+        if ( !selectedCases.empty() )
+        {
+            derivedCase->setSummaryCases( selectedCases[0], selectedCases[1] );
+            derivedCase->createSummaryReaderInterface();
+        }
+
         mainColl->addCase( derivedCase );
+        derivedCase->updateDisplayNameFromCases();
 
         mainColl->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem( derivedCase );
@@ -68,4 +74,36 @@ void RicNewDerivedSummaryFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Delta Summary Case" );
     // actionToSetup->setIcon( QIcon( ":/SummaryEnsemble16x16.png" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCaseMainCollection* RicNewDerivedSummaryFeature::mainCollection()
+{
+    std::vector<RimSummaryCaseMainCollection*> mainColls =
+        caf::selectedObjectsByTypeStrict<RimSummaryCaseMainCollection*>();
+
+    if ( mainColls.size() == 1 ) return mainColls.front();
+
+    auto sumCases = twoSelectedSummaryCases();
+    if ( !sumCases.empty() )
+    {
+        RimSummaryCaseMainCollection* mainColl = nullptr;
+        sumCases.front()->firstAncestorOfType( mainColl );
+        return mainColl;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RicNewDerivedSummaryFeature::twoSelectedSummaryCases()
+{
+    auto sumCases = caf::selectedObjectsByTypeStrict<RimSummaryCase*>();
+    if ( sumCases.size() == 2 ) return sumCases;
+
+    return {};
 }
