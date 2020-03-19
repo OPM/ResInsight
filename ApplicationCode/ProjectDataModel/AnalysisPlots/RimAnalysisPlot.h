@@ -33,6 +33,7 @@ class RimAnalysisPlotDataEntry;
 class RimCurveDefinitionAnalyser;
 class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
+class RimPlotDataFilterCollection;
 
 //==================================================================================================
 ///
@@ -47,6 +48,10 @@ public:
     ~RimAnalysisPlot() override;
 
     void updateCaseNameHasChanged();
+
+    RimPlotDataFilterCollection* plotDataFilterCollection() const;
+
+    std::set<RifEclipseSummaryAddress> unfilteredAddresses();
 
 public: // Internal. Public needed for AppEnum setup
     enum BarOrientation
@@ -125,7 +130,8 @@ private:
     void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
     void updatePlotTitle();
 
-    std::vector<RiaSummaryCurveDefinition>    curveDefinitions();
+    RimCurveDefinitionAnalyser*               getOrCreateSelectedCurveDefAnalyser();
+    std::vector<RiaSummaryCurveDefinition>    curveDefinitions() const;
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
     void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
@@ -140,7 +146,7 @@ private:
     caf::PdmField<QString> m_selectedVarsUiField;
     caf::PdmField<bool>    m_selectVariablesButtonField;
 
-    caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_data;
+    caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_analysisPlotDataSelection;
 
     caf::PdmField<QDateTime>              m_addTimestepUiField;
     caf::PdmField<std::vector<QDateTime>> m_selectedTimeSteps;
@@ -171,4 +177,5 @@ private:
     caf::PdmField<bool> m_useQuantityInBarText;
 
     caf::PdmChildField<RimPlotAxisProperties*> m_valueAxisProperties;
+    caf::PdmChildField<RimPlotDataFilterCollection*> m_plotDataFilterCollection;
 };

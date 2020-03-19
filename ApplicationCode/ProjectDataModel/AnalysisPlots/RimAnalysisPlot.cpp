@@ -31,6 +31,7 @@
 #include "RimDerivedSummaryCase.h"
 #include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
+#include "RimPlotDataFilterCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -130,9 +131,9 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitField( &m_selectVariablesButtonField, "BrowseButton", false, "...", "", "", "" );
     caf::PdmUiActionPushButtonEditor::configureEditorForField( &m_selectVariablesButtonField );
 
-    CAF_PDM_InitFieldNoDefault( &m_data, "AnalysisPlotData", "", "", "", "" );
-    m_data.uiCapability()->setUiTreeChildrenHidden( true );
-    m_data.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_analysisPlotDataSelection, "AnalysisPlotData", "", "", "", "" );
+    m_analysisPlotDataSelection.uiCapability()->setUiTreeChildrenHidden( true );
+    m_analysisPlotDataSelection.uiCapability()->setUiTreeHidden( true );
 
     // Time Step Selection
 
@@ -192,6 +193,10 @@ RimAnalysisPlot::RimAnalysisPlot()
     m_valueAxisProperties = new RimPlotAxisProperties;
     m_valueAxisProperties->setNameAndAxis( "Value-Axis", QwtPlot::yLeft );
     m_valueAxisProperties->enableRangeSettings( false );
+
+    CAF_PDM_InitFieldNoDefault( &m_plotDataFilterCollection, "PlotDataFilterCollection", "PlotDataFilterCollection", "", "", "" );
+    m_plotDataFilterCollection.uiCapability()->setUiTreeHidden( true );
+    m_plotDataFilterCollection = new RimPlotDataFilterCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,6 +215,39 @@ void RimAnalysisPlot::updateCaseNameHasChanged()
 {
     this->onLoadDataAndUpdate();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotDataFilterCollection* RimAnalysisPlot::plotDataFilterCollection() const
+{
+    return m_plotDataFilterCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseSummaryAddress> RimAnalysisPlot::unfilteredAddresses()
+{
+    std::set<RifEclipseSummaryAddress> addresses;
+
+    RimCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+
+    for ( RimSummaryCase* sumCase : analyserOfSelectedCurveDefs->m_singleSummaryCases )
+    {
+        const std::set<RifEclipseSummaryAddress>& caseAddrs = sumCase->summaryReader()->allResultAddresses();
+        addresses.insert( caseAddrs.begin(), caseAddrs.end() );
+    }
+
+    for ( RimSummaryCaseCollection* caseColl : analyserOfSelectedCurveDefs->m_ensembles )
+    {
+        std::set<RifEclipseSummaryAddress> ensAddrs = caseColl->ensembleSummaryAddresses();
+        addresses.insert( ensAddrs.begin(), ensAddrs.end() );
+    }
+
+    return addresses;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -233,12 +271,12 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         if ( dlg.exec() == QDialog::Accepted )
         {
             std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
-            m_data.deleteAllChildObjects();
+            m_analysisPlotDataSelection.deleteAllChildObjects();
             for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
             {
                 auto plotEntry = new RimAnalysisPlotDataEntry();
                 plotEntry->setFromCurveDefinition( vectorDef );
-                m_data.push_back( plotEntry );
+                m_analysisPlotDataSelection.push_back( plotEntry );
             }
         }
 
@@ -749,7 +787,7 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
 
     if ( m_referenceCase ) referenceCaseReader = m_referenceCase->summaryReader();
 
-    for ( const RimAnalysisPlotDataEntry* dataEntry : m_data )
+    for ( const RimAnalysisPlotDataEntry* dataEntry : m_analysisPlotDataSelection )
     {
         RiaSummaryCurveDefinition orgBarDataEntry = dataEntry->curveDefinition();
 
@@ -962,10 +1000,24 @@ void RimAnalysisPlot::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitions()
+RimCurveDefinitionAnalyser* RimAnalysisPlot::getOrCreateSelectedCurveDefAnalyser()
+{
+    if ( !m_analyserOfSelectedCurveDefs )
+    {
+        m_analyserOfSelectedCurveDefs =
+            std::unique_ptr<RimCurveDefinitionAnalyser>( new RimCurveDefinitionAnalyser( this->curveDefinitions() ) );
+    }
+
+    return m_analyserOfSelectedCurveDefs.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitions() const
 {
     std::vector<RiaSummaryCurveDefinition> curveDefs;
-    for ( auto dataEntry : m_data )
+    for ( auto dataEntry : m_analysisPlotDataSelection )
     {
         curveDefs.push_back( dataEntry->curveDefinition() );
     }

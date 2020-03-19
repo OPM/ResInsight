@@ -150,6 +150,8 @@
 
 #include "RimAnalysisPlot.h"
 #include "RimAnalysisPlotCollection.h"
+#include "RimPlotDataFilterCollection.h"
+#include "RimPlotDataFilterItem.h"
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -520,6 +522,15 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimAnalysisPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicNewAnalysisPlotFeature";
+            menuBuilder << "RicNewPlotDataFilterFeature";
+        }
+        else if ( dynamic_cast<RimPlotDataFilterCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewPlotDataFilterFeature";
+        }
+        else if ( dynamic_cast<RimPlotDataFilterItem*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewPlotDataFilterFeature";
         }
         else if ( dynamic_cast<RimSummaryCrossPlotCollection*>( firstUiItem ) )
         {
