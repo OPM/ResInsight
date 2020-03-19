@@ -86,6 +86,8 @@ private:
     void               buildMetaData();
     RifRestartFileInfo getRestartFile( const QString& headerFileName );
 
+    static std::string differenceIdentifier() { return "_DIFF"; }
+
 private:
     // Taken from ecl_sum.h
     typedef struct ecl_sum_struct    ecl_sum_type;
@@ -100,6 +102,8 @@ private:
     std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
 
     QStringList m_warnings;
+
+    std::set<RifEclipseSummaryAddress> m_differenceAddresses;
 
     //==================================================================================================
     //
