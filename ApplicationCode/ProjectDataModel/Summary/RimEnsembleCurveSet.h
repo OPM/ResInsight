@@ -70,8 +70,6 @@ public:
     using ColorMode     = RimEnsembleCurveSetColorManager::ColorMode;
     using ColorModeEnum = RimEnsembleCurveSetColorManager::ColorModeEnum;
 
-    using NameParameterPair = EnsembleParameter::NameParameterPair;
-
 public:
     RimEnsembleCurveSet();
     ~RimEnsembleCurveSet() override;
@@ -120,7 +118,7 @@ public:
     void markCachedDataForPurge();
 
     void                           updateAllTextInPlot();
-    std::vector<NameParameterPair> ensembleParameters() const;
+    std::vector<EnsembleParameter> variationSortedEnsembleParameters() const;
 
     std::vector<RimSummaryCase*> filterEnsembleCases( const std::vector<RimSummaryCase*>& sumCases );
     void                         disableStatisticCurves();

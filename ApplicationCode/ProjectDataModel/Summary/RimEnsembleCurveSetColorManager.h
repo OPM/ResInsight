@@ -39,8 +39,7 @@ public:
         SINGLE_COLOR,
         BY_ENSEMBLE_PARAM
     };
-    using ColorModeEnum     = caf::AppEnum<ColorMode>;
-    using NameParameterPair = EnsembleParameter::NameParameterPair;
+    using ColorModeEnum = caf::AppEnum<ColorMode>;
 
 public:
     static const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray>& EnsembleColorRanges();

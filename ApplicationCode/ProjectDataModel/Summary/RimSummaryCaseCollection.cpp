@@ -85,60 +85,73 @@ double EnsembleParameter::normalizedStdDeviation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void EnsembleParameter::sortByBinnedVariation( std::vector<NameParameterPair>& parameterVector )
+bool EnsembleParameter::operator<( const EnsembleParameter& other ) const
+{
+    if ( this->variationBin != other.variationBin )
+    {
+        return this->variationBin < other.variationBin;
+    }
+
+    return this->name < other.name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<EnsembleParameter>& parameterVector )
 {
     double minStdDev = std::numeric_limits<double>::infinity();
     double maxStdDev = 0.0;
     for ( const auto& paramPair : parameterVector )
     {
-        minStdDev = std::min( minStdDev, paramPair.second.normalizedStdDeviation() );
-        maxStdDev = std::max( maxStdDev, paramPair.second.normalizedStdDeviation() );
+        minStdDev = std::min( minStdDev, paramPair.normalizedStdDeviation() );
+        maxStdDev = std::max( maxStdDev, paramPair.normalizedStdDeviation() );
     }
     if ( ( maxStdDev - minStdDev ) < 1.0e-8 )
     {
         return;
     }
 
-    double delta = ( maxStdDev - minStdDev ) / NR_OF_VARIATION_BINS;
+    double delta = ( maxStdDev - minStdDev ) / EnsembleParameter::NR_OF_VARIATION_BINS;
 
     std::vector<double> bins;
-    for ( int i = 0; i < NR_OF_VARIATION_BINS - 1; ++i )
+    for ( int i = 0; i < EnsembleParameter::NR_OF_VARIATION_BINS - 1; ++i )
     {
         bins.push_back( minStdDev + ( i + 1 ) * delta );
     }
 
-    for ( NameParameterPair& nameParamPair : parameterVector )
+    for ( EnsembleParameter& nameParamPair : parameterVector )
     {
         int binNumber = 0;
         for ( double bin : bins )
         {
-            if ( nameParamPair.second.normalizedStdDeviation() >= bin )
+            if ( nameParamPair.normalizedStdDeviation() >= bin )
             {
                 binNumber++;
             }
         }
-        nameParamPair.second.variationBin = binNumber;
+        nameParamPair.variationBin = binNumber;
     }
 
     // Sort by variation bin (highest first) but keep name as sorting parameter when parameters have the same variation
     // index
     std::stable_sort( parameterVector.begin(),
                       parameterVector.end(),
-                      [&bins]( const NameParameterPair& lhs, const NameParameterPair& rhs ) {
-                          return lhs.second.variationBin > rhs.second.variationBin;
+                      [&bins]( const EnsembleParameter& lhs, const EnsembleParameter& rhs ) {
+                          return lhs.variationBin > rhs.variationBin;
                       } );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString EnsembleParameter::uiName( const NameParameterPair& paramPair )
+QString EnsembleParameter::uiName() const
 {
-    QString stem = paramPair.first;
+    QString stem = name;
     QString variationString;
-    if ( paramPair.second.isNumeric() )
+    if ( isNumeric() )
     {
-        switch ( paramPair.second.variationBin )
+        switch ( variationBin )
         {
             case LOW_VARIATION:
                 variationString = QString( " (Low variation)" );
@@ -149,6 +162,7 @@ QString EnsembleParameter::uiName( const NameParameterPair& paramPair )
                 break;
         }
     }
+
     return QString( "%1%2" ).arg( stem ).arg( variationString );
 }
 
@@ -192,6 +206,9 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
 {
     size_t caseCountBeforeRemove = m_cases.size();
     m_cases.removeChildObject( summaryCase );
+
+    m_cachedSortedEnsembleParameters.clear();
+
     updateReferringCurveSets();
 
     if ( m_isEnsemble && m_cases.size() != caseCountBeforeRemove )
@@ -207,6 +224,7 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
 void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase, bool updateCurveSets )
 {
     m_cases.push_back( summaryCase );
+    m_cachedSortedEnsembleParameters.clear();
 
     // Update derived ensemble cases (if any)
     std::vector<RimDerivedEnsembleCaseCollection*> referringObjects;
@@ -358,10 +376,52 @@ RifReaderRftInterface* RimSummaryCaseCollection::rftStatisticsReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const std::vector<EnsembleParameter>& RimSummaryCaseCollection::variationSortedEnsembleParameters() const
+{
+    if ( m_cachedSortedEnsembleParameters.size() ) return m_cachedSortedEnsembleParameters;
+
+    std::set<QString> paramSet;
+    for ( RimSummaryCase* rimCase : this->allSummaryCases() )
+    {
+        if ( rimCase->caseRealizationParameters() != nullptr )
+        {
+            auto ps = rimCase->caseRealizationParameters()->parameters();
+            for ( auto p : ps )
+            {
+                paramSet.insert( p.first );
+            }
+        }
+    }
+
+    m_cachedSortedEnsembleParameters.reserve( paramSet.size() );
+    for ( const QString& parameterName : paramSet )
+    {
+        m_cachedSortedEnsembleParameters.push_back( this->createEnsembleParameter( parameterName ) );
+    }
+    RimSummaryCaseCollection::sortByBinnedVariation( m_cachedSortedEnsembleParameters );
+
+    return m_cachedSortedEnsembleParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 EnsembleParameter RimSummaryCaseCollection::ensembleParameter( const QString& paramName ) const
 {
     if ( !isEnsemble() || paramName.isEmpty() ) return EnsembleParameter();
 
+    const std::vector<EnsembleParameter>& ensembleParams = variationSortedEnsembleParameters();
+
+    for ( const EnsembleParameter& ensParam : ensembleParams )
+    {
+        if ( ensParam.name == paramName ) return ensParam;
+    }
+
+    return EnsembleParameter();
+}
+
+EnsembleParameter RimSummaryCaseCollection::createEnsembleParameter( const QString& paramName ) const
+{
     EnsembleParameter eParam;
     eParam.name = paramName;
 

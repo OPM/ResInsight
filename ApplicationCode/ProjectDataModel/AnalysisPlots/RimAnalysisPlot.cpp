@@ -251,6 +251,31 @@ std::set<RifEclipseSummaryAddress> RimAnalysisPlot::unfilteredAddresses()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<EnsembleParameter> RimAnalysisPlot::ensembleParameters()
+{
+    std::set<EnsembleParameter> ensembleParms;
+
+    RimCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+
+    for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
+    {
+        std::vector<EnsembleParameter> parameters = ensemble->variationSortedEnsembleParameters();
+        ensembleParms.insert( parameters.begin(), parameters.end() );
+    }
+
+    return ensembleParms;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress& address, double* min, double* max )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                         const QVariant&            oldValue,
                                         const QVariant&            newValue )

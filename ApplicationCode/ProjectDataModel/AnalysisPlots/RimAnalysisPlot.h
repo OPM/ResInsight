@@ -21,6 +21,7 @@
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RimPlot.h"
+#include "RimSummaryCaseCollection.h"
 
 #include "cafPdmPtrField.h"
 
@@ -52,6 +53,9 @@ public:
     RimPlotDataFilterCollection* plotDataFilterCollection() const;
 
     std::set<RifEclipseSummaryAddress> unfilteredAddresses();
+    std::set<EnsembleParameter>        ensembleParameters();
+
+    void maxMinValueFromAddress( const RifEclipseSummaryAddress& address, double* min, double* max );
 
 public: // Internal. Public needed for AppEnum setup
     enum BarOrientation
@@ -176,6 +180,6 @@ private:
     caf::PdmField<bool> m_useTimeStepInBarText;
     caf::PdmField<bool> m_useQuantityInBarText;
 
-    caf::PdmChildField<RimPlotAxisProperties*> m_valueAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*>       m_valueAxisProperties;
     caf::PdmChildField<RimPlotDataFilterCollection*> m_plotDataFilterCollection;
 };

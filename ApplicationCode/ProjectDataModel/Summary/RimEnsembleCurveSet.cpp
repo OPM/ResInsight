@@ -538,8 +538,8 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         if ( m_ensembleParameter().isEmpty() )
         {
-            auto params         = ensembleParameters();
-            m_ensembleParameter = !params.empty() ? params.front().first : "";
+            auto params         = variationSortedEnsembleParameters();
+            m_ensembleParameter = !params.empty() ? params.front().name : "";
         }
         updateCurveColors();
 
@@ -766,16 +766,16 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         auto byEnsParamOption  = ColorModeEnum( ColorMode::BY_ENSEMBLE_PARAM );
 
         options.push_back( caf::PdmOptionItemInfo( singleColorOption.uiText(), ColorMode::SINGLE_COLOR ) );
-        if ( !ensembleParameters().empty() )
+        if ( !variationSortedEnsembleParameters().empty() )
         {
             options.push_back( caf::PdmOptionItemInfo( byEnsParamOption.uiText(), ColorMode::BY_ENSEMBLE_PARAM ) );
         }
     }
     else if ( fieldNeedingOptions == &m_ensembleParameter )
     {
-        for ( const auto& paramPair : ensembleParameters() )
+        for ( const auto& param : variationSortedEnsembleParameters() )
         {
-            options.push_back( caf::PdmOptionItemInfo( EnsembleParameter::uiName( paramPair ), paramPair.first ) );
+            options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
         }
     }
     else if ( fieldNeedingOptions == &m_yValuesSummaryAddressUiField )
@@ -1114,32 +1114,17 @@ void RimEnsembleCurveSet::updateAllTextInPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEnsembleCurveSet::NameParameterPair> RimEnsembleCurveSet::ensembleParameters() const
+std::vector<EnsembleParameter> RimEnsembleCurveSet::variationSortedEnsembleParameters() const
 {
-    RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection;
-
-    std::set<QString> paramSet;
-    if ( group )
+    RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
+    if ( ensemble )
     {
-        for ( RimSummaryCase* rimCase : group->allSummaryCases() )
-        {
-            if ( rimCase->caseRealizationParameters() != nullptr )
-            {
-                auto ps = rimCase->caseRealizationParameters()->parameters();
-                for ( auto p : ps )
-                    paramSet.insert( p.first );
-            }
-        }
+        return ensemble->variationSortedEnsembleParameters();
     }
-
-    std::vector<NameParameterPair> parameterVector;
-    parameterVector.reserve( paramSet.size() );
-    for ( const QString& parameterName : paramSet )
+    else
     {
-        parameterVector.push_back( std::make_pair( parameterName, group->ensembleParameter( parameterName ) ) );
+        return std::vector<EnsembleParameter>();
     }
-    EnsembleParameter::sortByBinnedVariation( parameterVector );
-    return parameterVector;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -43,8 +43,6 @@ class RimSummaryCase;
 class EnsembleParameter
 {
 public:
-    typedef std::pair<QString, EnsembleParameter> NameParameterPair;
-
     enum Type
     {
         TYPE_NONE,
@@ -58,6 +56,7 @@ public:
         HIGH_VARIATION,
         NR_OF_VARIATION_BINS
     };
+    QString               uiName() const;
     QString               name;
     Type                  type;
     std::vector<QVariant> values;
@@ -78,9 +77,7 @@ public:
     bool   isText() const { return type == TYPE_TEXT; }
     double normalizedStdDeviation() const;
 
-    static void sortByBinnedVariation( std::vector<NameParameterPair>& parameterVector );
-
-    static QString uiName( const NameParameterPair& paramPair );
+    bool operator<( const EnsembleParameter& other ) const;
 
 private:
     double stdDeviation() const;
@@ -109,6 +106,8 @@ public:
     std::set<QDateTime>                        rftTimeStepsForWell( const QString& wellName ) const;
     RifReaderRftInterface*                     rftStatisticsReader();
 
+    const std::vector<EnsembleParameter>& variationSortedEnsembleParameters() const;
+
     EnsembleParameter ensembleParameter( const QString& paramName ) const;
     void              calculateEnsembleParametersIntersectionHash();
     void              clearEnsembleParametersHashes();
@@ -121,6 +120,10 @@ public:
     RiaEclipseUnitTools::UnitSystem unitSystem() const;
 
 private:
+    EnsembleParameter createEnsembleParameter( const QString& paramName ) const;
+    static void       sortByBinnedVariation( std::vector<EnsembleParameter>& parameterVector );
+    friend class RimSummaryCaseCollection_TESTER;
+
     caf::PdmFieldHandle* userDescriptionField() override;
     QString              nameAndItemCount() const;
     void                 updateIcon();
@@ -137,10 +140,13 @@ protected:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
 
 private:
-    caf::PdmField<QString>                   m_name;
-    caf::PdmProxyValueField<QString>         m_nameAndItemCount;
-    caf::PdmField<bool>                      m_isEnsemble;
+    caf::PdmField<QString>           m_name;
+    caf::PdmProxyValueField<QString> m_nameAndItemCount;
+    caf::PdmField<bool>              m_isEnsemble;
+
     cvf::ref<RifReaderEnsembleStatisticsRft> m_statisticsEclipseRftReader;
 
     size_t m_commonAddressCount; // if different address count among cases, set to 0
+
+    mutable std::vector<EnsembleParameter> m_cachedSortedEnsembleParameters;
 };
