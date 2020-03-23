@@ -14,6 +14,8 @@ Contents
    PythonExamples
    rips
    pdm_objects
+   commands
+   
 
 Indices and tables
 ==================
