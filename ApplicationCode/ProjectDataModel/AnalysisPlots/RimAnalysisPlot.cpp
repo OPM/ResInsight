@@ -257,7 +257,25 @@ std::set<EnsembleParameter> RimAnalysisPlot::ensembleParameters()
 
     RimCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
 
+    std::set<RimSummaryCaseCollection*> ensembles;
+
     for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
+    {
+        if ( ensemble->isEnsemble() )
+        {
+            ensembles.insert( ensemble );
+        }
+    }
+
+    for ( RimSummaryCase* sumCase : analyserOfSelectedCurveDefs->m_singleSummaryCases )
+    {
+        if ( sumCase->ensemble() )
+        {
+            ensembles.insert( sumCase->ensemble() );
+        }
+    }
+
+    for ( RimSummaryCaseCollection* ensemble : ensembles )
     {
         std::vector<EnsembleParameter> parameters = ensemble->variationSortedEnsembleParameters();
         ensembleParms.insert( parameters.begin(), parameters.end() );
@@ -269,7 +287,160 @@ std::set<EnsembleParameter> RimAnalysisPlot::ensembleParameters()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress& address, double* min, double* max )
+EnsembleParameter RimAnalysisPlot::ensembleParameter( const QString& ensembleParameterName )
+{
+    std::set<EnsembleParameter> ensembleParms = ensembleParameters();
+    for ( const EnsembleParameter& eParam : ensembleParms )
+    {
+        if ( eParam.name == ensembleParameterName ) return eParam;
+    }
+
+    return EnsembleParameter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&           address,
+                                              RimPlotDataFilterItem::TimeStepSourceType timeStepSourceType,
+                                              const std::vector<QDateTime>&             timeRangeOrSelection,
+                                              bool                                      useAbsValue,
+                                              double*                                   minVal,
+                                              double*                                   maxVal )
+{
+    std::vector<time_t> selectedTimesteps;
+    double              min = std::numeric_limits<double>::infinity();
+    double              max = useAbsValue ? 0.0 : -std::numeric_limits<double>::infinity();
+
+    std::function<double( double, double )> minOrAbsMin;
+    std::function<double( double, double )> maxOrAbsMax;
+
+    if ( useAbsValue )
+    {
+        minOrAbsMin = []( double v1, double v2 ) { return std::min( fabs( v1 ), fabs( v2 ) ); };
+        maxOrAbsMax = []( double v1, double v2 ) { return std::max( fabs( v1 ), fabs( v2 ) ); };
+    }
+    else
+    {
+        minOrAbsMin = []( double v1, double v2 ) { return std::min( v1, v2 ); };
+        maxOrAbsMax = []( double v1, double v2 ) { return std::max( v1, v2 ); };
+    }
+
+    if ( timeStepSourceType == RimPlotDataFilterItem::SELECT_TIMESTEPS )
+    {
+        for ( const QDateTime& dateTime : timeRangeOrSelection )
+        {
+            selectedTimesteps.push_back( dateTime.toTime_t() );
+        }
+    }
+    else if ( timeStepSourceType == RimPlotDataFilterItem::PLOT_SOURCE_TIMESTEPS )
+    {
+        for ( const QDateTime& dateTime : m_selectedTimeSteps.v() )
+        {
+            selectedTimesteps.push_back( dateTime.toTime_t() );
+        }
+    }
+
+    std::set<RimSummaryCase*> allSumCases = allSourceCases();
+
+    for ( RimSummaryCase* sumCase : allSumCases )
+    {
+        RifSummaryReaderInterface* reader = sumCase->summaryReader();
+        if ( !reader ) continue;
+
+        if ( reader->hasAddress( address ) )
+        {
+            std::vector<double> values;
+            reader->values( address, &values );
+
+            const std::vector<time_t>& timesteps = reader->timeSteps( address );
+
+            if ( timesteps.size() )
+            {
+                if ( timeStepSourceType == RimPlotDataFilterItem::LAST_TIMESTEP )
+                {
+                    min = minOrAbsMin( min, values[timesteps.size() - 1] );
+                    max = maxOrAbsMax( max, values[timesteps.size() - 1] );
+                }
+                else if ( timeStepSourceType == RimPlotDataFilterItem::FIRST_TIMESTEP )
+                {
+                    min = minOrAbsMin( min, values[0] );
+                    max = maxOrAbsMax( max, values[0] );
+                }
+                else if ( timeStepSourceType == RimPlotDataFilterItem::ALL_TIMESTEPS )
+                {
+                    for ( size_t tIdx = 0; tIdx < timesteps.size(); ++tIdx )
+                    {
+                        min = minOrAbsMin( min, values[tIdx] );
+                        max = maxOrAbsMax( max, values[tIdx] );
+                    }
+                }
+                else if ( timeStepSourceType == RimPlotDataFilterItem::SELECT_TIMESTEP_RANGE )
+                {
+                    if ( timeRangeOrSelection.size() >= 2 )
+                    {
+                        time_t minTime = timeRangeOrSelection.front().toTime_t();
+                        time_t maxTime = timeRangeOrSelection.back().toTime_t();
+
+                        for ( size_t tIdx = 0; tIdx < timesteps.size(); ++tIdx )
+                        {
+                            time_t dateTime = timesteps[tIdx];
+
+                            if ( minTime <= dateTime && dateTime <= maxTime )
+                            {
+                                min = minOrAbsMin( min, values[tIdx] );
+                                max = maxOrAbsMax( max, values[tIdx] );
+                            }
+                        }
+                    }
+                }
+                else if ( timeStepSourceType == RimPlotDataFilterItem::LAST_TIMESTEP_WITH_HISTORY )
+                {
+                    RifEclipseSummaryAddress historyAddr = address;
+
+                    if ( !historyAddr.isHistoryQuantity() ) historyAddr.setQuantityName( address.quantityName() + "H" );
+
+                    const std::vector<time_t>& historyTimesteps = reader->timeSteps( historyAddr );
+                    if ( historyTimesteps.size() )
+                    {
+                        min = minOrAbsMin( min, values[historyTimesteps.size() - 1] );
+                        max = maxOrAbsMax( max, values[historyTimesteps.size() - 1] );
+                    }
+                }
+                else if ( selectedTimesteps.size() )
+                {
+                    std::vector<int> selectedTimestepIndices;
+
+                    for ( time_t tt : selectedTimesteps )
+                    {
+                        for ( int timestepIdx = 0; static_cast<unsigned>( timestepIdx ) < timesteps.size(); ++timestepIdx )
+                        {
+                            if ( timesteps[timestepIdx] == tt )
+                            {
+                                selectedTimestepIndices.push_back( timestepIdx );
+                                break;
+                            }
+                        }
+                    }
+
+                    for ( int tsIdx : selectedTimestepIndices )
+                    {
+                        min = minOrAbsMin( min, values[tsIdx] );
+                        max = maxOrAbsMax( max, values[tsIdx] );
+                    }
+                }
+            }
+        }
+    }
+
+    ( *minVal ) = min;
+    ( *maxVal ) = max;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::onFiltersChanged()
 {
 }
 
@@ -432,31 +603,12 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
     {
         options.push_back( {"None", QDateTime()} );
 
-        std::set<QDateTime> timeStepUnion;
+        std::set<time_t> timeStepUnion = allAvailableTimeSteps();
 
-        std::set<RimSummaryCase*> timeStepDefiningSumCases = m_analyserOfSelectedCurveDefs->m_singleSummaryCases;
-        for ( RimSummaryCaseCollection* sumCaseColl : m_analyserOfSelectedCurveDefs->m_ensembles )
+        for ( time_t timeT : timeStepUnion )
         {
-            std::vector<RimSummaryCase*> sumCases = sumCaseColl->allSummaryCases();
-            if ( sumCases.size() )
-            {
-                timeStepDefiningSumCases.insert( sumCases[0] );
-            }
-        }
-
-        for ( RimSummaryCase* sumCase : timeStepDefiningSumCases )
-        {
-            const std::vector<time_t>& timeSteps = sumCase->summaryReader()->timeSteps( RifEclipseSummaryAddress() );
-
-            for ( time_t t : timeSteps )
-            {
-                timeStepUnion.insert( RiaQDateTimeTools::fromTime_t( t ) );
-            }
-        }
-
-        for ( const QDateTime& dateTime : timeStepUnion )
-        {
-            QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {dateTime} );
+            QDateTime dateTime     = RiaQDateTimeTools::fromTime_t( timeT );
+            QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {dateTime} );
 
             options.push_back( {dateTime.toString( formatString ), dateTime} );
         }
@@ -497,6 +649,61 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<time_t> RimAnalysisPlot::allAvailableTimeSteps()
+{
+    std::set<time_t> timeStepUnion;
+
+    for ( RimSummaryCase* sumCase : timestepDefiningSourceCases() )
+    {
+        const std::vector<time_t>& timeSteps = sumCase->summaryReader()->timeSteps( RifEclipseSummaryAddress() );
+
+        for ( time_t t : timeSteps )
+        {
+            timeStepUnion.insert( t );
+        }
+    }
+
+    return timeStepUnion;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimSummaryCase*> RimAnalysisPlot::timestepDefiningSourceCases()
+{
+    std::set<RimSummaryCase*> timeStepDefiningSumCases = m_analyserOfSelectedCurveDefs->m_singleSummaryCases;
+    for ( RimSummaryCaseCollection* sumCaseColl : m_analyserOfSelectedCurveDefs->m_ensembles )
+    {
+        std::vector<RimSummaryCase*> sumCases = sumCaseColl->allSummaryCases();
+        if ( sumCases.size() )
+        {
+            timeStepDefiningSumCases.insert( sumCases[0] );
+        }
+    }
+
+    return timeStepDefiningSumCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimSummaryCase*> RimAnalysisPlot::allSourceCases()
+{
+    std::set<RimSummaryCase*> allSumCases = m_analyserOfSelectedCurveDefs->m_singleSummaryCases;
+
+    for ( RimSummaryCaseCollection* sumCaseColl : m_analyserOfSelectedCurveDefs->m_ensembles )
+    {
+        std::vector<RimSummaryCase*> sumCases = sumCaseColl->allSummaryCases();
+
+        allSumCases.insert( sumCases.begin(), sumCases.end() );
+    }
+
+    return allSumCases;
 }
 
 //--------------------------------------------------------------------------------------------------

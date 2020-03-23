@@ -20,7 +20,9 @@
 #include "RimAnalysisPlot.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCaseCollection.h"
+
 #include "cafPdmUiActionPushButtonEditor.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -69,6 +71,8 @@ CAF_PDM_SOURCE_INIT( RimPlotDataFilterItem, "PlotDataFilterItem" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotDataFilterItem::RimPlotDataFilterItem()
+    : m_lowerLimit( -std::numeric_limits<double>::infinity() )
+    , m_upperLimit( std::numeric_limits<double>::infinity() )
 {
     CAF_PDM_InitObject( "Plot Data Filter", ":/EnsembleCurveSet16x16.png", "", "" );
 
@@ -93,7 +97,9 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
     CAF_PDM_InitField( &m_useAbsoluteValue, "UseAbsoluteValue", true, "Use Abs(value)", "", "", "" );
     CAF_PDM_InitField( &m_minTopN, "MinTopN", 20, "N", "", "", "" );
     CAF_PDM_InitField( &m_max, "Max", 0.0, "Max", "", "", "" );
+    m_max.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_min, "Min", 0.0, "Min", "", "", "" );
+    m_min.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleParameterValueCategories,
                                 "EnsembleParameterValueCategories",
@@ -104,6 +110,7 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
     CAF_PDM_InitFieldNoDefault( &m_consideredTimestepsType, "ConsideredTimestepsType", "Timesteps to Consider", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_explicitlySelectedTimeSteps, "ExplicitlySelectedTimeSteps", "TimeSteps", "", "", "" );
     m_explicitlySelectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_explicitlySelectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,6 +118,48 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
 //--------------------------------------------------------------------------------------------------
 RimPlotDataFilterItem::~RimPlotDataFilterItem()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                              const QVariant&            oldValue,
+                                              const QVariant&            newValue )
+{
+    RimAnalysisPlot* parentPlot;
+    this->firstAncestorOrThisOfTypeAsserted( parentPlot );
+
+    if ( changedField == &m_filterTarget )
+    {
+        this->updateMaxMinAndDefaultValues( true );
+        parentPlot->onFiltersChanged();
+    }
+    else if ( changedField == &m_filterAddress )
+    {
+        this->updateMaxMinAndDefaultValues( true );
+        parentPlot->onFiltersChanged();
+    }
+    else if ( changedField == &m_filterEnsembleParameter )
+    {
+        this->updateMaxMinAndDefaultValues( true );
+        parentPlot->onFiltersChanged();
+    }
+    else if ( changedField == &m_useAbsoluteValue )
+    {
+        this->updateMaxMinAndDefaultValues( false );
+        parentPlot->onFiltersChanged();
+    }
+    else if ( changedField = &m_filterOperation )
+    {
+        this->updateMaxMinAndDefaultValues( false );
+        parentPlot->onFiltersChanged();
+    }
+    else if ( changedField == &m_consideredTimestepsType || changedField == &m_explicitlySelectedTimeSteps )
+    {
+        this->updateMaxMinAndDefaultValues( false );
+        parentPlot->onFiltersChanged();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,17 +192,28 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_filterEnsembleParameter )
     {
-        // if ( m_filterTarget() == ENSEMBLE_CASE )
-        // {
-        //     std::set<EnsembleParameter> ensembleParams = parentPlot->ensembleParameters();
-        //     for ( const EnsembleParameter& ensParam : ensembleParams )
-        //     {
-        //         options.push_back( caf::PdmOptionItemInfo( ensParam.uiName(), ensParam.name ) );
-        //     }
-        //
-        //     options.push_front( caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(),
-        //                                                 QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
-        // }
+        if ( m_filterTarget() == ENSEMBLE_CASE )
+        {
+            std::set<EnsembleParameter> ensembleParams = parentPlot->ensembleParameters();
+            for ( const EnsembleParameter& ensParam : ensembleParams )
+            {
+                options.push_back( caf::PdmOptionItemInfo( ensParam.uiName(), ensParam.name ) );
+            }
+
+            options.push_front( caf::PdmOptionItemInfo( RiaDefines::undefinedResultName(),
+                                                        QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_ensembleParameterValueCategories )
+    {
+        EnsembleParameter eParm = selectedEnsembleParameter();
+        if ( eParm.isText() )
+        {
+            for ( const auto& val : eParm.values )
+            {
+                options.push_back( caf::PdmOptionItemInfo( val.toString(), val.toString() ) );
+            }
+        }
     }
 
     return options;
@@ -172,38 +232,48 @@ caf::PdmFieldHandle* RimPlotDataFilterItem::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_filterTarget, {true, 5, 1} );
+    updateMaxMinAndDefaultValues( false );
+
+    uiOrdering.add( &m_filterTarget, {true, 4, 1} );
     if ( m_filterTarget() == ENSEMBLE_CASE )
     {
-        uiOrdering.add( &m_filterEnsembleParameter, {true, 5, 1} );
+        uiOrdering.add( &m_filterEnsembleParameter, {true, 4, 1} );
     }
     else
     {
-        uiOrdering.add( &m_filterQuantityUiField, {true, 5, 1} );
+        uiOrdering.add( &m_filterQuantityUiField, {true, 4, 1} );
         // uiOrdering.add( &m_filterQuantitySelectButton, {false, 1, 0} );
     }
 
-    uiOrdering.add( &m_filterOperation, {true, 3, 1} );
-    uiOrdering.add( &m_useAbsoluteValue, {false} );
-
-    if ( m_filterOperation() == RANGE )
+    EnsembleParameter eParm;
+    if ( m_filterTarget() == ENSEMBLE_CASE )
     {
-        uiOrdering.add( &m_max );
-        uiOrdering.add( &m_min );
-    }
-    else if ( m_filterOperation == TOP_N || m_filterOperation == MIN_N )
-    {
-        uiOrdering.add( &m_minTopN );
+        eParm = selectedEnsembleParameter();
     }
 
-    if ( m_filterTarget() == ENSEMBLE_CASE && false ) // Ensemble Quantity is a category value
+    if ( m_filterTarget() == ENSEMBLE_CASE && eParm.isText() ) // Ensemble Quantity is a category value
     {
         uiOrdering.add( &m_ensembleParameterValueCategories );
     }
-
-    if ( m_filterTarget() != ENSEMBLE_CASE ) // Ensemble Quantity is a category value
+    else
     {
-        uiOrdering.add( &m_consideredTimestepsType );
+        uiOrdering.add( &m_filterOperation, {true, 2, 1} );
+        uiOrdering.add( &m_useAbsoluteValue, {false} );
+
+        if ( m_filterOperation() == RANGE )
+        {
+            uiOrdering.add( &m_max, {true, 4, 1} );
+            uiOrdering.add( &m_min, {true, 4, 1} );
+        }
+        else if ( m_filterOperation == TOP_N || m_filterOperation == MIN_N )
+        {
+            uiOrdering.add( &m_minTopN, {true, 4, 1} );
+        }
+    }
+
+    if ( m_filterTarget() != ENSEMBLE_CASE )
+    {
+        uiOrdering.add( &m_consideredTimestepsType, {true, 4, 1} );
         if ( m_consideredTimestepsType == SELECT_TIMESTEPS || m_consideredTimestepsType == SELECT_TIMESTEP_RANGE )
         {
             uiOrdering.add( &m_explicitlySelectedTimeSteps );
@@ -211,4 +281,77 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     }
 
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotDataFilterItem::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                   QString                    uiConfigName,
+                                                   caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_min || field == &m_max )
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( !myAttr )
+        {
+            return;
+        }
+
+        myAttr->m_minimum = m_lowerLimit;
+        myAttr->m_maximum = m_upperLimit;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotDataFilterItem::updateMaxMinAndDefaultValues( bool forceDefault )
+{
+    RimAnalysisPlot* parentPlot;
+    this->firstAncestorOrThisOfTypeAsserted( parentPlot );
+
+    if ( m_filterTarget == ENSEMBLE_CASE )
+    {
+        if ( !selectedEnsembleParameter().isValid() )
+        {
+            std::set<EnsembleParameter> ensembleParams = parentPlot->ensembleParameters();
+            if ( !ensembleParams.empty() )
+            {
+                m_filterEnsembleParameter = ensembleParams.begin()->name;
+            }
+        }
+
+        EnsembleParameter eParam = selectedEnsembleParameter();
+        if ( eParam.isValid() && eParam.isNumeric() )
+        {
+            if ( RiaCurveDataTools::isValidValue( eParam.minValue, false ) ) m_lowerLimit = eParam.minValue;
+            if ( RiaCurveDataTools::isValidValue( eParam.maxValue, false ) ) m_upperLimit = eParam.maxValue;
+        }
+    }
+    else
+    {
+        parentPlot->maxMinValueFromAddress( m_filterQuantityUiField,
+                                            m_consideredTimestepsType(),
+                                            m_explicitlySelectedTimeSteps(),
+                                            m_useAbsoluteValue(),
+                                            &m_lowerLimit,
+                                            &m_upperLimit );
+    }
+
+    if ( forceDefault || !( m_min >= m_lowerLimit && m_min <= m_upperLimit ) ) m_min = m_lowerLimit;
+    if ( forceDefault || !( m_max >= m_lowerLimit && m_max <= m_upperLimit ) ) m_max = m_upperLimit;
+
+    m_min.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
+    m_max.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+EnsembleParameter RimPlotDataFilterItem::selectedEnsembleParameter() const
+{
+    RimAnalysisPlot* parentPlot;
+    this->firstAncestorOrThisOfTypeAsserted( parentPlot );
+    return parentPlot->ensembleParameter( m_filterEnsembleParameter );
 }

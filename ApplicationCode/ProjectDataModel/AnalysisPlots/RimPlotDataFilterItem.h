@@ -26,6 +26,8 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifEclipseSummaryAddressQMetaType.h"
 
+#include "RimSummaryCaseCollection.h"
+
 #include <QDateTime>
 
 class RiuSummaryQwtPlot;
@@ -51,12 +53,30 @@ public:
     RimPlotDataFilterItem();
     ~RimPlotDataFilterItem() override;
 
-private:
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    enum TimeStepSourceType
+    {
+        PLOT_SOURCE_TIMESTEPS,
+        LAST_TIMESTEP,
+        FIRST_TIMESTEP,
+        LAST_TIMESTEP_WITH_HISTORY,
+        ALL_TIMESTEPS,
+        SELECT_TIMESTEPS,
+        SELECT_TIMESTEP_RANGE
+    };
 
-    virtual caf::PdmFieldHandle*          objectToggleField() override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly ) override;
+private:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
+    caf::PdmFieldHandle*          objectToggleField() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+
+    void              updateMaxMinAndDefaultValues( bool forceDefault );
+    EnsembleParameter selectedEnsembleParameter() const;
 
     caf::PdmField<bool> m_isActive;
 
@@ -98,20 +118,9 @@ private:
 
     // Considered Timesteps
 
-    enum TimeStepSourceType
-    {
-        PLOT_SOURCE_TIMESTEPS,
-        LAST_TIMESTEP,
-        FIRST_TIMESTEP,
-        LAST_TIMESTEP_WITH_HISTORY,
-        ALL_TIMESTEPS,
-        SELECT_TIMESTEPS,
-        SELECT_TIMESTEP_RANGE
-    };
-    friend caf::AppEnum<TimeStepSourceType>;
-
     caf::PdmField<caf::AppEnum<TimeStepSourceType>> m_consideredTimestepsType;
     caf::PdmField<std::vector<QDateTime>>           m_explicitlySelectedTimeSteps;
 
-protected:
+    double m_lowerLimit;
+    double m_upperLimit;
 };

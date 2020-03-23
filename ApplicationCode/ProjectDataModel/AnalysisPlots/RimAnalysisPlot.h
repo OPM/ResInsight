@@ -21,6 +21,7 @@
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RimPlot.h"
+#include "RimPlotDataFilterItem.h"
 #include "RimSummaryCaseCollection.h"
 
 #include "cafPdmPtrField.h"
@@ -54,8 +55,16 @@ public:
 
     std::set<RifEclipseSummaryAddress> unfilteredAddresses();
     std::set<EnsembleParameter>        ensembleParameters();
+    EnsembleParameter                  ensembleParameter( const QString& ensembleParameterName );
 
-    void maxMinValueFromAddress( const RifEclipseSummaryAddress& address, double* min, double* max );
+    void maxMinValueFromAddress( const RifEclipseSummaryAddress&           address,
+                                 RimPlotDataFilterItem::TimeStepSourceType timeStepSourceType,
+                                 const std::vector<QDateTime>&             timeRangeOrSelection,
+                                 bool                                      useAbsValue,
+                                 double*                                   min,
+                                 double*                                   max );
+
+    void onFiltersChanged();
 
 public: // Internal. Public needed for AppEnum setup
     enum BarOrientation
@@ -91,6 +100,12 @@ private:
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
+
+    std::set<time_t> allAvailableTimeSteps();
+
+    std::set<RimSummaryCase*> timestepDefiningSourceCases();
+    std::set<RimSummaryCase*> allSourceCases();
+
     // RimViewWindow overrides
 
     QWidget* viewWidget() override;
