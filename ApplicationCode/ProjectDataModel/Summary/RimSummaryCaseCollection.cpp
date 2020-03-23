@@ -89,7 +89,7 @@ bool EnsembleParameter::operator<( const EnsembleParameter& other ) const
 {
     if ( this->variationBin != other.variationBin )
     {
-        return this->variationBin < other.variationBin;
+        return this->variationBin > other.variationBin; // Larger first
     }
 
     return this->name < other.name;
