@@ -21,6 +21,9 @@
 #include "RimSummaryAddress.h"
 #include "RimSummaryCaseCollection.h"
 
+#include "RifSummaryReaderInterface.h"
+#include "RimSummaryCase.h"
+
 #include "cafPdmUiActionPushButtonEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
@@ -44,7 +47,7 @@ void caf::AppEnum<RimPlotDataFilterItem::FilterOperation>::setUp()
 {
     addItem( RimPlotDataFilterItem::RANGE, "RANGE", "Range" );
     addItem( RimPlotDataFilterItem::TOP_N, "TOP_N", "Top N" );
-    addItem( RimPlotDataFilterItem::MIN_N, "MIN_N", "Min N" );
+    addItem( RimPlotDataFilterItem::BOTTOM_N, "BOTTOM_N", "Bottom N" );
 
     setDefault( RimPlotDataFilterItem::RANGE );
 }
@@ -83,6 +86,7 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
 
     CAF_PDM_InitFieldNoDefault( &m_filterAddress, "FilterAddressField", "Filter Address", "", "", "" );
     m_filterAddress.uiCapability()->setUiTreeHidden( true );
+    m_filterAddress = new RimSummaryAddress();
 
     CAF_PDM_InitField( &m_filterEnsembleParameter, "QuantityText", QString( "" ), "Quantity", "", "", "" );
 
@@ -95,7 +99,7 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
 
     CAF_PDM_InitFieldNoDefault( &m_filterOperation, "FilterOperation", "Operation", "", "", "" );
     CAF_PDM_InitField( &m_useAbsoluteValue, "UseAbsoluteValue", true, "Use Abs(value)", "", "", "" );
-    CAF_PDM_InitField( &m_minTopN, "MinTopN", 20, "N", "", "", "" );
+    CAF_PDM_InitField( &m_topBottomN, "MinTopN", 20, "N", "", "", "" );
     CAF_PDM_InitField( &m_max, "Max", 0.0, "Max", "", "", "" );
     m_max.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_min, "Min", 0.0, "Min", "", "", "" );
@@ -123,6 +127,95 @@ RimPlotDataFilterItem::~RimPlotDataFilterItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RimPlotDataFilterItem::summaryAddress() const
+{
+    CVF_ASSERT( m_filterTarget() == SUMMARY_CASE || m_filterTarget() == SUMMARY_ITEM );
+    return m_filterAddress->address();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPlotDataFilterItem::ensembleParameterName() const
+{
+    CVF_ASSERT( m_filterTarget() == ENSEMBLE_CASE );
+    return m_filterEnsembleParameter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimPlotDataFilterItem::filterRangeMinMax() const
+{
+    CVF_ASSERT( m_filterOperation() == RANGE );
+    return std::make_pair( m_min(), m_max() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPlotDataFilterItem::topBottomN() const
+{
+    CVF_ASSERT( m_filterOperation() != RANGE );
+    return m_topBottomN;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimPlotDataFilterItem::selectedEnsembleParameterCategories() const
+{
+    CVF_ASSERT( m_filterTarget() == ENSEMBLE_CASE );
+    return m_ensembleParameterValueCategories;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotDataFilterItem::TimeStepSourceType RimPlotDataFilterItem::consideredTimeStepsType() const
+{
+    CVF_ASSERT( m_filterTarget() != ENSEMBLE_CASE );
+    return m_consideredTimestepsType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<time_t, time_t> RimPlotDataFilterItem::timeRangeMinMax() const
+{
+    CVF_ASSERT( m_consideredTimestepsType() == RANGE );
+
+    if ( m_explicitlySelectedTimeSteps().size() >= 2 )
+    {
+        time_t minTime = m_explicitlySelectedTimeSteps().front().toTime_t();
+        time_t maxTime = m_explicitlySelectedTimeSteps().back().toTime_t();
+
+        return std::make_pair( minTime, maxTime );
+    }
+    return std::make_pair( time_t( 0 ), time_t( 0 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<time_t> RimPlotDataFilterItem::explicitlySelectedTimeSteps() const
+{
+    CVF_ASSERT( m_consideredTimestepsType == RimPlotDataFilterItem::SELECT_TIMESTEPS );
+
+    std::vector<time_t> selectedTimesteps;
+    {
+        for ( const QDateTime& dateTime : m_explicitlySelectedTimeSteps() )
+        {
+            selectedTimesteps.push_back( dateTime.toTime_t() );
+        }
+    }
+
+    return selectedTimesteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                               const QVariant&            oldValue,
                                               const QVariant&            newValue )
@@ -135,8 +228,9 @@ void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changed
         this->updateMaxMinAndDefaultValues( true );
         parentPlot->onFiltersChanged();
     }
-    else if ( changedField == &m_filterAddress )
+    else if ( changedField == &m_filterQuantityUiField )
     {
+        m_filterAddress->setAddress( m_filterQuantityUiField );
         this->updateMaxMinAndDefaultValues( true );
         parentPlot->onFiltersChanged();
     }
@@ -232,6 +326,11 @@ caf::PdmFieldHandle* RimPlotDataFilterItem::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    if ( m_filterAddress )
+    {
+        m_filterQuantityUiField = m_filterAddress->address();
+    }
+
     updateMaxMinAndDefaultValues( false );
 
     uiOrdering.add( &m_filterTarget, {true, 4, 1} );
@@ -265,9 +364,9 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
             uiOrdering.add( &m_max, {true, 4, 1} );
             uiOrdering.add( &m_min, {true, 4, 1} );
         }
-        else if ( m_filterOperation == TOP_N || m_filterOperation == MIN_N )
+        else if ( m_filterOperation == TOP_N || m_filterOperation == BOTTOM_N )
         {
-            uiOrdering.add( &m_minTopN, {true, 4, 1} );
+            uiOrdering.add( &m_topBottomN, {true, 4, 1} );
         }
     }
 
@@ -325,8 +424,19 @@ void RimPlotDataFilterItem::updateMaxMinAndDefaultValues( bool forceDefault )
         EnsembleParameter eParam = selectedEnsembleParameter();
         if ( eParam.isValid() && eParam.isNumeric() )
         {
-            if ( RiaCurveDataTools::isValidValue( eParam.minValue, false ) ) m_lowerLimit = eParam.minValue;
-            if ( RiaCurveDataTools::isValidValue( eParam.maxValue, false ) ) m_upperLimit = eParam.maxValue;
+            if ( RiaCurveDataTools::isValidValue( eParam.minValue, false ) )
+            {
+                m_lowerLimit = eParam.minValue;
+                if ( m_useAbsoluteValue ) m_lowerLimit = fabs( eParam.minValue );
+            }
+            if ( RiaCurveDataTools::isValidValue( eParam.maxValue, false ) )
+            {
+                m_upperLimit = eParam.maxValue;
+                if ( m_useAbsoluteValue ) m_upperLimit = fabs( eParam.maxValue );
+            }
+
+            // Make sure max is > min after doing abs
+            if ( m_upperLimit < m_lowerLimit ) std::swap( m_upperLimit, m_lowerLimit );
         }
     }
     else

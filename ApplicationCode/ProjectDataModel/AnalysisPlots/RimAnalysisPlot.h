@@ -66,6 +66,8 @@ public:
 
     void onFiltersChanged();
 
+    std::vector<time_t> selectedTimeSteps();
+
 public: // Internal. Public needed for AppEnum setup
     enum BarOrientation
     {
@@ -149,8 +151,17 @@ private:
     void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
     void updatePlotTitle();
 
-    RimCurveDefinitionAnalyser*               getOrCreateSelectedCurveDefAnalyser();
-    std::vector<RiaSummaryCurveDefinition>    curveDefinitions() const;
+    RimCurveDefinitionAnalyser*            getOrCreateSelectedCurveDefAnalyser();
+    std::vector<RiaSummaryCurveDefinition> curveDefinitionsWithCollapsedEnsembleCurves() const;
+    std::vector<RiaSummaryCurveDefinition> curveDefinitionsWitExpandedEnsembleCurves();
+    std::vector<RiaSummaryCurveDefinition> filteredCurveDefs();
+    void                                   applyFilter( const RimPlotDataFilterItem*        filter,
+                                                        std::set<RimSummaryCase*>*          filteredSumCases,
+                                                        std::set<RifEclipseSummaryAddress>* filteredSummaryItems );
+
+    static std::vector<size_t> findTimestepIndices( std::vector<time_t>        selectedTimesteps,
+                                                    const std::vector<time_t>& timesteps );
+
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
     void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );

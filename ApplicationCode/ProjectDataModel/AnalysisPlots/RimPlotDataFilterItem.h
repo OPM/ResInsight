@@ -28,6 +28,8 @@
 
 #include "RimSummaryCaseCollection.h"
 
+#include "RiaSummaryCurveDefinition.h"
+
 #include <QDateTime>
 
 class RiuSummaryQwtPlot;
@@ -64,6 +66,41 @@ public:
         SELECT_TIMESTEP_RANGE
     };
 
+    // Filter target
+    enum FilterTarget
+    {
+        SUMMARY_ITEM,
+        SUMMARY_CASE,
+        ENSEMBLE_CASE
+    };
+
+    enum FilterOperation
+    {
+        TOP_N,
+        BOTTOM_N,
+        RANGE
+    };
+
+    std::vector<RiaSummaryCurveDefinition> applyFilter( const std::vector<RiaSummaryCurveDefinition>& curveDefsToFilter );
+
+    bool         isActive() const { return m_isActive(); }
+    FilterTarget filterTarget() const { return m_filterTarget(); }
+
+    RifEclipseSummaryAddress summaryAddress() const;
+
+    QString ensembleParameterName() const;
+
+    FilterOperation           filterOperation() const { return m_filterOperation(); }
+    bool                      useAbsoluteValues() const { return m_useAbsoluteValue(); }
+    std::pair<double, double> filterRangeMinMax() const;
+    int                       topBottomN() const;
+
+    std::vector<QString> selectedEnsembleParameterCategories() const;
+
+    TimeStepSourceType        consideredTimeStepsType() const;
+    std::pair<time_t, time_t> timeRangeMinMax() const;
+    std::vector<time_t>       explicitlySelectedTimeSteps() const;
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -80,14 +117,6 @@ private:
 
     caf::PdmField<bool> m_isActive;
 
-    // Filter target
-    enum FilterTarget
-    {
-        SUMMARY_ITEM,
-        SUMMARY_CASE,
-        ENSEMBLE_CASE
-    };
-    friend caf::AppEnum<FilterTarget>;
     caf::PdmField<caf::AppEnum<FilterTarget>> m_filterTarget;
 
     // Quantity
@@ -100,17 +129,9 @@ private:
 
     // Operation and parameters
 
-    enum FilterOperation
-    {
-        TOP_N,
-        MIN_N,
-        RANGE
-    };
-    friend caf::AppEnum<FilterOperation>;
-
     caf::PdmField<caf::AppEnum<FilterOperation>> m_filterOperation;
     caf::PdmField<bool>                          m_useAbsoluteValue;
-    caf::PdmField<int>                           m_minTopN;
+    caf::PdmField<int>                           m_topBottomN;
     caf::PdmField<double>                        m_max;
     caf::PdmField<double>                        m_min;
 
