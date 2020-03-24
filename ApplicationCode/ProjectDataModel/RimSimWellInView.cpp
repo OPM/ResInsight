@@ -688,11 +688,11 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
     }
     else
     {
-        m_isInjector = RimSimWellInViewTools::gridSummaryCaseForWell( this );
+        m_isInjector = RimSimWellInViewTools::isInjector( this );
 
         double oil = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
                                                                      name(),
-                                                                     wellDiskConfig.getOilProperty(),
+                                                                     wellDiskConfig.getOilProperty( m_isInjector ),
                                                                      currentDate,
                                                                      isOk );
         if ( !( *isOk ) )
@@ -703,7 +703,7 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
 
         double gas = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
                                                                      name(),
-                                                                     wellDiskConfig.getGasProperty(),
+                                                                     wellDiskConfig.getGasProperty( m_isInjector ),
                                                                      currentDate,
                                                                      isOk ) /
                      1000.0;
@@ -715,7 +715,7 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
 
         double water = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
                                                                        name(),
-                                                                       wellDiskConfig.getWaterProperty(),
+                                                                       wellDiskConfig.getWaterProperty( m_isInjector ),
                                                                        currentDate,
                                                                        isOk );
         if ( !( *isOk ) )

@@ -23,6 +23,7 @@
 //--------------------------------------------------------------------------------------------------
 RimWellDiskConfig::RimWellDiskConfig()
     : m_isSingleProperty( false )
+    , m_isCombinedProductionAndInjection( false )
     , m_summaryCase( nullptr )
 {
 }
@@ -64,16 +65,24 @@ void RimWellDiskConfig::setSingleProperty( const std::string& singleProperty )
 //--------------------------------------------------------------------------------------------------
 void RimWellDiskConfig::setOilProperty( const std::string& oilProperty )
 {
-    m_isSingleProperty = false;
-    m_oilProperty      = oilProperty;
+    m_isSingleProperty                 = false;
+    m_isCombinedProductionAndInjection = false;
+    m_oilProperty                      = oilProperty;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RimWellDiskConfig::getOilProperty() const
+std::string RimWellDiskConfig::getOilProperty( bool isInjector ) const
 {
-    return m_oilProperty;
+    if ( m_isCombinedProductionAndInjection && isInjector )
+    {
+        return m_oilPropertyInjector;
+    }
+    else
+    {
+        return m_oilProperty;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,16 +90,24 @@ std::string RimWellDiskConfig::getOilProperty() const
 //--------------------------------------------------------------------------------------------------
 void RimWellDiskConfig::setGasProperty( const std::string& gasProperty )
 {
-    m_isSingleProperty = false;
-    m_gasProperty      = gasProperty;
+    m_isSingleProperty                 = false;
+    m_isCombinedProductionAndInjection = false;
+    m_gasProperty                      = gasProperty;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RimWellDiskConfig::getGasProperty() const
+std::string RimWellDiskConfig::getGasProperty( bool isInjector ) const
 {
-    return m_gasProperty;
+    if ( m_isCombinedProductionAndInjection && isInjector )
+    {
+        return m_gasPropertyInjector;
+    }
+    else
+    {
+        return m_gasProperty;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,16 +115,57 @@ std::string RimWellDiskConfig::getGasProperty() const
 //--------------------------------------------------------------------------------------------------
 void RimWellDiskConfig::setWaterProperty( const std::string& waterProperty )
 {
-    m_isSingleProperty = false;
-    m_waterProperty    = waterProperty;
+    m_isSingleProperty                 = false;
+    m_isCombinedProductionAndInjection = false;
+    m_waterProperty                    = waterProperty;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RimWellDiskConfig::getWaterProperty() const
+std::string RimWellDiskConfig::getWaterProperty( bool isInjector ) const
 {
-    return m_waterProperty;
+    if ( m_isCombinedProductionAndInjection && isInjector )
+    {
+        return m_waterPropertyInjector;
+    }
+    else
+    {
+        return m_waterProperty;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDiskConfig::setOilProperty( const std::string& oilPropertyProducer, const std::string& oilPropertyInjector )
+{
+    m_isCombinedProductionAndInjection = true;
+    m_isSingleProperty                 = false;
+    m_oilProperty                      = oilPropertyProducer;
+    m_oilPropertyInjector              = oilPropertyInjector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDiskConfig::setGasProperty( const std::string& gasPropertyProducer, const std::string& gasPropertyInjector )
+{
+    m_isCombinedProductionAndInjection = true;
+    m_isSingleProperty                 = false;
+    m_gasProperty                      = gasPropertyProducer;
+    m_gasPropertyInjector              = gasPropertyInjector;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellDiskConfig::setWaterProperty( const std::string& waterPropertyProducer, const std::string& waterPropertyInjector )
+{
+    m_isCombinedProductionAndInjection = true;
+    m_isSingleProperty                 = false;
+    m_waterProperty                    = waterPropertyProducer;
+    m_waterPropertyInjector            = waterPropertyInjector;
 }
 
 //--------------------------------------------------------------------------------------------------
