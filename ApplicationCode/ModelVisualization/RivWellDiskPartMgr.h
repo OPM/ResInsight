@@ -59,14 +59,14 @@ private:
     std::pair<cvf::String, cvf::Vec3f> createTextAndLocation( const double aggregatedFraction,
                                                               cvf::Vec3d   diskPosition,
                                                               double       ijScaleFactor,
-                                                              const double fraction,
-                                                              int          precision );
+                                                              const double fraction );
 
     void                        clearAllGeometry();
     Rim3dView*                  viewWithSettings();
     RimSimWellInViewCollection* simWellInViewCollection();
 
     static cvf::Color4f getWellInjectionColor( RigWellResultFrame::WellProductionType productionType );
+    static QString      formatNumber( double num );
 
 private:
     caf::PdmPointer<RimSimWellInView> m_rimWell;
