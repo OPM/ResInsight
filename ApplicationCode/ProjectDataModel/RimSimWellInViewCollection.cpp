@@ -144,6 +144,13 @@ void AppEnum<RimSimWellInViewCollection::WellDiskPropertyConfigType>::setUp()
     addItem( RimSimWellInViewCollection::INJECTION_RATES, "INJECTION_RATES", "Injection Rates" );
     addItem( RimSimWellInViewCollection::CUMULATIVE_PRODUCTION_RATES, "CUMULATIVE_PRODUCTION_RATES", "Production Total" );
     addItem( RimSimWellInViewCollection::CUMULATIVE_INJECTION_RATES, "CUMULATIVE_INJECTION_RATES", "Injection Total" );
+    addItem( RimSimWellInViewCollection::PRODUCTION_INJECTION_RATES,
+             "PRODUCTION_INJECTION_RATES",
+             "Production/Injection Rates" );
+    addItem( RimSimWellInViewCollection::CUMULATIVE_PRODUCTION_INJECTION_RATES,
+             "CUMULATIVE_PRODUCTION_INJECTION_RATES",
+             "Production/Injection Total" );
+
     setDefault( RimSimWellInViewCollection::PRODUCTION_RATES );
 }
 } // namespace caf
@@ -1103,6 +1110,18 @@ RimWellDiskConfig RimSimWellInViewCollection::getActiveWellDiskConfig() const
             wellDiskConfig.setOilProperty( "" );
             wellDiskConfig.setGasProperty( "WGIT" );
             wellDiskConfig.setWaterProperty( "WWIT" );
+        }
+        else if ( configType == PRODUCTION_INJECTION_RATES )
+        {
+            wellDiskConfig.setOilProperty( "WOPR", "" );
+            wellDiskConfig.setGasProperty( "WGPR", "WGIR" );
+            wellDiskConfig.setWaterProperty( "WWPR", "WWIR" );
+        }
+        else if ( configType == CUMULATIVE_PRODUCTION_INJECTION_RATES )
+        {
+            wellDiskConfig.setOilProperty( "WOPT", "" );
+            wellDiskConfig.setGasProperty( "WGPT", "WGIT" );
+            wellDiskConfig.setWaterProperty( "WWPT", "WWIT" );
         }
     }
     else
