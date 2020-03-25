@@ -59,13 +59,13 @@ public:
     {
         for ( const auto& curveDef : curveDefs )
         {
-            if ( curveDef.isEnsembleCurve() )
+            CVF_ASSERT( !curveDef.isEnsembleCurve() );
+
+            m_singleSummaryCases.insert( curveDef.summaryCase() );
+
+            if ( curveDef.summaryCase()->ensemble() )
             {
-                m_ensembles.insert( curveDef.ensemble() );
-            }
-            else
-            {
-                m_singleSummaryCases.insert( curveDef.summaryCase() );
+                m_ensembles.insert( curveDef.summaryCase()->ensemble() );
             }
 
             RifEclipseSummaryAddress address = curveDef.summaryAddress();
@@ -73,12 +73,12 @@ public:
             m_quantityNames.insert( address.quantityName() );
 
             address.setQuantityName( "" );
-            m_summaryItems.insert( address );
+            if ( !address.itemUiText().empty() ) m_summaryItems.insert( address );
         }
     }
 
-    std::set<RimSummaryCase*>           m_singleSummaryCases;
-    std::set<RimSummaryCaseCollection*> m_ensembles;
+    std::set<RimSummaryCase*>           m_singleSummaryCases; // All summary cases used
+    std::set<RimSummaryCaseCollection*> m_ensembles; // All the ensembles referenced by the summary cases
 
     std::set<RifEclipseSummaryAddress> m_summaryItems; // Quantity name set to "", stores only the identifiers
     std::set<std::string>              m_quantityNames; // Quantity names from the addresses
@@ -239,12 +239,6 @@ std::set<RifEclipseSummaryAddress> RimAnalysisPlot::unfilteredAddresses()
         addresses.insert( caseAddrs.begin(), caseAddrs.end() );
     }
 
-    for ( RimSummaryCaseCollection* caseColl : analyserOfSelectedCurveDefs->m_ensembles )
-    {
-        std::set<RifEclipseSummaryAddress> ensAddrs = caseColl->ensembleSummaryAddresses();
-        addresses.insert( ensAddrs.begin(), ensAddrs.end() );
-    }
-
     return addresses;
 }
 
@@ -258,14 +252,6 @@ std::set<EnsembleParameter> RimAnalysisPlot::ensembleParameters()
     RimCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
 
     std::set<RimSummaryCaseCollection*> ensembles;
-
-    for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
-    {
-        if ( ensemble->isEnsemble() )
-        {
-            ensembles.insert( ensemble );
-        }
-    }
 
     for ( RimSummaryCase* sumCase : analyserOfSelectedCurveDefs->m_singleSummaryCases )
     {
@@ -462,7 +448,7 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         dlg.enableMultiSelect( true );
         dlg.enableIndividualEnsembleCaseSelection( true );
 
-        dlg.setCurveSelection( this->curveDefinitionsWithCollapsedEnsembleCurves() );
+        dlg.setCurveSelection( this->curveDefinitionsWithoutEnsembleReference() );
         dlg.setCaseAndAddress( nullptr, RifEclipseSummaryAddress() );
 
         if ( dlg.exec() == QDialog::Accepted )
@@ -597,7 +583,7 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
     if ( !m_analyserOfSelectedCurveDefs )
     {
         m_analyserOfSelectedCurveDefs = std::unique_ptr<RimCurveDefinitionAnalyser>(
-            new RimCurveDefinitionAnalyser( this->curveDefinitionsWithCollapsedEnsembleCurves() ) );
+            new RimCurveDefinitionAnalyser( this->curveDefinitionsWithoutEnsembleReference() ) );
     }
 
     if ( fieldNeedingOptions == &m_addTimestepUiField )
@@ -678,14 +664,6 @@ std::set<time_t> RimAnalysisPlot::allAvailableTimeSteps()
 std::set<RimSummaryCase*> RimAnalysisPlot::timestepDefiningSourceCases()
 {
     std::set<RimSummaryCase*> timeStepDefiningSumCases = m_analyserOfSelectedCurveDefs->m_singleSummaryCases;
-    for ( RimSummaryCaseCollection* sumCaseColl : m_analyserOfSelectedCurveDefs->m_ensembles )
-    {
-        std::vector<RimSummaryCase*> sumCases = sumCaseColl->allSummaryCases();
-        if ( sumCases.size() )
-        {
-            timeStepDefiningSumCases.insert( sumCases[0] );
-        }
-    }
 
     return timeStepDefiningSumCases;
 }
@@ -696,13 +674,6 @@ std::set<RimSummaryCase*> RimAnalysisPlot::timestepDefiningSourceCases()
 std::set<RimSummaryCase*> RimAnalysisPlot::allSourceCases()
 {
     std::set<RimSummaryCase*> allSumCases = m_analyserOfSelectedCurveDefs->m_singleSummaryCases;
-
-    for ( RimSummaryCaseCollection* sumCaseColl : m_analyserOfSelectedCurveDefs->m_ensembles )
-    {
-        std::vector<RimSummaryCase*> sumCases = sumCaseColl->allSummaryCases();
-
-        allSumCases.insert( sumCases.begin(), sumCases.end() );
-    }
 
     return allSumCases;
 }
@@ -731,7 +702,7 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
 
     m_analyserOfSelectedCurveDefs = std::unique_ptr<RimCurveDefinitionAnalyser>(
-        new RimCurveDefinitionAnalyser( this->curveDefinitionsWithCollapsedEnsembleCurves() ) );
+        new RimCurveDefinitionAnalyser( this->curveDefinitionsWithoutEnsembleReference() ) );
 
     if ( m_plotWidget )
     {
@@ -885,7 +856,7 @@ void RimAnalysisPlot::updateAxes()
 
         std::set<QString> timeHistoryQuantities;
 
-        RimSummaryPlotAxisFormatter calc( valAxisProperties, {}, curveDefinitionsWithCollapsedEnsembleCurves(), {}, {} );
+        RimSummaryPlotAxisFormatter calc( valAxisProperties, {}, curveDefinitionsWithoutEnsembleReference(), {}, {} );
         calc.applyAxisPropertiesToPlot( m_plotWidget );
     }
     else
@@ -1033,7 +1004,7 @@ std::vector<size_t> RimAnalysisPlot::findTimestepIndices( std::vector<time_t>   
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
 {
-    std::vector<RiaSummaryCurveDefinition> dataDefinitions = curveDefinitionsWitExpandedEnsembleCurves();
+    std::vector<RiaSummaryCurveDefinition> dataDefinitions = curveDefinitionsWithEmbeddedEnsembleReference();
 
     // Split out the filter targets
 
@@ -1636,7 +1607,7 @@ RimCurveDefinitionAnalyser* RimAnalysisPlot::getOrCreateSelectedCurveDefAnalyser
     if ( !m_analyserOfSelectedCurveDefs )
     {
         m_analyserOfSelectedCurveDefs = std::unique_ptr<RimCurveDefinitionAnalyser>(
-            new RimCurveDefinitionAnalyser( this->curveDefinitionsWithCollapsedEnsembleCurves() ) );
+            new RimCurveDefinitionAnalyser( this->curveDefinitionsWithoutEnsembleReference() ) );
     }
 
     return m_analyserOfSelectedCurveDefs.get();
@@ -1645,7 +1616,7 @@ RimCurveDefinitionAnalyser* RimAnalysisPlot::getOrCreateSelectedCurveDefAnalyser
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitionsWithCollapsedEnsembleCurves() const
+std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitionsWithoutEnsembleReference() const
 {
     std::vector<RiaSummaryCurveDefinition> curveDefs;
     for ( auto dataEntry : m_analysisPlotDataSelection )
@@ -1659,7 +1630,7 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitionsWithColl
 //--------------------------------------------------------------------------------------------------
 /// The curve definitions returned contain both the case AND the ensemble from which it has been spawned
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitionsWitExpandedEnsembleCurves()
+std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitionsWithEmbeddedEnsembleReference()
 {
     std::vector<RiaSummaryCurveDefinition> barDataDefinitions;
 
@@ -1667,30 +1638,15 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitionsWitExpan
     {
         RiaSummaryCurveDefinition orgBarDataEntry = dataEntry->curveDefinition();
 
-        // Unpack ensemble curves and make one curve definition for each individual curve.
-        // Store both ensemble and summary case in the definition
-
-        if ( orgBarDataEntry.isEnsembleCurve() )
+        if ( orgBarDataEntry.summaryCase() && orgBarDataEntry.summaryCase()->ensemble() )
         {
-            std::vector<RimSummaryCase*> sumCases = orgBarDataEntry.ensemble()->allSummaryCases();
-            for ( auto sumCase : sumCases )
-            {
-                barDataDefinitions.push_back(
-                    RiaSummaryCurveDefinition( sumCase, orgBarDataEntry.summaryAddress(), orgBarDataEntry.ensemble() ) );
-            }
+            barDataDefinitions.push_back( RiaSummaryCurveDefinition( orgBarDataEntry.summaryCase(),
+                                                                     orgBarDataEntry.summaryAddress(),
+                                                                     orgBarDataEntry.summaryCase()->ensemble() ) );
         }
         else
         {
-            if ( orgBarDataEntry.summaryCase() && orgBarDataEntry.summaryCase()->ensemble() )
-            {
-                barDataDefinitions.push_back( RiaSummaryCurveDefinition( orgBarDataEntry.summaryCase(),
-                                                                         orgBarDataEntry.summaryAddress(),
-                                                                         orgBarDataEntry.summaryCase()->ensemble() ) );
-            }
-            else
-            {
-                barDataDefinitions.push_back( orgBarDataEntry );
-            }
+            barDataDefinitions.push_back( orgBarDataEntry );
         }
     }
 

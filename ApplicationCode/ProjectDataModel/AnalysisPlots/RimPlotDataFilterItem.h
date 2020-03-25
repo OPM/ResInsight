@@ -85,8 +85,6 @@ public:
         RANGE
     };
 
-    std::vector<RiaSummaryCurveDefinition> applyFilter( const std::vector<RiaSummaryCurveDefinition>& curveDefsToFilter );
-
     bool         isActive() const { return m_isActive(); }
     FilterTarget filterTarget() const { return m_filterTarget(); }
 

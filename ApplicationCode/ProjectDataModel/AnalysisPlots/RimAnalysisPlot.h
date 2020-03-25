@@ -152,8 +152,8 @@ private:
     void updatePlotTitle();
 
     RimCurveDefinitionAnalyser*            getOrCreateSelectedCurveDefAnalyser();
-    std::vector<RiaSummaryCurveDefinition> curveDefinitionsWithCollapsedEnsembleCurves() const;
-    std::vector<RiaSummaryCurveDefinition> curveDefinitionsWitExpandedEnsembleCurves();
+    std::vector<RiaSummaryCurveDefinition> curveDefinitionsWithoutEnsembleReference() const;
+    std::vector<RiaSummaryCurveDefinition> curveDefinitionsWithEmbeddedEnsembleReference();
     std::vector<RiaSummaryCurveDefinition> filteredCurveDefs();
     void                                   applyFilter( const RimPlotDataFilterItem*        filter,
                                                         std::set<RimSummaryCase*>*          filteredSumCases,

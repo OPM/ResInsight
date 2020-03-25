@@ -39,12 +39,10 @@ public:
     void                      setFromCurveDefinition( const RiaSummaryCurveDefinition& curveDef );
     RiaSummaryCurveDefinition curveDefinition() const;
 
-    RimSummaryCase*           summaryCase() const;
-    RimSummaryCaseCollection* ensemble() const;
-    RifEclipseSummaryAddress  summaryAddress() const;
+    RimSummaryCase*          summaryCase() const;
+    RifEclipseSummaryAddress summaryAddress() const;
 
 private:
-    caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
-    caf::PdmChildField<RimSummaryAddress*>      m_summaryAddress;
+    caf::PdmPtrField<RimSummaryCase*>      m_summaryCase;
+    caf::PdmChildField<RimSummaryAddress*> m_summaryAddress;
 };
