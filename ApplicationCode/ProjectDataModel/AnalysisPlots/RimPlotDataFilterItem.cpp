@@ -24,6 +24,7 @@
 #include "RifSummaryReaderInterface.h"
 #include "RimSummaryCase.h"
 
+#include "QFontMetrics"
 #include "cafPdmUiActionPushButtonEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiLineEditor.h"
@@ -35,9 +36,9 @@ namespace caf
 template <>
 void caf::AppEnum<RimPlotDataFilterItem::FilterTarget>::setUp()
 {
-    addItem( RimPlotDataFilterItem::SUMMARY_ITEM, "SUMMARY_ITEM", "Summary Item" );
-    addItem( RimPlotDataFilterItem::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
-    addItem( RimPlotDataFilterItem::ENSEMBLE_CASE, "ENSEMBLE_CASE", "Summary Case by Ensemble Parameter" );
+    addItem( RimPlotDataFilterItem::SUMMARY_ITEM, "SUMMARY_ITEM", "summary items" );
+    addItem( RimPlotDataFilterItem::SUMMARY_CASE, "SUMMARY_CASE", "summary cases" );
+    addItem( RimPlotDataFilterItem::ENSEMBLE_CASE, "ENSEMBLE_CASE", "ensemble cases" );
 
     setDefault( RimPlotDataFilterItem::SUMMARY_CASE );
 }
@@ -45,9 +46,9 @@ void caf::AppEnum<RimPlotDataFilterItem::FilterTarget>::setUp()
 template <>
 void caf::AppEnum<RimPlotDataFilterItem::FilterOperation>::setUp()
 {
-    addItem( RimPlotDataFilterItem::RANGE, "RANGE", "Range" );
-    addItem( RimPlotDataFilterItem::TOP_N, "TOP_N", "Top N" );
-    addItem( RimPlotDataFilterItem::BOTTOM_N, "BOTTOM_N", "Bottom N" );
+    addItem( RimPlotDataFilterItem::RANGE, "RANGE", "within range" );
+    addItem( RimPlotDataFilterItem::TOP_N, "TOP_N", "top" );
+    addItem( RimPlotDataFilterItem::BOTTOM_N, "BOTTOM_N", "bottom" );
 
     setDefault( RimPlotDataFilterItem::RANGE );
 }
@@ -55,13 +56,13 @@ void caf::AppEnum<RimPlotDataFilterItem::FilterOperation>::setUp()
 template <>
 void caf::AppEnum<RimPlotDataFilterItem::TimeStepSourceType>::setUp()
 {
-    addItem( RimPlotDataFilterItem::PLOT_SOURCE_TIMESTEPS, "PLOT_SOURCE_TIMESTEPS", "Plot Source" );
-    addItem( RimPlotDataFilterItem::LAST_TIMESTEP, "LAST_TIMESTEP", "Last" );
-    addItem( RimPlotDataFilterItem::LAST_TIMESTEP_WITH_HISTORY, "LAST_TIMESTEP_WITH_HISTORY", "Last With History" );
-    addItem( RimPlotDataFilterItem::FIRST_TIMESTEP, "FIRST_TIMESTEP", "First" );
-    addItem( RimPlotDataFilterItem::ALL_TIMESTEPS, "ALL_TIMESTEPS", "All" );
-    addItem( RimPlotDataFilterItem::SELECT_TIMESTEPS, "SELECT_TIMESTEPS", "By Selection" );
-    addItem( RimPlotDataFilterItem::SELECT_TIMESTEP_RANGE, "SELECT_TIMESTEP_RANGE", "By Range" );
+    addItem( RimPlotDataFilterItem::PLOT_SOURCE_TIMESTEPS, "PLOT_SOURCE_TIMESTEPS", "plot source timesteps" );
+    addItem( RimPlotDataFilterItem::LAST_TIMESTEP, "LAST_TIMESTEP", "last timestep" );
+    addItem( RimPlotDataFilterItem::LAST_TIMESTEP_WITH_HISTORY, "LAST_TIMESTEP_WITH_HISTORY", "last timestep with history" );
+    addItem( RimPlotDataFilterItem::FIRST_TIMESTEP, "FIRST_TIMESTEP", "first timestep" );
+    addItem( RimPlotDataFilterItem::ALL_TIMESTEPS, "ALL_TIMESTEPS", "all timesteps" );
+    addItem( RimPlotDataFilterItem::SELECT_TIMESTEPS, "SELECT_TIMESTEPS", "selected timesteps" );
+    addItem( RimPlotDataFilterItem::SELECT_TIMESTEP_RANGE, "SELECT_TIMESTEP_RANGE", "timestep range" );
 
     setDefault( RimPlotDataFilterItem::PLOT_SOURCE_TIMESTEPS );
 }
@@ -82,36 +83,34 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterTarget, "FilterTarget", "Filter Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterTarget, "FilterTarget", "Use only the", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_filterAddress, "FilterAddressField", "Filter Address", "", "", "" );
     m_filterAddress.uiCapability()->setUiTreeHidden( true );
+    m_filterAddress.uiCapability()->setUiTreeChildrenHidden( true );
     m_filterAddress = new RimSummaryAddress();
 
-    CAF_PDM_InitField( &m_filterEnsembleParameter, "QuantityText", QString( "" ), "Quantity", "", "", "" );
+    CAF_PDM_InitField( &m_filterEnsembleParameter, "QuantityText", QString( "" ), "where", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterQuantityUiField, "SelectedVariableDisplayVar", "Vector", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterQuantityUiField, "SelectedVariableDisplayVar", "where", "", "", "" );
     m_filterQuantityUiField.xmlCapability()->disableIO();
     m_filterQuantityUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_filterQuantitySelectButton, "SelectAddress", false, "...", "", "", "" );
     caf::PdmUiActionPushButtonEditor::configureEditorForField( &m_filterQuantitySelectButton );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterOperation, "FilterOperation", "Operation", "", "", "" );
-    CAF_PDM_InitField( &m_useAbsoluteValue, "UseAbsoluteValue", true, "Use Abs(value)", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterOperation, "FilterOperation", "is", "", "", "" );
+    CAF_PDM_InitField( &m_useAbsoluteValue, "UseAbsoluteValue", true, "using absolute values", "", "", "" );
     CAF_PDM_InitField( &m_topBottomN, "MinTopN", 20, "N", "", "", "" );
+    m_topBottomN.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitField( &m_max, "Max", 0.0, "Max", "", "", "" );
     m_max.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_min, "Min", 0.0, "Min", "", "", "" );
     m_min.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleParameterValueCategories,
-                                "EnsembleParameterValueCategories",
-                                "Categories",
-                                "",
-                                "",
-                                "" );
-    CAF_PDM_InitFieldNoDefault( &m_consideredTimestepsType, "ConsideredTimestepsType", "Timesteps to Consider", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleParameterValueCategories, "EnsembleParameterValueCategories", "one of", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_consideredTimestepsType, "ConsideredTimestepsType", "at the", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_explicitlySelectedTimeSteps, "ExplicitlySelectedTimeSteps", "TimeSteps", "", "", "" );
     m_explicitlySelectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_explicitlySelectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -183,7 +182,7 @@ RimPlotDataFilterItem::TimeStepSourceType RimPlotDataFilterItem::consideredTimeS
 //--------------------------------------------------------------------------------------------------
 std::pair<time_t, time_t> RimPlotDataFilterItem::timeRangeMinMax() const
 {
-    CVF_ASSERT( m_consideredTimestepsType() == RANGE );
+    CVF_ASSERT( m_consideredTimestepsType() == SELECT_TIMESTEP_RANGE );
 
     if ( m_explicitlySelectedTimeSteps().size() >= 2 )
     {
@@ -333,15 +332,23 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     updateMaxMinAndDefaultValues( false );
 
-    uiOrdering.add( &m_filterTarget, {true, 4, 1} );
+    uiOrdering.add( &m_filterTarget, {true, -1, 1} );
     if ( m_filterTarget() == ENSEMBLE_CASE )
     {
-        uiOrdering.add( &m_filterEnsembleParameter, {true, 4, 1} );
+        uiOrdering.add( &m_filterEnsembleParameter, {true, -1, 1} );
     }
     else
     {
-        uiOrdering.add( &m_filterQuantityUiField, {true, 4, 1} );
+        uiOrdering.add( &m_filterQuantityUiField, {true, -1, 1} );
         // uiOrdering.add( &m_filterQuantitySelectButton, {false, 1, 0} );
+    }
+    if ( m_filterTarget() != ENSEMBLE_CASE )
+    {
+        uiOrdering.add( &m_consideredTimestepsType, {true, -1, 1} );
+        if ( m_consideredTimestepsType == SELECT_TIMESTEPS || m_consideredTimestepsType == SELECT_TIMESTEP_RANGE )
+        {
+            uiOrdering.add( &m_explicitlySelectedTimeSteps );
+        }
     }
 
     EnsembleParameter eParm;
@@ -357,25 +364,18 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     else
     {
         uiOrdering.add( &m_filterOperation, {true, 2, 1} );
-        uiOrdering.add( &m_useAbsoluteValue, {false} );
 
         if ( m_filterOperation() == RANGE )
         {
-            uiOrdering.add( &m_max, {true, 4, 1} );
-            uiOrdering.add( &m_min, {true, 4, 1} );
+            uiOrdering.add( &m_useAbsoluteValue, {false} );
+
+            uiOrdering.add( &m_max, {true, -1, 1} );
+            uiOrdering.add( &m_min, {true, -1, 1} );
         }
         else if ( m_filterOperation == TOP_N || m_filterOperation == BOTTOM_N )
         {
-            uiOrdering.add( &m_topBottomN, {true, 4, 1} );
-        }
-    }
-
-    if ( m_filterTarget() != ENSEMBLE_CASE )
-    {
-        uiOrdering.add( &m_consideredTimestepsType, {true, 4, 1} );
-        if ( m_consideredTimestepsType == SELECT_TIMESTEPS || m_consideredTimestepsType == SELECT_TIMESTEP_RANGE )
-        {
-            uiOrdering.add( &m_explicitlySelectedTimeSteps );
+            uiOrdering.add( &m_topBottomN, {false} );
+            uiOrdering.add( &m_useAbsoluteValue, {true} );
         }
     }
 
@@ -399,6 +399,16 @@ void RimPlotDataFilterItem::defineEditorAttribute( const caf::PdmFieldHandle* fi
 
         myAttr->m_minimum = m_lowerLimit;
         myAttr->m_maximum = m_upperLimit;
+    }
+    else if ( field == &m_topBottomN )
+    {
+        caf::PdmUiLineEditorAttribute* myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+
+        if ( !myAttr ) return;
+
+        QFontMetrics fm = QFontMetrics( QFont() );
+
+        myAttr->maximumWidth = fm.width( "XXXX" );
     }
 }
 

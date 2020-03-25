@@ -47,6 +47,10 @@ class RimSummaryAddress;
 // is [within range/top N/min N]
 // considering the [Plot Source/Last/First/Last with History/all] timestep(s) [range/1,2..]
 
+// Use only the "Summary Cases" where "FOPT" at the "plot source" time step(s) is "within range"
+// Use only the "Summary Items" where "WOPT" at the "Last" time step(s) is "Top " "5"
+// Use only the "Ensemble Cases" where "LGOR_FOR_EDKNRE" is "within range" "5"
+
 class RimPlotDataFilterItem : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
