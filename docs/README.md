@@ -7,7 +7,7 @@ The folder **rips** is a local copy for testing purposes. We need to be able to 
 - Install Python 3.x
 - Install dependencies for rips `pip install grpcio grpcio-tools protobuf`
 - Install the documentation system `pip install sphinx`
-- Install dependencies for sphinx `pip install m2r`
+- Install dependencies for sphinx `pip install m2r sphinx_rtd_theme`
 - Open command line in folder **docs**
 - Execute `make html`
 - Open the generated documentation in a browser `build/html/index.html`
