@@ -113,6 +113,8 @@ public:
 
     std::set<QString> sortedSimWellNames() const;
 
+    void loadAndSyncronizeInputProperties( bool includeGridFileName );
+
 protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -122,8 +124,9 @@ protected:
 
     // Internal methods
 protected:
-    void computeCachedData();
-    void setReservoirData( RigEclipseCaseData* eclipseCase );
+    void                 computeCachedData();
+    void                 setReservoirData( RigEclipseCaseData* eclipseCase );
+    std::vector<QString> additionalFiles() const;
 
 private:
     void                    createTimeStepFormatString();

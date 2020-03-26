@@ -216,7 +216,7 @@ bool RimEclipseInputCase::openEclipseGridFile()
         this->eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
 
         computeCachedData();
-        loadAndSyncronizeInputProperties();
+        loadAndSyncronizeInputProperties( true );
     }
 
     RiaApplication* app = RiaApplication::instance();
@@ -238,29 +238,6 @@ void RimEclipseInputCase::reloadEclipseGridFile()
 {
     setReservoirData( nullptr );
     openReserviorCase();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Loads input property data from the gridFile and additional files
-/// Creates new InputProperties if necessary, and flags the unused ones as obsolete
-//--------------------------------------------------------------------------------------------------
-void RimEclipseInputCase::loadAndSyncronizeInputProperties()
-{
-    // Make sure we actually have reservoir data
-
-    CVF_ASSERT( this->eclipseCaseData() );
-    CVF_ASSERT( this->eclipseCaseData()->mainGrid()->gridPointDimensions() != cvf::Vec3st( 0, 0, 0 ) );
-
-    // Then read the properties from all the files referenced by the InputReservoir
-
-    std::vector<QString> filenames;
-    for ( const QString& fileName : additionalFiles() )
-    {
-        filenames.push_back( fileName );
-    }
-    filenames.push_back( gridFileName() );
-
-    RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(), eclipseCaseData(), filenames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,20 +348,4 @@ void RimEclipseInputCase::updateAdditionalFileFolder( const QString& newFolder )
         QFileInfo newFilePath( newDir, oldFilePath.fileName() );
         inputProperty->fileName = newFilePath.absoluteFilePath();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RimEclipseInputCase::additionalFiles() const
-{
-    std::vector<QString> additionalFiles;
-    for ( const RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
-    {
-        if ( inputProperty->fileName == gridFileName() ) continue;
-
-        additionalFiles.push_back( inputProperty->fileName().path() );
-    }
-
-    return additionalFiles;
 }
