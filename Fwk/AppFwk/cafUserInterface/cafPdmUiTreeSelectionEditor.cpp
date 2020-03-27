@@ -287,7 +287,6 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     if (PdmUiTreeSelectionQModel::isSingleValueField(fieldValue))
     {
-        m_textFilterLineEdit->hide();
         m_toggleAllCheckBox->hide();
     }
     else if (PdmUiTreeSelectionQModel::isMultipleValueField(fieldValue))
