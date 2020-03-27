@@ -54,7 +54,7 @@ jobs:
         uses: lukka/run-cmake@v0
         with:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-          cmakeAppendedArgs:  -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
+          cmakeAppendedArgs:  -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ env.pythonLocation }}/python -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
           buildDirectory: ${{ github.workspace }}/cmakebuild
           buildWithCMakeArgs: '--config Release --target package'
           useVcpkgToolchainFile: true
