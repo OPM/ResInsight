@@ -67,6 +67,7 @@ void RivReservoirViewPartMgr::scheduleGeometryRegen( RivCellSetEnum geometryType
     {
         case OVERRIDDEN_CELL_VISIBILITY:
             clearGeometryCache( OVERRIDDEN_CELL_VISIBILITY );
+            break;
         case INACTIVE:
             clearGeometryCache( INACTIVE );
             clearGeometryCache( RANGE_FILTERED_INACTIVE );
