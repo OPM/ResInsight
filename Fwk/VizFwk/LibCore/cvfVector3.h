@@ -59,7 +59,7 @@ template<typename S>
 class Vector3
 {
 public:
-    Vector3() {}
+    Vector3();
     Vector3(S x, S y, S z);
     Vector3(const Vector3& other);
 
