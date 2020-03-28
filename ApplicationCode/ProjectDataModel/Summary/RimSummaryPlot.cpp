@@ -1848,6 +1848,8 @@ void RimSummaryPlot::detachAllPlotItems()
     {
         curve->detachQwtCurve();
     }
+
+    m_plotInfoLabel->detach();
 }
 
 //--------------------------------------------------------------------------------------------------
