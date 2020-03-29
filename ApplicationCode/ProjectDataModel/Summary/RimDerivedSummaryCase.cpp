@@ -361,17 +361,49 @@ void RimDerivedSummaryCase::clearData( const RifEclipseSummaryAddress& address )
 //--------------------------------------------------------------------------------------------------
 void RimDerivedSummaryCase::updateDisplayNameFromCases()
 {
+    QString timeStepString;
+    {
+        RimSummaryCase* sourceEnsemble = nullptr;
+        if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 )
+        {
+            sourceEnsemble = m_summaryCase1;
+        }
+        else if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_2 )
+        {
+            sourceEnsemble = m_summaryCase2;
+        }
+
+        if ( sourceEnsemble )
+        {
+            auto summaryReader = sourceEnsemble->summaryReader();
+            if ( summaryReader )
+            {
+                const std::vector<time_t>& timeSteps = summaryReader->timeSteps( RifEclipseSummaryAddress() );
+                if ( m_fixedTimeStepIndex >= 0 && m_fixedTimeStepIndex < timeSteps.size() )
+                {
+                    time_t    selectedTime = timeSteps[m_fixedTimeStepIndex];
+                    QDateTime dt           = RiaQDateTimeTools::fromTime_t( selectedTime );
+                    QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {dt} );
+
+                    timeStepString = RiaQDateTimeTools::toStringUsingApplicationLocale( dt, formatString );
+                }
+            }
+        }
+    }
+
     QString case1Name = "None";
     QString case2Name = "None";
 
     if ( m_summaryCase1 )
     {
         case1Name = m_summaryCase1->displayCaseName();
+        if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 ) case1Name += "@" + timeStepString;
     }
 
     if ( m_summaryCase2 )
     {
         case2Name = m_summaryCase2->displayCaseName();
+        if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_2 ) case2Name += "@" + timeStepString;
     }
 
     QString operatorText;
@@ -380,7 +412,9 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
     else if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_ADD )
         operatorText = "Sum";
 
-    m_shortName = QString( "%1 (%2, %3)" ).arg( operatorText ).arg( case1Name ).arg( case2Name );
+    QString name = operatorText + QString( "(%1 , %2)" ).arg( case1Name, case2Name );
+
+    m_shortName = name;
 }
 
 //--------------------------------------------------------------------------------------------------
