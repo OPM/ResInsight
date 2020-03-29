@@ -23,6 +23,17 @@ find_package( OpenGL )
 option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
 option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE "Bundle the gRPC python modules into the install folder" OFF)
 
+if (RESINSIGHT_ENABLE_GRPC)
+  if(${CMAKE_VERSION} VERSION_GREATER "3.12") 
+    find_package(Python)
+    message("Content of Python_EXECUTABLE  : ${Python_EXECUTABLE}")
+    set(DEFAULT_PYTHON_EXE ${Python_EXECUTABLE})
+  endif()
+
+  set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE ${DEFAULT_PYTHON_EXE} CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
+endif()
+
+
 if (RESINSIGHT_BUILD_WITH_QT5)
     find_package(Qt5 COMPONENTS Core QUIET)
 endif(RESINSIGHT_BUILD_WITH_QT5)
@@ -609,7 +620,6 @@ endforeach()
 
 # Generate Python code in a target that is part of ALL_BUILD and depends on ResInsight
 if (RESINSIGHT_ENABLE_GRPC)	
-    set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
     if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
         add_custom_command(OUTPUT ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py
 				    COMMAND ResInsight ARGS --console --generate ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py
