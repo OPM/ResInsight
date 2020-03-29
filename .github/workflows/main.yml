@@ -46,37 +46,37 @@ jobs:
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
       - name: Prints outputs of run-vcpkg task
         run: echo "'${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}' '${{  steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET_OUT }}' "
-      - name: Build ResInsight-x64
-        uses: lukka/run-cmake@v0
-        with:
-          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-          cmakeAppendedArgs:  -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
-          buildDirectory: ${{ github.workspace }}/cmakebuild
-          buildWithCMakeArgs: '--config Release --target package'
-          useVcpkgToolchainFile: true
+      - name: (Windows) Build ResInsight-x64 
+        if: "contains( matrix.os, 'windows')"
+        run: |
+          mkdir cmakebuild
+          cd cmakebuild
+          cmake .. -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -A x64
+          cmake --build . --config Release --target PACKAGE
+      - name: (Linux) Build ResInsight-x64 
+        if: "!contains( matrix.os, 'windows')"
+        run: |
+          mkdir cmakebuild
+          cd cmakebuild
+          cmake .. -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+          cmake --build . --config Release --target package
       - name: Remove packages/_CPack_Packages
         shell: bash
         run: |
           rm -rf cmakebuild/packages/_CPack_Packages
-      - name: dir
-        run: find ${{ runner.workspace }}
-        if: "!contains( matrix.os, 'windows')"
-      - name: dir
-        run: gci -recurse ${{ runner.workspace }}
-        if: contains( matrix.os, 'windows')      
       - name: Test with pytest
-        if: "contains( matrix.os, 'windows')" # To be used when RESINSIGHT_GRPC_PYTHON_EXECUTABLE can be 'python' without extention in PATH
+        if: "contains( matrix.os, 'windows')" 
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/Release/ResInsight.exe
         run: |
           cd ApplicationCode/GrpcInterface/Python/rips
           pytest --console
-      - name: Run Unit Tests Windows
+      - name: (Windows) Run Unit Tests
         if: contains( matrix.os, 'windows')  
         shell: bash
         run: |
           cmakebuild/ApplicationCode/Release/ResInsight --unittest
-      - name: Run Unit Tests Linux
+      - name: (Linux) Run Unit Tests
         if: "!contains( matrix.os, 'windows')"
         shell: bash
         run: |
@@ -86,3 +86,6 @@ jobs:
         with:
           name: ResInsight
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/packages
+          
+          
+          
