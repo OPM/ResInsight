@@ -35,6 +35,11 @@ class QDate;
 class QTime;
 class DateTimeSpan;
 
+namespace caf
+{
+class PdmOptionItemInfo;
+};
+
 //==================================================================================================
 //
 //==================================================================================================
@@ -134,6 +139,8 @@ public:
 
     static QString dateFormatString( const QString& fullDateFormat, DateFormatComponents dateComponents );
     static QString timeFormatString( const QString& fullTimeFormat, TimeFormatComponents timeComponents );
+
+    static QList<caf::PdmOptionItemInfo> createOptionItems( const std::vector<time_t>& timeSteps );
 
 private:
     static quint64 secondsInDay();

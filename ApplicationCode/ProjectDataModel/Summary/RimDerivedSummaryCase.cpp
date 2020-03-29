@@ -27,6 +27,12 @@
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
 
+#include "cafPdmUiTreeSelectionEditor.h"
+
+#include <QDateTime>
+
+#include <algorithm>
+
 namespace caf
 {
 template <>
@@ -35,6 +41,15 @@ void caf::AppEnum<DerivedSummaryOperator>::setUp()
     addItem( DerivedSummaryOperator::DERIVED_OPERATOR_SUB, "Sub", "-" );
     addItem( DerivedSummaryOperator::DERIVED_OPERATOR_ADD, "Add", "+" );
     setDefault( DerivedSummaryOperator::DERIVED_OPERATOR_SUB );
+}
+
+template <>
+void caf::AppEnum<RimDerivedSummaryCase::FixedTimeStepMode>::setUp()
+{
+    addItem( RimDerivedSummaryCase::FixedTimeStepMode::FIXED_TIME_STEP_NONE, "FIXED_TIME_STEP_NONE", "None" );
+    addItem( RimDerivedSummaryCase::FixedTimeStepMode::FIXED_TIME_STEP_CASE_1, "FIXED_TIME_STEP_CASE_1", "Summary Case 1" );
+    addItem( RimDerivedSummaryCase::FixedTimeStepMode::FIXED_TIME_STEP_CASE_2, "FIXED_TIME_STEP_CASE_2", "Summary Case 2" );
+    setDefault( RimDerivedSummaryCase::FixedTimeStepMode::FIXED_TIME_STEP_NONE );
 }
 } // namespace caf
 
@@ -48,9 +63,16 @@ RimDerivedSummaryCase::RimDerivedSummaryCase()
     , m_summaryCase2( nullptr )
 {
     CAF_PDM_InitObject( "Summary Case", ":/SummaryCase16x16.png", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_summaryCase1, "SummaryCase1", "SummaryCase1", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_summaryCase2, "SummaryCase2", "SummaryCase2", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase1, "SummaryCase1", "Summary Case 1", "", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_operator, "Operator", "Operator", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase2, "SummaryCase2", "Summary Case 2", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_useFixedTimeStep, "UseFixedTimeStep", "Use Fixed Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step", "", "", "" );
+    m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     m_inUse = false;
 }
@@ -141,8 +163,20 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
     RifSummaryReaderInterface* reader1 = m_summaryCase1 ? m_summaryCase1->summaryReader() : nullptr;
     RifSummaryReaderInterface* reader2 = m_summaryCase2 ? m_summaryCase2->summaryReader() : nullptr;
 
-    auto itAndIsInsertedPair =
-        m_dataCache.insert( std::make_pair( address, calculateDerivedValues( reader1, reader2, m_operator(), address ) ) );
+    int fixedTimeStepCase1 = -1;
+    int fixedTimeStepCase2 = -1;
+    if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 )
+    {
+        fixedTimeStepCase1 = m_fixedTimeStepIndex;
+    }
+    else if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_2 )
+    {
+        fixedTimeStepCase2 = m_fixedTimeStepIndex;
+    }
+
+    auto itAndIsInsertedPair = m_dataCache.insert(
+        std::make_pair( address,
+                        calculateDerivedValues( reader1, fixedTimeStepCase1, reader2, fixedTimeStepCase2, m_operator(), address ) ) );
 
     // Check if we got any data. If not, erase the map entry to comply with previous behavior
 
@@ -157,7 +191,9 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<time_t>, std::vector<double>>
     RimDerivedSummaryCase::calculateDerivedValues( RifSummaryReaderInterface*      reader1,
+                                                   int                             fixedTimeStepCase1,
                                                    RifSummaryReaderInterface*      reader2,
+                                                   int                             fixedTimeStepCase2,
                                                    DerivedSummaryOperator          m_operator,
                                                    const RifEclipseSummaryAddress& address )
 {
@@ -212,15 +248,20 @@ std::pair<std::vector<time_t>, std::vector<double>>
     std::vector<double> calculatedValues;
     calculatedValues.reserve( sampleCount );
 
+    int clampedIndexCase1 = std::min( fixedTimeStepCase1, static_cast<int>( allValues1.size() ) );
+    int clampedIndexCase2 = std::min( fixedTimeStepCase2, static_cast<int>( allValues2.size() ) );
+
     for ( size_t i = 0; i < sampleCount; i++ )
     {
+        double valueCase1 = clampedIndexCase1 >= 0 ? allValues1[clampedIndexCase1] : allValues1[i];
+        double valueCase2 = clampedIndexCase2 >= 0 ? allValues2[clampedIndexCase2] : allValues2[i];
         if ( m_operator == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
         {
-            calculatedValues.push_back( allValues1[i] - allValues2[i] );
+            calculatedValues.push_back( valueCase1 - valueCase2 );
         }
         else if ( m_operator == DerivedSummaryOperator::DERIVED_OPERATOR_ADD )
         {
-            calculatedValues.push_back( allValues1[i] + allValues2[i] );
+            calculatedValues.push_back( valueCase1 + valueCase2 );
         }
     }
 
@@ -291,6 +332,25 @@ void RimDerivedSummaryCase::setOperator( DerivedSummaryOperator oper )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimDerivedSummaryCase::setFixedTimeSteps( int fixedTimeStepCase1, int fixedTimeStepCase2 )
+{
+    m_useFixedTimeStep = FixedTimeStepMode::FIXED_TIME_STEP_NONE;
+
+    if ( fixedTimeStepCase1 >= 0 )
+    {
+        m_useFixedTimeStep   = FixedTimeStepMode::FIXED_TIME_STEP_CASE_1;
+        m_fixedTimeStepIndex = fixedTimeStepCase1;
+    }
+    else if ( fixedTimeStepCase2 >= 0 )
+    {
+        m_useFixedTimeStep   = FixedTimeStepMode::FIXED_TIME_STEP_CASE_2;
+        m_fixedTimeStepIndex = fixedTimeStepCase2;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimDerivedSummaryCase::clearData( const RifEclipseSummaryAddress& address )
 {
     m_dataCache.erase( address );
@@ -331,10 +391,15 @@ void RimDerivedSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     // Base class
     uiOrdering.add( &m_shortName );
 
-    // This class
     uiOrdering.add( &m_summaryCase1 );
     uiOrdering.add( &m_operator );
     uiOrdering.add( &m_summaryCase2 );
+
+    uiOrdering.add( &m_useFixedTimeStep );
+    if ( m_useFixedTimeStep() != FixedTimeStepMode::FIXED_TIME_STEP_NONE )
+    {
+        uiOrdering.add( &m_fixedTimeStepIndex );
+    }
 
     uiOrdering.skipRemainingFields();
 }
@@ -349,6 +414,27 @@ QList<caf::PdmOptionItemInfo>
 
     RimProject* proj         = RiaApplication::instance()->project();
     auto        summaryCases = proj->allSummaryCases();
+
+    if ( fieldNeedingOptions == &m_fixedTimeStepIndex )
+    {
+        RimSummaryCase* sourceCase = nullptr;
+
+        if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 )
+        {
+            sourceCase = m_summaryCase1;
+        }
+        else if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_2 )
+        {
+            sourceCase = m_summaryCase2;
+        }
+
+        if ( sourceCase && sourceCase->summaryReader() )
+        {
+            const std::vector<time_t>& timeSteps = sourceCase->summaryReader()->timeSteps( RifEclipseSummaryAddress() );
+
+            options = RiaQDateTimeTools::createOptionItems( timeSteps );
+        }
+    }
 
     if ( fieldNeedingOptions == &m_summaryCase1 || fieldNeedingOptions == &m_summaryCase2 )
     {
@@ -373,6 +459,10 @@ void RimDerivedSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changed
     {
         createSummaryReaderInterface();
 
+        reloadData = true;
+    }
+    else if ( changedField == &m_useFixedTimeStep || changedField == &m_fixedTimeStepIndex )
+    {
         reloadData = true;
     }
     else if ( changedField == &m_operator )
@@ -408,6 +498,24 @@ void RimDerivedSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changed
         for ( auto p : plotsToUpdate )
         {
             p->loadDataAndUpdate();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDerivedSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                   QString                    uiConfigName,
+                                                   caf::PdmUiEditorAttribute* attribute )
+{
+    if ( &m_fixedTimeStepIndex == field )
+    {
+        auto a = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
+        if ( a )
+        {
+            a->singleSelectionMode = true;
+            a->showTextFilter      = true;
         }
     }
 }
