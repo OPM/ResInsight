@@ -643,7 +643,8 @@ void RimSummaryCaseCollection::updateReferringCurveSets()
 
     for ( auto curveSet : referringObjects )
     {
-        if ( curveSet ) curveSet->updateAllCurves();
+        bool updateParentPlot = true;
+        if ( curveSet ) curveSet->loadDataAndUpdate( updateParentPlot );
     }
 }
 

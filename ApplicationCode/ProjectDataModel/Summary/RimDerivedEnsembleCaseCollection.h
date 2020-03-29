@@ -41,6 +41,14 @@ class RimDerivedEnsembleCaseCollection : public RimSummaryCaseCollection
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class FixedTimeStepMode
+    {
+        FIXED_TIME_STEP_NONE,
+        FIXED_TIME_STEP_CASE_1,
+        FIXED_TIME_STEP_CASE_2
+    };
+
+public:
     RimDerivedEnsembleCaseCollection();
     ~RimDerivedEnsembleCaseCollection() override;
 
@@ -89,4 +97,7 @@ private:
     caf::PdmField<bool>                                 m_swapEnsemblesButton;
     caf::PdmField<QString>                              m_caseCount;
     caf::PdmField<bool>                                 m_matchOnParameters;
+
+    caf::PdmField<caf::AppEnum<FixedTimeStepMode>> m_useFixedTimeStep;
+    caf::PdmField<int>                             m_fixedTimeStepIndex;
 };
