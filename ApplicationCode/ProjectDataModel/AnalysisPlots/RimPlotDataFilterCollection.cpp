@@ -26,7 +26,7 @@ CAF_PDM_SOURCE_INIT( RimPlotDataFilterCollection, "PlotDataFilterCollection" );
 //--------------------------------------------------------------------------------------------------
 RimPlotDataFilterCollection::RimPlotDataFilterCollection()
 {
-    CAF_PDM_InitObject( "Plot Data Filters", ":/SummaryCurveFilter16x16.png", "", "" );
+    CAF_PDM_InitObject( "Plot Data Filters", ":/AnalysisPlotFilter16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "IsActive", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );

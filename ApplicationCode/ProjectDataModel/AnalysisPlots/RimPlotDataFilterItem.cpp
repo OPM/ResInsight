@@ -78,7 +78,7 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
     : m_lowerLimit( -std::numeric_limits<double>::infinity() )
     , m_upperLimit( std::numeric_limits<double>::infinity() )
 {
-    CAF_PDM_InitObject( "Plot Data Filter", ":/EnsembleCurveSet16x16.png", "", "" );
+    CAF_PDM_InitObject( "Plot Data Filter", ":/AnalysisPlotFilter16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_isActive, "IsActive", true, "Active", "", "", "" );
     m_isActive.uiCapability()->setUiHidden( true );
