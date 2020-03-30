@@ -19,6 +19,8 @@
 
 #include "RigFemPartResultsCollection.h"
 
+#include "RiaLogging.h"
+
 #include "RifElementPropertyReader.h"
 #include "RifGeoMechReaderInterface.h"
 
@@ -104,6 +106,9 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
     m_cohesion            = 10.0;
     m_frictionAngleRad    = cvf::Math::toRadians( 30.0 );
     m_normalizationAirGap = 0.0;
+
+    m_biotFixedFactor   = 1.0;
+    m_biotResultAddress = "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,6 +239,70 @@ void RigFemPartResultsCollection::setCalculationParameters( double cohesion, dou
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixedFactor, const QString& biotResultAddress )
+{
+    m_biotFixedFactor   = biotFixedFactor;
+    m_biotResultAddress = biotResultAddress;
+
+    // Invalidate all results which depends on biot coefficient (directly or indirectly)
+    std::vector<std::string> componentNames = getStressComponentNames();
+    componentNames.push_back( "S1inc" );
+    componentNames.push_back( "S1azi" );
+    componentNames.push_back( "S2inc" );
+    componentNames.push_back( "S2azi" );
+    componentNames.push_back( "S3inc" );
+    componentNames.push_back( "S3azi" );
+
+    for ( auto elementType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
+    {
+        for ( auto fieldName : {"SE", "ST"} )
+        {
+            for ( auto componentName : componentNames )
+            {
+                deleteResult(
+                    RigFemResultAddress( elementType, fieldName, componentName, RigFemResultAddress::allTimeLapsesValue() ) );
+            }
+        }
+
+        // SE only: depends on SE.S1 and SE.S3
+        deleteResult( RigFemResultAddress( elementType, "SE", "SFI", RigFemResultAddress::allTimeLapsesValue() ) );
+        deleteResult( RigFemResultAddress( elementType, "SE", "DSM", RigFemResultAddress::allTimeLapsesValue() ) );
+        deleteResult( RigFemResultAddress( elementType, "SE", "SEM", RigFemResultAddress::allTimeLapsesValue() ) );
+
+        // SE only: depends on SE.DSM
+        deleteResult( RigFemResultAddress( elementType, "SE", "FOS", RigFemResultAddress::allTimeLapsesValue() ) );
+
+        // ST only: depends on ST.S1 and ST.S3
+        deleteResult( RigFemResultAddress( elementType, "ST", "Q", RigFemResultAddress::allTimeLapsesValue() ) );
+        deleteResult( RigFemResultAddress( elementType, "ST", "STM", RigFemResultAddress::allTimeLapsesValue() ) );
+    }
+
+    for ( auto fieldName : {"SE", "ST"} )
+    {
+        // Surface aligned stress
+        for ( auto componentName : {"SN", "TP", "TPinc", "TPH", "TPQV", "FAULTMOB", "PCRIT"} )
+        {
+            deleteResult( RigFemResultAddress( RIG_ELEMENT_NODAL_FACE,
+                                               fieldName,
+                                               componentName,
+                                               RigFemResultAddress::allTimeLapsesValue() ) );
+        }
+
+        // Stress gradient components
+        const std::vector<std::string> stressGradientComponentNames = getStressGradientComponentNames();
+        for ( auto componentName : stressGradientComponentNames )
+        {
+            deleteResult( RigFemResultAddress( RIG_DIFFERENTIALS,
+                                               fieldName,
+                                               componentName,
+                                               RigFemResultAddress::allTimeLapsesValue() ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Will always return a valid object, but it can be empty
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( int                        partIndex,
@@ -338,8 +407,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
 
     if ( !frames )
     {
-        frames = m_femPartResults[partIndex]->createScalarResult( resVarAddr ); // Create a dummy empty result, if the
-                                                                                // request did not specify the component.
+        frames = m_femPartResults[partIndex]->createScalarResult( resVarAddr ); // Create a dummy empty result, if
+                                                                                // the request did not specify the
+                                                                                // component.
     }
 
     return frames;
@@ -710,7 +780,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
     }
     else
     {
-        // Gamma time lapse needs to be calculated as ST_dt / POR_dt and not Gamma - Gamma_baseFrame see github issue #937
+        // Gamma time lapse needs to be calculated as ST_dt / POR_dt and not Gamma - Gamma_baseFrame see github
+        // issue #937
 
         caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "" );
         frameCountProgress.setProgressDescription(
@@ -2149,10 +2220,20 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSE( int partInde
 
     frameCountProgress.incrementProgress();
 
+    // Biot porelastic coeffisient (alpha)
+    RigFemScalarResultFrames* biotCoefficient = nullptr;
+    if ( !m_biotResultAddress.isEmpty() )
+    {
+        biotCoefficient =
+            this->findOrLoadScalarResult( partIndex,
+                                          RigFemResultAddress( RIG_ELEMENT, m_biotResultAddress.toStdString(), "" ) );
+    }
+
     const RigFemPart* femPart = m_femParts->part( partIndex );
     float             inf     = std::numeric_limits<float>::infinity();
 
     int frameCount = srcDataFrames->frameCount();
+
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
         const std::vector<float>& srcSFrameData = srcDataFrames->frameData( fIdx );
@@ -2160,9 +2241,20 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSE( int partInde
         size_t                    valCount      = srcSFrameData.size();
         dstFrameData.resize( valCount );
 
-        const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData( fIdx );
+        const std::vector<float>& initialPORFrameData = srcPORDataFrames->frameData( 0 );
 
         int elementCount = femPart->elementCount();
+
+        std::vector<float> biotData;
+        if ( biotCoefficient )
+        {
+            biotData = biotCoefficient->frameData( fIdx );
+            if ( !isValidBiotData( biotData, elementCount ) )
+            {
+                deleteResult( resVarAddr );
+                return nullptr;
+            }
+        }
 
 #pragma omp parallel for
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
@@ -2178,7 +2270,37 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSE( int partInde
                     size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
                     if ( elmNodResIdx < srcSFrameData.size() )
                     {
-                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                        double SE_abacus = -srcSFrameData[elmNodResIdx];
+                        if ( fIdx == 0 )
+                        {
+                            // Geostatic step: biot coefficient == 1.0
+                            dstFrameData[elmNodResIdx] = SE_abacus;
+                        }
+                        else
+                        {
+                            // Use biot coefficient for all other (not Geostatic) timesteps
+                            double biotCoefficient = 1.0;
+                            if ( biotData.empty() )
+                            {
+                                biotCoefficient = m_biotFixedFactor;
+                            }
+                            else
+                            {
+                                // Use coefficient from element property table
+                                biotCoefficient = biotData[elmIdx];
+                            }
+
+                            // SE = St - alpha * porePressure - (1 - alpha) * initialPorePressure
+                            // ST = SE_abaqus + alpha * porePressure
+                            // Can be simplified:
+                            // SE = SE_abaqus - (1-alpha) * initialPorePressure
+                            // SE_abaqus is called S-Bar
+                            int    nodeIdx             = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
+                            double initialPorePressure = initialPORFrameData[nodeIdx];
+                            if ( initialPorePressure == inf ) initialPorePressure = 0.0f;
+
+                            dstFrameData[elmNodResIdx] = SE_abacus - ( 1.0 - biotCoefficient ) * initialPorePressure;
+                        }
                     }
                 }
             }
@@ -2221,6 +2343,15 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_11_22_33( int
     RigFemScalarResultFrames* srcPORDataFrames =
         this->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
 
+    // Biot porelastic coeffisient (alpha)
+    RigFemScalarResultFrames* biotCoefficient = nullptr;
+    if ( !m_biotResultAddress.isEmpty() )
+    {
+        biotCoefficient =
+            this->findOrLoadScalarResult( partIndex,
+                                          RigFemResultAddress( RIG_ELEMENT, m_biotResultAddress.toStdString(), "" ) );
+    }
+
     RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
     const RigFemPart*         femPart       = m_femParts->part( partIndex );
     int                       frameCount    = srcSDataFrames->frameCount();
@@ -2234,12 +2365,23 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_11_22_33( int
         const std::vector<float>& srcSFrameData   = srcSDataFrames->frameData( fIdx );
         const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData( fIdx );
 
+        int elementCount = femPart->elementCount();
+
+        std::vector<float> biotData;
+        if ( biotCoefficient )
+        {
+            biotData = biotCoefficient->frameData( fIdx );
+            if ( !isValidBiotData( biotData, elementCount ) )
+            {
+                deleteResult( resVarAddr );
+                return nullptr;
+            }
+        }
+
         std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
 
         size_t valCount = srcSFrameData.size();
         dstFrameData.resize( valCount );
-
-        int elementCount = femPart->elementCount();
 
 #pragma omp parallel for
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
@@ -2260,7 +2402,31 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_11_22_33( int
                         float por = srcPORFrameData[nodeIdx];
                         if ( por == inf ) por = 0.0f;
 
-                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx] + por;
+                        // ST = SE_abacus + alpha * porePressure
+                        // where alpha is biot coefficient, and porePressure is POR-Bar.
+
+                        double SE_abacus = -srcSFrameData[elmNodResIdx];
+                        if ( fIdx == 0 )
+                        {
+                            // Geostatic step: biot coefficient == 1.0
+                            dstFrameData[elmNodResIdx] = SE_abacus + por;
+                        }
+                        else
+                        {
+                            // Use biot coefficient for all other (not Geostatic) timesteps
+                            double biotCoefficient = 1.0;
+                            if ( biotData.empty() )
+                            {
+                                biotCoefficient = m_biotFixedFactor;
+                            }
+                            else
+                            {
+                                // Use coefficient from element property table
+                                biotCoefficient = biotData[elmIdx];
+                            }
+
+                            dstFrameData[elmNodResIdx] = SE_abacus + biotCoefficient * por;
+                        }
                     }
                 }
             }
@@ -3511,4 +3677,30 @@ std::vector<std::string> RigFemPartResultsCollection::getStressGradientComponent
     }
 
     return stressGradientComponentNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigFemPartResultsCollection::isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const
+{
+    if ( biotData.size() != elementCount )
+    {
+        RiaLogging::error( QString( "Unexpected size of biot coefficient element properties: %1 (expected: %2)" )
+                               .arg( biotData.size() )
+                               .arg( elementCount ) );
+        return false;
+    }
+
+    for ( float b : biotData )
+    {
+        if ( !std::isinf( b ) && ( b < 0.0 || b > 1.0 ) )
+        {
+            RiaLogging::error(
+                QString( "Found unexpected biot coefficient. The value must be in the [0, 1] interval." ) );
+            return false;
+        }
+    }
+
+    return true;
 }

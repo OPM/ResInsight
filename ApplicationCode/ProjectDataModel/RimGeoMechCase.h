@@ -52,6 +52,14 @@ public:
         CASE_OPEN_CANCELLED,
         CASE_OPEN_ERROR
     };
+
+    enum BiotCoefficientType
+    {
+        BIOT_NONE = 0,
+        BIOT_FIXED,
+        BIOT_PER_ELEMENT
+    };
+
     RimGeoMechCase( void );
     ~RimGeoMechCase( void ) override;
 
@@ -88,6 +96,10 @@ public:
     // Fields:
     caf::PdmChildArrayField<RimGeoMechView*> geoMechViews;
 
+    BiotCoefficientType biotCoefficientType() const;
+    double              biotFixedCoefficient() const;
+    QString             biotResultAddress() const;
+
 private:
     cvf::Vec3d                    displayModelOffset() const override;
     static std::vector<QDateTime> vectorOfValidDateTimesFromTimeStepStrings( const QStringList& timeStepStrings );
@@ -107,9 +119,11 @@ private:
     void           initAfterRead() override;
     static QString subStringOfDigits( const QString& timeStepString, int numberOfDigitsToFind );
 
-    void                    closeSelectedElementPropertyFiles();
-    void                    reloadSelectedElementPropertyFiles();
-    std::vector<Rim3dView*> allSpecialViews() const override;
+    void                     closeSelectedElementPropertyFiles();
+    void                     reloadSelectedElementPropertyFiles();
+    std::vector<Rim3dView*>  allSpecialViews() const override;
+    void                     updateConnectedViews();
+    std::vector<std::string> possibleElementPropertyFieldNames();
 
 private:
     cvf::ref<RigGeoMechCaseData>              m_geoMechCaseData;
@@ -119,6 +133,10 @@ private:
     caf::PdmField<std::vector<int>>           m_elementPropertyFileNameIndexUiSelection;
     caf::PdmField<bool>                       m_closeElementPropertyFileCommand;
     caf::PdmField<bool>                       m_reloadElementPropertyFileCommand;
+
+    caf::PdmField<caf::AppEnum<BiotCoefficientType>> m_biotCoefficientType;
+    caf::PdmField<double>                            m_biotFixedCoefficient;
+    caf::PdmField<QString>                           m_biotResultAddress;
 
     caf::PdmChildField<RimGeoMechContourMapViewCollection*> m_contourMapCollection;
 

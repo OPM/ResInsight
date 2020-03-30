@@ -66,6 +66,8 @@ public:
     double parameterCohesion() const { return m_cohesion; }
     double parameterFrictionAngleRad() const { return m_frictionAngleRad; }
 
+    void setBiotCoefficientParameters( double fixedFactor, const QString& biotResultAddress );
+
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
     std::vector<std::string>                        filteredStepNames() const;
     bool                                            assertResultsLoaded( const RigFemResultAddress& resVarAddr );
@@ -161,6 +163,8 @@ private:
 
     const RigFormationNames* activeFormationNames() const;
 
+    bool isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const;
+
 private:
     cvf::Collection<RigFemPartResults>  m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface> m_readerInterface;
@@ -171,6 +175,9 @@ private:
     double m_cohesion;
     double m_frictionAngleRad;
     double m_normalizationAirGap;
+
+    double  m_biotFixedFactor;
+    QString m_biotResultAddress;
 
     RigStatisticsDataCache*          statistics( const RigFemResultAddress& resVarAddr );
     std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
