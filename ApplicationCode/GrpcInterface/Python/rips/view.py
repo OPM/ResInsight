@@ -14,7 +14,7 @@ def apply_cell_result(self, result_type, result_variable):
     """Apply a regular cell result
 
     Arguments:
-        result_type (str): String representing the result category. The valid values are
+        result_type (str): String representing the result category. The valid values are::
             - DYNAMIC_NATIVE
             - STATIC_NATIVE
             - SOURSIMRL
@@ -39,21 +39,23 @@ def apply_flow_diagnostics_cell_result(
         producers=None):
     """Apply a flow diagnostics cell result
 
-    Parameter           | Description                                            | Type
-    ------------------- | ------------------------------------------------------ | -----
-    result_variable     | String representing the result value                   | String
-    selection_mode      | String specifying which tracers to select              | String
-    injectors           | List of injector names, used by 'FLOW_TR_BY_SELECTION' | String List
-    producers           | List of injector names, used by 'FLOW_TR_BY_SELECTION' | String List
+    **Parameters**::
 
-    ##### Enum compdat_export 
+        Parameter           | Description                                            | Type
+        ------------------- | ------------------------------------------------------ | -----
+        result_variable     | String representing the result value                   | String
+        selection_mode      | String specifying which tracers to select              | String
+        injectors           | List of injector names, used by 'FLOW_TR_BY_SELECTION' | String List
+        producers           | List of injector names, used by 'FLOW_TR_BY_SELECTION' | String List
 
-    Option                  | Description
-    ------------------------| ------------
-    "TOF"                   | Time of flight
-    "Fraction"              | Fraction
-    "MaxFractionTracer"     | Max Fraction Tracer
-    "Communication"         | Communication
+    **Enum compdat_export**::
+
+        Option                  | Description
+        ------------------------| ------------
+        "TOF"                   | Time of flight
+        "Fraction"              | Fraction
+        "MaxFractionTracer"     | Max Fraction Tracer
+        "Communication"         | Communication
 
     """
     if injectors is None:
@@ -89,27 +91,29 @@ def export_sim_well_fracture_completions(self, time_step,
                                             compdat_export):
     """Export fracture completions for simulation wells
 
-    Parameter                   | Description                                      | Type
-    ----------------------------| ------------------------------------------------ | -----
-    time_step                   | Time step to export for                          | Integer
-    simulation_well_names       | List of simulation well names                    | List
-    file_split                  | Controls how export data is split into files     | String enum
-    compdat_export              | Compdat export type                              | String enum
+    **Parameters**::
 
-    ##### Enum file_split 
+        Parameter                   | Description                                      | Type
+        ----------------------------| ------------------------------------------------ | -----
+        time_step                   | Time step to export for                          | Integer
+        simulation_well_names       | List of simulation well names                    | List
+        file_split                  | Controls how export data is split into files     | String enum
+        compdat_export              | Compdat export type                              | String enum
 
-    Option                              | Description
-    ----------------------------------- | ------------
-    "UNIFIED_FILE" <b>Default Option</b>| A single file with all transmissibilities
-    "SPLIT_ON_WELL"                     | One file for each well transmissibilities
-    "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well 
+    **Enum file_split**::
 
-    ##### Enum compdat_export 
+        Option                              | Description
+        ----------------------------------- | ------------
+        "UNIFIED_FILE" <b>Default Option</b>| A single file with all transmissibilities
+        "SPLIT_ON_WELL"                     | One file for each well transmissibilities
+        "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well 
 
-    Option                                   | Description
-    -----------------------------------------| ------------
-    "TRANSMISSIBILITIES"<b>Default Option</b>| Direct export of transmissibilities 
-    "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS" | Include export of WPIMULT
+    **Enum compdat_export**::
+
+        Option                                   | Description
+        -----------------------------------------| ------------
+        "TRANSMISSIBILITIES"<b>Default Option</b>| Direct export of transmissibilities 
+        "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS" | Include export of WPIMULT
 
     """
     if isinstance(simulation_well_names, str):

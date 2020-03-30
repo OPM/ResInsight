@@ -225,20 +225,22 @@ class Instance:
         """
         Set the export folder used for all export functions
 
-        Parameter        | Description                                  | Type
-        ---------------- | -------------------------------------------- | -----
-        export_type      | String specifying what to export             | String
-        path             | Path to folder                               | String
-        create_folder    | Create folder if it doesn't exist?           | Boolean
+        **Parameters**::
 
-        ##### Enum export_type 
+            Parameter        | Description                                  | Type
+            ---------------- | -------------------------------------------- | -----
+            export_type      | String specifying what to export             | String
+            path             | Path to folder                               | String
+            create_folder    | Create folder if it doesn't exist?           | Boolean
 
-        Option          | Description
-        --------------- | ------------
-        "COMPLETIONS"   |   
-        "SNAPSHOTS"     |
-        "PROPERTIES"    | 
-        "STATISTICS"    | 
+        **Enum export_type**::
+
+            Option          | Description
+            --------------- | ------------
+            "COMPLETIONS"   |   
+            "SNAPSHOTS"     |
+            "PROPERTIES"    | 
+            "STATISTICS"    | 
 
         """
         return self.__execute_command(setExportFolder=Cmd.SetExportFolderRequest(
@@ -248,10 +250,13 @@ class Instance:
         """
         Set the main window size in pixels
 
-        Parameter | Description      | Type
-        --------- | ---------------- | -----
-        width     | Width in pixels  | Integer
-        height    | Height in pixels | Integer
+        **Parameters**::
+
+            Parameter | Description      | Type
+            --------- | ---------------- | -----
+            width     | Width in pixels  | Integer
+            height    | Height in pixels | Integer
+
         """
         return self.__execute_command(setMainWindowSize=Cmd.SetWindowSizeParams(
             width=width, height=height))
@@ -260,10 +265,12 @@ class Instance:
         """
         Set the plot window size in pixels
 
-        Parameter | Description      | Type
-        --------- | ---------------- | -----
-        width     | Width in pixels  | Integer
-        height    | Height in pixels | Integer
+        **Parameters**::
+    
+            Parameter | Description      | Type
+            --------- | ---------------- | -----
+            width     | Width in pixels  | Integer
+            height    | Height in pixels | Integer
         """
         return self.__execute_command(setPlotWindowSize=Cmd.SetWindowSizeParams(
             width=width, height=height))

@@ -179,23 +179,23 @@ def cell_info_for_active_cells(self, porosity_model="MATRIX_MODEL"):
     Returns:
         List of **CellInfo** objects
 
-    ### CellInfo class description
+    **CellInfo class description**::
 
-    Parameter                 | Description                                   | Type
-    ------------------------- | --------------------------------------------- | -----
-    grid_index                | Index to grid                                 | Integer
-    parent_grid_index         | Index to parent grid                          | Integer
-    coarsening_box_index      | Index to coarsening box                       | Integer
-    local_ijk                 | Cell index in IJK directions of local grid    | Vec3i
-    parent_ijk                | Cell index in IJK directions of parent grid   | Vec3i
+        Parameter                 | Description                                   | Type
+        ------------------------- | --------------------------------------------- | -----
+        grid_index                | Index to grid                                 | Integer
+        parent_grid_index         | Index to parent grid                          | Integer
+        coarsening_box_index      | Index to coarsening box                       | Integer
+        local_ijk                 | Cell index in IJK directions of local grid    | Vec3i
+        parent_ijk                | Cell index in IJK directions of parent grid   | Vec3i
 
-    ### Vec3i class description
+    **Vec3i class description**::
 
-    Parameter        | Description                                  | Type
-    ---------------- | -------------------------------------------- | -----
-    i                | I grid index                                 | Integer
-    j                | J grid index                                 | Integer
-    k                | K grid index                                 | Integer
+        Parameter        | Description                                  | Type
+        ---------------- | -------------------------------------------- | -----
+        i                | I grid index                                 | Integer
+        j                | J grid index                                 | Integer
+        k                | K grid index                                 | Integer
 
     """
     active_cell_info_chunks = self.cell_info_for_active_cells_async(
@@ -210,16 +210,18 @@ def cell_info_for_active_cells(self, porosity_model="MATRIX_MODEL"):
 def time_steps(self):
     """Get a list containing all time steps
 
-    The time steps are defined by the class **TimeStepDate** :
+    The time steps are defined by the class **TimeStepDate**
 
-    Type      | Name
-    --------- | ----------
-    int       | year
-    int       | month
-    int       | day
-    int       | hour
-    int       | minute
-    int       | second
+    **TimeStepDate class description**::
+
+        Type      | Name
+        --------- | ----------
+        int       | year
+        int       | month
+        int       | day
+        int       | hour
+        int       | minute
+        int       | second
 
 
     """
@@ -297,38 +299,40 @@ def export_well_path_completions(
     """
     Export well path completions for the current case to file
 
-    Parameter                   | Description                                      | Type
-    ----------------------------| ------------------------------------------------ | -----
-    time_step                   | Time step to export for                          | Integer
-    well_path_names             | List of well path names                          | List
-    file_split                  | Controls how export data is split into files     | String enum
-    compdat_export              | Compdat export type                              | String enum
-    include_perforations        | Export perforations?                             | bool
-    include_fishbones           | Export fishbones?                                | bool
-    fishbones_exclude_main_bore | Exclude main bore when exporting fishbones?      | bool
-    combination_mode            | Settings for multiple completions in same cell   | String Enum
+    **Parameters**::
 
-    ##### Enum file_split 
+        Parameter                   | Description                                      | Type
+        ----------------------------| ------------------------------------------------ | -----
+        time_step                   | Time step to export for                          | Integer
+        well_path_names             | List of well path names                          | List
+        file_split                  | Controls how export data is split into files     | String enum
+        compdat_export              | Compdat export type                              | String enum
+        include_perforations        | Export perforations?                             | bool
+        include_fishbones           | Export fishbones?                                | bool
+        fishbones_exclude_main_bore | Exclude main bore when exporting fishbones?      | bool
+        combination_mode            | Settings for multiple completions in same cell   | String Enum
 
-    Option                              | Description
-    ----------------------------------- | ------------
-    "UNIFIED_FILE"                      | A single file with all combined transmissibilities
-    "SPLIT_ON_WELL"                     | One file for each well with combined transmissibilities
-    "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well 
+    **Enum file_split**::
 
-    ##### Enum compdat_export 
+        Option                              | Description
+        ----------------------------------- | ------------
+        "UNIFIED_FILE"                      | A single file with all combined transmissibilities
+        "SPLIT_ON_WELL"                     | One file for each well with combined transmissibilities
+        "SPLIT_ON_WELL_AND_COMPLETION_TYPE" | One file for each completion type for each well 
 
-    Option                                      | Description
-    ------------------------------------------- | ------------
-    "TRANSMISSIBILITIES"                        | Direct export of transmissibilities
-    "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS"    | Include WPIMULT in addition to transmissibilities
+    **Enum compdat_export**::
 
-    ##### Enum combination_mode 
+        Option                                      | Description
+        ------------------------------------------- | ------------
+        "TRANSMISSIBILITIES"                        | Direct export of transmissibilities
+        "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS"    | Include WPIMULT in addition to transmissibilities
 
-    Option              | Description
-    ------------------- | ------------
-    "INDIVIDUALLY"      | Exports the different completion types into separate sections
-    "COMBINED"          | Export one combined transmissibility for each cell
+    **Enum combination_mode**::
+
+        Option              | Description
+        ------------------- | ------------
+        "INDIVIDUALLY"      | Exports the different completion types into separate sections
+        "COMBINED"          | Export one combined transmissibility for each cell
 
     """
     if isinstance(well_path_names, str):
@@ -372,16 +376,19 @@ def create_multiple_fractures(
     """
     Create Multiple Fractures in one go
 
-    Parameter              | Description                               | Type
-    -----------------------| ----------------------------------------- | -----
-    template_id            | Id of the template                        | Integer
-    well_path_names        | List of well path names                   | List of Strings
-    min_dist_from_well_td  | Minimum distance from well TD             | Double
-    max_fractures_per_well | Max number of fractures per well          | Integer
-    top_layer              | Top grid k-level for fractures            | Integer
-    base_layer             | Base grid k-level for fractures           | Integer
-    spacing                | Spacing between fractures                 | Double
-    action                 | 'APPEND_FRACTURES' or 'REPLACE_FRACTURES' | String enum
+    **Parameters**::
+
+        Parameter              | Description                               | Type
+        -----------------------| ----------------------------------------- | -----
+        template_id            | Id of the template                        | Integer
+        well_path_names        | List of well path names                   | List of Strings
+        min_dist_from_well_td  | Minimum distance from well TD             | Double
+        max_fractures_per_well | Max number of fractures per well          | Integer
+        top_layer              | Top grid k-level for fractures            | Integer
+        base_layer             | Base grid k-level for fractures           | Integer
+        spacing                | Spacing between fractures                 | Double
+        action                 | 'APPEND_FRACTURES' or 'REPLACE_FRACTURES' | String enum
+
     """
     if isinstance(well_path_names, str):
         well_path_names = [well_path_names]
@@ -411,22 +418,24 @@ def create_lgr_for_completion(
     """
     Create a local grid refinement for the completions on the given well paths
 
-    Parameter       | Description                            | Type
-    --------------- | -------------------------------------- | -----
-    time_steps      | Time step index                        | Integer
-    well_path_names | List of well path names                | List of Strings
-    refinement_i    | Refinment in x-direction               | Integer
-    refinement_j    | Refinment in y-direction               | Integer
-    refinement_k    | Refinment in z-direction               | Integer
-    split_type      | Defines how to split LGRS              | String enum
+    **Parameters**::
 
-    ##### Enum split_type 
+        Parameter       | Description                            | Type
+        --------------- | -------------------------------------- | -----
+        time_steps      | Time step index                        | Integer
+        well_path_names | List of well path names                | List of Strings
+        refinement_i    | Refinment in x-direction               | Integer
+        refinement_j    | Refinment in y-direction               | Integer
+        refinement_k    | Refinment in z-direction               | Integer
+        split_type      | Defines how to split LGRS              | String enum
 
-    Option                  | Description
-    ------------------------| ------------
-    "LGR_PER_CELL"          | One LGR for each completed cell 
-    "LGR_PER_COMPLETION"    | One LGR for each completion (fracture, perforation, ...)
-    "LGR_PER_WELL"          | One LGR for each well
+    **Enum split_type**::
+
+        Option                  | Description
+        ------------------------| ------------
+        "LGR_PER_CELL"          | One LGR for each completed cell 
+        "LGR_PER_COMPLETION"    | One LGR for each completion (fracture, perforation, ...)
+        "LGR_PER_WELL"          | One LGR for each well
 
     """
     if isinstance(well_path_names, str):
@@ -464,14 +473,16 @@ def export_flow_characteristics(
 ):
     """ Export Flow Characteristics data to text file in CSV format
 
-    Parameter                 | Description                                   | Type
-    ------------------------- | --------------------------------------------- | -----
-    time_steps                | Time step indices                             | List of Integer
-    injectors                 | Injector names                                | List of Strings
-    producers                 | Producer names                                | List of Strings
-    file_name                 | Export file name                              | Integer
-    minimum_communication     | Minimum Communication, defaults to 0.0        | Integer
-    aquifer_cell_threshold    | Aquifer Cell Threshold, defaults to 0.1       | Integer
+    **Parameters**::
+
+        Parameter                 | Description                                   | Type
+        ------------------------- | --------------------------------------------- | -----
+        time_steps                | Time step indices                             | List of Integer
+        injectors                 | Injector names                                | List of Strings
+        producers                 | Producer names                                | List of Strings
+        file_name                 | Export file name                              | Integer
+        minimum_communication     | Minimum Communication, defaults to 0.0        | Integer
+        aquifer_cell_threshold    | Aquifer Cell Threshold, defaults to 0.1       | Integer
 
     """
     if isinstance(time_steps, int):
@@ -498,7 +509,7 @@ def available_properties(self,
     """Get a list of available properties
 
     Arguments:
-        property_type (str): string corresponding to property_type enum. Choices:
+        property_type (str): string corresponding to property_type enum. Choices::
             - DYNAMIC_NATIVE
             - STATIC_NATIVE
             - SOURSIMRL
