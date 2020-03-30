@@ -531,7 +531,7 @@ QList<caf::PdmOptionItemInfo> RiaQDateTimeTools::createOptionItems( const std::v
     {
         const auto& dt   = dateTimes[i];
         QString     text = RiaQDateTimeTools::toStringUsingApplicationLocale( dt, formatString );
-        options.push_back( {text, i} );
+        options.push_back( {text, static_cast<int>( i )} );
     }
 
     return options;
