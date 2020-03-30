@@ -404,7 +404,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
 
 QString RivWellDiskPartMgr::formatNumber( double num )
 {
-    if ( std::abs( num ) < 1e4 )
+    if ( std::fabs( num ) < 1e4 )
         return QString::number( num, 'f', 1 );
     else
         return QString::number( num, 'g', 2 );
