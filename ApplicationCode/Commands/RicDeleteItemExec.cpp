@@ -53,6 +53,7 @@
 
 #include "RiuPlotMainWindow.h"
 
+#include "RimAnalysisPlot.h"
 #include "cafNotificationCenter.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmDocument.h"
@@ -336,6 +337,15 @@ void RicDeleteItemExec::redo()
             if ( surfCollection )
             {
                 surfCollection->updateViews();
+            }
+        }
+
+        {
+            RimAnalysisPlot* analysisPlot;
+            parentObj->firstAncestorOrThisOfType( analysisPlot );
+            if ( analysisPlot )
+            {
+                analysisPlot->loadDataAndUpdate();
             }
         }
     }
