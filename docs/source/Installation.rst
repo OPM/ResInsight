@@ -18,16 +18,12 @@ or as a regular user:
    
 On some systems the `pip` command may have to be replaced by `python -m pip`.
 
-The ResInsight Python API is based on `gRPC <https://www.grpc.io/>`_ remote procedure calls. 
-In order for gRPC to be available, ResInsight needs to be built with the **RESINSIGHT_ENABLE_GRPC** option set. 
-A valid gRPC build will show a message in ResInsight *About* dialog confirming gRPC is available.
-
-.. image:: images/AboutGrpc.png
-
-Furthermore, gRPC needs to be enabled in the *Scripting* tab of the ResInsight *Preference* dialog:
+To configure the **ResInsight Python Script Server**, check *Enable Python Script Server* and verify Python settings in the *Scripting* tab of the ResInsight *Preference* dialog.
 
 .. image:: images/PrefGrpc.png
 
+The availability of the ResInsight Python Script Server can be confirmed by ResInsight *About* dialog.
+If unavailable, please consult ResInsight Build Instructions on `resinsight.org <https://resinsight.org/>`_.
 
 
 
