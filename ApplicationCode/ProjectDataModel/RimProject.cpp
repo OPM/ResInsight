@@ -1541,45 +1541,9 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void reportOnStrangePath( caf::PdmObjectHandle* object )
-{
-    if ( !object ) return;
-
-    std::vector<caf::PdmField<caf::FilePath>*> fields;
-
-    std::vector<caf::PdmFieldHandle*> allFieldsInObject;
-    object->fields( allFieldsInObject );
-
-    std::vector<caf::PdmObjectHandle*> children;
-
-    for ( const auto& field : allFieldsInObject )
-    {
-        caf::PdmField<caf::FilePath>* typedField = dynamic_cast<caf::PdmField<caf::FilePath>*>( field );
-        if ( typedField && ( ( *typedField )().path() == "/private/hhgs" ) )
-        {
-            fields.push_back( typedField );
-            std::cout << "Found path: " << typedField->ownerObject()->xmlCapability()->classKeyword().toStdString()
-                      << "." << typedField->keyword().toStdString() << ": " << ( *typedField )().path().toStdString()
-                      << std::endl;
-        }
-
-        field->childObjects( &children );
-    }
-
-    for ( const auto& child : children )
-    {
-        reportOnStrangePath( child );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimProject::transferPathsToGlobalPathList()
 {
     GlobalPathListMapper pathListMapper( m_globalPathList() );
-
-    reportOnStrangePath( this );
 
     std::vector<caf::FilePath*> filePaths;
     fieldContentsByType( this, filePaths );
