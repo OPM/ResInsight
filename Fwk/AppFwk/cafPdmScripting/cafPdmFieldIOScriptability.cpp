@@ -1,34 +1,49 @@
-/////////////////////////////////////////////////////////////////////////////////
+//##################################################################################################
 //
-//  Copyright (C) 2017 Statoil ASA
+//   Custom Visualization Core library
+//   Copyright (C) Ceetron Solutions AS
 //
-//  ResInsight is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
+//   This library may be used under the terms of either the GNU General Public License or
+//   the GNU Lesser General Public License as follows:
 //
-//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
-//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//  FITNESS FOR A PARTICULAR PURPOSE.
+//   GNU General Public License Usage
+//   This library is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
 //
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
-//  for more details.
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
 //
-/////////////////////////////////////////////////////////////////////////////////
+//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>>
+//   for more details.
+//
+//   GNU Lesser General Public License Usage
+//   This library is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU Lesser General Public License as published by
+//   the Free Software Foundation; either version 2.1 of the License, or
+//   (at your option) any later version.
+//
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//   FITNESS FOR A PARTICULAR PURPOSE.
+//
+//   See the GNU Lesser General Public License at <<http://www.gnu.org/licenses/lgpl-2.1.html>>
+//   for more details.
+//
+//##################################################################################################
+#include "cafPdmFieldIOScriptability.h"
 
-#include "RicfFieldCapability.h"
-
-#include "RiaColorTools.h"
-
-#include <QColor>
+using namespace caf;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldIOHandler<QString>::writeToField( QString&                  fieldValue,
-                                                QTextStream&              inputStream,
-                                                caf::PdmScriptIOMessages* errorMessageContainer,
-                                                bool                      stringsAreQuoted )
+void PdmFieldScriptabilityIOHandler<QString>::writeToField( QString&                  fieldValue,
+                                                            QTextStream&              inputStream,
+                                                            caf::PdmScriptIOMessages* errorMessageContainer,
+                                                            bool                      stringsAreQuoted )
 {
     fieldValue = "";
 
@@ -92,16 +107,19 @@ void RicfFieldIOHandler<QString>::writeToField( QString&                  fieldV
         // Could interpret as unquoted text
     }
 
-    fieldValue = accumulatedFieldValue;
+    if ( accumulatedFieldValue != "None" )
+    {
+        fieldValue = accumulatedFieldValue;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldIOHandler<QString>::readFromField( const QString& fieldValue,
-                                                 QTextStream&   outputStream,
-                                                 bool           quoteStrings,
-                                                 bool           quoteNonBuiltin )
+void PdmFieldScriptabilityIOHandler<QString>::readFromField( const QString& fieldValue,
+                                                             QTextStream&   outputStream,
+                                                             bool           quoteStrings,
+                                                             bool           quoteNonBuiltin )
 {
     outputStream << "\"";
     for ( int i = 0; i < fieldValue.size(); ++i )
@@ -118,10 +136,10 @@ void RicfFieldIOHandler<QString>::readFromField( const QString& fieldValue,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldIOHandler<bool>::writeToField( bool&                     fieldValue,
-                                             QTextStream&              inputStream,
-                                             caf::PdmScriptIOMessages* errorMessageContainer,
-                                             bool                      stringsAreQuoted )
+void PdmFieldScriptabilityIOHandler<bool>::writeToField( bool&                     fieldValue,
+                                                         QTextStream&              inputStream,
+                                                         caf::PdmScriptIOMessages* errorMessageContainer,
+                                                         bool                      stringsAreQuoted )
 {
     errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
     QString accumulatedFieldValue;
@@ -157,42 +175,11 @@ void RicfFieldIOHandler<bool>::writeToField( bool&                     fieldValu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfFieldIOHandler<bool>::readFromField( const bool&  fieldValue,
-                                              QTextStream& outputStream,
-                                              bool         quoteStrings,
-                                              bool         quoteNonBuiltin )
+void PdmFieldScriptabilityIOHandler<bool>::readFromField( const bool&  fieldValue,
+                                                          QTextStream& outputStream,
+                                                          bool         quoteStrings,
+                                                          bool         quoteNonBuiltin )
 {
     // Lower-case true/false is used in the documentation.
     outputStream << ( fieldValue ? "true" : "false" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicfFieldIOHandler<cvf::Color3f>::writeToField( cvf::Color3f&             fieldValue,
-                                                     QTextStream&              inputStream,
-                                                     caf::PdmScriptIOMessages* errorMessageContainer,
-                                                     bool                      stringsAreQuoted )
-{
-    QString fieldStringValue;
-    RicfFieldIOHandler<QString>::writeToField( fieldStringValue, inputStream, errorMessageContainer, stringsAreQuoted );
-
-    QColor qColor( fieldStringValue );
-    if ( qColor.isValid() )
-    {
-        fieldValue = RiaColorTools::fromQColorTo3f( qColor );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicfFieldIOHandler<cvf::Color3f>::readFromField( const cvf::Color3f& fieldValue,
-                                                      QTextStream&        outputStream,
-                                                      bool                quoteStrings,
-                                                      bool                quoteNonBuiltin )
-{
-    QColor  qColor           = RiaColorTools::toQColor( fieldValue );
-    QString fieldStringValue = qColor.name();
-    RicfFieldIOHandler<QString>::readFromField( fieldStringValue, outputStream, quoteStrings );
 }

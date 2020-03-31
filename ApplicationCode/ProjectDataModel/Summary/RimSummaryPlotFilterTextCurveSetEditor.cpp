@@ -374,6 +374,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
 
         parentPlot->applyDefaultCurveAppearances();
         parentPlot->loadDataAndUpdate();
+        parentPlot->zoomAll();
 
         m_isFieldRecentlyChangedFromGui = true;
 

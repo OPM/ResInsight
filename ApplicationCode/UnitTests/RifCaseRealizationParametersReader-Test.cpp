@@ -62,3 +62,16 @@ TEST( RifCaseRealizationParametersReaderTest, SuccessfulParsing )
         EXPECT_TRUE( false );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifCaseRealizationParametersReaderTest, FindRealizationNumber )
+{
+    QString filePath = "d:/gitroot-ceesol/ResInsight-regression-test/ModelData/ensemble_reek_with_params/realization-"
+                       "7/iter-0/eclipse/model/3_R001_REEK-7.SMSPEC";
+
+    int realisationNumber = RifCaseRealizationParametersFileLocator::realizationNumber( filePath );
+
+    EXPECT_EQ( 7, realisationNumber );
+}

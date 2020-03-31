@@ -38,6 +38,8 @@
 #include "RiaWellNameComparer.h"
 
 #include "cafCmdFeatureManager.h"
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QStringList>
 
 CAF_PDM_SOURCE_INIT( RicfCreateLgrForCompletions, "createLgrForCompletions" );
@@ -47,19 +49,19 @@ CAF_PDM_SOURCE_INIT( RicfCreateLgrForCompletions, "createLgrForCompletions" );
 //--------------------------------------------------------------------------------------------------
 RicfCreateLgrForCompletions::RicfCreateLgrForCompletions()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_timeStep, "timeStep", 0, "Time Step Index", "", "", "" );
-    RICF_InitField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
-    RICF_InitField( &m_refinementI, "refinementI", -1, "RefinementI", "", "", "" );
-    RICF_InitField( &m_refinementJ, "refinementJ", -1, "RefinementJ", "", "", "" );
-    RICF_InitField( &m_refinementK, "refinementK", -1, "RefinementK", "", "", "" );
-    RICF_InitField( &m_splitType, "splitType", Lgr::SplitTypeEnum(), "SplitType", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_timeStep, "timeStep", 0, "Time Step Index", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_refinementI, "refinementI", -1, "RefinementI", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_refinementJ, "refinementJ", -1, "RefinementJ", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_refinementK, "refinementK", -1, "RefinementK", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_splitType, "splitType", Lgr::SplitTypeEnum(), "SplitType", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfCreateLgrForCompletions::execute()
+caf::PdmScriptResponse RicfCreateLgrForCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -74,7 +76,7 @@ RicfCommandResponse RicfCreateLgrForCompletions::execute()
             QString error = QString( "createLgrForCompletions: These well paths were not found: " ) +
                             wellsNotFound.join( ", " );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
 
@@ -82,7 +84,7 @@ RicfCommandResponse RicfCreateLgrForCompletions::execute()
     {
         QString error( "No well paths found" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
@@ -103,7 +105,7 @@ RicfCommandResponse RicfCreateLgrForCompletions::execute()
         {
             QString error( QString( "createLgrForCompletions: Could not find case with ID %1" ).arg( m_caseId() ) );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
 
@@ -122,7 +124,7 @@ RicfCommandResponse RicfCreateLgrForCompletions::execute()
 
     feature->updateViews( eclipseCase );
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
     if ( !wellsIntersectingOtherLgrs.empty() )
     {
         auto    wellsList = wellsIntersectingOtherLgrs.join( ", " );
@@ -130,7 +132,7 @@ RicfCommandResponse RicfCreateLgrForCompletions::execute()
                          "LGR(s).Affected wells : " +
                          wellsList );
         RiaLogging::warning( warning );
-        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
     }
     return response;
 }

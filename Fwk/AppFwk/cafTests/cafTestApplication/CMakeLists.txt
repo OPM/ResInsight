@@ -85,10 +85,18 @@ if (USE_COMMAND_FRAMEWORK)
     )
 endif(USE_COMMAND_FRAMEWORK)
 
+# According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    list(APPEND EXTERNAL_LINK_LIBRARIES
+        rt
+        pthread
+    )
+endif()
 
 target_link_libraries ( ${PROJECT_NAME}
     ${TAP_LINK_LIBRARIES}
     ${QT_LIBRARIES}
+    ${EXTERNAL_LINK_LIBRARIES}
 )
 
 source_group("" FILES ${PROJECT_FILES})

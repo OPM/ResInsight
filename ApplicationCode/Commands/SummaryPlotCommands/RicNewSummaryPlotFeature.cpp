@@ -26,6 +26,7 @@
 #include "RicNewSummaryEnsembleCurveSetFeature.h"
 #include "RicSummaryPlotEditorDialog.h"
 #include "RicSummaryPlotEditorUi.h"
+#include "RicSummaryPlotFeatureImpl.h"
 
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
@@ -211,6 +212,29 @@ void extractPlotObjectsFromSelection( std::vector<RimSummaryCase*>*           se
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RicNewDefaultSummaryPlotFeature::createFromSummaryCases( RimSummaryPlotCollection* plotCollection,
+                                                                         const std::vector<RimSummaryCase*>& summaryCases )
+{
+    RimSummaryPlot* newPlot = plotCollection->createSummaryPlotWithAutoTitle();
+
+    for ( RimSummaryCase* sumCase : summaryCases )
+    {
+        RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot( newPlot, sumCase );
+    }
+
+    newPlot->applyDefaultCurveAppearances();
+    newPlot->loadDataAndUpdate();
+
+    plotCollection->updateConnectedEditors();
+
+    RiuPlotMainWindowTools::setExpanded( newPlot );
+    RiuPlotMainWindowTools::selectAsCurrentItem( newPlot );
+    return newPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
 {
     std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
@@ -234,20 +258,7 @@ void RicNewDefaultSummaryPlotFeature::onActionTriggered( bool isChecked )
     {
         RimSummaryPlotCollection* sumPlotColl =
             RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
-        RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
-
-        for ( RimSummaryCase* sumCase : selectedIndividualSummaryCases )
-        {
-            RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot( newPlot, sumCase );
-        }
-
-        newPlot->applyDefaultCurveAppearances();
-        newPlot->loadDataAndUpdate();
-
-        sumPlotColl->updateConnectedEditors();
-
-        RiuPlotMainWindowTools::setExpanded( newPlot );
-        RiuPlotMainWindowTools::selectAsCurrentItem( newPlot );
+        createFromSummaryCases( sumPlotColl, selectedIndividualSummaryCases );
     }
     else
     {

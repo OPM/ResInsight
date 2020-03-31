@@ -47,7 +47,9 @@
 
 #include "RivReservoirViewPartMgr.h"
 
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmUiTreeOrdering.h"
+
 #include "cvfMath.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +71,7 @@ RimSimWellInView::RimSimWellInView()
                                                     "SimulationWell",
                                                     "An Eclipse Simulation Well" );
 
-    RICF_InitFieldNoDefault( &name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &name, "Name", "Name", "", "", "" );
     name.registerKeywordAlias( "WellName" );
 
     CAF_PDM_InitField( &showWell, "ShowWell", true, "Show well ", "", "", "" );
@@ -686,11 +688,11 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
     }
     else
     {
-        m_isInjector = RimSimWellInViewTools::gridSummaryCaseForWell( this );
+        m_isInjector = RimSimWellInViewTools::isInjector( this );
 
         double oil = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
                                                                      name(),
-                                                                     wellDiskConfig.getOilProperty(),
+                                                                     wellDiskConfig.getOilProperty( m_isInjector ),
                                                                      currentDate,
                                                                      isOk );
         if ( !( *isOk ) )
@@ -701,7 +703,7 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
 
         double gas = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
                                                                      name(),
-                                                                     wellDiskConfig.getGasProperty(),
+                                                                     wellDiskConfig.getGasProperty( m_isInjector ),
                                                                      currentDate,
                                                                      isOk ) /
                      1000.0;
@@ -713,7 +715,7 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
 
         double water = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
                                                                        name(),
-                                                                       wellDiskConfig.getWaterProperty(),
+                                                                       wellDiskConfig.getWaterProperty( m_isInjector ),
                                                                        currentDate,
                                                                        isOk );
         if ( !( *isOk ) )
@@ -743,6 +745,37 @@ void RimSimWellInView::scaleDisk( double minValue, double maxValue )
     {
         m_diskScale = 1.0;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimSimWellInView::boundingBoxInDomainCoords() const
+{
+    std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
+    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
+
+    auto noConst = const_cast<RimSimWellInView*>( this );
+    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( noConst,
+                                                                              pipeBranchesCLCoords,
+                                                                              pipeBranchesCellIds );
+
+    cvf::BoundingBox bb;
+    for ( auto branch : pipeBranchesCLCoords )
+    {
+        if ( !branch.empty() )
+        {
+            // Estimate the bounding box based on first, middle and last coordinate of branches
+            bb.add( branch.front() );
+
+            size_t mid = branch.size() / 2;
+            bb.add( branch[mid] );
+
+            bb.add( branch.back() );
+        }
+    }
+
+    return bb;
 }
 
 //--------------------------------------------------------------------------------------------------

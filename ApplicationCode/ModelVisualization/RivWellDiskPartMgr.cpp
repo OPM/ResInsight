@@ -57,6 +57,8 @@
 #include "cvfUniform.h"
 #include "cvfqtUtils.h"
 
+#include <cmath>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -181,9 +183,9 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
 
     cvf::ref<cvf::Effect> effectToUse = RiaGuiApplication::instance()->useShaders() ? m_shaderEffect : m_fixedFuncEffect;
 
-    const cvf::Color3ub colorTable[] = {cvf::Color3ub( cvf::Color3::DARK_GREEN ),
-                                        cvf::Color3ub( cvf::Color3::DARK_RED ),
-                                        cvf::Color3ub( cvf::Color3::DARK_BLUE )};
+    const cvf::Color3ub colorTable[] = {cvf::Color3ub( 0, 177, 89 ), // Green
+                                        cvf::Color3ub( 255, 66, 66 ), // Red
+                                        cvf::Color3ub( 66, 66, 255 )}; // Blue
 
     size_t                       vertexCount = geo1->vertexCount();
     cvf::ref<cvf::Color3ubArray> colorArray  = new cvf::Color3ubArray;
@@ -192,8 +194,6 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
     CVF_ASSERT( vertexCount == numSectors * 3 );
 
     std::vector<std::pair<cvf::String, cvf::Vec3f>> labelsWithPosition;
-
-    int numberPrecision = 2;
 
     double       accumulatedPropertyValue = 0.0;
     const double valueThresholdForLabel   = 1e-6;
@@ -216,7 +216,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
             if ( diskData.singlePropertyValue() > valueThresholdForLabel )
             {
                 const double singleProperty = diskData.singlePropertyValueSigned();
-                labelText += QString( "\n%2" ).arg( singleProperty, 0, 'g', numberPrecision );
+                labelText += QString( "\n%2" ).arg( RivWellDiskPartMgr::formatNumber( singleProperty ) );
             }
         }
     }
@@ -239,11 +239,8 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
 
             if ( oilFraction > valueThresholdForLabel )
             {
-                auto p = createTextAndLocation( oilFraction / 2.0,
-                                                diskPosition,
-                                                ijScaleFactor,
-                                                diskData.oilSigned(),
-                                                numberPrecision );
+                auto p = createTextAndLocation( oilFraction / 2.0, diskPosition, ijScaleFactor, diskData.oilSigned() );
+
                 labelsWithPosition.push_back( p );
                 aggregatedFraction += oilFraction;
             }
@@ -253,8 +250,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
                 auto p = createTextAndLocation( aggregatedFraction + gasFraction / 2.0,
                                                 diskPosition,
                                                 ijScaleFactor,
-                                                diskData.gasSigned(),
-                                                numberPrecision );
+                                                diskData.gasSigned() );
                 labelsWithPosition.push_back( p );
                 aggregatedFraction += gasFraction;
             }
@@ -264,8 +260,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
                 auto p = createTextAndLocation( aggregatedFraction + waterFraction / 2.0,
                                                 diskPosition,
                                                 ijScaleFactor,
-                                                diskData.waterSigned(),
-                                                numberPrecision );
+                                                diskData.waterSigned() );
 
                 labelsWithPosition.push_back( p );
                 aggregatedFraction += waterFraction;
@@ -409,14 +404,21 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
     }
 }
 
+QString RivWellDiskPartMgr::formatNumber( double num )
+{
+    if ( std::fabs( num ) < 1e4 )
+        return QString::number( num, 'f', 1 );
+    else
+        return QString::number( num, 'g', 2 );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<cvf::String, cvf::Vec3f> RivWellDiskPartMgr::createTextAndLocation( const double aggregatedFraction,
                                                                               cvf::Vec3d   diskPosition,
                                                                               double       ijScaleFactor,
-                                                                              const double fraction,
-                                                                              int          precision )
+                                                                              const double fraction )
 {
     double sinA = cvf::Math::sin( aggregatedFraction * 2.0 * cvf::PI_F );
     double cosA = cvf::Math::cos( aggregatedFraction * 2.0 * cvf::PI_F );
@@ -430,7 +432,7 @@ std::pair<cvf::String, cvf::Vec3f> RivWellDiskPartMgr::createTextAndLocation( co
     v.x() = v.x() + static_cast<float>( -sinA * radius );
     v.y() = v.y() + static_cast<float>( cosA * radius );
 
-    auto        s    = QString::number( fraction, 'g', precision );
+    auto        s    = RivWellDiskPartMgr::formatNumber( fraction );
     cvf::String text = cvf::String( s.toStdString() );
 
     auto p = std::make_pair( text, v );

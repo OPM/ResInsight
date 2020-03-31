@@ -21,6 +21,8 @@
 
 #include "RiuMainWindow.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfSetMainWindowSize, "setMainWindowSize" );
 
 //--------------------------------------------------------------------------------------------------
@@ -28,15 +30,15 @@ CAF_PDM_SOURCE_INIT( RicfSetMainWindowSize, "setMainWindowSize" );
 //--------------------------------------------------------------------------------------------------
 RicfSetMainWindowSize::RicfSetMainWindowSize()
 {
-    RICF_InitField( &m_height, "height", -1, "Height", "", "", "" );
-    RICF_InitField( &m_width, "width", -1, "Width", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_height, "height", -1, "Height", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_width, "width", -1, "Width", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfSetMainWindowSize::execute()
+caf::PdmScriptResponse RicfSetMainWindowSize::execute()
 {
     RiuMainWindow::instance()->resize( m_width, m_height );
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

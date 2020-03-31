@@ -23,8 +23,6 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
-#include "RicfCommandObject.h"
-
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -43,6 +41,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafProgressInfo.h"
 
 #include <QDir>
@@ -62,11 +62,11 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
                                                     "GridCaseGroup",
                                                     "A statistics case group" );
 
-    RICF_InitField( &name, "UserDescription", QString( "Grid Case Group" ), "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &name, "UserDescription", QString( "Grid Case Group" ), "Name", "", "", "" );
 
-    RICF_InitField( &groupId, "GroupId", -1, "Case Group ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &groupId, "GroupId", -1, "Case Group ID", "", "", "" );
     groupId.uiCapability()->setUiReadOnly( true );
-    groupId.capability<RicfFieldHandle>()->setIOWriteable( false );
+    groupId.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
 
     CAF_PDM_InitFieldNoDefault( &statisticsCaseCollection,
                                 "StatisticsCaseCollection",

@@ -20,6 +20,9 @@
 
 #include "cafCmdFeature.h"
 
+class RimSummaryCase;
+class RimSummaryCaseMainCollection;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -32,4 +35,8 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    static RimSummaryCaseMainCollection* mainCollection();
+    static std::vector<RimSummaryCase*>  twoSelectedSummaryCases();
 };

@@ -29,6 +29,8 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
@@ -40,19 +42,19 @@ CAF_PDM_SOURCE_INIT( RicfExportFlowCharacteristics, "exportFlowCharacteristics" 
 //--------------------------------------------------------------------------------------------------
 RicfExportFlowCharacteristics::RicfExportFlowCharacteristics()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_selectedTimeSteps, "timeSteps", std::vector<int>(), "Selected Time Steps", "", "", "" );
-    RICF_InitField( &m_injectors, "injectors", std::vector<QString>(), "Injectors", "", "", "" );
-    RICF_InitField( &m_producers, "producers", std::vector<QString>(), "Producers", "", "", "" );
-    RICF_InitField( &m_fileName, "fileName", QString(), "Export File Name", "", "", "" );
-    RICF_InitField( &m_minCommunication, "minimumCommunication", 0.0, "Minimum Communication", "", "", "" );
-    RICF_InitField( &m_maxPvFraction, "aquiferCellThreshold", 0.1, "Aquifer Cell Threshold", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_selectedTimeSteps, "timeSteps", std::vector<int>(), "Selected Time Steps", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_injectors, "injectors", std::vector<QString>(), "Injectors", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_producers, "producers", std::vector<QString>(), "Producers", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_fileName, "fileName", QString(), "Export File Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_minCommunication, "minimumCommunication", 0.0, "Minimum Communication", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_maxPvFraction, "aquiferCellThreshold", 0.1, "Aquifer Cell Threshold", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportFlowCharacteristics::execute()
+caf::PdmScriptResponse RicfExportFlowCharacteristics::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -61,7 +63,7 @@ RicfCommandResponse RicfExportFlowCharacteristics::execute()
     {
         QString error = QString( "exportFlowCharacteristics: Could not find case with ID %1." ).arg( m_caseId() );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     {
@@ -79,7 +81,7 @@ RicfCommandResponse RicfExportFlowCharacteristics::execute()
                 if ( !exportDir.mkpath( "." ) )
                 {
                     QString msg = QString( "Failed to create folder - %1" ).arg( exportFolder );
-                    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, msg );
+                    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, msg );
                 }
             }
 
@@ -111,10 +113,10 @@ RicfCommandResponse RicfExportFlowCharacteristics::execute()
                 else
                 {
                     QString msg = QString( "Failed to export file - %1" ).arg( exportFileName );
-                    return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, msg );
+                    return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, msg );
                 }
             }
         }
     }
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

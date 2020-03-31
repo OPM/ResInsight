@@ -46,6 +46,14 @@ class RimDerivedSummaryCase : public RimSummaryCase
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class FixedTimeStepMode
+    {
+        FIXED_TIME_STEP_NONE,
+        FIXED_TIME_STEP_CASE_1,
+        FIXED_TIME_STEP_CASE_2
+    };
+
+public:
     RimDerivedSummaryCase();
     ~RimDerivedSummaryCase() override;
 
@@ -53,6 +61,7 @@ public:
     bool isInUse() const;
     void setSummaryCases( RimSummaryCase* sumCase1, RimSummaryCase* sumCase2 );
     void setOperator( DerivedSummaryOperator oper );
+    void setFixedTimeSteps( int fixedTimeStepCase1, int fixedTimeStepCase2 );
 
     bool                       needsCalculation( const RifEclipseSummaryAddress& address ) const;
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& address ) const;
@@ -62,13 +71,17 @@ public:
 
     static std::pair<std::vector<time_t>, std::vector<double>>
         calculateDerivedValues( RifSummaryReaderInterface*      reader1,
+                                int                             fixedTimeStepCase1,
                                 RifSummaryReaderInterface*      reader2,
+                                int                             fixedTimeStepCase2,
                                 DerivedSummaryOperator          m_operator,
                                 const RifEclipseSummaryAddress& address );
 
     void                       createSummaryReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
+
+    void updateDisplayNameFromCases();
 
 protected:
     QString caseName() const override;
@@ -79,13 +92,20 @@ private:
                                                          bool*                      useOptionsOnly ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 
     void clearData( const RifEclipseSummaryAddress& address );
 
 private:
-    caf::PdmPtrField<RimSummaryCase*>                   m_summaryCase1;
-    caf::PdmPtrField<RimSummaryCase*>                   m_summaryCase2;
+    caf::PdmPtrField<RimSummaryCase*> m_summaryCase1;
+    caf::PdmPtrField<RimSummaryCase*> m_summaryCase2;
+
     caf::PdmField<caf::AppEnum<DerivedSummaryOperator>> m_operator;
+
+    caf::PdmField<caf::AppEnum<FixedTimeStepMode>> m_useFixedTimeStep;
+    caf::PdmField<int>                             m_fixedTimeStepIndex;
 
     bool                                      m_inUse;
     std::unique_ptr<RifDerivedEnsembleReader> m_reader;

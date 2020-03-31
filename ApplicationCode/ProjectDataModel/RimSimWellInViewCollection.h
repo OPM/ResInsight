@@ -105,7 +105,9 @@ public:
         PRODUCTION_RATES,
         INJECTION_RATES,
         CUMULATIVE_PRODUCTION_RATES,
-        CUMULATIVE_INJECTION_RATES
+        CUMULATIVE_INJECTION_RATES,
+        PRODUCTION_INJECTION_RATES,
+        CUMULATIVE_PRODUCTION_INJECTION_RATES
     };
 
     typedef caf::AppEnum<RimSimWellInViewCollection::WellPipeColors> WellPipeColorsEnum;

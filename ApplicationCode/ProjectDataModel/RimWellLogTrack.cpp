@@ -51,6 +51,7 @@
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimTools.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurve.h"
@@ -754,8 +755,17 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
     std::vector<double>              curveDepths;
     std::vector<std::vector<double>> curvesPlotXValues;
 
-    auto depthType = parentWellLogPlot()->depthType();
-    auto depthUnit = parentWellLogPlot()->depthUnit();
+    auto depthType             = parentWellLogPlot()->depthType();
+    auto depthUnit             = parentWellLogPlot()->depthUnit();
+    bool isWellAllocInflowPlot = false;
+    {
+        RimWellAllocationPlot* wapl = nullptr;
+        parentWellLogPlot()->firstAncestorOfType( wapl );
+        if ( wapl )
+        {
+            isWellAllocInflowPlot = ( wapl->flowType() == RimWellAllocationPlot::INFLOW );
+        }
+    }
 
     for ( RimWellLogCurve* curve : m_curves() )
     {
@@ -784,37 +794,73 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
         curvesPlotXValues.push_back( xPlotValues );
     }
 
-    for ( size_t i = 0; i < curveDepths.size(); ++i )
+    // Header
+
+    if ( depthType == RiaDefines::CONNECTION_NUMBER )
     {
-        if ( i == 0 )
-        {
-            if ( depthType == RiaDefines::CONNECTION_NUMBER )
-                out += "Connection";
-            else if ( depthType == RiaDefines::MEASURED_DEPTH )
-                out += "MD   ";
-            else if ( depthType == RiaDefines::PSEUDO_LENGTH )
-                out += "PL   ";
-            else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
-                out += "TVDMSL  ";
-            else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
-                out += "TVDRKB  ";
+        out += "Connection";
+    }
+    else if ( depthType == RiaDefines::MEASURED_DEPTH )
+    {
+        out += "MD   ";
+    }
+    else if ( depthType == RiaDefines::PSEUDO_LENGTH )
+    {
+        out += "PL   ";
+    }
+    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+    {
+        out += "TVDMSL  ";
+    }
+    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+    {
+        out += "TVDRKB  ";
+    }
 
-            for ( QString name : curveNames )
-                out += "  \t" + name;
-            out += "\n";
-        }
-        else if ( curveDepths[i] == curveDepths[i - 1] )
+    for ( QString name : curveNames )
+    {
+        out += "  \t" + name;
+    }
+    out += "\n";
+
+    for ( size_t dIdx = 0; dIdx < curveDepths.size(); ++dIdx )
+    {
+        size_t i          = dIdx;
+        double curveDepth = curveDepths[i];
+
+        if ( depthType == RiaDefines::CONNECTION_NUMBER )
         {
-            continue;
+            if ( dIdx == 0 )
+                continue; // Skip the first line. (shallow depth, which is last)
+                          // as it is a fictious value added to make
+                          // the plot easier to read
+
+            i = curveDepths.size() - 1 - dIdx; // Reverse the order, since the connections are coming bottom to top
+
+            if ( i == 0 )
+            {
+                if ( curveDepths.size() > 1 && curveDepths[i] == curveDepths[i + 1] )
+                {
+                    continue; // Skip double depth at last connection
+                }
+            }
+
+            curveDepth = curveDepths[i];
+
+            if ( isWellAllocInflowPlot )
+            {
+                curveDepth -= 0.5; // To shift the values that was shifted to get the numbers between the changes
+            }
         }
 
-        out += QString::number( curveDepths[i], 'f', 3 );
+        out += QString::number( curveDepth, 'f', 3 );
         for ( std::vector<double> plotVector : curvesPlotXValues )
         {
             out += " \t" + QString::number( plotVector[i], 'g' );
         }
         out += "\n";
     }
+
     return out;
 }
 

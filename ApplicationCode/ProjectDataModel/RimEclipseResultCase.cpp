@@ -202,6 +202,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 
     progInfo.setProgressDescription( "Computing Case Cache" );
     computeCachedData();
+    loadAndSyncronizeInputProperties( false );
 
     m_gridAndWellDataIsReadFromFile = true;
     m_activeCellInfoIsReadFromFile  = true;

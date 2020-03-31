@@ -26,6 +26,8 @@
 #include "RimEclipseCase.h"
 #include "RimProject.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RicfRunOctaveScript, "runOctaveScript" );
@@ -35,14 +37,14 @@ CAF_PDM_SOURCE_INIT( RicfRunOctaveScript, "runOctaveScript" );
 //--------------------------------------------------------------------------------------------------
 RicfRunOctaveScript::RicfRunOctaveScript()
 {
-    RICF_InitField( &m_path, "path", QString(), "Path", "", "", "" );
-    RICF_InitField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_path, "path", QString(), "Path", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfRunOctaveScript::execute()
+caf::PdmScriptResponse RicfRunOctaveScript::execute()
 {
     QString octavePath = RiaApplication::instance()->octavePath();
 
@@ -77,12 +79,12 @@ RicfCommandResponse RicfRunOctaveScript::execute()
                                                                         RiaApplication::instance()->octaveProcessEnvironment() );
     }
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
     if ( !ok )
     {
         QString error = QString( "runOctaveScript: Could not execute script %1" ).arg( m_path() );
         RiaLogging::error( error );
-        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, error );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
     else
     {

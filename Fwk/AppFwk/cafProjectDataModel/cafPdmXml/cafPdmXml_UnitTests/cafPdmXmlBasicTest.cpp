@@ -201,11 +201,15 @@ public:
    
         CAF_PDM_XML_InitField(&m_singleFilePath,    "m_singleFilePath");
         CAF_PDM_XML_InitField(&m_multipleFilePath,  "m_multipleFilePath");
+
+        CAF_PDM_XML_InitField(&m_proxyDouble,  "m_proxyDouble");
+        m_proxyDouble.registerSetMethod(this, &SimpleObj::setDoubleMember);
+        m_proxyDouble.registerGetMethod(this, &SimpleObj::doubleMember);
     }
 
     caf::PdmDataValueField<double>               m_position;
     caf::PdmDataValueField<double>               m_dir;
-    caf::PdmDataValueField<double>               m_up;
+    caf::PdmDataValueField<int>                  m_up;
     caf::PdmProxyValueField<double>          m_proxyDouble;
 
     caf::PdmDataValueField<caf::FilePath>               m_singleFilePath;
@@ -389,4 +393,43 @@ TEST(BaseTest, FilePathSerializing)
 
     delete s1;
 }
+
+// Type deduction is different on other platforms than Windows
+#ifdef WIN32
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(BaseTest, TestDataType)
+{
+    SimpleObj* s1 = new SimpleObj;
+
+    {
+        auto dataTypeNameDouble = s1->m_position.xmlCapability()->dataTypeName();
+        EXPECT_EQ("double", dataTypeNameDouble.toStdString());
+    }
+    
+    {
+        auto dataTypeNameDouble = s1->m_proxyDouble.xmlCapability()->dataTypeName();
+        EXPECT_EQ("double", dataTypeNameDouble.toStdString());
+    }
+
+    {
+        auto dataTypeNameDouble = s1->m_up.xmlCapability()->dataTypeName();
+        EXPECT_EQ("int", dataTypeNameDouble.toStdString());
+    }
+
+    {
+        auto dataTypeNameDouble = s1->m_singleFilePath.xmlCapability()->dataTypeName();
+        EXPECT_EQ("class caf::FilePath", dataTypeNameDouble.toStdString());
+    }
+
+    {
+        InheritedDemoObj* obj = new InheritedDemoObj;
+        auto dataTypeNameDouble = obj->m_texts.xmlCapability()->dataTypeName();
+        EXPECT_EQ("class QString", dataTypeNameDouble.toStdString());
+    }
+
+    delete s1;
+}
+#endif
 

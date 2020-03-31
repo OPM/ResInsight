@@ -38,7 +38,7 @@ RicSaveProjectFeature::RicSaveProjectFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicSaveProjectFeature::execute()
+caf::PdmScriptResponse RicSaveProjectFeature::execute()
 {
     this->disableModelChangeContribution();
 
@@ -55,10 +55,10 @@ RicfCommandResponse RicSaveProjectFeature::execute()
 
     if ( !worked )
     {
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ void RicSaveProjectFeature::onActionTriggered( bool isChecked )
     }
 
     auto response = execute();
-    if ( response.status() != RicfCommandResponse::COMMAND_OK )
+    if ( response.status() != caf::PdmScriptResponse::COMMAND_OK )
     {
         QString displayMessage = response.messages().join( "\n" );
         if ( RiaGuiApplication::isRunning() )

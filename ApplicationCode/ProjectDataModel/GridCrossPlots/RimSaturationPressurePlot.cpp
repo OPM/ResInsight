@@ -193,6 +193,31 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSaturationPressurePlot::fixPointersAfterCopy( RimSaturationPressurePlot* source, RimSaturationPressurePlot* copy )
+{
+    CAF_ASSERT( source && copy );
+
+    std::vector<RimPlotCellPropertyFilter*> sourceFilters;
+    source->descendantsIncludingThisOfType( sourceFilters );
+
+    std::vector<RimPlotCellPropertyFilter*> copyFilters;
+    copy->descendantsIncludingThisOfType( copyFilters );
+
+    if ( !sourceFilters.empty() && ( sourceFilters.size() == copyFilters.size() ) )
+    {
+        for ( size_t i = 0; i < sourceFilters.size(); i++ )
+        {
+            auto sourceFilter = sourceFilters[i];
+            auto copyFilter   = copyFilters[i];
+
+            sourceFilter->updatePointerAfterCopy( copyFilter );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSaturationPressurePlot::initAfterRead()
 {
     yAxisProperties()->showAnnotationObjectsInProjectTree();

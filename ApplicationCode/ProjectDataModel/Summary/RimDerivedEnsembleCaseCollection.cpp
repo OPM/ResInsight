@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaApplication.h"
+#include "RiaQDateTimeTools.h"
 
 #include "SummaryPlotCommands/RicNewDerivedEnsembleFeature.h"
 
@@ -28,9 +29,26 @@
 
 #include "RifSummaryReaderInterface.h"
 
-#include <cafPdmUiPushButtonEditor.h>
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <cmath>
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimDerivedEnsembleCaseCollection::FixedTimeStepMode>::setUp()
+{
+    addItem( RimDerivedEnsembleCaseCollection::FixedTimeStepMode::FIXED_TIME_STEP_NONE, "FIXED_TIME_STEP_NONE", "None" );
+    addItem( RimDerivedEnsembleCaseCollection::FixedTimeStepMode::FIXED_TIME_STEP_CASE_1,
+             "FIXED_TIME_STEP_CASE_1",
+             "Ensemble 1" );
+    addItem( RimDerivedEnsembleCaseCollection::FixedTimeStepMode::FIXED_TIME_STEP_CASE_2,
+             "FIXED_TIME_STEP_CASE_2",
+             "Ensemble 2" );
+    setDefault( RimDerivedEnsembleCaseCollection::FixedTimeStepMode::FIXED_TIME_STEP_NONE );
+}
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimDerivedEnsembleCaseCollection, "RimDerivedEnsembleCaseCollection" );
 
@@ -39,7 +57,7 @@ CAF_PDM_SOURCE_INIT( RimDerivedEnsembleCaseCollection, "RimDerivedEnsembleCaseCo
 //--------------------------------------------------------------------------------------------------
 RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
 {
-    CAF_PDM_InitObject( "Derived Ensemble", ":/SummaryEnsemble16x16.png", "", "" );
+    CAF_PDM_InitObject( "Delta Ensemble", ":/SummaryEnsemble16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_ensemble1, "Ensemble1", "Ensemble 1", "", "", "" );
     m_ensemble1.uiCapability()->setUiTreeChildrenHidden( true );
@@ -59,6 +77,13 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
     CAF_PDM_InitField( &m_caseCount, "CaseCount", QString( "" ), "Matching Cases", "", "", "" );
     m_caseCount.uiCapability()->setUiReadOnly( true );
 
+    CAF_PDM_InitField( &m_matchOnParameters, "MatchOnParameters", false, "Match On Parameters", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_useFixedTimeStep, "UseFixedTimeStep", "Use Fixed Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_fixedTimeStepIndex, "FixedTimeStepIndex", 0, "Time Step", "", "", "" );
+    m_fixedTimeStepIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_fixedTimeStepIndex.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     // Do not show child cases
     uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -66,7 +91,7 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
     m_cases.xmlCapability()->disableIO();
 
     setNameAsReadOnly();
-    setName( "Derived Ensemble" );
+    setName( "Delta Ensemble" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,12 +161,33 @@ void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
         auto crp = sumCase1->caseRealizationParameters();
         if ( !crp ) continue;
 
-        const auto& sumCase2 = findCaseByParametersHash( cases2, crp->parametersHash() );
-        if ( !sumCase2 ) continue;
+        RimSummaryCase* summaryCase2 = nullptr;
+        if ( m_matchOnParameters )
+        {
+            summaryCase2 = findCaseByParametersHash( cases2, crp->parametersHash() );
+        }
+        else
+        {
+            summaryCase2 = findCaseByRealizationNumber( cases2, crp->realizationNumber() );
+        }
+        if ( !summaryCase2 ) continue;
 
         auto derivedCase = firstCaseNotInUse();
-        derivedCase->setSummaryCases( sumCase1, sumCase2 );
+        derivedCase->setSummaryCases( sumCase1, summaryCase2 );
         derivedCase->setOperator( m_operator() );
+
+        int fixedTimeStepCase1 = -1;
+        int fixedTimeStepCase2 = -1;
+        if ( m_useFixedTimeStep == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 )
+        {
+            fixedTimeStepCase1 = m_fixedTimeStepIndex;
+        }
+        else if ( m_useFixedTimeStep == FixedTimeStepMode::FIXED_TIME_STEP_CASE_2 )
+        {
+            fixedTimeStepCase2 = m_fixedTimeStepIndex;
+        }
+
+        derivedCase->setFixedTimeSteps( fixedTimeStepCase1, fixedTimeStepCase2 );
         derivedCase->createSummaryReaderInterface();
         derivedCase->setCaseRealizationParameters( crp );
         derivedCase->setInUse( true );
@@ -205,6 +251,30 @@ QList<caf::PdmOptionItemInfo>
 
         m_caseCount = QString( "%1 / %2" ).arg( (int)m_cases.size() ).arg( std::max( caseCount1, caseCount2 ) );
     }
+
+    if ( fieldNeedingOptions == &m_fixedTimeStepIndex )
+    {
+        RimSummaryCaseCollection* sourceEnsemble = nullptr;
+        if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 )
+        {
+            sourceEnsemble = m_ensemble1;
+        }
+        else if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_2 )
+        {
+            sourceEnsemble = m_ensemble2;
+        }
+
+        if ( sourceEnsemble && !sourceEnsemble->allSummaryCases().empty() )
+        {
+            auto firstCase     = sourceEnsemble->allSummaryCases().front();
+            auto summaryReader = firstCase->summaryReader();
+
+            const std::vector<time_t>& timeSteps = summaryReader->timeSteps( RifEclipseSummaryAddress() );
+
+            options = RiaQDateTimeTools::createOptionItems( timeSteps );
+        }
+    }
+
     return options;
 }
 
@@ -220,6 +290,13 @@ void RimDerivedEnsembleCaseCollection::defineUiOrdering( QString uiConfigName, c
     uiOrdering.add( &m_operator );
     uiOrdering.add( &m_ensemble2 );
     uiOrdering.add( &m_swapEnsemblesButton );
+    uiOrdering.add( &m_matchOnParameters );
+
+    uiOrdering.add( &m_useFixedTimeStep );
+    if ( m_useFixedTimeStep() != RimDerivedEnsembleCaseCollection::FixedTimeStepMode::FIXED_TIME_STEP_NONE )
+    {
+        uiOrdering.add( &m_fixedTimeStepIndex );
+    }
 
     uiOrdering.skipRemainingFields( true );
 
@@ -238,13 +315,13 @@ void RimDerivedEnsembleCaseCollection::fieldChangedByUi( const caf::PdmFieldHand
     bool doUpdateCases = false;
     bool doShowDialog  = false;
 
-    if ( changedField == &m_ensemble1 || changedField == &m_ensemble2 )
+    if ( changedField == &m_ensemble1 || changedField == &m_ensemble2 || changedField == &m_matchOnParameters )
     {
         doUpdate      = true;
         doUpdateCases = true;
         doShowDialog  = true;
     }
-    else if ( changedField == &m_operator )
+    else if ( changedField == &m_operator || changedField == &m_useFixedTimeStep || changedField == &m_fixedTimeStepIndex )
     {
         doUpdate      = true;
         doUpdateCases = true;
@@ -300,6 +377,15 @@ void RimDerivedEnsembleCaseCollection::defineEditorAttribute( const caf::PdmFiel
         if ( attrib )
         {
             attrib->m_buttonText = "Swap Ensembles";
+        }
+    }
+    if ( &m_fixedTimeStepIndex == field )
+    {
+        auto a = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
+        if ( a )
+        {
+            a->singleSelectionMode = true;
+            a->showTextFilter      = true;
         }
     }
 }
@@ -374,16 +460,59 @@ std::vector<RimDerivedSummaryCase*> RimDerivedEnsembleCaseCollection::allDerived
 //--------------------------------------------------------------------------------------------------
 void RimDerivedEnsembleCaseCollection::updateAutoName()
 {
-    QString op = caf::AppEnum<DerivedSummaryOperator>::uiText( m_operator() );
+    QString timeStepString;
+    {
+        RimSummaryCaseCollection* sourceEnsemble = nullptr;
+        if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 )
+        {
+            sourceEnsemble = m_ensemble1;
+        }
+        else if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_2 )
+        {
+            sourceEnsemble = m_ensemble2;
+        }
 
-    auto derivedEnsemble1 = dynamic_cast<RimDerivedEnsembleCaseCollection*>( m_ensemble1() );
-    auto derivedEnsemble2 = dynamic_cast<RimDerivedEnsembleCaseCollection*>( m_ensemble2() );
-    bool isDerived1       = derivedEnsemble1 != nullptr;
-    bool isDerived2       = derivedEnsemble2 != nullptr;
+        if ( sourceEnsemble && !sourceEnsemble->allSummaryCases().empty() )
+        {
+            auto firstCase     = sourceEnsemble->allSummaryCases().front();
+            auto summaryReader = firstCase->summaryReader();
+            if ( summaryReader )
+            {
+                const std::vector<time_t>& timeSteps = summaryReader->timeSteps( RifEclipseSummaryAddress() );
+                if ( m_fixedTimeStepIndex >= 0 && m_fixedTimeStepIndex < timeSteps.size() )
+                {
+                    time_t    selectedTime = timeSteps[m_fixedTimeStepIndex];
+                    QDateTime dt           = RiaQDateTimeTools::fromTime_t( selectedTime );
+                    QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {dt} );
 
-    QString name = ( isDerived1 ? "(" : "" ) + ( m_ensemble1 ? m_ensemble1->name() : "" ) + ( isDerived1 ? ")" : "" ) +
-                   " " + op + " " + ( isDerived2 ? "(" : "" ) + ( m_ensemble2 ? m_ensemble2->name() : "" ) +
-                   ( isDerived2 ? ")" : "" );
+                    timeStepString = RiaQDateTimeTools::toStringUsingApplicationLocale( dt, formatString );
+                }
+            }
+        }
+    }
+
+    QString nameCase1 = "None";
+
+    if ( m_ensemble1 )
+    {
+        nameCase1 = m_ensemble1->name();
+        if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_1 ) nameCase1 += "@" + timeStepString;
+    }
+
+    QString nameCase2 = "None";
+    if ( m_ensemble2 )
+    {
+        nameCase2 = m_ensemble2->name();
+        if ( m_useFixedTimeStep() == FixedTimeStepMode::FIXED_TIME_STEP_CASE_2 ) nameCase2 += "@" + timeStepString;
+    }
+
+    QString operatorText;
+    if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
+        operatorText = "Delta";
+    else if ( m_operator() == DerivedSummaryOperator::DERIVED_OPERATOR_ADD )
+        operatorText = "Sum";
+
+    QString name = operatorText + QString( "(%1 , %2)" ).arg( nameCase1, nameCase2 );
     setName( name );
 
     // If other derived ensembles are referring to this ensemble, update theirs name as well
@@ -404,6 +533,20 @@ RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByParametersHash( cons
     {
         auto ensembleParameters = sumCase->caseRealizationParameters();
         if ( ensembleParameters && ensembleParameters->parametersHash() == hash ) return sumCase;
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByRealizationNumber( const std::vector<RimSummaryCase*>& cases,
+                                                                               int realizationNumber ) const
+{
+    for ( auto sumCase : cases )
+    {
+        auto ensembleParameters = sumCase->caseRealizationParameters();
+        if ( ensembleParameters && ensembleParameters->realizationNumber() == realizationNumber ) return sumCase;
     }
     return nullptr;
 }

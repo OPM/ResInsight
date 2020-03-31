@@ -28,6 +28,8 @@ add_library( ${PROJECT_NAME}
     cafPdmXmlColor3f.cpp
     cafPdmXmlColor3f.h
     cafPdmFieldCvfColor.h
+	cafPdmFieldIOScriptabilityCvfColor3.h
+	cafPdmFieldIOScriptabilityCvfColor3.cpp
 
     cafPdmCoreVec3d.h
     cafPdmUiCoreVec3d.cpp
@@ -62,6 +64,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries ( ${PROJECT_NAME}
     cafUserInterface
     LibCore
+	cafPdmScripting
     ${QT_LIBRARIES}
 )
 

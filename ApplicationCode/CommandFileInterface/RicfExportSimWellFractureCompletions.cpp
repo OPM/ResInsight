@@ -37,6 +37,8 @@
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfExportSimWellFractureCompletions, "exportSimWellFractureCompletions" );
 
 //--------------------------------------------------------------------------------------------------
@@ -44,25 +46,37 @@ CAF_PDM_SOURCE_INIT( RicfExportSimWellFractureCompletions, "exportSimWellFractur
 //--------------------------------------------------------------------------------------------------
 RicfExportSimWellFractureCompletions::RicfExportSimWellFractureCompletions()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
-    RICF_InitField( &m_viewName, "viewName", QString( "" ), "View Name", "", "", "" );
-    RICF_InitField( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
-    RICF_InitField( &m_simWellNames, "simulationWellNames", std::vector<QString>(), "Simulation Well Names", "", "", "" );
-    RICF_InitField( &m_fileSplit, "fileSplit", RicExportCompletionDataSettingsUi::ExportSplitType(), "File Split", "", "", "" );
-    RICF_InitField( &m_compdatExport,
-                    "compdatExport",
-                    RicExportCompletionDataSettingsUi::CompdatExportType(),
-                    "Compdat Export",
-                    "",
-                    "",
-                    "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewName, "viewName", QString( "" ), "View Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_timeStep, "timeStep", -1, "Time Step Index", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_simWellNames,
+                                       "simulationWellNames",
+                                       std::vector<QString>(),
+                                       "Simulation Well Names",
+                                       "",
+                                       "",
+                                       "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_fileSplit,
+                                       "fileSplit",
+                                       RicExportCompletionDataSettingsUi::ExportSplitType(),
+                                       "File Split",
+                                       "",
+                                       "",
+                                       "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_compdatExport,
+                                       "compdatExport",
+                                       RicExportCompletionDataSettingsUi::CompdatExportType(),
+                                       "Compdat Export",
+                                       "",
+                                       "",
+                                       "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportSimWellFractureCompletions::execute()
+caf::PdmScriptResponse RicfExportSimWellFractureCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -79,7 +93,7 @@ RicfCommandResponse RicfExportSimWellFractureCompletions::execute()
         {
             QString error = QString( "exportSimWellCompletions: Could not find case with ID %1" ).arg( m_caseId() );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
         exportSettings->caseToApply = eclipseCase;
     }
@@ -108,10 +122,10 @@ RicfCommandResponse RicfExportSimWellFractureCompletions::execute()
                             .arg( m_viewName )
                             .arg( m_caseId() );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
 
     std::vector<RimSimWellInView*> simWells;
     if ( m_simWellNames().empty() )
@@ -146,7 +160,7 @@ RicfCommandResponse RicfExportSimWellFractureCompletions::execute()
                                           .arg( m_viewName )
                                           .arg( m_caseId() );
                     RiaLogging::warning( warning );
-                    response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
+                    response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
                 }
             }
         }

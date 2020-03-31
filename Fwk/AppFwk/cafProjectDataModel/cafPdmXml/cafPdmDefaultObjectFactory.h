@@ -48,9 +48,6 @@
 
 namespace caf
 {
-
-
-
 //==================================================================================================
 /// "Private" class for implementation of a factory for PdmObjectBase derived objects
 /// Every PdmObject must register with this factory to be readable

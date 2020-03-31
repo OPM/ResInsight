@@ -23,6 +23,8 @@
 #include <QString>
 
 #include "cafAppEnum.h"
+#include "cafPdmUiItem.h"
+
 #include <cvfAssert.h>
 
 #include <cmath>
@@ -506,4 +508,31 @@ QString RiaQDateTimeTools::timeFormatString( const QString& fullTimeFormat, Time
     }
     CVF_ASSERT( false && "Time format string is malformed" );
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RiaQDateTimeTools::createOptionItems( const std::vector<time_t>& timeSteps )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    std::vector<QDateTime> dateTimes;
+    for ( time_t timeT : timeSteps )
+    {
+        QDateTime dateTime = RiaQDateTimeTools::fromTime_t( timeT );
+
+        dateTimes.push_back( dateTime );
+    }
+
+    QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( dateTimes );
+
+    for ( size_t i = 0; i < dateTimes.size(); i++ )
+    {
+        const auto& dt   = dateTimes[i];
+        QString     text = RiaQDateTimeTools::toStringUsingApplicationLocale( dt, formatString );
+        options.push_back( {text, static_cast<int>( i )} );
+    }
+
+    return options;
 }

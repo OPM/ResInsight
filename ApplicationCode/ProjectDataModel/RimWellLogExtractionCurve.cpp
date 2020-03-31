@@ -451,7 +451,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     double              rkbDiff = 0.0;
 
     RiaDefines::DepthUnitType depthUnit = RiaDefines::UNIT_METER;
-    QString                   xUnits    = RiaWellLogUnitTools::noUnitString();
+    QString                   xUnits    = RiaWellLogUnitTools<double>::noUnitString();
 
     if ( eclExtractor.notNull() && eclipseCase )
     {
@@ -554,7 +554,10 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimW
         {
             QString extractorUnits = geomExtractor->parameterInputUnits( parameter );
 
-            if ( RiaWellLogUnitTools::convertValues( &lasFileValues, lasUnits, extractorUnits, wellPath->wellPathGeometry() ) )
+            if ( RiaWellLogUnitTools<double>::convertValues( &lasFileValues,
+                                                             lasUnits,
+                                                             extractorUnits,
+                                                             wellPath->wellPathGeometry() ) )
             {
                 geomExtractor->setWbsLasValues( parameter, lasFileValues );
             }
@@ -905,7 +908,7 @@ QString RimWellLogExtractionCurve::wellLogChannelUnits() const
     QString name;
     if ( eclipseCase )
     {
-        name = RiaWellLogUnitTools::noUnitString();
+        name = RiaWellLogUnitTools<double>::noUnitString();
     }
     else if ( geoMechCase )
     {

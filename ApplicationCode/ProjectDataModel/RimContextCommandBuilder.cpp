@@ -897,6 +897,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicNewDefaultSummaryPlotFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
+        menuBuilder << "RicNewDerivedSummaryFeature";
         menuBuilder.addSeparator();
         menuBuilder << "RicConvertGroupToEnsembleFeature";
         menuBuilder.addSeparator();

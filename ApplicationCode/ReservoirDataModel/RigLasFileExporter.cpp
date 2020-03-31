@@ -526,7 +526,7 @@ void RigLasFileExporter::appendLasFileDescriptions( const std::vector<RimWellLog
                 }
                 QString units = curve->curveData()->xUnits();
 
-                if ( convertCurveUnits || units == RiaWellLogUnitTools::barX100UnitString() )
+                if ( convertCurveUnits || units == RiaWellLogUnitTools<double>::barX100UnitString() )
                 {
                     units = curve->wellLogChannelUnits();
                 }

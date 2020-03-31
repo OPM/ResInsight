@@ -43,6 +43,8 @@ public:
 
     void setValueRange( double lowerBound, double upperBound );
 
+    void updatePointerAfterCopy( RimPlotCellPropertyFilter* other );
+
 protected:
     void updateCellVisibilityFromFilter( size_t timeStepIndex, cvf::UByteArray* visibleCells ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,

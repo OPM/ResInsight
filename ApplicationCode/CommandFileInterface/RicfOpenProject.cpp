@@ -23,6 +23,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QDir>
 #include <QFileInfo>
 
@@ -33,13 +35,13 @@ CAF_PDM_SOURCE_INIT( RicfOpenProject, "openProject" );
 //--------------------------------------------------------------------------------------------------
 RicfOpenProject::RicfOpenProject()
 {
-    RICF_InitField( &m_path, "path", QString(), "Path", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_path, "path", QString(), "Path", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfOpenProject::execute()
+caf::PdmScriptResponse RicfOpenProject::execute()
 {
     QString   projectPath = m_path;
     QFileInfo projectPathInfo( projectPath );
@@ -53,10 +55,10 @@ RicfCommandResponse RicfOpenProject::execute()
     {
         QString errMsg = QString( "openProject: Unable to open project at %1" ).arg( m_path() );
         RiaLogging::error( errMsg );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errMsg );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );
     }
 
     RicfCommandFileExecutor::instance()->setLastProjectPath( projectPath );
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

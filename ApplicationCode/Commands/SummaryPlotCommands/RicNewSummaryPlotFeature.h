@@ -18,10 +18,13 @@
 
 #pragma once
 
+#include "RicfCommandObject.h"
+
 #include "cafCmdFeature.h"
 
 class RimSummaryPlotCollection;
 class RimSummaryCase;
+class RimSummaryCaseCollection;
 class RimSummaryPlot;
 
 //==================================================================================================
@@ -44,6 +47,10 @@ protected:
 class RicNewDefaultSummaryPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static RimSummaryPlot* createFromSummaryCases( RimSummaryPlotCollection*           plotCollection,
+                                                   const std::vector<RimSummaryCase*>& summaryCases );
 
 protected:
     // Overrides

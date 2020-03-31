@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cafAssert.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmPointer.h"
 
@@ -41,6 +42,8 @@ public:
 
     void                setValue(const std::vector< PdmPointer<DataType> >& fieldValue);
     const std::vector< PdmPointer<DataType> >& value() const;
+
+    void                setValue(const std::vector< DataType* >& fieldValue);
      
     // Reimplementation of PdmPointersFieldHandle methods
   
@@ -69,6 +72,8 @@ public:
 
     typename std::vector< PdmPointer<DataType> >::const_iterator begin() const        { return m_pointers.begin();    };
     typename std::vector< PdmPointer<DataType> >::const_iterator end()   const        { return m_pointers.end();      };
+
+    std::vector<DataType*>  ptrReferencedObjects() const;
 
     // Child objects
     virtual void        ptrReferencedObjects(std::vector<PdmObjectHandle*>*);

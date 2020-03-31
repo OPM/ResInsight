@@ -77,6 +77,19 @@ void RimPlotCellPropertyFilter::setValueRange( double lowerBound, double upperBo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotCellPropertyFilter::updatePointerAfterCopy( RimPlotCellPropertyFilter* other )
+{
+    if ( eclipseResultDefinition() && eclipseResultDefinition()->eclipseCase() )
+    {
+        auto eclipseCase = eclipseResultDefinition()->eclipseCase();
+
+        other->eclipseResultDefinition()->setEclipseCase( eclipseCase );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimEclipseResultDefinition* RimPlotCellPropertyFilter::eclipseResultDefinition()
 {
     caf::PdmObject* pdmObj = m_resultDefinition;

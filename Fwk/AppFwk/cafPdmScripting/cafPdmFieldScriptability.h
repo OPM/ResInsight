@@ -35,79 +35,81 @@
 //##################################################################################################
 #pragma once
 
-#include <QString>
 #include "cafPdmFieldCapability.h"
+#include <QString>
 
 class QTextStream;
 
-namespace caf {
-
+namespace caf
+{
 class PdmFieldHandle;
 class PdmObjectFactory;
+class PdmObjectHandle;
 class PdmScriptIOMessages;
 
 #define CAF_PDM_InitScriptableField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitField( field,                                                                   \
-                       keyword,                                                                 \
-                       default,                                                                 \
-                       uiName,                                                                  \
-                       iconResourceName,                                                        \
-                       caf::PdmPythonGenerator::pythonHelpString( toolTip, keyword ),           \
-                       whatsThis );                                                             \
+    CAF_PDM_InitField( field,                                                                                \
+                       keyword,                                                                              \
+                       default,                                                                              \
+                       uiName,                                                                               \
+                       iconResourceName,                                                                     \
+                       caf::PdmFieldScriptability::helpString( toolTip, keyword ),                           \
+                       whatsThis );                                                                          \
     caf::PdmFieldScriptability::addToField( field, keyword )
 
 #define CAF_PDM_InitScriptableFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitFieldNoDefault( field,                                                          \
-                                keyword,                                                        \
-                                uiName,                                                         \
-                                iconResourceName,                                               \
-                                caf::PdmPythonGenerator::pythonHelpString( toolTip, keyword ),  \
-                                whatsThis );                                                    \
+    CAF_PDM_InitFieldNoDefault( field,                                                                       \
+                                keyword,                                                                     \
+                                uiName,                                                                      \
+                                iconResourceName,                                                            \
+                                caf::PdmFieldScriptability::helpString( toolTip, keyword ),                  \
+                                whatsThis );                                                                 \
     caf::PdmFieldScriptability::addToField( field, keyword )
 
 #define CAF_PDM_InitScriptableFieldWithKeyword( field, keyword, scriptKeyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitField( field,                                                                                            \
-                       keyword,                                                                                          \
-                       default,                                                                                          \
-                       uiName,                                                                                           \
-                       iconResourceName,                                                                                 \
-                       caf::PdmPythonGenerator::pythonHelpString( toolTip, scriptKeyword ),                              \
-                       whatsThis );                                                                                      \
+    CAF_PDM_InitField( field,                                                                                                          \
+                       keyword,                                                                                                        \
+                       default,                                                                                                        \
+                       uiName,                                                                                                         \
+                       iconResourceName,                                                                                               \
+                       caf::PdmFieldScriptability::helpString( toolTip, scriptKeyword ),                                               \
+                       whatsThis );                                                                                                    \
     caf::PdmFieldScriptability::addToField( field, scriptKeyword )
 
 #define CAF_PDM_InitScriptableFieldWithKeywordNoDefault( field, keyword, scriptKeyword, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitFieldNoDefault( field,                                                                                   \
-                                keyword,                                                                                 \
-                                uiName,                                                                                  \
-                                iconResourceName,                                                                        \
-                                caf::PdmPythonGenerator::pythonHelpString( toolTip, scriptKeyword ),                     \
-                                whatsThis );                                                                             \
+    CAF_PDM_InitFieldNoDefault( field,                                                                                                 \
+                                keyword,                                                                                               \
+                                uiName,                                                                                                \
+                                iconResourceName,                                                                                      \
+                                caf::PdmFieldScriptability::helpString( toolTip, scriptKeyword ),                                      \
+                                whatsThis );                                                                                           \
     caf::PdmFieldScriptability::addToField( field, scriptKeyword )
 
 class PdmFieldScriptability : public PdmFieldCapability
 {
 public:
-    PdmFieldScriptability(caf::PdmFieldHandle* owner, const QString& scriptFieldName, bool giveOwnership);
+    PdmFieldScriptability( caf::PdmFieldHandle* owner, const QString& scriptFieldName, bool giveOwnership );
     virtual ~PdmFieldScriptability();
 
     const QString scriptFieldName() const;
 
     bool isIOWriteable() const;
-    void setIOWriteable(bool writeable);
+    void setIOWriteable( bool writeable );
 
-    virtual void readFromField(QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false) const;
-    virtual void writeToField(QTextStream& inputStream,
-        caf::PdmObjectFactory* objectFactory,
-        caf::PdmScriptIOMessages* errorMessageContainer,
-        bool                      stringsAreQuoted = true);
+    virtual void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const;
+    virtual void writeToField( QTextStream&              inputStream,
+                               caf::PdmObjectFactory*    objectFactory,
+                               caf::PdmScriptIOMessages* errorMessageContainer,
+                               bool                      stringsAreQuoted    = true,
+                               caf::PdmObjectHandle*     existingObjectsRoot = nullptr );
 
-    static void addToField(caf::PdmFieldHandle* field, const QString& fieldName);
-private:
-    caf::PdmFieldHandle* m_owner;
-    QString              m_scriptFieldName;
-    bool                 m_IOWriteable;
+    static void    addToField( caf::PdmFieldHandle* field, const QString& fieldName );
+    static QString helpString( const QString& existingTooltip, const QString& keyword );
+
+protected:
+    PdmFieldHandle* m_owner;
+    QString         m_scriptFieldName;
+    bool            m_IOWriteable;
 };
 
-
-}
-
+} // namespace caf

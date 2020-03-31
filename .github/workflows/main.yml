@@ -10,9 +10,9 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         include:
           - os: windows-latest
-            triplet: x64-windows
+            vcpkg-response-file: vcpkg_x64-windows.txt
           - os: ubuntu-latest
-            triplet: x64-linux
+            vcpkg-response-file: vcpkg_x64-linux.txt
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -21,7 +21,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v2.5.0
         with:
-          version: 5.9
+          version: 5.9.9
           modules: qtscript 
           mirror: 'http://mirrors.ocf.berkeley.edu/qt/'
       - name: Install Python dependencies
@@ -34,49 +34,58 @@ jobs:
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
       - name: Cache vcpkg artifacts
         uses: actions/cache@v1
-        env:
-          vcpkgResponseFile: '${{ github.workspace }}/vcpkg_${{ matrix.triplet }}.txt'
         with:
           path: ${{ github.workspace }}/vcpkg/
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
-          key: ${{ hashFiles( env.vcpkgResponseFile ) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}
+          key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v0
         id: runvcpkg
-        env:
-          vcpkgResponseFile: '${{ github.workspace }}/vcpkg_${{ matrix.triplet }}.txt'
         with:
-          vcpkgArguments: '@${{ env.vcpkgResponseFile }}'
+          vcpkgArguments: '@${{ github.workspace }}/${{ matrix.vcpkg-response-file }}'
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
       - name: Prints outputs of run-vcpkg task
         run: echo "'${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}' '${{  steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET_OUT }}' "
-      - name: Build ResInsight-x64
-        uses: lukka/run-cmake@v0
-        with:
-          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-          cmakeAppendedArgs:  -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true
-          buildDirectory: ${{ github.workspace }}/cmakebuild
-          buildWithCMakeArgs: '--config Release --target package'
-          useVcpkgToolchainFile: true
+      - name: (Windows) Build ResInsight-x64 
+        if: "contains( matrix.os, 'windows')"
+        run: |
+          mkdir cmakebuild
+          cd cmakebuild
+          cmake .. -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -A x64
+          cmake --build . --config Release --target PACKAGE
+      - name: (Linux) Build ResInsight-x64 
+        if: "!contains( matrix.os, 'windows')"
+        run: |
+          mkdir cmakebuild
+          cd cmakebuild
+          cmake .. -DRESINSIGHT_ENABLE_GRPC=true -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python -DRESINSIGHT_ENABLE_PRECOMPILED_HEADERS=true -DRESINSIGHT_ENABLE_UNITY_BUILD=true -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+          cmake --build . --config Release --target package
       - name: Remove packages/_CPack_Packages
         shell: bash
         run: |
-          rm -rf packages/_CPack_Packages
-      - name: dir
-        run: find ${{ runner.workspace }}
-        if: "!contains( matrix.os, 'windows')"
-      - name: dir
-        run: gci -recurse ${{ runner.workspace }}
-        if: contains( matrix.os, 'windows')      
+          rm -rf cmakebuild/packages/_CPack_Packages
       - name: Test with pytest
-        if: "contains( matrix.os, 'windows')" # To be used when RESINSIGHT_GRPC_PYTHON_EXECUTABLE can be 'python' without extention in PATH
+        if: "contains( matrix.os, 'windows')" 
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/Release/ResInsight.exe
         run: |
           cd ApplicationCode/GrpcInterface/Python/rips
           pytest --console
+      - name: (Windows) Run Unit Tests
+        if: contains( matrix.os, 'windows')  
+        shell: bash
+        run: |
+          cmakebuild/ApplicationCode/Release/ResInsight --unittest
+      - name: (Linux) Run Unit Tests
+        if: "!contains( matrix.os, 'windows')"
+        shell: bash
+        run: |
+          cmakebuild/ApplicationCode/ResInsight --unittest
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
           name: ResInsight
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/packages
+          
+          
+          

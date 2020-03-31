@@ -24,6 +24,8 @@
 #include "RiaLogging.h"
 #include "RiaProjectModifier.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfReplaceSourceCases, "replaceSourceCases" );
 
 //--------------------------------------------------------------------------------------------------
@@ -31,20 +33,20 @@ CAF_PDM_SOURCE_INIT( RicfReplaceSourceCases, "replaceSourceCases" );
 //--------------------------------------------------------------------------------------------------
 RicfReplaceSourceCases::RicfReplaceSourceCases()
 {
-    RICF_InitField( &m_caseGroupId, "caseGroupId", -1, "Case Group ID", "", "", "" );
-    RICF_InitField( &m_gridListFile, "gridListFile", QString(), "Grid List File", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseGroupId, "caseGroupId", -1, "Case Group ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_gridListFile, "gridListFile", QString(), "Grid List File", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfReplaceSourceCases::execute()
+caf::PdmScriptResponse RicfReplaceSourceCases::execute()
 {
     if ( m_gridListFile().isNull() )
     {
         QString error( "replaceSourceCases: Required parameter gridListFile." );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
@@ -53,7 +55,7 @@ RicfCommandResponse RicfReplaceSourceCases::execute()
         QString error( "replaceSourceCases: 'openProject' must be called before 'replaceSourceCases' to specify "
                        "project file to replace cases in." );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
@@ -74,7 +76,7 @@ RicfCommandResponse RicfReplaceSourceCases::execute()
     {
         QString error( "Could not reload project" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

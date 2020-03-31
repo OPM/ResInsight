@@ -35,8 +35,7 @@
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicfCommandFileExecutor.h"
-#include "RicfFieldHandle.h"
-#include "RicfObjectCapability.h"
+#include "RicfCommandObject.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnalysisPlot.h"
@@ -99,6 +98,8 @@
 #include "cafPdmCodeGenerator.h"
 #include "cafPdmDataValueField.h"
 #include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmMarkdownBuilder.h"
+#include "cafPdmMarkdownGenerator.h"
 #include "cafPdmScriptIOMessages.h"
 #include "cafPdmSettings.h"
 #include "cafPdmUiModelChangeDetector.h"
@@ -1262,7 +1263,7 @@ QVariant RiaApplication::cacheDataObject( const QString& key ) const
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::executeCommandFile( const QString& commandFile )
 {
-    QFile               file( commandFile );
+    QFile                    file( commandFile );
     caf::PdmScriptIOMessages messages;
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
     {
@@ -1723,15 +1724,13 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 {
     CAF_ASSERT( errMsg );
 
-    QFile outputFile( fileName );
-    if ( !outputFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
-    {
-        *errMsg = QString( "Could not open file %1 for writing" ).arg( fileName );
-        return false;
-    }
-    QTextStream out( &outputFile );
-
     std::string fileExt = QFileInfo( fileName ).suffix().toStdString();
+
+    {
+        // TODO: Manually instantiate the markdown generator until cmake issues are fixed
+        // This will make sure the markdown generator is registered in the factory in the cafPdmScripting library
+        caf::PdmMarkdownGenerator testObj;
+    }
 
     std::unique_ptr<caf::PdmCodeGenerator> generator( caf::PdmCodeGeneratorFactory::instance()->create( fileExt ) );
     if ( !generator )
@@ -1739,6 +1738,104 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
         *errMsg = QString( "No code generator matches the provided file extension" );
         return false;
     }
-    out << generator->generate( caf::PdmDefaultObjectFactory::instance() );
+
+    auto markdownGenerator = dynamic_cast<caf::PdmMarkdownGenerator*>( generator.get() );
+    if ( markdownGenerator )
+    {
+        QFileInfo fi( fileName );
+        QDir      dir( fi.absoluteDir() );
+
+        QString baseName = fi.baseName();
+
+        {
+            QString outputFileName = dir.absoluteFilePath( baseName + "_class.md" );
+
+            QFile outputFile( outputFileName );
+            if ( !outputFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+            {
+                *errMsg = QString( "Could not open file %1 for writing" ).arg( outputFileName );
+                return false;
+            }
+            QTextStream out( &outputFile );
+
+            {
+                out << "+++ \n";
+                out << "title =  \"Python Classes (BETA)\" \n";
+                out << "published = true \n";
+                out << "weight = 95 \n";
+                out << "+++ \n";
+
+                out << "# Introduction\n\n";
+                out << "As the Python interface is growing release by release, we are investigating how to automate "
+                       "the building of documentation. This document shows the inheritance relationship between "
+                       "objects derived from **PdmObject**. The **PdmObject** is the base object for all "
+                       "objects automatically created based on the data model in ResInsight.";
+            }
+
+            out << generator->generate( caf::PdmDefaultObjectFactory::instance() );
+        }
+
+        {
+            QString outputFileName = dir.absoluteFilePath( baseName + "_commands.md" );
+
+            QFile outputFile( outputFileName );
+            if ( !outputFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+            {
+                *errMsg = QString( "Could not open file %1 for writing" ).arg( outputFileName );
+                return false;
+            }
+            QTextStream out( &outputFile );
+
+            {
+                out << "+++ \n";
+                out << "title =  \"Command Reference (BETA)\" \n";
+                out << "published = true \n";
+                out << "weight = 96 \n";
+                out << "+++ \n";
+
+                out << "# Introduction\n\n";
+                out << "As the Python interface is growing release by release, we are investigating how to automate "
+                       "the building of reference documentation. This document is not complete, but will improve as "
+                       "the automation "
+                       "moves forward.\n";
+
+                out << "## Currently missing features\n\n";
+                out << " - Description of enums\n";
+                out << " - Description of return values/classes\n";
+                out << " - Description of each object\n";
+            }
+
+            std::vector<std::shared_ptr<const caf::PdmObject>> commandObjects;
+
+            QStringList excludedClassNames{"TestCommand1", "TC2"}; // See RifCommandCore-Text.cpp
+
+            auto allObjects = caf::PdmMarkdownBuilder::createAllObjects( caf::PdmDefaultObjectFactory::instance() );
+            for ( auto classObject : allObjects )
+            {
+                if ( dynamic_cast<const RicfCommandObject*>( classObject.get() ) )
+                {
+                    if ( !excludedClassNames.contains( classObject->classKeyword(), Qt::CaseInsensitive ) )
+                    {
+                        commandObjects.push_back( classObject );
+                    }
+                }
+            }
+
+            out << caf::PdmMarkdownBuilder::generateDocCommandObjects( commandObjects );
+        }
+    }
+    else
+    {
+        QFile outputFile( fileName );
+        if ( !outputFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+        {
+            *errMsg = QString( "Could not open file %1 for writing" ).arg( fileName );
+            return false;
+        }
+        QTextStream out( &outputFile );
+
+        out << generator->generate( caf::PdmDefaultObjectFactory::instance() );
+    }
+
     return true;
 }

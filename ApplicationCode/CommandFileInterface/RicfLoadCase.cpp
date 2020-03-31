@@ -23,6 +23,8 @@
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QDir>
 #include <QFileInfo>
 #include <QStringList>
@@ -45,13 +47,13 @@ CAF_PDM_SOURCE_INIT( RicfLoadCase, "loadCase" );
 //--------------------------------------------------------------------------------------------------
 RicfLoadCase::RicfLoadCase()
 {
-    RICF_InitField( &m_path, "path", QString(), "Path to Case File", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_path, "path", QString(), "Path to Case File", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfLoadCase::execute()
+caf::PdmScriptResponse RicfLoadCase::execute()
 {
     QString   absolutePath = m_path;
     QFileInfo projectPathInfo( absolutePath );
@@ -67,10 +69,10 @@ RicfCommandResponse RicfLoadCase::execute()
     {
         QString error = QString( "loadCase: Unable to load case from %1" ).arg( absolutePath );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
     CAF_ASSERT( fileCaseIdMap.size() == 1u );
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
     response.setResult( new RicfLoadCaseResult( fileCaseIdMap.begin()->second ) );
     return response;
 }

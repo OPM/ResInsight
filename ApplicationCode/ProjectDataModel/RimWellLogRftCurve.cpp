@@ -151,7 +151,7 @@ QString RimWellLogRftCurve::wellLogChannelUiName() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::wellLogChannelUnits() const
 {
-    return RiaWellLogUnitTools::noUnitString();
+    return RiaWellLogUnitTools<double>::noUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------

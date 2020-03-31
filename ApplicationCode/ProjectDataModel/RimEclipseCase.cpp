@@ -29,6 +29,7 @@
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RicfCommandObject.h"
+#include "RifEclipseInputPropertyLoader.h"
 #include "RifReaderSettings.h"
 
 #include "RigActiveCellInfo.h"
@@ -44,6 +45,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
+#include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -65,6 +67,8 @@
 #include "RimWellPathCollection.h"
 
 #include "cafPdmDocument.h"
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
@@ -643,6 +647,46 @@ RimEclipseContourMapViewCollection* RimEclipseCase::contourMapCollection()
 RimEclipseInputPropertyCollection* RimEclipseCase::inputPropertyCollection()
 {
     return m_inputPropertyCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimEclipseCase::additionalFiles() const
+{
+    std::vector<QString> additionalFiles;
+    for ( const RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
+    {
+        if ( inputProperty->fileName == gridFileName() ) continue;
+
+        additionalFiles.push_back( inputProperty->fileName().path() );
+    }
+
+    return additionalFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Loads input property data from the gridFile and additional files
+/// Creates new InputProperties if necessary, and flags the unused ones as obsolete
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::loadAndSyncronizeInputProperties( bool includeGridFileName )
+{
+    // Make sure we actually have reservoir data
+
+    CVF_ASSERT( this->eclipseCaseData() );
+    CVF_ASSERT( this->eclipseCaseData()->mainGrid()->gridPointDimensions() != cvf::Vec3st( 0, 0, 0 ) );
+
+    // Then read the properties from all the files referenced by the InputReservoir
+
+    std::vector<QString> filenames;
+    for ( const QString& fileName : additionalFiles() )
+    {
+        filenames.push_back( fileName );
+    }
+
+    if ( includeGridFileName ) filenames.push_back( gridFileName() );
+
+    RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(), eclipseCaseData(), filenames );
 }
 
 //--------------------------------------------------------------------------------------------------

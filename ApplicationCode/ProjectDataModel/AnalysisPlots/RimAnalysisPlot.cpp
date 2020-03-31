@@ -1439,7 +1439,9 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
         {
             std::pair<std::vector<time_t>, std::vector<double>> timeAndValues =
                 RimDerivedSummaryCase::calculateDerivedValues( reader,
+                                                               -1,
                                                                referenceCaseReader,
+                                                               -1,
                                                                DerivedSummaryOperator::DERIVED_OPERATOR_SUB,
                                                                curveDef.summaryAddress() );
             timeStepStorage.swap( timeAndValues.first );
