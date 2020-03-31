@@ -217,7 +217,8 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuGroupedBarChartBuilder::RiuGroupedBarChartBuilder()
+RiuGroupedBarChartBuilder::RiuGroupedBarChartBuilder( bool sortGroupsByMaxValueInGroup )
+    : m_isSortingByMaxValueInGroups( sortGroupsByMaxValueInGroup )
 {
 }
 
@@ -314,6 +315,64 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
         filteredBarEntries = m_sortedBarEntries;
     }
 
+    // Establish the max value within each group
+
+    std::multiset<BarEntry> filteredSortedBarEntries;
+    if ( m_isSortingByMaxValueInGroups )
+    {
+        std::map<QString, std::map<QString, double>> maxValuesPerMidGroup;
+        std::map<QString, double>                    maxValuesPerMajGroup;
+
+        for ( const BarEntry& barDef : filteredBarEntries )
+        {
+            if ( !barDef.m_majTickText.isEmpty() )
+            {
+                auto it_IsInsertedPair =
+                    maxValuesPerMajGroup.insert( std::make_pair( barDef.m_majTickText, barDef.m_sortValue ) );
+                if ( !it_IsInsertedPair.second )
+                    it_IsInsertedPair.first->second = std::max( it_IsInsertedPair.first->second, barDef.m_sortValue );
+            }
+
+            if ( !barDef.m_midTickText.isEmpty() )
+            {
+                auto it_IsInsertedPair = maxValuesPerMidGroup[barDef.m_majTickText].insert(
+                    std::make_pair( barDef.m_midTickText, barDef.m_sortValue ) );
+                if ( !it_IsInsertedPair.second )
+                    it_IsInsertedPair.first->second = std::max( it_IsInsertedPair.first->second, barDef.m_sortValue );
+            }
+        }
+
+        for ( BarEntry barDef : filteredBarEntries )
+        {
+            {
+                auto it = maxValuesPerMajGroup.find( barDef.m_majTickText );
+                if ( it != maxValuesPerMajGroup.end() )
+                {
+                    barDef.m_majorSortValue = it->second;
+                }
+            }
+
+            {
+                auto mapIt = maxValuesPerMidGroup.find( barDef.m_majTickText );
+                if ( mapIt != maxValuesPerMidGroup.end() )
+                {
+                    auto it = mapIt->second.find( barDef.m_midTickText );
+                    if ( it != mapIt->second.end() )
+                    {
+                        barDef.m_midSortValue = it->second;
+                    }
+                }
+            }
+
+            filteredSortedBarEntries.insert( barDef );
+        }
+    }
+    else
+    {
+        // No sorting by max group member
+        filteredSortedBarEntries = filteredBarEntries;
+    }
+
     // clang-format off
     auto addGroupTickText = [&]( double groupStartPos, QString tickText, QList<double>& groupTickPosList )
     {
@@ -357,7 +416,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
     // Loop over entries, calculate tick positions and bar positions as we go
 
-    for ( const BarEntry& barDef : filteredBarEntries )
+    for ( const BarEntry& barDef : filteredSortedBarEntries )
     {
         bool hasAnyMajTics         = !majTickTexts.empty();
         auto majInsertResult       = majTickTexts.insert( barDef.m_majTickText );
@@ -716,7 +775,9 @@ RiuGroupedBarChartBuilder::BarEntry::BarEntry( const QString& majorTickText,
 //--------------------------------------------------------------------------------------------------
 bool RiuGroupedBarChartBuilder::BarEntry::operator<( const BarEntry& other ) const
 {
+    if ( m_majorSortValue != other.m_majorSortValue ) return m_majorSortValue > other.m_majorSortValue;
     if ( m_majTickText != other.m_majTickText ) return m_majTickText < other.m_majTickText;
+    if ( m_midSortValue != other.m_midSortValue ) return m_midSortValue > other.m_midSortValue;
     if ( m_midTickText != other.m_midTickText ) return m_midTickText < other.m_midTickText;
     if ( m_minTickText != other.m_minTickText ) return m_minTickText < other.m_minTickText;
 

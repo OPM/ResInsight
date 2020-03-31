@@ -34,7 +34,7 @@ class QColor;
 class RiuGroupedBarChartBuilder
 {
 public:
-    RiuGroupedBarChartBuilder();
+    RiuGroupedBarChartBuilder( bool sortGroupsByMaxValueInGroup = true );
 
     void addBarEntry( const QString& majorTickText,
                       const QString& midTickText,
@@ -70,7 +70,9 @@ private:
                   const double   value );
 
         QString m_majTickText;
+        double  m_majorSortValue = std::numeric_limits<double>::infinity();
         QString m_midTickText;
+        double  m_midSortValue = std::numeric_limits<double>::infinity();
         QString m_minTickText;
         double  m_sortValue;
         QString m_legendText;
@@ -84,4 +86,5 @@ private:
     std::multiset<BarEntry>   m_sortedBarEntries;
     Qt::Orientation           m_orientation;
     std::map<QString, QColor> m_legendColors;
+    bool                      m_isSortingByMaxValueInGroups;
 };
