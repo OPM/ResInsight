@@ -146,7 +146,7 @@ public:
                            "Enter some small number here",
                            "This is a place you can enter a small integer value if you want" );
 
-        CAF_PDM_InitField( &m_textField, "TextField", QString( "ÆØÅ Test text   end" ), "TextField", "", "Tooltip", "WhatsThis" );
+        CAF_PDM_InitField( &m_textField, "TextField", QString( "ï¿½ï¿½ï¿½ Test text   end" ), "TextField", "", "Tooltip", "WhatsThis" );
         CAF_PDM_InitFieldNoDefault( &m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
         CAF_PDM_InitFieldNoDefault( &m_simpleObjPtrField2, "SimpleObjPtrField2", "SimpleObjPtrField2", "", "Tooltip", "WhatsThis" );
         m_simpleObjPtrField2 = new SimpleObj;
@@ -191,6 +191,7 @@ public:
                                                         "Script comment test" );
 
         CAF_PDM_InitScriptableFieldWithIONoDefault( &m_texts, "Texts", "Some words", "", "", "" );
+        CAF_PDM_InitScriptableFieldWithIONoDefault( &m_numbers, "Numbers", "Some words", "", "", "" );
         CAF_PDM_InitFieldNoDefault( &m_testEnumField, "TestEnumValue", "An Enum", "", "", "" );
         CAF_PDM_InitFieldNoDefault( &m_simpleObjectsField,
                                     "SimpleObjects",
@@ -202,7 +203,9 @@ public:
 
     ~InheritedDemoObj() { m_simpleObjectsField.deleteAllChildObjects(); }
 
-    caf::PdmField<std::vector<QString>>       m_texts;
+    caf::PdmField<std::vector<QString>> m_texts;
+    caf::PdmField<std::vector<double>>  m_numbers;
+
     caf::PdmField<caf::AppEnum<TestEnumType>> m_testEnumField;
     caf::PdmChildArrayField<SimpleObj*>       m_simpleObjectsField;
 };
@@ -248,4 +251,19 @@ TEST( PdmScriptingTest, BasicUse )
 
     std::unique_ptr<caf::PdmCodeGenerator> generator( caf::PdmCodeGeneratorFactory::instance()->create( fileExt ) );
     auto generatedText = generator->generate( caf::PdmDefaultObjectFactory::instance() );
+
+    auto string = generatedText.toStdString();
+}
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+TEST( PdmScriptingTest, CheckIsVector )
+{
+    InheritedDemoObj obj;
+
+    auto isVector = obj.m_numbers.xmlCapability()->isVectorField();
+    EXPECT_TRUE( isVector );
+
+    // auto xmlCap = obj.xmlCapability();
+    // auto string = xmlCap->writeObjectToXmlString();
 }

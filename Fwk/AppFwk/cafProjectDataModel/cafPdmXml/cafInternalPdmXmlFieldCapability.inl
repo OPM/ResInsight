@@ -449,4 +449,52 @@ bool caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::isVectorField() 
     return true;
 }
 
+//==================================================================================================
+/// XML Implementation for PdmFieldXmlCap<std::vector<DataType>> methods
+/// 
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template < typename DataType>
+bool caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::isVectorField() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType >
+ void  caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::readFieldData(QXmlStreamReader& xmlStream, 
+                                          PdmObjectFactory* objectFactory)
+ { 
+     this->assertValid(); 
+     typename FieldType::FieldDataType value; 
+     PdmFieldReader<typename FieldType::FieldDataType>::readFieldData(value, xmlStream, objectFactory);  
+     m_field->setValue(value); 
+ }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType >
+void caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::writeFieldData(QXmlStreamWriter& xmlStream) const
+ { 
+     this->assertValid(); 
+     PdmFieldWriter<typename FieldType::FieldDataType>::writeFieldData(m_field->value(), xmlStream); 
+ }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template < typename DataType>
+bool caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::resolveReferences()
+{
+    return true;
+}
+
 } // End namespace caf
