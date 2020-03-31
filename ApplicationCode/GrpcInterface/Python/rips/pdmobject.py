@@ -362,7 +362,12 @@ def _call_pdm_method(self, method_name, **kwargs):
     for key, value in kwargs.items():
         pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(value)
     request = PdmObject_pb2.PdmObjectMethodRequest(object=self._pb2_object, method=method_name, params=pb2_params)
-    return self._pdm_object_stub.CallPdmObjectMethod(request)
+
+    pb2_object = self._pdm_object_stub.CallPdmObjectMethod(request)
+
+    child_class_definition = class_from_keyword(pb2_object.class_keyword)
+    pdm_object = child_class_definition(pb2_object=pb2_object, channel=self.channel())
+    return pdm_object
 
 @add_method(PdmObject)
 def update(self):
