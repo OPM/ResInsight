@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'ResInsight Scripting API'
+project = 'ResInsight Python API'
 copyright = '2020, Ceetron Solutions AS'
 author = 'Ceetron Solutions AS'
 
