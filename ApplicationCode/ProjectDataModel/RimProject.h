@@ -236,6 +236,9 @@ void RimProject::fieldContentsByType( caf::PdmObjectHandle* object, std::vector<
 
     for ( const auto& field : allFieldsInObject )
     {
+        auto xmlFieldCapability = field->xmlCapability();
+        if ( xmlFieldCapability && !xmlFieldCapability->isIOWritable() ) continue;
+
         caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>( field );
         if ( typedField ) fieldContents.push_back( &typedField->v() );
 
