@@ -77,8 +77,8 @@ bool caf::PdmFieldXmlCap<FieldType>::resolveReferences()
      QString dataString = xmlStream.text().toString();
 
      // Make stream point to end of element
-     QXmlStreamReader::TokenType type;
-     type = xmlStream.readNext();
+     QXmlStreamReader::TokenType type = xmlStream.readNext();
+     Q_UNUSED(type);
      PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
 
      // This resolving can NOT be done here. 
@@ -157,8 +157,8 @@ bool caf::PdmFieldXmlCap<FieldType>::resolveReferences()
      QString dataString = xmlStream.text().toString();
 
      // Make stream point to end of element
-     QXmlStreamReader::TokenType type;
-     type = xmlStream.readNext();
+     QXmlStreamReader::TokenType type = xmlStream.readNext();
+     Q_UNUSED(type);
      PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
 
      // This resolving can NOT be done here. 
@@ -303,8 +303,8 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
 
     // Make stream point to endElement of this field
 
-    QXmlStreamReader::TokenType type;
-    type = xmlStream.readNext();
+    QXmlStreamReader::TokenType type = xmlStream.readNext();
+    Q_UNUSED(type);
     PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
 }
 
@@ -392,8 +392,8 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
             xmlStream.skipCurrentElement();
 
             // Jump off the end element, and head for next start element (or the final EndElement of the field)
-            QXmlStreamReader::TokenType type;
-            type = xmlStream.readNext();
+            QXmlStreamReader::TokenType type = xmlStream.readNext();
+            Q_UNUSED(type);
             PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
 
             continue;
@@ -408,8 +408,8 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
             xmlStream.skipCurrentElement();
 
             // Jump off the end element, and head for next start element (or the final EndElement of the field)
-            QXmlStreamReader::TokenType type;
-            type = xmlStream.readNext();
+            QXmlStreamReader::TokenType type = xmlStream.readNext();
+            Q_UNUSED(type);
             PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
 
             continue;
@@ -424,8 +424,8 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
         // Jump off the end element, and head for next start element (or the final EndElement of the field)
         // Qt reports a character token between EndElements and StartElements so skip it
 
-        QXmlStreamReader::TokenType type;
-        type = xmlStream.readNext();
+        QXmlStreamReader::TokenType type = xmlStream.readNext();
+        Q_UNUSED(type);
         PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
     }
 }

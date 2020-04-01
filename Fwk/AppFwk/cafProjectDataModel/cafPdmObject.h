@@ -105,7 +105,8 @@ class PdmObjectCapability;
     \
     static bool chekingThePresenceOfHeaderAndSourceInitMacros = \
           Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
-    this->isInheritedFromPdmUiObject(); \
+    Q_UNUSED(chekingThePresenceOfHeaderAndSourceInitMacros); \
+    this->isInheritedFromPdmUiObject();        \
     this->isInheritedFromPdmXmlSerializable(); \
     \
     AddXmlCapabilityToField(field); \
@@ -126,7 +127,8 @@ class PdmObjectCapability;
     \
     static bool chekingThePresenceOfHeaderAndSourceInitMacros =  \
             Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
-    this->isInheritedFromPdmUiObject(); \
+    Q_UNUSED(chekingThePresenceOfHeaderAndSourceInitMacros); \
+    this->isInheritedFromPdmUiObject();            \
     this->isInheritedFromPdmXmlSerializable(); \
     \
     AddXmlCapabilityToField(field); \
