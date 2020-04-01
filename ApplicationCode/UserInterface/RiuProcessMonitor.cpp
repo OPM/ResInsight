@@ -17,7 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
 
+#include "RiuMessagePanel.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuProcessMonitor.h"
 
 #include "cafUiProcess.h"
@@ -149,6 +152,12 @@ void RiuProcessMonitor::addStringToLog( const QString& sTxt )
     m_textEdit->insertPlainText( sTxt );
 
     m_textEdit->ensureCursorVisible();
+
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+    if ( mainPlotWindow && mainPlotWindow->messagePanel() )
+    {
+        mainPlotWindow->messagePanel()->addMessage( RI_LL_INFO, sTxt );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

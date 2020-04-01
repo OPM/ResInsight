@@ -44,6 +44,7 @@
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
+#include "RiuMessagePanel.h"
 #include "RiuMultiPlotPage.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
@@ -463,6 +464,15 @@ void RiuPlotMainWindow::createDockPanels()
         addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
     }
 
+    {
+        QDockWidget* dockWidget = new QDockWidget( "Messages", this );
+        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowMessagesName() );
+        m_messagePanel = new RiuMessagePanel( dockWidget );
+        dockWidget->setWidget( m_messagePanel );
+        addDockWidget( Qt::BottomDockWidgetArea, dockWidget );
+        dockWidget->hide();
+    }
+
     setCorner( Qt::BottomLeftCorner, Qt::LeftDockWidgetArea );
     setCorner( Qt::BottomRightCorner, Qt::BottomDockWidgetArea );
 
@@ -673,6 +683,14 @@ RicSummaryCurveCalculatorDialog* RiuPlotMainWindow::summaryCurveCalculatorDialog
     }
 
     return m_summaryCurveCalculatorDialog;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuMessagePanel* RiuPlotMainWindow::messagePanel()
+{
+    return m_messagePanel;
 }
 
 //--------------------------------------------------------------------------------------------------
