@@ -73,3 +73,22 @@ public:
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcSummaryCase_ResampleValues : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcSummaryCase_ResampleValues( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute();
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+
+private:
+    caf::PdmField<QString> m_addressString;
+    caf::PdmField<QString> m_resamplingPeriod;
+};

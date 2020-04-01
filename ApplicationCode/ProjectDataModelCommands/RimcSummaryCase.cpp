@@ -18,12 +18,17 @@
 
 #include "RimcSummaryCase.h"
 
+#include "RiaQDateTimeTools.h"
+#include "RiaSummaryTools.h"
+#include "RiaTimeHistoryCurveResampler.h"
+
 #include "RifSummaryReaderInterface.h"
 #include "RimSummaryCase.h"
 
 #include "RimcDataContainerDouble.h"
 #include "RimcDataContainerString.h"
 #include "RimcDataContainerTime.h"
+#include "RimcSummaryResampleData.h"
 
 #include "cafPdmFieldIOScriptability.h"
 
@@ -177,4 +182,110 @@ bool RimcSummaryCase_TimeSteps::resultIsPersistent() const
 std::unique_ptr<caf::PdmObjectHandle> RimcSummaryCase_TimeSteps::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerTime );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimcSummaryCase_ResampleValues, "ResampleValues" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcSummaryCase_ResampleValues::RimcSummaryCase_ResampleValues( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Resample Values", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_addressString,
+                                                "Address",
+                                                "",
+                                                "",
+                                                "",
+                                                "Formatted address specifying the summary vector" );
+
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_resamplingPeriod, "ResamplingPeriod", "", "", "", "Resampling Period" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimcSummaryCase_ResampleValues::execute()
+{
+    QStringList addressStrings = m_addressString().split( ";", QString::SkipEmptyParts );
+
+    auto*                      summaryCase = self<RimSummaryCase>();
+    RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
+
+    auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( m_addressString().toStdString() );
+
+    std::vector<double> values;
+    bool                isOk = sumReader->values( adr, &values );
+    if ( !isOk ) return nullptr;
+
+    auto           timeValues = sumReader->timeSteps( adr );
+    DateTimePeriod period     = DateTimePeriod::NONE;
+
+    {
+        QString periodString = m_resamplingPeriod().trimmed();
+
+        if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_DAY_NAME, Qt::CaseInsensitive ) == 0 )
+        {
+            period = DateTimePeriod::DAY;
+        }
+        else if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_WEEK_NAME, Qt::CaseInsensitive ) == 0 )
+        {
+            period = DateTimePeriod::WEEK;
+        }
+        else if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_MONTH_NAME, Qt::CaseInsensitive ) == 0 )
+        {
+            period = DateTimePeriod::MONTH;
+        }
+        else if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_QUARTER_NAME, Qt::CaseInsensitive ) == 0 )
+        {
+            period = DateTimePeriod::QUARTER;
+        }
+        else if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_HALFYEAR_NAME, Qt::CaseInsensitive ) == 0 )
+        {
+            period = DateTimePeriod::HALFYEAR;
+        }
+        else if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_YEAR_NAME, Qt::CaseInsensitive ) == 0 )
+        {
+            period = DateTimePeriod::YEAR;
+        }
+        else if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_DECADE_NAME, Qt::CaseInsensitive ) == 0 )
+        {
+            period = DateTimePeriod::DECADE;
+        }
+    }
+
+    RiaTimeHistoryCurveResampler resampler;
+    resampler.setCurveData( values, timeValues );
+
+    if ( RiaSummaryTools::hasAccumulatedData( adr ) )
+    {
+        resampler.resampleAndComputePeriodEndValues( period );
+    }
+    else
+    {
+        resampler.resampleAndComputeWeightedMeanValues( period );
+    }
+
+    auto dataObject            = new RimcSummaryResampleData();
+    dataObject->m_timeValues   = resampler.resampledTimeSteps();
+    dataObject->m_doubleValues = resampler.resampledValues();
+
+    return dataObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcSummaryCase_ResampleValues::resultIsPersistent() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcSummaryCase_ResampleValues::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimcSummaryResampleData );
 }
