@@ -133,7 +133,7 @@ RimSummaryCase*
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromFileName( const QString& fileName ) const
 {
-    // Use QFileInfo object to compare two file names to avoid mix of / and \\
+    // Use QFileInfo object to compare two file names to avoid mix of '/' and '\\'
 
     QFileInfo incomingFileInfo( fileName );
 
