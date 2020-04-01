@@ -133,6 +133,9 @@ private:
     FieldType* m_field;
 };
 
+
+template <typename DataType> class PdmField;
+
 template < typename DataType>
 class PdmFieldXmlCap< PdmField<std::vector<DataType>> > : public PdmXmlFieldHandle
 {

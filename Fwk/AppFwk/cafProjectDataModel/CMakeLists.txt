@@ -26,7 +26,6 @@ set( PROJECT_FILES
 	cafPdmObjectGroup.h
 	cafPdmObject.cpp
 	cafPdmObject.h
-	cafPdmField.h
 )
 
 add_library( ${PROJECT_NAME}
