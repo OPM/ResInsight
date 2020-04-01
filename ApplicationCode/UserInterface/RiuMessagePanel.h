@@ -57,7 +57,9 @@ private:
 class RiuMessagePanelLogger : public RiaLogger
 {
 public:
-    explicit RiuMessagePanelLogger( RiuMessagePanel* messagePanel );
+    explicit RiuMessagePanelLogger();
+
+    void addMessagePanel( RiuMessagePanel* messagePanel );
 
     int  level() const override;
     void setLevel( int logLevel ) override;
@@ -71,6 +73,6 @@ private:
     void writeToMessagePanel( RILogLevel messageLevel, const char* message );
 
 private:
-    QPointer<RiuMessagePanel> m_messagePanel;
-    int                       m_logLevel;
+    std::vector<QPointer<RiuMessagePanel>> m_messagePanel;
+    int                                    m_logLevel;
 };

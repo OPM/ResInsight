@@ -111,6 +111,14 @@ QString RiuDockWidgetTools::plotMainWindowPropertyEditorName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowMessagesName()
+{
+    return "plotMainWindow_dockMessages";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiuDockWidgetTools::messagesName()
 {
     return "dockMessages";

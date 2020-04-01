@@ -28,14 +28,14 @@
 
 #include <memory>
 
-class QMdiSubWindow;
-
-class RiuViewer;
-
 struct RimMdiWindowGeometry;
+
+class QMdiSubWindow;
+class RiuViewer;
 class RimViewWindow;
 class RicSummaryPlotEditorDialog;
 class RicSummaryCurveCalculatorDialog;
+class RiuMessagePanel;
 
 namespace caf
 {
@@ -91,6 +91,8 @@ public:
     RicSummaryPlotEditorDialog*      summaryCurveCreatorDialog();
     RicSummaryCurveCalculatorDialog* summaryCurveCalculatorDialog();
 
+    RiuMessagePanel* messagePanel();
+
 protected:
     void closeEvent( QCloseEvent* event ) override;
     void keyPressEvent( QKeyEvent* ) override;
@@ -124,6 +126,7 @@ private:
 
     RiuMdiArea*                    m_mdiArea;
     caf::PdmPointer<RimViewWindow> m_activePlotViewWindow;
+    QPointer<RiuMessagePanel>      m_messagePanel;
 
     QMenu* m_windowMenu;
 
