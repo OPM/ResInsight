@@ -1367,6 +1367,8 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 itemCollection->add( mainPlotCollection->multiPlotCollection() );
             }
         }
+
+        uiTreeOrdering.add( scriptCollection() );
     }
     else
     {
