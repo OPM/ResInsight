@@ -20,9 +20,11 @@
 
 #include "RifSummaryReaderInterface.h"
 #include "RimSummaryCase.h"
-#include "RimcDataContainerDouble.h"
 
+#include "RimcDataContainerDouble.h"
 #include "RimcDataContainerString.h"
+#include "RimcDataContainerTime.h"
+
 #include "cafPdmFieldIOScriptability.h"
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimcSummaryCase_summaryVectorValues, "SummaryVectorValues" );
@@ -131,4 +133,48 @@ bool RimcSummaryCase_AvailableAddresses::resultIsPersistent() const
 std::unique_ptr<caf::PdmObjectHandle> RimcSummaryCase_AvailableAddresses::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerString );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimcSummaryCase_TimeSteps, "AvailableTimeSteps" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcSummaryCase_TimeSteps::RimcSummaryCase_TimeSteps( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Available TimeSteps", "", "", "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimcSummaryCase_TimeSteps::execute()
+{
+    auto*                      summaryCase = self<RimSummaryCase>();
+    RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
+
+    RifEclipseSummaryAddress adr;
+    auto                     timeValues = sumReader->timeSteps( adr );
+
+    auto dataObject          = new RimcDataContainerTime();
+    dataObject->m_timeValues = timeValues;
+
+    return dataObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcSummaryCase_TimeSteps::resultIsPersistent() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcSummaryCase_TimeSteps::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerTime );
 }
