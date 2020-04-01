@@ -16,6 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -40,4 +42,19 @@ public:
 
 private:
     caf::PdmField<QString> m_addressString;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcSummaryCase_AvailableAddresses : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcSummaryCase_AvailableAddresses( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute();
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 };

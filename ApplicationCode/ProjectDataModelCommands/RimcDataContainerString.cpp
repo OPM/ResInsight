@@ -16,20 +16,19 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "RimcDataContainerString.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafPdmFieldIOScriptability.h"
 
-//==================================================================================================
+#include "cafPdmObjectScriptability.h"
+
+CAF_PDM_SOURCE_INIT( RimcDataContainerString, "DataContainerString" );
+
+//--------------------------------------------------------------------------------------------------
 ///
-//==================================================================================================
-class RimcDataContainerDouble : public caf::PdmObject
+//--------------------------------------------------------------------------------------------------
+RimcDataContainerString::RimcDataContainerString()
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimcDataContainerDouble();
-
-    caf::PdmField<std::vector<double>> m_doubleValues;
-};
+    CAF_PDM_InitScriptableObject( "Data Container String", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_stringValues, "StringValues", "String Values", "", "", "" );
+}
