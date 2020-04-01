@@ -58,3 +58,18 @@ public:
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcSummaryCase_TimeSteps : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcSummaryCase_TimeSteps( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute();
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+};

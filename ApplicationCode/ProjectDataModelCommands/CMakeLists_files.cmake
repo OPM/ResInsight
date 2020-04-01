@@ -5,6 +5,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryCase.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerDouble.h
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerString.h
+${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerTime.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -13,6 +14,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimcSummaryCase.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerDouble.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerString.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimcDataContainerTime.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
