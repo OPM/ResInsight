@@ -104,12 +104,13 @@ RicResampleDialogResult RicResampleDialog::openDialog( QWidget* parent /*= 0*/, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicResampleDialog::setPeriodOptions( const std::vector<DateTimePeriod>& dateTimePeriods )
+void RicResampleDialog::setPeriodOptions( const std::vector<RiaQDateTimeTools::DateTimePeriod>& dateTimePeriods )
 {
     QStringList s;
     for ( auto& period : dateTimePeriods )
     {
-        QString text = period != DateTimePeriod::NONE ? RiaQDateTimeTools::dateTimePeriodName( period ) : "No Resampling";
+        QString text = period != RiaQDateTimeTools::DateTimePeriod::NONE ? RiaQDateTimeTools::dateTimePeriodName( period )
+                                                                         : "No Resampling";
         m_timePeriodCombo->addItem( text, QVariant( (int)period ) );
     }
 }
@@ -117,10 +118,10 @@ void RicResampleDialog::setPeriodOptions( const std::vector<DateTimePeriod>& dat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-DateTimePeriod RicResampleDialog::selectedDateTimePeriod() const
+RiaQDateTimeTools::DateTimePeriod RicResampleDialog::selectedDateTimePeriod() const
 {
     int currIndex = m_timePeriodCombo->currentIndex();
-    return (DateTimePeriod)m_timePeriodCombo->itemData( currIndex ).toInt();
+    return (RiaQDateTimeTools::DateTimePeriod)m_timePeriodCombo->itemData( currIndex ).toInt();
 }
 
 //--------------------------------------------------------------------------------------------------

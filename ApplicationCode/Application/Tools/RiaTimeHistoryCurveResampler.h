@@ -35,21 +35,22 @@ public:
 
     void setCurveData( const std::vector<double>& values, const std::vector<time_t>& timeSteps );
 
-    void resampleAndComputePeriodEndValues( DateTimePeriod period );
-    void resampleAndComputeWeightedMeanValues( DateTimePeriod period );
+    void resampleAndComputePeriodEndValues( RiaQDateTimeTools::DateTimePeriod period );
+    void resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod period );
 
     const std::vector<time_t>& resampledTimeSteps() const;
     const std::vector<double>& resampledValues() const;
 
-    static std::vector<time_t> timeStepsFromTimeRange( DateTimePeriod period, time_t minTime, time_t maxTime );
+    static std::vector<time_t>
+        timeStepsFromTimeRange( RiaQDateTimeTools::DateTimePeriod period, time_t minTime, time_t maxTime );
 
 private:
-    void computeWeightedMeanValues( DateTimePeriod period );
-    void computePeriodEndValues( DateTimePeriod period );
+    void computeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod period );
+    void computePeriodEndValues( RiaQDateTimeTools::DateTimePeriod period );
 
     void             clearData();
-    void             computeResampledTimeSteps( DateTimePeriod period );
-    static QDateTime firstResampledTimeStep( const QDateTime& firstTimestep, DateTimePeriod period );
+    void             computeResampledTimeSteps( RiaQDateTimeTools::DateTimePeriod period );
+    static QDateTime firstResampledTimeStep( const QDateTime& firstTimestep, RiaQDateTimeTools::DateTimePeriod period );
     inline double    interpolatedValue( time_t t, time_t t1, double v1, time_t t2, double v2 );
 
 private:

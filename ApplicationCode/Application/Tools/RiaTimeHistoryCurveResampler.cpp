@@ -67,7 +67,7 @@ void RiaTimeHistoryCurveResampler::setCurveData( const std::vector<double>& valu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaTimeHistoryCurveResampler::resampleAndComputePeriodEndValues( DateTimePeriod period )
+void RiaTimeHistoryCurveResampler::resampleAndComputePeriodEndValues( RiaQDateTimeTools::DateTimePeriod period )
 {
     computePeriodEndValues( period );
 }
@@ -75,7 +75,7 @@ void RiaTimeHistoryCurveResampler::resampleAndComputePeriodEndValues( DateTimePe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaTimeHistoryCurveResampler::resampleAndComputeWeightedMeanValues( DateTimePeriod period )
+void RiaTimeHistoryCurveResampler::resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod period )
 {
     computeWeightedMeanValues( period );
 }
@@ -99,8 +99,9 @@ const std::vector<double>& RiaTimeHistoryCurveResampler::resampledValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<time_t>
-    RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( DateTimePeriod period, time_t minTime, time_t maxTime )
+std::vector<time_t> RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( RiaQDateTimeTools::DateTimePeriod period,
+                                                                          time_t                            minTime,
+                                                                          time_t                            maxTime )
 {
     if ( minTime > maxTime ) return std::vector<time_t>();
 
@@ -123,7 +124,7 @@ std::vector<time_t>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( DateTimePeriod period )
+void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod period )
 {
     size_t      origDataSize  = m_originalValues.second.size();
     size_t      oi            = 0;
@@ -196,7 +197,7 @@ void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( DateTimePeriod per
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaTimeHistoryCurveResampler::computePeriodEndValues( DateTimePeriod period )
+void RiaTimeHistoryCurveResampler::computePeriodEndValues( RiaQDateTimeTools::DateTimePeriod period )
 {
     size_t      origDataSize  = m_originalValues.second.size();
     size_t      oi            = 0;
@@ -245,9 +246,9 @@ void RiaTimeHistoryCurveResampler::clearData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaTimeHistoryCurveResampler::computeResampledTimeSteps( DateTimePeriod period )
+void RiaTimeHistoryCurveResampler::computeResampledTimeSteps( RiaQDateTimeTools::DateTimePeriod period )
 {
-    CVF_ASSERT( period != DateTimePeriod::NONE && m_originalValues.second.size() > 0 );
+    CVF_ASSERT( period != RiaQDateTimeTools::DateTimePeriod::NONE && m_originalValues.second.size() > 0 );
 
     auto firstOriginalTimeStep = QDT::fromTime_t( m_originalValues.second.front() );
     auto lastOriginalTimeStep  = QDT::fromTime_t( m_originalValues.second.back() );
@@ -268,7 +269,8 @@ void RiaTimeHistoryCurveResampler::computeResampledTimeSteps( DateTimePeriod per
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaTimeHistoryCurveResampler::firstResampledTimeStep( const QDateTime& firstTimeStep, DateTimePeriod period )
+QDateTime RiaTimeHistoryCurveResampler::firstResampledTimeStep( const QDateTime&                  firstTimeStep,
+                                                                RiaQDateTimeTools::DateTimePeriod period )
 {
     QDateTime truncatedTime = QDT::truncateTime( firstTimeStep, period );
 
