@@ -172,7 +172,7 @@ bool RicAsciiExportSummaryPlotFeature::exportTextToFile( const QString& fileName
 //--------------------------------------------------------------------------------------------------
 bool RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot( const QString&        fileName,
                                                                   const RimSummaryPlot* summaryPlot,
-                                                                  DateTimePeriod        resamplingPeriod,
+                                                                  RiaQDateTimeTools::DateTimePeriod        resamplingPeriod,
                                                                   bool                  showTimeAsLongString )
 {
     QString text = summaryPlot->description();

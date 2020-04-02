@@ -216,44 +216,14 @@ caf::PdmObjectHandle* RimcSummaryCase_ResampleValues::execute()
     auto adr = RifEclipseSummaryAddress::fromEclipseTextAddress( m_addressString().toStdString() );
 
     std::vector<double> values;
-    bool                isOk = sumReader->values( adr, &values );
+
+    bool isOk = sumReader->values( adr, &values );
     if ( !isOk ) return nullptr;
 
-    auto           timeValues = sumReader->timeSteps( adr );
-    DateTimePeriod period     = DateTimePeriod::NONE;
+    auto timeValues = sumReader->timeSteps( adr );
 
-    {
-        QString periodString = m_resamplingPeriod().trimmed();
-
-        if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_DAY_NAME, Qt::CaseInsensitive ) == 0 )
-        {
-            period = DateTimePeriod::DAY;
-        }
-        else if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_WEEK_NAME, Qt::CaseInsensitive ) == 0 )
-        {
-            period = DateTimePeriod::WEEK;
-        }
-        else if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_MONTH_NAME, Qt::CaseInsensitive ) == 0 )
-        {
-            period = DateTimePeriod::MONTH;
-        }
-        else if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_QUARTER_NAME, Qt::CaseInsensitive ) == 0 )
-        {
-            period = DateTimePeriod::QUARTER;
-        }
-        else if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_HALFYEAR_NAME, Qt::CaseInsensitive ) == 0 )
-        {
-            period = DateTimePeriod::HALFYEAR;
-        }
-        else if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_YEAR_NAME, Qt::CaseInsensitive ) == 0 )
-        {
-            period = DateTimePeriod::YEAR;
-        }
-        else if ( periodString.compare( RiaQDateTimeTools::TIMESPAN_DECADE_NAME, Qt::CaseInsensitive ) == 0 )
-        {
-            period = DateTimePeriod::DECADE;
-        }
-    }
+    QString                           periodString = m_resamplingPeriod().trimmed();
+    RiaQDateTimeTools::DateTimePeriod period       = RiaQDateTimeTools::DateTimePeriodEnum::fromText( periodString );
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( values, timeValues );

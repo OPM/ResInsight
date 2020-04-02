@@ -99,18 +99,18 @@ class CurvesData
 {
 public:
     CurvesData()
-        : resamplePeriod( DateTimePeriod::NONE )
+        : resamplePeriod( RiaQDateTimeTools::DateTimePeriod::NONE )
     {
     }
     void clear()
     {
-        resamplePeriod = DateTimePeriod::NONE;
+        resamplePeriod = RiaQDateTimeTools::DateTimePeriod::NONE;
         caseNames.clear();
         timeSteps.clear();
         allCurveData.clear();
     }
 
-    DateTimePeriod                      resamplePeriod;
+    RiaQDateTimeTools::DateTimePeriod   resamplePeriod;
     std::vector<QString>                caseNames;
     std::vector<std::vector<time_t>>    timeSteps;
     std::vector<std::vector<CurveData>> allCurveData;
@@ -129,10 +129,10 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
 void populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves, CurvesData* curvesData );
 void populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves, CurvesData* curvesData );
 
-void prepareCaseCurvesForExport( DateTimePeriod    period,
-                                 ResampleAlgorithm algorithm,
-                                 const CurvesData& inputCurvesData,
-                                 CurvesData*       resultCurvesData );
+void prepareCaseCurvesForExport( RiaQDateTimeTools::DateTimePeriod period,
+                                 ResampleAlgorithm                 algorithm,
+                                 const CurvesData&                 inputCurvesData,
+                                 CurvesData*                       resultCurvesData );
 
 void       appendToExportDataForCase( QString& out, const std::vector<time_t>& timeSteps, const std::vector<CurveData>& curveData );
 void       appendToExportData( QString& out, const std::vector<CurvesData>& curvesData, bool showTimeAsLongString );
@@ -335,13 +335,14 @@ RiuQwtPlotWidget* RimSummaryPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::asciiDataForPlotExport() const
 {
-    return asciiDataForSummaryPlotExport( DateTimePeriod::YEAR, false );
+    return asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTimePeriod::YEAR, false );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlot::asciiDataForSummaryPlotExport( DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const
+QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTimePeriod resamplingPeriod,
+                                                       bool                              showTimeAsLongString ) const
 {
     QString                      out;
     RiaTimeHistoryCurveResampler resampler;
@@ -2187,16 +2188,16 @@ void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCur
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void prepareCaseCurvesForExport( DateTimePeriod    period,
-                                 ResampleAlgorithm algorithm,
-                                 const CurvesData& inputCurvesData,
-                                 CurvesData*       resultCurvesData )
+void prepareCaseCurvesForExport( RiaQDateTimeTools::DateTimePeriod period,
+                                 ResampleAlgorithm                 algorithm,
+                                 const CurvesData&                 inputCurvesData,
+                                 CurvesData*                       resultCurvesData )
 {
     RiaTimeHistoryCurveResampler resampler;
 
     resultCurvesData->clear();
 
-    if ( period != DateTimePeriod::NONE )
+    if ( period != RiaQDateTimeTools::DateTimePeriod::NONE )
     {
         // Prepare result data
         resultCurvesData->resamplePeriod = period;
@@ -2278,7 +2279,7 @@ void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData
 {
     CurvesData data = concatCurvesData( curvesData );
 
-    if ( data.resamplePeriod != DateTimePeriod::NONE )
+    if ( data.resamplePeriod != RiaQDateTimeTools::DateTimePeriod::NONE )
     {
         time_t minTimeStep = std::numeric_limits<time_t>::max();
         time_t maxTimeStep = 0;
@@ -2330,40 +2331,40 @@ void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData
                 {
                     default:
                         // Fall through to NONE
-                    case DateTimePeriod::NONE:
+                    case RiaQDateTimeTools::DateTimePeriod::NONE:
                         timeText = timseStepUtc.toString( "yyyy-MM-dd hh:mm:ss " );
                         break;
-                    case DateTimePeriod::DAY:
+                    case RiaQDateTimeTools::DateTimePeriod::DAY:
                         timeText = oneDayEarlier.toString( "yyyy-MM-dd " );
                         break;
-                    case DateTimePeriod::WEEK:
+                    case RiaQDateTimeTools::DateTimePeriod::WEEK:
                     {
                         timeText       = oneDayEarlier.toString( "yyyy" );
                         int weekNumber = oneDayEarlier.date().weekNumber();
                         timeText += QString( "-W%1" ).arg( weekNumber, 2, 10, zeroChar );
                         break;
                     }
-                    case DateTimePeriod::MONTH:
+                    case RiaQDateTimeTools::DateTimePeriod::MONTH:
                         timeText = oneDayEarlier.toString( "yyyy-MM" );
                         break;
-                    case DateTimePeriod::QUARTER:
+                    case RiaQDateTimeTools::DateTimePeriod::QUARTER:
                     {
                         int quarterNumber = oneDayEarlier.date().month() / 3;
                         timeText          = oneDayEarlier.toString( "yyyy" );
                         timeText += QString( "-Q%1" ).arg( quarterNumber );
                         break;
                     }
-                    case DateTimePeriod::HALFYEAR:
+                    case RiaQDateTimeTools::DateTimePeriod::HALFYEAR:
                     {
                         int halfYearNumber = oneDayEarlier.date().month() / 6;
                         timeText           = oneDayEarlier.toString( "yyyy" );
                         timeText += QString( "-H%1" ).arg( halfYearNumber );
                         break;
                     }
-                    case DateTimePeriod::YEAR:
+                    case RiaQDateTimeTools::DateTimePeriod::YEAR:
                         timeText = oneDayEarlier.toString( "yyyy" );
                         break;
-                    case DateTimePeriod::DECADE:
+                    case RiaQDateTimeTools::DateTimePeriod::DECADE:
                         timeText = oneDayEarlier.toString( "yyyy" );
                         break;
                 }
@@ -2419,8 +2420,8 @@ CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData )
 {
     CVF_ASSERT( !curvesData.empty() );
 
-    DateTimePeriod period = curvesData.front().resamplePeriod;
-    CurvesData     resultCurvesData;
+    RiaQDateTimeTools::DateTimePeriod period = curvesData.front().resamplePeriod;
+    CurvesData                        resultCurvesData;
 
     resultCurvesData.resamplePeriod = period;
 

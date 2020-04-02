@@ -160,9 +160,9 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
             RiaTimeHistoryCurveResampler resampler;
             resampler.setCurveData( values, timeSteps );
             if ( RiaSummaryTools::hasAccumulatedData( inputAddress ) )
-                resampler.resampleAndComputePeriodEndValues( DateTimePeriod::DAY );
+                resampler.resampleAndComputePeriodEndValues( RiaQDateTimeTools::DateTimePeriod::DAY );
             else
-                resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DAY );
+                resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::DAY );
 
             if ( allTimeSteps.empty() ) allTimeSteps = resampler.resampledTimeSteps();
             caseAndTimeStepValues.push_back(

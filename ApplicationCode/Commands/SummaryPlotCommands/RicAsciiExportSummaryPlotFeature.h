@@ -44,6 +44,6 @@ protected:
 private:
     static bool exportAsciiForSummaryPlot( const QString&        fileName,
                                            const RimSummaryPlot* selectedSummaryPlots,
-                                           DateTimePeriod        resamplingPeriod,
+                                           RiaQDateTimeTools::DateTimePeriod        resamplingPeriod,
                                            bool                  showTimeAsLongString );
 };

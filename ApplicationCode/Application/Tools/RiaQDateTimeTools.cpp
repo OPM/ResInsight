@@ -41,14 +41,6 @@ const DateTimeSpan RiaQDateTimeTools::TIMESPAN_HALFYEAR = DateTimeSpan( 0, 6, 0 
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_YEAR     = DateTimeSpan( 1, 0, 0 );
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DECADE   = DateTimeSpan( 10, 0, 0 );
 
-const QString RiaQDateTimeTools::TIMESPAN_DAY_NAME      = "Day";
-const QString RiaQDateTimeTools::TIMESPAN_WEEK_NAME     = "Week";
-const QString RiaQDateTimeTools::TIMESPAN_MONTH_NAME    = "Month";
-const QString RiaQDateTimeTools::TIMESPAN_QUARTER_NAME  = "Quarter";
-const QString RiaQDateTimeTools::TIMESPAN_HALFYEAR_NAME = "Half Year";
-const QString RiaQDateTimeTools::TIMESPAN_YEAR_NAME     = "Year";
-const QString RiaQDateTimeTools::TIMESPAN_DECADE_NAME   = "Decade";
-
 namespace caf
 {
 template <>
@@ -70,6 +62,21 @@ void caf::AppEnum<RiaQDateTimeTools::TimeFormatComponents>::setUp()
     addItem( RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND, "HOUR_MINUTE_SECONDS", "Hour, Minutes and Seconds" );
     setDefault( RiaQDateTimeTools::TIME_FORMAT_NONE );
 }
+
+template <>
+void caf::AppEnum<RiaQDateTimeTools::DateTimePeriod>::setUp()
+{
+    addItem( RiaQDateTimeTools::DateTimePeriod::NONE, "NONE", "None" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::DAY, "DAY", "Day" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::WEEK, "WEEK", "Week" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::MONTH, "MONTH", "Month" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::QUARTER, "QUARTER", "Quarter," );
+    addItem( RiaQDateTimeTools::DateTimePeriod::HALFYEAR, "HALFYEAR", "Half Year" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::YEAR, "YEAR,", "Year," );
+    addItem( RiaQDateTimeTools::DateTimePeriod::DECADE, "DECADE", "Decade" );
+    setDefault( RiaQDateTimeTools::DateTimePeriod::NONE );
+}
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -188,7 +195,7 @@ QDateTime RiaQDateTimeTools::subtractSpan( const QDateTime& dt, DateTimeSpan spa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaQDateTimeTools::addPeriod( const QDateTime& dt, DateTimePeriod period )
+QDateTime RiaQDateTimeTools::addPeriod( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period )
 {
     return addSpan( dt, timeSpan( period ) );
 }
@@ -196,7 +203,7 @@ QDateTime RiaQDateTimeTools::addPeriod( const QDateTime& dt, DateTimePeriod peri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaQDateTimeTools::subtractPeriod( const QDateTime& dt, DateTimePeriod period )
+QDateTime RiaQDateTimeTools::subtractPeriod( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period )
 {
     return subtractSpan( dt, timeSpan( period ) );
 }
@@ -266,23 +273,23 @@ bool RiaQDateTimeTools::lessThan( const QDateTime& dt1, const QDateTime& dt2 )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const DateTimeSpan RiaQDateTimeTools::timeSpan( DateTimePeriod period )
+const DateTimeSpan RiaQDateTimeTools::timeSpan( RiaQDateTimeTools::DateTimePeriod period )
 {
     switch ( period )
     {
-        case DateTimePeriod::DAY:
+        case RiaQDateTimeTools::DateTimePeriod::DAY:
             return TIMESPAN_DAY;
-        case DateTimePeriod::WEEK:
+        case RiaQDateTimeTools::DateTimePeriod::WEEK:
             return TIMESPAN_WEEK;
-        case DateTimePeriod::MONTH:
+        case RiaQDateTimeTools::DateTimePeriod::MONTH:
             return TIMESPAN_MONTH;
-        case DateTimePeriod::QUARTER:
+        case RiaQDateTimeTools::DateTimePeriod::QUARTER:
             return TIMESPAN_QUARTER;
-        case DateTimePeriod::HALFYEAR:
+        case RiaQDateTimeTools::DateTimePeriod::HALFYEAR:
             return TIMESPAN_HALFYEAR;
-        case DateTimePeriod::YEAR:
+        case RiaQDateTimeTools::DateTimePeriod::YEAR:
             return TIMESPAN_YEAR;
-        case DateTimePeriod::DECADE:
+        case RiaQDateTimeTools::DateTimePeriod::DECADE:
             return TIMESPAN_DECADE;
     }
     CVF_ASSERT( false );
@@ -292,7 +299,7 @@ const DateTimeSpan RiaQDateTimeTools::timeSpan( DateTimePeriod period )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaQDateTimeTools::truncateTime( const QDateTime& dt, DateTimePeriod period )
+QDateTime RiaQDateTimeTools::truncateTime( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period )
 {
     int y   = dt.date().year();
     int m   = dt.date().month();
@@ -301,19 +308,19 @@ QDateTime RiaQDateTimeTools::truncateTime( const QDateTime& dt, DateTimePeriod p
 
     switch ( period )
     {
-        case DateTimePeriod::DAY:
+        case RiaQDateTimeTools::DateTimePeriod::DAY:
             return createUtcDateTime( QDate( y, m, d ) );
-        case DateTimePeriod::WEEK:
+        case RiaQDateTimeTools::DateTimePeriod::WEEK:
             return createUtcDateTime( QDate( y, m, d ).addDays( -dow + 1 ) );
-        case DateTimePeriod::MONTH:
+        case RiaQDateTimeTools::DateTimePeriod::MONTH:
             return createUtcDateTime( QDate( y, m, 1 ) );
-        case DateTimePeriod::QUARTER:
+        case RiaQDateTimeTools::DateTimePeriod::QUARTER:
             return createUtcDateTime( QDate( y, ( ( m - 1 ) / 3 ) * 3 + 1, 1 ) );
-        case DateTimePeriod::HALFYEAR:
+        case RiaQDateTimeTools::DateTimePeriod::HALFYEAR:
             return createUtcDateTime( QDate( y, ( ( m - 1 ) / 6 ) * 6 + 1, 1 ) );
-        case DateTimePeriod::YEAR:
+        case RiaQDateTimeTools::DateTimePeriod::YEAR:
             return createUtcDateTime( QDate( y, 1, 1 ) );
-        case DateTimePeriod::DECADE:
+        case RiaQDateTimeTools::DateTimePeriod::DECADE:
             return createUtcDateTime( QDate( ( y / 10 ) * 10, 1, 1 ) );
     }
     CVF_ASSERT( false );
@@ -323,44 +330,24 @@ QDateTime RiaQDateTimeTools::truncateTime( const QDateTime& dt, DateTimePeriod p
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<DateTimePeriod> RiaQDateTimeTools::dateTimePeriods()
+std::vector<RiaQDateTimeTools::DateTimePeriod> RiaQDateTimeTools::dateTimePeriods()
 {
-    return std::vector<DateTimePeriod>( {
-        DateTimePeriod::NONE,
-        DateTimePeriod::DAY,
-        DateTimePeriod::WEEK,
-        DateTimePeriod::MONTH,
-        DateTimePeriod::QUARTER,
-        DateTimePeriod::HALFYEAR,
-        DateTimePeriod::YEAR,
-        DateTimePeriod::DECADE,
-    } );
+    std::vector<DateTimePeriod> allPeriods;
+
+    for ( size_t i = 0; i < DateTimePeriodEnum::size(); i++ )
+    {
+        allPeriods.push_back( DateTimePeriodEnum::fromIndex( i ) );
+    }
+
+    return allPeriods;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaQDateTimeTools::dateTimePeriodName( DateTimePeriod period )
+QString RiaQDateTimeTools::dateTimePeriodName( RiaQDateTimeTools::DateTimePeriod period )
 {
-    switch ( period )
-    {
-        case DateTimePeriod::DAY:
-            return TIMESPAN_DAY_NAME;
-        case DateTimePeriod::WEEK:
-            return TIMESPAN_WEEK_NAME;
-        case DateTimePeriod::MONTH:
-            return TIMESPAN_MONTH_NAME;
-        case DateTimePeriod::QUARTER:
-            return TIMESPAN_QUARTER_NAME;
-        case DateTimePeriod::HALFYEAR:
-            return TIMESPAN_HALFYEAR_NAME;
-        case DateTimePeriod::YEAR:
-            return TIMESPAN_YEAR_NAME;
-        case DateTimePeriod::DECADE:
-            return TIMESPAN_DECADE_NAME;
-        default:
-            return "None";
-    }
+    return DateTimePeriodEnum::uiText( period );
 }
 
 //--------------------------------------------------------------------------------------------------
