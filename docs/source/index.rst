@@ -11,7 +11,14 @@ This enables you to:
 * extract data to Python for further processing and automation
 * export snapshots of graphics
 
+Documentation Sites
+===================
 Please refer to https://resinsight.org for documentation on the graphical user interface, features and capabilites of **ResInsight**.
+
+* `resinsight.org <https://resinsight.org>`_ - Documentation for latest stable release
+* `api.resinsight.org <https://api.resinsight.org>`_ - Documentation of Python API
+* `beta.resinsight.org <https://beta.resinsight.org>`_ - Latest documentation (not yet released)
+
 
 Contents
 ========
