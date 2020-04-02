@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Well Paths :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,28 +1802,23 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#ascii-well-paths">Ascii Well Paths</a>
-<ul>
-<li>
-<ul>
-<li><a href="#example-1">Example 1:</a></li>
-<li><a href="#example-2">Example 2:</a></li>
-</ul></li>
-<li><a href="#well-path-files-are-referenced">Well Path Files are Referenced</a></li>
-</ul></li>
-<li><a href="#importing-well-paths-from-ssi-hub">Importing well paths from SSI-Hub</a></li>
-<li><a href="#well-path-visualization">Well Path Visualization</a></li>
-<li><a href="#individual-well-path">Individual Well Path</a>
-<ul>
-<li><a href="#importing-well-log-files">Importing Well Log Files</a></li>
-<li><a href="#well-path-property-editor">Well Path Property Editor</a></li>
-<li><a href="#casing-design">Casing Design</a></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#ascii-well-paths">Ascii Well Paths</a>
+      <ul>
+        <li></li>
+        <li><a href="#well-path-files-are-referenced">Well Path Files are Referenced</a></li>
+      </ul>
+    </li>
+    <li><a href="#importing-well-paths-from-ssi-hub">Importing well paths from SSI-Hub</a></li>
+    <li><a href="#well-path-visualization">Well Path Visualization</a></li>
+    <li><a href="#individual-well-path">Individual Well Path</a>
+      <ul>
+        <li><a href="#importing-well-log-files">Importing Well Log Files</a></li>
+        <li><a href="#well-path-property-editor">Well Path Property Editor</a></li>
+        <li><a href="#casing-design">Casing Design</a></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1814,42 +1843,32 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/ResInsight_WellPathWithSimulationWell.png" alt="" /></p>
-
-<p>ResInsight can import well paths from simple Ascii files.
+<p><img src="/images/3d-main-window/ResInsight_WellPathWithSimulationWell.png" alt=""></p>
+<p>ResInsight can import well paths from simple Ascii files. 
 In addition, ResInsight is able to retrieve well paths from an Equinor internal web service.</p>
-
 <p>ResInsight also supports creation of your own user-defined well paths. See <a href="/wells-and-completions/createnewwellpaths/">Create Well Paths</a></p>
-
 <h2 id="ascii-well-paths">Ascii Well Paths</h2>
-
 <p>The command <strong>File -&gt; Import -&gt; Well Data -&gt; Import Well Paths From File</strong> will read the well paths in the selected file, and create one entry for each well path under the <img src="https://resinsight.org/images/3d-main-window/WellCollection.png" style="display:inline; vertical-align:middle; margin:0">
  <strong>Wells</strong> item in the <strong>Project Tree</strong>.</p>
-
 <p>The supported ASCII format is quite flexible but the main requirements are:</p>
-
 <ul>
 <li>Each data line must contain four numbers: X Y TVD(MSL) MD(RKB) separated with white-space.</li>
 <li>Lines starting with <code>&quot;--&quot; or &quot;#&quot;</code> is considered to be comment lines</li>
 <li>A line starting with none-number-characters are used as a well name after the following rules:
-
 <ul>
-<li>If the line contains a pair of : <code>&quot;'&quot;, &quot;`&quot;, &quot;´&quot;, &quot;’&quot; or &quot;‘&quot;</code> the text between the quotation marks is used as a well name.</li>
+<li>If the line contains a pair of : <code> &quot;'&quot;, &quot;`&quot;, &quot;´&quot;, &quot;’&quot; or &quot;‘&quot;</code> the text between the quotation marks is used as a well name.</li>
 <li>If the line contains the case insensitive string &ldquo;name&rdquo; with an optional &ldquo;:&rdquo; after then the rest of the line is used as a well name.</li>
-<li>If there are no quotes or &ldquo;name&rdquo;&rsquo;s, the complete line is used as a well name.</li>
+<li>If there are no quotes or &ldquo;name&rdquo;&lsquo;s, the complete line is used as a well name.</li>
 <li>If there are several consecutive name-like lines, only the last one will be used</li>
-</ul></li>
+</ul>
+</li>
 <li>If a well name is found, a new well is created and the following data points are added to it.</li>
 </ul>
-
 <h4 id="example-1">Example 1:</h4>
-
 <pre><code>WELLNAME: WELL1
-6507.1  725 2542    2590
-6523.5  757 2549    2626.6
-6523.5  760 2559    2637.1
+6507.1	725	2542	2590
+6523.5	757	2549	2626.6
+6523.5	760	2559	2637.1
 -999
 WELLNAME: WELL2
 550.7 1020.2  2410   2410
@@ -1857,84 +1876,60 @@ WELLNAME: WELL2
 555.2  993.9  2425   2441.6
 -999
 </code></pre>
-
 <h4 id="example-2">Example 2:</h4>
-
 <pre><code>X Y TVD(MSL) MD(RKB)
 Name Well_1
-6507.1  725 2542    2542
-6523.5  757 2549    2578.6
-6523.5  760 2559    2589.1
+6507.1	725	2542	2542
+6523.5	757	2549	2578.6
+6523.5	760	2559	2589.1
 
 -- A Comment new well
 This is not its name
 Name Well_2
-550.7   1020.2  2410    2520
-551 1004.1  2422.2  2540.2
+550.7	1020.2	2410	2520
+551	1004.1	2422.2	2540.2
 # a comment inside the data 
-555.2   993.9   2425    2551.6
+555.2	993.9	2425	2551.6
 
 3Q AHB-J
-5507.0  4638.5  0.0 0.0
-5507    4638.5  1628.6  1628.6
+5507.0	4638.5	0.0	0.0
+5507	4638.5	1628.6	1628.6
 </code></pre>
-
 <h3 id="well-path-files-are-referenced">Well Path Files are Referenced</h3>
-
 <p>The well path data is not copied into the ResInsight project as such. The project file only stores the file path, and the next time you open the project, ResInsight will try to read the well data from the file again.</p>
-
 
 <div class="notices info" ><p>If the well path file is changed and you would like a running ResInsight to update accordingly, you will need to delete all the well paths that emerge from that file, and import it again.</p>
 </div>
 
-
 <h2 id="importing-well-paths-from-ssi-hub">Importing well paths from SSI-Hub</h2>
-
 <p>SSI-Hub is an Equinor internal webservice. In order to import well paths from SSI-Hub, a project file must be present and stored to file. All imported well paths from the web service will be stored relative to this project file location. If no project file exists, the menu item is disabled.</p>
-
 <p>The command <strong>File -&gt; Import -&gt; Well Data -&gt; Import Well Paths From SSI-hub</strong> launches a wizard to guide you through the process of selecting the well paths you need.
 Having completed the wizard, the imported wells are accessible as Items under the <img src="https://resinsight.org/images/3d-main-window/WellCollection.png" style="display:inline; vertical-align:middle; margin:0">
  <strong>Wells</strong> item in the <strong>Project Tree</strong>.</p>
-
 <p>The well path data is not copied into the ResInsight project as such, but is stored in files in a directory called <em>ProjectFileName_wellpaths</em> in the same directory as your project file.</p>
 
-
-<div class="notices info" ><p><strong>Access to web service: </strong>
+<div class="notices info" ><p><!-- raw HTML omitted -->Access to web service: <!-- raw HTML omitted -->
 If you are an Equinor employee, make sure you have access to &ldquo;EDM Landmark&rdquo; and &ldquo;EDM Compass&rdquo;.</p>
 </div>
 
-
 <h2 id="well-path-visualization">Well Path Visualization</h2>
-
 <p>All the imported well paths are available below the <img src="https://resinsight.org/images/3d-main-window/WellCollection.png" style="display:inline; vertical-align:middle; margin:0">
  <strong>Wells</strong> item in the <strong>Project Tree</strong>.</p>
-
-<p><img src="/images/3d-main-window/WellsInTree.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/WellsInTree.png" alt=""></p>
 <p>The visible wells are always shown in all the 3D Views in the complete project, so the toggles and settings control the overall project visibility of the Well Paths. The <strong>Property Editor</strong> of the <strong>Wells</strong> item is shown below</p>
-
-<p><img src="/images/3d-main-window/WellPathCollectionProperties.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/WellPathCollectionProperties.png" alt=""></p>
 <ul>
 <li><strong>Global well path visibility</strong> &ndash; This option forces the well paths on or off, ignoring the individual settings unless it is set to Individual.</li>
 <li><strong>Clip Well Paths</strong> &ndash; This option hides the top of the Well Paths to avoid displaying the very long lines from the reservoir to the sea surface.</li>
 <li><strong>Well Path clipping depth distance</strong> &ndash; This number is the distance from the top of the reservoir to the clipping depth.</li>
 </ul>
-
 <h2 id="individual-well-path">Individual Well Path</h2>
-
 <p>A well path will hold well log data and well path data imported from files. A well path file is placed inside the well path item, while one or more well log files are placed as child items under the well path in the project tree.</p>
-
 <h3 id="importing-well-log-files">Importing Well Log Files</h3>
-
 <p>Well log data is <a href="/import/lasfile/#importing-a-las-file">imported from LAS-files</a>.</p>
-
 <h3 id="well-path-property-editor">Well Path Property Editor</h3>
-
 <p>The well path property editor lets the user control the appearance of the well path and associate the well path to a simulation well. It also gives some information about the well path metadata.</p>
-
-<p><img src="/images/3d-main-window/WellPathPropertyEditor.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/WellPathPropertyEditor.png" alt=""></p>
 <ul>
 <li><strong>Appearance group</strong> &ndash; Settings in this group affect the well path appearance in the 3D view</li>
 <li><strong>File group</strong> &ndash; Information about the well path file</li>
@@ -1942,21 +1937,14 @@ If you are an Equinor employee, make sure you have access to &ldquo;EDM Landmark
 <li><strong>Well Info group</strong> &ndash; Metadata for the well path</li>
 <li><strong>Well Picks group</strong> &ndash; Information about imported <a href="/3d-main-window/formations/#well-picks">well picks</a> file containing data for the current well path</li>
 </ul>
-
 <h3 id="casing-design">Casing Design</h3>
-
 <p>Some Casing Design elements can be assigned to the well path by selecting <strong>Create Casign Design</strong> from the right-click menu of the well path.</p>
-
-<p>This will create a new child object for the Well Path, named <strong>Casing Design</strong>. In the <strong>Casign Design</strong> Property editor
+<p>This will create a new child object for the Well Path, named <strong>Casing Design</strong>. In the <strong>Casign Design</strong> Property editor 
 well path containment properties such as Casing (with Casing Shoe) and Liner can be added to the well path along with a start and end depth and a diameter.</p>
-
-<p><img src="/images/3d-main-window/CasignDesign.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/CasignDesign.png" alt=""></p>
 <p>These can be visualised in the 3D View and Well Log Plots on a <a href="/plot-window/welllogsandplots/#tracks">Well Log Track</a>.</p>
-
-<p><img src="/images/3d-main-window/CasignDesign3D.png" alt="" /></p>
-
-<p><img src="/images/3d-main-window/CasignDesignPlot.png" alt="" /></p>
+<p><img src="/images/3d-main-window/CasignDesign3D.png" alt=""></p>
+<p><img src="/images/3d-main-window/CasignDesignPlot.png" alt=""></p>
 
 
 <footer class=" footline" >
@@ -2132,10 +2120,26 @@ well path containment properties such as Casing (with Casing Shoe) and Liner can
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3292,20 +3296,20 @@ well path containment properties such as Casing (with Casing Shoe) and Liner can
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

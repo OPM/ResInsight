@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Grid Case Groups and Statistics :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,26 +1802,22 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#creating-grid-case-groups">Creating Grid Case Groups</a>
-<ul>
-<li><a href="#from-files">From Files</a></li>
-<li><a href="#manually">Manually</a></li>
-</ul></li>
-<li><a href="#viewing-special-source-cases">Viewing Special Source Cases</a></li>
-<li><a href="#statistics">Statistics</a>
-<ul>
-<li><a href="#setting-up-and-calculate">Setting Up and Calculate</a>
-<ul>
-<li><a href="#percentile-methods">Percentile Methods</a></li>
-</ul></li>
-<li><a href="#viewing-the-results">Viewing the Results</a></li>
-<li><a href="#adding-statistics-cases">Adding Statistics Cases</a></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#creating-grid-case-groups">Creating Grid Case Groups</a>
+      <ul>
+        <li><a href="#from-files">From Files</a></li>
+        <li><a href="#manually">Manually</a></li>
+      </ul>
+    </li>
+    <li><a href="#viewing-special-source-cases">Viewing Special Source Cases</a></li>
+    <li><a href="#statistics">Statistics</a>
+      <ul>
+        <li><a href="#setting-up-and-calculate">Setting Up and Calculate</a></li>
+        <li><a href="#viewing-the-results">Viewing the Results</a></li>
+        <li><a href="#adding-statistics-cases">Adding Statistics Cases</a></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1812,62 +1842,38 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/GridCaseGroupTree.png" alt="" /></p>
-
-<p><strong>Grid Case Group</strong>&rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled <em>realizations</em>).</p>
-
+<p><img src="/images/3d-main-window/GridCaseGroupTree.png" alt=""></p>
+<p><strong>Grid Case Group</strong>&lsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled <em>realizations</em>).</p>
 <p>If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step between the realizations.</p>
-
 <h2 id="creating-grid-case-groups">Creating Grid Case Groups</h2>
-
 <h3 id="from-files">From Files</h3>
-
 <p>The easiest way to create a <strong>Grid Case Group</strong> is to use the Import command:
 <strong>File-&gt;Import-&gt;Eclipse Cases-&gt;Create Grid Case Group from Files</strong> or <strong>File-&gt;Import-&gt;Eclipse Cases-&gt;Create Grid Case Group from Files Recursively</strong></p>
-
 <p>The latter command will display the recursive file import dialog described on the <a href="/plot-window/summaryplots/#recursive-summary-file-import">Summary Plots page</a>.</p>
-
 <p>The first command will display the &ldquo;old&rdquo; import dialog:
-<img src="/images/3d-main-window/CreateGridCaseGroupFromFileDialog.png" alt="" /></p>
-
+<img src="/images/3d-main-window/CreateGridCaseGroupFromFileDialog.png" alt=""></p>
 <ol>
 <li>Add one or more search folders to the list on the left.</li>
 <li>The EGRID or GRID files found in these directories and sub directories are shown in the list to the right.</li>
 <li>If you want to remove some EGRID files from the list, select them and press the <strong>Remove</strong> button.</li>
 <li>When you are ready, press the <strong>OK</strong> button.</li>
 </ol>
-
 <p>ResInsight then creates a <strong>Grid Case Group</strong> for you, and populates its <strong>Source Cases</strong> with the Cases you selected. Then the first of those Cases are read completely, while the others are just scanned to verify that the Grids match and to detect changes in the Active Cells layout. This makes it quite fast to load even a quite large number of realizations.</p>
-
 <h3 id="manually">Manually</h3>
-
-<p>A Grid Case Group can be created from the right-click menu of a Result Case, Input Case or a different Grid Case Group. <strong>Source Cases</strong> can then be added by using the mouse to <em>drag and drop</em> cases with equal grids into the <strong>Grid Case Group</strong>&rsquo;s <strong>Source Case</strong> folder.
+<p>A Grid Case Group can be created from the right-click menu of a Result Case, Input Case or a different Grid Case Group. <strong>Source Cases</strong> can then be added by using the mouse to <em>drag and drop</em> cases with equal grids into the <strong>Grid Case Group</strong>&lsquo;s <strong>Source Case</strong> folder.
 This is useful if you want to create statistics based only on a subset of the source cases in an already created <strong>Grid Case Group</strong>.</p>
-
 <p><strong>Drag and Drop</strong> of cases will normally copy the cases to the new destination, but moving them is possible by pressing and holding the <strong>Shift</strong> key while dropping.</p>
-
 <h2 id="viewing-special-source-cases">Viewing Special Source Cases</h2>
-
 <p>To reduce the number of views, only a view for the first case is created automatically. If you want to inspect the results of a particular source case, select <strong>New view</strong> from the right-click menu. A new 3D View will the be created on that particular case.</p>
 
-
-<div class="notices note" ><p><h5>How to limit system resource allocation</h5>
-To reduce memory usage, project loading time etc. remember to delete the 3D Views you do not need. 3D Views uses a lot of system resources.</p>
+<div class="notices note" ><!-- raw HTML omitted -->
 </div>
 
-
 <h2 id="statistics">Statistics</h2>
-
 <p>After creating a grid case group, an empty <strong>Statistics Case</strong> is created for you in the <strong>Derived Statistics</strong> folder of the <strong>Grid Case Group</strong>.</p>
-
 <h3 id="setting-up-and-calculate">Setting Up and Calculate</h3>
-
 <p>The properties of non-calculated and calculated <strong>Statistics Case</strong> is shown below:</p>
-
-<p><img src="/images/3d-main-window/StatisticsCaseProperties.png" alt="" />  <img src="/images/3d-main-window/StatisticsCasePropertiesCalculated.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/StatisticsCaseProperties.png" alt="">  <img src="/images/3d-main-window/StatisticsCasePropertiesCalculated.png" alt=""></p>
 <ul>
 <li><strong>Compute</strong> &ndash;  Starts to calculate requested statistical Properties.</li>
 <li><strong>Edit</strong> &ndash; Deletes the calculated results, and makes the controls to edit the setup available.</li>
@@ -1876,11 +1882,8 @@ To reduce memory usage, project loading time etc. remember to delete the 3D View
 <li><strong>Percentile Setup</strong> &ndash; Selects whether to calculate percentiles, what method and what percentile levels should be used. Turning this off speeds up the calculations.</li>
 <li><strong>Well Data Source Case</strong> &ndash; This option selects which set of <strong>Simulation Wells</strong> to be shown along with the statistical results. You can select one of the <strong>Source Cases</strong>.</li>
 </ul>
-
 <h4 id="percentile-methods">Percentile Methods</h4>
-
 <p>Three Percentile methods are implemented:</p>
-
 <ul>
 <li><strong>Interpolated Observation</strong> &ndash;
 The values are sorted, and the two observations representing the probabilities closest to the percentile are interpolated to find the value for the percentile. This is the default method.</li>
@@ -1889,13 +1892,9 @@ The values are sorted, and the first observation representing a probability high
 <li><strong>Histogram based estimate</strong> &ndash;
 A histogram is created and the percentile is calculated based on the histogram. This method will be faster when having a large number of realizations, because no value sorting is involved. You would however need several hundred realizations before this method should be considered.</li>
 </ul>
-
 <h3 id="viewing-the-results">Viewing the Results</h3>
-
 <p>When the computation is complete, you have to create a 3D View on the <strong>Statistics Case</strong> to view the results. Use the right-click menu of the <strong>Statistics Case</strong> to create it.</p>
-
 <h3 id="adding-statistics-cases">Adding Statistics Cases</h3>
-
 <p>A new statistical calculation can be created by activating the right-click menu for <strong>Derived Statistic-&gt;New Statistics Case</strong>.</p>
 
 
@@ -2072,10 +2071,26 @@ A histogram is created and the percentile is calculated based on the histogram. 
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3232,20 +3247,20 @@ A histogram is created and the percentile is calculated based on the histogram. 
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Result Inspection :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,23 +1802,22 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#result-info">Result Info</a>
-<ul>
-<li><a href="#eclipse-model">Eclipse Model</a></li>
-<li><a href="#geomechanical-model">Geomechanical Model</a></li>
-</ul></li>
-<li><a href="#result-plot">Result Plot</a>
-<ul>
-<li><a href="#adding-the-curves-to-a-summary-plot">Adding the Curves to a Summary Plot</a></li>
-</ul></li>
-<li><a href="#pvt-plot-eclipse-cases-only">PVT Plot (Eclipse Cases Only)</a></li>
-<li><a href="#relative-permeability-plot-eclipse-cases-only">Relative Permeability Plot (Eclipse Cases Only)</a></li>
-<li><a href="#mohr-s-circle-plot-geo-mechanical-models-only">Mohr&rsquo;s Circle Plot (Geo Mechanical Models Only)</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#result-info">Result Info</a>
+      <ul>
+        <li><a href="#eclipse-model">Eclipse Model</a></li>
+        <li><a href="#geomechanical-model">Geomechanical Model</a></li>
+      </ul>
+    </li>
+    <li><a href="#result-plot">Result Plot</a>
+      <ul>
+        <li><a href="#adding-the-curves-to-a-summary-plot">Adding the Curves to a Summary Plot</a></li>
+      </ul>
+    </li>
+    <li><a href="#pvt-plot-eclipse-cases-only">PVT Plot (Eclipse Cases Only)</a></li>
+    <li><a href="#relative-permeability-plot-eclipse-cases-only">Relative Permeability Plot (Eclipse Cases Only)</a></li>
+    <li><a href="#mohrs-circle-plot-geo-mechanical-models-only">Mohr&rsquo;s Circle Plot (Geo Mechanical Models Only)</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1809,24 +1842,16 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/ResultInspectionOverview.png" alt="" /></p>
-
-<p>The results mapped on the 3D model can be inspected in detail by left clicking cells in the 3D view.
+<p><img src="/images/3d-main-window/ResultInspectionOverview.png" alt=""></p>
+<p>The results mapped on the 3D model can be inspected in detail by left clicking cells in the 3D view. 
 The selected cells will be highlighted, text information displayed in the <strong>Result Info</strong> docking window, and the time-history values plotted in the <strong>Result Plot</strong>, if available.</p>
 
-
-<div class="notices note" ><p>Visibility of the docking widows can be controlled from the <b>Windows</b> menu.</p>
+<div class="notices note" ><p>Visibility of the docking widows can be controlled from the <!-- raw HTML omitted -->Windows<!-- raw HTML omitted --> menu.</p>
 </div>
 
-
 <h2 id="result-info">Result Info</h2>
-
 <p>Clicking cells will display slightly different information text based on the case type as described in the following tables.</p>
-
 <h3 id="eclipse-model">Eclipse Model</h3>
-
 <table>
 <thead>
 <tr>
@@ -1834,32 +1859,26 @@ The selected cells will be highlighted, text information displayed in the <stron
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>Reservoir cell</td>
 <td>Displays grid cell result value, cell face, grid index and IJK coordinates for the cell. The intersection point coordinates is also displayed. Additional result details are listed in the section <strong>&ndash; Grid cell result details &ndash;</strong></td>
 </tr>
-
 <tr>
 <td>Fault face</td>
 <td>Displays the same info as for a <em>Reservoir cell</em>. In addition the section <strong>&ndash; Fault result details &ndash;</strong> containing Fault Name and Fault Face information.</td>
 </tr>
-
 <tr>
 <td>Fault face with NNC</td>
 <td>Displays the same info as <em>Fault face</em>, except the Non Neighbor Connections (NNC) result value is displayed instead of grid cell value. Information added in section <strong>&ndash; NNC details &ndash;</strong> is geometry information of the two cells connected by the NNC.</td>
 </tr>
-
 <tr>
 <td>Formation names</td>
 <td>Displays name of formation the cell is part of</td>
 </tr>
 </tbody>
 </table>
-
 <h3 id="geomechanical-model">Geomechanical Model</h3>
-
 <table>
 <thead>
 <tr>
@@ -1867,73 +1886,48 @@ The selected cells will be highlighted, text information displayed in the <stron
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>Closest result</td>
 <td>Closest node ID and result value</td>
 </tr>
-
 <tr>
 <td>Element</td>
 <td>Element ID and IJK coordinate for the element</td>
 </tr>
-
 <tr>
 <td>Intersection point</td>
 <td>Location of left-click intersection of the geometry</td>
 </tr>
-
 <tr>
 <td>Element result details</td>
 <td>Lists all integration point IDs and results with associated node IDs and node coordinates</td>
 </tr>
-
 <tr>
 <td>Formation names</td>
 <td>Displays name of formation the cell is part of</td>
 </tr>
 </tbody>
 </table>
-
 <h2 id="result-plot">Result Plot</h2>
-
 <p>If a dynamic none-Flow Diagnostics result is active, the result values of the selected cells for all time steps are displayed in the docking window <strong>Result Plot</strong> as one curve for each cell.</p>
-
 <p>Additional curves can be added to the plot if CTRL-key is pressed during picking. The different cells are highlighted in different colors, and the corresponding curve is colored using the same color.</p>
-
 <p>To clear the cell-selection, left-click outside the visible geometry.</p>
-
 <h3 id="adding-the-curves-to-a-summary-plot">Adding the Curves to a Summary Plot</h3>
-
 <p>The time history curves of the selected cells can be added to a Summary Plot by right-clicking in the <strong>Result Plot</strong> or in the 3D View.</p>
-
-<p><img src="/images/3d-main-window/ResultPlotToSummaryPlotCommand.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/ResultPlotToSummaryPlotCommand.png" alt=""></p>
 <p>A dialog will appear to prompt you to select an existion plot, or to create a new one.</p>
-
-<p><img src="/images/3d-main-window/ResultPlotToSummaryPlotDialog.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/ResultPlotToSummaryPlotDialog.png" alt=""></p>
 <h2 id="pvt-plot-eclipse-cases-only">PVT Plot (Eclipse Cases Only)</h2>
-
 <p>Show the PVT Plot window by selecting <strong>Windows -&gt; PVT Plot</strong>. When it is turned on, it will only be visible when the active view is a view of an Eclipse case.</p>
-
-<p><img src="/images/3d-main-window/pvtOil.png" alt="" /></p>
-
-<p><img src="/images/3d-main-window/pvtGas.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/pvtOil.png" alt=""></p>
+<p><img src="/images/3d-main-window/pvtGas.png" alt=""></p>
 <p>The PVT plot window shows two plots, based on PVTNUM in the selected cell. One plots <em>Phase Formation Volume Factor</em> and the other plots <em>Phase Viscosity</em>, both against pressure. The <em>Phase</em> can be either oil or gas, and can be selected in the top left corner of the window.</p>
-
 <p>Pressure for the selected cell, at the current time step, is marked on the plot as a vertical line, and a large circle marks the scalar value of the cell (formation volume factor/viscosity). RV for the selected cell is also shown.</p>
-
 <h2 id="relative-permeability-plot-eclipse-cases-only">Relative Permeability Plot (Eclipse Cases Only)</h2>
-
 <p>Show the Relative Permeability Plot window by selecting <strong>Windows -&gt; Relative Permeability Plot</strong>.  When it is turned on, it will only be visible when the active view is a view of an Eclipse case.</p>
-
-<p><img src="/images/3d-main-window/RelativePermeability.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/RelativePermeability.png" alt=""></p>
 <p>The Relative Permeability Plot window shows up to six curves, based on SATNUM in the selected cell. The curves can be turned on/off in the top left corner of the window, and they are described in the following table:</p>
-
 <table>
 <thead>
 <tr>
@@ -1942,38 +1936,32 @@ The selected cells will be highlighted, text information displayed in the <stron
 <th>Axis</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>KRW</td>
 <td>Relative permeability water</td>
 <td>KR (Left)</td>
 </tr>
-
 <tr>
 <td>KRG</td>
 <td>Relative permeability gas</td>
 <td>KR (Left)</td>
 </tr>
-
 <tr>
 <td>KROW</td>
 <td>Relative permeability oil water</td>
 <td>KR (Left)</td>
 </tr>
-
 <tr>
 <td>KROG</td>
 <td>Relative permeability oil gas</td>
 <td>KR (Left)</td>
 </tr>
-
 <tr>
 <td>PCOW</td>
 <td>Capilar pressure oil water</td>
 <td>PC (Right)</td>
 </tr>
-
 <tr>
 <td>PCOG</td>
 <td>Capilar pressure oil gas</td>
@@ -1981,9 +1969,7 @@ The selected cells will be highlighted, text information displayed in the <stron
 </tr>
 </tbody>
 </table>
-
 <p>Saturation of water and gas in the selected cell, at the current time step, are annotated in the plot by a blue and orange vertical line, respectively. The intersections between the lines and the relevant curves are marked with large circles.</p>
-
 <table>
 <thead>
 <tr>
@@ -1991,36 +1977,28 @@ The selected cells will be highlighted, text information displayed in the <stron
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>Log Scale Kr Axis</td>
 <td>Enable logarithmic Kr-axis</td>
 </tr>
-
 <tr>
 <td>Show Unscaled</td>
 <td>Display curves unscaled</td>
 </tr>
-
 <tr>
 <td>Fixed [0, 1] X-axis</td>
 <td>Use a fixed range on X-axis</td>
 </tr>
-
 <tr>
 <td>Fixed [0, 1] Kr-axis</td>
 <td>Use a fixed range on Kr-axis</td>
 </tr>
 </tbody>
 </table>
-
-<h2 id="mohr-s-circle-plot-geo-mechanical-models-only">Mohr&rsquo;s Circle Plot (Geo Mechanical Models Only)</h2>
-
+<h2 id="mohrs-circle-plot-geo-mechanical-models-only">Mohr&rsquo;s Circle Plot (Geo Mechanical Models Only)</h2>
 <p>Show the Mohr&rsquo;s Circle Plot window by selecting <strong>Windows -&gt; Mohr&rsquo;s Circle Plot</strong>.  When it is turned on, it will only be visible when the active view is a view of an Geo Mech case.</p>
-
-<p><img src="/images/3d-main-window/mohrsCircles.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/mohrsCircles.png" alt=""></p>
 <p>The Mohr&rsquo;s circle plot shows three circles representing the 3D state of stress for a selected cell. In addition, it shows the envelope, calculated from the <em>cohesion</em> and <em>friction angle</em> given in the geo mechanical view&rsquo;s property editor. Several sets of circles and envelopes can be added by selecting more than one cell in any view (as in image above).</p>
 
 
@@ -2197,10 +2175,26 @@ The selected cells will be highlighted, text information displayed in the <stron
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3357,20 +3351,20 @@ The selected cells will be highlighted, text information displayed in the <stron
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

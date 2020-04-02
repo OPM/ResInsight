@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Log ASCII Standard File :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,17 +1802,15 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#importing-a-las-file">Importing a LAS file</a>
-<ul>
-<li><a href="#moving-a-las-file">Moving a LAS file</a></li>
-<li><a href="#look-for-an-existing-well-path">Look for an Existing Well Path</a></li>
-</ul></li>
-<li><a href="#supported-date-formats">Supported Date Formats</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#importing-a-las-file">Importing a LAS file</a>
+      <ul>
+        <li><a href="#moving-a-las-file">Moving a LAS file</a></li>
+        <li><a href="#look-for-an-existing-well-path">Look for an Existing Well Path</a></li>
+      </ul>
+    </li>
+    <li><a href="#supported-date-formats">Supported Date Formats</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1803,44 +1835,27 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/3dWellLogCurves.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/3dWellLogCurves.png" alt=""></p>
 <p>Log ASCII Standard (LAS) is a standard file format common in the oil-and-gas industry to store well log information.</p>
-
 <h2 id="importing-a-las-file">Importing a LAS file</h2>
-
 <p>Log ASCII Standard (LAS) files can be imported using the command: <strong>File-&gt;Import-&gt; Well Data-&gt;Import Well Logs from File</strong>.</p>
-
 <p>ResInsight will look for the the well name in the imported LAS-files among the existing <strong>Well Paths</strong>.
 If a match is found, the LAS-file is placed as a child of that well path. If not, a new empty well path entry is created with the imported LAS-file under it. A well path may have more than one LAS-files as children.</p>
-
-<p><img src="/images/3d-main-window/LasFilesInTree.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/LasFilesInTree.png" alt=""></p>
 <p>If the LAS-file does not contain a well name, the file name is used instead.</p>
-
 <h3 id="moving-a-las-file">Moving a LAS file</h3>
-
 <p>If ResInsight&rsquo;s automatic well matching fails and a LAS-file is matched with the wrong well path, it is possible to move the LAS-file to the correct well path. Select the LAS-file right-click menu click <strong>Move LAS File to Well Path</strong> and select destination well path.</p>
-
-<p><img src="/images/3d-main-window/MoveLasFileMenu.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/MoveLasFileMenu.png" alt=""></p>
 <h3 id="look-for-an-existing-well-path">Look for an Existing Well Path</h3>
-
 <p>Well names may vary slightly among different files from the same well. When importing a well log file, ResInsight have to look for an existing well path item to ensure that the well log data and well path are imported to the correct well path item. The lookup is based on name comparison this way:</p>
-
 <ul>
 <li>First remove any prefix (like <code>xxxxx1111/1111-</code> or <code>xxxxx1111/1111_</code>)</li>
 <li>Then try an exact name match</li>
 <li>If not found, try to match the names ignoring all spaces, dashes and underscores</li>
 <li>If still no match, no existing well was found and a new one is created</li>
 </ul>
-
 <h2 id="supported-date-formats">Supported Date Formats</h2>
-
 <p>During LAS import, ResInsight parses a date on file according to the following expressions. Supported separators between day, month, and year are <strong>space</strong>, <strong>underscore</strong>, <strong>hyphen</strong>, and <strong>dot</strong>.</p>
-
 <table>
 <thead>
 <tr>
@@ -1848,47 +1863,38 @@ If a match is found, the LAS-file is placed as a child of that well path. If not
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>d</td>
 <td>day as number without a leading zero (1 to 31), e.g. <em>7</em></td>
 </tr>
-
 <tr>
 <td>dd</td>
 <td>day as a two digit number (01 to 31), e.g. <em>07</em></td>
 </tr>
-
 <tr>
 <td>M</td>
 <td>month as number without a leading zero (1-12), e.g. <em>8</em></td>
 </tr>
-
 <tr>
 <td>MM</td>
 <td>month as a two digit number (01-12), e.g. <em>08</em></td>
 </tr>
-
 <tr>
 <td>MMM</td>
 <td>short month name in uppercase or lowercase (&lsquo;Jan&rsquo; to &lsquo;Dec&rsquo;), e.g. <em>AUG</em></td>
 </tr>
-
 <tr>
 <td>yy</td>
 <td>year as a two digit number (00-99), e.g. <em>19</em></td>
 </tr>
-
 <tr>
 <td>yyyy</td>
 <td>year as a four digit number, e.g. <em>2019</em></td>
 </tr>
 </tbody>
 </table>
-
 <p>Examples of supported date expressions are listed in the following table.</p>
-
 <table>
 <thead>
 <tr>
@@ -1896,38 +1902,31 @@ If a match is found, the LAS-file is placed as a child of that well path. If not
 <th>Example</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>yyyy MM dd</td>
 <td>2019 08 16</td>
 </tr>
-
 <tr>
 <td>yyyy-MM-dd</td>
 <td>2019-08-16</td>
 </tr>
-
 <tr>
 <td>yyyy MMM dd</td>
 <td>2019 Aug 16</td>
 </tr>
-
 <tr>
 <td>MMM dd yyyy</td>
 <td>Aug 16 2019</td>
 </tr>
-
 <tr>
 <td>d.M.yy</td>
 <td>1.8.89</td>
 </tr>
-
 <tr>
 <td>dd_MM_yyyy</td>
 <td>16_08_2019</td>
 </tr>
-
 <tr>
 <td>dd.MMM.yyyy</td>
 <td>16.Aug.2019</td>
@@ -2109,10 +2108,26 @@ If a match is found, the LAS-file is placed as a child of that well path. If not
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3269,20 +3284,20 @@ If a match is found, the LAS-file is placed as a child of that well path. If not
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

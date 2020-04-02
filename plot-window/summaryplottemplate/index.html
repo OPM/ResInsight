@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Summary Plot Template :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,14 +1802,11 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#template-creation">Template creation</a></li>
-<li><a href="#template-usage">Template usage</a></li>
-<li><a href="#template-file-search-and-organization">Template file search and organization</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#template-creation">Template creation</a></li>
+    <li><a href="#template-usage">Template usage</a></li>
+    <li><a href="#template-file-search-and-organization">Template file search and organization</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1800,54 +1831,37 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/plot-window/SummaryPlotTemplate.png" alt="" /></p>
-
+<p><img src="/images/plot-window/SummaryPlotTemplate.png" alt=""></p>
 <h2 id="template-creation">Template creation</h2>
-
-<p>A summary plot template is defined by a number of curves with preset appearance and vector names.
+<p>A summary plot template is defined by a number of curves with preset appearance and vector names. 
 The parameters that are selected or varied by the user are:</p>
-
 <ul>
 <li>case(s)</li>
 <li>item(s), i.e. well(s), group(s), region(s)</li>
 </ul>
-
-<p>Having tailored a plot setup, the user can save the setup as a template via the context command <strong>Save As Plot Template</strong>, c.f. figure above. It is also possible to select a summary plot in the <strong>Plot Project Tree</strong> and use the context menu to save a template.
+<p>Having tailored a plot setup, the user can save the setup as a template via the context command <strong>Save As Plot Template</strong>, c.f. figure above. It is also possible to select a summary plot in the <strong>Plot Project Tree</strong> and use the context menu to save a template. 
 Both options save a template definition to file for later reuse.</p>
-
 
 <div class="notices note" ><p>Summary Plot Templates are created for all <em>Summary Plots</em> including ensemble plots by context menu option <strong>Save As Plot Template</strong> available in both the plot window and via their entries in the <strong>Plot Project Tree</strong>.</p>
 </div>
 
-
 <p>Given a new path, ResInsight will ask the user to confirm whether the path of the stored template is to be included in subsequent searches for templates.</p>
-
-<p><img src="/images/plot-window/SummaryPlotTemplatePath.png" alt="" /></p>
-
+<p><img src="/images/plot-window/SummaryPlotTemplatePath.png" alt=""></p>
 <h2 id="template-usage">Template usage</h2>
-
 <p>Having selected items of interest in the <strong>Plot Project Tree</strong> (i.e. cases, wells, groups, and regions) a template plot can be created.</p>
-
-<p>Invoke the context menu shown below to select a specific summary plot template.
+<p>Invoke the context menu shown below to select a specific summary plot template. 
 Here two summary cases have been selected prior to invoking the context menu.
 As seen, available options for select a specific template are:</p>
-
 <ul>
 <li><strong>Create Plot from Last Used Summary Template</strong>  is a menu option to invoke the last used summary plot template.</li>
 <li><strong>Create Plot from Template</strong> shows all available templates in a separate dialog for search and selection.</li>
 </ul>
-
-<p><img src="/images/plot-window/SummaryPlotTemplateUsage.png" alt="" /></p>
-
+<p><img src="/images/plot-window/SummaryPlotTemplateUsage.png" alt=""></p>
 
 <div class="notices note" ><p><strong>Ctrl-T</strong> is a shortcut to swiftly create a plot based on the last used summary template.</p>
 </div>
 
-
 <h2 id="template-file-search-and-organization">Template file search and organization</h2>
-
 <p>Each summary plot template is stored in a single file on disk. ResInsight searches a set of directories for template files
 which can be managed by menu option <strong>Edit-&gt;Preferences</strong> and the <a href="/misc/preferences/#plotting-tab"><strong>Plotting tab</strong></a>.</p>
 
@@ -2025,10 +2039,26 @@ which can be managed by menu option <strong>Edit-&gt;Preferences</strong> and th
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3185,20 +3215,20 @@ which can be managed by menu option <strong>Edit-&gt;Preferences</strong> and th
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

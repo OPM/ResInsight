@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Ensemble RFT Plot :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,30 +1802,23 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#create-new-ensemble-rft-plot">Create New Ensemble RFT Plot</a></li>
-<li><a href="#property-editor">Property Editor</a>
-<ul>
-<li><a href="#well-name">Well Name</a></li>
-<li><a href="#sources">Sources</a></li>
-<li><a href="#time-steps">Time Steps</a></li>
-<li><a href="#zonation-formation-names">Zonation/Formation Names</a></li>
-<li><a href="#legend-and-axis">Legend and Axis</a></li>
-</ul></li>
-<li><a href="#import-of-observed-ensemble-rft-data-from-fmu">Import of Observed Ensemble RFT data from FMU</a>
-<ul>
-<li>
-<ul>
-<li><a href="#correlation-of-grid-and-formations">Correlation of grid and formations</a></li>
-<li><a href="#observed-pressure-and-error">Observed pressure and error</a></li>
-<li><a href="#reservoir-zone-name">Reservoir zone name</a></li>
-<li><a href="#well-measurements">Well measurements</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#create-new-ensemble-rft-plot">Create New Ensemble RFT Plot</a></li>
+    <li><a href="#property-editor">Property Editor</a>
+      <ul>
+        <li><a href="#well-name">Well Name</a></li>
+        <li><a href="#sources">Sources</a></li>
+        <li><a href="#time-steps">Time Steps</a></li>
+        <li><a href="#zonationformation-names">Zonation/Formation Names</a></li>
+        <li><a href="#legend-and-axis">Legend and Axis</a></li>
+      </ul>
+    </li>
+    <li><a href="#import-of-observed-ensemble-rft-data-from-fmu">Import of Observed Ensemble RFT data from FMU</a>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1816,108 +1843,71 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/plot-window/EnsembleRftPlot.png" alt="" /></p>
-
-<p>ResInsight allows the user to create a ensemble RFT plot similar to summary ensemble plots.
+<p><img src="/images/plot-window/EnsembleRftPlot.png" alt=""></p>
+<p>ResInsight allows the user to create a ensemble RFT plot similar to summary ensemble plots. 
 The functionality also computes statistics, e.g. P10, P90, and mean.
 When possible, ResInsight avoids loading the grid when reading ensemble RFT data.</p>
-
 <h2 id="create-new-ensemble-rft-plot">Create New Ensemble RFT Plot</h2>
-
 <p>When a <a href="/plot-window/ensembleplotting/#import">summary ensemble has been imported</a>,
-observed FMU data can be imported via right-clicking <strong>Observed Data</strong> in the <strong>Plot Project Tree</strong>,
+observed FMU data can be imported via right-clicking <strong>Observed Data</strong> in the <strong>Plot Project Tree</strong>, 
 and selecting <strong>Import Observed FMU Data</strong>.</p>
-
-<p><img src="/images/plot-window/EnsembleRftImportObservedData.png" alt="" /></p>
-
+<p><img src="/images/plot-window/EnsembleRftImportObservedData.png" alt=""></p>
 <p>To create ensemble RFT plot, right-click <strong>RFT Plots</strong> and select <strong>New RFT Plot</strong>.</p>
-
-<p><img src="/images/plot-window/EnsembleRftNewRftPlot.png" alt="" /></p>
-
+<p><img src="/images/plot-window/EnsembleRftNewRftPlot.png" alt=""></p>
 <h2 id="property-editor">Property Editor</h2>
-
 <p>The property editor lets the user select which curves to display in the RFT plot.</p>
-
-<p><img src="/images/plot-window/EnsembleRftPlotPropertyEditor.png" alt="" /></p>
-
+<p><img src="/images/plot-window/EnsembleRftPlotPropertyEditor.png" alt=""></p>
 <h3 id="well-name">Well Name</h3>
-
-<p>Select the well to display in the plot. Wells postfixed by <em>&rsquo;(Well Path)&rsquo;</em> have an associated well trajectory loaded.</p>
-
+<p>Select the well to display in the plot. Wells postfixed by <em>'(Well Path)'</em> have an associated well trajectory loaded.</p>
 <h3 id="sources">Sources</h3>
-
 <p>Subsequent to selecting a well in the Well Name field, the relevant sources for that well will appear in the <strong>Sources</strong> field. The sources for this particular case are:</p>
-
 <ul>
 <li><strong>Ensembles with RFT Data</strong> &ndash; List of ensembles which contain RFT data with check-boxes to activate display.</li>
 <li><strong>Observed FMU data</strong> &ndash; Observed data imported from a FMU run.</li>
 </ul>
-
 <p>When the user selects one or more sources, a selection of their time steps appears in the <strong>Time Steps</strong> field.</p>
-
 <h3 id="time-steps">Time Steps</h3>
-
 <p>The <strong>Time Steps</strong> field contains the relevant time steps according to the source selection. Time steps are deemed to be relevant by the following rules:</p>
-
 <ol>
 <li>If a single source or sources of the same type are selected, all available time steps in those sources are shown.</li>
-<li>If sources from two or tree types are selected, the time steps are filtered:
-
+<li>If sources from two or tree types are selected, the time steps are filtered:</li>
+</ol>
 <ul>
 <li>The time steps matching the observed case(s) time steps.</li>
 <li>If no time steps from a case match the observed time step, the two adjacent ones are shown.</li>
 <li>The first time step from any grid case(s) (as initial pressure reference).
 If the Observed data isn&rsquo;t selected, the RFT data serves as filter reference.</li>
-</ul></li>
-</ol>
-
+</ul>
 <p>Each time step is postfixed by letter(s) to indicate source type(s) of each time step. The source types are indicated in square brackets:</p>
-
 <ul>
 <li><strong>O</strong> &ndash; Time step has Observed data</li>
 <li><strong>E</strong> &ndash; Time step has Ensemble data</li>
 <li><strong>R</strong> &ndash; Time step has RFT data</li>
 <li><strong>G</strong> &ndash; Time step has Grid data</li>
 </ul>
-
 <p>More than one letter for one single time step, means that the time step comes from multiple case types.</p>
-
-<h3 id="zonation-formation-names">Zonation/Formation Names</h3>
-
+<h3 id="zonationformation-names">Zonation/Formation Names</h3>
 <p>The display of formations lines is controlled in the same manner as for <a href="/plot-window/rftplot/#zonation-formation-names">RFT plots</a>.
 Please see the <a href="/3d-main-window/formations/">full documentation</a> of the formations property editor for details about formations.</p>
-
 <h3 id="legend-and-axis">Legend and Axis</h3>
-
 <p>Visual properties of legend and axes is controlled in the same manner as for <a href="/plot-window/rftplot/#legend-and-axis">RFT plots</a>.</p>
-
 <h2 id="import-of-observed-ensemble-rft-data-from-fmu">Import of Observed Ensemble RFT data from FMU</h2>
-
 <p>Observed RFT data as part of a FMU run is presupposed to be located in a folder which contains the following four file types:</p>
-
 <ul>
 <li>layer_zone_table.txt</li>
 <li>&lt;<em>well_name</em>&gt;.obs</li>
 <li>&lt;<em>well_name</em>&gt;.txt</li>
 <li>well_date_rft.txt</li>
 </ul>
-
 <p>The purpose and format of the data files is explained below.</p>
-
 
 <div class="notices note" ><p>The data file <em>well_date_rft.txt</em> is required. If missing, no Observed FMU data will be imported.</p>
 </div>
 
-
 <h4 id="correlation-of-grid-and-formations">Correlation of grid and formations</h4>
-
-<p>The file <em>layer_zone_table.txt</em> can be used to correlate each grid k-layer with a formation name.
+<p>The file <em>layer_zone_table.txt</em> can be used to correlate each grid k-layer with a formation name. 
 This file is identical for all cases in the same ensemble.</p>
-
 <p>Example file <em>layer_zone_table.txt</em>:</p>
-
 <pre><code>1   UpperReek
 2   UpperReek
 3   UpperReek
@@ -1932,25 +1922,16 @@ This file is identical for all cases in the same ensemble.</p>
 12  LowerReek
 13  LowerReek
 14  LowerReek
-</code></pre>
-
-<h4 id="observed-pressure-and-error">Observed pressure and error</h4>
-
-<p>For a given well name, the file <em>&lt;well_name&gt;.obs</em> is a data file containing two columns to specify observed pressure and error.
+</code></pre><h4 id="observed-pressure-and-error">Observed pressure and error</h4>
+<p>For a given well name, the file <em>&lt;well_name&gt;.obs</em> is a data file containing two columns to specify observed pressure and error. 
 Column one contains observed pressure and column two contains error. The observation data is valid for one and only one layer/formation.</p>
-
 <p>Example file  for well <em>OP_1</em>, i.e. <em>OP_1.obs</em>:</p>
-
 <pre><code>303.000   3.000
 304.000   3.000
 305.000   3.000
-</code></pre>
-
-<h4 id="reservoir-zone-name">Reservoir zone name</h4>
-
-<p>For a given well name, the file <em>&lt;well_name&gt;.txt</em> is a data file containing five columns that specify its correlation with reservoir zones.
+</code></pre><h4 id="reservoir-zone-name">Reservoir zone name</h4>
+<p>For a given well name, the file <em>&lt;well_name&gt;.txt</em> is a data file containing five columns that specify its correlation with reservoir zones. 
 Each line of data must contain:</p>
-
 <ul>
 <li>Utmx: x-coordinate in UTM</li>
 <li>Utmy: y-coordinate in UTM</li>
@@ -1958,18 +1939,12 @@ Each line of data must contain:</p>
 <li>True Vertical Depth referenced to Mean Sea Level (TVDMSL)</li>
 <li>Reservoir zone name</li>
 </ul>
-
 <p>Example file for well <em>OP_1</em>, i.e. <em>OP_1.txt</em>:</p>
-
 <pre><code>461288.719   5933415.000   1816.200   1611.692   UpperReek
 461288.685   5933415.027   1824.560   1620.052   MidReek
 461288.683   5933415.029   1840.000   1635.492   LowerReek
-</code></pre>
-
-<h4 id="well-measurements">Well measurements</h4>
-
+</code></pre><h4 id="well-measurements">Well measurements</h4>
 <p>The data file <em>well_date_rft.txt</em> contains well measurements. The file contains four columns for each well measurement:</p>
-
 <ul>
 <li>Well Name</li>
 <li>Date in two digit form &lt;DD&gt;</li>
@@ -1977,18 +1952,14 @@ Each line of data must contain:</p>
 <li>Year in four digit form &lt;YYYY&gt;</li>
 <li>Measurement index</li>
 </ul>
-
 <p>There can be multiple measurement for each well.</p>
-
 <p>Example file <em>well_date_rft.txt</em>:</p>
-
 <pre><code>OP_1   01 02 2000   1
 OP_2   01 02 2000   1
 OP_4   01 01 2001   1
 WI_1   01 02 2000   1
 WI_3   01 03 2001   1
 </code></pre>
-
 
 <footer class=" footline" >
 	
@@ -2163,10 +2134,26 @@ WI_3   01 03 2001   1
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3323,20 +3310,20 @@ WI_3   01 03 2001   1
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

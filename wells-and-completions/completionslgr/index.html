@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Completions LGR :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,15 +1802,13 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#create-temporary-lgrs">Create Temporary LGRs</a>
-<ul>
-<li><a href="#delete-temporary-lgrs">Delete temporary LGRs</a></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#create-temporary-lgrs">Create Temporary LGRs</a>
+      <ul>
+        <li><a href="#delete-temporary-lgrs">Delete temporary LGRs</a></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1801,41 +1833,29 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/TemporaryLGR_CompletionType_12_combined.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/TemporaryLGR_CompletionType_12_combined.png" alt=""></p>
 <p>ResInsight supports creating and exporting LGRs (Local Grid Refinement) in main grid cells intersected by completions.</p>
-
 <h2 id="create-temporary-lgrs">Create Temporary LGRs</h2>
-
 <p>To create temporary LGR(s), first select one or more well paths in the project tree, right click and select &lsquo;Create Temporary LGR&rsquo;. This command brings up the following dialog.</p>
-
-<p><img src="/images/3d-main-window/TemporaryLgrDialog.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/TemporaryLgrDialog.png" alt=""></p>
 <p>The dialog contains several input fields</p>
-
 <ul>
 <li><strong>Source Case</strong> &ndash; The source case/grid</li>
 <li><strong>Time Step</strong> &ndash; The time step to use</li>
 <li><strong>Fractures, Fishbones, Perforations</strong> &ndash; Check boxes to control which completion types to create LGRs for</li>
 <li><strong>Split Type</strong> &ndash; Three options controlling how the LGRs will be created
-
 <ul>
 <li><strong>LGR Per Cell</strong> &ndash; One LGR is created for each main grid cell intersected by completions of the selected type</li>
 <li><strong>LGR Per Completion</strong> &ndash; One LGR is created for each completion of the selected types. Each LGR span all main grid cells that are located within an IJK bounding box containing all intersected cells.</li>
 <li><strong>LGR Per Well</strong> &ndash; One LGR is created for each of the selected well paths. The LGR spans all main grid cells that are located within an IJK bounding box containing all intersected cells for all selected completions on that well path.</li>
-</ul></li>
+</ul>
+</li>
 <li><strong>Cell Count I,J,K</strong> &ndash; The size of the LGR, in each main grid cell, in the I, J and K direction</li>
 </ul>
-
 <p>After pressing the OK button, LGR(s) are created and will be visible in the grid view.
 Temporary LGRs are stored in memory, and are thus not saved to file. After restarting ResInsight those LGRs have to be recreated.</p>
-
 <p>Individual visibility of generated LGRs can be controlled from the <a href="/3d-main-window/3dviews/#grids">Grids</a> section in a view.</p>
-
 <h3 id="delete-temporary-lgrs">Delete temporary LGRs</h3>
-
 <p>It is possible to explicitly delete all temporary LGRs. Right click on the <strong>View -&gt; Grids -&gt; Temporary LGRs</strong> project tree node and select <strong>Delete Temporary LGRs</strong>. This command deletes all temporary LGRs.</p>
 
 
@@ -2012,10 +2032,26 @@ Temporary LGRs are stored in memory, and are thus not saved to file. After resta
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3172,20 +3208,20 @@ Temporary LGRs are stored in memory, and are thus not saved to file. After resta
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

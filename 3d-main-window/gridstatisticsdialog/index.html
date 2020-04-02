@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Grid Statistics Dialog :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,22 +1802,21 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#grid-statistics-dialog-fields">Grid Statistics Dialog Fields</a>
-<ul>
-<li><a href="#info-text">Info Text</a></li>
-<li><a href="#histogram">Histogram</a></li>
-<li><a href="#cumulative-histogram">Cumulative Histogram</a></li>
-</ul></li>
-<li><a href="#grid-statistics-configuration">Grid Statistics Configuration</a>
-<ul>
-<li><a href="#statistics-options">Statistics Options</a></li>
-</ul></li>
-<li><a href="#snapshot">Snapshot</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#grid-statistics-dialog-fields">Grid Statistics Dialog Fields</a>
+      <ul>
+        <li><a href="#info-text">Info Text</a></li>
+        <li><a href="#histogram">Histogram</a></li>
+        <li><a href="#cumulative-histogram">Cumulative Histogram</a></li>
+      </ul>
+    </li>
+    <li><a href="#grid-statistics-configuration">Grid Statistics Configuration</a>
+      <ul>
+        <li><a href="#statistics-options">Statistics Options</a></li>
+      </ul>
+    </li>
+    <li><a href="#snapshot">Snapshot</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1808,60 +1841,38 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/GridStatisticsDialog.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/GridStatisticsDialog.png" alt=""></p>
 <p>ResInsight 3D Views has an <a href="/3d-main-window/3dviews/#info-box">info box</a> in the upper right corner displaying statistics for the current view. A more detailed version of this information may also be displayed in a separate dialog window. Right click on the 3D view background and select <strong>Grid Statistics</strong> to bring up the dialog.</p>
-
 <h2 id="grid-statistics-dialog-fields">Grid Statistics Dialog Fields</h2>
-
 <p>The dialog consist of three information parts.</p>
-
 <ul>
 <li>Info text</li>
 <li>Histogram</li>
 <li>Cumulative Histogram</li>
 </ul>
-
 <h3 id="info-text">Info Text</h3>
-
 <p>The Info Text field shows general info about the case, the selected results, and some statistics.</p>
-
 <h3 id="histogram">Histogram</h3>
-
 <p>The histogram shows a histogram of the complete time series of the currently loaded Cell Result together with:</p>
-
 <ul>
 <li>The mean value ( a blue line )</li>
 <li>P10 and P90 ( red lines )</li>
 </ul>
-
 <h3 id="cumulative-histogram">Cumulative Histogram</h3>
-
 <p>The cumulative histogram shows av accumulated version of the histogram above.</p>
-
 <h2 id="grid-statistics-configuration">Grid Statistics Configuration</h2>
-
 <p>A grid statistics dialog is always connected to the 3D view from where it was opened. When the contents of the 3D view changes due to user interactions, the grid statistics dialog contents will be updated automatically along with the info box. The Statistics Options of the info box is shown in the figure below with default settings. These settings become available by clicking in the info box or the info box node in <strong>Project Tree</strong>.</p>
-
-<p><img src="/images/3d-main-window/InfoBoxConfig.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/InfoBoxConfig.png" alt=""></p>
 <p>The options in the Visibility group apply to the info box only and do not affect the Grid Statistics dialog, while the options in the Statistics Options group affect both.</p>
-
 <h3 id="statistics-options">Statistics Options</h3>
-
 <ul>
 <li><strong>Statistics Time Range</strong> -– Controls whether all time steps or only the current time step are included when statistics is computed. Flow Diagnostic results can only use the current time step option.</li>
 <li><strong>Statistics Cell Range</strong> -– Controls if visible cells or all active cells is included when statistics is computed.</li>
 </ul>
-
 <h2 id="snapshot">Snapshot</h2>
-
 <p>The Grid Statistics dialog has a toolbar containing two buttons for snapshot functionality. The leftmost button copies a snapshot of the dialog contents to the operating system&rsquo;s clipboard, while the rightmost button creates a file containing the snapshot.</p>
 
-
-<div class="notices note" ><p>The main window also has a snapshot toolbar containing the button <a href="/export/snapshots/#snapshot-all-viewsplots-to-file-">Snapshot All Views</a>. This button will include a snapshot of the Grid Statistics dialog if opened.</p>
+<div class="notices note" ><p>The main window also has a snapshot toolbar containing the button <!-- raw HTML omitted -->Snapshot All Views<!-- raw HTML omitted -->. This button will include a snapshot of the Grid Statistics dialog if opened.</p>
 </div>
 
 
@@ -2039,10 +2050,26 @@ if (!doNotTrack) {
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3199,20 +3226,20 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

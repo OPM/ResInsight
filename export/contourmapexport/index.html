@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Contour Map Export :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,14 +1802,11 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#export-of-contour-map-data">Export of Contour Map Data</a></li>
-<li><a href="#export-file-format">Export file format</a></li>
-<li><a href="#python-interface-for-export-of-contour-maps">Python interface for export of contour maps</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#export-of-contour-map-data">Export of Contour Map Data</a></li>
+    <li><a href="#export-file-format">Export file format</a></li>
+    <li><a href="#python-interface-for-export-of-contour-maps">Python interface for export of contour maps</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1800,45 +1831,29 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/export/ExportContourMap.png" alt="" /></p>
-
+<p><img src="/images/export/ExportContourMap.png" alt=""></p>
 <p>ResInsight can create <a href="/3d-main-window/contourmaps/">contour maps</a> based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as oil, gas and hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells.</p>
-
 <h2 id="export-of-contour-map-data">Export of Contour Map Data</h2>
-
 <p>To export a contour map, invoke one of the following options (c.f. figure above):</p>
-
 <ul>
 <li>Select context command <strong>Export Contour Map to text</strong> in the graphics window showing a contour map.</li>
 <li>Select context command <strong>Export Contour Map to text</strong> for a contour map in the <strong>Project Tree</strong></li>
 </ul>
-
 <p>This initiates the following dialog for export options:</p>
-
-<p><img src="/images/export/ExportContourMapDialog.png" alt="" /></p>
-
+<p><img src="/images/export/ExportContourMapDialog.png" alt=""></p>
 <p>As seen, the dialog facilitates the following options:</p>
-
 <ul>
 <li>Setting the file name for export.</li>
 <li>Export of local coordinates, i.e. coordinates measured from local origo defined in lower, left corner of contour map. Default is export of full UTM coordinates.</li>
 <li>Defining a text label to exclude undefined values. Default label is <em>NaN</em>.</li>
 <li>Exclude undefined values based on the given label.</li>
 </ul>
-
 <h2 id="export-file-format">Export file format</h2>
-
 <p>The file format for export of contour maps supports use of Python and numpy. For instance, an exported file may can be imported into numpy using the <em>loadtxt()</em> function.</p>
-
 <p>Metadata is included as comments in the beginning of the file. The character <em>#</em> as first character denotes a comment line.</p>
-
 <p>If local coordinates are exported, the UTM coordinate offset is included as a comment in the header of the export file (c.f. example file below).
 To anonymize the data, the UTM coordinate offset may be removed from file.</p>
-
 <p>Example file:</p>
-
 <pre><code># case name : 1_R001_REEK-0
 # sampling points : nx=90 ny=100
 # time and date : 01.Jan 2000
@@ -1858,14 +1873,12 @@ x               y               value
 5590.36204      381.16105       341.86177
 5717.41572      381.16105       342.34527
 ...             ...             ...
-</code></pre>
-
-<h2 id="python-interface-for-export-of-contour-maps">Python interface for export of contour maps</h2>
-
-<p>The <a href="/scripting/pythonrips/">ResInsight Python Interface</a>
-allows the user to
-<a href="/scripting/pythonrips/#contour-maps-map-type-contourmaptype-eclipse-1">access all contour maps</a> belonging to a project.
-A <a href="/scripting/pythonrips/">Python script</a> for exporting contour maps to a text file is included as one of the <a href="/scripting/pythonexamples/">Python examples</a>.</p>
+</code></pre><h2 id="python-interface-for-export-of-contour-maps">Python interface for export of contour maps</h2>
+<p>The [ResInsight Python Interface] (/scripting/pythonrips/)
+allows the user to 
+<a href="/scripting/pythonrips/">access all contour maps</a> belonging to a project.
+A <a href="/scripting/pythonrips/">Python script</a> for exporting contour maps to a text file is included as one of the [Python examples]
+(/scripting/pythonexamples/).</p>
 
 
 <footer class=" footline" >
@@ -2041,10 +2054,26 @@ A <a href="/scripting/pythonrips/">Python script</a> for exporting contour maps 
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3201,20 +3230,20 @@ A <a href="/scripting/pythonrips/">Python script</a> for exporting contour maps 
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

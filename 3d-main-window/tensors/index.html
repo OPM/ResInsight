@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Tensor Results :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,19 +1802,17 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#visualization">Visualization</a></li>
-<li><a href="#properties">Properties</a>
-<ul>
-<li><a href="#value">Value</a></li>
-<li><a href="#visibility">Visibility</a></li>
-<li><a href="#vector-colors">Vector Colors</a></li>
-<li><a href="#vector-size">Vector Size</a></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#visualization">Visualization</a></li>
+    <li><a href="#properties">Properties</a>
+      <ul>
+        <li><a href="#value">Value</a></li>
+        <li><a href="#visibility">Visibility</a></li>
+        <li><a href="#vector-colors">Vector Colors</a></li>
+        <li><a href="#vector-size">Vector Size</a></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1805,45 +1837,25 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/tensorArrows.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/tensorArrows.png" alt=""></p>
 <p>Tensors are arrows showing the average principal vectors in an element, shown on every visible face of the element.</p>
-
 <p>The tensor results editor is found in a geo mechanical model&rsquo;s <strong>View</strong> in the project tree as seen below.</p>
-
-<p><img src="/images/3d-main-window/tensorProjectTree.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/tensorProjectTree.png" alt=""></p>
 <h2 id="visualization">Visualization</h2>
-
-<p><img src="/images/3d-main-window/tensorPressureTension.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/tensorPressureTension.png" alt=""></p>
 <p>The tensor arrows visualize the principal vectors in three directions. Each colored pair of arrows represents a principal.
 In the example above, the orange and blue arrows represent pressures and the white arrows represent a tension.</p>
-
 <h2 id="properties">Properties</h2>
-
-<p><img src="/images/3d-main-window/tensorPropEditor.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/tensorPropEditor.png" alt=""></p>
 <h3 id="value">Value</h3>
-
 <p>Tensor Results of an element can be calculated from one of the three result values <em>SE, ST</em> and <em>E</em>.</p>
-
 <h3 id="visibility">Visibility</h3>
-
 <p>Choose which of the three principals to be shown. The threshold removes all principals with an absolute value less than or equal to the threshold value.</p>
-
 <h3 id="vector-colors">Vector Colors</h3>
-
 <p>Choose which color palette to use for the three arrows. The colors appear in &ldquo;correct&rdquo; order (first color = principal 1).</p>
-
 <p>The vector color <strong>Result Colors</strong> is special. By choosing this color type, a new legend will appear. This legend is defined by the values in the Legend definition of the Element Tensor Results. The extreme values of the color mapper are the extremes of the three principals combined. In the example below, the color result is SE-S1. The largest arrow (principal 1) is quite similar to the cell color, as expected.</p>
-
-<p><img src="/images/3d-main-window/tensorsResultColor.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/tensorsResultColor.png" alt=""></p>
 <h3 id="vector-size">Vector Size</h3>
-
 <p>Scale method <strong>Result</strong> scales the arrows relative to the maximum result value of all components in the model. With scale method <strong>Constant</strong>, all the arrows are set to an equal constant size. The overall arrow size can be adjusted by using the <strong>Size Scale</strong>.</p>
 
 
@@ -2020,10 +2032,26 @@ In the example above, the orange and blue arrows represent pressures and the whi
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3180,20 +3208,20 @@ In the example above, the orange and blue arrows represent pressures and the whi
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

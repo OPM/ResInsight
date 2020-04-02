@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Linked Views :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,23 +1802,17 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#establish-linked-views">Establish Linked Views</a></li>
-<li><a href="#linked-view-options">Linked View Options</a>
-<ul>
-<li>
-<ul>
-<li><a href="#link-options">Link Options</a></li>
-<li><a href="#link-cell-filters">Link Cell Filters</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#toggle-linking-from-the-project-tree">Toggle Linking from the <strong>Project Tree</strong></a></li>
-<li><a href="#project-tree-right-click-menu">Project Tree right-click menu</a></li>
-<li><a href="#3d-view-right-click-menu">3D View right-click menu</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#establish-linked-views">Establish Linked Views</a></li>
+    <li><a href="#linked-view-options">Linked View Options</a>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+    <li><a href="#toggle-linking-from-the-project-tree">Toggle Linking from the <strong>Project Tree</strong></a></li>
+    <li><a href="#project-tree-right-click-menu">Project Tree right-click menu</a></li>
+    <li><a href="#3d-view-right-click-menu">3D View right-click menu</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1809,31 +1837,18 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/LinkedViewsOverview.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/LinkedViewsOverview.png" alt=""></p>
 <p>One or more views can be linked together to allow some settings like camera position and range filters, propagate from one view to another.</p>
-
 <h2 id="establish-linked-views">Establish Linked Views</h2>
-
 <p>To establish a link between views, select <img src="https://resinsight.org/images/3d-main-window/chain.png" style="display:inline; vertical-align:middle; margin:0">
 <strong>Link Visible Views</strong> from the View toolbar. This will open a dialog where the Master View is selected. When pressing Ok in this dialog, the <strong>Linked Views</strong> items are displayed in the top of the <strong>Project Tree</strong>.</p>
-
-<p><img src="/images/3d-main-window/LinkedViewsInProjectTree.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/LinkedViewsInProjectTree.png" alt=""></p>
 <p>It is also possible to link specific views by selecting them and choosing <strong>Link Selected Views</strong> from the right-click menu. The following image shows the linking of a regular view with a <strong>Contour Map</strong>. Note that contour maps can never be the Master View.</p>
-
-<p><img src="/images/3d-main-window/LinkedContourMap.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/LinkedContourMap.png" alt=""></p>
 <h2 id="linked-view-options">Linked View Options</h2>
-
 <p>When selecting a linked view in the project tree, the different options are available in the <strong>Property Editor</strong>.</p>
-
-<p><img src="/images/3d-main-window/LinkedViewsProperties.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/LinkedViewsProperties.png" alt=""></p>
 <h4 id="link-options">Link Options</h4>
-
 <ul>
 <li><strong>Camera</strong> &ndash; Navigation in any of the views where this option is active will be applied to the other linked views with this option set. This option is not available for Contour Maps.</li>
 <li><strong>Show Cursor</strong> &ndash; Shows the position of the mouse cursor in the other views as a cross-hair. This option is not available for Contour Maps.</li>
@@ -1841,40 +1856,29 @@ if (!doNotTrack) {
 <li><strong>Cell Color Result</strong> &ndash; Change of cell result in the master view will be applied to all dependent views where this option is active. <strong>Cell Color Result</strong> is only supported between views of the <em>same type</em>.</li>
 <li><strong>Legend Definition</strong> &ndash; Links the legend between views already linking the <strong>Cell Results Color</strong>.</li>
 </ul>
-
 <h4 id="link-cell-filters">Link Cell Filters</h4>
-
 <ul>
 <li><strong>Range Filters</strong> &ndash; Range filters in master view will be applied to all dependent views where this option is active. Normally this is done by a direct copy, but if the master and dependent view is of different types (Eclipse and Geomechanical views) and the Eclipse case is within the bounds of the Geomechanical case, ResInsight tries to map the range filters to the corresponding cells in the other case.</li>
 <li><strong>Property Filters</strong> &ndash; Property filters in master view will be applied to all dependent views where this option is active. This option is only enabled between views of the <em>same case</em>.</li>
 </ul>
-
 <h2 id="toggle-linking-from-the-project-tree">Toggle Linking from the <strong>Project Tree</strong></h2>
-
 <p>A linked view can temporarily be disabled by unchecking the linked view. To disable all linked views temporarily, uncheck the top level item <strong>Linked Views</strong>.</p>
-
 <h2 id="project-tree-right-click-menu">Project Tree right-click menu</h2>
-
 <p>Right-clicking one of the linked view entries in the <strong>Project Tree</strong> displays the following menu entries:</p>
-
 <ul>
 <li><strong>Open All Linked Views</strong> &ndash; Open all the views which is part of the linked view group.</li>
 <li><strong>Delete All Linked Views</strong> &ndash; Delete the linked views group, and thereby unlink all the views.</li>
 <li><strong>Delete</strong> &ndash; Remove an individual view from the group of linked views.</li>
 </ul>
-
 <h2 id="3d-view-right-click-menu">3D View right-click menu</h2>
-
-<p>To activate the menu items for a linked view, right-click inside the 3D view anywhere outside the model.
+<p>To activate the menu items for a linked view, right-click inside the 3D view anywhere outside the model. 
 Depending on whether the view is a dependent-, or an unlinked view, some of the following commands are available:</p>
-
 <ul>
 <li><strong>Show Link Options</strong> &ndash; Activate the linked view item in the project tree, and show its properties.</li>
 <li><strong>Set As Master View</strong> &ndash; Use the view as Master View. This option is not available for Contour Maps.</li>
 <li><strong>Link View</strong> &ndash; Add the view to list of linked views.</li>
 <li><strong>Unlink View</strong> &ndash; Delete the view from list of linked views.</li>
 </ul>
-
 <p>Master views have no available linking commands.</p>
 
 
@@ -2051,10 +2055,26 @@ Depending on whether the view is a dependent-, or an unlinked view, some of the 
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3211,20 +3231,20 @@ Depending on whether the view is a dependent-, or an unlinked view, some of the 
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Regression Test System :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,13 +1802,10 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#how-to-run-regression-tests">How to Run Regression Tests</a></li>
-<li><a href="#creating-regression-tests">Creating Regression Tests</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#how-to-run-regression-tests">How to Run Regression Tests</a></li>
+    <li><a href="#creating-regression-tests">Creating Regression Tests</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1799,34 +1830,22 @@ if (!doNotTrack) {
 
 
 
-
-
 <p>A regression tool for QA is build into ResInsight. This tool will do the following:</p>
-
 <ol>
 <li>Scan a directory for sub directories containing a <strong>RegressionTest.rsp</strong> files.</li>
 <li>Each found project file will be opened, and all views in this project will be exported as snapshot images to file.</li>
 <li>When snapshot images from all projects are completed, difference images based on generated and QA-approved images are computed.</li>
 <li>Based on these three sets of images, an HTML report is created and automatically displayed.</li>
 </ol>
-
 <h2 id="how-to-run-regression-tests">How to Run Regression Tests</h2>
-
 <p>To be able to run regression tests you need the <strong>compare</strong> tool from the <a href="http://www.imagemagick.org/script/compare.php">ImageMagic suite</a>.</p>
-
 <p>You can start the tests either from the command line or from the ResInsight Gui.
 From the ResInsight Gui select : <strong>File-&gt;Testing-&gt;Regression Test Dialog</strong></p>
-
-<p><img src="/images/appendix/RegressionTestDialog.png" alt="" /></p>
-
+<p><img src="/images/appendix/RegressionTestDialog.png" alt=""></p>
 <p>Specify location of compare tool in <strong>Folder containing compare</strong>. The current working directory of ResInsight is temporarily changed to this path during execution.</p>
-
 <p>To execute a subset of tests, specify folder names separated by &ldquo;;&rdquo; in the <em>Test Filter</em>. If the test filter is empty, all tests are executed.</p>
-
 <h2 id="creating-regression-tests">Creating Regression Tests</h2>
-
 <p>An example of the folder structure is shown below:</p>
-
 <pre><code>RegressionTestFolder/
   TestCase1/
     RegressionTest.rip
@@ -1836,16 +1855,13 @@ From the ResInsight Gui select : <strong>File-&gt;Testing-&gt;Regression Test Di
   TestCase2/
     ...
 </code></pre>
-
 <p>To create regression tests you need to do the following:</p>
-
 <ol>
 <li>Create a root directory containing one directory for each test case.</li>
 <li>In each of the <strong>Test Case</strong> folders create a ResInsight project file called <strong>RegressionTest.rip</strong>.</li>
 <li>Run the regression test for the first time, and thereby creating images that can be used as Base images.</li>
 <li>Rename the generated RegTestGeneratedImages/ folder to RegTestBaseImages/</li>
 </ol>
-
 <p>Now you are all set to test new releases of ResInsight towards your own Regression tests.</p>
 
 
@@ -2022,10 +2038,26 @@ From the ResInsight Gui select : <strong>File-&gt;Testing-&gt;Regression Test Di
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3179,20 +3211,20 @@ From the ResInsight Gui select : <strong>File-&gt;Testing-&gt;Regression Test Di
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>3D Well Log Plots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,23 +1802,16 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#creating-new-3d-well-log-curves">Creating new 3D Well Log Curves</a></li>
-<li><a href="#deleting-3d-well-log-curves">Deleting 3D Well Log Curves</a></li>
-<li><a href="#configurating-the-3d-well-log-curves">Configurating the 3D Well Log Curves</a>
-<ul>
-<li><a href="#3d-track-and-draw-plane-appearance">3D Track and Draw Plane Appearance</a></li>
-<li><a href="#curve-configuration">Curve Configuration</a>
-<ul>
-<li><a href="#data-selection">Data Selection</a></li>
-<li><a href="#appearance">Appearance</a></li>
-<li><a href="#name-generation">Name Generation</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#creating-new-3d-well-log-curves">Creating new 3D Well Log Curves</a></li>
+    <li><a href="#deleting-3d-well-log-curves">Deleting 3D Well Log Curves</a></li>
+    <li><a href="#configurating-the-3d-well-log-curves">Configurating the 3D Well Log Curves</a>
+      <ul>
+        <li><a href="#3d-track-and-draw-plane-appearance">3D Track and Draw Plane Appearance</a></li>
+        <li><a href="#curve-configuration">Curve Configuration</a></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1809,32 +1836,18 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/3dWellLogCurves.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/3dWellLogCurves.png" alt=""></p>
 <p>ResInsight can display well logs curves directly in the 3D view with a subset of the functionality of the full <a href="/plot-window/welllogsandplots/">2D Well Log Plot Editor</a>. The curves will be drawn in a plane next to or centered on the well trajectory they belong to and can display well log data from a simulation model and from imported LAS-files.</p>
-
 <h2 id="creating-new-3d-well-log-curves">Creating new 3D Well Log Curves</h2>
-
 <p>Add a new 3D well log curve by selecting a Well Path in the Project Tree, right-clicking and selecting <strong>3D Well Log Curves</strong> and <strong>Add 3D Well Log Curve</strong>.</p>
-
-<p><img src="/images/3d-main-window/3dWellLogCurvesCreate.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/3dWellLogCurvesCreate.png" alt=""></p>
 <h2 id="deleting-3d-well-log-curves">Deleting 3D Well Log Curves</h2>
-
 <p>Delete one or more 3D well log curves by selecting them in the project tree, right-clicking on one of the selected items and choosing <strong>Delete 3D Well Log Curve(s)</strong>. The curves will be deleted with no further confirmation.</p>
-
-<p><img src="/images/3d-main-window/3dWellLogCurvesDelete.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/3dWellLogCurvesDelete.png" alt=""></p>
 <h2 id="configurating-the-3d-well-log-curves">Configurating the 3D Well Log Curves</h2>
-
 <h3 id="3d-track-and-draw-plane-appearance">3D Track and Draw Plane Appearance</h3>
-
 <p>Each 3D well log curve belongs to a 3D Track which in turn is attached to a well path. The 3D track itself contains some settings related to the display of the curves.</p>
-
-<p><img src="/images/3d-main-window/3dWellLogCurves_DrawPlaneAppearance.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/3dWellLogCurves_DrawPlaneAppearance.png" alt=""></p>
 <table>
 <thead>
 <tr>
@@ -1843,20 +1856,17 @@ if (!doNotTrack) {
 <th>Range</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>Show Grid</td>
 <td>Show axis markers for the value-axis of the curves along the draw surface</td>
 <td>True/False</td>
 </tr>
-
 <tr>
 <td>Show Background</td>
 <td>Draw a white background on the drawing surfaces of the curves</td>
 <td>True/False</td>
 </tr>
-
 <tr>
 <td>Width Scaling</td>
 <td>A scaling factor applied to the width of the draw surfaces</td>
@@ -1864,17 +1874,11 @@ if (!doNotTrack) {
 </tr>
 </tbody>
 </table>
-
 <h3 id="curve-configuration">Curve Configuration</h3>
-
 <p>In addition to the 3D track configuration, each 3D well log curve may be configured in its Property Editor. Here settings are grouped into three categories: Data Selection, Appearance and Name Generation.</p>
-
 <h4 id="data-selection">Data Selection</h4>
-
 <p>The <strong>Curve Data</strong> configuration allows you to select a case, result type, property and time step to plot.</p>
-
-<p><img src="/images/3d-main-window/3dWellLogCurves_CurveData.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/3dWellLogCurves_CurveData.png" alt=""></p>
 <table>
 <thead>
 <tr>
@@ -1882,42 +1886,31 @@ if (!doNotTrack) {
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>Case</td>
 <td>The eclipse or geomechanical case to retrieve the data from</td>
 </tr>
-
 <tr>
 <td>Result Type</td>
 <td>Dynamic, static, generated, input property, formation names, flow diagnostics or injection flooding</td>
 </tr>
-
 <tr>
 <td>Result Property</td>
 <td>The parameter to plot</td>
 </tr>
-
 <tr>
 <td>Time Step</td>
 <td>Which time step to show</td>
 </tr>
 </tbody>
 </table>
-
 <h4 id="appearance">Appearance</h4>
-
 <p>In the <strong>Curve Appearance</strong> box, the curve can be assigned to a draw plane, the color can be changed and a range of curve values applied. The range of the result property can be set with the minimum and maximum curve value settings. The curve range is by default set to the minimum and maximum values found in the data set and these values are retained in the label if different values have been chosen.</p>
-
-<p><img src="/images/3d-main-window/3dWellLogCurves_CurveConfiguration.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/3dWellLogCurves_CurveConfiguration.png" alt=""></p>
 <p>The draw plane can be vertical (above well path, centered and below well path) and horizontal (left, centered and right). If multiple curves are added and assigned to the same draw plane, they will appear in the same curve plot.</p>
-
-<p><img src="/images/3d-main-window/3dWellLogCurves_DrawPlaneSelection.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/3dWellLogCurves_DrawPlaneSelection.png" alt=""></p>
 <h4 id="name-generation">Name Generation</h4>
-
 <p>Finally the name of the curve is created automatically from a set of parameters such as case, view, etc. The parameters that should make up the curve name can be selected in the <strong>Curve Name</strong> box. Only extraction log curves have multiple settings here. The automatic name generation will be automatically switched off if the curve has been renamed manually and can be switched back on by checking the <strong>Generate Name Automatically</strong> tick box.</p>
 
 
@@ -2094,10 +2087,26 @@ if (!doNotTrack) {
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3254,20 +3263,20 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

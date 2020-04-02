@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Well Bore Stability Plots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,19 +1802,17 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#create-well-bore-stability-plots">Create Well Bore Stability plots</a></li>
-<li><a href="#input-requirements">Input requirements</a></li>
-<li><a href="#equations-and-calculations">Equations and calculations</a>
-<ul>
-<li><a href="#stresses-at-the-borehole-wall-kirsch-equations">Stresses at the borehole wall - Kirsch equations</a></li>
-<li><a href="#fracture-gradient-calculations-based-on-kirsch-in-sand">Fracture gradient calculations based on Kirsch in sand</a></li>
-<li><a href="#stassi-d-alia-failure-criterion-in-shale">Stassi-d&rsquo;Alia failure criterion in shale</a></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#create-well-bore-stability-plots">Create Well Bore Stability plots</a></li>
+    <li><a href="#input-requirements">Input requirements</a></li>
+    <li><a href="#equations-and-calculations">Equations and calculations</a>
+      <ul>
+        <li><a href="#stresses-at-the-borehole-wall---kirsch-equations">Stresses at the borehole wall - Kirsch equations</a></li>
+        <li><a href="#fracture-gradient-calculations-based-on-kirsch-in-sand">Fracture gradient calculations based on Kirsch in sand</a></li>
+        <li><a href="#stassi-dalia-failure-criterion-in-shale">Stassi-d&rsquo;Alia failure criterion in shale</a></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1805,16 +1837,11 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/plot-window/WellBoreStability.png" alt="" /></p>
-
+<p><img src="/images/plot-window/WellBoreStability.png" alt=""></p>
 <p>ResInsight can create <strong>Well Bore Stability</strong> plots for Geomechanical cases. These plots are specialized <a href="/plot-window/welllogsandplots/">Well Log Plots</a> to visualize <a href="/3d-main-window/formations/">Formations</a>, <a href="/wells-and-completions/wellpaths/#well-path-attributes">Well Path Attributes</a> as well as a set of well path derived curves in different tracks.</p>
-
-<p>In the figure above, the first track contains <a href="/3d-main-window/formations/">Formations</a> while the second track contains well attributes of
+<p>In the figure above, the first track contains <a href="/3d-main-window/formations/">Formations</a> while the second track contains well attributes of 
 <a href="/wells-and-completions/wellpaths/#casing-design">Casing Design</a>.
 The third track shows the following stability gradients (all normalized by mud weight):</p>
-
 <ul>
 <li><strong>FG</strong>: Fracture Gradient for sands based on Kirsch.</li>
 <li><strong>OBG</strong>: Overburden stress gradient: Stress component S_33.</li>
@@ -1822,20 +1849,13 @@ The third track shows the following stability gradients (all normalized by mud w
 <li><strong>SFG</strong>: Shear Failure Gradient for shale based on Stassi-d&rsquo;Alia.</li>
 <li><strong>SH</strong>: Minimum horizontal stress.</li>
 </ul>
-
 <p>The fourth track contains curves showing the angular orientation of the well path as azimuth (deviation from vertical) and inclination (deviation from x-axis) in degrees.</p>
-
 <h2 id="create-well-bore-stability-plots">Create Well Bore Stability plots</h2>
-
 <p>Well Bore Stability plots can be created from the right-click menu for a well path in <strong>Project Tree</strong> or from the the right-click menu of the Well Log Plots entry in <strong>Plot Project Tree</strong>. In the former case, the well bore stability plot will be created for the selected <strong>Well Path</strong>. In the latter case, it will be created for the first well path in the well path list and the well path for the entire plot can be changed with the <a href="/plot-window/welllogsandplots/#change-data-source-for-plots-and-curves">Change Data Source Feature</a>.</p>
-
-<p><img src="/images/plot-window/WellBoreStabilityCreation.png" alt="" />
-<img src="/images/plot-window/WellBoreStabilityCreation2.png" alt="" /></p>
-
+<p><img src="/images/plot-window/WellBoreStabilityCreation.png" alt=""> 
+<img src="/images/plot-window/WellBoreStabilityCreation2.png" alt=""></p>
 <h2 id="input-requirements">Input requirements</h2>
-
 <p>In order to calculate <strong>FG</strong>  and <strong>SFG</strong>, the following input parameters are required:</p>
-
 <table>
 <thead>
 <tr>
@@ -1843,26 +1863,20 @@ The third track shows the following stability gradients (all normalized by mud w
 <th>Required Parameters</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>FG</td>
 <td>Pore Pressure (PP), Poissons&rsquo; Ratio</td>
 </tr>
-
 <tr>
 <td>SFG</td>
 <td>Uniaxial Compressive Strength (UCS)</td>
 </tr>
 </tbody>
 </table>
-
 <p>These parameters may be read in in the following ways.</p>
-
 <p><a href="/plot-window/welllogsandplots/#change-data-source-for-plots-and-curves">Change Data Source Feature</a></p>
-
 <p>The numbering for import is order of preference if multiple sources are found.</p>
-
 <table>
 <thead>
 <tr>
@@ -1871,20 +1885,17 @@ The third track shows the following stability gradients (all normalized by mud w
 <th>Import mechanisms</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>PP</td>
 <td>Hydrostatic PP (TVD x 9.81 / 100 bar)</td>
 <td>1. Grid (Grid units), 2. LAS-file as mud-weight (Variable: &ldquo;PP&rdquo;, Units: kg / m^3), 3. Element Property Table (Variable: &ldquo;POR&rdquo;, Units: Pascal)</td>
 </tr>
-
 <tr>
 <td>Poissons&rsquo; Ratio</td>
 <td>0.25</td>
 <td>1. LAS-file (Variable: &ldquo;POISSON_RATIO&rdquo;), 2. Element Property Table (Variable: &ldquo;POISSON_RATIO&rdquo;)</td>
 </tr>
-
 <tr>
 <td>UCS</td>
 <td>100 bar</td>
@@ -1892,45 +1903,31 @@ The third track shows the following stability gradients (all normalized by mud w
 </tr>
 </tbody>
 </table>
-
 <h2 id="equations-and-calculations">Equations and calculations</h2>
-
-<h3 id="stresses-at-the-borehole-wall-kirsch-equations">Stresses at the borehole wall - Kirsch equations</h3>
-
+<h3 id="stresses-at-the-borehole-wall---kirsch-equations">Stresses at the borehole wall - Kirsch equations</h3>
 <p>The basic input to wellbore stability models is the stresses at the borehole wall given by the Kirsch equations in cylindrical coordinates:</p>
-
-<p><img src="/images/plot-window/WellBoreStabilityKirschEquations.png" alt="" /></p>
-
-<p>The transformation of stresses from cartesian coordinate system to x&rsquo;, y&rsquo;, z&rsquo; is performed by pre- and transposed postmultiplication of the stress tensor with a 3x3 transformation matrix <strong>M</strong>, i.e.
+<p><img src="/images/plot-window/WellBoreStabilityKirschEquations.png" alt=""></p>
+<p>The transformation of stresses from cartesian coordinate system to x&rsquo;, y&rsquo;, z&rsquo; is performed by pre- and transposed postmultiplication of the stress tensor with a 3x3 transformation matrix <strong>M</strong>, i.e. 
 <img src="https://resinsight.org/images/plot-window/WellBoreStabilityStressTransformation.png" style="display:inline; vertical-align:middle; margin:0">
 .</p>
-
 <h3 id="fracture-gradient-calculations-based-on-kirsch-in-sand">Fracture gradient calculations based on Kirsch in sand</h3>
-
 <p>To estimate the fracture gradient <em>FG</em>, first step is to find the principle effective stresses at the borehole wall:</p>
-
-<p><img src="/images/plot-window/WellBoreStabilityKirschSandEquations.png" alt="" /></p>
-
-<p>Next step is to find the well pressure <em>Pw</em> that gives
+<p><img src="/images/plot-window/WellBoreStabilityKirschSandEquations.png" alt=""></p>
+<p>Next step is to find the well pressure <em>Pw</em> that gives 
 <img src="https://resinsight.org/images/plot-window/WellBoreStabilitySigmaTminZero.png" style="display:inline; vertical-align:middle; margin:0">
- for
+ for 
 <img src="https://resinsight.org/images/plot-window/WellBoreStabilitySigmaTmin.png" style="display:inline; vertical-align:middle; margin:0">
 .
-Then calculate <em>FG</em> in equivalent mud weight units as <em>FG</em> = <em>Pw</em> / (<em>TVDRKB</em> * <em>g</em> * 1000) where <em>TVDRKB = TVDMSL + RKB</em> and
+Then calculate <em>FG</em> in equivalent mud weight units as <em>FG</em> = <em>Pw</em> / (<em>TVDRKB</em> * <em>g</em> * 1000) where <em>TVDRKB = TVDMSL + RKB</em> and 
 <em>g = 9.81</em>.</p>
-
-<h3 id="stassi-d-alia-failure-criterion-in-shale">Stassi-d&rsquo;Alia failure criterion in shale</h3>
-
-<p>Stassi-d&rsquo;Alia failure criterion in shale is calculated by finding the well pressure <em>Pw</em> that satisfies the following equation
+<h3 id="stassi-dalia-failure-criterion-in-shale">Stassi-d&rsquo;Alia failure criterion in shale</h3>
+<p>Stassi-d&rsquo;Alia failure criterion in shale is calculated by finding the well pressure <em>Pw</em> that satisfies the following equation 
 for <img src="https://resinsight.org/images/plot-window/WellBoreStabilitySigmaTmin.png" style="display:inline; vertical-align:middle; margin:0">
 .</p>
-
-<p><img src="/images/plot-window/WellBoreStabilityStassiEquations.png" alt="" /></p>
-
+<p><img src="/images/plot-window/WellBoreStabilityStassiEquations.png" alt=""></p>
 <p>where <img src="https://resinsight.org/images/plot-window/WellBoreStabilityPrincipalStresses.png" style="display:inline; vertical-align:middle; margin:0">
- are the effective principal stresses
+ are the effective principal stresses 
 and <em>UCS</em> is the <em>uniaxial compressive strength</em>.</p>
-
 <p>Shear Failure Gradient is then given as <em>SFG</em> = <em>Pw</em> / (<em>TVDRKB</em> * <em>g</em> * 1000) where <em>TVDRKB = TVDMSL + RKB</em> and <em>g = 9.81</em>.</p>
 
 
@@ -2107,10 +2104,26 @@ and <em>UCS</em> is the <em>uniaxial compressive strength</em>.</p>
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3267,20 +3280,20 @@ and <em>UCS</em> is the <em>uniaxial compressive strength</em>.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Comparison View :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,14 +1802,11 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#creating-a-comparison-view">Creating a Comparison View</a></li>
-<li><a href="#comparison-view-divider">Comparison View Divider</a></li>
-<li><a href="#view-properties-and-settings">View Properties and Settings</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#creating-a-comparison-view">Creating a Comparison View</a></li>
+    <li><a href="#comparison-view-divider">Comparison View Divider</a></li>
+    <li><a href="#view-properties-and-settings">View Properties and Settings</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1800,50 +1831,34 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/3DComparisonView.png" alt="" /></p>
-
-<p>ResInsight offers a <strong>Comparison View</strong> to compare two existing views in terms of grid geometry, results, intersections and more.
+<p><img src="/images/3d-main-window/3DComparisonView.png" alt=""></p>
+<p>ResInsight offers a <strong>Comparison View</strong> to compare two existing views in terms of grid geometry, results, intersections and more. 
 The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view.
 This improves efficiency and simplifies the workflow when working with related but different models.</p>
-
-<p>The figure above exemplifies a Comparison View for comparison of two different simulations models and results.
+<p>The figure above exemplifies a Comparison View for comparison of two different simulations models and results. 
 The left hand side is used to display grid and results of an <a href="/import/eclipsecases/">Eclipse simulation</a>
 while the right hand side displays an ABAQUS grid and simulation results from <a href="/import/geomechanicaldata/">geomechanical analysis</a>.</p>
-
-<p>A different way to use the Comparison View is to compare the same geometrical grid with different <a href="/3d-main-window/cellresults/">Cell Results</a>.
+<p>A different way to use the Comparison View is to compare the same geometrical grid with different <a href="/3d-main-window/cellresults/">Cell Results</a>. 
 Thus two cell results can easily be seen together in the same view.</p>
-
 <h2 id="creating-a-comparison-view">Creating a Comparison View</h2>
-
 <p>A Comparison View can be created as follows:</p>
-
 <ul>
 <li>In <strong>Project Tree</strong>, select a view and specify <strong>Comparison View</strong> in the <strong>Viewer</strong> section of <strong>Property Editor</strong></li>
 <li>Right-click a 3D View, and select <strong>Compare To&hellip;</strong></li>
 </ul>
-
-<p><img src="/images/3d-main-window/3DComparisonViewCreate.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/3DComparisonViewCreate.png" alt=""></p>
 <h2 id="comparison-view-divider">Comparison View Divider</h2>
-
 <p>In the figure below, the Comparison View is used to compare two different grids in the same view, one to the left and the other to the right of the  divider between them.  The screen aligned divider is  possible to drag right and left by clicking the handle marked by a green circle.</p>
-
-<p><img src="/images/3d-main-window/3DComparisonViewDividerHandle.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/3DComparisonViewDividerHandle.png" alt=""></p>
 <h2 id="view-properties-and-settings">View Properties and Settings</h2>
-
-<p>Properties of an individual view included in a Comparison View are controlled by their respective settings, notably
-<a href="/3d-main-window/3dviews/">3D Views</a>,
-<a href="/3d-main-window/cellresults/">Cell Results</a>,
-<a href="/3d-main-window/resultcolorlegend/">Result Color Legend</a>,
+<p>Properties of an individual view included in a Comparison View are controlled by their respective settings, notably 
+<a href="/3d-main-window/3dviews/">3D Views</a>, 
+<a href="/3d-main-window/cellresults/">Cell Results</a>, 
+<a href="/3d-main-window/resultcolorlegend/">Result Color Legend</a>, 
 <a href="/3d-main-window/filters/">Cell Filters</a>,
 and <a href="/3d-main-window/intersections/">Intersections</a>.</p>
-
 <p>Setting up <a href="/3d-main-window/linkedviews/">Linked Views</a> may also be relevant, e.g. to syncronize <a href="/3d-main-window/cellresults/">cell results</a>
 and <a href="/3d-main-window/filters/">cell filters</a>.</p>
-
 
 <div class="notices note" ><p><a href="/3d-main-window/intersections/#polyline-intersection">Polyline Intersections</a> does not facilitate picking points across the Comparison View divider. However, an intersection can be copied betweens views, see <a href="/3d-main-window/intersections/">Intersections</a> for details.</p>
 </div>
@@ -2023,10 +2038,26 @@ and <a href="/3d-main-window/filters/">cell filters</a>.</p>
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3183,20 +3214,20 @@ and <a href="/3d-main-window/filters/">cell filters</a>.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

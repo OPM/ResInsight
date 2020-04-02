@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>PLT Plot :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,23 +1802,21 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#create-new-plt-plot">Create New PLT Plot</a></li>
-<li><a href="#plot-observed-data">Plot Observed Data</a></li>
-<li><a href="#property-editor">Property Editor</a>
-<ul>
-<li><a href="#well-name">Well Name</a></li>
-<li><a href="#sources">Sources</a></li>
-<li><a href="#time-steps">Time Steps</a></li>
-<li><a href="#curve-selection">Curve Selection</a></li>
-<li><a href="#zonation-formation-names">Zonation/Formation Names</a></li>
-<li><a href="#legend-and-axis">Legend and Axis</a></li>
-<li><a href="#plot">Plot</a></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#create-new-plt-plot">Create New PLT Plot</a></li>
+    <li><a href="#plot-observed-data">Plot Observed Data</a></li>
+    <li><a href="#property-editor">Property Editor</a>
+      <ul>
+        <li><a href="#well-name">Well Name</a></li>
+        <li><a href="#sources">Sources</a></li>
+        <li><a href="#time-steps">Time Steps</a></li>
+        <li><a href="#curve-selection">Curve Selection</a></li>
+        <li><a href="#zonationformation-names">Zonation/Formation Names</a></li>
+        <li><a href="#legend-and-axis">Legend and Axis</a></li>
+        <li><a href="#plot">Plot</a></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1809,38 +1841,24 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/plot-window/PltPlot.png" alt="" /></p>
-
+<p><img src="/images/plot-window/PltPlot.png" alt=""></p>
 <p>A PLT (Production Log Tool) plot is a special well plot for comparing observed production (well flow rates) and simulated production. The curves are plotted as production against measured depth (MD). Simulated production data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed production data are loaded from well log files (*.las).</p>
-
 <h2 id="create-new-plt-plot">Create New PLT Plot</h2>
-
 <p>There are several ways to create new PLT Plots</p>
-
 <p><strong>From Project Tree in the Plot Main Window</strong></p>
-
 <ul>
 <li>Select context command <strong>New PLT Plot</strong> for the <em>PLT Plots</em> node.</li>
 </ul>
-
 <p><strong>From the Project Tree in the Main Window</strong></p>
-
 <ul>
 <li>Select context command <strong>New PLT Plot</strong> for a <em>Well Path</em> node or a <em>Simulation Well</em> node that has an associated well path.</li>
 </ul>
-
 <p><strong>From the 3D view</strong></p>
-
 <ul>
 <li>Right-click a well path, or a simulation well that has an associated well path, and select <strong>Well Plots -&gt; New PLT Plot</strong>.</li>
 </ul>
-
 <h2 id="plot-observed-data">Plot Observed Data</h2>
-
 <p>To be able to plot observed production data for a well, a well log file containing that data must be imported. Production data in a well log file is expected to have column names:</p>
-
 <table>
 <thead>
 <tr>
@@ -1848,86 +1866,63 @@ if (!doNotTrack) {
 <th>Names</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>Oil</td>
-<td><em>QOZT</em>, <em>QOIL</em>, _xxxx<em>QOIL</em></td>
+<td><em>QOZT</em>, <em>QOIL</em>, <em>xxxx_QOIL</em></td>
 </tr>
-
 <tr>
 <td>Gas</td>
-<td><em>QOZT</em>, <em>QGAS</em>, _xxxx<em>QGAS</em></td>
+<td><em>QOZT</em>, <em>QGAS</em>, <em>xxxx_QGAS</em></td>
 </tr>
-
 <tr>
 <td>Water</td>
-<td><em>QGZT</em>, <em>QWAT</em>, _xxxx<em>QWAT</em></td>
+<td><em>QGZT</em>, <em>QWAT</em>, <em>xxxx_QWAT</em></td>
 </tr>
-
 <tr>
 <td>Total</td>
-<td><em>QTZT</em>, <em>QTOT</em>, _xxxx<em>QTOT</em></td>
+<td><em>QTZT</em>, <em>QTOT</em>, <em>xxxx_QTOT</em></td>
 </tr>
 </tbody>
 </table>
-
 <p>To be able to plot simulated data for a well, the trajectory for that well have to be imported. If no well trajectory is found, ResInsight will present a warning dialog to the user.</p>
-
-<p><img src="/images/plot-window/NoMdWarningDialog.png" alt="" /></p>
-
+<p><img src="/images/plot-window/NoMdWarningDialog.png" alt=""></p>
 <h2 id="property-editor">Property Editor</h2>
-
 <p>The property editor lets the user select which curves to display in the PLT plot.</p>
-
-<p><img src="/images/plot-window/PltPlotPropertyEditor.png" alt="" /></p>
-
+<p><img src="/images/plot-window/PltPlotPropertyEditor.png" alt=""></p>
 <h3 id="well-name">Well Name</h3>
-
 <p>Select the well to display in the plot. Only observed well paths are displayed.</p>
-
 <h3 id="sources">Sources</h3>
-
 <p>After a well has been selected in the Well Name field, sources for that well should appear in the sources field. The sources are placed in one of three different groups:</p>
-
 <ul>
 <li><strong>RFT File Cases</strong> &ndash; Simulation cases may have associated PLT data in <em>*.rft</em> file(s). If the simulation case contains such files, those are imported together with the simulation case (See the keyword <code>WRFTPLT</code> in the Eclipse manual for information)</li>
 <li><strong>Grid Cases</strong> &ndash; Simulation cases</li>
 <li><strong>Observed Cases</strong> &ndash; Observed data imported from well log files and well path files</li>
 </ul>
-
 <p>When the user selects a source, time steps for that source appears in the <strong>Time Steps</strong> field.</p>
-
 <h3 id="time-steps">Time Steps</h3>
-
 <p>The <strong>Time Steps</strong> field contains available time steps for the selected source(s). Some combinations of selected sources may display a filtered list of time steps instead of the union of all time steps for all selected sources. The policy is as follows:</p>
-
 <ol>
 <li><strong>Exclusively grid cases selected</strong>. All available time steps for the selected grid cases are displayed.</li>
-<li><strong>Grid case(s) and observed data case selected</strong>. Time steps shown are:
-
+<li><strong>Grid case(s) and observed data case selected</strong>. Time steps shown are:</li>
+</ol>
 <ul>
 <li>The first time step from the merged time step list from all grid cases.</li>
 <li>If no time steps from grid cases match the observed time step, display the two adjacent grid case time steps.</li>
-</ul></li>
+</ul>
+<ol start="3">
 <li><strong>Grid case(s) and RFT File case(s) selected</strong>. Same display logic as point 2.</li>
 <li><strong>All types of cases selected</strong>. Same display logic as point 2 with the exception that RFT File case time steps are treated as grid time steps.</li>
 </ol>
-
 <p>Each time step is postfixed by an indication of which source type(s) the time step is belonging to. This indication is displayed as one or more letters within square brackets. Examples: <strong>[ O ]</strong>, <strong>[ R G ]</strong>.</p>
-
 <ul>
 <li><strong>O</strong> &ndash; Time step belongs to observed data</li>
 <li><strong>R</strong> &ndash; Time step belongs to RFT data</li>
 <li><strong>G</strong> &ndash; Time step belongs to Grid data</li>
 </ul>
-
 <p>More than one letter for one single time step, means that the time step belongs to multiple case types.</p>
-
 <h3 id="curve-selection">Curve Selection</h3>
-
 <p>The curve selection group lets the user control which component(s) of the PLT data to display.</p>
-
 <ul>
 <li><strong>Standard Volume</strong> &ndash; Production data at standard conditions (normal air pressure)</li>
 <li><strong>Reservoir Volume</strong> &ndash; Production data at reservoir pressure (high air pressure)</li>
@@ -1936,56 +1931,44 @@ if (!doNotTrack) {
 <li><strong>Water</strong> &ndash; The water production component</li>
 <li><strong>Total</strong> &ndash; Total production</li>
 </ul>
-
-<h3 id="zonation-formation-names">Zonation/Formation Names</h3>
-
+<h3 id="zonationformation-names">Zonation/Formation Names</h3>
 <p>This property editor lets the user control how formations are handled. This is what it looks like in the PLT plot context.</p>
-
-<p><img src="/images/plot-window/RftPltFormationNames.png" alt="" /></p>
-
+<p><img src="/images/plot-window/RftPltFormationNames.png" alt=""></p>
 <p>Please see the <a href="/3d-main-window/formations/">full documentation</a> on the formations property editor for details.</p>
 
-
-<div class="notices note" ><p>When the formation names property editor is used in the context of PLT plots, the fields <b>Trajectory</b> and <b>Simulation Well</b> are hidden because those values are given by the PLT plot definition.</p>
+<div class="notices note" ><p>When the formation names property editor is used in the context of PLT plots, the fields <!-- raw HTML omitted -->Trajectory<!-- raw HTML omitted --> and <!-- raw HTML omitted -->Simulation Well<!-- raw HTML omitted --> are hidden because those values are given by the PLT plot definition.</p>
 </div>
 
-
 <h3 id="legend-and-axis">Legend and Axis</h3>
-
-<p><img src="/images/plot-window/PltLegendAndAxis.png" alt="" /></p>
-
+<p><img src="/images/plot-window/PltLegendAndAxis.png" alt=""></p>
 <p>This property editor lets the user control visual properties for the legend and axis.</p>
-
 <ul>
 <li>Title and Legends
-
 <ul>
 <li><strong>Show Title</strong> &ndash; Toggle on/off title in plot</li>
 <li><strong>Show Legends</strong> &ndash; Toggle on/off legend in plot</li>
 <li><strong>Legend Orientation</strong> &ndash; Vertical or horizontal</li>
-</ul></li>
+</ul>
+</li>
 <li>X Axis Settings
-
 <ul>
 <li><strong>Logarithmic Scale</strong> &ndash; Toggle between linear and logarithmic</li>
 <li><strong>Min</strong> &ndash; Set X axis minimum value</li>
 <li><strong>Max</strong> &ndash; Set X axis maximum value</li>
 <li><strong>Show Grid Lines</strong> &ndash; Enable grid lines in background in plot</li>
-</ul></li>
+</ul>
+</li>
 <li>Depth Axis
-
 <ul>
 <li><strong>Type</strong> &ndash; Toggle between True Vertical Depth (MSL) or Measured Depth (MD)</li>
 <li><strong>Unit</strong> &ndash;</li>
 <li><strong>Min</strong> &ndash; Set depth axis minimum value</li>
 <li><strong>Max</strong> &ndash; Set depth axis maximum value</li>
-<li><strong>Show Grid Lines</strong> &ndash; Enable grid lines in background in plot
-<br /></li>
-</ul></li>
+<li><strong>Show Grid Lines</strong> &ndash; Enable grid lines in background in plot</li>
 </ul>
-
+</li>
+</ul>
 <h3 id="plot">Plot</h3>
-
 <p>The PLT plot displays groups of curves. A group consists of the components oil, gas and water. The curves within a group are stacked, the biggest component first.</p>
 
 
@@ -2162,10 +2145,26 @@ if (!doNotTrack) {
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3322,20 +3321,20 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

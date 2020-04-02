@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Contour Maps :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,19 +1802,17 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#creating-new-contour-maps">Creating New Contour Maps</a></li>
-<li><a href="#properties-of-the-contour-maps">Properties of the Contour Maps</a></li>
-<li><a href="#map-projection-properties">Map Projection Properties</a>
-<ul>
-<li><a href="#weighting-means-by-cell-result">Weighting Means by Cell Result</a></li>
-</ul></li>
-<li><a href="#difference-options">Difference options</a></li>
-<li><a href="#contour-map-export">Contour Map Export</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#creating-new-contour-maps">Creating New Contour Maps</a></li>
+    <li><a href="#properties-of-the-contour-maps">Properties of the Contour Maps</a></li>
+    <li><a href="#map-projection-properties">Map Projection Properties</a>
+      <ul>
+        <li><a href="#weighting-means-by-cell-result">Weighting Means by Cell Result</a></li>
+      </ul>
+    </li>
+    <li><a href="#difference-options">Difference options</a></li>
+    <li><a href="#contour-map-export">Contour Map Export</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1805,47 +1837,30 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/ContourMaps.png" alt="" /></p>
-
-<p>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as Oil, Gas and Hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells.
+<p><img src="/images/3d-main-window/ContourMaps.png" alt=""></p>
+<p>ResInsight can create contour maps based on different forms of aggregation of 3D Eclipse data onto a 2D Plane. Any 3D result value can be aggregated, in addition to specialised results, such as Oil, Gas and Hydrocarbon columns. A Contour Map is a specialised 2D view with many of the same features as the 3D views, including property filters, range filters and display of faults and wells. 
 ResInsight is able to <a href="/export/contourmapexport/">export a contour map</a> to a text file.</p>
-
 <h2 id="creating-new-contour-maps">Creating New Contour Maps</h2>
-
 <p>Contour Maps can be created in many different ways:</p>
-
 <ul>
 <li>New Contour Map from the right-click menu of case or the <strong>Contour Maps</strong> project tree item underneath the case. These will create contour maps with default values.</li>
 <li>New Contour Map from 3D View in the Eclipse View right-click menu. This will create a contour map based on the existing 3D View with matching filters and result.</li>
 <li>Duplicate Contour Map from the right-click menu of an existing Contour Map. This will copy the existing map.</li>
 </ul>
-
-<p><img src="/images/3d-main-window/NewContourMapFromCase.png" alt="" /> <img src="/images/3d-main-window/NewContourMapFromFolder.png" alt="" /></p>
-
-<p><img src="/images/3d-main-window/NewContourMapFromView.png" alt="" /> <img src="/images/3d-main-window/NewContourMapFromExisting.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/NewContourMapFromCase.png" alt=""> <img src="/images/3d-main-window/NewContourMapFromFolder.png" alt=""></p>
+<p><img src="/images/3d-main-window/NewContourMapFromView.png" alt=""> <img src="/images/3d-main-window/NewContourMapFromExisting.png" alt=""></p>
 <h2 id="properties-of-the-contour-maps">Properties of the Contour Maps</h2>
-
-<p><img src="/images/3d-main-window/ContourMapViewProperties.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/ContourMapViewProperties.png" alt=""></p>
 <p>A contour Map has many of the same options available as a 3D View, but is always orthographic/parallel projection with no perspective projection or lighting available. Instead of the 3D Grid Box, the Contour Maps uses a 2D Grid simular to the <strong>2d Intersection Views</strong> with optional Axis Lines controlled with the <strong>Show Axis Lines</strong> toggle. The name of the map can be automatically generated from the Case Name, Property Type, Aggregation Type and Sample Spacing (See <strong>Map Projection Properties</strong> for the two latter).</p>
-
 <h2 id="map-projection-properties">Map Projection Properties</h2>
-
-<p><img src="/images/3d-main-window/ContourMapProjectionProperties.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/ContourMapProjectionProperties.png" alt=""></p>
 <p>The Map Projection settings control how the 3D Data is aggregated onto the 2D plane. In all cases the results are calculated for a square 2D Cell lying in an arbitrary z-plane of the 3D Grid. For each 2D cell a cuboid extrusion in the full bounding extent of the 3D grid is created and this cuboid extrusion is used to calculate the volume of intersection with the 3D Grid cells for all volume weighted sums and averages. For the regular sums, a vertical ray through the center of the 2D cell is used instead. Since the ray may travel through multiple cells in the same K-layer, all the values from within one K-layer are averaged before being added to the sum.</p>
-
 <p>A set of parameters governs this projection:</p>
-
 <ul>
 <li>The first option <strong>Sample Spacing Factor</strong> controls how many 2D Grid Cells are used in the map. The factor is multiplied by the characteristic cell length/width of the 3D grid to get the 2D Cell Size. A smaller factor will thus create a finer Contour Map.</li>
 <li>The second option <strong>Show Contour Lines</strong> toggles on/off the contour lines in the view.</li>
 <li>The final control in the <strong>Projection Settings</strong> box is the <strong>Result Aggregation</strong>. Here the following options are available:</li>
 </ul>
-
 <table>
 <thead>
 <tr>
@@ -1853,83 +1868,65 @@ ResInsight is able to <a href="/export/contourmapexport/">export a contour map</
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>Oil Column</td>
 <td>A sum of SOIL * NTG * PORO * dZ</td>
 </tr>
-
 <tr>
 <td>Gas Column</td>
 <td>A sum of SGAS * NTG * PORO * dZ</td>
 </tr>
-
 <tr>
 <td>Hydrocarbon Column</td>
 <td>A sum of (SOIL + SGAS)* NTG * PORO * dZ</td>
 </tr>
-
 <tr>
 <td>Arithmetic Mean</td>
 <td>A volume weighted arithmetic mean of the specified cell result</td>
 </tr>
-
 <tr>
 <td>Harmonic Mean</td>
 <td>A volume weighted harmonic mean of the specified cell result</td>
 </tr>
-
 <tr>
 <td>Geometric Mean</td>
 <td>A volume weighted geometric mean of the specified cell result</td>
 </tr>
-
 <tr>
 <td>Volume Weighted Sum</td>
 <td>A volume weighted sum of the specified cell result. Suitable for volume fractions such as SOIL or PORO</td>
 </tr>
-
 <tr>
 <td>Sum</td>
 <td>A sum of the specified cell result. Suitable for absolute quantities.</td>
 </tr>
-
 <tr>
 <td>Top Value</td>
 <td>The first value encountered downwards vertically</td>
 </tr>
-
 <tr>
 <td>Min Value</td>
 <td>The minimum cell result value in the volume underneath the 2D Element</td>
 </tr>
-
 <tr>
 <td>Max Value</td>
 <td>The maximum cell result value in the volume underneath the 2D Element</td>
 </tr>
 </tbody>
 </table>
-
 <p>For the Column options, no <strong>Cell Result</strong> is available in the property tree under the Contour Map.</p>
-
 <h3 id="weighting-means-by-cell-result">Weighting Means by Cell Result</h3>
-
-<p><img src="/images/3d-main-window/ContourMapProjectionWeights.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/ContourMapProjectionWeights.png" alt=""></p>
 <p>For the <strong>Arithmetic Mean</strong>, <strong>Geometric Mean</strong> and <strong>Harmonic Mean</strong> it is also possible to specify a cell result as a weighting parameter in addition to the regular weighting by volume of intersection. The total weight will then be the volume of intersection multiplied by the specified cell result. The full range of regular cell results is available for this use.</p>
-
 <h2 id="difference-options">Difference options</h2>
-
-<p>Creating a Contour Map as a difference with a specific base case and/or base time step is performed by clicking the
+<p>Creating a Contour Map as a difference with a specific base case and/or base time step is performed by clicking the 
 <img src="https://resinsight.org/images/3d-main-window/CellResult.png" style="display:inline; vertical-align:middle; margin:0">
  <strong>Cell Result</strong> item
 underneath the actual <strong>Contour Map</strong> in the project tree. This will display the <img src="https://resinsight.org/images/3d-main-window/CellResult.png" style="display:inline; vertical-align:middle; margin:0">
- <strong>Cell Result</strong> <a href="/3d-main-window/cellresults/#eclipse-result-types">Property Editor</a> to specify base case and/or base time step.</p>
-
+ <strong>Cell Result</strong> [Property Editor]
+(/3d-main-window/cellresults/#eclipse-result-types) to specify base case and/or base time step.</p>
 <h2 id="contour-map-export">Contour Map Export</h2>
-
 <p>ResInsight is able to <a href="/export/contourmapexport/">export a contour map</a> to a text file.</p>
 
 
@@ -2106,10 +2103,26 @@ underneath the actual <strong>Contour Map</strong> in the project tree. This wil
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3266,20 +3279,20 @@ underneath the actual <strong>Contour Map</strong> in the project tree. This wil
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

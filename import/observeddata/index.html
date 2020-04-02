@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Observed Time History Data :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,37 +1802,17 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#import-observed-time-history-data">Import Observed Time History Data</a></li>
-<li><a href="#file-formats">File Formats</a>
-<ul>
-<li><a href="#import-csv-txt-observed-time-history-data">Import CSV/txt Observed Time History Data</a>
-<ul>
-<li><a href="#csv-txt-import-options-dialog">CSV/txt Import Options Dialog</a></li>
-<li><a href="#column-data">Column data</a>
-<ul>
-<li><a href="#eclipse-address-format">Eclipse address format</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#csv-line-based-format">CSV Line Based Format</a>
-<ul>
-<li><a href="#example">Example</a></li>
-</ul></li>
-<li><a href="#import-rsm-observed-time-history-data">Import RSM observed time history data</a>
-<ul>
-<li><a href="#column-based-file-format">Column Based File Format</a>
-<ul>
-<li><a href="#column-based-with-fixed-header-width">Column Based with Fixed Header Width</a></li>
-<li><a href="#column-based-with-random-header-width">Column Based with Random Header Width</a></li>
-</ul></li>
-<li><a href="#keyword-based-file-format">Keyword Based File Format</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#viewing-observed-time-history-data">Viewing Observed Time History Data</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#import-observed-time-history-data">Import Observed Time History Data</a></li>
+    <li><a href="#file-formats">File Formats</a>
+      <ul>
+        <li><a href="#import-csvtxt-observed-time-history-data">Import CSV/txt Observed Time History Data</a></li>
+        <li><a href="#csv-line-based-format">CSV Line Based Format</a></li>
+        <li><a href="#import-rsm-observed-time-history-data">Import RSM observed time history data</a></li>
+      </ul>
+    </li>
+    <li><a href="#viewing-observed-time-history-data">Viewing Observed Time History Data</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1823,21 +1837,14 @@ if (!doNotTrack) {
 
 
 
-
-
 <p>Observed Time History Data, is data measured in time. On import of observed time history data, ResInsight translates the data to make it similar to summary data. Observed time history data can be plotted along with summary data in <strong>Summary Plots</strong>.</p>
-
 <h2 id="import-observed-time-history-data">Import Observed Time History Data</h2>
-
 <p>Importing observed time history data to ResInsight may be performed in two different ways:</p>
-
 <ul>
 <li>By selecting the main menu item <strong>File -&gt; Import -&gt; Import Observed Time History Data</strong></li>
 <li>By using the context command <strong>Import Observed Time History Data</strong> on the <strong>Observed Time History Data</strong> item in the <strong>Plot Main Window Project Tree</strong></li>
 </ul>
-
 <p>The following file types are supported:</p>
-
 <ul>
 <li>RSM observed time history data file (<em>*.rsm</em>)</li>
 <li>Column based (Comma Separated Values, CSV) time history data file (<em>*.csv/*.txt</em>)
@@ -1845,23 +1852,14 @@ The imported <img src="https://resinsight.org/images/import/Default.png" style="
  Observed Time History Data files will be added to <img src="https://resinsight.org/images/import/Folder.png" style="display:inline; vertical-align:middle; margin:0">
  <strong>Observed Time History Data</strong>.</li>
 </ul>
-
 <p>Which summaries that has been detected in a Observed Time History Data file can be read in an Observed Time History Data&rsquo;s <strong>Property Editor</strong>. In the image below, time and year info has been found together with the summary &ldquo;WBP9L&rdquo; for the well &ldquo;OP-1&rdquo;.</p>
-
-<p><img src="/images/import/observedDataProperty.png" alt="" /></p>
-
+<p><img src="/images/import/observedDataProperty.png" alt=""></p>
 <h2 id="file-formats">File Formats</h2>
-
-<h3 id="import-csv-txt-observed-time-history-data">Import CSV/txt Observed Time History Data</h3>
-
+<h3 id="import-csvtxt-observed-time-history-data">Import CSV/txt Observed Time History Data</h3>
 <p>CSV/txt files are generic ascii files where data is arranged in columns. Some variations in formatting is supported, for instance deifferent cell separators, date and time format, decimal separator etc. When importing these types of files the user is presented a dialog, where the user may tell ResInsight how to import the selected file(s). If more than one file is selected, the dialog appears once for each file.</p>
-
-<h4 id="csv-txt-import-options-dialog">CSV/txt Import Options Dialog</h4>
-
-<p><img src="/images/import/ImportObservedTimeHistoryDataDialog.png" alt="" /></p>
-
+<h4 id="csvtxt-import-options-dialog">CSV/txt Import Options Dialog</h4>
+<p><img src="/images/import/ImportObservedTimeHistoryDataDialog.png" alt=""></p>
 <p>Dialog fields description:</p>
-
 <ul>
 <li><strong>Cell Separator</strong> &ndash; Select the correct cell separator character. ResInsight will try to set the correct value as default.</li>
 <li><strong>Decimal Separator</strong> &ndash; Select the correct decimal separator. ResInsight will try to set the correct value as default.</li>
@@ -1872,101 +1870,86 @@ The imported <img src="https://resinsight.org/images/import/Default.png" style="
 <li><strong>Time Format</strong> &ndash; Select the time format matching the time information in the file. If the file contains dates only, this field is ignored by ResInsight.</li>
 <li><strong>Preview</strong> &ndash; Preview the first 30 lines of the file contents. The view will reflect the currently selected Cell Separator and the selected time column is marked in yellow.</li>
 </ul>
-
 <h4 id="column-data">Column data</h4>
-
 <p>Each column must have a header text, which may be a name/description for the data in the column. By formatting the header text to a valid Eclipse address, ResInsight recognizes the column data and will be able to categorize the data in the same way as grid data. So when plotting these data later, the user will find the data in the correct category in the <a href="/plot-window/summaryploteditor/">Summary Plot Editor</a>.</p>
-
 <h5 id="eclipse-address-format">Eclipse address format</h5>
-
 <p>An Eclipse address consists of a vector name and zero or more parameters. The number of parameters are defined by the category of the vector. The category is determined by looking up the category in an internal vector table. A valid standard vector name has 3 to 5 characters. Optionally it may be postfixed by a user defined name of 3 characters. A vector name having both a standard part and a user part must have 8 characters (5+3). In this case, if the standard part has less than 5 characters, it must be padded with underscores up to 5 characters. Example: &lsquo;RPR__WEL&rsquo;. Vector names having only the standard part are not padded.</p>
-
 <p>Categories:</p>
-
 <ul>
-<li><strong>Field</strong> - &lt;VECTOR &lsquo;F&hellip;.&rsquo;&gt;
-
+<li><strong>Field</strong> - &lt;VECTOR &lsquo;F&hellip;.&lsquo;&gt;
 <ul>
 <li>Example: &lsquo;FOPT&rsquo;</li>
-</ul></li>
-<li><strong>Aquifer</strong> - &lt;VECTOR &lsquo;A&hellip;.&rsquo;&gt;:&lt;AQUIFER NUMBER&gt;
-
+</ul>
+</li>
+<li><strong>Aquifer</strong> - &lt;VECTOR &lsquo;A&hellip;.&lsquo;&gt;:&lt;AQUIFER NUMBER&gt;
 <ul>
 <li>Example: &lsquo;AAQR:1&rsquo;</li>
-</ul></li>
-<li><strong>Network</strong> - &lt;VECTOR &lsquo;N&hellip;.&rsquo;&gt;</li>
-<li><strong>Misc</strong> - &lt;VECTOR &lsquo;&hellip;.&rsquo;&gt;</li>
-<li><strong>Region</strong> - &lt;VECTOR &lsquo;R&hellip;.&rsquo;&gt;:&lt;REGION NUMBER&gt;
-
+</ul>
+</li>
+<li><strong>Network</strong> - &lt;VECTOR &lsquo;N&hellip;.&lsquo;&gt;</li>
+<li><strong>Misc</strong> - &lt;VECTOR &lsquo;&hellip;.&lsquo;&gt;</li>
+<li><strong>Region</strong> - &lt;VECTOR &lsquo;R&hellip;.&lsquo;&gt;:&lt;REGION NUMBER&gt;
 <ul>
 <li>Example: &lsquo;RPR:1&rsquo;</li>
-</ul></li>
-<li><strong>Region to Region</strong> - &lt;VECTOR &lsquo;R.F..&rsquo;&gt;:&lt;REGION NUMBER&gt;-&lt;REGION NUMBER&gt;
-
+</ul>
+</li>
+<li><strong>Region to Region</strong> - &lt;VECTOR &lsquo;R.F..&lsquo;&gt;:&lt;REGION NUMBER&gt;-&lt;REGION NUMBER&gt;
 <ul>
 <li>Example: &lsquo;ROFR:1-2&rsquo;</li>
-</ul></li>
-<li><strong>Group</strong> - &lt;VECTOR &lsquo;G&hellip;.&rsquo;&gt;:&lt;GROUP NAME&gt;
-
+</ul>
+</li>
+<li><strong>Group</strong> - &lt;VECTOR &lsquo;G&hellip;.&lsquo;&gt;:&lt;GROUP NAME&gt;
 <ul>
 <li>Example: &lsquo;GOPR:MANI-B1&rsquo;</li>
-</ul></li>
-<li><strong>Well</strong> - &lt;VECTOR &lsquo;W&hellip;.&rsquo;&gt;:&lt;WELL NAME&gt;
-
+</ul>
+</li>
+<li><strong>Well</strong> - &lt;VECTOR &lsquo;W&hellip;.&lsquo;&gt;:&lt;WELL NAME&gt;
 <ul>
 <li>Example: &lsquo;WOPR:B-2H&rsquo;</li>
-</ul></li>
-<li><strong>Completion</strong> - &lt;VECTOR &lsquo;C&hellip;.&rsquo;&gt;:&lt;WELL NAME&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
-
+</ul>
+</li>
+<li><strong>Completion</strong> - &lt;VECTOR &lsquo;C&hellip;.&lsquo;&gt;:&lt;WELL NAME&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
 <ul>
 <li>Example: &lsquo;COFRL:C-1H:26,44,16&rsquo;</li>
-</ul></li>
-<li><strong>LGR Completion</strong> - &lt;VECTOR &lsquo;LC&hellip;&rsquo;&gt;:&lt;LGR NAME&gt;:&lt;WELL NAME&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
-
+</ul>
+</li>
+<li><strong>LGR Completion</strong> - &lt;VECTOR &lsquo;LC&hellip;&lsquo;&gt;:&lt;LGR NAME&gt;:&lt;WELL NAME&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
 <ul>
 <li>Example: &lsquo;LCWIT:WELLI1:I1:5,5,5&rsquo;</li>
-</ul></li>
-<li><strong>LGR Well</strong> - &lt;VECTOR &lsquo;LW&hellip;&rsquo;&gt;:&lt;LGR NAME&gt;:&lt;WELL NAME&gt;
-
+</ul>
+</li>
+<li><strong>LGR Well</strong> - &lt;VECTOR &lsquo;LW&hellip;&lsquo;&gt;:&lt;LGR NAME&gt;:&lt;WELL NAME&gt;
 <ul>
 <li>Example: &lsquo;LWWIR:WELLI1:I1&rsquo;</li>
-</ul></li>
-<li><strong>Segment</strong> - &lt;VECTOR &rsquo;S&hellip;.&lsquo;&gt;:&lt;WELL NAME&gt;:&lt;SEGMENT NUMBER&gt;
-
+</ul>
+</li>
+<li><strong>Segment</strong> - &lt;VECTOR &lsquo;S&hellip;.&lsquo;&gt;:&lt;WELL NAME&gt;:&lt;SEGMENT NUMBER&gt;
 <ul>
 <li>Example: &lsquo;SOFR:B-5H:32&rsquo;</li>
-</ul></li>
-<li><strong>Block</strong> - &lt;Vector &lsquo;B&hellip;.&rsquo;&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
-
+</ul>
+</li>
+<li><strong>Block</strong> - &lt;Vector &lsquo;B&hellip;.&lsquo;&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
 <ul>
 <li>Example: &lsquo;BPR:15,18,21&rsquo;</li>
-</ul></li>
-<li><strong>LGR Block</strong> - &lt;VECTOR &lsquo;LB&hellip;&rsquo;&gt;:&lt;LGR NAME&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
-
+</ul>
+</li>
+<li><strong>LGR Block</strong> - &lt;VECTOR &lsquo;LB&hellip;&lsquo;&gt;:&lt;LGR NAME&gt;:&lt;I&gt;,&lt;J&gt;,&lt;K&gt;
 <ul>
 <li>Example: &lsquo;LBOSAT:CENTER:5,5,5&rsquo;</li>
-</ul></li>
+</ul>
+</li>
 <li><strong>Imported</strong> - &lt;SOME NAME&gt;</li>
 </ul>
-
 <p>When ResInsight parses an eclipse address, it first tries to identify an address category by analyzing the vector name, as described above. If no category could be found, the <strong>Imported</strong> category is used. This category is also used if the address format is wrong (for instance missing parameters) even though the vector name identifies a different category.</p>
-
-<p><strong>Instantaneous vs Accumulated Data</strong><br />
-A valid Eclipse vector having a standard name ending with &rsquo;T&rsquo; or &lsquo;TH&rsquo; are considered accumulated data. In the summary plot, these types of data are plotted slightly different. Instantaneous data are plotted using a stepped curve, while accumulated data are plotted using straight lines between the samples.</p>
-
-<p><strong>Error data</strong><br />
-Any address may have associated error data. Those type of data will have the same address as their associated data, but are prefixed by &lsquo;ER:&lsquo;, &lsquo;ERR:&rsquo; or &lsquo;ERROR:&lsquo;. Example: &lsquo;ERR:FOPT&rsquo;. It is not possible to select error data explicitly in the plot editor selection fields, but when selecting a vector having associated error data, the error data is plotted as error bars in the summary plot.</p>
-
+<p><strong>Instantaneous vs Accumulated Data</strong><br>
+A valid Eclipse vector having a standard name ending with &lsquo;T&rsquo; or &lsquo;TH&rsquo; are considered accumulated data. In the summary plot, these types of data are plotted slightly different. Instantaneous data are plotted using a stepped curve, while accumulated data are plotted using straight lines between the samples.</p>
+<p><strong>Error data</strong><br>
+Any address may have associated error data. Those type of data will have the same address as their associated data, but are prefixed by &lsquo;ER:', &lsquo;ERR:&rsquo; or &lsquo;ERROR:'. Example: &lsquo;ERR:FOPT&rsquo;. It is not possible to select error data explicitly in the plot editor selection fields, but when selecting a vector having associated error data, the error data is plotted as error bars in the summary plot.</p>
 <p>Example:</p>
-
-<p><img src="/images/import/ErrorBars.png" alt="" /></p>
-
+<p><img src="/images/import/ErrorBars.png" alt=""></p>
 <h3 id="csv-line-based-format">CSV Line Based Format</h3>
-
 <p>ResInsight supports a &lsquo;line based&rsquo; CSV file format variant as well. As opposed to the normal CSV format, data values are organized in lines. Each line must contain at least a date (and time), a vector address and a sample value. Optionally it may also contain an error value and a comment. The information carried by this format is equivalent to the normal CSV format, it is only a different file layout.</p>
-
 <p>When importing a line based CSV file, no dialog appears. Instead a more stict set of rules apply to this type of files:</p>
-
 <ul>
 <li>At least <strong>DATE</strong>, <strong>VECTOR</strong> and <strong>VALUE</strong> columns must be present. The order of columns may be changed.</li>
 <li>Optionally the columns <strong>ERROR</strong> and <strong>COMMENTS</strong> may be present</li>
@@ -1975,41 +1958,24 @@ Any address may have associated error data. Those type of data will have the sam
 <li>Point (.) must be used as decimal separator</li>
 <li>The comment must not contain any semicolons</li>
 </ul>
-
 <h4 id="example">Example</h4>
-
 <p>The two examples below are equvalent and result in identical data after importing to ResInsight</p>
-
 <p>Line based CSV:</p>
-
 <pre><code>DATE       ;VECTOR ;VALUE ;ERROR
 2018-04-16 ;FOPT   ;12.5  ;0.45
 2018-04-18 ;FOPT   ;8.6   ;0.31
-</code></pre>
-
-<p>Normal CSV:</p>
-
+</code></pre><p>Normal CSV:</p>
 <pre><code>DATE       ;FOPT ;ERR:FOPT
 2018-04-16 ;12.5 ;0.45
 2018-04-18 ;8.6  ;0.31
-</code></pre>
-
-<h3 id="import-rsm-observed-time-history-data">Import RSM observed time history data</h3>
-
+</code></pre><h3 id="import-rsm-observed-time-history-data">Import RSM observed time history data</h3>
 <p>To import RSM files, the only action needed from the user is to select one or more RSM files. When the import is finished, one tree node for each file will appear under the <strong>Observed Time History Data</strong> node in the project tree. RSM files can be either <em>Column based</em> or <em>Keyword based</em>.</p>
-
 <h4 id="column-based-file-format">Column Based File Format</h4>
-
 <p>If a column based file is presented, ResInsight first tries to identify if its header has fixed width or not. Further, the header is interpreted by looking for specific lines.</p>
-
 <p>The first line must have one or more vector mnemonics. The initial letter(s) in a mnemonic specify which summary data type the column represents. For instance, <em>FVPT</em> and <em>FWPT</em> are of type <em>Field</em>, as they both have an initial <em>F</em>. <em>WWCTH</em> and <em>WGORH</em> are well data types. See <em>Vector naming convention</em> in <strong>Eclipse: File Formats Reference Manual</strong> for a full overview of supported mnemonics.</p>
-
 <p>The next lines can define units, well/group names, region names, LGR names and block numbers and the local cell number. They do not have to appear in any particular order. Scale factors can also be included, but will be ignored by ResInsight. All lines starting with <em><em>&ndash;</em></em> will also be ignored.</p>
-
 <h5 id="column-based-with-fixed-header-width">Column Based with Fixed Header Width</h5>
-
 <p>When interpreting column based files with fixed header width, ResInsight looks for left aligned column entries. These type of files are interpreted as we naturally read them. More than one table can be present in each file.</p>
-
 <pre><code>1                                                                                                      
  -------------------------------------------------------------------------
  SUMMARY
@@ -2026,12 +1992,8 @@ Any address may have associated error data. Those type of data will have the sam
   9-NOV-1997         0     19.38692     0.015243     14.76847     14.78372  
  10-NOV-1997         0     24.07161     0.018914     18.33751     18.35642
  11-NOV-1997         0     28.79427     0.022613     21.93558     21.95819
-</code></pre>
-
-<h5 id="column-based-with-random-header-width">Column Based with Random Header Width</h5>
-
+</code></pre><h5 id="column-based-with-random-header-width">Column Based with Random Header Width</h5>
 <p>Column Based with Random Header Width will try to be parsed in the same way as fixed width, but it might fail in situations like the one below. We can see that SM3/SM3 <em>probably</em> belongs to WGORH, but it is parsed to WWCTH, as it is the second entry on that line.</p>
-
 <pre><code>TIME      WWCTH      WGORH
 DAYS               SM3/SM3          
 
@@ -2039,12 +2001,8 @@ DAYS               SM3/SM3
      1     0.000   0.000
      2     0.000   0.000
      3     0.000   0.000
-</code></pre>
-
-<h4 id="keyword-based-file-format">Keyword Based File Format</h4>
-
+</code></pre><h4 id="keyword-based-file-format">Keyword Based File Format</h4>
 <p>If the non-comment line includes the word &ldquo;VECTOR&rdquo;, the file is interpreted as a keyword based file. In keyword based files, the content of the one-column tables is described in each header. Tables should be associated with a table containing time stamps. In the example below, <em>S-1AH-GOR</em> is associated with <em>YEARX</em>, since their origin is equal. ResInsight always interpret <em>ORIGIN</em> as well name, and look for a table with the line &ldquo;VECTOR YEARX&rdquo; to associate with it.</p>
-
 <pre><code>----------------------------------------------
 -- GOR data 
 ----------------------------------------------
@@ -2094,14 +2052,9 @@ UNITS YEAR
 2000.2367
 2000.4033
 2000.4966
-</code></pre>
-
-<p>Please seek &ldquo;User data file formats&rdquo; in <strong>Eclipse: File Formats Reference Manual</strong> for details.</p>
-
+</code></pre><p>Please seek &ldquo;User data file formats&rdquo; in <strong>Eclipse: File Formats Reference Manual</strong> for details.</p>
 <h2 id="viewing-observed-time-history-data">Viewing Observed Time History Data</h2>
-
-<p><img src="/images/import/observedDataCurveCreator.png" alt="" /></p>
-
+<p><img src="/images/import/observedDataCurveCreator.png" alt=""></p>
 <p>To plot Observed Time History Data, choose <strong>New Summary Plot</strong> in the right-click menu of <strong>Summary Plots</strong>, in <strong>Plot Object Project Tree</strong>. Observed time history data will appear in <strong>Sources</strong> together with summary cases. How to use the Plot Editor is covered in <a href="/plot-window/summaryploteditor/">Summary Plot Editor</a>. Observed time history data points are plotted without lines by default.</p>
 
 
@@ -2278,10 +2231,26 @@ UNITS YEAR
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3438,20 +3407,20 @@ UNITS YEAR
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

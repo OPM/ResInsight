@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>ResInsight</title>
@@ -51,7 +51,7 @@ Several views can be added to the same case by right-clicking the case or a view
       <guid>https://resinsight.org/getting-started/download-and-install/linux-installation/</guid>
       <description>Install ResInsight From Binary Packages on Linux Please not that the distribution by the OPM Project will updated some time after the release of a new version on GitHub.
 Red Hat Enterprise Linux 6 or 7 Login as root and do:
-yum-config-manager --add-repo https://opm-project.org/package/opm.repo yum install resinsight yum install resinsight-octave  Then you are good, and can start ResInsight by typing: ResInsight
+yum-config-manager --add-repo https://opm-project.org/package/opm.repoyum install resinsightyum install resinsight-octave Then you are good, and can start ResInsight by typing: ResInsight
 Ubuntu Linux 16.04-64bit On the command line do:</description>
     </item>
     
@@ -104,7 +104,7 @@ If you have many open plots, it can be useful to collapse all other plots by act
       
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_04/</guid>
       <description>ResInsight 2019.04 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.04 contains a larger number of new and exciting features, some of which are listed below.
-Grid Cross Plots ResInsight supports the creation of cross plots of two results against each other, with each cell in the grid representing one data point in the plot.</description>
+Grid Cross Plots ResInsight supports the creation of cross plots of two results against each other, with each cell in the grid representing one data point in the plot. The data points can be grouped by a third result, by time step or by Formations, giving a separate color and label for each group.</description>
     </item>
     
     <item>
@@ -115,7 +115,7 @@ Grid Cross Plots ResInsight supports the creation of cross plots of two results 
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_08/</guid>
       <description>ResInsight 2019.08 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.08 opens up a range of new and efficient workflows by adding Python script support in ResInsight.
 Python scripting Basic example on how to update views from Python
-import rips # Connect to ResInsight instance resInsight = rips.Instance.find() # Check if connection worked if resInsight is not None: # Get a list of all cases cases = resInsight.</description>
+import rips# Connect to ResInsight instanceresInsight = rips.Instance.find()# Check if connection workedif resInsight is not None:# Get a list of all casescases = resInsight.</description>
     </item>
     
     <item>
@@ -125,7 +125,7 @@ import rips # Connect to ResInsight instance resInsight = rips.Instance.find() #
       
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12/</guid>
       <description>ResInsight 2019.12 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2019.12 is a major update bringing a range of significant new and enhanced features. Some of the most important extensions are listed below.
-Comparison View ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more.</description>
+Comparison View ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view.</description>
     </item>
     
     <item>
@@ -172,7 +172,7 @@ Cell Results are used in several operations and settings:
       <description>ResInsight supports several command line parameters that can be used to automate some tasks using shell scripts.
 Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms. See GNU Standards for Command Line Interfaces.
 Examples on how command line options are used are given below
-Command line options General    Parameter Description     &amp;#45;&amp;#45;help, &amp;#45;&amp;#45;?</description>
+Command line options General    Parameter Description     --help, --?</description>
     </item>
     
     <item>
@@ -272,7 +272,7 @@ Importing such a file will enable result type called SourSimRL as explained in E
 In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
 Dependencies and Prerequisites Windows Compiler Visual Studio 2015 and later is supported.
 GCC Compiler GCC version 4.9 or later is supported. On RedHat Linux 6 you need to install devtoolset-3, and enable it with
-source /opt/rh/devtoolset-3/enable  Qt5 Qt Qt5 version 5.6.0 or later is supported.
+source /opt/rh/devtoolset-3/enable Qt5 Qt Qt5 version 5.6.0 or later is supported.
 On some configurations you will be asked to specify the location of Qt5.</description>
     </item>
     
@@ -338,7 +338,7 @@ Other available keyboard shortcuts are
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/modelnavigation/</guid>
-      <description>ResInsight comes with four navigation modes. The active mode can be selected in the Preferences dialog.
+      <description>ResInsight comes with four navigation modes. The active mode can be selected in the [Preferences dialog] (/misc/preferences/).
 Note that changing the navigation mode applies to the currently active view only, and views created after the change.
 These abbreviations are used in the tables below:
    Abbreviation Meaning     LMB Press the left mouse button   MMB Press the middle mouse button or scroll wheel button   RMB Press the right mouse button    The following applies to all navigation modes:</description>
@@ -373,7 +373,7 @@ Import Observed Time History Data Importing observed time history data to ResIns
       <guid>https://resinsight.org/plot-window/summaryploteditor/</guid>
       <description>The plot editor is a separate ResInsight dialog window where the user can select which vectors to display in a summary plot. It is also possible to edit an existing plot in this editor.
 The upper part of the editor contains editors for selecting which vectors/summaries to display in the plot. The number of fields vary from 3 to 6 depending on the Summary Type currently highlighted.
-In this context highlighted means the marked item with a different background color, while selected means an item or items that have a ticked check box.</description>
+In this context highlightedmeans the marked item with a different background color, while selectedmeans an item or items that have a ticked check box.</description>
     </item>
     
     <item>
@@ -383,7 +383,7 @@ In this context highlighted means the marked item with a different background co
       
       <guid>https://resinsight.org/3d-main-window/comparisonview/</guid>
       <description>ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view. This improves efficiency and simplifies the workflow when working with related but different models.
-The figure above exemplifies a Comparison View for comparison of two different simulations models and results.</description>
+The figure above exemplifies a Comparison View for comparison of two different simulations models and results. The left hand side is used to display grid and results of an Eclipse simulation while the right hand side displays an ABAQUS grid and simulation results from geomechanical analysis.</description>
     </item>
     
     <item>
@@ -421,7 +421,7 @@ Creating new 3D Well Log Curves Add a new 3D well log curve by selecting a Well 
       
       <guid>https://resinsight.org/import/pasteexceltimedata/</guid>
       <description>When text have been copied to the operating system&amp;rsquo;s clipboard, it will be possible to paste that text into a summary plot. Right click on a summary plot in the Plot Main Window Project Tree and select Paste Excel Data to Summary Plot. Then a paste options dialog will appear.
-Paste Options Dialog Most of the fields in this dialog are the same as in the CSV/txt import options dialog.</description>
+Paste Options Dialog Most of the fields in this dialog are the same as in the CSV/txt import options dialog. Please see that section for documentation on those fields.</description>
     </item>
     
     <item>
@@ -431,7 +431,7 @@ Paste Options Dialog Most of the fields in this dialog are the same as in the CS
       
       <guid>https://resinsight.org/scripting/pythonexamples/</guid>
       <description>This pages is created based on the content in the PythonExamples folder located inside the rips module, made available online for convenience.
-AllCases ################################################################################### # This example will connect to ResInsight, retrieve a list of cases and print info # ################################################################################### # Import the ResInsight Processing Server Module import rips # Connect to ResInsight resinsight = rips.Instance.find() if resinsight is not None: # Get a list of all cases cases = resinsight.</description>
+AllCases #################################################################################### This example will connect to ResInsight, retrieve a list of cases and print info# #################################################################################### Import the ResInsight Processing Server Moduleimport rips# Connect to ResInsightresinsight = rips.Instance.find()if resinsight is not None:# Get a list of all casescases = resinsight.</description>
     </item>
     
     <item>
@@ -451,8 +451,7 @@ AllCases #######################################################################
       
       <guid>https://resinsight.org/getting-started/other/releasenotification/</guid>
       <description>LinkedIn Feel free to join ResInsight on LinkedIn
-Newsletter By subscribing to the Release Notification you will get notified when new releases are available. Please use the button below to send a request for subscription mail.
-Subscribe</description>
+Newsletter By subscribing to the Release Notification you will get notified when new releases are available. Please use the button below to send a request for subscription mail.</description>
     </item>
     
     <item>
@@ -473,10 +472,10 @@ Subscribe</description>
       <guid>https://resinsight.org/scripting/pythonrips/</guid>
       <description>Instance Module class rips.instance.Instance(port=50051, launched=False) The ResInsight Instance class. Use to launch or find existing ResInsight instances
 launched() Tells us whether the application was launched as a new process. If the application was launched we may need to close it when exiting the script.
- Type
+  Type
 bool
   commands() Command executor. Set when creating an instance.
- Type
+  Type
 Commands
   project() Current project in ResInsight. Set when creating an instance and updated when opening/closing projects.</description>
     </item>
@@ -530,9 +529,8 @@ Import There are several ways to import an ensemble:
       
       <guid>https://resinsight.org/scripting/octaveinterface/</guid>
       <description>ResInsight provides a flexible interface to Octave including:
- Octave functions that communicates with a running ResInsight session Features to simplify management and editing of Octave scripts from ResInsight Commands to execute scripts using Octave.
-  The Octave functions are documented in Octave Interface Reference.
-Note: The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.
+ Octave functions that communicates with a running ResInsight session Features to simplify management and editing of Octave scripts from ResInsight Commands to execute scripts using Octave.  The Octave functions are documented in Octave Interface Reference.
+Note:The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.
 Octave Script Management Octave scripts are available in the Scripts folder in the Project Tree.</description>
     </item>
     
@@ -587,7 +585,8 @@ Calculation Settings To make a new calculated curve, click on New Calculation. T
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/scripting/octaveinterfacereference/</guid>
-      <description>Introduction To identify a ResInsight case uniquely in the Octave script, an integer Id (CaseId) is used. This Id can be retrieved in several ways, but there are two main modes of operation regarding this for a particular octave script: Either the script is designed to work on a single case (the &amp;ldquo;Current Case&amp;rdquo;), or the script is designed to access the selection and traverse the cases by itself.</description>
+      <description>Introduction To identify a ResInsight case uniquely in the Octave script, an integer Id (CaseId) is used. This Id can be retrieved in several ways, but there are two main modes of operation regarding this for a particular octave script: Either the script is designed to work on a single case (the &amp;ldquo;Current Case&amp;rdquo;), or the script is designed to access the selection and traverse the cases by itself.
+Note:The Octave interface does not support Geomechanical cases and flow diagnostic results.</description>
     </item>
     
     <item>
@@ -597,7 +596,7 @@ Calculation Settings To make a new calculated curve, click on New Calculation. T
       
       <guid>https://resinsight.org/3d-main-window/resultinspection/</guid>
       <description>The results mapped on the 3D model can be inspected in detail by left clicking cells in the 3D view. The selected cells will be highlighted, text information displayed in the Result Info docking window, and the time-history values plotted in the Result Plot, if available.
-Visibility of the docking widows can be controlled from the Windows menu.
+Visibility of the docking widows can be controlled from the Windowsmenu.
 Result Info Clicking cells will display slightly different information text based on the case type as described in the following tables.</description>
     </item>
     
@@ -619,9 +618,9 @@ Exporting Grid and Faults Grid Export The Export dialog will allow the user to e
       
       <guid>https://resinsight.org/getting-started/other/testimonials/</guid>
       <description>“I have been using ResInsight now for some time and have stopped using the commercial software as ResInsight is much more responsive and easier to use. It really is an excellent piece of software.”
-David Baxendale
-Senior Petroleum Engineering Advisor, RPS Energy
-&amp;ldquo;ResInsight is an excellent tool to visualize simulation results and offers good-looking and illustrative graphs for presentations. I found the integration with Octave especially powerful in my research.&amp;rdquo;</description>
+David BaxendaleSenior Petroleum Engineering Advisor, RPS Energy
+&amp;ldquo;ResInsight is an excellent tool to visualize simulation results and offers good-looking and illustrative graphs for presentations. I found the integration with Octave especially powerful in my research.&amp;quot;
+Tor Harald SandveResearcher, International Research Institute of Stavanger (IRIS)</description>
     </item>
     
     <item>
@@ -631,8 +630,7 @@ Senior Petroleum Engineering Advisor, RPS Energy
       
       <guid>https://resinsight.org/3d-main-window/filters/</guid>
       <description>Cell Filters are used to control visibility of the cells in the 3D view. Two types of filters exists:
- Range Filter &amp;ndash; Extracts an IJK subset of the model. Property Filter &amp;ndash; Extracts cells with a property value matching a value range.  The visibilities of cells connection to wells, and fences based on these cells can be controlled from  Simulation Wells .
-(Not applicable for Geomechanical cases)</description>
+ Range Filter &amp;ndash; Extracts an IJK subset of the model. Property Filter &amp;ndash; Extracts cells with a property value matching a value range.  The visibilities of cells connection to wells, and fences based on these cells can be controlled from Simulation Wells.(Not applicable for Geomechanical cases)Common Properties for Range and Property Filters Both filter types can be turned on or off using the toggle in the Project Tree and controlled from their corresponding Property Editor.</description>
     </item>
     
     <item>
@@ -654,7 +652,7 @@ A new plot with a single Track and Curve is created matching active case and sel
       
       <guid>https://resinsight.org/3d-main-window/intersections/</guid>
       <description>Intersections are cross sections of the grid model that displays the grid cell values on planes that cut through the grid in various ways.
-There are two main types of intersections. The first one which simply is called Intersection, is defined by a piece-wise linear curve and an extrusion direction. The curve can be either a Simulation Well, a Well Path, a user defined polyline, or a user defined line.</description>
+There are two main types of intersections. The first one which simply is called Intersection, is defined by a piece-wise linear curve and an extrusion direction. The curve can be either a Simulation Well, a Well Path, a user defined polyline, or a user defined line. These intersections can also be shown in their own separate 2D Intersection View</description>
     </item>
     
     <item>
@@ -759,7 +757,7 @@ Grid Statistics Dialog Fields The dialog consist of three information parts.
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/3d-main-window/casegroupsandstatistics/</guid>
-      <description>Grid Case Group&amp;rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
+      <description>Grid Case Group&amp;lsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
 If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step between the realizations.</description>
     </item>
     
@@ -810,7 +808,7 @@ When ResInsight is in measurement mode, clicking on an surface in the 3D view wi
       
       <guid>https://resinsight.org/3d-main-window/annotations/</guid>
       <description>ResInsight supports displaying a few types of annotations in 3D views and Contour Map view.
- Text annotations Reach circle annotations Polyline annotations  User defined polylines Polylines imported from file   Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
+ Text annotations Reach circle annotations Polyline annotations  User defined polylines Polylines imported from file    Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
     </item>
     
     <item>
@@ -830,7 +828,7 @@ Transmissibility Normalized by Area The transmissibility for cells and Non-Neigh
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/_footer/</guid>
-      <description> About Ceetron Solutions in collaboration with Equinor ASA Support </description>
+      <description>About Ceetron Solutions in collaboration with Equinor ASA Support </description>
     </item>
     
     <item>
@@ -859,7 +857,7 @@ Efficient User Interface The user interface is tailored for efficient interpreta
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/search/</guid>
-      <description>Search for: window.store = [];window.store[&#34;/getting-started/overview/&#34;] = {title: &#34;Overview&#34;,content: &#34; User Interface ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots.\n3D Main Window Plot Main Window Switching Between the Two Main Windows The two main windows has a toolbar button each, that directly opens and raises the other window. Each of the windows can also be closed freely, but if both are closed, ResInsight exits.</description>
+      <description>Search for: window.store = [];window.store[&#34;/getting-started/overview/&#34;] = {title: &#34;Overview&#34;,content: &#34;User Interface ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots.\n3D Main Window Plot Main Window Switching Between the Two Main Windows The two main windows has a toolbar button each, that directly opens and raises the other window. Each of the windows can also be closed freely, but if both are closed, ResInsight exits.</description>
     </item>
     
     <item>
@@ -871,8 +869,7 @@ Efficient User Interface The user interface is tailored for efficient interpreta
       <description>For inquiries for new features, enhancements or support and maintenance agreements, please contact us for an offer.
 Phone : +47 73 60 43 00 e-mail : info@ceetronsolutions.com
 Bug reports and general feature requests can be filed directly on GitHub
-
-Ceetron Solutions AS - Digitalization and visualization for engineers</description>
+Ceetron Solutions AS - Digitalization and visualization for engineers </description>
     </item>
     
   </channel>

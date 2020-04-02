@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Result Color Legend :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1767,7 +1801,7 @@ if (!doNotTrack) {
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents"></nav>
     </div>
 </div>
 
@@ -1792,38 +1826,34 @@ if (!doNotTrack) {
 
 
 <p>The color mapping of the displayed cell result is controlled by the <strong>Color Legend</strong> located below a result node in the <strong>Project Tree</strong>. The legend can be shown or hidden by checking or unchecking the box in front of the Legend Definition.</p>
-
-<p><img src="/images/3d-main-window/legend_configuration.PNG" alt="Legend Configuration" /></p>
-
+<p><img src="/images/3d-main-window/legend_configuration.PNG" alt="Legend Configuration"></p>
 <ul>
 <li><strong>Number of levels</strong> &ndash; Defines the number of tick marks displayed next to the color legend</li>
 <li><strong>Significant digits</strong> &ndash; Defines the number of significant digits in the number formatting</li>
 <li><strong>Number format</strong> &ndash; Defines how the numbers are formatted</li>
 <li><strong>Colors</strong> &ndash; Defines the color palette</li>
 <li><strong>Mapping</strong> &ndash; This option defines how the values are mapped onto the color distribution
-
 <ul>
 <li><strong>Discrete Linear</strong> &ndash; Legend divided into linear levels defined by <strong>Number of levels</strong></li>
 <li><strong>Continuous Linear</strong> &ndash; Continuous linear legend with tick mark count defined by <strong>Number of levels</strong></li>
 <li><strong>Continuous Logarithmic</strong> &ndash; Continuous logarithmic legend with tick mark count defined by <strong>Number of levels</strong></li>
 <li><strong>Discrete Logarithmic</strong> &ndash; Logarithmic legend divided into levels defined by <strong>Number of levels</strong></li>
-<li><strong>Category</strong> &ndash; Special legend with one level for each category, either integer values or formation names.<br />
+<li><strong>Category</strong> &ndash; Special legend with one level for each category, either integer values or formation names.<br>
 Only available for result names ending with <em><code>NUM</code></em> or formation names.</li>
-</ul></li>
-<li><strong>Range type</strong>
-
-<ul>
-<li><strong>All Timesteps</strong> &ndash; values for all time steps are used to find min and max value of
-the result values represented by the color legend.<br />
-(Not available for Flow Diagnostics results)</li>
-<li><strong>Current Timestep</strong> &ndash; use current (one) time step to find min and max values<br /></li>
-<li><strong>User Defined Range</strong> &ndash; user specifies numeric values for min and max<br /></li>
-</ul></li>
 </ul>
-
+</li>
+<li><strong>Range type</strong>
+<ul>
+<li><strong>All Timesteps</strong> &ndash; values for all time steps are used to find min and max value of 
+the result values represented by the color legend.<br>
+(Not available for Flow Diagnostics results)</li>
+<li><strong>Current Timestep</strong> &ndash; use current (one) time step to find min and max values</li>
+<li><strong>User Defined Range</strong> &ndash; user specifies numeric values for min and max</li>
+</ul>
+</li>
+</ul>
 <p>Furthermore the legend can have a semi-transparent background applied to it by selecting the *<em>Show Box around Legends</em> option in the Preferences dialog.</p>
-
-<p><img src="/images/3d-main-window/legend_background.png" alt="Legend Background" /> <img src="/images/3d-main-window/legend_with_background.png" alt="Show Box around legends" /></p>
+<p><img src="/images/3d-main-window/legend_background.png" alt="Legend Background"> <img src="/images/3d-main-window/legend_with_background.png" alt="Show Box around legends"></p>
 
 
 <footer class=" footline" >
@@ -1999,10 +2029,26 @@ the result values represented by the color legend.<br />
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3159,20 +3205,20 @@ the result values represented by the color legend.<br />
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>3D Main Window on ResInsight</title>
@@ -49,7 +49,7 @@ Cell Results are used in several operations and settings:
       
       <guid>https://resinsight.org/3d-main-window/comparisonview/</guid>
       <description>ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view. This improves efficiency and simplifies the workflow when working with related but different models.
-The figure above exemplifies a Comparison View for comparison of two different simulations models and results.</description>
+The figure above exemplifies a Comparison View for comparison of two different simulations models and results. The left hand side is used to display grid and results of an Eclipse simulation while the right hand side displays an ABAQUS grid and simulation results from geomechanical analysis.</description>
     </item>
     
     <item>
@@ -79,7 +79,7 @@ Visualization The tensor arrows visualize the principal vectors in three directi
       
       <guid>https://resinsight.org/3d-main-window/resultinspection/</guid>
       <description>The results mapped on the 3D model can be inspected in detail by left clicking cells in the 3D view. The selected cells will be highlighted, text information displayed in the Result Info docking window, and the time-history values plotted in the Result Plot, if available.
-Visibility of the docking widows can be controlled from the Windows menu.
+Visibility of the docking widows can be controlled from the Windowsmenu.
 Result Info Clicking cells will display slightly different information text based on the case type as described in the following tables.</description>
     </item>
     
@@ -90,8 +90,7 @@ Visibility of the docking widows can be controlled from the Windows menu.
       
       <guid>https://resinsight.org/3d-main-window/filters/</guid>
       <description>Cell Filters are used to control visibility of the cells in the 3D view. Two types of filters exists:
- Range Filter &amp;ndash; Extracts an IJK subset of the model. Property Filter &amp;ndash; Extracts cells with a property value matching a value range.  The visibilities of cells connection to wells, and fences based on these cells can be controlled from  Simulation Wells .
-(Not applicable for Geomechanical cases)</description>
+ Range Filter &amp;ndash; Extracts an IJK subset of the model. Property Filter &amp;ndash; Extracts cells with a property value matching a value range.  The visibilities of cells connection to wells, and fences based on these cells can be controlled from Simulation Wells.(Not applicable for Geomechanical cases)Common Properties for Range and Property Filters Both filter types can be turned on or off using the toggle in the Project Tree and controlled from their corresponding Property Editor.</description>
     </item>
     
     <item>
@@ -101,7 +100,7 @@ Visibility of the docking widows can be controlled from the Windows menu.
       
       <guid>https://resinsight.org/3d-main-window/intersections/</guid>
       <description>Intersections are cross sections of the grid model that displays the grid cell values on planes that cut through the grid in various ways.
-There are two main types of intersections. The first one which simply is called Intersection, is defined by a piece-wise linear curve and an extrusion direction. The curve can be either a Simulation Well, a Well Path, a user defined polyline, or a user defined line.</description>
+There are two main types of intersections. The first one which simply is called Intersection, is defined by a piece-wise linear curve and an extrusion direction. The curve can be either a Simulation Well, a Well Path, a user defined polyline, or a user defined line. These intersections can also be shown in their own separate 2D Intersection View</description>
     </item>
     
     <item>
@@ -144,7 +143,7 @@ Grid Statistics Dialog Fields The dialog consist of three information parts.
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/3d-main-window/casegroupsandstatistics/</guid>
-      <description>Grid Case Group&amp;rsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
+      <description>Grid Case Group&amp;lsquo;s are designed to make it easy to calculate statistics per cell and per time step of a large number of Eclipse simulation Cases with identical Grids (often labeled realizations).
 If you have several Eclipse simulations with different input parameters available, you can put all the realizations into a Grid Case Group and easily calculate each of the cells mean value, range and max/min values at each time step between the realizations.</description>
     </item>
     
@@ -175,7 +174,7 @@ When ResInsight is in measurement mode, clicking on an surface in the 3D view wi
       
       <guid>https://resinsight.org/3d-main-window/annotations/</guid>
       <description>ResInsight supports displaying a few types of annotations in 3D views and Contour Map view.
- Text annotations Reach circle annotations Polyline annotations  User defined polylines Polylines imported from file   Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
+ Text annotations Reach circle annotations Polyline annotations  User defined polylines Polylines imported from file    Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
     </item>
     
     <item>

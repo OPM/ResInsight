@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Summary Plot Source Stepping :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,15 +1802,12 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#summary-plot-source-stepping">Summary Plot Source Stepping</a></li>
-<li><a href="#assign-source-stepping-curve">Assign source stepping curve</a></li>
-<li><a href="#handling-of-summary-curves-and-history-summary-curves">Handling of summary curves and history summary curves</a></li>
-<li><a href="#applying-data-source-change">Applying data source change</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#summary-plot-source-stepping">Summary Plot Source Stepping</a></li>
+    <li><a href="#assign-source-stepping-curve">Assign source stepping curve</a></li>
+    <li><a href="#handling-of-summary-curves-and-history-summary-curves">Handling of summary curves and history summary curves</a></li>
+    <li><a href="#applying-data-source-change">Applying data source change</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1801,27 +1832,16 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/plot-window/SummarySourceSteppingBanner.png" alt="" /></p>
-
+<p><img src="/images/plot-window/SummarySourceSteppingBanner.png" alt=""></p>
 <h2 id="summary-plot-source-stepping">Summary Plot Source Stepping</h2>
-
-<p>Summary Source Stepping is a function which enables the user to swiftly step through multiple vectors.
+<p>Summary Source Stepping is a function which enables the user to swiftly step through multiple vectors. 
 The functionality applies both to single summary curves and ensemble curve sets.</p>
-
 <p>The functionality is available from both the toolbar and the <strong>Summary Curves</strong> property editor under a <strong>Summary Plot</strong> item in the <strong>Main Plot Window Project Tree</strong>.</p>
-
 <p>The toolbar allows use of <a href="/plot-window/summaryplots/#property-editor">vector filters</a> in addition to source stepping:</p>
-
-<p><img src="/images/plot-window/SummarySourceSteppingToolbar.png" alt="" /></p>
-
+<p><img src="/images/plot-window/SummarySourceSteppingToolbar.png" alt=""></p>
 <p>The corresponding property editor is:</p>
-
-<p><img src="/images/plot-window/SummarySourceSteppingPropertyEditor.png" alt="" /></p>
-
+<p><img src="/images/plot-window/SummarySourceSteppingPropertyEditor.png" alt=""></p>
 <p>When ResInsight decides stepping dimensions to display, all visible curves in the current plot are taken into account. For instance, well stepping is enabled if all curves display data from the same well, c.f. figure above. This policy applies to the following source stepping dimensions:</p>
-
 <ul>
 <li>Cases</li>
 <li>Wells</li>
@@ -1832,22 +1852,14 @@ The functionality applies both to single summary curves and ensemble curve sets.
 <li>Block</li>
 <li>Summary Vectors</li>
 </ul>
-
 <h2 id="assign-source-stepping-curve">Assign source stepping curve</h2>
-
-<p>If the plot contains a mix of different curves, ResInsight might end up with no common stepping dimensions available.
+<p>If the plot contains a mix of different curves, ResInsight might end up with no common stepping dimensions available. 
 By right-clicking a summary curve or ensemble curve set, the menu item <strong>Set as Source Stepping Curve</strong> will use the selected curve as basis for source stepping. All source stepping dimensions for the selected curve will be displayed. When a curve or ensemble is marked for source stepping, a source stepping icon is displayed.</p>
-
-<p><img src="/images/plot-window/SummaryCurveSetSourceStepping.png" alt="" /></p>
-
+<p><img src="/images/plot-window/SummaryCurveSetSourceStepping.png" alt=""></p>
 <p>Right-clicking the summary curve or ensemble curve set, and select <strong>Clear Source Stepping Curve</strong> to leave this mode.</p>
-
 <h2 id="handling-of-summary-curves-and-history-summary-curves">Handling of summary curves and history summary curves</h2>
-
 <p>If a plot displays both a summary curve and the corresponding history summary curve, the source stepping can be applied to both curves at the same time. If you have a mix of several curves, it might be required to mark one of the curves using <strong>Set as Source Stepping Curve</strong>.</p>
-
 <h2 id="applying-data-source-change">Applying data source change</h2>
-
 <p>When one of the <strong>next buttons</strong> are clicked, all curves are changed to display data for the next item for the clicked source dimension. Example: The user clicks the <strong>next well button</strong>. Then the well source for all curves in the current plot are changed to display data for the next well.</p>
 
 
@@ -2024,10 +2036,26 @@ By right-clicking a summary curve or ensemble curve set, the menu item <strong>S
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3184,20 +3212,20 @@ By right-clicking a summary curve or ensemble curve set, the menu item <strong>S
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

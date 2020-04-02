@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Import on ResInsight</title>
@@ -82,7 +82,7 @@ Import Observed Time History Data Importing observed time history data to ResIns
       
       <guid>https://resinsight.org/import/pasteexceltimedata/</guid>
       <description>When text have been copied to the operating system&amp;rsquo;s clipboard, it will be possible to paste that text into a summary plot. Right click on a summary plot in the Plot Main Window Project Tree and select Paste Excel Data to Summary Plot. Then a paste options dialog will appear.
-Paste Options Dialog Most of the fields in this dialog are the same as in the CSV/txt import options dialog.</description>
+Paste Options Dialog Most of the fields in this dialog are the same as in the CSV/txt import options dialog. Please see that section for documentation on those fields.</description>
     </item>
     
   </channel>

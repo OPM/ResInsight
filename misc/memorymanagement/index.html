@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Memory Management :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,13 +1802,10 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#memory-indicator">Memory Indicator</a></li>
-<li><a href="#memory-management-tool">Memory Management Tool</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#memory-indicator">Memory Indicator</a></li>
+    <li><a href="#memory-management-tool">Memory Management Tool</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1799,27 +1830,16 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/MemoryManagementBanner.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/MemoryManagementBanner.png" alt=""></p>
 <p>ResInsight can require a considerable amount of memory to hold all the grids and necessary result variables. If the requirements starts approaching the available physical memory on the workstation, ResInsight may become unstable and crash, as the operating system starts freeing memory to avoid system failure. To help alleviate this, ResInsight has some built-in memory management tools.</p>
-
 <h2 id="memory-indicator">Memory Indicator</h2>
-
 <p>The tools are available from the memory indicator in the bottom right corner of the main 3D window.</p>
-
-<p><img src="/images/3d-main-window/MemoryIndicator.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/MemoryIndicator.png" alt=""></p>
 <p>If the available physical memory dips below 5% of the total physical memory on Windows, a warning will be displayed in the memory indicator. This threshold is 17.5% on Linux, as the memory manager on Linux is more likely to start stopping processes when memory is low. The amount of memory used will also be displayed in progress bars during operations in ResInsight if the available memory is less than 50% of total physical memory. In any case, ResInsight is likely to be stopped without warning by the operating system if the amount of used memory starts approaching the total physical memory on the computer.</p>
-
 <h2 id="memory-management-tool">Memory Management Tool</h2>
-
 <p>It is possible to click on the memory used indicator to open up a dialog allowing the user to clear results from memory when they are no longer required. Any tool that is not currently used in a view may be cleared by selecting the result and clicking the <strong>Clear Checked Data From Memory</strong>. Note that, dependending on your operating system, this may not result in a reduction in the memory reserved by the application. However, the actual use will have gone down and it may now be possible to run more operations without running out of memory.</p>
-
 <p>By default, results will be shown for the active case. However, a specific case may be selected in the top drop down list. The pictures below show the dialog for both Eclipse and Abaqus results.</p>
-
-<p><img src="/images/3d-main-window/MemoryTool.png" alt="" /> <img src="/images/3d-main-window/MemoryToolGeoMech.png" alt="" /></p>
+<p><img src="/images/3d-main-window/MemoryTool.png" alt=""> <img src="/images/3d-main-window/MemoryToolGeoMech.png" alt=""></p>
 
 
 <footer class=" footline" >
@@ -1995,10 +2015,26 @@ if (!doNotTrack) {
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3155,20 +3191,20 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

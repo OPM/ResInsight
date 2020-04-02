@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Python API - rips :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,217 +1802,68 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li><a href="#instance-module">Instance Module</a>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#class-rips-instance-instance-port-50051-launched-false">class rips.instance.Instance(port=50051, launched=False)</a></li>
-<li><a href="#launched">launched()</a></li>
-<li><a href="#commands">commands()</a></li>
-<li><a href="#project">project()</a></li>
-<li><a href="#client-version-string">client_version_string()</a></li>
-<li><a href="#exit">exit()</a></li>
-<li><a href="#static-find-start-port-50051-end-port-50071">static find(start_port=50051, end_port=50071)</a></li>
-<li><a href="#is-console">is_console()</a></li>
-<li><a href="#is-gui">is_gui()</a></li>
-<li><a href="#static-launch-resinsight-executable-console-false-launch-port-1-command-line-parameters-none">static launch(resinsight_executable=&ldquo;, console=False, launch_port=-1, command_line_parameters=None)</a></li>
-<li><a href="#major-version">major_version()</a></li>
-<li><a href="#minor-version">minor_version()</a></li>
-<li><a href="#patch-version">patch_version()</a></li>
-<li><a href="#set-export-folder-export-type-path-create-folder-false">set_export_folder(export_type, path, create_folder=False)</a>
-<ul>
-<li><a href="#enum-export-type">Enum export_type</a></li>
-</ul></li>
-<li><a href="#set-main-window-size-width-height">set_main_window_size(width, height)</a></li>
-<li><a href="#set-plot-window-size-width-height">set_plot_window_size(width, height)</a></li>
-<li><a href="#set-start-dir-path">set_start_dir(path)</a></li>
-<li><a href="#version-string">version_string()</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#example">Example</a></li>
-</ul></li>
-<li><a href="#case-module">Case Module</a>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#class-rips-case-case-channel-case-id-project">class rips.case.Case(channel, case_id, project)</a></li>
-<li><a href="#id">id()</a></li>
-<li><a href="#name">name()</a></li>
-<li><a href="#group-id">group_id()</a></li>
-<li><a href="#chunksize">chunkSize()</a></li>
-<li><a href="#active-cell-property-property-type-property-name-time-step-porosity-model-matrix-model">active_cell_property(property_type, property_name, time_step, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
-<li><a href="#active-cell-property-async-property-type-property-name-time-step-porosity-model-matrix-model">active_cell_property_async(property_type, property_name, time_step, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
-<li><a href="#available-properties-property-type-porosity-model-matrix-model">available_properties(property_type, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
-<li><a href="#cell-count-porosity-model-matrix-model">cell_count(porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
-<li><a href="#cell-info-for-active-cells-porosity-model-matrix-model">cell_info_for_active_cells(porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
-</ul></li>
-<li><a href="#cellinfo-class-description">CellInfo class description</a></li>
-<li><a href="#vec3i-class-description">Vec3i class description</a>
-<ul>
-<li><a href="#cell-info-for-active-cells-async-porosity-model-matrix-model">cell_info_for_active_cells_async(porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
-<li><a href="#contour-maps-map-type-contourmaptype-eclipse-1">contour_maps(map_type=<ContourMapType.ECLIPSE: 1>)</a></li>
-<li><a href="#create-multiple-fractures-template-id-well-path-names-min-dist-from-well-td-max-fractures-per-well-top-layer-base-layer-spacing-action">create_multiple_fractures(template_id, well_path_names, min_dist_from_well_td, max_fractures_per_well, top_layer, base_layer, spacing, action)</a></li>
-<li><a href="#create-lgr-for-completion-time-step-well-path-names-refinement-i-refinement-j-refinement-k-split-type">create_lgr_for_completion(time_step, well_path_names, refinement_i, refinement_j, refinement_k, split_type)</a>
-<ul>
-<li><a href="#enum-split-type">Enum split_type</a></li>
-</ul></li>
-<li><a href="#create-view">create_view()</a></li>
-<li><a href="#create-multiple-fractures-template-id-well-path-names-min-dist-from-well-td-max-fractures-per-well-top-layer-base-layer-spacing-action-1">create_multiple_fractures(template_id, well_path_names, min_dist_from_well_td, max_fractures_per_well, top_layer, base_layer, spacing, action)</a></li>
-<li><a href="#create-saturation-pressure-plots">create_saturation_pressure_plots()</a></li>
-<li><a href="#create-view-1">create_view()</a></li>
-<li><a href="#create-well-bore-stability-plot-well-path-time-step">create_well_bore_stability_plot(well_path, time_step)</a></li>
-<li><a href="#days-since-start">days_since_start()</a></li>
-<li><a href="#export-flow-characteristics-time-steps-injectors-producers-file-name-minimum-communication-0-0-aquifer-cell-threshold-0-1">export_flow_characteristics(time_steps, injectors, producers, file_name, minimum_communication=0.0, aquifer_cell_threshold=0.1)</a></li>
-<li><a href="#export-msw-well-path">export_msw(well_path)</a></li>
-<li><a href="#export-property-time-step-property-name-eclipse-keyword-class-property-undefined-value-0-0-export-file-class-property">export_property(time_step, property_name, eclipse_keyword=<class 'property'>, undefined_value=0.0, export_file=<class 'property'>)</a>
-<ul>
-<li><a href="#enum-file-split">Enum file_split</a></li>
-</ul></li>
-<li><a href="#grid-index">grid(index)</a></li>
-<li><a href="#export-snapshots-of-all-views-prefix-export-folder">export_snapshots_of_all_views(prefix=&ldquo;, export_folder=&ldquo;)</a></li>
-<li><a href="#export-well-path-completions-time-step-well-path-names-file-split-compdat-export-transmissibilities-include-perforations-true-include-fishbones-true-fishbones-exclude-main-bore-true-combination-mode-individually">export_well_path_completions(time_step, well_path_names, file_split, compdat_export=&lsquo;TRANSMISSIBILITIES&rsquo;, include_perforations=True, include_fishbones=True, fishbones_exclude_main_bore=True, combination_mode=&lsquo;INDIVIDUALLY&rsquo;)</a>
-<ul>
-<li><a href="#enum-file-split-1">Enum file_split</a></li>
-<li><a href="#enum-compdat-export">Enum compdat_export</a></li>
-<li><a href="#enum-combination-mode">Enum combination_mode</a></li>
-</ul></li>
-<li><a href="#grid-index-1">grid(index)</a></li>
-<li><a href="#grid-path">grid_path()</a></li>
-<li><a href="#grid-property-property-type-property-name-time-step-grid-index-0-porosity-model-matrix-model">grid_property(property_type, property_name, time_step, grid_index=0, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
-<li><a href="#grid-property-async-property-type-property-name-time-step-grid-index-0-porosity-model-matrix-model">grid_property_async(property_type, property_name, time_step, grid_index=0, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
-<li><a href="#grids">grids()</a></li>
-<li><a href="#import-formation-names-formation-files-none">import_formation_names(formation_files=None)</a></li>
-<li><a href="#replace-new-grid-file">replace(new_grid_file)</a></li>
-<li><a href="#set-active-cell-property-values-property-type-property-name-time-step-porosity-model-matrix-model">set_active_cell_property(values, property_type, property_name, time_step, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
-<li><a href="#set-active-cell-property-async-values-iterator-property-type-property-name-time-step-porosity-model-matrix-model">set_active_cell_property_async(values_iterator, property_type, property_name, time_step, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
-<li><a href="#set-grid-property-values-property-type-property-name-time-step-grid-index-0-porosity-model-matrix-model">set_grid_property(values, property_type, property_name, time_step, grid_index=0, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</a></li>
-<li><a href="#time-steps">time_steps()</a></li>
-<li><a href="#view-view-id">view(view_id)</a></li>
-<li><a href="#views">views()</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#example-1">Example</a></li>
-</ul></li>
-<li><a href="#contour-map-module">Contour Map Module</a>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#class-rips-contour-map-contourmap-pdm-object-project-map-type">class rips.contour_map.ContourMap(pdm_object, project, map_type)</a></li>
-<li><a href="#view-id">view_id()</a></li>
-<li><a href="#export-to-text-export-file-name-export-local-coordinates-false-undefined-value-label-nan-exclude-undefined-values-false">export_to_text(export_file_name=&ldquo;, export_local_coordinates=False, undefined_value_label=&lsquo;NaN&rsquo;, exclude_undefined_values=False)</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-<li><a href="#grid-module">Grid Module</a>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#class-rips-grid-grid-index-case-channel">class rips.grid.Grid(index, case, channel)</a></li>
-<li><a href="#dimensions">dimensions()</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#example-2">Example</a></li>
-</ul></li>
-<li><a href="#gridcasegroup-module">GridCaseGroup Module</a>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#class-rips-gridcasegroup-gridcasegroup-pdm-object">class rips.gridcasegroup.GridCaseGroup(pdm_object)</a></li>
-<li><a href="#group-id-1">group_id()</a></li>
-<li><a href="#compute-statistics-case-ids-none">compute_statistics(case_ids=None)</a></li>
-<li><a href="#create-statistics-case">create_statistics_case()</a></li>
-<li><a href="#statistics-cases">statistics_cases()</a></li>
-<li><a href="#view-view-id-1">view(view_id)</a></li>
-<li><a href="#views-1">views()</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-<li><a href="#project-module">Project Module</a>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#class-rips-project-project-channel">class rips.project.Project(channel)</a></li>
-<li><a href="#case-case-id">case(case_id)</a></li>
-<li><a href="#compute-statistics-case-ids-none-1">compute_statistics(case_ids=None)</a></li>
-<li><a href="#create-statistics-case-1">create_statistics_case()</a></li>
-<li><a href="#statistics-cases-1">statistics_cases()</a></li>
-<li><a href="#contour-maps-map-type-contourmaptype-eclipse-1-1">contour_maps(map_type=<ContourMapType.ECLIPSE: 1>)</a></li>
-<li><a href="#create-grid-case-group-case-paths">create_grid_case_group(case_paths)</a></li>
-<li><a href="#export-multi-case-snapshots-grid-list-file">export_multi_case_snapshots(grid_list_file)</a></li>
-<li><a href="#export-snapshots-snapshot-type-all-prefix">export_snapshots(snapshot_type=&lsquo;ALL&rsquo;, prefix=&ldquo;)</a></li>
-<li><a href="#export-well-paths-well-paths-none-md-step-size-5-0">export_well_paths(well_paths=None, md_step_size=5.0)</a></li>
-<li><a href="#grid-case-group-group-id">grid_case_group(group_id)</a></li>
-<li><a href="#create-grid-case-group-case-paths-1">create_grid_case_group(case_paths)</a></li>
-<li><a href="#grid-case-groups">grid_case_groups()</a></li>
-<li><a href="#import-formation-names-formation-files-none-1">import_formation_names(formation_files=None)</a></li>
-<li><a href="#export-multi-case-snapshots-grid-list-file-1">export_multi_case_snapshots(grid_list_file)</a></li>
-<li><a href="#import-well-log-files-well-log-files-none-well-log-folder">import_well_log_files(well_log_files=None, well_log_folder=&ldquo;)</a></li>
-<li><a href="#import-well-paths-well-path-files-none-well-path-folder">import_well_paths(well_path_files=None, well_path_folder=&ldquo;)</a></li>
-<li><a href="#load-case-path">load_case(path)</a></li>
-<li><a href="#grid-case-groups-1">grid_case_groups()</a></li>
-<li><a href="#open-path">open(path)</a></li>
-<li><a href="#plot-view-id">plot(view_id)</a></li>
-<li><a href="#plots">plots()</a></li>
-<li><a href="#replace-source-cases-grid-list-file-case-group-id-0">replace_source_cases(grid_list_file, case_group_id=0)</a></li>
-<li><a href="#save-path">save(path=&ldquo;)</a></li>
-<li><a href="#scale-fracture-template-template-id-half-length-height-d-factor-conductivity">scale_fracture_template(template_id, half_length, height, d_factor, conductivity)</a></li>
-<li><a href="#selected-cases">selected_cases()</a></li>
-<li><a href="#set-fracture-containment-template-id-top-layer-base-layer">set_fracture_containment(template_id, top_layer, base_layer)</a></li>
-<li><a href="#set-fracture-containment-template-id-top-layer-base-layer-1">set_fracture_containment(template_id, top_layer, base_layer)</a></li>
-<li><a href="#view-view-id-2">view(view_id)</a></li>
-<li><a href="#views-2">views()</a></li>
-<li><a href="#well-paths">well_paths()</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-<li><a href="#view-module">View Module</a>
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#class-rips-view-view-pdm-object-project">class rips.view.View(pdm_object, project)</a></li>
-<li><a href="#view-id-1">view_id()</a></li>
-<li><a href="#apply-cell-result-result-type-result-variable">apply_cell_result(result_type, result_variable)</a></li>
-<li><a href="#apply-flow-diagnostics-cell-result-result-variable-tof-selection-mode-flow-tr-by-selection-injectors-none-producers-none">apply_flow_diagnostics_cell_result(result_variable=&lsquo;TOF&rsquo;, selection_mode=&lsquo;FLOW_TR_BY_SELECTION&rsquo;, injectors=None, producers=None)</a>
-<ul>
-<li><a href="#enum-compdat-export-1">Enum compdat_export</a></li>
-</ul></li>
-<li><a href="#background-color">background_color()</a></li>
-<li><a href="#case">case()</a></li>
-<li><a href="#clone">clone()</a></li>
-<li><a href="#export-property-undefined-value-0-0">export_property(undefined_value=0.0)</a></li>
-<li><a href="#export-sim-well-fracture-completions-time-step-simulation-well-names-file-split-compdat-export">export_sim_well_fracture_completions(time_step, simulation_well_names, file_split, compdat_export)</a>
-<ul>
-<li><a href="#enum-file-split-2">Enum file_split</a></li>
-<li><a href="#enum-compdat-export-2">Enum compdat_export</a></li>
-</ul></li>
-<li><a href="#export-snapshot-prefix-export-folder">export_snapshot(prefix=&ldquo;, export_folder=&ldquo;)</a></li>
-<li><a href="#export-visible-cells-export-keyword-fluxnum-visible-active-cells-value-1-hidden-active-cells-value-0-inactive-cells-value-0">export_visible_cells(export_keyword=&lsquo;FLUXNUM&rsquo;, visible_active_cells_value=1, hidden_active_cells_value=0, inactive_cells_value=0)</a></li>
-<li><a href="#set-background-color-bgcolor">set_background_color(bgcolor)</a></li>
-<li><a href="#set-cell-result">set_cell_result()</a></li>
-<li><a href="#set-show-grid-box-value">set_show_grid_box(value)</a></li>
-<li><a href="#set-time-step-time-step">set_time_step(time_step)</a></li>
-<li><a href="#show-grid-box">show_grid_box()</a></li>
-</ul></li>
-</ul></li>
-<li><a href="#synchronous-example">Synchronous Example</a></li>
-<li><a href="#asynchronous-example">Asynchronous Example</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+    <li><a href="#example">Example</a></li>
+  </ul>
+
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+        <li><a href="#cellinfo-class-description">CellInfo class description</a></li>
+        <li><a href="#vec3i-class-description">Vec3i class description</a></li>
+      </ul>
+    </li>
+    <li><a href="#example-1">Example</a></li>
+  </ul>
+
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+    <li><a href="#example-2">Example</a></li>
+  </ul>
+
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+    <li><a href="#synchronous-example">Synchronous Example</a></li>
+    <li><a href="#asynchronous-example">Asynchronous Example</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -2003,129 +1888,104 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/scripting/python-logo-master-v3-TM.png" alt="" /></p>
-
+<p><img src="/images/scripting/python-logo-master-v3-TM.png" alt=""></p>
 <h1 id="instance-module">Instance Module</h1>
-
-<h4 id="class-rips-instance-instance-port-50051-launched-false">class rips.instance.Instance(port=50051, launched=False)</h4>
-
+<h4 id="class-ripsinstanceinstanceport50051-launchedfalse">class rips.instance.Instance(port=50051, launched=False)</h4>
 <p>The ResInsight Instance class. Use to launch or find existing ResInsight instances</p>
-
 <h4 id="launched">launched()</h4>
-
 <p>Tells us whether the application was launched as a new process.
 If the application was launched we may need to close it when exiting the script.</p>
-
 <ul>
-<li><p><strong>Type</strong></p>
-
-<p>bool</p></li>
+<li>
+<p><strong>Type</strong></p>
+<p>bool</p>
+</li>
 </ul>
-
 <h4 id="commands">commands()</h4>
-
 <p>Command executor. Set when creating an instance.</p>
-
 <ul>
-<li><p><strong>Type</strong></p>
-
-<p>Commands</p></li>
+<li>
+<p><strong>Type</strong></p>
+<p>Commands</p>
+</li>
 </ul>
-
 <h4 id="project">project()</h4>
-
 <p>Current project in ResInsight.
 Set when creating an instance and updated when opening/closing projects.</p>
-
 <ul>
-<li><p><strong>Type</strong></p>
-
-<p>Project</p></li>
+<li>
+<p><strong>Type</strong></p>
+<p>Project</p>
+</li>
 </ul>
-
-<h4 id="client-version-string">client_version_string()</h4>
-
+<h4 id="client_version_string">client_version_string()</h4>
 <p>Get a full version string, i.e. 2019.04.01</p>
-
 <h4 id="exit">exit()</h4>
-
 <p>Tell ResInsight instance to quit</p>
-
-<h4 id="static-find-start-port-50051-end-port-50071">static find(start_port=50051, end_port=50071)</h4>
-
+<h4 id="static-findstart_port50051-end_port50071">static find(start_port=50051, end_port=50071)</h4>
 <p>Search for an existing Instance of ResInsight by testing ports.</p>
-
 <p>By default we search from port 50051 to 50071 or if the environment
 variable RESINSIGHT_GRPC_PORT is set we search
 RESINSIGHT_GRPC_PORT to RESINSIGHT_GRPC_PORT+20</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>start_port</strong> (<em>int</em>) &ndash; start searching from this port</p></li>
-
-<li><p><strong>end_port</strong> (<em>int</em>) &ndash; search up to but not including this port</p></li>
-</ul></li>
+<li>
+<p><strong>start_port</strong> (<em>int</em>) &ndash; start searching from this port</p>
+</li>
+<li>
+<p><strong>end_port</strong> (<em>int</em>) &ndash; search up to but not including this port</p>
+</li>
 </ul>
-
-<h4 id="is-console">is_console()</h4>
-
+</li>
+</ul>
+<h4 id="is_console">is_console()</h4>
 <p>Returns true if the connected ResInsight instance is a console app</p>
-
-<h4 id="is-gui">is_gui()</h4>
-
+<h4 id="is_gui">is_gui()</h4>
 <p>Returns true if the connected ResInsight instance is a GUI app</p>
-
-<h4 id="static-launch-resinsight-executable-console-false-launch-port-1-command-line-parameters-none">static launch(resinsight_executable=&ldquo;, console=False, launch_port=-1, command_line_parameters=None)</h4>
-
+<h4 id="static-launchresinsight_executable-consolefalse-launch_port-1-command_line_parametersnone">static launch(resinsight_executable=&rsquo;', console=False, launch_port=-1, command_line_parameters=None)</h4>
 <p>Launch a new Instance of ResInsight. This requires the environment variable
 RESINSIGHT_EXECUTABLE to be set or the parameter resinsight_executable to be provided.
 The RESINSIGHT_GRPC_PORT environment variable can be set to an alternative port number.</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>resinsight_executable</strong> (<em>str</em>) &ndash; Path to a valid ResInsight executable. If set
+<li>
+<p><strong>resinsight_executable</strong> (<em>str</em>) &ndash; Path to a valid ResInsight executable. If set
 will take precedence over what is provided in the RESINSIGHT_EXECUTABLE
-environment variable.</p></li>
-
-<li><p><strong>console</strong> (<em>bool</em>) &ndash; If True, launch as console application, without GUI.</p></li>
-
-<li><p><strong>launch_port</strong> (<em>int</em>) &ndash; If -1 will use the default port 50051 or RESINSIGHT_GRPC_PORT
-if anything else, ResInsight will try to launch with this port</p></li>
-
-<li><p><strong>command_line_parameters</strong> (<em>list</em>) &ndash; Additional parameters as string entries in the list.</p></li>
-</ul></li>
-
-<li><p><strong>Returns</strong></p>
-
-<p>an instance object if it worked. None if not.</p></li>
-
-<li><p><strong>Return type</strong></p>
-
-<p>Instance</p></li>
+environment variable.</p>
+</li>
+<li>
+<p><strong>console</strong> (<em>bool</em>) &ndash; If True, launch as console application, without GUI.</p>
+</li>
+<li>
+<p><strong>launch_port</strong> (<em>int</em>) &ndash; If -1 will use the default port 50051 or RESINSIGHT_GRPC_PORT
+if anything else, ResInsight will try to launch with this port</p>
+</li>
+<li>
+<p><strong>command_line_parameters</strong> (<em>list</em>) &ndash; Additional parameters as string entries in the list.</p>
+</li>
 </ul>
-
-<h4 id="major-version">major_version()</h4>
-
+</li>
+<li>
+<p><strong>Returns</strong></p>
+<p>an instance object if it worked. None if not.</p>
+</li>
+<li>
+<p><strong>Return type</strong></p>
+<p>Instance</p>
+</li>
+</ul>
+<h4 id="major_version">major_version()</h4>
 <p>Get an integer with the major version number</p>
-
-<h4 id="minor-version">minor_version()</h4>
-
+<h4 id="minor_version">minor_version()</h4>
 <p>Get an integer with the minor version number</p>
-
-<h4 id="patch-version">patch_version()</h4>
-
+<h4 id="patch_version">patch_version()</h4>
 <p>Get an integer with the patch version number</p>
-
-<h4 id="set-export-folder-export-type-path-create-folder-false">set_export_folder(export_type, path, create_folder=False)</h4>
-
+<h4 id="set_export_folderexport_type-path-create_folderfalse">set_export_folder(export_type, path, create_folder=False)</h4>
 <p>Set the export folder used for all export functions</p>
-
 <table>
 <thead>
 <tr>
@@ -2134,20 +1994,17 @@ if anything else, ResInsight will try to launch with this port</p></li>
 <th>Type</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>export_type</td>
 <td>String specifying what to export</td>
 <td>String</td>
 </tr>
-
 <tr>
 <td>path</td>
 <td>Path to folder</td>
 <td>String</td>
 </tr>
-
 <tr>
 <td>create_folder</td>
 <td>Create folder if it doesn&rsquo;t exist?</td>
@@ -2155,9 +2012,7 @@ if anything else, ResInsight will try to launch with this port</p></li>
 </tr>
 </tbody>
 </table>
-
-<h5 id="enum-export-type">Enum export_type</h5>
-
+<h5 id="enum-export_type">Enum export_type</h5>
 <table>
 <thead>
 <tr>
@@ -2165,34 +2020,27 @@ if anything else, ResInsight will try to launch with this port</p></li>
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>&ldquo;COMPLETIONS&rdquo;</td>
 <td></td>
 </tr>
-
 <tr>
 <td>&ldquo;SNAPSHOTS&rdquo;</td>
 <td></td>
 </tr>
-
 <tr>
 <td>&ldquo;PROPERTIES&rdquo;</td>
 <td></td>
 </tr>
-
 <tr>
 <td>&ldquo;STATISTICS&rdquo;</td>
 <td></td>
 </tr>
 </tbody>
 </table>
-
-<h4 id="set-main-window-size-width-height">set_main_window_size(width, height)</h4>
-
+<h4 id="set_main_window_sizewidth-height">set_main_window_size(width, height)</h4>
 <p>Set the main window size in pixels</p>
-
 <table>
 <thead>
 <tr>
@@ -2201,14 +2049,12 @@ if anything else, ResInsight will try to launch with this port</p></li>
 <th>Type</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>width</td>
 <td>Width in pixels</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>height</td>
 <td>Height in pixels</td>
@@ -2216,11 +2062,8 @@ if anything else, ResInsight will try to launch with this port</p></li>
 </tr>
 </tbody>
 </table>
-
-<h4 id="set-plot-window-size-width-height">set_plot_window_size(width, height)</h4>
-
+<h4 id="set_plot_window_sizewidth-height">set_plot_window_size(width, height)</h4>
 <p>Set the plot window size in pixels</p>
-
 <table>
 <thead>
 <tr>
@@ -2229,14 +2072,12 @@ if anything else, ResInsight will try to launch with this port</p></li>
 <th>Type</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>width</td>
 <td>Width in pixels</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>height</td>
 <td>Height in pixels</td>
@@ -2244,142 +2085,126 @@ if anything else, ResInsight will try to launch with this port</p></li>
 </tr>
 </tbody>
 </table>
-
-<h4 id="set-start-dir-path">set_start_dir(path)</h4>
-
+<h4 id="set_start_dirpath">set_start_dir(path)</h4>
 <p>Set current start directory</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
-<p><strong>path</strong> (<em>str</em>) &ndash; path to directory</p></li>
+<li>
+<p><strong>Parameters</strong></p>
+<p><strong>path</strong> (<em>str</em>) &ndash; path to directory</p>
+</li>
 </ul>
-
-<h4 id="version-string">version_string()</h4>
-
+<h4 id="version_string">version_string()</h4>
 <p>Get a full version string, i.e. 2019.04.01</p>
-
 <h2 id="example">Example</h2>
-
 <pre><code>
 resinsight  = rips.Instance.find()
 
 if resinsight is None:
     print('ERROR: could not find ResInsight')
 else:
-    print('Successfully connected to ResInsight')
-</code></pre>
-
-<h1 id="case-module">Case Module</h1>
-
-<h4 id="class-rips-case-case-channel-case-id-project">class rips.case.Case(channel, case_id, project)</h4>
-
+	print('Successfully connected to ResInsight')
+</code></pre><h1 id="case-module">Case Module</h1>
+<h4 id="class-ripscasecasechannel-case_id-project">class rips.case.Case(channel, case_id, project)</h4>
 <p>ResInsight case class</p>
-
 <p>Operate on a ResInsight case specified by a Case Id integer.
 Not meant to be constructed separately but created by one of the following
 methods in Project: loadCase, case, allCases, selectedCasesq</p>
-
 <h4 id="id">id()</h4>
-
 <p>Case Id corresponding to case Id in ResInsight project.</p>
-
 <ul>
-<li><p><strong>Type</strong></p>
-
-<p>int</p></li>
+<li>
+<p><strong>Type</strong></p>
+<p>int</p>
+</li>
 </ul>
-
 <h4 id="name">name()</h4>
-
 <p>Case name</p>
-
 <ul>
-<li><p><strong>Type</strong></p>
-
-<p>str</p></li>
+<li>
+<p><strong>Type</strong></p>
+<p>str</p>
+</li>
 </ul>
-
-<h4 id="group-id">group_id()</h4>
-
+<h4 id="group_id">group_id()</h4>
 <p>Case Group id</p>
-
 <ul>
-<li><p><strong>Type</strong></p>
-
-<p>int</p></li>
+<li>
+<p><strong>Type</strong></p>
+<p>int</p>
+</li>
 </ul>
-
 <h4 id="chunksize">chunkSize()</h4>
-
 <p>The size of each chunk during value streaming.
 A good chunk size is 64KiB = 65536B.
 Meaning the ideal number of doubles would be 8192.
 However we need overhead space, so the default is 8160.
 This leaves 256B for overhead.</p>
-
 <ul>
-<li><p><strong>Type</strong></p>
-
-<p>int</p></li>
+<li>
+<p><strong>Type</strong></p>
+<p>int</p>
+</li>
 </ul>
-
-<h4 id="active-cell-property-property-type-property-name-time-step-porosity-model-matrix-model">active_cell_property(property_type, property_name, time_step, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</h4>
-
+<h4 id="active_cell_propertyproperty_type-property_name-time_step-porosity_modelmatrix_model">active_cell_property(property_type, property_name, time_step, porosity_model='MATRIX_MODEL&rsquo;)</h4>
 <p>Get a cell property for all active cells. Sync, so returns a list</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-
-<li><p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p></li>
-
-<li><p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p></li>
-
-<li><p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-</ul></li>
-
-<li><p><strong>Returns</strong></p>
-
+<li>
+<p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
+<li>
+<p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p>
+</li>
+<li>
+<p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p>
+</li>
+<li>
+<p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Returns</strong></p>
 <p>A list containing double values
-Loop through the chunks and then the values within the chunk to get all values.</p></li>
+Loop through the chunks and then the values within the chunk to get all values.</p>
+</li>
 </ul>
-
-<h4 id="active-cell-property-async-property-type-property-name-time-step-porosity-model-matrix-model">active_cell_property_async(property_type, property_name, time_step, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</h4>
-
+<h4 id="active_cell_property_asyncproperty_type-property_name-time_step-porosity_modelmatrix_model">active_cell_property_async(property_type, property_name, time_step, porosity_model='MATRIX_MODEL&rsquo;)</h4>
 <p>Get a cell property for all active cells. Async, so returns an iterator</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-
-<li><p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p></li>
-
-<li><p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p></li>
-
-<li><p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-</ul></li>
-
-<li><p><strong>Returns</strong></p>
-
-<p>An iterator to a chunk object containing an array of double values
-Loop through the chunks and then the values within the chunk to get all values.</p></li>
+<li>
+<p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
+<li>
+<p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p>
+</li>
+<li>
+<p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p>
+</li>
+<li>
+<p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
 </ul>
-
-<h4 id="available-properties-property-type-porosity-model-matrix-model">available_properties(property_type, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</h4>
-
+</li>
+<li>
+<p><strong>Returns</strong></p>
+<p>An iterator to a chunk object containing an array of double values
+Loop through the chunks and then the values within the chunk to get all values.</p>
+</li>
+</ul>
+<h4 id="available_propertiesproperty_type-porosity_modelmatrix_model">available_properties(property_type, porosity_model='MATRIX_MODEL&rsquo;)</h4>
 <p>Get a list of available properties</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>property_type</strong> (<em>str</em>) &ndash; string corresponding to property_type enum. Choices:</p>
-
+<li>
+<p><strong>property_type</strong> (<em>str</em>) &ndash; string corresponding to property_type enum. Choices:</p>
 <ul>
 <li>DYNAMIC_NATIVE</li>
 <li>STATIC_NATIVE</li>
@@ -2389,50 +2214,47 @@ Loop through the chunks and then the values within the chunk to get all values.<
 <li>FORMATION_NAMES</li>
 <li>FLOW_DIAGNOSTICS</li>
 <li>INJECTION_FLOODING</li>
-</ul></li>
-
-<li><p><strong>porosity_model</strong> (<em>str</em>) &ndash; &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
-</ul></li>
 </ul>
-
-<h4 id="cell-count-porosity-model-matrix-model">cell_count(porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</h4>
-
+</li>
+<li>
+<p><strong>porosity_model</strong> (<em>str</em>) &ndash; &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="cell_countporosity_modelmatrix_model">cell_count(porosity_model='MATRIX_MODEL&rsquo;)</h4>
 <p>Get a cell count object containing number of active cells and
 total number of cells</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <p><strong>porosity_model</strong> (<em>str</em>) &ndash; String representing an enum.
-must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
-
-<li><p><strong>Returns</strong></p>
-
+must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p>
+</li>
+<li>
+<p><strong>Returns</strong></p>
 <p>active_cell_count: number of active cells
-reservoir_cell_count: total number of reservoir cells</p></li>
-
-<li><p><strong>Return type</strong></p>
-
-<p>Cell Count object with the following integer attributes</p></li>
+reservoir_cell_count: total number of reservoir cells</p>
+</li>
+<li>
+<p><strong>Return type</strong></p>
+<p>Cell Count object with the following integer attributes</p>
+</li>
 </ul>
-
-<h4 id="cell-info-for-active-cells-porosity-model-matrix-model">cell_info_for_active_cells(porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</h4>
-
+<h4 id="cell_info_for_active_cellsporosity_modelmatrix_model">cell_info_for_active_cells(porosity_model='MATRIX_MODEL&rsquo;)</h4>
 <p>Get list of cell info objects for current case</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <p><strong>porosity_model</strong> (<em>str</em>) &ndash; String representing an enum.
-must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
-
-<li><p><strong>Returns</strong></p>
-
-<p>List of <strong>CellInfo</strong> objects</p></li>
+must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p>
+</li>
+<li>
+<p><strong>Returns</strong></p>
+<p>List of <strong>CellInfo</strong> objects</p>
+</li>
 </ul>
-
 <h3 id="cellinfo-class-description">CellInfo class description</h3>
-
 <table>
 <thead>
 <tr>
@@ -2441,32 +2263,27 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 <th>Type</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>grid_index</td>
 <td>Index to grid</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>parent_grid_index</td>
 <td>Index to parent grid</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>coarsening_box_index</td>
 <td>Index to coarsening box</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>local_ijk</td>
 <td>Cell index in IJK directions of local grid</td>
 <td>Vec3i</td>
 </tr>
-
 <tr>
 <td>parent_ijk</td>
 <td>Cell index in IJK directions of parent grid</td>
@@ -2474,9 +2291,7 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 </tr>
 </tbody>
 </table>
-
 <h3 id="vec3i-class-description">Vec3i class description</h3>
-
 <table>
 <thead>
 <tr>
@@ -2485,20 +2300,17 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 <th>Type</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>i</td>
 <td>I grid index</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>j</td>
 <td>J grid index</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>k</td>
 <td>K grid index</td>
@@ -2506,28 +2318,22 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 </tr>
 </tbody>
 </table>
-
-<h4 id="cell-info-for-active-cells-async-porosity-model-matrix-model">cell_info_for_active_cells_async(porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</h4>
-
+<h4 id="cell_info_for_active_cells_asyncporosity_modelmatrix_model">cell_info_for_active_cells_async(porosity_model='MATRIX_MODEL&rsquo;)</h4>
 <p>Get Stream of cell info objects for current case</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <p><strong>porosity_model</strong> (<em>str</em>) &ndash; String representing an enum.
-must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
-
-<li><p><strong>Returns</strong></p>
-
-<p>Stream of <strong>CellInfo</strong> objects</p></li>
+must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p>
+</li>
+<li>
+<p><strong>Returns</strong></p>
+<p>Stream of <strong>CellInfo</strong> objects</p>
+</li>
 </ul>
-
 <p>See cell_info_for_active_cells() for detalis on the <strong>CellInfo</strong> class.</p>
-
-<h4 id="contour-maps-map-type-contourmaptype-eclipse-1">contour_maps(map_type=<ContourMapType.ECLIPSE: 1>)</h4>
-
+<h4 id="contour_mapsmap_typecontourmaptypeeclipse-1">contour_maps(map_type=&lt;ContourMapType.ECLIPSE: 1&gt;)</h4>
 <p>Get a list of all contour maps belonging to a project</p>
-
 <table>
 <thead>
 <tr>
@@ -2536,38 +2342,32 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 <th>Type</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>time_steps</td>
 <td>Time step index</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>well_path_names</td>
 <td>List of well path names</td>
 <td>List of Strings</td>
 </tr>
-
 <tr>
 <td>refinement_i</td>
 <td>Refinment in x-direction</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>refinement_j</td>
 <td>Refinment in y-direction</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>refinement_k</td>
 <td>Refinment in z-direction</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>split_type</td>
 <td>Defines how to split LGRS</td>
@@ -2575,21 +2375,16 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 </tr>
 </tbody>
 </table>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
-<p><strong>map_type</strong> (<em>enum</em>) &ndash; ContourMapType.ECLIPSE or ContourMapType.GEO_MECH</p></li>
+<li>
+<p><strong>Parameters</strong></p>
+<p><strong>map_type</strong> (<em>enum</em>) &ndash; ContourMapType.ECLIPSE or ContourMapType.GEO_MECH</p>
+</li>
 </ul>
-
-<h4 id="create-multiple-fractures-template-id-well-path-names-min-dist-from-well-td-max-fractures-per-well-top-layer-base-layer-spacing-action">create_multiple_fractures(template_id, well_path_names, min_dist_from_well_td, max_fractures_per_well, top_layer, base_layer, spacing, action)</h4>
-
+<h4 id="create_multiple_fracturestemplate_id-well_path_names-min_dist_from_well_td-max_fractures_per_well-top_layer-base_layer-spacing-action">create_multiple_fractures(template_id, well_path_names, min_dist_from_well_td, max_fractures_per_well, top_layer, base_layer, spacing, action)</h4>
 <p>Create Multiple Fractures in one go</p>
-
-<h4 id="create-lgr-for-completion-time-step-well-path-names-refinement-i-refinement-j-refinement-k-split-type">create_lgr_for_completion(time_step, well_path_names, refinement_i, refinement_j, refinement_k, split_type)</h4>
-
+<h4 id="create_lgr_for_completiontime_step-well_path_names-refinement_i-refinement_j-refinement_k-split_type">create_lgr_for_completion(time_step, well_path_names, refinement_i, refinement_j, refinement_k, split_type)</h4>
 <p>Create a local grid refinement for the completions on the given well paths</p>
-
 <table>
 <thead>
 <tr>
@@ -2598,38 +2393,32 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 <th>Type</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>time_steps</td>
 <td>Time step index</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>well_path_names</td>
 <td>List of well path names</td>
 <td>List of Strings</td>
 </tr>
-
 <tr>
 <td>refinement_i</td>
 <td>Refinment in x-direction</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>refinement_j</td>
 <td>Refinment in y-direction</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>refinement_k</td>
 <td>Refinment in z-direction</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>split_type</td>
 <td>Defines how to split LGRS</td>
@@ -2637,9 +2426,7 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 </tr>
 </tbody>
 </table>
-
-<h5 id="enum-split-type">Enum split_type</h5>
-
+<h5 id="enum-split_type">Enum split_type</h5>
 <table>
 <thead>
 <tr>
@@ -2647,33 +2434,25 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>&ldquo;LGR_PER_CELL&rdquo;</td>
 <td>One LGR for each completed cell</td>
 </tr>
-
 <tr>
 <td>&ldquo;LGR_PER_COMPLETION&rdquo;</td>
 <td>One LGR for each completion (fracture, perforation, &hellip;)</td>
 </tr>
-
 <tr>
 <td>&ldquo;LGR_PER_WELL&rdquo;</td>
 <td>One LGR for each well</td>
 </tr>
 </tbody>
 </table>
-
-<h4 id="create-view">create_view()</h4>
-
+<h4 id="create_view">create_view()</h4>
 <p>Create a new view in the current case</p>
-
-<h4 id="create-multiple-fractures-template-id-well-path-names-min-dist-from-well-td-max-fractures-per-well-top-layer-base-layer-spacing-action-1">create_multiple_fractures(template_id, well_path_names, min_dist_from_well_td, max_fractures_per_well, top_layer, base_layer, spacing, action)</h4>
-
+<h4 id="create_multiple_fracturestemplate_id-well_path_names-min_dist_from_well_td-max_fractures_per_well-top_layer-base_layer-spacing-action-1">create_multiple_fractures(template_id, well_path_names, min_dist_from_well_td, max_fractures_per_well, top_layer, base_layer, spacing, action)</h4>
 <p>Create Multiple Fractures in one go</p>
-
 <table>
 <thead>
 <tr>
@@ -2682,50 +2461,42 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 <th>Type</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>template_id</td>
 <td>Id of the template</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>well_path_names</td>
 <td>List of well path names</td>
 <td>List of Strings</td>
 </tr>
-
 <tr>
 <td>min_dist_from_well_td</td>
 <td>Minimum distance from well TD</td>
 <td>Double</td>
 </tr>
-
 <tr>
 <td>max_fractures_per_well</td>
 <td>Max number of fractures per well</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>top_layer</td>
 <td>Top grid k-level for fractures</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>base_layer</td>
 <td>Base grid k-level for fractures</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>spacing</td>
 <td>Spacing between fractures</td>
 <td>Double</td>
 </tr>
-
 <tr>
 <td>action</td>
 <td>&lsquo;APPEND_FRACTURES&rsquo; or &lsquo;REPLACE_FRACTURES&rsquo;</td>
@@ -2733,44 +2504,35 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 </tr>
 </tbody>
 </table>
-
-<h4 id="create-saturation-pressure-plots">create_saturation_pressure_plots()</h4>
-
+<h4 id="create_saturation_pressure_plots">create_saturation_pressure_plots()</h4>
 <p>Create saturation pressure plots for the current case</p>
-
-<h4 id="create-view-1">create_view()</h4>
-
+<h4 id="create_view-1">create_view()</h4>
 <p>Create a new view in the current case</p>
-
-<h4 id="create-well-bore-stability-plot-well-path-time-step">create_well_bore_stability_plot(well_path, time_step)</h4>
-
+<h4 id="create_well_bore_stability_plotwell_path-time_step">create_well_bore_stability_plot(well_path, time_step)</h4>
 <p>Create a new well bore stability plot</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>well_path</strong> (<em>str</em>) &ndash; well path name</p></li>
-
-<li><p><strong>time_step</strong> (<em>int</em>) &ndash; time step</p></li>
-</ul></li>
-
-<li><p><strong>Returns</strong></p>
-
-<p>A new plot object</p></li>
+<li>
+<p><strong>well_path</strong> (<em>str</em>) &ndash; well path name</p>
+</li>
+<li>
+<p><strong>time_step</strong> (<em>int</em>) &ndash; time step</p>
+</li>
 </ul>
-
-<h4 id="days-since-start">days_since_start()</h4>
-
+</li>
+<li>
+<p><strong>Returns</strong></p>
+<p>A new plot object</p>
+</li>
+</ul>
+<h4 id="days_since_start">days_since_start()</h4>
 <p>Get a list of decimal values representing days since the start of the simulation</p>
-
 <pre><code>* **export_file** (*str*) -- File name for export. Defaults to the value of property parameter
 </code></pre>
-
-<h4 id="export-flow-characteristics-time-steps-injectors-producers-file-name-minimum-communication-0-0-aquifer-cell-threshold-0-1">export_flow_characteristics(time_steps, injectors, producers, file_name, minimum_communication=0.0, aquifer_cell_threshold=0.1)</h4>
-
+<h4 id="export_flow_characteristicstime_steps-injectors-producers-file_name-minimum_communication00-aquifer_cell_threshold01">export_flow_characteristics(time_steps, injectors, producers, file_name, minimum_communication=0.0, aquifer_cell_threshold=0.1)</h4>
 <p>Export Flow Characteristics data to text file in CSV format</p>
-
 <table>
 <thead>
 <tr>
@@ -2779,38 +2541,32 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 <th>Type</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>time_steps</td>
 <td>Time step indices</td>
 <td>List of Integer</td>
 </tr>
-
 <tr>
 <td>injectors</td>
 <td>Injector names</td>
 <td>List of Strings</td>
 </tr>
-
 <tr>
 <td>producers</td>
 <td>Producer names</td>
 <td>List of Strings</td>
 </tr>
-
 <tr>
 <td>file_name</td>
 <td>Export file name</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>minimum_communication</td>
 <td>Minimum Communication, defaults to 0.0</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>aquifer_cell_threshold</td>
 <td>Aquifer Cell Threshold, defaults to 0.1</td>
@@ -2818,25 +2574,20 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 </tr>
 </tbody>
 </table>
-
-<h4 id="export-msw-well-path">export_msw(well_path)</h4>
-
+<h4 id="export_mswwell_path">export_msw(well_path)</h4>
 <p>Export Eclipse Multi-segment-well model to file</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p></li>
-
-<li><p><strong>Parameters</strong></p>
-
-<p><strong>well_path</strong> (<em>str</em>) &ndash; Well path name</p></li>
+<li>
+<p><strong>Parameters</strong></p>
+</li>
+<li>
+<p><strong>Parameters</strong></p>
+<p><strong>well_path</strong> (<em>str</em>) &ndash; Well path name</p>
+</li>
 </ul>
-
-<h4 id="export-property-time-step-property-name-eclipse-keyword-class-property-undefined-value-0-0-export-file-class-property">export_property(time_step, property_name, eclipse_keyword=<class 'property'>, undefined_value=0.0, export_file=<class 'property'>)</h4>
-
+<h4 id="export_propertytime_step-property_name-eclipse_keywordclass-property-undefined_value00-export_fileclass-property">export_property(time_step, property_name, eclipse_keyword=&lt;class &lsquo;property'&gt;, undefined_value=0.0, export_file=&lt;class &lsquo;property'&gt;)</h4>
 <p>Export an Eclipse property</p>
-
-<h5 id="enum-file-split">Enum file_split</h5>
-
+<h5 id="enum-file_split">Enum file_split</h5>
 <table>
 <thead>
 <tr>
@@ -2844,25 +2595,21 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>&ldquo;UNIFIED_FILE&rdquo;</td>
 <td>A single file with all combined transmissibilities</td>
 </tr>
-
 <tr>
 <td>&ldquo;SPLIT_ON_WELL&rdquo;</td>
 <td>One file for each well with combined transmissibilities</td>
 </tr>
-
 <tr>
 <td>&ldquo;SPLIT_ON_WELL_AND_COMPLETION_TYPE&rdquo;</td>
 <td>One file for each completion type for each well</td>
 </tr>
 </tbody>
 </table>
-
 <pre><code>* **time_step** (*int*) -- time step index
 
 * **property_name** (*str*) -- property to export
@@ -2873,29 +2620,25 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 
 * **export_file** (*str*) -- File name for export. Defaults to the value of property parameter
 </code></pre>
-
-<h4 id="grid-index">grid(index)</h4>
-
+<h4 id="gridindex">grid(index)</h4>
 <p>Get Grid of a given index. Returns a rips Grid object</p>
-
-<h4 id="export-snapshots-of-all-views-prefix-export-folder">export_snapshots_of_all_views(prefix=&ldquo;, export_folder=&ldquo;)</h4>
-
+<h4 id="export_snapshots_of_all_viewsprefix-export_folder">export_snapshots_of_all_views(prefix=&rsquo;', export_folder=&rsquo;')</h4>
 <p>Export snapshots for all views in the case</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>prefix</strong> (<em>str</em>) &ndash; Exported file name prefix</p></li>
-
-<li><p><strong>export_folder</strong> (<em>str</em>) &ndash; The path to export to. By default will use the global export folder</p></li>
-</ul></li>
+<li>
+<p><strong>prefix</strong> (<em>str</em>) &ndash; Exported file name prefix</p>
+</li>
+<li>
+<p><strong>export_folder</strong> (<em>str</em>) &ndash; The path to export to. By default will use the global export folder</p>
+</li>
 </ul>
-
-<h4 id="export-well-path-completions-time-step-well-path-names-file-split-compdat-export-transmissibilities-include-perforations-true-include-fishbones-true-fishbones-exclude-main-bore-true-combination-mode-individually">export_well_path_completions(time_step, well_path_names, file_split, compdat_export=&lsquo;TRANSMISSIBILITIES&rsquo;, include_perforations=True, include_fishbones=True, fishbones_exclude_main_bore=True, combination_mode=&lsquo;INDIVIDUALLY&rsquo;)</h4>
-
+</li>
+</ul>
+<h4 id="export_well_path_completionstime_step-well_path_names-file_split-compdat_exporttransmissibilities-include_perforationstrue-include_fishbonestrue-fishbones_exclude_main_boretrue-combination_modeindividually">export_well_path_completions(time_step, well_path_names, file_split, compdat_export='TRANSMISSIBILITIES&rsquo;, include_perforations=True, include_fishbones=True, fishbones_exclude_main_bore=True, combination_mode='INDIVIDUALLY&rsquo;)</h4>
 <p>Export well path completions for the current case to file</p>
-
 <table>
 <thead>
 <tr>
@@ -2904,50 +2647,42 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 <th>Type</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>time_step</td>
 <td>Time step to export for</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>well_path_names</td>
 <td>List of well path names</td>
 <td>List</td>
 </tr>
-
 <tr>
 <td>file_split</td>
 <td>Controls how export data is split into files</td>
 <td>String enum</td>
 </tr>
-
 <tr>
 <td>compdat_export</td>
 <td>Compdat export type</td>
 <td>String enum</td>
 </tr>
-
 <tr>
 <td>include_perforations</td>
 <td>Export perforations?</td>
 <td>bool</td>
 </tr>
-
 <tr>
 <td>include_fishbones</td>
 <td>Export fishbones?</td>
 <td>bool</td>
 </tr>
-
 <tr>
 <td>fishbones_exclude_main_bore</td>
 <td>Exclude main bore when exporting fishbones?</td>
 <td>bool</td>
 </tr>
-
 <tr>
 <td>combination_mode</td>
 <td>Settings for multiple completions in same cell</td>
@@ -2955,9 +2690,7 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 </tr>
 </tbody>
 </table>
-
-<h5 id="enum-file-split-1">Enum file_split</h5>
-
+<h5 id="enum-file_split-1">Enum file_split</h5>
 <table>
 <thead>
 <tr>
@@ -2965,27 +2698,22 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>&ldquo;UNIFIED_FILE&rdquo;</td>
 <td>A single file with all combined transmissibilities</td>
 </tr>
-
 <tr>
 <td>&ldquo;SPLIT_ON_WELL&rdquo;</td>
 <td>One file for each well with combined transmissibilities</td>
 </tr>
-
 <tr>
 <td>&ldquo;SPLIT_ON_WELL_AND_COMPLETION_TYPE&rdquo;</td>
 <td>One file for each completion type for each well</td>
 </tr>
 </tbody>
 </table>
-
-<h5 id="enum-compdat-export">Enum compdat_export</h5>
-
+<h5 id="enum-compdat_export">Enum compdat_export</h5>
 <table>
 <thead>
 <tr>
@@ -2993,22 +2721,18 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>&ldquo;TRANSMISSIBILITIES&rdquo;</td>
 <td>Direct export of transmissibilities</td>
 </tr>
-
 <tr>
 <td>&ldquo;WPIMULT_AND_DEFAULT_CONNECTION_FACTORS&rdquo;</td>
 <td>Include WPIMULT in addition to transmissibilities</td>
 </tr>
 </tbody>
 </table>
-
-<h5 id="enum-combination-mode">Enum combination_mode</h5>
-
+<h5 id="enum-combination_mode">Enum combination_mode</h5>
 <table>
 <thead>
 <tr>
@@ -3016,187 +2740,188 @@ must be &lsquo;MATRIX_MODEL&rsquo; or &lsquo;FRACTURE_MODEL&rsquo;.</p></li>
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>&ldquo;INDIVIDUALLY&rdquo;</td>
 <td>Exports the different completion types into separate sections</td>
 </tr>
-
 <tr>
 <td>&ldquo;COMBINED&rdquo;</td>
 <td>Export one combined transmissibility for each cell</td>
 </tr>
 </tbody>
 </table>
-
-<h4 id="grid-index-1">grid(index)</h4>
-
+<h4 id="gridindex-1">grid(index)</h4>
 <p>Get Grid of a given index. Returns a rips Grid object</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <p><strong>index</strong> (<em>int</em>) &ndash; The grid index</p>
-
 <ul>
 <li><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>Returns: Grid object</p>
-
-<h4 id="grid-path">grid_path()</h4>
-
+<h4 id="grid_path">grid_path()</h4>
 <p>Get path of the current grid case</p>
-
 <p>Returns: path string</p>
-
-<h4 id="grid-property-property-type-property-name-time-step-grid-index-0-porosity-model-matrix-model">grid_property(property_type, property_name, time_step, grid_index=0, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</h4>
-
+<h4 id="grid_propertyproperty_type-property_name-time_step-grid_index0-porosity_modelmatrix_model">grid_property(property_type, property_name, time_step, grid_index=0, porosity_model='MATRIX_MODEL&rsquo;)</h4>
 <p>Get a cell property for all grid cells. Synchronous, so returns a list</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-
-<li><p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p></li>
-
-<li><p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p></li>
-
-<li><p><strong>grid_index</strong> (<em>int</em>) &ndash; index to the grid we&rsquo;re getting values for</p></li>
-
-<li><p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-</ul></li>
-
-<li><p><strong>Returns</strong></p>
-
-<p>A list of double values</p></li>
+<li>
+<p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
+<li>
+<p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p>
+</li>
+<li>
+<p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p>
+</li>
+<li>
+<p><strong>grid_index</strong> (<em>int</em>) &ndash; index to the grid we&rsquo;re getting values for</p>
+</li>
+<li>
+<p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
 </ul>
-
-<h4 id="grid-property-async-property-type-property-name-time-step-grid-index-0-porosity-model-matrix-model">grid_property_async(property_type, property_name, time_step, grid_index=0, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</h4>
-
+</li>
+<li>
+<p><strong>Returns</strong></p>
+<p>A list of double values</p>
+</li>
+</ul>
+<h4 id="grid_property_asyncproperty_type-property_name-time_step-grid_index0-porosity_modelmatrix_model">grid_property_async(property_type, property_name, time_step, grid_index=0, porosity_model='MATRIX_MODEL&rsquo;)</h4>
 <p>Get a cell property for all grid cells. Async, so returns an iterator</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-
-<li><p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p></li>
-
-<li><p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p></li>
-
-<li><p><strong>gridIndex</strong> (<em>int</em>) &ndash; index to the grid we&rsquo;re getting values for</p></li>
-
-<li><p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-</ul></li>
-
-<li><p><strong>Returns</strong></p>
-
+<li>
+<p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
+<li>
+<p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p>
+</li>
+<li>
+<p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p>
+</li>
+<li>
+<p><strong>gridIndex</strong> (<em>int</em>) &ndash; index to the grid we&rsquo;re getting values for</p>
+</li>
+<li>
+<p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Returns</strong></p>
 <p>An iterator to a chunk object containing an array of double values
-Loop through the chunks and then the values within the chunk to get all values.</p></li>
+Loop through the chunks and then the values within the chunk to get all values.</p>
+</li>
 </ul>
-
 <h4 id="grids">grids()</h4>
-
 <p>Get a list of all rips Grid objects in the case</p>
-
-<h4 id="import-formation-names-formation-files-none">import_formation_names(formation_files=None)</h4>
-
+<h4 id="import_formation_namesformation_filesnone">import_formation_names(formation_files=None)</h4>
 <p>Import formation names into project and apply it to the current case</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
-<p><strong>formation_files</strong> (<em>list</em>) &ndash; list of files to import</p></li>
+<li>
+<p><strong>Parameters</strong></p>
+<p><strong>formation_files</strong> (<em>list</em>) &ndash; list of files to import</p>
+</li>
 </ul>
-
-<h4 id="replace-new-grid-file">replace(new_grid_file)</h4>
-
+<h4 id="replacenew_grid_file">replace(new_grid_file)</h4>
 <p>Replace the current case grid with a new grid loaded from file</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <p><strong>new_egrid_file</strong> (<em>str</em>) &ndash; path to EGRID file</p>
-
 <ul>
 <li><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</li>
-</ul></li>
 </ul>
-
-<h4 id="set-active-cell-property-values-property-type-property-name-time-step-porosity-model-matrix-model">set_active_cell_property(values, property_type, property_name, time_step, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</h4>
-
+</li>
+</ul>
+<h4 id="set_active_cell_propertyvalues-property_type-property_name-time_step-porosity_modelmatrix_model">set_active_cell_property(values, property_type, property_name, time_step, porosity_model='MATRIX_MODEL&rsquo;)</h4>
 <p>Set a cell property for all active cells.</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>values</strong> (<em>list</em>) &ndash; a list of double precision floating point numbers</p></li>
-
-<li><p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-
-<li><p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p></li>
-
-<li><p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p></li>
-
-<li><p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-</ul></li>
+<li>
+<p><strong>values</strong> (<em>list</em>) &ndash; a list of double precision floating point numbers</p>
+</li>
+<li>
+<p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
+<li>
+<p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p>
+</li>
+<li>
+<p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p>
+</li>
+<li>
+<p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
 </ul>
-
-<h4 id="set-active-cell-property-async-values-iterator-property-type-property-name-time-step-porosity-model-matrix-model">set_active_cell_property_async(values_iterator, property_type, property_name, time_step, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</h4>
-
+</li>
+</ul>
+<h4 id="set_active_cell_property_asyncvalues_iterator-property_type-property_name-time_step-porosity_modelmatrix_model">set_active_cell_property_async(values_iterator, property_type, property_name, time_step, porosity_model='MATRIX_MODEL&rsquo;)</h4>
 <p>Set cell property for all active cells Async. Takes an iterator to the input values</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>values_iterator</strong> (<em>iterator</em>) &ndash; an iterator to the properties to be set</p></li>
-
-<li><p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-
-<li><p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p></li>
-
-<li><p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p></li>
-
-<li><p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-</ul></li>
+<li>
+<p><strong>values_iterator</strong> (<em>iterator</em>) &ndash; an iterator to the properties to be set</p>
+</li>
+<li>
+<p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
+<li>
+<p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p>
+</li>
+<li>
+<p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p>
+</li>
+<li>
+<p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
 </ul>
-
-<h4 id="set-grid-property-values-property-type-property-name-time-step-grid-index-0-porosity-model-matrix-model">set_grid_property(values, property_type, property_name, time_step, grid_index=0, porosity_model=&lsquo;MATRIX_MODEL&rsquo;)</h4>
-
+</li>
+</ul>
+<h4 id="set_grid_propertyvalues-property_type-property_name-time_step-grid_index0-porosity_modelmatrix_model">set_grid_property(values, property_type, property_name, time_step, grid_index=0, porosity_model='MATRIX_MODEL&rsquo;)</h4>
 <p>Set a cell property for all grid cells.</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>values</strong> (<em>list</em>) &ndash; a list of double precision floating point numbers</p></li>
-
-<li><p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-
-<li><p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p></li>
-
-<li><p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p></li>
-
-<li><p><strong>grid_index</strong> (<em>int</em>) &ndash; index to the grid we&rsquo;re setting values for</p></li>
-
-<li><p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p></li>
-</ul></li>
+<li>
+<p><strong>values</strong> (<em>list</em>) &ndash; a list of double precision floating point numbers</p>
+</li>
+<li>
+<p><strong>property_type</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
+<li>
+<p><strong>property_name</strong> (<em>str</em>) &ndash; name of an Eclipse property</p>
+</li>
+<li>
+<p><strong>time_step</strong> (<em>int</em>) &ndash; the time step for which to get the property for</p>
+</li>
+<li>
+<p><strong>grid_index</strong> (<em>int</em>) &ndash; index to the grid we&rsquo;re setting values for</p>
+</li>
+<li>
+<p><strong>porosity_model</strong> (<em>str</em>) &ndash; string enum. See available()</p>
+</li>
 </ul>
-
-<h4 id="time-steps">time_steps()</h4>
-
+</li>
+</ul>
+<h4 id="time_steps">time_steps()</h4>
 <p>Get a list containing all time steps</p>
-
 <p>The time steps are defined by the class <strong>TimeStepDate</strong> :</p>
-
 <table>
 <thead>
 <tr>
@@ -3204,54 +2929,41 @@ Loop through the chunks and then the values within the chunk to get all values.<
 <th>Name</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>int</td>
 <td>year</td>
 </tr>
-
 <tr>
 <td>int</td>
 <td>month</td>
 </tr>
-
 <tr>
 <td>int</td>
 <td>day</td>
 </tr>
-
 <tr>
 <td>int</td>
 <td>hour</td>
 </tr>
-
 <tr>
 <td>int</td>
 <td>minute</td>
 </tr>
-
 <tr>
 <td>int</td>
 <td>second</td>
 </tr>
 </tbody>
 </table>
-
-<h4 id="view-view-id">view(view_id)</h4>
-
+<h4 id="viewview_id">view(view_id)</h4>
 <p>Get a particular view belonging to a case by providing view id
 :param view_id: view id
 :type view_id: int</p>
-
 <p>Returns: a view object</p>
-
 <h4 id="views">views()</h4>
-
 <p>Get a list of views belonging to a case</p>
-
 <h2 id="example-1">Example</h2>
-
 <pre><code>
 # Import the ResInsight Processing Server Module
 import rips
@@ -3276,66 +2988,55 @@ if resinsight is not None:
         
     
 
-</code></pre>
-
-<h1 id="contour-map-module">Contour Map Module</h1>
-
-<h4 id="class-rips-contour-map-contourmap-pdm-object-project-map-type">class rips.contour_map.ContourMap(pdm_object, project, map_type)</h4>
-
+</code></pre><h1 id="contour-map-module">Contour Map Module</h1>
+<h4 id="class-ripscontour_mapcontourmappdm_object-project-map_type">class rips.contour_map.ContourMap(pdm_object, project, map_type)</h4>
 <p>ResInsight contour map class</p>
-
-<h4 id="view-id">view_id()</h4>
-
+<h4 id="view_id">view_id()</h4>
 <p>View Id corresponding to the View Id in ResInsight project.</p>
-
 <ul>
-<li><p><strong>Type</strong></p>
-
-<p>int</p></li>
+<li>
+<p><strong>Type</strong></p>
+<p>int</p>
+</li>
 </ul>
-
-<h4 id="export-to-text-export-file-name-export-local-coordinates-false-undefined-value-label-nan-exclude-undefined-values-false">export_to_text(export_file_name=&ldquo;, export_local_coordinates=False, undefined_value_label=&lsquo;NaN&rsquo;, exclude_undefined_values=False)</h4>
-
+<h4 id="export_to_textexport_file_name-export_local_coordinatesfalse-undefined_value_labelnan-exclude_undefined_valuesfalse">export_to_text(export_file_name=&rsquo;', export_local_coordinates=False, undefined_value_label='NaN&rsquo;, exclude_undefined_values=False)</h4>
 <p>Export snapshot for the current view</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>export_file_name</strong> (<em>str</em>) &ndash; The file location to store results in.</p></li>
-
-<li><p><strong>export_local_coordinates</strong> (<em>bool</em>) &ndash; Should we export local coordinates, or UTM.</p></li>
-
-<li><p><strong>undefined_value_label</strong> (<em>str</em>) &ndash; Replace undefined values with this label.</p></li>
-
-<li><p><strong>exclude_undefined_values</strong> (<em>bool</em>) &ndash; Skip undefined values.</p></li>
-</ul></li>
+<li>
+<p><strong>export_file_name</strong> (<em>str</em>) &ndash; The file location to store results in.</p>
+</li>
+<li>
+<p><strong>export_local_coordinates</strong> (<em>bool</em>) &ndash; Should we export local coordinates, or UTM.</p>
+</li>
+<li>
+<p><strong>undefined_value_label</strong> (<em>str</em>) &ndash; Replace undefined values with this label.</p>
+</li>
+<li>
+<p><strong>exclude_undefined_values</strong> (<em>bool</em>) &ndash; Skip undefined values.</p>
+</li>
 </ul>
-
+</li>
+</ul>
 <h1 id="grid-module">Grid Module</h1>
-
-<h4 id="class-rips-grid-grid-index-case-channel">class rips.grid.Grid(index, case, channel)</h4>
-
+<h4 id="class-ripsgridgridindex-case-channel">class rips.grid.Grid(index, case, channel)</h4>
 <p>Grid Information. Not meant to be constructed separately</p>
-
 <p>Create Grid objects using mathods on Case: Grid() and Grids()</p>
-
 <h4 id="dimensions">dimensions()</h4>
-
 <p>The dimensions in i, j, k direction</p>
-
 <ul>
-<li><p><strong>Returns</strong></p>
-
-<p>class with integer attributes i, j, k giving extent in all three dimensions.</p></li>
-
-<li><p><strong>Return type</strong></p>
-
-<p>Vec3i</p></li>
+<li>
+<p><strong>Returns</strong></p>
+<p>class with integer attributes i, j, k giving extent in all three dimensions.</p>
+</li>
+<li>
+<p><strong>Return type</strong></p>
+<p>Vec3i</p>
+</li>
 </ul>
-
 <h2 id="example-2">Example</h2>
-
 <pre><code>    case = rips_instance.project.loadCase(path=casePath)
 print (case.gridCount())
     if case.gridCount() &gt; 0:
@@ -3344,397 +3045,334 @@ print (case.gridCount())
             print(dimensions.i)
             print(dimensions.j)
             print(dimensions.k)
-</code></pre>
-
-<h1 id="gridcasegroup-module">GridCaseGroup Module</h1>
-
-<h4 id="class-rips-gridcasegroup-gridcasegroup-pdm-object">class rips.gridcasegroup.GridCaseGroup(pdm_object)</h4>
-
+</code></pre><h1 id="gridcasegroup-module">GridCaseGroup Module</h1>
+<h4 id="class-ripsgridcasegroupgridcasegrouppdm_object">class rips.gridcasegroup.GridCaseGroup(pdm_object)</h4>
 <p>ResInsight Grid Case Group class</p>
-
 <p>Operate on a ResInsight case group specified by a Case Group Id integer.</p>
-
-<h4 id="group-id-1">group_id()</h4>
-
+<h4 id="group_id-1">group_id()</h4>
 <p>Grid Case Group Id corresponding to case group Id in ResInsight project.</p>
-
 <ul>
-<li><p><strong>Type</strong></p>
-
-<p>int</p></li>
+<li>
+<p><strong>Type</strong></p>
+<p>int</p>
+</li>
 </ul>
-
-<h4 id="compute-statistics-case-ids-none">compute_statistics(case_ids=None)</h4>
-
+<h4 id="compute_statisticscase_idsnone">compute_statistics(case_ids=None)</h4>
 <p>Compute statistics for the given case ids</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>case_ids</strong> (<em>list of integers</em>) &ndash; list of case ids.</p></li>
-
-<li><p><strong>this is None all cases in group are included</strong> (<em>If</em>) &ndash;</p></li>
-</ul></li>
+<li>
+<p><strong>case_ids</strong> (<em>list of integers</em>) &ndash; list of case ids.</p>
+</li>
+<li>
+<p><strong>this is None all cases in group are included</strong> (<em>If</em>) &ndash;</p>
+</li>
 </ul>
-
-<h4 id="create-statistics-case">create_statistics_case()</h4>
-
+</li>
+</ul>
+<h4 id="create_statistics_case">create_statistics_case()</h4>
 <p>Create a Statistics case in the Grid Case Group</p>
-
 <ul>
-<li><p><strong>Returns</strong></p>
-
-<p>A new Case</p></li>
+<li>
+<p><strong>Returns</strong></p>
+<p>A new Case</p>
+</li>
 </ul>
-
-<h4 id="statistics-cases">statistics_cases()</h4>
-
+<h4 id="statistics_cases">statistics_cases()</h4>
 <p>Get a list of all statistics cases in the Grid Case Group</p>
-
-<h4 id="view-view-id-1">view(view_id)</h4>
-
+<h4 id="viewview_id-1">view(view_id)</h4>
 <p>Get a particular view belonging to a case group by providing view id
 :param id: view id
 :type id: int</p>
-
 <p>Returns: a view object</p>
-
 <h4 id="views-1">views()</h4>
-
 <p>Get a list of views belonging to a grid case group</p>
-
 <h1 id="project-module">Project Module</h1>
-
-<h4 id="class-rips-project-project-channel">class rips.project.Project(channel)</h4>
-
+<h4 id="class-ripsprojectprojectchannel">class rips.project.Project(channel)</h4>
 <p>ResInsight project. Not intended to be created separately.</p>
-
 <ul>
 <li><strong>Type</strong></li>
 </ul>
-
-<h4 id="case-case-id">case(case_id)</h4>
-
+<h4 id="casecase_id">case(case_id)</h4>
 <p>Get a specific case from the provided case Id</p>
-
-<h4 id="compute-statistics-case-ids-none-1">compute_statistics(case_ids=None)</h4>
-
+<h4 id="compute_statisticscase_idsnone-1">compute_statistics(case_ids=None)</h4>
 <p>Compute statistics for the given case ids</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>case_ids</strong> (<em>list of integers</em>) &ndash; list of case ids.</p></li>
-
-<li><p><strong>this is None all cases in group are included</strong> (<em>If</em>) &ndash;</p></li>
-</ul></li>
+<li>
+<p><strong>case_ids</strong> (<em>list of integers</em>) &ndash; list of case ids.</p>
+</li>
+<li>
+<p><strong>this is None all cases in group are included</strong> (<em>If</em>) &ndash;</p>
+</li>
 </ul>
-
-<h4 id="create-statistics-case-1">create_statistics_case()</h4>
-
+</li>
+</ul>
+<h4 id="create_statistics_case-1">create_statistics_case()</h4>
 <p>Create a Statistics case in the Grid Case Group</p>
-
 <ul>
-<li><p><strong>Returns</strong></p>
-
-<p>A new Case</p></li>
+<li>
+<p><strong>Returns</strong></p>
+<p>A new Case</p>
+</li>
 </ul>
-
-<h4 id="statistics-cases-1">statistics_cases()</h4>
-
+<h4 id="statistics_cases-1">statistics_cases()</h4>
 <p>Get a list of all statistics cases in the Grid Case Group</p>
-
-<h4 id="contour-maps-map-type-contourmaptype-eclipse-1-1">contour_maps(map_type=<ContourMapType.ECLIPSE: 1>)</h4>
-
+<h4 id="contour_mapsmap_typecontourmaptypeeclipse-1-1">contour_maps(map_type=&lt;ContourMapType.ECLIPSE: 1&gt;)</h4>
 <p>Get a list of all contour maps belonging to a project</p>
-
 <p>Returns: a view object</p>
-
-<h4 id="create-grid-case-group-case-paths">create_grid_case_group(case_paths)</h4>
-
+<h4 id="create_grid_case_groupcase_paths">create_grid_case_group(case_paths)</h4>
 <p>Create a Grid Case Group from a list of cases</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
-<p><strong>case_paths</strong> (<em>list</em>) &ndash; list of file path strings</p></li>
-
-<li><p><strong>Returns</strong></p>
-
-<p>A case group id and name</p></li>
+<li>
+<p><strong>Parameters</strong></p>
+<p><strong>case_paths</strong> (<em>list</em>) &ndash; list of file path strings</p>
+</li>
+<li>
+<p><strong>Returns</strong></p>
+<p>A case group id and name</p>
+</li>
 </ul>
-
-<h4 id="export-multi-case-snapshots-grid-list-file">export_multi_case_snapshots(grid_list_file)</h4>
-
+<h4 id="export_multi_case_snapshotsgrid_list_file">export_multi_case_snapshots(grid_list_file)</h4>
 <p>Export snapshots for a set of cases</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
-<p><strong>grid_list_file</strong> (<em>str</em>) &ndash; Path to a file containing a list of grids to export snapshot for</p></li>
+<li>
+<p><strong>Parameters</strong></p>
+<p><strong>grid_list_file</strong> (<em>str</em>) &ndash; Path to a file containing a list of grids to export snapshot for</p>
+</li>
 </ul>
-
-<h4 id="export-snapshots-snapshot-type-all-prefix">export_snapshots(snapshot_type=&lsquo;ALL&rsquo;, prefix=&ldquo;)</h4>
-
+<h4 id="export_snapshotssnapshot_typeall-prefix">export_snapshots(snapshot_type='ALL&rsquo;, prefix=&rsquo;')</h4>
 <p>Export all snapshots of a given type</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>snapshot_type</strong> (<em>str</em>) &ndash; Enum string (&lsquo;ALL&rsquo;, &lsquo;VIEWS&rsquo; or &lsquo;PLOTS&rsquo;)</p></li>
-
-<li><p><strong>prefix</strong> (<em>str</em>) &ndash; Exported file name prefix</p></li>
-</ul></li>
+<li>
+<p><strong>snapshot_type</strong> (<em>str</em>) &ndash; Enum string (&lsquo;ALL&rsquo;, &lsquo;VIEWS&rsquo; or &lsquo;PLOTS&rsquo;)</p>
+</li>
+<li>
+<p><strong>prefix</strong> (<em>str</em>) &ndash; Exported file name prefix</p>
+</li>
 </ul>
-
-<h4 id="export-well-paths-well-paths-none-md-step-size-5-0">export_well_paths(well_paths=None, md_step_size=5.0)</h4>
-
+</li>
+</ul>
+<h4 id="export_well_pathswell_pathsnone-md_step_size50">export_well_paths(well_paths=None, md_step_size=5.0)</h4>
 <p>Export a set of well paths</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>well_paths</strong> (<em>list</em>) &ndash; List of strings of well paths. If none, export all.</p></li>
-
-<li><p><strong>md_step_size</strong> (<em>double</em>) &ndash; resolution of the exported well path</p></li>
-</ul></li>
+<li>
+<p><strong>well_paths</strong> (<em>list</em>) &ndash; List of strings of well paths. If none, export all.</p>
+</li>
+<li>
+<p><strong>md_step_size</strong> (<em>double</em>) &ndash; resolution of the exported well path</p>
+</li>
 </ul>
-
-<h4 id="grid-case-group-group-id">grid_case_group(group_id)</h4>
-
+</li>
+</ul>
+<h4 id="grid_case_groupgroup_id">grid_case_group(group_id)</h4>
 <p>Get a particular grid case group belonging to a project</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
-<p><strong>groupId</strong> (<em>int</em>) &ndash; group id</p></li>
+<li>
+<p><strong>Parameters</strong></p>
+<p><strong>groupId</strong> (<em>int</em>) &ndash; group id</p>
+</li>
 </ul>
-
-<h4 id="create-grid-case-group-case-paths-1">create_grid_case_group(case_paths)</h4>
-
+<h4 id="create_grid_case_groupcase_paths-1">create_grid_case_group(case_paths)</h4>
 <p>Create a Grid Case Group from a list of cases</p>
-
 <p>Returns: a grid case group object</p>
-
-<h4 id="grid-case-groups">grid_case_groups()</h4>
-
+<h4 id="grid_case_groups">grid_case_groups()</h4>
 <p>Get a list of all grid case groups in the project</p>
-
-<h4 id="import-formation-names-formation-files-none-1">import_formation_names(formation_files=None)</h4>
-
+<h4 id="import_formation_namesformation_filesnone-1">import_formation_names(formation_files=None)</h4>
 <p>Import formation names into project</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
-<p><strong>formation_files</strong> (<em>list</em>) &ndash; list of files to import</p></li>
+<li>
+<p><strong>Parameters</strong></p>
+<p><strong>formation_files</strong> (<em>list</em>) &ndash; list of files to import</p>
+</li>
 </ul>
-
-<h4 id="export-multi-case-snapshots-grid-list-file-1">export_multi_case_snapshots(grid_list_file)</h4>
-
+<h4 id="export_multi_case_snapshotsgrid_list_file-1">export_multi_case_snapshots(grid_list_file)</h4>
 <p>Export snapshots for a set of cases</p>
-
-<h4 id="import-well-log-files-well-log-files-none-well-log-folder">import_well_log_files(well_log_files=None, well_log_folder=&ldquo;)</h4>
-
+<h4 id="import_well_log_fileswell_log_filesnone-well_log_folder">import_well_log_files(well_log_files=None, well_log_folder=&rsquo;')</h4>
 <p>Import well log files into project</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>well_log_files</strong> (<em>list</em>) &ndash; List of file paths to import</p></li>
-
-<li><p><strong>well_log_folder</strong> (<em>str</em>) &ndash; A folder path containing files to import</p></li>
-</ul></li>
-
-<li><p><strong>Returns</strong></p>
-
-<p>A list of well path names (strings) that had logs imported</p></li>
+<li>
+<p><strong>well_log_files</strong> (<em>list</em>) &ndash; List of file paths to import</p>
+</li>
+<li>
+<p><strong>well_log_folder</strong> (<em>str</em>) &ndash; A folder path containing files to import</p>
+</li>
 </ul>
-
-<h4 id="import-well-paths-well-path-files-none-well-path-folder">import_well_paths(well_path_files=None, well_path_folder=&ldquo;)</h4>
-
+</li>
+<li>
+<p><strong>Returns</strong></p>
+<p>A list of well path names (strings) that had logs imported</p>
+</li>
+</ul>
+<h4 id="import_well_pathswell_path_filesnone-well_path_folder">import_well_paths(well_path_files=None, well_path_folder=&rsquo;')</h4>
 <p>Import well paths into project</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>well_path_files</strong> (<em>list</em>) &ndash; List of file paths to import</p></li>
-
-<li><p><strong>well_path_folder</strong> (<em>str</em>) &ndash; A folder path containing files to import</p></li>
-</ul></li>
-
-<li><p><strong>Returns</strong></p>
-
-<p>A list of well path names (strings)</p></li>
+<li>
+<p><strong>well_path_files</strong> (<em>list</em>) &ndash; List of file paths to import</p>
+</li>
+<li>
+<p><strong>well_path_folder</strong> (<em>str</em>) &ndash; A folder path containing files to import</p>
+</li>
 </ul>
-
+</li>
+<li>
+<p><strong>Returns</strong></p>
+<p>A list of well path names (strings)</p>
+</li>
+</ul>
 <p>Returns: a grid case group object</p>
-
-<h4 id="load-case-path">load_case(path)</h4>
-
+<h4 id="load_casepath">load_case(path)</h4>
 <p>Load a new case from the given file path</p>
-
-<h4 id="grid-case-groups-1">grid_case_groups()</h4>
-
+<h4 id="grid_case_groups-1">grid_case_groups()</h4>
 <p>Get a list of all grid case groups in the project</p>
-
 <pre><code>**path** (*str*) -- file path to case
 </code></pre>
-
 <ul>
-<li><p><strong>Parameters</strong></p></li>
-
-<li><p><strong>Returns</strong></p>
-
-<p>A rips Case object</p></li>
+<li>
+<p><strong>Parameters</strong></p>
+</li>
+<li>
+<p><strong>Returns</strong></p>
+<p>A rips Case object</p>
+</li>
 </ul>
-
-<h4 id="open-path">open(path)</h4>
-
+<h4 id="openpath">open(path)</h4>
 <p>Open a new project from the given path</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
-<p><strong>path</strong> (<em>str</em>) &ndash; path to project file</p></li>
-
-<li><p><strong>Parameters</strong></p></li>
+<li>
+<p><strong>Parameters</strong></p>
+<p><strong>path</strong> (<em>str</em>) &ndash; path to project file</p>
+</li>
+<li>
+<p><strong>Parameters</strong></p>
+</li>
 </ul>
-
-<h4 id="plot-view-id">plot(view_id)</h4>
-
+<h4 id="plotview_id">plot(view_id)</h4>
 <p>Get a particular plot by providing view id
 :param view_id: view id
 :type view_id: int</p>
-
 <p>Returns: a plot object</p>
-
 <h4 id="plots">plots()</h4>
-
 <p>Get a list of all plots belonging to a project</p>
-
-<h4 id="replace-source-cases-grid-list-file-case-group-id-0">replace_source_cases(grid_list_file, case_group_id=0)</h4>
-
+<h4 id="replace_source_casesgrid_list_file-case_group_id0">replace_source_cases(grid_list_file, case_group_id=0)</h4>
 <p>Replace all source cases within a case group</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>grid_list_file</strong> (<em>str</em>) &ndash; path to file containing a list of cases</p></li>
-
-<li><p><strong>case_group_id</strong> (<em>int</em>) &ndash; id of the case group to replace</p></li>
-</ul></li>
+<li>
+<p><strong>grid_list_file</strong> (<em>str</em>) &ndash; path to file containing a list of cases</p>
+</li>
+<li>
+<p><strong>case_group_id</strong> (<em>int</em>) &ndash; id of the case group to replace</p>
+</li>
 </ul>
-
-<h4 id="save-path">save(path=&ldquo;)</h4>
-
+</li>
+</ul>
+<h4 id="savepath">save(path=&rsquo;')</h4>
 <p>Save the project to the existing project file, or to a new file
 :param path: File path to the file to save the project to. If empty, saves to the active project file
 :type path: str</p>
-
-<h4 id="scale-fracture-template-template-id-half-length-height-d-factor-conductivity">scale_fracture_template(template_id, half_length, height, d_factor, conductivity)</h4>
-
+<h4 id="scale_fracture_templatetemplate_id-half_length-height-d_factor-conductivity">scale_fracture_template(template_id, half_length, height, d_factor, conductivity)</h4>
 <p>Scale fracture template parameters</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>template_id</strong> (<em>int</em>) &ndash; ID of fracture template</p></li>
-
-<li><p><strong>half_length</strong> (<em>double</em>) &ndash; Half Length scale factor</p></li>
-
-<li><p><strong>height</strong> (<em>double</em>) &ndash; Height scale factor</p></li>
-
-<li><p><strong>d_factor</strong> (<em>double</em>) &ndash; D-factor scale factor</p></li>
-
-<li><p><strong>conductivity</strong> (<em>double</em>) &ndash; Conductivity scale factor</p></li>
-</ul></li>
+<li>
+<p><strong>template_id</strong> (<em>int</em>) &ndash; ID of fracture template</p>
+</li>
+<li>
+<p><strong>half_length</strong> (<em>double</em>) &ndash; Half Length scale factor</p>
+</li>
+<li>
+<p><strong>height</strong> (<em>double</em>) &ndash; Height scale factor</p>
+</li>
+<li>
+<p><strong>d_factor</strong> (<em>double</em>) &ndash; D-factor scale factor</p>
+</li>
+<li>
+<p><strong>conductivity</strong> (<em>double</em>) &ndash; Conductivity scale factor</p>
+</li>
 </ul>
-
-<h4 id="selected-cases">selected_cases()</h4>
-
+</li>
+</ul>
+<h4 id="selected_cases">selected_cases()</h4>
 <p>Get a list of all cases selected in the project tree</p>
-
 <ul>
-<li><p><strong>Returns</strong></p>
-
-<p>A list of rips Case objects</p></li>
+<li>
+<p><strong>Returns</strong></p>
+<p>A list of rips Case objects</p>
+</li>
 </ul>
-
-<h4 id="set-fracture-containment-template-id-top-layer-base-layer">set_fracture_containment(template_id, top_layer, base_layer)</h4>
-
+<h4 id="set_fracture_containmenttemplate_id-top_layer-base_layer">set_fracture_containment(template_id, top_layer, base_layer)</h4>
 <p>Set fracture template containment parameters</p>
-
-<h4 id="set-fracture-containment-template-id-top-layer-base-layer-1">set_fracture_containment(template_id, top_layer, base_layer)</h4>
-
+<h4 id="set_fracture_containmenttemplate_id-top_layer-base_layer-1">set_fracture_containment(template_id, top_layer, base_layer)</h4>
 <p>Set fracture template containment parameters</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>template_id</strong> (<em>int</em>) &ndash; ID of fracture template</p></li>
-
-<li><p><strong>top_layer</strong> (<em>int</em>) &ndash; Top layer containment</p></li>
-
-<li><p><strong>base_layer</strong> (<em>int</em>) &ndash; Base layer containment</p></li>
-</ul></li>
+<li>
+<p><strong>template_id</strong> (<em>int</em>) &ndash; ID of fracture template</p>
+</li>
+<li>
+<p><strong>top_layer</strong> (<em>int</em>) &ndash; Top layer containment</p>
+</li>
+<li>
+<p><strong>base_layer</strong> (<em>int</em>) &ndash; Base layer containment</p>
+</li>
 </ul>
-
-<h4 id="view-view-id-2">view(view_id)</h4>
-
+</li>
+</ul>
+<h4 id="viewview_id-2">view(view_id)</h4>
 <p>Get a particular view belonging to a case by providing view id</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
-<p><strong>view_id</strong> (<em>int</em>) &ndash; view id</p></li>
+<li>
+<p><strong>Parameters</strong></p>
+<p><strong>view_id</strong> (<em>int</em>) &ndash; view id</p>
+</li>
 </ul>
-
 <p>Returns: a view object</p>
-
 <h4 id="views-2">views()</h4>
-
 <p>Get a list of views belonging to a project</p>
-
-<h4 id="well-paths">well_paths()</h4>
-
+<h4 id="well_paths">well_paths()</h4>
 <p>Get a list of all the well path names in the project</p>
-
 <h1 id="view-module">View Module</h1>
-
-<h4 id="class-rips-view-view-pdm-object-project">class rips.view.View(pdm_object, project)</h4>
-
+<h4 id="class-ripsviewviewpdm_object-project">class rips.view.View(pdm_object, project)</h4>
 <p>ResInsight view class</p>
-
-<h4 id="view-id-1">view_id()</h4>
-
+<h4 id="view_id-1">view_id()</h4>
 <p>View Id corresponding to the View Id in ResInsight project.</p>
-
 <ul>
-<li><p><strong>Type</strong></p>
-
-<p>int</p></li>
+<li>
+<p><strong>Type</strong></p>
+<p>int</p>
+</li>
 </ul>
-
-<h4 id="apply-cell-result-result-type-result-variable">apply_cell_result(result_type, result_variable)</h4>
-
+<h4 id="apply_cell_resultresult_type-result_variable">apply_cell_result(result_type, result_variable)</h4>
 <p>Apply a regular cell result</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>result_type</strong> (<em>str</em>) &ndash; String representing the result category. The valid values are</p>
-
+<li>
+<p><strong>result_type</strong> (<em>str</em>) &ndash; String representing the result category. The valid values are</p>
 <ul>
 <li>DYNAMIC_NATIVE</li>
 <li>STATIC_NATIVE</li>
@@ -3744,16 +3382,16 @@ print (case.gridCount())
 <li>FORMATION_NAMES</li>
 <li>FLOW_DIAGNOSTICS</li>
 <li>INJECTION_FLOODING</li>
-</ul></li>
-
-<li><p><strong>result_variable</strong> (<em>str</em>) &ndash; String representing the result variable.</p></li>
-</ul></li>
 </ul>
-
-<h4 id="apply-flow-diagnostics-cell-result-result-variable-tof-selection-mode-flow-tr-by-selection-injectors-none-producers-none">apply_flow_diagnostics_cell_result(result_variable=&lsquo;TOF&rsquo;, selection_mode=&lsquo;FLOW_TR_BY_SELECTION&rsquo;, injectors=None, producers=None)</h4>
-
+</li>
+<li>
+<p><strong>result_variable</strong> (<em>str</em>) &ndash; String representing the result variable.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="apply_flow_diagnostics_cell_resultresult_variabletof-selection_modeflow_tr_by_selection-injectorsnone-producersnone">apply_flow_diagnostics_cell_result(result_variable='TOF&rsquo;, selection_mode='FLOW_TR_BY_SELECTION&rsquo;, injectors=None, producers=None)</h4>
 <p>Apply a flow diagnostics cell result</p>
-
 <table>
 <thead>
 <tr>
@@ -3762,26 +3400,22 @@ print (case.gridCount())
 <th>Type</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>result_variable</td>
 <td>String representing the result value</td>
 <td>String</td>
 </tr>
-
 <tr>
 <td>selection_mode</td>
 <td>String specifying which tracers to select</td>
 <td>String</td>
 </tr>
-
 <tr>
 <td>injectors</td>
 <td>List of injector names, used by &lsquo;FLOW_TR_BY_SELECTION&rsquo;</td>
 <td>String List</td>
 </tr>
-
 <tr>
 <td>producers</td>
 <td>List of injector names, used by &lsquo;FLOW_TR_BY_SELECTION&rsquo;</td>
@@ -3789,9 +3423,7 @@ print (case.gridCount())
 </tr>
 </tbody>
 </table>
-
-<h5 id="enum-compdat-export-1">Enum compdat_export</h5>
-
+<h5 id="enum-compdat_export-1">Enum compdat_export</h5>
 <table>
 <thead>
 <tr>
@@ -3799,56 +3431,41 @@ print (case.gridCount())
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>&ldquo;TOF&rdquo;</td>
 <td>Time of flight</td>
 </tr>
-
 <tr>
 <td>&ldquo;Fraction&rdquo;</td>
 <td>Fraction</td>
 </tr>
-
 <tr>
 <td>&ldquo;MaxFractionTracer&rdquo;</td>
 <td>Max Fraction Tracer</td>
 </tr>
-
 <tr>
 <td>&ldquo;Communication&rdquo;</td>
 <td>Communication</td>
 </tr>
 </tbody>
 </table>
-
-<h4 id="background-color">background_color()</h4>
-
+<h4 id="background_color">background_color()</h4>
 <p>Get the current background color in the view</p>
-
 <h4 id="case">case()</h4>
-
 <p>Get the case the view belongs to</p>
-
 <h4 id="clone">clone()</h4>
-
 <p>Clone the current view</p>
-
-<h4 id="export-property-undefined-value-0-0">export_property(undefined_value=0.0)</h4>
-
+<h4 id="export_propertyundefined_value00">export_property(undefined_value=0.0)</h4>
 <p>Export the current Eclipse property from the view</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
-<p><strong>undefined_value</strong> (<em>double</em>) &ndash; Value to use for undefined values. Defaults to 0.0</p></li>
+<li>
+<p><strong>Parameters</strong></p>
+<p><strong>undefined_value</strong> (<em>double</em>) &ndash; Value to use for undefined values. Defaults to 0.0</p>
+</li>
 </ul>
-
-<h4 id="export-sim-well-fracture-completions-time-step-simulation-well-names-file-split-compdat-export">export_sim_well_fracture_completions(time_step, simulation_well_names, file_split, compdat_export)</h4>
-
+<h4 id="export_sim_well_fracture_completionstime_step-simulation_well_names-file_split-compdat_export">export_sim_well_fracture_completions(time_step, simulation_well_names, file_split, compdat_export)</h4>
 <p>Export fracture completions for simulation wells</p>
-
 <table>
 <thead>
 <tr>
@@ -3857,26 +3474,22 @@ print (case.gridCount())
 <th>Type</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
 <td>time_step</td>
 <td>Time step to export for</td>
 <td>Integer</td>
 </tr>
-
 <tr>
 <td>simulation_well_names</td>
 <td>List of simulation well names</td>
 <td>List</td>
 </tr>
-
 <tr>
 <td>file_split</td>
 <td>Controls how export data is split into files</td>
 <td>String enum</td>
 </tr>
-
 <tr>
 <td>compdat_export</td>
 <td>Compdat export type</td>
@@ -3884,9 +3497,7 @@ print (case.gridCount())
 </tr>
 </tbody>
 </table>
-
-<h5 id="enum-file-split-2">Enum file_split</h5>
-
+<h5 id="enum-file_split-2">Enum file_split</h5>
 <table>
 <thead>
 <tr>
@@ -3894,27 +3505,22 @@ print (case.gridCount())
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
-<td>&ldquo;UNIFIED_FILE&rdquo; <b>Default Option</b></td>
+<td>&ldquo;UNIFIED_FILE&rdquo; <!-- raw HTML omitted -->Default Option<!-- raw HTML omitted --></td>
 <td>A single file with all transmissibilities</td>
 </tr>
-
 <tr>
 <td>&ldquo;SPLIT_ON_WELL&rdquo;</td>
 <td>One file for each well transmissibilities</td>
 </tr>
-
 <tr>
 <td>&ldquo;SPLIT_ON_WELL_AND_COMPLETION_TYPE&rdquo;</td>
 <td>One file for each completion type for each well</td>
 </tr>
 </tbody>
 </table>
-
-<h5 id="enum-compdat-export-2">Enum compdat_export</h5>
-
+<h5 id="enum-compdat_export-2">Enum compdat_export</h5>
 <table>
 <thead>
 <tr>
@@ -3922,80 +3528,69 @@ print (case.gridCount())
 <th>Description</th>
 </tr>
 </thead>
-
 <tbody>
 <tr>
-<td>&ldquo;TRANSMISSIBILITIES&rdquo;<b>Default Option</b></td>
+<td>&ldquo;TRANSMISSIBILITIES&quot;<!-- raw HTML omitted -->Default Option<!-- raw HTML omitted --></td>
 <td>Direct export of transmissibilities</td>
 </tr>
-
 <tr>
 <td>&ldquo;WPIMULT_AND_DEFAULT_CONNECTION_FACTORS&rdquo;</td>
 <td>Include export of WPIMULT</td>
 </tr>
 </tbody>
 </table>
-
-<h4 id="export-snapshot-prefix-export-folder">export_snapshot(prefix=&ldquo;, export_folder=&ldquo;)</h4>
-
+<h4 id="export_snapshotprefix-export_folder">export_snapshot(prefix=&rsquo;', export_folder=&rsquo;')</h4>
 <p>Export snapshot for the current view</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>prefix</strong> (<em>str</em>) &ndash; Exported file name prefix</p></li>
-
-<li><p><strong>export_folder</strong> (<em>str</em>) &ndash; The path to export to. By default will use the global export folder</p></li>
-</ul></li>
+<li>
+<p><strong>prefix</strong> (<em>str</em>) &ndash; Exported file name prefix</p>
+</li>
+<li>
+<p><strong>export_folder</strong> (<em>str</em>) &ndash; The path to export to. By default will use the global export folder</p>
+</li>
 </ul>
-
-<h4 id="export-visible-cells-export-keyword-fluxnum-visible-active-cells-value-1-hidden-active-cells-value-0-inactive-cells-value-0">export_visible_cells(export_keyword=&lsquo;FLUXNUM&rsquo;, visible_active_cells_value=1, hidden_active_cells_value=0, inactive_cells_value=0)</h4>
-
+</li>
+</ul>
+<h4 id="export_visible_cellsexport_keywordfluxnum-visible_active_cells_value1-hidden_active_cells_value0-inactive_cells_value0">export_visible_cells(export_keyword='FLUXNUM&rsquo;, visible_active_cells_value=1, hidden_active_cells_value=0, inactive_cells_value=0)</h4>
 <p>Export special properties for all visible cells.</p>
-
 <ul>
-<li><p><strong>Parameters</strong></p>
-
+<li>
+<p><strong>Parameters</strong></p>
 <ul>
-<li><p><strong>export_keyword</strong> (<em>string</em>) &ndash; The keyword to export.</p></li>
-
-<li><p><strong>Choices</strong> &ndash; &lsquo;FLUXNUM&rsquo; or &lsquo;MULTNUM&rsquo;. Default: &lsquo;FLUXNUM&rsquo;</p></li>
-
-<li><p><strong>visible_active_cells_value</strong> (<em>int</em>) &ndash; Value to export forvisible active cells. Default: 1</p></li>
-
-<li><p><strong>hidden_active_cells_value</strong> (<em>int</em>) &ndash; Value to export for hidden active cells. Default: 0</p></li>
-
-<li><p><strong>inactive_cells_value</strong> (<em>int</em>) &ndash; Value to export for inactive cells. Default: 0</p></li>
-</ul></li>
+<li>
+<p><strong>export_keyword</strong> (<em>string</em>) &ndash; The keyword to export.</p>
+</li>
+<li>
+<p><strong>Choices</strong> &ndash; &lsquo;FLUXNUM&rsquo; or &lsquo;MULTNUM&rsquo;. Default: &lsquo;FLUXNUM&rsquo;</p>
+</li>
+<li>
+<p><strong>visible_active_cells_value</strong> (<em>int</em>) &ndash; Value to export forvisible active cells. Default: 1</p>
+</li>
+<li>
+<p><strong>hidden_active_cells_value</strong> (<em>int</em>) &ndash; Value to export for hidden active cells. Default: 0</p>
+</li>
+<li>
+<p><strong>inactive_cells_value</strong> (<em>int</em>) &ndash; Value to export for inactive cells. Default: 0</p>
+</li>
 </ul>
-
-<h4 id="set-background-color-bgcolor">set_background_color(bgcolor)</h4>
-
+</li>
+</ul>
+<h4 id="set_background_colorbgcolor">set_background_color(bgcolor)</h4>
 <p>Set the background color in the view</p>
-
-<h4 id="set-cell-result">set_cell_result()</h4>
-
+<h4 id="set_cell_result">set_cell_result()</h4>
 <p>Retrieve the current cell results</p>
-
-<h4 id="set-show-grid-box-value">set_show_grid_box(value)</h4>
-
+<h4 id="set_show_grid_boxvalue">set_show_grid_box(value)</h4>
 <p>Set if the grid box is meant to be shown in the view</p>
-
-<h4 id="set-time-step-time-step">set_time_step(time_step)</h4>
-
+<h4 id="set_time_steptime_step">set_time_step(time_step)</h4>
 <p>Set the time step for current view</p>
-
-<h4 id="show-grid-box">show_grid_box()</h4>
-
+<h4 id="show_grid_box">show_grid_box()</h4>
 <p>Check if the grid box is meant to be shown in the view</p>
-
 <h2 id="synchronous-example">Synchronous Example</h2>
-
 <p>Read two properties, multiply them together and push the results back to ResInsight in a naïve way, by reading PORO into a list, then reading PERMX into a list, then multiplying them both in a resulting list and finally transferring back the list.</p>
-
 <p>This is slow and inefficient, but works.</p>
-
 <pre><code>import rips
 import time
 
@@ -4030,14 +3625,9 @@ end = time.time()
 print(&quot;Time elapsed: &quot;, end - start)
 print(&quot;Transferred all results back&quot;)
 view = case.views()[0].apply_cell_result('GENERATED', 'POROPERMXAS')
-</code></pre>
-
-<h2 id="asynchronous-example">Asynchronous Example</h2>
-
+</code></pre><h2 id="asynchronous-example">Asynchronous Example</h2>
 <p>Read two properties at the same time chunk by chunk, multiply each chunk together and start transferring the result back to ResInsight as soon as the chunk is finished.</p>
-
 <p>This is far more efficient.</p>
-
 <pre><code>########################################################################################
 import rips
 import time
@@ -4070,7 +3660,6 @@ print(&quot;Transferred all results back&quot;)
 
 view = case.views()[0].apply_cell_result('GENERATED', 'POROPERMXSY')
 </code></pre>
-
 
 <footer class=" footline" >
 	
@@ -4245,10 +3834,26 @@ view = case.views()[0].apply_cell_result('GENERATED', 'POROPERMXSY')
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -5405,20 +5010,20 @@ view = case.views()[0].apply_cell_result('GENERATED', 'POROPERMXSY')
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

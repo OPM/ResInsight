@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Plot Main Window on ResInsight</title>
@@ -40,7 +40,7 @@ The toolbar allows use of vector filters in addition to source stepping:</descri
       <guid>https://resinsight.org/plot-window/summaryploteditor/</guid>
       <description>The plot editor is a separate ResInsight dialog window where the user can select which vectors to display in a summary plot. It is also possible to edit an existing plot in this editor.
 The upper part of the editor contains editors for selecting which vectors/summaries to display in the plot. The number of fields vary from 3 to 6 depending on the Summary Type currently highlighted.
-In this context highlighted means the marked item with a different background color, while selected means an item or items that have a ticked check box.</description>
+In this context highlightedmeans the marked item with a different background color, while selectedmeans an item or items that have a ticked check box.</description>
     </item>
     
     <item>

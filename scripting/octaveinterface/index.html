@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Octave Interface :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,32 +1802,26 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#octave-script-management">Octave Script Management</a>
-<ul>
-<li><a href="#adding-script-folders">Adding Script Folders</a></li>
-<li><a href="#editing-octave-scripts">Editing Octave Scripts</a></li>
-</ul></li>
-<li><a href="#executing-octave-scripts">Executing Octave Scripts</a>
-<ul>
-<li><a href="#executing-a-script-once">Executing a Script Once</a></li>
-<li><a href="#executing-a-script-for-each-selected-case">Executing a Script for Each Selected Case</a></li>
-<li><a href="#process-monitor">Process Monitor</a></li>
-</ul></li>
-<li><a href="#octave-script-examples">Octave Script Examples</a>
-<ul>
-<li>
-<ul>
-<li><a href="#example-1">Example 1</a></li>
-<li><a href="#example-2">Example 2</a></li>
-<li><a href="#example-3">Example 3</a></li>
-<li><a href="#example-4-might-be-slow-on-big-models">Example 4 ( Might be slow on big models)</a></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#octave-script-management">Octave Script Management</a>
+      <ul>
+        <li><a href="#adding-script-folders">Adding Script Folders</a></li>
+        <li><a href="#editing-octave-scripts">Editing Octave Scripts</a></li>
+      </ul>
+    </li>
+    <li><a href="#executing-octave-scripts">Executing Octave Scripts</a>
+      <ul>
+        <li><a href="#executing-a-script-once">Executing a Script Once</a></li>
+        <li><a href="#executing-a-script-for-each-selected-case">Executing a Script for Each Selected Case</a></li>
+        <li><a href="#process-monitor">Process Monitor</a></li>
+      </ul>
+    </li>
+    <li><a href="#octave-script-examples">Octave Script Examples</a>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1818,157 +1846,115 @@ if (!doNotTrack) {
 
 
 
-
-
 <p>ResInsight provides a flexible interface to <a href="http://www.gnu.org/software/octave/" title="Octave">Octave</a> including:</p>
-
 <ul>
 <li>Octave functions that communicates with a running ResInsight session</li>
 <li>Features to simplify management and editing of Octave scripts from ResInsight</li>
-<li>Commands to execute scripts using Octave.<br /></li>
+<li>Commands to execute scripts using Octave.</li>
 </ul>
-
 <p>The Octave functions are documented in <a href="/scripting/octaveinterfacereference/">Octave Interface Reference</a>.</p>
 
-
-<div class="notices info" ><p><b>Note:</b> The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.</p>
+<div class="notices info" ><p><!-- raw HTML omitted -->Note:<!-- raw HTML omitted --> The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.</p>
 </div>
-
 
 <h2 id="octave-script-management">Octave Script Management</h2>
-
 <p>Octave scripts are available in the <strong>Scripts</strong> folder in the <strong>Project Tree</strong>.</p>
-
-<p><img src="/images/scripting/OctaveScriptTree.png" alt="" /></p>
-
+<p><img src="/images/scripting/OctaveScriptTree.png" alt=""></p>
 <p>This folder contains an entry for each of the directories you have added as a <strong>Script Folder</strong>. Each of the folder lists available <em><code>*.m</code></em> files and sub directories.</p>
-
 <h3 id="adding-script-folders">Adding Script Folders</h3>
-
 <p>You can add directories by right-clicking the <strong>Scripts</strong> item to access the right-click menu.</p>
-
 <p>Multiple standard script folder locations can also be defined in the field <strong>Shared Script Folder(s)</strong> in the <strong>Preferences Dialog</strong> (<strong>Edit -&gt; Preferences</strong>).</p>
-
 <h3 id="editing-octave-scripts">Editing Octave Scripts</h3>
-
 <p>To enable script editing from ResInsight you need to set up the path to a text editor in the <strong>Script Editor</strong> field in the <strong>Preferences Dialog</strong> (<strong>Edit -&gt; Preferences</strong>)</p>
-
 <p>When done, scripts can be edited using the right-click menu command <strong>Edit</strong> on the script item in the tree.</p>
-
 <p>If you add a script file directly by creating a new file, the new script can be made visible in the user interface by activating <strong>Refresh</strong> in the right-click menu of a script folder.</p>
-
 <h2 id="executing-octave-scripts">Executing Octave Scripts</h2>
-
 <p>ResInsight can be instructed to execute an Octave script once as a one shot operation, or several times, one time for each selected case. The <a href="/scripting/octaveinterfacereference/">Octave Interface Reference</a> highlights in more depth how to design your Octave scripts to utilize these features.</p>
-
 <h3 id="executing-a-script-once">Executing a Script Once</h3>
-
 <p>A script can be started by navigating to the script in the <strong>Project Tree</strong>, and selecting <strong>Execute</strong> from the right-click menu. The currently active case (The one with the active 3D View) will then be set as ResInsight&rsquo;s <em>Current Case</em>, and the script is executed once.</p>
-
 <h3 id="executing-a-script-for-each-selected-case">Executing a Script for Each Selected Case</h3>
-
 <p>One script can be executed on many cases by first selecting a set of cases, and then activating <strong>Execute script</strong> from the right-click menu on the case selection. The script is then executed once per selected case setting the ResInsight&rsquo;s <em>Current Case</em> each time.</p>
-
-<p><img src="/images/scripting/ExecuteOctaveScriptOnSelectedCases.png" alt="" /></p>
-
+<p><img src="/images/scripting/ExecuteOctaveScriptOnSelectedCases.png" alt=""></p>
 <h3 id="process-monitor">Process Monitor</h3>
-
 <p>When an Octave script is executed, the <strong>Process Monitor</strong> pops up and displays the output from Octave during the script execution as displayed below:</p>
-
-<p><img src="/images/scripting/ProcessMonitor.png" alt="" /></p>
-
+<p><img src="/images/scripting/ProcessMonitor.png" alt=""></p>
 <p>In addition to the output from the script, it prints a start and stop time stamp. The <strong>Clear</strong>-button deletes all the text in the monitor, and the <strong>Stop</strong>-button tries to kill the running Octave process.</p>
-
 <h2 id="octave-script-examples">Octave Script Examples</h2>
-
 <p>Here are some example-scripts that illustrates the use of the octave interface.</p>
 
-
-<div class="notices info" ><p><b>Disclaimer:</b> The scripts are provided as illustration only. They are probably not the best way of using the octave script language, and could potentially be incorrect.</p>
+<div class="notices info" ><p><!-- raw HTML omitted -->Disclaimer:<!-- raw HTML omitted --> The scripts are provided as illustration only. They are probably not the best way of using the octave script language, and could potentially be incorrect.</p>
 </div>
 
-
 <h4 id="example-1">Example 1</h4>
-
-<pre><code class="language-matlab"># Calculate change of oil saturation from time step to time step
-SOIL = riGetActiveCellProperty(&quot;SOIL&quot;);
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab"># Calculate change of oil saturation from time step to time step
+SOIL = riGetActiveCellProperty(&#34;SOIL&#34;);
 SOILDIFF = SOIL;
 
-i = 0;
-for timestep = SOIL
-    if (i &gt; 0) 
-        SOILDIFF(:,i) = timestep - SOIL(:,i);
-    endif
-    i++;
+i = <span style="color:#ae81ff">0</span>;
+<span style="color:#66d9ef">for</span> timestep = SOIL
+	<span style="color:#66d9ef">if</span> (i <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>) 
+		SOILDIFF(:,i) = timestep <span style="color:#f92672">-</span> SOIL(:,i);
+	endif
+	i<span style="color:#f92672">++</span>;
 endfor
-SOILDIFF(:,i) = 0;
+SOILDIFF(:,i) = <span style="color:#ae81ff">0</span>;
 
-riSetActiveCellProperty(SOILDIFF, &quot;SOILDIFF&quot;);
-</code></pre>
-
-<h4 id="example-2">Example 2</h4>
-
-<pre><code class="language-matlab"># Set all values to &quot;Undefined&quot; exept k-layers from 17 to 20
+riSetActiveCellProperty(SOILDIFF, &#34;SOILDIFF&#34;);
+</code></pre></div><h4 id="example-2">Example 2</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab"># Set all values to &#34;Undefined&#34; exept k<span style="color:#f92672">-</span>layers from <span style="color:#ae81ff">17</span> to <span style="color:#ae81ff">20</span>
 CInfo = riGetActiveCellInfo();
-SOIL = riGetActiveCellProperty(&quot;SOIL&quot;);
+SOIL = riGetActiveCellProperty(&#34;SOIL&#34;);
 
-Mask = (CInfo(:,4) &lt; 17) | (CInfo(:,4) &gt; 20)
+Mask = (CInfo(:,<span style="color:#ae81ff">4</span>) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">17</span>) <span style="color:#f92672">|</span> (CInfo(:,<span style="color:#ae81ff">4</span>) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">20</span>)
 LGRSOIL = SOIL;
-i = 0;
-for i = (1:columns(LGRSOIL))
+i = <span style="color:#ae81ff">0</span>;
+<span style="color:#66d9ef">for</span> i = (<span style="color:#ae81ff">1</span>:columns(LGRSOIL))
     LGRSOIL(Mask,i) = nan;
 endfor
 
-riSetActiveCellProperty(LGRSOIL, &quot;KSlice&quot;);
-</code></pre>
-
-<h4 id="example-3">Example 3</h4>
-
-<pre><code class="language-matlab"># Keep the values in the first LGR only
+riSetActiveCellProperty(LGRSOIL, &#34;KSlice&#34;);
+</code></pre></div><h4 id="example-3">Example 3</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab"># Keep the values in the first LGR only
 
 CInfo = riGetActiveCellInfo();
-SOIL = riGetActiveCellProperty(&quot;SOIL&quot;);
+SOIL = riGetActiveCellProperty(&#34;SOIL&#34;);
 
-Mask = (CInfo(:,1) != 1);
+Mask = (CInfo(:,<span style="color:#ae81ff">1</span>) != <span style="color:#ae81ff">1</span>);
 
 LGRSOIL = SOIL;
-i = 0;
-for i = (1:columns(LGRSOIL))
+i = <span style="color:#ae81ff">0</span>;
+<span style="color:#66d9ef">for</span> i = (<span style="color:#ae81ff">1</span>:columns(LGRSOIL))
     LGRSOIL(Mask,i) = nan;
 endfor
 
-riSetActiveCellProperty(LGRSOIL, &quot;LGRSOIL&quot;);
-</code></pre>
-
-<h4 id="example-4-might-be-slow-on-big-models">Example 4 ( Might be slow on big models)</h4>
-
-<pre><code class="language-matlab"># Calculate the average SOIL value across K layers
+riSetActiveCellProperty(LGRSOIL, &#34;LGRSOIL&#34;);
+</code></pre></div><h4 id="example-4--might-be-slow-on-big-models">Example 4 ( Might be slow on big models)</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-matlab" data-lang="matlab"># Calculate the average SOIL value across K layers
 
 CInfo = riGetActiveCellInfo();
-SOIL = riGetActiveCellProperty(&quot;SOIL&quot;);
+SOIL = riGetActiveCellProperty(&#34;SOIL&#34;);
 
 SOIL_KAverage = SOIL;
 SOIL_KAverage(:) = nan;
 
-mini = min(CInfo(:,2))
-maxi = max(CInfo(:,2))
+mini = min(CInfo(:,<span style="color:#ae81ff">2</span>))
+maxi = max(CInfo(:,<span style="color:#ae81ff">2</span>))
 
-minj = min(CInfo(:,3))
-maxj = max(CInfo(:,3))
+minj = min(CInfo(:,<span style="color:#ae81ff">3</span>))
+maxj = max(CInfo(:,<span style="color:#ae81ff">3</span>))
 
-for i = mini:maxi
-  for j = minj:maxj 
-    Mask = (CInfo(:,1) == 0) &amp; (CInfo(:,2) == i) &amp; (CInfo(:,3) == j) ;
+<span style="color:#66d9ef">for</span> i = mini:maxi
+  <span style="color:#66d9ef">for</span> j = minj:maxj 
+    Mask = (CInfo(:,<span style="color:#ae81ff">1</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>) <span style="color:#f92672">&amp;</span> (CInfo(:,<span style="color:#ae81ff">2</span>) <span style="color:#f92672">==</span> i) <span style="color:#f92672">&amp;</span> (CInfo(:,<span style="color:#ae81ff">3</span>) <span style="color:#f92672">==</span> j) ;
 
-    for ts = (1:columns(SOIL)) 
+    <span style="color:#66d9ef">for</span> ts = (<span style="color:#ae81ff">1</span>:columns(SOIL)) 
       SOIL_KAverage(Mask, ts) = mean(SOIL(Mask, ts));
     endfor
   endfor
 endfor
 
-riSetActiveCellProperty(SOIL_KAverage, &quot;SOIL_KAverage&quot;);
-</code></pre>
-
+riSetActiveCellProperty(SOIL_KAverage, &#34;SOIL_KAverage&#34;);
+</code></pre></div>
 
 <footer class=" footline" >
 	
@@ -2143,10 +2129,26 @@ riSetActiveCellProperty(SOIL_KAverage, &quot;SOIL_KAverage&quot;);
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3303,20 +3305,20 @@ riSetActiveCellProperty(SOIL_KAverage, &quot;SOIL_KAverage&quot;);
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

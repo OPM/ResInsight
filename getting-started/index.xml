@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Getting Started on ResInsight</title>
@@ -28,7 +28,7 @@ Docking Windows Each of the main windows has a central area and several docking 
       
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_04/</guid>
       <description>ResInsight 2019.04 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.04 contains a larger number of new and exciting features, some of which are listed below.
-Grid Cross Plots ResInsight supports the creation of cross plots of two results against each other, with each cell in the grid representing one data point in the plot.</description>
+Grid Cross Plots ResInsight supports the creation of cross plots of two results against each other, with each cell in the grid representing one data point in the plot. The data points can be grouped by a third result, by time step or by Formations, giving a separate color and label for each group.</description>
     </item>
     
     <item>
@@ -39,7 +39,7 @@ Grid Cross Plots ResInsight supports the creation of cross plots of two results 
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_08/</guid>
       <description>ResInsight 2019.08 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.08 opens up a range of new and efficient workflows by adding Python script support in ResInsight.
 Python scripting Basic example on how to update views from Python
-import rips # Connect to ResInsight instance resInsight = rips.Instance.find() # Check if connection worked if resInsight is not None: # Get a list of all cases cases = resInsight.</description>
+import rips# Connect to ResInsight instanceresInsight = rips.Instance.find()# Check if connection workedif resInsight is not None:# Get a list of all casescases = resInsight.</description>
     </item>
     
     <item>
@@ -49,7 +49,7 @@ import rips # Connect to ResInsight instance resInsight = rips.Instance.find() #
       
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_12/</guid>
       <description>ResInsight 2019.12 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2019.12 is a major update bringing a range of significant new and enhanced features. Some of the most important extensions are listed below.
-Comparison View ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more.</description>
+Comparison View ResInsight offers a Comparison View to compare two existing views in terms of grid geometry, results, intersections and more. The Comparison View allows comparison of information of different grids and different solutions on the same grid in a single view.</description>
     </item>
     
     <item>
@@ -83,33 +83,10 @@ Well Path Creation ResInsight lets the user create new/custom well paths by clic
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/modelnavigation/</guid>
-      <description>ResInsight comes with four navigation modes. The active mode can be selected in the Preferences dialog.
+      <description>ResInsight comes with four navigation modes. The active mode can be selected in the [Preferences dialog] (/misc/preferences/).
 Note that changing the navigation mode applies to the currently active view only, and views created after the change.
 These abbreviations are used in the tables below:
    Abbreviation Meaning     LMB Press the left mouse button   MMB Press the middle mouse button or scroll wheel button   RMB Press the right mouse button    The following applies to all navigation modes:</description>
-    </item>
-    
-    <item>
-      <title>Release Notification Subscription</title>
-      <link>https://resinsight.org/getting-started/other/releasenotification/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/other/releasenotification/</guid>
-      <description>LinkedIn Feel free to join ResInsight on LinkedIn
-Newsletter By subscribing to the Release Notification you will get notified when new releases are available. Please use the button below to send a request for subscription mail.
-Subscribe</description>
-    </item>
-    
-    <item>
-      <title>Testimonials</title>
-      <link>https://resinsight.org/getting-started/other/testimonials/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/getting-started/other/testimonials/</guid>
-      <description>“I have been using ResInsight now for some time and have stopped using the commercial software as ResInsight is much more responsive and easier to use. It really is an excellent piece of software.”
-David Baxendale
-Senior Petroleum Engineering Advisor, RPS Energy
-&amp;ldquo;ResInsight is an excellent tool to visualize simulation results and offers good-looking and illustrative graphs for presentations. I found the integration with Octave especially powerful in my research.&amp;rdquo;</description>
     </item>
     
   </channel>

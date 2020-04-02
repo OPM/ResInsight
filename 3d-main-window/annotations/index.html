@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Annotations :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,17 +1802,14 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#global-scope-vs-local-scope-annotations">Global scope vs local scope annotations</a></li>
-<li><a href="#text-annotations">Text Annotations</a></li>
-<li><a href="#reach-circle-annotations">Reach Circle Annotations</a></li>
-<li><a href="#user-defined-polyline-annotations">User Defined Polyline Annotations</a></li>
-<li><a href="#polyline-imported-from-file">Polyline Imported From File</a></li>
-<li><a href="#annotations-visibility">Annotations visibility</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#global-scope-vs-local-scope-annotations">Global scope vs local scope annotations</a></li>
+    <li><a href="#text-annotations">Text Annotations</a></li>
+    <li><a href="#reach-circle-annotations">Reach Circle Annotations</a></li>
+    <li><a href="#user-defined-polyline-annotations">User Defined Polyline Annotations</a></li>
+    <li><a href="#polyline-imported-from-file">Polyline Imported From File</a></li>
+    <li><a href="#annotations-visibility">Annotations visibility</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1803,95 +1834,65 @@ if (!doNotTrack) {
 
 
 
-
-
 <p>ResInsight supports displaying a few types of annotations in 3D views and Contour Map view.</p>
-
 <ul>
 <li>Text annotations</li>
 <li>Reach circle annotations</li>
 <li>Polyline annotations
-
 <ul>
 <li>User defined polylines</li>
 <li>Polylines imported from file</li>
-</ul></li>
 </ul>
-
-<p><img src="/images/3d-main-window/Annotations.png" alt="" /></p>
-
+</li>
+</ul>
+<p><img src="/images/3d-main-window/Annotations.png" alt=""></p>
 <h2 id="global-scope-vs-local-scope-annotations">Global scope vs local scope annotations</h2>
-
 <p>Global annotations may be displayed in all views and are located in the <strong>Annotations</strong> project tree node right below <strong>Grid Models</strong> (Global annotations sub tree). Local annotations are associated with a specific view and are located in the <strong>Annotations</strong> project tree node below the view node (Local annotations sub tree). All annotation types except text annotations are global only. Text annotation may be either global or local.</p>
-
 <p>All global annotations also have a representation in the local <strong>Annotation</strong> tree node in order to toggle visibilty per view. Those annotations are located in tree nodes starting with <strong>Global</strong>.</p>
-
-<p><img src="/images/3d-main-window/LocalAnnotationsTree.png" alt="" /><br/>
+<p><img src="/images/3d-main-window/LocalAnnotationsTree.png" alt=""><!-- raw HTML omitted -->
 Local annotations sub tree</p>
-
-<p><img src="/images/3d-main-window/GlobalAnnotationsTree.png" alt="" /><br/>
+<p><img src="/images/3d-main-window/GlobalAnnotationsTree.png" alt=""><!-- raw HTML omitted -->
 Global annotations sub tree</p>
-
 <h2 id="text-annotations">Text Annotations</h2>
-
 <p>There are two ways of creating a new text annotation.</p>
-
 <ul>
 <li>Right click <strong>Annotations</strong> or <strong>Text Annotations</strong> tree node in either the global annotatyion sub tree or the local annotations sub tree. The scope of the annotation depends on which node was clicked. When text annotations are created this way, all text annotation fields must be entered manunally in the property editor.</li>
 <li>Right click on an object in the view and select <strong>Create Text Annotation</strong>. ResInsight will then create a text annotation at the clicked point. In this case, only th text must be entered manually in the property editor. When creating a text annotation this way, it will become a local annotation by default.</li>
 </ul>
-
-<p><img src="/images/3d-main-window/TextAnnotationPropertyEditor.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/TextAnnotationPropertyEditor.png" alt=""></p>
 <ul>
 <li><strong>Anchor Point</strong> - The interesting point in the view</li>
 <li><strong>Label Point</strong> - The point where the text label is placed</li>
 <li><strong>Text</strong> - The text to display. Multiline supprted. The first line will be the name of the annotation in the project tree</li>
 <li><strong>Text appearance</strong> - Set font size, font color, background color and anchor line color</li>
 </ul>
-
 <p>When a text annotation tree node is selected, target markers in each end of the anchor line are displayed. The targets can be clicked and dragged. Clicking the blue part lets the user drag the target vertically (along Z axis). Clicking the magenta part lets the user drag the target in the XY plane.</p>
-
 <h2 id="reach-circle-annotations">Reach Circle Annotations</h2>
-
 <p>To create a reach circle annotation, right click <strong>Annotations</strong> or <strong>Reach Circle Annotations</strong> tree node in the global annotations sub tree. Then enter values in the property editor.</p>
-
-<p><img src="/images/3d-main-window/CircleAnnotationPropertyEditor.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/CircleAnnotationPropertyEditor.png" alt=""></p>
 <ul>
 <li><strong>Name</strong> - Name of the circle annotation</li>
 <li><strong>Center Point</strong> - Center point of the circle. Format &lsquo;x-pos y-pos depth&rsquo;</li>
 <li><strong>Radius</strong> - Circle radius</li>
 <li><strong>Line Appearance</strong> - Set circle color and line thickness</li>
 </ul>
-
 <h2 id="user-defined-polyline-annotations">User Defined Polyline Annotations</h2>
-
 <p>To create a user defined polyline annotation, right click <strong>Annotations</strong> or <strong>User Defined Polyline Annotations</strong> tree node in the global annotations sub tree. The property editor for the newly created annotation is displayed and is in picking points mode. The user may now click on objects in the view to create polyline points. When finished, click <strong>Stop Picking Points</strong> in the property editor.</p>
-
-<p><img src="/images/3d-main-window/UserDefinedPolylineAnnotationPropertyEditor.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/UserDefinedPolylineAnnotationPropertyEditor.png" alt=""></p>
 <ul>
 <li><strong>Targets</strong> - Polyline points. Can be edited in the table or interactively in the view</li>
 <li><strong>Start Picking Points / Stop Picking Points</strong> - Button to start / stop picking mode</li>
 <li><strong>Line Appearance</strong> - Set line color and thickness</li>
 </ul>
-
 <p>When a user defined polyline annotation tree node is selected, the polyline target markers become visible. Those can be dragged around as decribed above.</p>
-
 <h2 id="polyline-imported-from-file">Polyline Imported From File</h2>
-
 <p>To import a polyline annotation from file, right click <strong>Annotations</strong> or <strong>Polylines From File</strong> tree node in the global annotations sub tree. Then select the file to import and click OK. Imported polyline annotations are not editable.</p>
-
-<p><img src="/images/3d-main-window/PolylineFromFileAnnotationPropertyEditor.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/PolylineFromFileAnnotationPropertyEditor.png" alt=""></p>
 <ul>
 <li><strong>File</strong> - Name of the imported file</li>
 <li><strong>Line Appearance</strong> - Set line color and line thickness</li>
 </ul>
-
 <h2 id="annotations-visibility">Annotations visibility</h2>
-
 <p>Local annotations visibility is controlled by the check boxes in the local annotations sub tree only. Global annotations visibility, on the other hand, is controlled by the check boxes in both the global and local annotations sub trees. So in order to display a global annotation in a specific view, both the annotation tree note itself and its representation in the local sub tree must have visibilty enabled.</p>
 
 
@@ -2068,10 +2069,26 @@ Global annotations sub tree</p>
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3228,20 +3245,20 @@ Global annotations sub tree</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

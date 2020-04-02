@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Create Well Paths :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,15 +1802,13 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li>
-<ul>
-<li><a href="#well-plan">Well Plan</a></li>
-</ul></li>
-</ul></li>
-</ul>
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#well-plan">Well Plan</a></li>
+      </ul>
+    </li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1801,32 +1833,22 @@ if (!doNotTrack) {
 
 
 
-
-
-<p><img src="/images/3d-main-window/WellPathCreation.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/WellPathCreation.png" alt=""></p>
 <p>ResInsight lets the user create new/custom well paths by clicking in the 3D view. A self created well path will behave the same way as an ordinary imported well path.</p>
-
 <p>To create a well path:</p>
-
 <ol>
 <li>Right click <strong>Wells</strong> in the project tree</li>
 <li>Select <strong>Create Well Path</strong> in the right-click menu. A new well node and a well targets node are created.</li>
 <li>Click in the 3D view on locations where the well path will pass (targets). Note. A 3D object must be hit when clicking. Clicking in thin air will not work.</li>
 <li>When finished placing targets, click on &ldquo;Stop Picking Targets&rdquo; in the property editor</li>
 </ol>
-
-<p><img src="/images/3d-main-window/WellTargetsTree.png" alt="" /></p>
-
-<p><img src="/images/3d-main-window/WellTargetsPropertyEditor.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/WellTargetsTree.png" alt=""></p>
+<p><img src="/images/3d-main-window/WellTargetsPropertyEditor.png" alt=""></p>
 <p>Well targets property editor fields</p>
-
 <ul>
 <li><strong>UTM Reference Point</strong> - Reference point. Defaults to the first target point clicked</li>
 <li><strong>MDRKB at First Target</strong> - Define MD (referenced to Rotary Kelly Bushing) at first target point. Applies to well path export only.</li>
 <li><strong>Well Targets:</strong> List of targets. Will have pink background when in picking state.
-
 <ul>
 <li><strong>Point</strong> - Target position relative to reference point</li>
 <li><strong>DL in</strong> - Dog leg inwards. Unit: Degrees/30m</li>
@@ -1834,19 +1856,14 @@ if (!doNotTrack) {
 <li><strong>Dir</strong> - Check box for overriding well path auto calculated directions</li>
 <li><strong>Azi (deg)</strong> - Azimuth. Y axis is 0 degrees</li>
 <li><strong>Inc (deg)</strong> - Inclination. Z axis is 0 degrees</li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <p>A self created well path may be edited by either editing coordinates in the property editor or clicking and dragging targets in the 3D view.</p>
-
-<p><img src="/images/3d-main-window/WellTargets.png" alt="" /></p>
-
+<p><img src="/images/3d-main-window/WellTargets.png" alt=""></p>
 <p>Clicking and dragging the blue part of a target, it can be moved along the Z axis only. Clicking and dragging the magenta part of a target, it can be moved freely around.</p>
-
 <h3 id="well-plan">Well Plan</h3>
-
 <p>A well plan can be displayed by selecting <strong>Show Well Plan</strong> from the right-click menu of a generated well path.</p>
-
 <pre><code>-- MDRKB          CL            Inc          Azi            TVDMSL         NS                EW               Dogleg      Build        Turn          
 0.00000        0.00000       91.23218     67.46458       2560.64104     7320830.60875     456093.37763     0.00000     0.00000      0.00000       
 109.69761      109.69761     91.23218     67.46458       2558.28210     7320872.64113     456194.67560     0.00000     0.00000      0.00000       
@@ -1856,7 +1873,6 @@ if (!doNotTrack) {
 730.04479      132.20607     90.46303     138.71821      2559.42803     7320795.18191     456780.51358     7.22424     0.39267      7.21402       
 1087.97847     357.93368     92.23380     -164.19586     2550.23230     7320460.45997     456856.25443     4.78528     0.14842      -25.38856     
 </code></pre>
-
 
 <footer class=" footline" >
 	
@@ -2031,10 +2047,26 @@ if (!doNotTrack) {
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3191,20 +3223,20 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="Hugo 0.55.6" />
+    <meta name="generator" content="Hugo 0.65.3" />
     <meta name="description" content="">
 
 
@@ -12,18 +12,18 @@
     <title>Snapshots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1580243646" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1580243646" rel="stylesheet">
-    <link href="/css/hybrid.css?1580243646" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1580243646" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1580243646" rel="stylesheet">
-    <link href="/css/auto-complete.css?1580243646" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1580243646" rel="stylesheet">
-    <link href="/css/theme.css?1580243646" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1580243646" rel="stylesheet">
+    <link href="/css/nucleus.css?1585823630" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1585823630" rel="stylesheet">
+    <link href="/css/hybrid.css?1585823630" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1585823630" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1585823630" rel="stylesheet">
+    <link href="/css/auto-complete.css?1585823630" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1585823630" rel="stylesheet">
+    <link href="/css/theme.css?1585823630" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1585823630" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1580243646"></script>
+    <script src="/js/jquery-3.3.1.min.js?1585823630"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -233,10 +233,44 @@
 
             
           
+            
+            
+
+
+ 
+  
+    
+    <li data-nav-id="/getting-started/other/" title="Other" class="dd-item 
+        
+        
+        
+        ">
+      <a href="/getting-started/other/">
+          Other
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+          
+        
+          
              
             
           
              
+            
+          
+        
+        </ul>
+              
+    </li>
+  
+ 
+
             
           
         
@@ -1768,18 +1802,16 @@ if (!doNotTrack) {
                     <div class="progress">
     <div class="wrapper">
 <nav id="TableOfContents">
-<ul>
-<li>
-<ul>
-<li><a href="#snapshots-of-existing-views">Snapshots of Existing Views</a>
-<ul>
-<li><a href="#snapshot-to-clipboard">Snapshot to Clipboard</a></li>
-<li><a href="#snapshot-to-file">Snapshot to File</a></li>
-<li><a href="#snapshot-all-views-plots-to-file">Snapshot All Views/Plots to File</a></li>
-</ul></li>
-<li><a href="#advanced-snapshot-export">Advanced Snapshot Export</a></li>
-</ul></li>
-</ul>
+  <ul>
+    <li><a href="#snapshots-of-existing-views">Snapshots of Existing Views</a>
+      <ul>
+        <li><a href="#snapshot-to-clipboard">Snapshot to Clipboard</a></li>
+        <li><a href="#snapshot-to-file">Snapshot to File</a></li>
+        <li><a href="#snapshot-all-viewsplots-to-file">Snapshot All Views/Plots to File</a></li>
+      </ul>
+    </li>
+    <li><a href="#advanced-snapshot-export">Advanced Snapshot Export</a></li>
+  </ul>
 </nav>
     </div>
 </div>
@@ -1804,54 +1836,34 @@ if (!doNotTrack) {
 
 
 
-
-
 <p>ResInsight has several commands to create snapshots conveniently. 3 commands to take snapshots of existing Plot and 3D Views directly, and a more advanced export command that can automatically modify Eclipse 3D Views before snapshotting them.</p>
-
 <h2 id="snapshots-of-existing-views">Snapshots of Existing Views</h2>
-
 <p>The commands to snapshot existing views and plots are available from the toolbar and the <strong>Edit</strong> and <strong>File</strong>-&gt;<strong>Export</strong> menus in the main windows <img src="https://resinsight.org/images/export/SnapShotToolBar.png" style="display:inline; vertical-align:middle; margin:0">
 </p>
-
 <h3 id="snapshot-to-clipboard">Snapshot to Clipboard</h3>
-
 <p>A snapshot of the active view is copied to the clipboard using <strong>Edit -&gt; Copy Snapshot To Clipboard</strong>  <img src="https://resinsight.org/images/export/SnapShot.png" style="display:inline; vertical-align:middle; margin:0">
 .</p>
-
 <h3 id="snapshot-to-file">Snapshot to File</h3>
-
 <p>Image export of the currently active 3D View or Plot Window can be launched from <strong>File -&gt; Export -&gt; Snapshot To File</strong> <img src="https://resinsight.org/images/export/SnapShotSave.png" style="display:inline; vertical-align:middle; margin:0">
 .</p>
-
-<h3 id="snapshot-all-views-plots-to-file">Snapshot All Views/Plots to File</h3>
-
+<h3 id="snapshot-all-viewsplots-to-file">Snapshot All Views/Plots to File</h3>
 <p>If a project contains multiple 3D Views or Plot Windows, all of them can be exported in one go using <strong>File -&gt; Export -&gt; Snapshot All Views To File</strong>  <img src="https://resinsight.org/images/export/SnapShotSaveViews.png" style="display:inline; vertical-align:middle; margin:0">
 . This will either export all the 3D Views or all the Plot Windows, depending on whether you invoke the command in the 3D Main Window or the Plot Main Window.</p>
-
 <p>The files generated are stored in a folder named <em><code>snapshots</code></em> within the folder where the Project File resides.</p>
 
-
-<div class="notices note" ><p>Snapshots of existing views can also be created and saved from the command line
- ( See <a href="/scripting/commandlineinterface/">Command Line Interface</a> ).</p>
+<div class="notices note" ><p>Snapshots of existing views can also be created and saved from the command line 
+( See <!-- raw HTML omitted -->Command Line Interface<!-- raw HTML omitted --> ).</p>
 </div>
 
-
 <h2 id="advanced-snapshot-export">Advanced Snapshot Export</h2>
-
 <p>The <strong>Advanced Snapshot Export</strong>  <img src="https://resinsight.org/images/export/SnapShotSaveViews.png" style="display:inline; vertical-align:middle; margin:0">
  command is useful for exporting several images of a specified set of views while simultaneously changing some of their settings. By using this command it is easy to document all layers of a specific model, or generate images with identical setup across several different cases. It is also easy to export an image for each of the time steps in a case, or even a combination of all these parameters.</p>
-
-<p>The <strong>Advanced Snapshot Export</strong> is available from the <strong>File</strong>-&gt;<strong>Export</strong> menu in the <strong>3D Main Window</strong>
+<p>The <strong>Advanced Snapshot Export</strong> is available from the <strong>File</strong>-&gt;<strong>Export</strong> menu in the <strong>3D Main Window</strong> 
 Invoking the command will display the following dialog:</p>
-
-<p><img src="/images/export/SnapshotAdvancedExport.png" alt="" /></p>
-
+<p><img src="/images/export/SnapshotAdvancedExport.png" alt=""></p>
 <p>This table defines which 3D Views to modify, and how to modify them. Each row defines the modifications of a specific view, and for all the combinations a row specifies, a snapshot is generated.</p>
-
 <p>To edit a row, the row must be activated by toggling it on in the <strong>Active</strong> column, then double click on the cell to edit.</p>
-
 <p>Options represented by columns:</p>
-
 <ul>
 <li><strong>View</strong> &ndash; Selects the view to modify.</li>
 <li><strong>Result Type</strong>, <strong>Properties</strong> &ndash; Defines a list of eclipse result properties to cycle through when creating snapshots. If properties from both the dynamic and static list is needed, you must create a new row.</li>
@@ -1859,11 +1871,8 @@ Invoking the command will display the following dialog:</p>
 <li><strong>Range Filter Slice</strong>, <strong>Range Start</strong>, <strong>Range End</strong> &ndash; Defines a range filter slice that will be added to the view, and then cycled from <em>Range Start</em> to <em>Range End</em> when creating snapshots.</li>
 <li><strong>Cases</strong> &ndash; Defines the cases to cycle while creating snapshots. Normally you can not change which case a view is displaying, but this option does temporarily.</li>
 </ul>
-
 <p>The number of exported snapshots from a row can easily end up being huge, so it is wise to use some caution. The total number will be Properties * Time Steps * Range Steps * Cases.</p>
-
 <p>Rows can be deleted and created by right-clicking in the table. 5 rows are created for convenience by default.</p>
-
 <p>The snapshots will be generated and saved to the folder displayed in the <strong>Export Folder</strong> field, when pressing the <strong>Export</strong> button. This might take quite some time, depending on you settings.</p>
 
 
@@ -2040,10 +2049,26 @@ Invoking the command will display the following dialog:</p>
                         
             
             
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
         
                     
                         
             
+            
+        
+                    
             
         
                     
@@ -3197,20 +3222,20 @@ Invoking the command will display the following dialog:</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.min.js?1580243646"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1580243646"></script>
-    <script src="/js/jquery.sticky.js?1580243646"></script>
-    <script src="/js/featherlight.min.js?1580243646"></script>
-    <script src="/js/html5shiv-printshiv.min.js?1580243646"></script>
-    <script src="/js/highlight.pack.js?1580243646"></script>
+    <script src="/js/clipboard.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.min.js?1585823630"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1585823630"></script>
+    <script src="/js/jquery.sticky.js?1585823630"></script>
+    <script src="/js/featherlight.min.js?1585823630"></script>
+    <script src="/js/html5shiv-printshiv.min.js?1585823630"></script>
+    <script src="/js/highlight.pack.js?1585823630"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1580243646"></script>
-    <script src="/js/learn.js?1580243646"></script>
-    <script src="/js/hugo-learn.js?1580243646"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1585823630"></script>
+    <script src="/js/learn.js?1585823630"></script>
+    <script src="/js/hugo-learn.js?1585823630"></script>
 
-    <link href="/mermaid/mermaid.css?1580243646" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1580243646"></script>
+    <link href="/mermaid/mermaid.css?1585823630" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1585823630"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
