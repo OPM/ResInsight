@@ -35,6 +35,13 @@ double RigTransmissibilityEquations::wellBoreTransmissibilityComponent( double c
 {
     double K = cvf::Math::sqrt( permeabilityNormalDirection1 * permeabilityNormalDirection2 );
 
+    const double lowerLimit = 1.0e-9;
+    if ( std::fabs( permeabilityNormalDirection1 * permeabilityNormalDirection2 ) < lowerLimit )
+    {
+        // Guard further computations to avoid nan values
+        return 0.0;
+    }
+
     double nominator = cDarcyForRelevantUnit * 2 * cvf::PI_D * K * cellPerforationVectorComponent;
 
     double peaceManRad = peacemanRadius( permeabilityNormalDirection1,
