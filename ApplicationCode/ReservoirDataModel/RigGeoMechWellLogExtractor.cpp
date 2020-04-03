@@ -339,18 +339,10 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
             else if ( *it == RigWbsParameter::HYDROSTATIC && isPPresult )
             {
                 unscaledValues[intersectionIdx] =
-                    hydroStaticPorePressureForIntersection( intersectionIdx, waterDensityGCM3 );
+                    userDefinedValue * hydroStaticPorePressureForIntersection( intersectionIdx, waterDensityGCM3 );
                 finalSourcesPerSegment[intersectionIdx] = RigWbsParameter::HYDROSTATIC;
                 break;
             }
-            else if ( *it == RigWbsParameter::USER_DEFINED && isPPresult )
-            {
-                unscaledValues[intersectionIdx] =
-                    userDefinedValue * hydroStaticPorePressureForIntersection( intersectionIdx );
-                finalSourcesPerSegment[intersectionIdx] = RigWbsParameter::USER_DEFINED;
-                break;
-            }
-
             else if ( *it == RigWbsParameter::USER_DEFINED )
             {
                 unscaledValues[intersectionIdx]         = userDefinedValue;
