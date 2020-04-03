@@ -253,15 +253,14 @@ RigWbsParameter RigWbsParameter::PP_Reservoir()
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::PP_NonReservoir()
 {
-    return RigWbsParameter( "PP Non-Reservoir",
-                            true,
-                            {{LAS_FILE,
-                              SourceAddress( "PP_NONRES_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() )},
-                             {LAS_FILE,
-                              SourceAddress( "POR_NONRES_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() )},
-                             {USER_DEFINED, SourceAddress( "", "", RiaWellLogUnitTools<double>::barUnitString() )},
-                             {HYDROSTATIC,
-                              SourceAddress( "Hydrostatic", "", RiaWellLogUnitTools<double>::barUnitString() )}} );
+    SourceVector sources =
+        {{LAS_FILE, SourceAddress( "PP_NONRES_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() )},
+         {LAS_FILE, SourceAddress( "POR_NONRES_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() )},
+         {ELEMENT_PROPERTY_TABLE, SourceAddress( "POR_NONRES_INP", "", RiaWellLogUnitTools<double>::pascalUnitString() )},
+         {ELEMENT_PROPERTY_TABLE, SourceAddress( "PP_NONRES_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() )},
+         {HYDROSTATIC, SourceAddress( "Hydrostatic", "", RiaWellLogUnitTools<double>::barUnitString() )}};
+
+    return RigWbsParameter( "PP Non-Reservoir", true, sources );
 }
 
 //--------------------------------------------------------------------------------------------------
