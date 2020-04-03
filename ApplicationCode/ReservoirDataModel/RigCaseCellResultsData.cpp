@@ -2723,9 +2723,12 @@ void RigCaseCellResultsData::computeOilVolumes()
             size_t resultIndex = activeCellInfo()->cellResultIndex( nativeResvCellIndex );
             if ( resultIndex != cvf::UNDEFINED_SIZE_T )
             {
-                CVF_ASSERT( soilResults.at( resultIndex ) <= 1.01 );
-                oilVolumeResults[resultIndex] =
-                    std::max( 0.0, soilResults.at( resultIndex ) * cellVolumeResults.at( resultIndex ) );
+                if ( resultIndex < soilResults.size() && resultIndex < cellVolumeResults.size() )
+                {
+                    CVF_ASSERT( soilResults.at( resultIndex ) <= 1.01 );
+                    oilVolumeResults[resultIndex] =
+                        std::max( 0.0, soilResults.at( resultIndex ) * cellVolumeResults.at( resultIndex ) );
+                }
             }
         }
     }
