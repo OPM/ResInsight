@@ -52,8 +52,6 @@ void caf::AppEnum<RimWellPathGeometryDef::WellStartType>::setUp()
 {
     addItem( RimWellPathGeometryDef::START_AT_FIRST_TARGET, "START_AT_FIRST_TARGET", "Start at First Target" );
     addItem( RimWellPathGeometryDef::START_AT_SURFACE, "START_AT_SURFACE", "Start at Surface" );
-    addItem( RimWellPathGeometryDef::START_FROM_OTHER_WELL, "START_FROM_OTHER_WELL", "Branch" );
-    addItem( RimWellPathGeometryDef::START_AT_AUTO_SURFACE, "START_AT_AUTO_SURFACE", "Auto Surface" );
 
     setDefault( RimWellPathGeometryDef::START_AT_SURFACE );
 }

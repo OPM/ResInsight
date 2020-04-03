@@ -45,8 +45,6 @@ public:
     {
         START_AT_FIRST_TARGET,
         START_AT_SURFACE,
-        START_FROM_OTHER_WELL,
-        START_AT_AUTO_SURFACE
     };
 
     cvf::Vec3d referencePointXyz() const;
