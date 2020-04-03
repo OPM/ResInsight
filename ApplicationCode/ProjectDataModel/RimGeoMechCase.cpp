@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
+#include "RicImportElementPropertyFeature.h"
 #include "RicfCommandObject.h"
 #include "RifOdbReader.h"
 
@@ -49,6 +50,7 @@
 #include "RimTools.h"
 #include "RimWellLogPlotCollection.h"
 
+#include "cafCmdFeatureManager.h"
 #include "cafPdmFieldIOScriptability.h"
 #include "cafPdmObjectScriptability.h"
 #include "cafPdmUiDoubleValueEditor.h"
@@ -120,6 +122,9 @@ RimGeoMechCase::RimGeoMechCase( void )
                                 "",
                                 "" );
     m_elementPropertyFileNameIndexUiSelection.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &m_importElementPropertyFileCommand, "importElementPropertyFileCommad", false, "", "", "", "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_importElementPropertyFileCommand );
 
     CAF_PDM_InitField( &m_closeElementPropertyFileCommand, "closeElementPropertyFileCommad", false, "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_closeElementPropertyFileCommand );
@@ -746,6 +751,12 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         closeSelectedElementPropertyFiles();
         updateConnectedEditors();
     }
+    else if ( changedField == &m_importElementPropertyFileCommand )
+    {
+        m_importElementPropertyFileCommand = false;
+        importElementPropertyFile();
+        updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -926,6 +937,14 @@ void RimGeoMechCase::reloadSelectedElementPropertyFiles()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::importElementPropertyFile()
+{
+    RicImportElementPropertyFeature::importElementProperties();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &caseUserDescription );
@@ -939,6 +958,7 @@ void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* elmPropGroup = uiOrdering.addNewGroup( "Element Properties" );
     elmPropGroup->add( &m_elementPropertyFileNameIndexUiSelection );
+    elmPropGroup->add( &m_importElementPropertyFileCommand );
     elmPropGroup->add( &m_reloadElementPropertyFileCommand );
     elmPropGroup->add( &m_closeElementPropertyFileCommand );
 
@@ -961,13 +981,17 @@ void RimGeoMechCase::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                             QString                    uiConfigName,
                                             caf::PdmUiEditorAttribute* attribute )
 {
+    if ( field == &m_importElementPropertyFileCommand )
+    {
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Import Element Property";
+    }
     if ( field == &m_reloadElementPropertyFileCommand )
     {
-        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Reload Case(s)";
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Reload Element Property";
     }
     if ( field == &m_closeElementPropertyFileCommand )
     {
-        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Close Case(s)";
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Close Element Property";
     }
 
     if ( field == &m_biotFixedCoefficient )

@@ -27,6 +27,8 @@ class RicImportElementPropertyFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+    static void importElementProperties();
+
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;

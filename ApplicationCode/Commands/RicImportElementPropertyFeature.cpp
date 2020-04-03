@@ -44,6 +44,14 @@ bool RicImportElementPropertyFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportElementPropertyFeature::onActionTriggered( bool isChecked )
 {
+    importElementProperties();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicImportElementPropertyFeature::importElementProperties()
+{
     RiaApplication* app = RiaApplication::instance();
 
     QString     defaultDir = app->lastUsedDialogDirectory( "ELM_PROPS" );
