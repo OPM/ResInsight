@@ -1008,12 +1008,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
 
     for ( const RigCompletionData& data : completionData )
     {
-        if ( data.transmissibility() == 0.0 || data.wpimult() == 0.0 )
-        {
-            // Don't export completions without transmissibility
-            continue;
-        }
-
         if ( currentCompletionType != data.completionType() )
         {
             // The completions are sorted by completion type, write out a heading when completion type changes
@@ -1032,6 +1026,13 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
         {
             formatter.comment( QString( "%1 : %2" ).arg( metadata.name ).arg( metadata.comment ) );
         }
+
+        if ( data.transmissibility() == 0.0 || data.wpimult() == 0.0 )
+        {
+            // Don't export completions without transmissibility
+            continue;
+        }
+
         formatter.add( data.wellName() );
 
         if ( !gridName.isEmpty() )
