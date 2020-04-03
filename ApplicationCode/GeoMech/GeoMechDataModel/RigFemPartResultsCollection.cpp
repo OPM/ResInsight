@@ -165,9 +165,23 @@ const RigFormationNames* RigFemPartResultsCollection::activeFormationNames() con
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::addElementPropertyFiles( const std::vector<QString>& filenames )
 {
+    std::vector<RigFemResultAddress> newAddresses;
     for ( const QString& filename : filenames )
     {
         m_elementPropertyReader->addFile( filename.toStdString() );
+
+        // Collect all addresses which was added in this file
+        std::vector<std::string> fields = m_elementPropertyReader->fieldsInFile( filename.toStdString() );
+        for ( const std::string& field : fields )
+        {
+            newAddresses.push_back( RigFemResultAddress( RIG_ELEMENT, field, "" ) );
+        }
+    }
+
+    // Invalidate previous result if already in cache
+    for ( const RigFemResultAddress& address : newAddresses )
+    {
+        this->deleteResult( address );
     }
 }
 
