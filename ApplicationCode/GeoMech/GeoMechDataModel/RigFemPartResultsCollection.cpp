@@ -221,6 +221,25 @@ std::vector<RigFemResultAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<std::string, QString>
+    RigFemPartResultsCollection::addressesInElementPropertyFiles( const std::vector<QString>& filenames )
+{
+    std::map<std::string, QString> fieldsInFile;
+    for ( const QString& filename : filenames )
+    {
+        std::vector<std::string> fields = m_elementPropertyReader->fieldsInFile( filename.toStdString() );
+        for ( const std::string& field : fields )
+        {
+            fieldsInFile[field] = filename;
+        }
+    }
+
+    return fieldsInFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::setCalculationParameters( double cohesion, double frictionAngleRad )
 {
     m_cohesion         = cohesion;

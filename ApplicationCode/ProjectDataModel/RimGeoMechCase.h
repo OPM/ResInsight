@@ -114,6 +114,9 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
+    QString findFileNameForElementProperty( const std::string&                   elementProperty,
+                                            const std::map<std::string, QString> addressesInFiles ) const;
+
     void updateFormationNamesData() override;
 
     void           initAfterRead() override;

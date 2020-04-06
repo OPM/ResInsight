@@ -62,8 +62,7 @@
 
 #include "cvfVector3.h"
 
-#include <QFile>
-#include <QIcon>
+#include <QFileInfo>
 
 #include <array>
 
@@ -1025,16 +1024,48 @@ QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions( const caf::
     else if ( fieldNeedingOptions == &m_biotResultAddress )
     {
         std::vector<std::string> elementProperties = possibleElementPropertyFieldNames();
+
+        std::vector<QString> paths;
+        for ( auto path : m_elementPropertyFileNames.v() )
+        {
+            paths.push_back( path.path() );
+        }
+
+        std::map<std::string, QString> addressesInFile =
+            geoMechData()->femPartResults()->addressesInElementPropertyFiles( paths );
+
         for ( const std::string elementProperty : elementProperties )
         {
-            QString result = QString::fromStdString( elementProperty );
-            options.push_back( caf::PdmOptionItemInfo( result, result ) );
+            QString result   = QString::fromStdString( elementProperty );
+            QString filename = findFileNameForElementProperty( elementProperty, addressesInFile );
+            options.push_back( caf::PdmOptionItemInfo( result + " (" + filename + ")", result ) );
         }
     }
 
     return options;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechCase::findFileNameForElementProperty( const std::string&                   elementProperty,
+                                                        const std::map<std::string, QString> addressesInFiles ) const
+{
+    auto it = addressesInFiles.find( elementProperty );
+    if ( it != addressesInFiles.end() )
+    {
+        QFileInfo fileInfo( it->second );
+        return fileInfo.fileName();
+    }
+    else
+    {
+        return QString( "Unknown file" );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::updateConnectedViews()
 {
     std::vector<Rim3dView*> views = this->views();
@@ -1047,6 +1078,9 @@ void RimGeoMechCase::updateConnectedViews()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<std::string> RimGeoMechCase::possibleElementPropertyFieldNames()
 {
     std::vector<std::string> fieldNames;
