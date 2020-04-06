@@ -69,6 +69,7 @@ private:
 private:
     QString        m_filename;
     ecl_file_type* m_ecl_file;
+    size_t         m_perTimeStepExtraKeywordCount;
 
     std::vector<QDateTime> m_timeSteps;
     std::vector<double>    m_daysSinceSimulationStart;
