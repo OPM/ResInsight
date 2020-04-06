@@ -44,7 +44,8 @@
 RifEclipseUnifiedRestartFileAccess::RifEclipseUnifiedRestartFileAccess()
     : RifEclipseRestartDataAccess()
     , m_ecl_file( nullptr )
-    , m_perTimeStepExtraKeywordCount( 0 )
+    , m_perTimeStepHeaderCount( 0 )
+    , m_noDataGridCount( 0 )
 {
 }
 
@@ -164,19 +165,7 @@ void RifEclipseUnifiedRestartFileAccess::extractTimestepsFromEclipse()
 
     if ( openFile() )
     {
-        size_t perTimeStepHeaderKeywordCount = 0;
-        RifEclipseOutputFileTools::timeSteps( m_ecl_file,
-                                              &m_timeSteps,
-                                              &m_daysSinceSimulationStart,
-                                              &perTimeStepHeaderKeywordCount );
-
-        if ( perTimeStepHeaderKeywordCount > 1 )
-        {
-            // 6x simulator can report multiple keywords per time step. Use the keyword count to
-            // find correct index in the restart file
-            // https://github.com/OPM/ResInsight/issues/5763
-            m_perTimeStepExtraKeywordCount = perTimeStepHeaderKeywordCount - 1;
-        }
+        RifEclipseOutputFileTools::timeSteps( m_ecl_file, &m_timeSteps, &m_daysSinceSimulationStart, &m_perTimeStepHeaderCount );
 
         // Taken from well_info_add_UNRST_wells
 
@@ -269,9 +258,7 @@ bool RifEclipseUnifiedRestartFileAccess::results( const QString&       resultNam
 
     for ( size_t i = 0; i < gridCount; i++ )
     {
-        ecl_file_select_block( m_ecl_file,
-                               INTEHEAD_KW,
-                               static_cast<int>( timeStep * ( gridCount + m_perTimeStepExtraKeywordCount ) + i ) );
+        ecl_file_select_block( m_ecl_file, INTEHEAD_KW, static_cast<int>( timeStep * ( gridCount + m_noDataGridCount ) + i ) );
 
         int namedKeywordCount = ecl_file_get_num_named_kw( m_ecl_file, resultName.toLatin1().data() );
         for ( int iOcc = 0; iOcc < namedKeywordCount; iOcc++ )
@@ -353,6 +340,21 @@ int RifEclipseUnifiedRestartFileAccess::readUnitsType()
 std::set<RiaDefines::PhaseType> RifEclipseUnifiedRestartFileAccess::availablePhases() const
 {
     return m_availablePhases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseUnifiedRestartFileAccess::updateFromGridCount( size_t gridCount )
+{
+    if ( m_perTimeStepHeaderCount > gridCount )
+    {
+        // 6x simulator can report multiple keywords per time step. Use the keyword count to
+        // find correct index in the restart file
+        // https://github.com/OPM/ResInsight/issues/5763
+        //
+        m_noDataGridCount = m_perTimeStepHeaderCount - gridCount;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
