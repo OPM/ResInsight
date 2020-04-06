@@ -357,9 +357,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
         }
     }
 
-    bool showTextLabels = simWellInViewCollection()->showWellDiskQuantityLables() ||
-                          ( well->showWellLabel() && well->showWellDisks() && !well->name().isEmpty() );
-
+    bool showTextLabels = well->showWellLabel() && well->showWellDisks() && !well->name().isEmpty();
     if ( showTextLabels )
     {
         cvf::Font* font = RiaGuiApplication::instance()->defaultWellLabelFont();
