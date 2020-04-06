@@ -132,7 +132,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
         cvf::GeometryBuilderFaceList builder;
         {
             RivDiskGeometryGenerator gen;
-            gen.setRelativeRadius( 2.5f * ( m_rimWell->diskScale() ) );
+            gen.setRelativeRadius( baseScaleFactor() * m_rimWell->diskScale() );
             gen.setRelativeLength( 0.1f );
             gen.setNumSlices( numSectors );
             gen.generate( &builder );
@@ -425,7 +425,7 @@ std::pair<cvf::String, cvf::Vec3f> RivWellDiskPartMgr::createTextAndLocation( co
 
     cvf::Vec3f v = cvf::Vec3f( diskPosition );
 
-    double radius = 2.5f * ( m_rimWell->diskScale() );
+    double radius = baseScaleFactor() * m_rimWell->diskScale();
     radius *= ijScaleFactor;
     radius *= 1.1; // Put label outside the disk
 
@@ -522,4 +522,12 @@ cvf::Color4f RivWellDiskPartMgr::getWellInjectionColor( RigWellResultFrame::Well
     }
 
     return cvf::Color4f( cvf::Color3::BLACK );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RivWellDiskPartMgr::baseScaleFactor()
+{
+    return 10.0;
 }

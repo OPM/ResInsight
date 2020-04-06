@@ -67,6 +67,7 @@ private:
 
     static cvf::Color4f getWellInjectionColor( RigWellResultFrame::WellProductionType productionType );
     static QString      formatNumber( double num );
+    static double       baseScaleFactor();
 
 private:
     caf::PdmPointer<RimSimWellInView> m_rimWell;
