@@ -86,6 +86,9 @@ RimSimWellInView::RimSimWellInView()
     CAF_PDM_InitField( &pipeScaleFactor, "WellPipeRadiusScale", 1.0, "Pipe Radius Scale", "", "", "" );
     CAF_PDM_InitField( &wellPipeColor, "WellPipeColor", cvf::Color3f( 0.588f, 0.588f, 0.804f ), "Pipe Color", "", "", "" );
 
+    cvf::Color3f defaultWellDiskColor = cvf::Color3::OLIVE;
+    CAF_PDM_InitField( &wellDiskColor, "WellDiskColor", defaultWellDiskColor, "Disk Color", "", "", "" );
+
     CAF_PDM_InitField( &showWellCells, "ShowWellCells", false, "Well Cells", "", "", "" );
     CAF_PDM_InitField( &showWellCellFence, "ShowWellCellFence", false, "Well Cell Fence", "", "", "" );
 
@@ -127,7 +130,8 @@ void RimSimWellInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( reservoirView )
     {
         if ( &showWellLabel == changedField || &showWellHead == changedField || &showWellPipe == changedField ||
-             &showWellSpheres == changedField || &showWellDisks == changedField || &wellPipeColor == changedField )
+             &showWellSpheres == changedField || &showWellDisks == changedField || &wellPipeColor == changedField ||
+             &wellDiskColor == changedField )
         {
             reservoirView->scheduleCreateDisplayModelAndRedraw();
             schedule2dIntersectionViewUpdate();
@@ -428,6 +432,7 @@ void RimSimWellInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup( "Colors" );
     colorGroup->add( &wellPipeColor );
+    colorGroup->add( &wellDiskColor );
 
     uiOrdering.skipRemainingFields( true );
 }
