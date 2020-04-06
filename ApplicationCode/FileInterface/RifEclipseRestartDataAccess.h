@@ -110,4 +110,6 @@ public:
     virtual int  readUnitsType()                                                       = 0;
 
     virtual std::set<RiaDefines::PhaseType> availablePhases() const = 0;
+
+    virtual void updateFromGridCount( size_t gridCount ){};
 };

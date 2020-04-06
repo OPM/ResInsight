@@ -2346,6 +2346,17 @@ ecl_grid_type* RifReaderEclipseOutput::loadAllGrids() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::updateFromGridCount( size_t gridCount )
+{
+    if ( m_dynamicResultsAccess.notNull() )
+    {
+        m_dynamicResultsAccess->updateFromGridCount( gridCount );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel( RiaDefines::PorosityModelType matrixOrFracture,
                                                                       std::vector<double>* destinationResultValues,
                                                                       const std::vector<double>& sourceResultValues )

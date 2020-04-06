@@ -63,7 +63,8 @@ public:
 
     static void timeSteps( const ecl_file_type*    ecl_file,
                            std::vector<QDateTime>* timeSteps,
-                           std::vector<double>*    daysSinceSimulationStart );
+                           std::vector<double>*    daysSinceSimulationStart,
+                           size_t*                 perTimeStepHeaderKeywordCount );
 
     static bool       isValidEclipseFileName( const QString& fileName );
     static QByteArray md5sum( const QString& fileName );

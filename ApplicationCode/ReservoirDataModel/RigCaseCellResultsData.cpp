@@ -2802,6 +2802,11 @@ void RigCaseCellResultsData::computeMobilePV()
 void RigCaseCellResultsData::setReaderInterface( RifReaderInterface* readerInterface )
 {
     m_readerInterface = readerInterface;
+
+    if ( m_ownerMainGrid )
+    {
+        m_readerInterface->updateFromGridCount( m_ownerMainGrid->gridCount() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
