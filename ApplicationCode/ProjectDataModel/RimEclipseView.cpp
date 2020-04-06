@@ -1894,6 +1894,8 @@ bool RimEclipseView::isTimeStepDependentDataVisible() const
 
     if ( this->hasVisibleTimeStepDependent3dWellLogCurves() ) return true;
 
+    if ( this->wellPathCollection() && this->wellCollection()->isWellDisksVisible() ) return true;
+
     return false;
 }
 

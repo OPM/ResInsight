@@ -489,9 +489,16 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
     if ( m_reservoirView )
     {
+        if ( !m_wellDiskSummaryCase() )
+        {
+            setDefaultSourceCaseForWellDisks();
+        }
+
         if ( &isActive == changedField || &m_showWellLabel == changedField || &m_showWellCells == changedField ||
              &m_showWellCellFence == changedField || &wellCellFenceType == changedField )
         {
+            RimWellDiskConfig wellDiskConfig = getActiveWellDiskConfig();
+            updateWellDisks( wellDiskConfig );
             m_reservoirView->scheduleGeometryRegen( VISIBLE_WELL_CELLS );
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
@@ -502,14 +509,14 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         else if ( &m_wellDiskQuantity == changedField || &m_wellDiskPropertyType == changedField ||
                   &m_wellDiskPropertyConfigType == changedField || &m_wellDiskshowLabelsBackground == changedField ||
                   &m_wellDiskShowQuantityLabels == changedField || &m_wellDiskSummaryCase == changedField ||
-                  &m_wellDiskScaleFactor == changedField )
+                  &m_wellDiskScaleFactor == changedField || &m_showWellDisks == changedField )
         {
             RimWellDiskConfig wellDiskConfig = getActiveWellDiskConfig();
             updateWellDisks( wellDiskConfig );
             m_reservoirView->updateDisplayModelForCurrentTimeStepAndRedraw();
         }
         else if ( &spheresScaleFactor == changedField || &m_showWellSpheres == changedField ||
-                  &m_showWellDisks == changedField || &showConnectionStatusColors == changedField )
+                  &showConnectionStatusColors == changedField )
         {
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
