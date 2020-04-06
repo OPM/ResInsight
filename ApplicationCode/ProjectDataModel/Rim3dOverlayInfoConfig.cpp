@@ -63,6 +63,7 @@
 #include "RiuViewer.h"
 
 #include <QApplication>
+#include <QLocale>
 #include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT( Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig" );
@@ -561,12 +562,15 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
     {
         QString caseName = eclipseView->eclipseCase()->caseUserDescription();
 
+        QLocale localeWithSpaceAsGroupSeparator( QLocale::Norwegian );
+
         RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>( eclipseView );
         if ( contourMap && contourMap->contourMapProjection() )
         {
-            QString   totCellCount        = QString::number( contourMap->contourMapProjection()->numberOfCells() );
+            QString totCellCount =
+                localeWithSpaceAsGroupSeparator.toString( contourMap->contourMapProjection()->numberOfCells() );
             cvf::uint validCellCount      = contourMap->contourMapProjection()->numberOfValidCells();
-            QString   activeCellCountText = QString::number( validCellCount );
+            QString   activeCellCountText = localeWithSpaceAsGroupSeparator.toString( validCellCount );
             QString   aggregationType     = contourMap->contourMapProjection()->resultAggregationText();
             QString   weightingParameterString;
             if ( contourMap->contourMapProjection()->weightingParameter() != "None" )
@@ -582,8 +586,10 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
         }
         else if ( eclipseView->mainGrid() )
         {
-            QString totCellCount   = QString::number( eclipseView->mainGrid()->globalCellArray().size() );
-            size_t  mxActCellCount = eclipseView->eclipseCase()
+            QString totCellCount =
+                localeWithSpaceAsGroupSeparator.toString( eclipseView->mainGrid()->globalCellArray().size() );
+
+            size_t mxActCellCount = eclipseView->eclipseCase()
                                         ->eclipseCaseData()
                                         ->activeCellInfo( RiaDefines::MATRIX_MODEL )
                                         ->reservoirActiveCellCount();
@@ -594,8 +600,9 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
 
             QString activeCellCountText;
             if ( frActCellCount > 0 ) activeCellCountText += "Matrix : ";
-            activeCellCountText += QString::number( mxActCellCount );
-            if ( frActCellCount > 0 ) activeCellCountText += " Fracture : " + QString::number( frActCellCount );
+            activeCellCountText += localeWithSpaceAsGroupSeparator.toString( mxActCellCount );
+            if ( frActCellCount > 0 )
+                activeCellCountText += " Fracture : " + localeWithSpaceAsGroupSeparator.toString( frActCellCount );
 
             QString iSize = QString::number( eclipseView->mainGrid()->cellCountI() );
             QString jSize = QString::number( eclipseView->mainGrid()->cellCountJ() );
