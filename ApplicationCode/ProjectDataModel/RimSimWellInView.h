@@ -98,6 +98,7 @@ public:
     caf::PdmField<double> pipeScaleFactor;
 
     caf::PdmField<cvf::Color3f> wellPipeColor;
+    caf::PdmField<cvf::Color3f> wellDiskColor;
 
     caf::PdmField<bool> showWellCells;
     caf::PdmField<bool> showWellCellFence;
