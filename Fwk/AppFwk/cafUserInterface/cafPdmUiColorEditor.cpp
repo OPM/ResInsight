@@ -93,6 +93,11 @@ void PdmUiColorEditor::configureAndUpdateUi(const QString& uiConfigName)
         }
     }
 
+    bool isReadOnly = uiField()->isUiReadOnly(uiConfigName);
+    m_colorTextLabel->setEnabled(!isReadOnly);
+    m_colorSelectionButton->setEnabled(!isReadOnly);
+    m_colorPreviewLabel->setEnabled(!isReadOnly);
+
     QColor col = uiField()->uiValue().value<QColor>();
     setColorOnWidget(col);
 }
