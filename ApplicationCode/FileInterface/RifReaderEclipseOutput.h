@@ -97,6 +97,8 @@ public:
     //
     ecl_grid_type* loadAllGrids() const;
 
+    void updateFromGridCount( size_t gridCount ) override;
+
 private:
     bool readActiveCellInfo();
     void buildMetaData( ecl_grid_type* grid );

@@ -61,6 +61,8 @@ public:
 
     std::set<RiaDefines::PhaseType> availablePhases() const override;
 
+    void updateFromGridCount( size_t gridCount ) override;
+
 private:
     bool openFile();
     bool useResultIndexFile() const;
@@ -69,6 +71,8 @@ private:
 private:
     QString        m_filename;
     ecl_file_type* m_ecl_file;
+    size_t         m_perTimeStepHeaderCount;
+    size_t         m_noDataGridCount;
 
     std::vector<QDateTime> m_timeSteps;
     std::vector<double>    m_daysSinceSimulationStart;

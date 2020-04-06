@@ -69,6 +69,8 @@ public:
 
     virtual std::set<RiaDefines::PhaseType> availablePhases() const;
 
+    virtual void updateFromGridCount( size_t gridCount ){};
+
 protected:
     bool   isTimeStepIncludedByFilter( size_t timeStepIndex ) const;
     size_t timeStepIndexOnFile( size_t timeStepIndex ) const;

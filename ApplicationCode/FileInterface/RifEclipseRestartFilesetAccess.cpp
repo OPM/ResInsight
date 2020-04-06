@@ -136,7 +136,8 @@ void RifEclipseRestartFilesetAccess::timeSteps( std::vector<QDateTime>* timeStep
 
             openTimeStep( i );
 
-            RifEclipseOutputFileTools::timeSteps( m_ecl_files[i], &stepTime, &stepDays );
+            size_t perTimeStepEmptyKeywords = 0;
+            RifEclipseOutputFileTools::timeSteps( m_ecl_files[i], &stepTime, &stepDays, &perTimeStepEmptyKeywords );
 
             if ( stepTime.size() == 1 )
             {
@@ -196,13 +197,16 @@ bool RifEclipseRestartFilesetAccess::results( const QString&       resultName,
     if ( fileGridCount == 0 ) return true;
 
     // Result handling depends on presents of result values for all grids
-    if ( gridCount != fileGridCount )
+    if ( fileGridCount < gridCount )
     {
         return false;
     }
 
-    size_t i;
-    for ( i = 0; i < fileGridCount; i++ )
+    // NB : 6X simulator can report multiple keywords for one time step. The additional keywords do not contain and
+    // data imported by ResInsight. We read all blocks of data, also empty to simplify the logic.
+    // See https://github.com/OPM/ResInsight/issues/5763
+
+    for ( size_t i = 0; i < fileGridCount; i++ )
     {
         std::vector<double> gridValues;
 
