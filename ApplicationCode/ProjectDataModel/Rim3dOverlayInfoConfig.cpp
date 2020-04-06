@@ -586,8 +586,8 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
         }
         else if ( eclipseView->mainGrid() )
         {
-            QString totCellCount =
-                localeWithSpaceAsGroupSeparator.toString( eclipseView->mainGrid()->globalCellArray().size() );
+            QString totCellCount = localeWithSpaceAsGroupSeparator.toString(
+                static_cast<int>( eclipseView->mainGrid()->globalCellArray().size() ) );
 
             size_t mxActCellCount = eclipseView->eclipseCase()
                                         ->eclipseCaseData()
@@ -600,9 +600,10 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
 
             QString activeCellCountText;
             if ( frActCellCount > 0 ) activeCellCountText += "Matrix : ";
-            activeCellCountText += localeWithSpaceAsGroupSeparator.toString( mxActCellCount );
+            activeCellCountText += localeWithSpaceAsGroupSeparator.toString( static_cast<int>( mxActCellCount ) );
             if ( frActCellCount > 0 )
-                activeCellCountText += " Fracture : " + localeWithSpaceAsGroupSeparator.toString( frActCellCount );
+                activeCellCountText += " Fracture : " +
+                                       localeWithSpaceAsGroupSeparator.toString( static_cast<int>( frActCellCount ) );
 
             QString iSize = QString::number( eclipseView->mainGrid()->cellCountI() );
             QString jSize = QString::number( eclipseView->mainGrid()->cellCountJ() );
