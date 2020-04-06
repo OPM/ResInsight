@@ -19,6 +19,7 @@
 #include "RimSimWellInViewTools.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
 
@@ -150,8 +151,9 @@ double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface
 
     if ( !summaryReader->hasAddress( addr ) )
     {
-        // TODO: better error handling
-        std::cerr << "ERROR: no address found for well " << wellName.toStdString() << " " << vectorName << std::endl;
+        QString message = "ERROR: no address found for well " + wellName + " " + QString::fromStdString( vectorName );
+        RiaLogging::warning( message );
+
         *isOk = false;
         return 0.0;
     }
@@ -161,7 +163,9 @@ double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface
     std::vector<time_t> timeSteps = summaryReader->timeSteps( addr );
     if ( values.empty() || timeSteps.empty() )
     {
-        std::cerr << "Warning: no data found for well " << wellName.toStdString() << " " << vectorName << std::endl;
+        QString message = "ERROR: no data found for well " + wellName + " " + QString::fromStdString( vectorName );
+        RiaLogging::warning( message );
+
         *isOk = false;
         return 0.0;
     }
@@ -190,7 +194,9 @@ double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface
         }
     }
 
-    std::cerr << "ERROR: no resampled value found for well " << wellName.toStdString() << " " << vectorName << std::endl;
+    QString message = "ERROR: no resampled values found for well " + wellName + " " + QString::fromStdString( vectorName );
+    RiaLogging::warning( message );
+
     *isOk = false;
     return -1;
 }
