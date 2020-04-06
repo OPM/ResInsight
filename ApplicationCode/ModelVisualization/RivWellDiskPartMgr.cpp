@@ -203,9 +203,9 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
     if ( diskData.isSingleProperty() )
     {
         // Set color for the triangle vertices
+        cvf::Color3ub c = cvf::Color3ub( m_rimWell->wellDiskColor );
         for ( size_t i = 0; i < numSectors * 3; i++ )
         {
-            cvf::Color3ub c = cvf::Color3::OLIVE;
             colorArray->set( i, c );
         }
 

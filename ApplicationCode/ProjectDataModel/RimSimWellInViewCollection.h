@@ -161,6 +161,8 @@ public:
     void   updateWellDisks();
     double wellDiskScaleFactor() const;
 
+    caf::PdmField<cvf::Color3f> wellDiskColor;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
