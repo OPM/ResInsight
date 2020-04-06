@@ -52,7 +52,7 @@ RimWbsParameters::RimWbsParameters()
                                                 "" );
     CAF_PDM_InitScriptableFieldWithIO( &m_userDefinedPPShale,
                                        "UserPPNonReservoir",
-                                       1.05,
+                                       1.0,
                                        "  Multiplier of hydrostatic PP",
                                        "",
                                        "",
@@ -388,10 +388,11 @@ void RimWbsParameters::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add( &m_userDefinedDensity );
     uiOrdering.add( &m_porePressureSource );
     uiOrdering.add( &m_porePressureNonReservoirSource );
-    if ( m_porePressureNonReservoirSource == RigWbsParameter::USER_DEFINED )
+    if ( m_porePressureNonReservoirSource == RigWbsParameter::HYDROSTATIC )
     {
         uiOrdering.add( &m_userDefinedPPShale );
     }
+
     uiOrdering.add( &m_poissonRatioSource );
     uiOrdering.add( &m_userDefinedPoissionRatio );
     uiOrdering.add( &m_ucsSource );
@@ -432,7 +433,7 @@ bool RimWbsParameters::hasLasFileWithChannel( const QString& channel ) const
 bool RimWbsParameters::hasElementPropertyEntry( const RigFemResultAddress& resAddr ) const
 {
     RigFemPartResultsCollection* femPartResults = nullptr;
-    if ( m_geoMechCase && m_geoMechCase->geoMechData() && m_timeStep > 0 )
+    if ( m_geoMechCase && m_geoMechCase->geoMechData() && m_timeStep() >= 0 )
     {
         femPartResults = m_geoMechCase->geoMechData()->femPartResults();
         if ( femPartResults )
