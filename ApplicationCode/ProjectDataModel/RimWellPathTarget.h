@@ -33,6 +33,7 @@ public:
     RimWellPathTarget();
     ~RimWellPathTarget() override;
 
+    void setEnabled( bool enable );
     bool isEnabled() const;
 
     void setAsPointTargetXYD( const cvf::Vec3d& point );
