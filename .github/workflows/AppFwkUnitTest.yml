@@ -12,17 +12,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Cache Qt
-          id: cache-qt
-          uses: actions/cache@v1
-          with:
-            path: ../Qt
-            key: ${{ runner.os }}-QtCache
-        - name: Install Qt
-          uses: jurplel/install-qt-action@v2
-          with:
-            version: 5.9.9
-            modules: qtscript 
-            cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: 5.9.9
+          modules: qtscript 
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - name: Install Linux dependencies
         if: "contains( matrix.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
