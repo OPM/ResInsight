@@ -575,7 +575,8 @@ RimExtrudedCurveIntersection* RivExtrudedCurveIntersectionGeometryGenerator::int
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Mat4d RivExtrudedCurveIntersectionGeometryGenerator::unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat )
+cvf::Mat4d
+    RivExtrudedCurveIntersectionGeometryGenerator::unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat ) const
 {
     cvf::Mat4d flattenMx = cvf::Mat4d::IDENTITY;
 

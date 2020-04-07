@@ -356,9 +356,9 @@ void Rim2dIntersectionView::updateName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RivExtrudedCurveIntersectionPartMgr> Rim2dIntersectionView::flatIntersectionPartMgr() const
+const RivExtrudedCurveIntersectionPartMgr* Rim2dIntersectionView::flatIntersectionPartMgr() const
 {
-    return m_flatIntersectionPartMgr;
+    return m_flatIntersectionPartMgr.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -374,9 +374,14 @@ bool Rim2dIntersectionView::isGridVisualizationMode() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d Rim2dIntersectionView::transformToUtm( const cvf::Vec3d& unscaledPointInFlatDomain ) const
 {
-    cvf::Mat4d unflatXf = this->flatIntersectionPartMgr()->unflattenTransformMatrix( unscaledPointInFlatDomain );
+    if ( m_flatIntersectionPartMgr.notNull() )
+    {
+        cvf::Mat4d unflatXf = flatIntersectionPartMgr()->unflattenTransformMatrix( unscaledPointInFlatDomain );
 
-    return unscaledPointInFlatDomain.getTransformedPoint( unflatXf );
+        return unscaledPointInFlatDomain.getTransformedPoint( unflatXf );
+    }
+
+    return unscaledPointInFlatDomain;
 }
 
 //--------------------------------------------------------------------------------------------------
