@@ -30,6 +30,6 @@ CAF_PDM_SOURCE_INIT( RimcSummaryResampleData, "ResampleData" );
 RimcSummaryResampleData::RimcSummaryResampleData()
 {
     CAF_PDM_InitScriptableObject( "Resample Data", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_timeValues, "TimeValues", "Data Time Values", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_doubleValues, "DoubleValues", "Data Double Values", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_timeValues, "TimeSteps", "Time Steps", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_doubleValues, "Values", "Values", "", "", "" );
 }

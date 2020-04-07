@@ -256,11 +256,7 @@ QString PdmPythonGenerator::generate( PdmObjectFactory* factory ) const
                 QStringList argumentComments;
 
                 outputArgumentStrings.push_back( QString( "\"%1\"" ).arg( methodName ) );
-                QString returnComment( "Data object" );
-                if ( method->resultIsPersistent() )
-                {
-                    returnComment = method->defaultResult()->xmlCapability()->classKeyword();
-                }
+                QString returnComment = method->defaultResult()->xmlCapability()->classKeyword();
 
                 for ( auto field : arguments )
                 {
@@ -414,6 +410,7 @@ QString PdmPythonGenerator::dataTypeString( const PdmFieldHandle* field, bool us
     std::map<QString, QString> builtins = {{QString::fromStdString( typeid( double ).name() ), "float"},
                                            {QString::fromStdString( typeid( float ).name() ), "float"},
                                            {QString::fromStdString( typeid( int ).name() ), "int"},
+                                           {QString::fromStdString( typeid( time_t ).name() ), "time"},
                                            {QString::fromStdString( typeid( QString ).name() ), "str"}};
 
     bool foundBuiltin = false;

@@ -29,12 +29,12 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcSummaryCase_summaryVectorValues : public caf::PdmObjectMethod
+class RimSummaryCase_summaryVectorValues : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcSummaryCase_summaryVectorValues( caf::PdmObjectHandle* self );
+    RimSummaryCase_summaryVectorValues( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute();
     bool                             resultIsPersistent() const override;
@@ -47,12 +47,12 @@ private:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcSummaryCase_AvailableAddresses : public caf::PdmObjectMethod
+class RimSummaryCase_availableAddresses : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcSummaryCase_AvailableAddresses( caf::PdmObjectHandle* self );
+    RimSummaryCase_availableAddresses( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute();
     bool                             resultIsPersistent() const override;
@@ -62,12 +62,12 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcSummaryCase_TimeSteps : public caf::PdmObjectMethod
+class RimSummaryCase_availableTimeSteps : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcSummaryCase_TimeSteps( caf::PdmObjectHandle* self );
+    RimSummaryCase_availableTimeSteps( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute();
     bool                             resultIsPersistent() const override;
@@ -77,12 +77,12 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcSummaryCase_ResampleValues : public caf::PdmObjectMethod
+class RimSummaryCase_resampleValues : public caf::PdmObjectMethod
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcSummaryCase_ResampleValues( caf::PdmObjectHandle* self );
+    RimSummaryCase_resampleValues( caf::PdmObjectHandle* self );
 
     caf::PdmObjectHandle*            execute();
     bool                             resultIsPersistent() const override;

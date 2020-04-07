@@ -32,12 +32,12 @@
 
 #include "cafPdmFieldIOScriptability.h"
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimcSummaryCase_summaryVectorValues, "SummaryVectorValues" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_summaryVectorValues, "summaryVectorValues" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcSummaryCase_summaryVectorValues::RimcSummaryCase_summaryVectorValues( caf::PdmObjectHandle* self )
+RimSummaryCase_summaryVectorValues::RimSummaryCase_summaryVectorValues( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Summary Plot", "", "", "Create a new Summary Plot" );
@@ -52,7 +52,7 @@ RimcSummaryCase_summaryVectorValues::RimcSummaryCase_summaryVectorValues( caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcSummaryCase_summaryVectorValues::execute()
+caf::PdmObjectHandle* RimSummaryCase_summaryVectorValues::execute()
 {
     QStringList addressStrings = m_addressString().split( ";", QString::SkipEmptyParts );
 
@@ -78,7 +78,7 @@ caf::PdmObjectHandle* RimcSummaryCase_summaryVectorValues::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSummaryCase_summaryVectorValues::resultIsPersistent() const
+bool RimSummaryCase_summaryVectorValues::resultIsPersistent() const
 {
     return false;
 }
@@ -86,17 +86,17 @@ bool RimcSummaryCase_summaryVectorValues::resultIsPersistent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcSummaryCase_summaryVectorValues::defaultResult() const
+std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_summaryVectorValues::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerDouble );
 }
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimcSummaryCase_AvailableAddresses, "AvailableAddresses" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_availableAddresses, "availableAddresses" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcSummaryCase_AvailableAddresses::RimcSummaryCase_AvailableAddresses( caf::PdmObjectHandle* self )
+RimSummaryCase_availableAddresses::RimSummaryCase_availableAddresses( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Available Addresses", "", "", "" );
@@ -105,7 +105,7 @@ RimcSummaryCase_AvailableAddresses::RimcSummaryCase_AvailableAddresses( caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcSummaryCase_AvailableAddresses::execute()
+caf::PdmObjectHandle* RimSummaryCase_availableAddresses::execute()
 {
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
@@ -127,7 +127,7 @@ caf::PdmObjectHandle* RimcSummaryCase_AvailableAddresses::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSummaryCase_AvailableAddresses::resultIsPersistent() const
+bool RimSummaryCase_availableAddresses::resultIsPersistent() const
 {
     return false;
 }
@@ -135,17 +135,17 @@ bool RimcSummaryCase_AvailableAddresses::resultIsPersistent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcSummaryCase_AvailableAddresses::defaultResult() const
+std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_availableAddresses::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerString );
 }
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimcSummaryCase_TimeSteps, "AvailableTimeSteps" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_availableTimeSteps, "availableTimeSteps" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcSummaryCase_TimeSteps::RimcSummaryCase_TimeSteps( caf::PdmObjectHandle* self )
+RimSummaryCase_availableTimeSteps::RimSummaryCase_availableTimeSteps( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Available TimeSteps", "", "", "" );
@@ -154,7 +154,7 @@ RimcSummaryCase_TimeSteps::RimcSummaryCase_TimeSteps( caf::PdmObjectHandle* self
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcSummaryCase_TimeSteps::execute()
+caf::PdmObjectHandle* RimSummaryCase_availableTimeSteps::execute()
 {
     auto*                      summaryCase = self<RimSummaryCase>();
     RifSummaryReaderInterface* sumReader   = summaryCase->summaryReader();
@@ -171,7 +171,7 @@ caf::PdmObjectHandle* RimcSummaryCase_TimeSteps::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSummaryCase_TimeSteps::resultIsPersistent() const
+bool RimSummaryCase_availableTimeSteps::resultIsPersistent() const
 {
     return false;
 }
@@ -179,17 +179,17 @@ bool RimcSummaryCase_TimeSteps::resultIsPersistent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcSummaryCase_TimeSteps::defaultResult() const
+std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_availableTimeSteps::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerTime );
 }
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimcSummaryCase_ResampleValues, "ResampleValues" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_resampleValues, "resampleValues" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcSummaryCase_ResampleValues::RimcSummaryCase_ResampleValues( caf::PdmObjectHandle* self )
+RimSummaryCase_resampleValues::RimSummaryCase_resampleValues( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Resample Values", "", "", "" );
@@ -206,7 +206,7 @@ RimcSummaryCase_ResampleValues::RimcSummaryCase_ResampleValues( caf::PdmObjectHa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObjectHandle* RimcSummaryCase_ResampleValues::execute()
+caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
 {
     QStringList addressStrings = m_addressString().split( ";", QString::SkipEmptyParts );
 
@@ -247,7 +247,7 @@ caf::PdmObjectHandle* RimcSummaryCase_ResampleValues::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimcSummaryCase_ResampleValues::resultIsPersistent() const
+bool RimSummaryCase_resampleValues::resultIsPersistent() const
 {
     return false;
 }
@@ -255,7 +255,7 @@ bool RimcSummaryCase_ResampleValues::resultIsPersistent() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<caf::PdmObjectHandle> RimcSummaryCase_ResampleValues::defaultResult() const
+std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_resampleValues::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcSummaryResampleData );
 }
