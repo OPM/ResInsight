@@ -22,13 +22,13 @@
 
 #include "cafPdmObjectScriptability.h"
 
-CAF_PDM_SOURCE_INIT( RimcDataContainerDouble, "DataContainerDouble" );
+CAF_PDM_SOURCE_INIT( RimcDataContainerDouble, "DataContainerFloat" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimcDataContainerDouble::RimcDataContainerDouble()
 {
-    CAF_PDM_InitScriptableObject( "Data Container Double", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_doubleValues, "DoubleValues", "Data Double Values", "", "", "" );
+    CAF_PDM_InitScriptableObject( "Data Container Float", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_doubleValues, "values", "Float Values", "", "", "" );
 }

@@ -30,5 +30,5 @@ CAF_PDM_SOURCE_INIT( RimcDataContainerTime, "DataContainerTime" );
 RimcDataContainerTime::RimcDataContainerTime()
 {
     CAF_PDM_InitScriptableObject( "Data Container Time", "", "", "" );
-    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_timeValues, "TimeValues", "Data Time Values", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_timeValues, "values", "Time Values", "", "", "" );
 }
