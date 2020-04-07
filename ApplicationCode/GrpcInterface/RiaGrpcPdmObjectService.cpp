@@ -527,12 +527,19 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
             copyPdmObjectFromRipsToCaf( &( request->params() ), method.get() );
 
             caf::PdmObjectHandle* result = method->execute();
-            copyPdmObjectFromCafToRips( result, reply );
-            if ( !method->resultIsPersistent() )
+            if ( result )
             {
-                delete result;
+                copyPdmObjectFromCafToRips( result, reply );
+                if ( !method->resultIsPersistent() )
+                {
+                    delete result;
+                }
+                return grpc::Status::OK;
             }
-            return grpc::Status::OK;
+            else
+            {
+                return grpc::Status( grpc::NOT_FOUND, "No result returned from Method" );
+            }
         }
         return grpc::Status( grpc::NOT_FOUND, "Could not find Method" );
     }
