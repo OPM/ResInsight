@@ -710,7 +710,7 @@ const RimExtrudedCurveIntersection* RivExtrudedCurveIntersectionPartMgr::interse
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Mat4d RivExtrudedCurveIntersectionPartMgr::unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat )
+cvf::Mat4d RivExtrudedCurveIntersectionPartMgr::unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat ) const
 {
     return m_intersectionGenerator->unflattenTransformMatrix( intersectionPointFlat );
 }

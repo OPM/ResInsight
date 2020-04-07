@@ -77,7 +77,7 @@ public:
 
     const RimExtrudedCurveIntersection* intersection() const;
 
-    cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat );
+    cvf::Mat4d unflattenTransformMatrix( const cvf::Vec3d& intersectionPointFlat ) const;
 
 public:
 private:
