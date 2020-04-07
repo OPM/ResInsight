@@ -200,7 +200,10 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
 
         if ( auto intersectionView = dynamic_cast<Rim2dIntersectionView*>( rimView ) )
         {
-            pickedPositionInUTM = intersectionView->transformToUtm( pickedPositionInUTM );
+            if ( intersectionView->flatIntersectionPartMgr() )
+            {
+                pickedPositionInUTM = intersectionView->transformToUtm( pickedPositionInUTM );
+            }
         }
 
         double measuredDepth = wellPathSourceInfo->measuredDepth( wellPathTriangleIndex, pickedPositionInUTM );
