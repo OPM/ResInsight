@@ -27,7 +27,7 @@ jobs:
         if: "contains( matrix.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
       - name: Build AppFwk with Unit Tests
-        uses: lukka/run-cmake@v0
+        uses: lukka/run-cmake@v1
         with:
           cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
           cmakeListsTxtPath: '${{ github.workspace }}/Fwk/AppFwk/CMakeLists.txt'
@@ -35,12 +35,6 @@ jobs:
           buildDirectory: ${{ github.workspace }}/cmakebuild
           buildWithCMakeArgs: '--config Release'
           useVcpkgToolchainFile: false
-      - name: dir
-        run: find ${{ runner.workspace }}
-        if: "!contains( matrix.os, 'windows')"
-      - name: dir
-        run: gci -recurse ${{ runner.workspace }}
-        if: contains( matrix.os, 'windows')  
       - name: Run Unit Tests Windows
         if: contains( matrix.os, 'windows')  
         shell: bash
