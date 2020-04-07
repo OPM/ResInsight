@@ -198,8 +198,13 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
     double       accumulatedPropertyValue = 0.0;
     const double valueThresholdForLabel   = 1e-6;
 
-    QString         labelText = m_rimWell->name();
-    RigWellDiskData diskData  = m_rimWell->wellDiskData();
+    QString labelText;
+    if ( m_rimWell->showWellLabel() )
+    {
+        labelText = m_rimWell->name();
+    }
+
+    RigWellDiskData diskData = m_rimWell->wellDiskData();
     if ( diskData.isSingleProperty() )
     {
         // Set color for the triangle vertices
@@ -357,8 +362,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
         }
     }
 
-    bool showTextLabels = well->showWellLabel() && well->showWellDisks() && !well->name().isEmpty();
-    if ( showTextLabels )
+    if ( well->showWellDisks() )
     {
         cvf::Font* font = RiaGuiApplication::instance()->defaultWellLabelFont();
 
@@ -378,8 +382,11 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
 
         cvf::String cvfString = cvfqt::Utils::toString( labelText );
 
-        cvf::Vec3f textCoord( textPosition );
-        drawableText->addText( cvfString, textCoord );
+        if ( !cvfString.isEmpty() )
+        {
+            cvf::Vec3f textCoord( textPosition );
+            drawableText->addText( cvfString, textCoord );
+        }
 
         if ( simWellInViewCollection()->showWellDiskQuantityLables() )
         {
@@ -389,16 +396,19 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
             }
         }
 
-        cvf::ref<cvf::Part> part = new cvf::Part;
-        part->setName( "RivWellDiskPartMgr: text " + cvfString );
-        part->setDrawable( drawableText.p() );
+        if ( drawableText->numberOfTexts() > 0 )
+        {
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName( "RivWellDiskPartMgr: text " + cvfString );
+            part->setDrawable( drawableText.p() );
 
-        cvf::ref<cvf::Effect> eff = new cvf::Effect;
+            cvf::ref<cvf::Effect> eff = new cvf::Effect;
 
-        part->setEffect( eff.p() );
-        part->setPriority( RivPartPriority::PartType::Text );
+            part->setEffect( eff.p() );
+            part->setPriority( RivPartPriority::PartType::Text );
 
-        m_wellDiskLabelPart = part;
+            m_wellDiskLabelPart = part;
+        }
     }
 }
 
