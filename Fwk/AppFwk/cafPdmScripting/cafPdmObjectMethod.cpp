@@ -33,6 +33,7 @@
 //   for more details.
 //
 //##################################################################################################
+
 #include "cafPdmObjectMethod.h"
 
 using namespace caf;
@@ -47,32 +48,34 @@ PdmObjectMethodFactory* PdmObjectMethodFactory::instance()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Check the object and the inheritance stack for the specified method name
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<PdmObjectMethod> PdmObjectMethodFactory::createMethod( PdmObjectHandle* self, const QString& methodName )
 {
-    QString className = self->xmlCapability()->classKeyword();
-    auto    classIt   = m_factoryMap.find( className );
-    if ( classIt != m_factoryMap.end() )
+    auto stack = self->xmlCapability()->classInheritanceStack();
+    for ( auto className : stack )
     {
-        auto methodIt = classIt->second.find( methodName );
-        if ( methodIt != classIt->second.end() )
+        auto classIt = m_factoryMap.find( className );
+        if ( classIt != m_factoryMap.end() )
         {
-            return methodIt->second->create( self );
+            auto methodIt = classIt->second.find( methodName );
+            if ( methodIt != classIt->second.end() )
+            {
+                return methodIt->second->create( self );
+            }
         }
     }
     return std::shared_ptr<PdmObjectMethod>();
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Return the methods registered for the className. Does not investigate the inheritance stack
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> PdmObjectMethodFactory::registeredMethodNames( const PdmObjectHandle* self ) const
+std::vector<QString> caf::PdmObjectMethodFactory::registeredMethodNames( const QString& className ) const
 {
     std::vector<QString> methods;
 
-    QString className = self->xmlCapability()->classKeyword();
-    auto    classIt   = m_factoryMap.find( className );
+    auto classIt = m_factoryMap.find( className );
     if ( classIt != m_factoryMap.end() )
     {
         for ( auto methodPair : classIt->second )

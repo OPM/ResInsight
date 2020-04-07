@@ -424,8 +424,13 @@ void RiaGuiApplication::initialize()
     RiuPlotMainWindow* plotMainWindow = getOrCreateMainPlotWindow();
     plotMainWindow->hideAllDockWidgets();
 
-    RiaLogging::setLoggerInstance( new RiuMessagePanelLogger( m_mainWindow->messagePanel() ) );
-    RiaLogging::loggerInstance()->setLevel( RI_LL_DEBUG );
+    {
+        auto logger = new RiuMessagePanelLogger;
+        logger->addMessagePanel( m_mainWindow->messagePanel() );
+        logger->addMessagePanel( m_mainPlotWindow->messagePanel() );
+        RiaLogging::setLoggerInstance( logger );
+        RiaLogging::loggerInstance()->setLevel( RI_LL_DEBUG );
+    }
     m_socketServer = new RiaSocketServer( this );
 }
 
@@ -1643,7 +1648,7 @@ int RiaGuiApplication::applicationResolution()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::startMonitoringWorkProgress( caf::UiProcess* uiProcess )
 {
-    m_mainWindow->processMonitor()->startMonitorWorkProcess( m_workerProcess );
+    m_mainWindow->processMonitor()->startMonitorWorkProcess( uiProcess );
 }
 
 //--------------------------------------------------------------------------------------------------

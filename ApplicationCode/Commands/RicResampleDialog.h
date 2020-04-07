@@ -49,8 +49,8 @@ public:
     static RicResampleDialogResult openDialog( QWidget* parent = nullptr, const QString& caption = QString() );
 
 private:
-    void           setPeriodOptions( const std::vector<DateTimePeriod>& dateTimePeriods );
-    DateTimePeriod selectedDateTimePeriod() const;
+    void setPeriodOptions( const std::vector<RiaQDateTimeTools::DateTimePeriod>& dateTimePeriods );
+    RiaQDateTimeTools::DateTimePeriod selectedDateTimePeriod() const;
 
 private slots:
     void slotDialogOkClicked();
@@ -69,12 +69,12 @@ private:
 class RicResampleDialogResult
 {
 public:
-    RicResampleDialogResult( bool ok, DateTimePeriod period )
+    RicResampleDialogResult( bool ok, RiaQDateTimeTools::DateTimePeriod period )
         : ok( ok )
         , period( period )
     {
     }
 
-    bool           ok;
-    DateTimePeriod period;
+    bool                              ok;
+    RiaQDateTimeTools::DateTimePeriod period;
 };

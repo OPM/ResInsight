@@ -134,6 +134,31 @@ private:
 };
 
 
+template <typename DataType> class PdmField;
+
+template < typename DataType>
+class PdmFieldXmlCap< PdmField<std::vector<DataType>> > : public PdmXmlFieldHandle
+{
+    typedef PdmField<std::vector<DataType>> FieldType;
+public:
+    PdmFieldXmlCap(FieldType* field, bool giveOwnership) : PdmXmlFieldHandle(field, giveOwnership)
+    { 
+        m_field = field;
+
+        m_dataTypeName = QString("%1").arg(typeid(DataType).name());
+    }
+
+    // Xml Serializing
+public:
+    void        readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory) override;
+    void        writeFieldData(QXmlStreamWriter& xmlStream) const override;
+    bool        resolveReferences() override;
+    bool        isVectorField() const;
+private:
+    FieldType* m_field;
+};
+
+
 
 
 template<typename FieldType>

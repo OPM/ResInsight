@@ -174,11 +174,11 @@ double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface
     resampler.setCurveData( values, timeSteps );
     if ( RiaSummaryTools::hasAccumulatedData( addr ) )
     {
-        resampler.resampleAndComputePeriodEndValues( DateTimePeriod::DAY );
+        resampler.resampleAndComputePeriodEndValues( RiaQDateTimeTools::DateTimePeriod::DAY );
     }
     else
     {
-        resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DAY );
+        resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::DAY );
     }
 
     // Find the data point which best matches the selected time step

@@ -18,38 +18,18 @@
 
 #pragma once
 
-#include "RimSummaryCaseCollection.h"
-#include "RimSummaryPlotCollection.h"
-
 #include "cafPdmField.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmObjectMethod.h"
-#include "cafPdmPtrArrayField.h"
-#include "cafPdmPtrField.h"
-
-#include <QString>
-
-#include <memory>
-
-class RimSummaryCase;
-class RimSummaryPlotCollection;
+#include "cafPdmObject.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimcSummaryPlotCollection_newSummaryPlot : public caf::PdmObjectMethod
+class RimcDataContainerDouble : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimcSummaryPlotCollection_newSummaryPlot( caf::PdmObjectHandle* self );
+    RimcDataContainerDouble();
 
-    caf::PdmObjectHandle*            execute();
-    bool                             resultIsPersistent() const override;
-    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
-
-private:
-    caf::PdmField<QString>                      m_addressString;
-    caf::PdmPtrArrayField<RimSummaryCase*>      m_summaryCases;
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
+    caf::PdmField<std::vector<double>> m_doubleValues;
 };

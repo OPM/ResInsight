@@ -35,7 +35,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_Resampling_NoPeriod )
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::MONTH );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::MONTH );
 
     EXPECT_EQ( 1, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2018-03-01" ), resampler.resampledTimeSteps()[0] );
@@ -52,7 +52,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_Resampling_Decade )
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DECADE );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::DECADE );
 
     EXPECT_EQ( 4, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "1990-01-01" ), resampler.resampledTimeSteps()[0] );
@@ -72,7 +72,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_Resampling_Year )
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::YEAR );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::YEAR );
 
     EXPECT_EQ( 5, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2015-01-01" ), resampler.resampledTimeSteps()[0] );
@@ -93,7 +93,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_Resampling_HalfYear )
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::HALFYEAR );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::HALFYEAR );
 
     EXPECT_EQ( 5, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2016-07-01" ), resampler.resampledTimeSteps()[0] );
@@ -114,7 +114,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_Resampling_Quarter )
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::QUARTER );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::QUARTER );
 
     EXPECT_EQ( 7, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2016-10-01" ), resampler.resampledTimeSteps()[0] );
@@ -137,7 +137,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_Resampling_Month )
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::MONTH );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::MONTH );
 
     EXPECT_EQ( 6, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2017-10-01" ), resampler.resampledTimeSteps()[0] );
@@ -159,7 +159,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_Resampling_Week )
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::WEEK );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::WEEK );
 
     EXPECT_EQ( 10, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2017-11-06" ), resampler.resampledTimeSteps()[0] );
@@ -185,7 +185,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_Resampling_NoSampleCrossingPeriodBounda
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::YEAR );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::YEAR );
 
     EXPECT_EQ( 1, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2018-01-01" ), resampler.resampledTimeSteps()[0] );
@@ -202,7 +202,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_WeightedMean_SingleSample )
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::MONTH );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::MONTH );
 
     EXPECT_EQ( 1, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2018-03-01" ), resampler.resampledTimeSteps()[0] );
@@ -222,7 +222,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_WeightedMean_Days )
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DAY );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::DAY );
 
     EXPECT_EQ( 5, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2018-02-03" ), resampler.resampledTimeSteps()[0] );
@@ -256,7 +256,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_WeightedMean_Decade )
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DECADE );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::DECADE );
 
     EXPECT_EQ( 3, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( tp0, resampler.resampledTimeSteps()[0] );
@@ -287,7 +287,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_WeightedMean_SamplesStartBeforePeriod )
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::MONTH );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::MONTH );
 
     EXPECT_EQ( 3, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( tp0, resampler.resampledTimeSteps()[0] );
@@ -320,7 +320,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_WeightedMean_SamplesStartBeforePeriod_T
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::MONTH );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::MONTH );
 
     EXPECT_EQ( 3, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( tp0, resampler.resampledTimeSteps()[0] );
@@ -349,7 +349,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_WeightedMean_SamplesStartAndEndMatchPer
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::MONTH );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::MONTH );
 
     EXPECT_EQ( 2, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2018-02-01" ), resampler.resampledTimeSteps().front() );
@@ -379,7 +379,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_WeightedMean_SamplesStartMatchPeriodSta
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::MONTH );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::MONTH );
 
     EXPECT_EQ( 3, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( tp0, resampler.resampledTimeSteps()[0] );
@@ -409,7 +409,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_WeightedMean_MultipleSamplesInLastPerio
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::MONTH );
+    resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::MONTH );
 
     EXPECT_EQ( 2, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( tp0, resampler.resampledTimeSteps()[0] );
@@ -433,7 +433,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_PeriodEndValues_SingleSample )
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputePeriodEndValues( DateTimePeriod::MONTH );
+    resampler.resampleAndComputePeriodEndValues( RiaQDateTimeTools::DateTimePeriod::MONTH );
 
     EXPECT_EQ( 1, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2018-03-01" ), resampler.resampledTimeSteps()[0] );
@@ -459,7 +459,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_PeriodEndValues_SamplesStartBeforePerio
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputePeriodEndValues( DateTimePeriod::MONTH );
+    resampler.resampleAndComputePeriodEndValues( RiaQDateTimeTools::DateTimePeriod::MONTH );
 
     EXPECT_EQ( 3, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( tp0, resampler.resampledTimeSteps()[0] );
@@ -486,7 +486,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_PeriodEndValues_SamplesStartMatchPeriod
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputePeriodEndValues( DateTimePeriod::MONTH );
+    resampler.resampleAndComputePeriodEndValues( RiaQDateTimeTools::DateTimePeriod::MONTH );
 
     EXPECT_EQ( 3, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2018-02-01" ), resampler.resampledTimeSteps()[0] );
@@ -509,7 +509,7 @@ TEST( RiaTimeHistoryCurveResampler, Test_PeriodEndValues_SamplesStartAndEndMatch
 
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( dataValues, toTime_tVector( timeStrings ) );
-    resampler.resampleAndComputePeriodEndValues( DateTimePeriod::MONTH );
+    resampler.resampleAndComputePeriodEndValues( RiaQDateTimeTools::DateTimePeriod::MONTH );
 
     EXPECT_EQ( 2, (int)resampler.resampledTimeSteps().size() );
     EXPECT_EQ( toTime_t( "2018-02-01" ), resampler.resampledTimeSteps().front() );

@@ -48,6 +48,7 @@ public:
 
     static QString plotMainWindowProjectTreeName();
     static QString plotMainWindowPropertyEditorName();
+    static QString plotMainWindowMessagesName();
 
     static QAction* toggleActionForWidget( const QObject* parent, const QString& dockWidgetName );
 

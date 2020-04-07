@@ -117,7 +117,7 @@ public:
         return true;
     }
 
-    std::vector<QString> registeredMethodNames( const PdmObjectHandle* self ) const;
+    std::vector<QString> registeredMethodNames( const QString& className ) const;
 
 private:
     PdmObjectMethodFactory()  = default;
