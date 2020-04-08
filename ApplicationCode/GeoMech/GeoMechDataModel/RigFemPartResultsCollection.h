@@ -153,7 +153,8 @@ private:
     RigFemScalarResultFrames* calculatePrincipalStrainValues( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateCompactionValues( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateNE( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateSE( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* calculateSE_11_22_33( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* calculateSE_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateST_11_22_33( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateST_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateGamma( int partIndex, const RigFemResultAddress& resVarAddr );
@@ -184,8 +185,8 @@ private:
     std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache>> m_resultStatistics;
 
-    static std::vector<std::string> getStressComponentNames();
-    static std::vector<std::string> getStressGradientComponentNames();
+    static std::vector<std::string> getStressComponentNames( bool includeShear = true );
+    static std::vector<std::string> getStressGradientComponentNames( bool includeShear = true );
 };
 
 class RigFemPart;

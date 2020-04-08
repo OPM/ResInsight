@@ -266,7 +266,9 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
     m_biotResultAddress = biotResultAddress;
 
     // Invalidate all results which depends on biot coefficient (directly or indirectly)
-    std::vector<std::string> componentNames = getStressComponentNames();
+    // Shear results are independent of pore pressure and biot coefficient.
+    bool                     includeShear   = false;
+    std::vector<std::string> componentNames = getStressComponentNames( includeShear );
     componentNames.push_back( "S1inc" );
     componentNames.push_back( "S1azi" );
     componentNames.push_back( "S2inc" );
@@ -310,7 +312,7 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
         }
 
         // Stress gradient components
-        const std::vector<std::string> stressGradientComponentNames = getStressGradientComponentNames();
+        const std::vector<std::string> stressGradientComponentNames = getStressGradientComponentNames( includeShear );
         for ( auto componentName : stressGradientComponentNames )
         {
             deleteResult( RigFemResultAddress( RIG_DIFFERENTIALS,
@@ -2221,7 +2223,79 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNE( int partInde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSE( int partIndex, const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSE_12_13_23( int                        partIndex,
+                                                                             const RigFemResultAddress& resVarAddr )
+{
+    caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "" );
+    frameCountProgress.setProgressDescription(
+        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    frameCountProgress.setNextProgressIncrement( this->frameCount() );
+
+    RigFemScalarResultFrames* srcDataFrames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, "S-Bar", resVarAddr.componentName ) );
+    frameCountProgress.incrementProgress();
+    frameCountProgress.setNextProgressIncrement( this->frameCount() );
+    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
+
+    frameCountProgress.incrementProgress();
+
+    const RigFemPart* femPart = m_femParts->part( partIndex );
+    float             inf     = std::numeric_limits<float>::infinity();
+
+    int frameCount = srcDataFrames->frameCount();
+
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        const std::vector<float>& srcSFrameData = srcDataFrames->frameData( fIdx );
+        std::vector<float>&       dstFrameData  = dstDataFrames->frameData( fIdx );
+        size_t                    valCount      = srcSFrameData.size();
+        dstFrameData.resize( valCount );
+
+        int elementCount = femPart->elementCount();
+
+#pragma omp parallel for
+        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
+        {
+            RigElementType elmType = femPart->elementType( elmIdx );
+
+            int elmNodeCount = RigFemTypes::elmentNodeCount( femPart->elementType( elmIdx ) );
+
+            if ( elmType == HEX8P )
+            {
+                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                {
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                    if ( elmNodResIdx < srcSFrameData.size() )
+                    {
+                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                    }
+                }
+            }
+            else
+            {
+                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                {
+                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                    if ( elmNodResIdx < dstFrameData.size() )
+                    {
+                        dstFrameData[elmNodResIdx] = inf;
+                    }
+                }
+            }
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSE_11_22_33( int                        partIndex,
+                                                                             const RigFemResultAddress& resVarAddr )
 {
     caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "" );
     frameCountProgress.setProgressDescription(
@@ -2740,11 +2814,16 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
         return calculatePrincipalStrainValues( partIndex, resVarAddr );
     }
 
-    if ( ( resVarAddr.fieldName == "SE" ) && ( resVarAddr.componentName == "S11" || resVarAddr.componentName == "S22" ||
-                                               resVarAddr.componentName == "S33" || resVarAddr.componentName == "S12" ||
-                                               resVarAddr.componentName == "S13" || resVarAddr.componentName == "S23" ) )
+    if ( ( resVarAddr.fieldName == "SE" ) &&
+         ( resVarAddr.componentName == "S11" || resVarAddr.componentName == "S22" || resVarAddr.componentName == "S33" ) )
     {
-        return calculateSE( partIndex, resVarAddr );
+        return calculateSE_11_22_33( partIndex, resVarAddr );
+    }
+
+    if ( ( resVarAddr.fieldName == "SE" ) &&
+         ( resVarAddr.componentName == "S12" || resVarAddr.componentName == "S13" || resVarAddr.componentName == "S23" ) )
+    {
+        return calculateSE_12_13_23( partIndex, resVarAddr );
     }
 
     if ( ( resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST" ) &&
@@ -3673,18 +3752,26 @@ void findReferenceElementForNode( const RigFemPart& part, size_t nodeIdx, size_t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RigFemPartResultsCollection::getStressComponentNames()
+std::vector<std::string> RigFemPartResultsCollection::getStressComponentNames( bool includeShear )
 {
-    return {"S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3"};
+    std::vector<std::string> componentNames = {"S11", "S22", "S33", "S1", "S2", "S3"};
+    if ( includeShear )
+    {
+        componentNames.push_back( "S12" );
+        componentNames.push_back( "S13" );
+        componentNames.push_back( "S23" );
+    }
+
+    return componentNames;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RigFemPartResultsCollection::getStressGradientComponentNames()
+std::vector<std::string> RigFemPartResultsCollection::getStressGradientComponentNames( bool includeShear )
 {
     std::vector<std::string> directions           = {"X", "Y", "Z"};
-    std::vector<std::string> stressComponentNames = getStressComponentNames();
+    std::vector<std::string> stressComponentNames = getStressComponentNames( includeShear );
 
     std::vector<std::string> stressGradientComponentNames;
     for ( auto& s : stressComponentNames )
