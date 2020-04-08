@@ -47,6 +47,8 @@ public:
     virtual QString summaryHeaderFilename() const;
     QString         displayCaseName() const;
     QString         nativeCaseName() const;
+    void            setCaseId( int caseId );
+    int             caseId() const;
 
     RiaEclipseUnitTools::UnitSystemType unitsSystem();
 
@@ -80,8 +82,9 @@ protected:
 
     virtual QString caseName() const = 0;
 
+    void initAfterRead() override;
+
 private:
-    void           initAfterRead() override;
     static QString uniqueShortNameForCase( RimSummaryCase* summaryCase );
 
 protected:
@@ -89,6 +92,7 @@ protected:
     caf::PdmField<bool>          m_useAutoShortName;
     caf::PdmField<caf::FilePath> m_summaryHeaderFilename;
     bool                         m_isObservedData;
+    caf::PdmField<int>           m_caseId;
 
     std::shared_ptr<RigCaseRealizationParameters> m_crlParameters;
 
