@@ -124,6 +124,7 @@ public:
     void assignPlotIdToPlotWindow( RimPlotWindow* plotWindow );
     void assignCalculationIdToCalculation( RimSummaryCalculation* calculation );
     void assignCaseIdToSummaryCase( RimSummaryCase* summaryCase );
+    void assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollection );
 
     void allCases( std::vector<RimCase*>& cases ) const;
 
@@ -218,6 +219,7 @@ private:
     int m_nextValidPlotId;
     int m_nextValidCalculationId;
     int m_nextValidSummaryCaseId;
+    int m_nextValidEnsembleId;
 
     caf::PdmChildArrayField<RimEclipseCase*>            casesObsolete; // obsolete
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroupsObsolete; // obsolete
