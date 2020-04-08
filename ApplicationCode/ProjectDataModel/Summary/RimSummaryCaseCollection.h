@@ -108,6 +108,8 @@ public:
     std::set<QString>                          wellsWithRftData() const;
     std::set<QDateTime>                        rftTimeStepsForWell( const QString& wellName ) const;
     RifReaderRftInterface*                     rftStatisticsReader();
+    void                                       setEnsembleId( int ensembleId );
+    int                                        ensembleId() const;
 
     EnsembleParameter ensembleParameter( const QString& paramName ) const;
     void              calculateEnsembleParametersIntersectionHash();
@@ -141,6 +143,7 @@ private:
     caf::PdmProxyValueField<QString>         m_nameAndItemCount;
     caf::PdmField<bool>                      m_isEnsemble;
     cvf::ref<RifReaderEnsembleStatisticsRft> m_statisticsEclipseRftReader;
+    caf::PdmField<int>                       m_ensembleId;
 
     size_t m_commonAddressCount; // if different address count among cases, set to 0
 };

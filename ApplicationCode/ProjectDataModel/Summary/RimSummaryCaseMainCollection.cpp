@@ -260,6 +260,12 @@ RimSummaryCaseCollection*
     RimSummaryCaseCollection* summaryCaseCollection = allocator();
     if ( !collectionName.isEmpty() ) summaryCaseCollection->setName( collectionName );
 
+    if ( summaryCaseCollection->ensembleId() == -1 )
+    {
+        RimProject* project = RiaApplication::instance()->project();
+        project->assignIdToEnsemble( summaryCaseCollection );
+    }
+
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
         RimSummaryCaseCollection* currentSummaryCaseCollection = nullptr;
