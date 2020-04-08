@@ -18,19 +18,20 @@
 
 #include "RimSummaryCase.h"
 
+#include "RiaApplication.h"
 #include "RiaSummaryTools.h"
+
 #include "RicfCommandObject.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimObservedDataCollection.h"
+#include "RimObservedSummaryData.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
-
-#include "RimObservedSummaryData.h"
 
 #include "cafPdmFieldIOScriptability.h"
 
@@ -59,6 +60,11 @@ RimSummaryCase::RimSummaryCase()
                                                 "",
                                                 "" );
     m_summaryHeaderFilename.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "Id", -1, "Case ID", "", "", "" );
+    m_caseId.registerKeywordAlias( "CaseId" );
+    m_caseId.uiCapability()->setUiReadOnly( true );
+    m_caseId.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
 
     m_isObservedData = false;
 }
@@ -252,6 +258,11 @@ RiaEclipseUnitTools::UnitSystemType RimSummaryCase::unitsSystem()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::initAfterRead()
 {
+    if ( m_caseId() == -1 )
+    {
+        RiaApplication::instance()->project()->assignCaseIdToSummaryCase( this );
+    }
+
     updateOptionSensitivity();
 }
 
@@ -350,4 +361,20 @@ void RimSummaryCase::resetAutoShortName()
 {
     m_shortName = DEFAULT_DISPLAY_NAME;
     updateAutoShortName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::setCaseId( int caseId )
+{
+    m_caseId = caseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryCase::caseId() const
+{
+    return m_caseId();
 }
