@@ -18,9 +18,11 @@
 
 #include "RimSummaryCaseCollection.h"
 
+#include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
 
-#include "RifReaderEnsembleStatisticsRft.h"
+#include "RicfCommandObject.h"
+
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimGridSummaryCase.h"
@@ -28,7 +30,10 @@
 #include "RimSummaryCase.h"
 
 #include "RifReaderEclipseRft.h"
+#include "RifReaderEnsembleStatisticsRft.h"
 #include "RifSummaryReaderInterface.h"
+
+#include "cafPdmFieldIOScriptability.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -157,19 +162,24 @@ QString EnsembleParameter::uiName( const NameParameterPair& paramPair )
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection::RimSummaryCaseCollection()
 {
-    CAF_PDM_InitObject( "Summary Case Group", ":/SummaryGroup16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Summary Case Group", ":/SummaryGroup16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "", "", "", "" );
     m_cases.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_name, "SummaryCollectionName", QString( "Group" ), "Name", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_nameAndItemCount, "NameCount", "Name", "", "", "" );
     m_nameAndItemCount.registerGetMethod( this, &RimSummaryCaseCollection::nameAndItemCount );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_nameAndItemCount );
 
-    CAF_PDM_InitField( &m_isEnsemble, "IsEnsemble", false, "Is Ensemble", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_isEnsemble, "IsEnsemble", false, "Is Ensemble", "", "", "" );
     m_isEnsemble.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitScriptableFieldWithIO( &m_ensembleId, "Id", -1, "Ensemble ID", "", "", "" );
+    m_ensembleId.registerKeywordAlias( "EnsembleId" );
+    m_ensembleId.uiCapability()->setUiReadOnly( true );
+    m_ensembleId.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
 
     m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( this );
 
@@ -678,6 +688,12 @@ void RimSummaryCaseCollection::updateIcon()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::initAfterRead()
 {
+    if ( m_ensembleId() == -1 )
+    {
+        RimProject* project = RiaApplication::instance()->project();
+        project->assignIdToEnsemble( this );
+    }
+
     updateIcon();
 }
 
@@ -700,6 +716,10 @@ void RimSummaryCaseCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
 void RimSummaryCaseCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
+    if ( m_isEnsemble() )
+    {
+        uiOrdering.add( &m_ensembleId );
+    }
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -709,4 +729,20 @@ void RimSummaryCaseCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 void RimSummaryCaseCollection::setNameAsReadOnly()
 {
     m_name.uiCapability()->setUiReadOnly( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::setEnsembleId( int ensembleId )
+{
+    m_ensembleId = ensembleId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryCaseCollection::ensembleId() const
+{
+    return m_ensembleId();
 }

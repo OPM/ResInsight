@@ -68,6 +68,7 @@
 #include "RimScriptCollection.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
@@ -113,6 +114,7 @@ RimProject::RimProject( void )
     , m_nextValidPlotId( 1 )
     , m_nextValidCalculationId( 1 )
     , m_nextValidSummaryCaseId( 1 )
+    , m_nextValidEnsembleId( 1 )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Project", "", "", "", "Project", "The ResInsight Project" );
 
@@ -256,6 +258,7 @@ void RimProject::close()
     m_nextValidPlotId        = 1;
     m_nextValidCalculationId = 1;
     m_nextValidSummaryCaseId = 1;
+    m_nextValidEnsembleId    = 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -500,6 +503,23 @@ void RimProject::assignCaseIdToSummaryCase( RimSummaryCase* summaryCase )
         }
 
         summaryCase->setCaseId( m_nextValidSummaryCaseId++ );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollection )
+{
+    if ( summaryCaseCollection )
+    {
+        std::vector<RimSummaryCaseCollection*> summaryGroups = RimProject::summaryGroups();
+        for ( RimSummaryCaseCollection* s : summaryGroups )
+        {
+            m_nextValidEnsembleId = std::max( m_nextValidEnsembleId, s->ensembleId() + 1 );
+        }
+
+        summaryCaseCollection->setEnsembleId( m_nextValidEnsembleId );
     }
 }
 
