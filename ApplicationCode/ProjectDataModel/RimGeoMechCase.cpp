@@ -894,6 +894,12 @@ void RimGeoMechCase::closeSelectedElementPropertyFiles()
                 view->cellResult()->setResultAddress( RigFemResultAddress() );
             }
 
+            if ( address.fieldName == biotResultAddress().toStdString() )
+            {
+                // If the used biot value is being removed we need to change the biot type back to default
+                m_biotCoefficientType = RimGeoMechCase::BIOT_NONE;
+            }
+
             for ( RimGeoMechPropertyFilter* propertyFilter : view->geoMechPropertyFilterCollection()->propertyFilters() )
             {
                 if ( address == propertyFilter->resultDefinition->resultAddress() )
