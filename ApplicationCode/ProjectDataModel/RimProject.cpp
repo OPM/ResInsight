@@ -112,6 +112,7 @@ RimProject::RimProject( void )
     , m_nextValidViewId( 1 )
     , m_nextValidPlotId( 1 )
     , m_nextValidCalculationId( 1 )
+    , m_nextValidSummaryCaseId( 1 )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Project", "", "", "", "Project", "The ResInsight Project" );
 
@@ -254,6 +255,7 @@ void RimProject::close()
     m_nextValidViewId        = 1;
     m_nextValidPlotId        = 1;
     m_nextValidCalculationId = 1;
+    m_nextValidSummaryCaseId = 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,6 +484,23 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
     }
 
     wellPathImport->updateFilePaths();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignCaseIdToSummaryCase( RimSummaryCase* summaryCase )
+{
+    if ( summaryCase )
+    {
+        std::vector<RimSummaryCase*> summaryCases = allSummaryCases();
+        for ( RimSummaryCase* s : summaryCases )
+        {
+            m_nextValidSummaryCaseId = std::max( m_nextValidSummaryCaseId, s->caseId() + 1 );
+        }
+
+        summaryCase->setCaseId( m_nextValidSummaryCaseId++ );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

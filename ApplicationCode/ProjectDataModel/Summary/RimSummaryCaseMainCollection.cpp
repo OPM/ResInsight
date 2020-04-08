@@ -523,6 +523,7 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
                 newSumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
                 newSumCase->setAssociatedEclipseCase( eclCase );
                 newSumCase->updateOptionSensitivity();
+                project->assignCaseIdToSummaryCase( newSumCase );
                 sumCases.push_back( newSumCase );
             }
             else
@@ -532,6 +533,7 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
                 newSumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
                 newSumCase->setSummaryHeaderFileName( fileInfo.summaryFileName() );
                 newSumCase->updateOptionSensitivity();
+                project->assignCaseIdToSummaryCase( newSumCase );
                 sumCases.push_back( newSumCase );
             }
 
