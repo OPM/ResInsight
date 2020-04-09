@@ -37,7 +37,7 @@ CAF_PDM_SOURCE_INIT( RimWellMeasurementCollection, "WellMeasurements" );
 //--------------------------------------------------------------------------------------------------
 RimWellMeasurementCollection::RimWellMeasurementCollection()
 {
-    CAF_PDM_InitObject( "Well Measurements", "", "", "" );
+    CAF_PDM_InitObject( "Well Measurements", ":/WellMeasurement16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_measurements, "Measurements", "Well Measurements", "", "", "" );
     m_measurements.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );

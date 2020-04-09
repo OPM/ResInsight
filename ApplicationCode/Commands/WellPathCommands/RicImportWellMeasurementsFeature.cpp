@@ -69,4 +69,5 @@ void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
 void RicImportWellMeasurementsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Import Measurements" );
+    actionToSetup->setIcon( QIcon( ":/WellMeasurement16x16.png" ) );
 }

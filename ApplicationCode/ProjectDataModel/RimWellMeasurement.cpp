@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimWellMeasurement, "WellMeasurement" );
 //--------------------------------------------------------------------------------------------------
 RimWellMeasurement::RimWellMeasurement()
 {
-    CAF_PDM_InitObject( "RimWellMeasurement", "", "", "" );
+    CAF_PDM_InitObject( "RimWellMeasurement", ":/WellMeasurement16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name", "", "", "" );
     CAF_PDM_InitField( &m_MD, "Depth", -1.0, "MD", "", "", "" );
