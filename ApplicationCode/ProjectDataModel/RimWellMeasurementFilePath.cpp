@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimWellMeasurementFilePath, "WellMeasurementFilePath" );
 //--------------------------------------------------------------------------------------------------
 RimWellMeasurementFilePath::RimWellMeasurementFilePath()
 {
-    CAF_PDM_InitObject( "RimWellMeasurementFilePath", "", "", "" );
+    CAF_PDM_InitObject( "RimWellMeasurementFilePath", ":/WellMeasurement16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_userDescription, "UserDecription", "Name", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
