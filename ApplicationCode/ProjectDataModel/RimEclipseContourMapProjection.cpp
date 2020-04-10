@@ -260,9 +260,9 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
     const RigCaseCellResultsData* resultData = eclipseCase()->results( RiaDefines::MATRIX_MODEL );
     bool hasPoroResult = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "PORO" ) );
     bool hasNtgResult  = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "NTG" ) );
-    bool haDzResult    = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "DZ" ) );
+    bool hasDzResult   = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "DZ" ) );
 
-    if ( !( hasPoroResult && hasNtgResult && haDzResult ) )
+    if ( !( hasPoroResult && hasNtgResult && hasDzResult ) )
     {
         return std::vector<double>();
     }
@@ -292,11 +292,15 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
 
     if ( resultAggregation == RESULTS_GAS_COLUMN || resultAggregation == RESULTS_HC_COLUMN )
     {
-        const std::vector<double>& sgasResults =
-            resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SGAS" ), timeStep );
-        for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
+        bool hasGasResult = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SGAS" ) );
+        if ( hasGasResult )
         {
-            resultValues[cellResultIdx] += sgasResults[cellResultIdx];
+            const std::vector<double>& sgasResults =
+                resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SGAS" ), timeStep );
+            for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
+            {
+                resultValues[cellResultIdx] += sgasResults[cellResultIdx];
+            }
         }
     }
 
