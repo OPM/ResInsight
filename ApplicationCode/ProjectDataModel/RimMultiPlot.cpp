@@ -532,7 +532,7 @@ void RimMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
         updateLayout();
         RiuPlotMainWindowTools::refreshToolbars();
     }
-    else if ( changedField = &m_majorTickmarkCount )
+    else if ( changedField == &m_majorTickmarkCount )
     {
         for ( RimPlot* plot : plots() )
         {
