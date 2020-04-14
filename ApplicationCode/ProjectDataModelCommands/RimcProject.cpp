@@ -54,7 +54,7 @@ caf::PdmObjectHandle* RimProject_importSummaryCase::execute()
     {
         RicImportSummaryCasesFeature::addSummaryCases( newCases );
 
-        if ( RiaGuiApplication::instance()->isRunning() )
+        if ( RiaGuiApplication::isRunning() )
         {
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             if ( mainPlotWindow && !newCases.empty() )
@@ -130,4 +130,12 @@ bool RimProject_summaryCase::resultIsPersistent() const
 std::unique_ptr<caf::PdmObjectHandle> RimProject_summaryCase::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimFileSummaryCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject_summaryCase::isNullptrValidResult() const
+{
+    return true;
 }

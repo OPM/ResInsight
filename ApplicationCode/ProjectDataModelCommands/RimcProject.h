@@ -57,6 +57,7 @@ public:
     caf::PdmObjectHandle*            execute();
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+    bool                             isNullptrValidResult() const override;
 
 private:
     caf::PdmField<int> m_caseId;

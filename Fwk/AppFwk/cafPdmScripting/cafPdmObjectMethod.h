@@ -61,9 +61,15 @@ class PdmObjectMethod : public PdmObject
 
 public:
     PdmObjectMethod( PdmObjectHandle* self );
+
     // The returned object contains the results of the method and is the responsibility of the caller.
     virtual PdmObjectHandle* execute() = 0;
-    virtual QString          selfClassKeyword() const { return m_self->xmlCapability()->classKeyword(); }
+
+    // Some execute() methods can return a null pointer as a valid return value.
+    // Return true here to allow this
+    virtual bool isNullptrValidResult() const { return false; }
+
+    virtual QString selfClassKeyword() const { return m_self->xmlCapability()->classKeyword(); }
 
     // True if object is a persistent project tree item. False if the object is to be deleted on completion.
     virtual bool                             resultIsPersistent() const = 0;
