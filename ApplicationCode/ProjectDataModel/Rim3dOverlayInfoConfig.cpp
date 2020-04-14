@@ -863,16 +863,16 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const HistogramData& histData, R
 
             if ( geoMechView->cellResultResultDefinition()->isBiotCoefficientDependent() )
             {
-                if ( geoMechCase->biotCoefficientType() == RimGeoMechCase::BIOT_NONE )
+                if ( geoMechCase->biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_NONE )
                 {
                     infoText += QString( "<b>Biot Coefficient</b>: 1.0 (None)<br>" );
                 }
-                else if ( geoMechCase->biotCoefficientType() == RimGeoMechCase::BIOT_FIXED )
+                else if ( geoMechCase->biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_FIXED )
                 {
                     infoText +=
                         QString( "<b>Biot Coefficient</b>: %1 (Fixed)<br>" ).arg( geoMechCase->biotFixedCoefficient() );
                 }
-                else if ( geoMechCase->biotCoefficientType() == RimGeoMechCase::BIOT_PER_ELEMENT )
+                else if ( geoMechCase->biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT )
                 {
                     infoText += QString( "<b>Biot Coefficient</b>: %1 (From element property)<br>" )
                                     .arg( geoMechCase->biotResultAddress() );

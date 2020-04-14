@@ -73,10 +73,12 @@ namespace caf
 template <>
 void caf::AppEnum<RimGeoMechCase::BiotCoefficientType>::setUp()
 {
-    addItem( RimGeoMechCase::BIOT_NONE, "BIOT_NONE", "None" );
-    addItem( RimGeoMechCase::BIOT_FIXED, "BIOT_FIXED", "Fixed biot coefficient" );
-    addItem( RimGeoMechCase::BIOT_PER_ELEMENT, "BIOT_PER_ELEMENT", "Biot coefficient from element properties" );
-    setDefault( RimGeoMechCase::BIOT_NONE );
+    addItem( RimGeoMechCase::BiotCoefficientType::BIOT_NONE, "BIOT_NONE", "None" );
+    addItem( RimGeoMechCase::BiotCoefficientType::BIOT_FIXED, "BIOT_FIXED", "Fixed biot coefficient" );
+    addItem( RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT,
+             "BIOT_PER_ELEMENT",
+             "Biot coefficient from element properties" );
+    setDefault( RimGeoMechCase::BiotCoefficientType::BIOT_NONE );
 }
 
 } // End namespace caf
@@ -131,7 +133,7 @@ RimGeoMechCase::RimGeoMechCase( void )
     CAF_PDM_InitField( &m_reloadElementPropertyFileCommand, "reloadElementPropertyFileCommand", false, "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_reloadElementPropertyFileCommand );
 
-    caf::AppEnum<BiotCoefficientType> defaultBiotCoefficientType = RimGeoMechCase::BIOT_NONE;
+    caf::AppEnum<BiotCoefficientType> defaultBiotCoefficientType = RimGeoMechCase::BiotCoefficientType::BIOT_NONE;
     CAF_PDM_InitField( &m_biotCoefficientType, "BiotCoefficientType", defaultBiotCoefficientType, "Biot Coefficient", "", "", "" );
     CAF_PDM_InitField( &m_biotFixedCoefficient, "BiotFixedCoefficient", 1.0, "Fixed coefficient", "", "", "" );
     m_biotFixedCoefficient.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
@@ -695,15 +697,15 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         RigGeoMechCaseData* rigCaseData = geoMechData();
         if ( rigCaseData && rigCaseData->femPartResults() )
         {
-            if ( m_biotCoefficientType() == RimGeoMechCase::BIOT_NONE )
+            if ( m_biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_NONE )
             {
                 rigCaseData->femPartResults()->setBiotCoefficientParameters( 1.0, "" );
             }
-            else if ( m_biotCoefficientType() == RimGeoMechCase::BIOT_FIXED )
+            else if ( m_biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_FIXED )
             {
                 rigCaseData->femPartResults()->setBiotCoefficientParameters( m_biotFixedCoefficient(), "" );
             }
-            else if ( m_biotCoefficientType() == RimGeoMechCase::BIOT_PER_ELEMENT )
+            else if ( m_biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT )
             {
                 if ( changedField == &m_biotCoefficientType )
                 {
@@ -717,7 +719,7 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                      "selecting 'Import Element Property Table' on the Geomechanical Model." );
                         RiaLogging::info( importMessage );
                         // Set back to default value
-                        m_biotCoefficientType = RimGeoMechCase::BIOT_NONE;
+                        m_biotCoefficientType = RimGeoMechCase::BiotCoefficientType::BIOT_NONE;
                         return;
                     }
                 }
@@ -897,7 +899,7 @@ void RimGeoMechCase::closeSelectedElementPropertyFiles()
             if ( address.fieldName == biotResultAddress().toStdString() )
             {
                 // If the used biot value is being removed we need to change the biot type back to default
-                m_biotCoefficientType = RimGeoMechCase::BIOT_NONE;
+                m_biotCoefficientType = RimGeoMechCase::BiotCoefficientType::BIOT_NONE;
             }
 
             for ( RimGeoMechPropertyFilter* propertyFilter : view->geoMechPropertyFilterCollection()->propertyFilters() )
@@ -971,8 +973,10 @@ void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     biotGroup->add( &m_biotCoefficientType );
     biotGroup->add( &m_biotFixedCoefficient );
     biotGroup->add( &m_biotResultAddress );
-    m_biotFixedCoefficient.uiCapability()->setUiHidden( m_biotCoefficientType != BIOT_FIXED );
-    m_biotResultAddress.uiCapability()->setUiHidden( m_biotCoefficientType != BIOT_PER_ELEMENT );
+    m_biotFixedCoefficient.uiCapability()->setUiHidden( m_biotCoefficientType !=
+                                                        RimGeoMechCase::BiotCoefficientType::BIOT_FIXED );
+    m_biotResultAddress.uiCapability()->setUiHidden( m_biotCoefficientType !=
+                                                     RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT );
 
     caf::PdmUiGroup* timeStepFilterGroup = uiOrdering.addNewGroup( "Time Step Filter" );
     timeStepFilterGroup->setCollapsedByDefault( true );

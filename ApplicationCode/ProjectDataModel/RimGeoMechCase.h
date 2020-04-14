@@ -53,7 +53,7 @@ public:
         CASE_OPEN_ERROR
     };
 
-    enum BiotCoefficientType
+    enum class BiotCoefficientType
     {
         BIOT_NONE = 0,
         BIOT_FIXED,
