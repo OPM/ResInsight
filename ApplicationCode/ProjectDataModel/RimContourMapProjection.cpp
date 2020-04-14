@@ -165,11 +165,11 @@ std::vector<cvf::Vec3d> RimContourMapProjection::generatePickPointPolygon()
     if ( !m_pickPoint.isUndefined() )
     {
         {
+#ifndef NDEBUG
             cvf::Vec2d  cellDiagonal( m_sampleSpacing * 0.5, m_sampleSpacing * 0.5 );
             cvf::Vec2ui pickedCell = ijFromLocalPos( m_pickPoint );
             cvf::Vec2d  cellCenter = cellCenterPosition( pickedCell.x(), pickedCell.y() );
-#ifndef NDEBUG
-            cvf::Vec2d cellCorner = cellCenter - cellDiagonal;
+            cvf::Vec2d  cellCorner = cellCenter - cellDiagonal;
             points.push_back( cvf::Vec3d( cellCorner, 0.0 ) );
             points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( m_sampleSpacing, 0.0 ), 0.0 ) );
             points.push_back( cvf::Vec3d( cellCorner + cvf::Vec2d( m_sampleSpacing, 0.0 ), 0.0 ) );
