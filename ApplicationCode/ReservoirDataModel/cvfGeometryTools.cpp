@@ -19,7 +19,6 @@
 
 #include "cvfGeometryTools.h"
 
-#pragma warning( disable : 4503 )
 namespace cvf
 {
 //--------------------------------------------------------------------------------------------------
