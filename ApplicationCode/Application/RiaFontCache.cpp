@@ -130,7 +130,7 @@ RiaFontCache::FontSize RiaFontCache::fontSizeEnumFromPointSize( int pointSize )
         if ( diff < closestDiff )
         {
             closestEnumValue = enumValue;
-            closestDiff;
+            closestDiff      = diff;
         }
     }
     return closestEnumValue;
