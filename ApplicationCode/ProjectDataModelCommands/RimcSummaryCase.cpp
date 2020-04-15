@@ -225,21 +225,30 @@ caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
     QString                           periodString = m_resamplingPeriod().trimmed();
     RiaQDateTimeTools::DateTimePeriod period       = RiaQDateTimeTools::DateTimePeriodEnum::fromText( periodString );
 
-    RiaTimeHistoryCurveResampler resampler;
-    resampler.setCurveData( values, timeValues );
+    auto dataObject = new RimcSummaryResampleData();
 
-    if ( RiaSummaryTools::hasAccumulatedData( adr ) )
+    if ( period != RiaQDateTimeTools::DateTimePeriod::NONE )
     {
-        resampler.resampleAndComputePeriodEndValues( period );
+        RiaTimeHistoryCurveResampler resampler;
+        resampler.setCurveData( values, timeValues );
+
+        if ( RiaSummaryTools::hasAccumulatedData( adr ) )
+        {
+            resampler.resampleAndComputePeriodEndValues( period );
+        }
+        else
+        {
+            resampler.resampleAndComputeWeightedMeanValues( period );
+        }
+
+        dataObject->m_timeValues   = resampler.resampledTimeSteps();
+        dataObject->m_doubleValues = resampler.resampledValues();
     }
     else
     {
-        resampler.resampleAndComputeWeightedMeanValues( period );
+        dataObject->m_timeValues   = timeValues;
+        dataObject->m_doubleValues = values;
     }
-
-    auto dataObject            = new RimcSummaryResampleData();
-    dataObject->m_timeValues   = resampler.resampledTimeSteps();
-    dataObject->m_doubleValues = resampler.resampledValues();
 
     return dataObject;
 }

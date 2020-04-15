@@ -43,40 +43,43 @@ const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DECADE   = DateTimeSpan( 10, 0, 0
 
 namespace caf
 {
+// clang-format off
+
 template <>
 void caf::AppEnum<RiaQDateTimeTools::DateFormatComponents>::setUp()
 {
-    addItem( RiaQDateTimeTools::DATE_FORMAT_NONE, "NO_DATE", "No Date" );
-    addItem( RiaQDateTimeTools::DATE_FORMAT_YEAR, "YEAR", "Year Only" );
-    addItem( RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH, "YEAR_MONTH", "Year and Month" );
-    addItem( RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY, "YEAR_MONTH_DAY", "Year, Month and Day" );
+    addItem( RiaQDateTimeTools::DATE_FORMAT_NONE,           "NO_DATE",          "No Date" );
+    addItem( RiaQDateTimeTools::DATE_FORMAT_YEAR,           "YEAR",             "Year Only" );
+    addItem( RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH,     "YEAR_MONTH",       "Year and Month" );
+    addItem( RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY, "YEAR_MONTH_DAY",   "Year, Month and Day" );
     setDefault( RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
 }
 
 template <>
 void caf::AppEnum<RiaQDateTimeTools::TimeFormatComponents>::setUp()
 {
-    addItem( RiaQDateTimeTools::TIME_FORMAT_NONE, "NO_TIME", "No Time of Day" );
-    addItem( RiaQDateTimeTools::TIME_FORMAT_HOUR, "HOUR", "Hour Only" );
-    addItem( RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE, "HOUR_MINUTE", "Hour and Minute" );
-    addItem( RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND, "HOUR_MINUTE_SECONDS", "Hour, Minutes and Seconds" );
+    addItem( RiaQDateTimeTools::TIME_FORMAT_NONE,               "NO_TIME",              "No Time of Day" );
+    addItem( RiaQDateTimeTools::TIME_FORMAT_HOUR,               "HOUR",                 "Hour Only" );
+    addItem( RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE,        "HOUR_MINUTE",          "Hour and Minute" );
+    addItem( RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND, "HOUR_MINUTE_SECONDS",  "Hour, Minutes and Seconds" );
     setDefault( RiaQDateTimeTools::TIME_FORMAT_NONE );
 }
 
 template <>
 void caf::AppEnum<RiaQDateTimeTools::DateTimePeriod>::setUp()
 {
-    addItem( RiaQDateTimeTools::DateTimePeriod::NONE, "NONE", "None" );
-    addItem( RiaQDateTimeTools::DateTimePeriod::DAY, "DAY", "Day" );
-    addItem( RiaQDateTimeTools::DateTimePeriod::WEEK, "WEEK", "Week" );
-    addItem( RiaQDateTimeTools::DateTimePeriod::MONTH, "MONTH", "Month" );
-    addItem( RiaQDateTimeTools::DateTimePeriod::QUARTER, "QUARTER", "Quarter," );
-    addItem( RiaQDateTimeTools::DateTimePeriod::HALFYEAR, "HALFYEAR", "Half Year" );
-    addItem( RiaQDateTimeTools::DateTimePeriod::YEAR, "YEAR,", "Year," );
-    addItem( RiaQDateTimeTools::DateTimePeriod::DECADE, "DECADE", "Decade" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::NONE,       "NONE",     "None" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::DAY,        "DAY",      "Day" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::WEEK,       "WEEK",     "Week" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::MONTH,      "MONTH",    "Month" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::QUARTER,    "QUARTER",  "Quarter" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::HALFYEAR,   "HALFYEAR", "Half Year" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::YEAR,       "YEAR",     "Year" );
+    addItem( RiaQDateTimeTools::DateTimePeriod::DECADE,     "DECADE",   "Decade" );
     setDefault( RiaQDateTimeTools::DateTimePeriod::NONE );
 }
 
+// clang-format on
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------

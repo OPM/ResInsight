@@ -341,5 +341,6 @@ def import_formation_names(self, formation_files=None):
     elif isinstance(formation_files, str):
         formation_files = [formation_files]
 
-    res = self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
+    self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
                                                                                         applyToCaseId=-1))
+
