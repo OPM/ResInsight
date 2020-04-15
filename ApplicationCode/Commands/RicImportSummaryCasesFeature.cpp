@@ -198,7 +198,6 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringLis
     {
         QString errorMessage = fileSelector.createCombinedErrorMessage();
         RiaLogging::error( errorMessage );
-        QMessageBox::warning( nullptr, QString( "Problem Importing Summary Case File(s)" ), errorMessage );
     }
 
     return true;

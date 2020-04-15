@@ -37,3 +37,27 @@ def test_summary_data(rips_instance, initialize_test):
     summary_data = summary_case.summary_vector_values("FOPT")
     assert(len(summary_data.values) == 60)
 
+def test_summary_resample(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/flow_diagnostics_test/SIMPLE_SUMMARY2.SMSPEC"
+    summary_case = rips_instance.project.import_summary_case(casePath)
+    assert(summary_case.id == 1)
+
+    summary_data_sampled = summary_case.resample_values("FOPT", "NONE")
+    assert(len(summary_data_sampled.values) == 60)
+    assert(len(summary_data_sampled.time_steps) == 60)
+
+    summary_data_sampled = summary_case.resample_values("FOPT", "DAY")
+    assert(len(summary_data_sampled.values) == 721)
+    assert(len(summary_data_sampled.time_steps) == 721)
+
+    summary_data_sampled = summary_case.resample_values("FOPT", "MONTH")
+    assert(len(summary_data_sampled.values) == 24)
+    assert(len(summary_data_sampled.time_steps) == 24)
+
+    summary_data_sampled = summary_case.resample_values("FOPT", "QUARTER")
+    assert(len(summary_data_sampled.values) == 8)
+    assert(len(summary_data_sampled.time_steps) == 8)
+
+    summary_data_sampled = summary_case.resample_values("FOPT", "YEAR")
+    assert(len(summary_data_sampled.values) == 3)
+    assert(len(summary_data_sampled.time_steps) == 3)
