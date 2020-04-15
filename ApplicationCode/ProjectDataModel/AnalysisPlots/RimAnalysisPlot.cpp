@@ -60,20 +60,22 @@ public:
         for ( const auto& curveDef : curveDefs )
         {
             CVF_ASSERT( !curveDef.isEnsembleCurve() );
-
-            m_singleSummaryCases.insert( curveDef.summaryCase() );
-
-            if ( curveDef.summaryCase()->ensemble() )
+            if ( curveDef.summaryCase() )
             {
-                m_ensembles.insert( curveDef.summaryCase()->ensemble() );
+                m_singleSummaryCases.insert( curveDef.summaryCase() );
+
+                if ( curveDef.summaryCase()->ensemble() )
+                {
+                    m_ensembles.insert( curveDef.summaryCase()->ensemble() );
+                }
+
+                RifEclipseSummaryAddress address = curveDef.summaryAddress();
+
+                m_quantityNames.insert( address.quantityName() );
+
+                address.setQuantityName( "" );
+                if ( !address.itemUiText().empty() ) m_summaryItems.insert( address );
             }
-
-            RifEclipseSummaryAddress address = curveDef.summaryAddress();
-
-            m_quantityNames.insert( address.quantityName() );
-
-            address.setQuantityName( "" );
-            if ( !address.itemUiText().empty() ) m_summaryItems.insert( address );
         }
     }
 
@@ -481,7 +483,7 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 {
     caf::PdmUiGroup* selVectorsGrp = uiOrdering.addNewGroup( "Selected Vectors" );
     selVectorsGrp->add( &m_selectedVarsUiField );
-    selVectorsGrp->add( &m_selectVariablesButtonField, {false} );
+    selVectorsGrp->add( &m_selectVariablesButtonField, { false } );
 
     QString vectorNames;
     if ( m_analyserOfSelectedCurveDefs )
@@ -503,14 +505,14 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     timeStepGrp->add( &m_addTimestepUiField );
     timeStepGrp->add( &m_selectedTimeSteps );
 
-    uiOrdering.add( &m_referenceCase, {true, 3, 2} );
+    uiOrdering.add( &m_referenceCase, { true, 3, 2 } );
 
     uiOrdering.add( &m_showPlotTitle );
-    uiOrdering.add( &m_useAutoPlotTitle, {false} );
-    uiOrdering.add( &m_description, {false} );
+    uiOrdering.add( &m_useAutoPlotTitle, { false } );
+    uiOrdering.add( &m_description, { false } );
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
 
-    uiOrdering.add( &m_barOrientation, {true, 3, 2} );
+    uiOrdering.add( &m_barOrientation, { true, 3, 2 } );
 
     caf::PdmUiGroup* sortGrp = uiOrdering.addNewGroup( "Sorting and Grouping" );
     sortGrp->add( &m_majorGroupType );
@@ -518,7 +520,7 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     sortGrp->add( &m_minorGroupType );
     sortGrp->add( &m_valueSortOperation );
     sortGrp->add( &m_useTopBarsFilter );
-    sortGrp->add( &m_maxBarCount, {false} );
+    sortGrp->add( &m_maxBarCount, { false } );
     m_maxBarCount.uiCapability()->setUiReadOnly( !m_useTopBarsFilter() );
 
     caf::PdmUiGroup* legendGrp = uiOrdering.addNewGroup( "Legend" );
@@ -531,10 +533,10 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     caf::PdmUiGroup* barLabelGrp = uiOrdering.addNewGroup( "Bar Labels" );
     barLabelGrp->add( &m_useBarText );
     barLabelGrp->add( &m_useQuantityInBarText );
-    barLabelGrp->add( &m_useSummaryItemInBarText, {false} );
+    barLabelGrp->add( &m_useSummaryItemInBarText, { false } );
     barLabelGrp->add( &m_useCaseInBarText );
-    barLabelGrp->add( &m_useEnsembleInBarText, {false} );
-    barLabelGrp->add( &m_useTimeStepInBarText, {true, 4, 1} );
+    barLabelGrp->add( &m_useEnsembleInBarText, { false } );
+    barLabelGrp->add( &m_useTimeStepInBarText, { true, 4, 1 } );
 
     m_useQuantityInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
     m_useSummaryItemInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
@@ -588,16 +590,16 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
 
     if ( fieldNeedingOptions == &m_addTimestepUiField )
     {
-        options.push_back( {"None", QDateTime()} );
+        options.push_back( { "None", QDateTime() } );
 
         std::set<time_t> timeStepUnion = allAvailableTimeSteps();
 
         for ( time_t timeT : timeStepUnion )
         {
             QDateTime dateTime     = RiaQDateTimeTools::fromTime_t( timeT );
-            QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {dateTime} );
+            QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( { dateTime } );
 
-            options.push_back( {dateTime.toString( formatString ), dateTime} );
+            options.push_back( { dateTime.toString( formatString ), dateTime } );
         }
     }
     else if ( fieldNeedingOptions == &m_valueSortOperation )
@@ -620,7 +622,7 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
     {
         std::vector<RimSummaryCase*> allSummaryCases = RiaApplication::instance()->project()->allSummaryCases();
 
-        options.push_back( {"None", nullptr} );
+        options.push_back( { "None", nullptr } );
 
         for ( auto sumCase : allSummaryCases )
         {
@@ -631,7 +633,7 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
                 displayName = caseColl->name() + "/" + displayName;
             }
 
-            options.push_back( {displayName, sumCase} );
+            options.push_back( { displayName, sumCase } );
         }
     }
 
@@ -1103,7 +1105,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                     if ( filter->useAbsoluteValues() ) value = fabs( value );
                     bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
 
-                    auto itIsInsertedPair = casesToKeepWithValue.insert( {sumCase, value} );
+                    auto itIsInsertedPair = casesToKeepWithValue.insert( { sumCase, value } );
                     if ( !itIsInsertedPair.second ) // Already exists in map
                     {
                         double& insertedValue = itIsInsertedPair.first->second;
@@ -1197,7 +1199,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                             if ( historyTimesteps.size() )
                             {
                                 selectedTimestepIndices =
-                                    RimAnalysisPlot::findTimestepIndices( {historyTimesteps.back()}, timesteps );
+                                    RimAnalysisPlot::findTimestepIndices( { historyTimesteps.back() }, timesteps );
                             }
                         }
                         else if ( filter->consideredTimeStepsType() == RimPlotDataFilterItem::SELECT_TIMESTEP_RANGE )
@@ -1255,7 +1257,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                     if ( filter->useAbsoluteValues() ) value = fabs( value );
                     bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
 
-                    auto itIsInsertedPair = casesToKeepWithValue.insert( {sumCaseInEvaluation, value} );
+                    auto itIsInsertedPair = casesToKeepWithValue.insert( { sumCaseInEvaluation, value } );
                     if ( !itIsInsertedPair.second ) // Already exists in map
                     {
                         double& insertedValue = itIsInsertedPair.first->second;
@@ -1309,7 +1311,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                         if ( filter->useAbsoluteValues() ) value = fabs( value );
                         bool useLargest = filter->filterOperation() == RimPlotDataFilterItem::TOP_N;
 
-                        auto itIsInsertedPair = sumItemsToKeepWithValue.insert( {sumItem, value} );
+                        auto itIsInsertedPair = sumItemsToKeepWithValue.insert( { sumItem, value } );
                         if ( !itIsInsertedPair.second ) // Already exists in map
                         {
                             double& insertedValue = itIsInsertedPair.first->second;
@@ -1337,7 +1339,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             std::multimap<double, RifEclipseSummaryAddress> valueSortedSumItems;
             for ( const auto& itemValPair : sumItemsToKeepWithValue )
             {
-                valueSortedSumItems.insert( {itemValPair.second, itemValPair.first} );
+                valueSortedSumItems.insert( { itemValPair.second, itemValPair.first } );
             }
 
             if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N )
@@ -1368,7 +1370,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             std::multimap<double, RimSummaryCase*> valueSortedSumCases;
             for ( const auto& caseValPair : casesToKeepWithValue )
             {
-                valueSortedSumCases.insert( {caseValPair.second, caseValPair.first} );
+                valueSortedSumCases.insert( { caseValPair.second, caseValPair.first } );
             }
 
             if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N )
@@ -1422,6 +1424,7 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
 
     for ( const RiaSummaryCurveDefinition& curveDef : barDataDefinitions )
     {
+        if ( !curveDef.summaryCase() ) continue;
         RifSummaryReaderInterface* reader = curveDef.summaryCase()->summaryReader();
 
         if ( !reader ) continue;
@@ -1479,7 +1482,7 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
             double sortValue = std::numeric_limits<double>::infinity();
 
             QDateTime dateTime     = RiaQDateTimeTools::fromTime_t( timesteps[timestepIdx] );
-            QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {dateTime} );
+            QString   formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( { dateTime } );
 
             QString timestepString = dateTime.toString( formatString );
 
@@ -1585,7 +1588,7 @@ void RimAnalysisPlot::updatePlotTitle()
         {
             if ( !autoTitle.isEmpty() ) autoTitle += " @ ";
 
-            QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( {m_selectedTimeSteps()[0]} );
+            QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( { m_selectedTimeSteps()[0] } );
             autoTitle += m_selectedTimeSteps()[0].toString( formatString );
         }
 
@@ -1660,7 +1663,7 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::curveDefinitionsWithEmbe
 //--------------------------------------------------------------------------------------------------
 std::set<RimPlotAxisPropertiesInterface*> RimAnalysisPlot::allPlotAxes() const
 {
-    return {m_valueAxisProperties};
+    return { m_valueAxisProperties };
 }
 
 //--------------------------------------------------------------------------------------------------
