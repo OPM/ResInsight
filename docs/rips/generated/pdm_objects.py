@@ -5,6 +5,45 @@ class PdmObject:
         if PdmObject.__custom_init__ is not None:
             PdmObject.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+class DataContainerFloat(PdmObject):
+    """
+    Attributes:
+        values (List of float): Float Values
+    """
+    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+
+    def __init__(self, pb2_object=None, channel=None):
+        self.values = []
+        PdmObject.__init__(self, pb2_object, channel)
+        if DataContainerFloat.__custom_init__ is not None:
+            DataContainerFloat.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
+class DataContainerString(PdmObject):
+    """
+    Attributes:
+        values (List of str): String Values
+    """
+    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+
+    def __init__(self, pb2_object=None, channel=None):
+        self.values = []
+        PdmObject.__init__(self, pb2_object, channel)
+        if DataContainerString.__custom_init__ is not None:
+            DataContainerString.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
+class DataContainerTime(PdmObject):
+    """
+    Attributes:
+        values (List of time): Time Values
+    """
+    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+
+    def __init__(self, pb2_object=None, channel=None):
+        self.values = []
+        PdmObject.__init__(self, pb2_object, channel)
+        if DataContainerTime.__custom_init__ is not None:
+            DataContainerTime.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
 class Case(PdmObject):
     """
     The ResInsight base class for Cases
@@ -62,6 +101,7 @@ class SummaryCase(PdmObject):
 
     Attributes:
         auto_shorty_name (str): Use Auto Display Name
+        id (int): Case ID
         short_name (str): Display Name
         summary_header_filename (str): Summary Header File
     """
@@ -69,11 +109,57 @@ class SummaryCase(PdmObject):
 
     def __init__(self, pb2_object=None, channel=None):
         self.auto_shorty_name = False
+        self.id = -1
         self.short_name = "Display Name"
         self.summary_header_filename = ""
         PdmObject.__init__(self, pb2_object, channel)
         if SummaryCase.__custom_init__ is not None:
             SummaryCase.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
+    def available_addresses(self, ):
+        """
+        
+        Arguments:
+            
+        Returns:
+            DataContainerString
+        """
+        return self._call_pdm_method("availableAddresses")
+
+
+    def available_time_steps(self, ):
+        """
+        
+        Arguments:
+            
+        Returns:
+            DataContainerTime
+        """
+        return self._call_pdm_method("availableTimeSteps")
+
+
+    def resample_values(self, address=None, resampling_period=None):
+        """
+        
+        Arguments:
+            address (str): Formatted address specifying the summary vector
+            resampling_period (str): Resampling Period
+        Returns:
+            ResampleData
+        """
+        return self._call_pdm_method("resampleValues", address=address, resampling_period=resampling_period)
+
+
+    def summary_vector_values(self, address=None):
+        """
+        Create a new Summary Plot
+        Arguments:
+            address (str): Formatted address specifying the summary vector
+        Returns:
+            DataContainerFloat
+        """
+        return self._call_pdm_method("summaryVectorValues", address=address)
+
 
 class FileSummaryCase(SummaryCase):
     """
@@ -212,6 +298,43 @@ class Project(PdmObject):
         if Project.__custom_init__ is not None:
             Project.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+    def import_summary_case(self, file_name=None):
+        """
+        Import Summary Case
+        Arguments:
+            file_name (str): 
+        Returns:
+            FileSummaryCase
+        """
+        return self._call_pdm_method("importSummaryCase", file_name=file_name)
+
+
+    def summary_case(self, case_id=None):
+        """
+        Find Summary Case
+        Arguments:
+            case_id (int): 
+        Returns:
+            FileSummaryCase
+        """
+        return self._call_pdm_method("summaryCase", case_id=case_id)
+
+
+class ResampleData(PdmObject):
+    """
+    Attributes:
+        time_steps (List of time): Time Steps
+        values (List of float): Values
+    """
+    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+
+    def __init__(self, pb2_object=None, channel=None):
+        self.time_steps = []
+        self.values = []
+        PdmObject.__init__(self, pb2_object, channel)
+        if ResampleData.__custom_init__ is not None:
+            ResampleData.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
 class EclipseView(View):
     """
     The Eclipse 3d Reservoir View
@@ -259,9 +382,9 @@ class EclipseResult(PdmObject):
         porosity_model_type (str): Porosity
         result_type (str): Type
         result_variable (str): Variable
-        selected_injector_tracers (str): Injector Tracers
-        selected_producer_tracers (str): Producer Tracers
-        selected_souring_tracers (str): Tracers
+        selected_injector_tracers (List of str): Injector Tracers
+        selected_producer_tracers (List of str): Producer Tracers
+        selected_souring_tracers (List of str): Tracers
     """
     __custom_init__ = None #: Assign a custom init routine to be run at __init__
 
@@ -330,6 +453,25 @@ class GridCaseGroup(PdmObject):
         PdmObject.__init__(self, pb2_object, channel)
         if GridCaseGroup.__custom_init__ is not None:
             GridCaseGroup.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
+class SummaryCaseSubCollection(PdmObject):
+    """
+    Attributes:
+        id (int): Ensemble ID
+        is_ensemble (str): Is Ensemble
+        name_count (str): Name
+        summary_collection_name (str): Name
+    """
+    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+
+    def __init__(self, pb2_object=None, channel=None):
+        self.id = -1
+        self.is_ensemble = False
+        self.name_count = "Group"
+        self.summary_collection_name = "Group"
+        PdmObject.__init__(self, pb2_object, channel)
+        if SummaryCaseSubCollection.__custom_init__ is not None:
+            SummaryCaseSubCollection.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
 class PlotWindow(ViewWindow):
     """
@@ -438,7 +580,7 @@ class WbsParameters(PdmObject):
         self.user_k0_fg = 0.75
         self.user_k0_sh = 0.65
         self.user_poisson_ratio = 0.35
-        self.user_pp_non_reservoir = 1.05
+        self.user_pp_non_reservoir = 1
         self.user_ucs = 100
         self.water_density = 1.03
         PdmObject.__init__(self, pb2_object, channel)
@@ -524,6 +666,9 @@ def class_dict():
     classes = {}
     classes['Case'] = Case
     classes['CellColors'] = CellColors
+    classes['DataContainerFloat'] = DataContainerFloat
+    classes['DataContainerString'] = DataContainerString
+    classes['DataContainerTime'] = DataContainerTime
     classes['EclipseCase'] = EclipseCase
     classes['EclipseContourMap'] = EclipseContourMap
     classes['EclipseResult'] = EclipseResult
@@ -540,9 +685,11 @@ def class_dict():
     classes['Plot'] = Plot
     classes['PlotWindow'] = PlotWindow
     classes['Project'] = Project
+    classes['ResampleData'] = ResampleData
     classes['Reservoir'] = Reservoir
     classes['SimulationWell'] = SimulationWell
     classes['SummaryCase'] = SummaryCase
+    classes['SummaryCaseSubCollection'] = SummaryCaseSubCollection
     classes['SummaryPlot'] = SummaryPlot
     classes['SummaryPlotCollection'] = SummaryPlotCollection
     classes['View'] = View
