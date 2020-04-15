@@ -5,6 +5,22 @@
 
 """
 Module containing the Case class
+
+ResInsight Case class
+
+Operate on a ResInsight case specified by a Case Id integer.
+Not meant to be constructed separately but created by one of the following
+methods in Project: loadCase, case, allCases, selectedCases
+
+Attributes:
+    id (int): Case Id corresponding to case Id in ResInsight project.
+    name (str): Case name
+    group_id (int): Case Group id
+    chunkSize(int): The size of each chunk during value streaming.
+                    A good chunk size is 64KiB = 65536B.
+                    Meaning the ideal number of doubles would be 8192.
+                    However we need overhead space, so the default is 8160.
+                    This leaves 256B for overhead.
 """
 
 import builtins
@@ -29,22 +45,6 @@ from rips.view import View
 from rips.generated.pdm_objects import WellBoreStabilityPlot, WbsParameters
 from rips.simulation_well import SimulationWell
 
-"""ResInsight case class
-
-Operate on a ResInsight case specified by a Case Id integer.
-Not meant to be constructed separately but created by one of the following
-methods in Project: loadCase, case, allCases, selectedCases
-
-Attributes:
-    id (int): Case Id corresponding to case Id in ResInsight project.
-    name (str): Case name
-    group_id (int): Case Group id
-    chunkSize(int): The size of each chunk during value streaming.
-                    A good chunk size is 64KiB = 65536B.
-                    Meaning the ideal number of doubles would be 8192.
-                    However we need overhead space, so the default is 8160.
-                    This leaves 256B for overhead.
-"""
 @add_method(Case)
 def __custom_init__(self, pb2_object, channel):
     self.__case_stub = Case_pb2_grpc.CaseStub(self._channel)
@@ -102,18 +102,21 @@ def __generate_property_input_chunks(self, array, parameters):
 
 @add_method(Case)
 def grid(self, index):
-    """Get Grid of a given index. Returns a rips Grid object
+    """Get Grid of a given index
 
     Arguments:
         index (int): The grid index
 
-    Returns: Grid object
+    Returns: :class:`rips.grid.Grid`
     """
     return Grid(index, self, self.channel())
 
 @add_method(Case)
 def grids(self):
-    """Get a list of all rips Grid objects in the case"""
+    """Get a list of all rips Grid objects in the case
+
+        Returns: List of :class:`rips.grid.Grid`
+    """
     grid_list = []
     for i in range(0, self.__grid_count()):
         grid_list.append(Grid(i, self, self.channel()))
@@ -870,8 +873,8 @@ def import_formation_names(self, formation_files=None):
     elif isinstance(formation_files, str):
         formation_files = [formation_files]
 
-    res = self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
-                                                                                        applyToCaseId=self.id))
+    self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
+                                                                               applyToCaseId=self.id))
 
 @add_method(Case)
 def simulation_wells(self):

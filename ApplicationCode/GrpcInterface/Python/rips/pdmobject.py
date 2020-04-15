@@ -366,6 +366,9 @@ def _call_pdm_method(self, method_name, **kwargs):
     pb2_object = self._pdm_object_stub.CallPdmObjectMethod(request)
 
     child_class_definition = class_from_keyword(pb2_object.class_keyword)
+    if child_class_definition is None:
+        return None
+
     pdm_object = child_class_definition(pb2_object=pb2_object, channel=self.channel())
     return pdm_object
 

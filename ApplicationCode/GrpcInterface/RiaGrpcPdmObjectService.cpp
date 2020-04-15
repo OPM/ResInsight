@@ -538,6 +538,11 @@ grpc::Status RiaGrpcPdmObjectService::CallPdmObjectMethod( grpc::ServerContext* 
             }
             else
             {
+                if ( method->isNullptrValidResult() )
+                {
+                    return grpc::Status::OK;
+                }
+
                 return grpc::Status( grpc::NOT_FOUND, "No result returned from Method" );
             }
         }
