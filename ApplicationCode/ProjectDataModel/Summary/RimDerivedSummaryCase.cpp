@@ -248,13 +248,13 @@ std::pair<std::vector<time_t>, std::vector<double>>
     std::vector<double> calculatedValues;
     calculatedValues.reserve( sampleCount );
 
-    int clampedIndexCase1 = std::min( fixedTimeStepCase1, static_cast<int>( allValues1.size() ) );
-    int clampedIndexCase2 = std::min( fixedTimeStepCase2, static_cast<int>( allValues2.size() ) );
+    int clampedIndexCase1 = std::min( fixedTimeStepCase1, static_cast<int>( values1.size() ) );
+    int clampedIndexCase2 = std::min( fixedTimeStepCase2, static_cast<int>( values2.size() ) );
 
     for ( size_t i = 0; i < sampleCount; i++ )
     {
-        double valueCase1 = clampedIndexCase1 >= 0 ? allValues1[clampedIndexCase1] : allValues1[i];
-        double valueCase2 = clampedIndexCase2 >= 0 ? allValues2[clampedIndexCase2] : allValues2[i];
+        double valueCase1 = clampedIndexCase1 >= 0 ? values1[clampedIndexCase1] : allValues1[i];
+        double valueCase2 = clampedIndexCase2 >= 0 ? values2[clampedIndexCase2] : allValues2[i];
         if ( m_operator == DerivedSummaryOperator::DERIVED_OPERATOR_SUB )
         {
             calculatedValues.push_back( valueCase1 - valueCase2 );
