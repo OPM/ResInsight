@@ -6,8 +6,6 @@ script writer does not have to look here, but the documentation is included for 
 
 .. automodule:: rips.generated.pdm_objects
    :members:
-   :undoc-members:
    :show-inheritance:
-   :inherited-members:
 
 .. autoattribute:: rips.generated.pdm_objects
