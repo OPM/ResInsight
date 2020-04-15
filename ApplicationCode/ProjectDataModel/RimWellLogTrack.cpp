@@ -82,6 +82,8 @@
 
 #include <QWheelEvent>
 
+#include <algorithm>
+
 #define RI_LOGPLOTTRACK_MINX_DEFAULT -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT 100.0
 #define RI_SCROLLWHEEL_ZOOMFACTOR 1.1
@@ -1252,17 +1254,20 @@ void RimWellLogTrack::setAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setAutoScaleXIfNecessary()
 {
+    const double eps = 1.0e-8;
     calculateXZoomRange();
-    // If the new range is larger than the existing
-    if ( m_availableXRangeMin < m_visibleXRangeMin || m_availableXRangeMax > m_visibleXRangeMax )
+
+    double maxRange = std::max( m_visibleXRangeMax - m_visibleXRangeMin, m_availableXRangeMax - m_availableXRangeMin );
+
+    double maxLow  = std::max( m_visibleXRangeMin(), m_availableXRangeMin );
+    double minHigh = std::min( m_visibleXRangeMax(), m_availableXRangeMax );
+    double overlap = minHigh - maxLow;
+
+    if ( maxRange < eps || overlap < eps * maxRange )
     {
         setAutoScaleXEnabled( true );
     }
-    // If the new range is much smaller than the existing
-    if ( std::abs( m_availableXRangeMax - m_availableXRangeMin ) < 0.1 * std::abs( m_visibleXRangeMax - m_visibleXRangeMin ) )
-    {
-        setAutoScaleXEnabled( true );
-    }
+
     updateXZoom();
 }
 
@@ -1925,21 +1930,21 @@ std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( Ria
         }
         double waterEndMD = extractor->cellIntersectionMDs().front();
         double rockEndMD  = extractor->cellIntersectionMDs().back();
-        return {{waterStartMD, waterEndMD}, {waterEndMD, rockEndMD}};
+        return { { waterStartMD, waterEndMD }, { waterEndMD, rockEndMD } };
     }
     else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
     {
         double waterStartTVD = 0.0;
         double waterEndTVD   = extractor->cellIntersectionTVDs().front();
         double rockEndTVD    = extractor->cellIntersectionTVDs().back();
-        return {{waterStartTVD, waterEndTVD}, {waterEndTVD, rockEndTVD}};
+        return { { waterStartTVD, waterEndTVD }, { waterEndTVD, rockEndTVD } };
     }
     else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
     {
         double waterStartTVDRKB = extractor->wellPathData()->rkbDiff();
         double waterEndTVDRKB   = extractor->cellIntersectionTVDs().front() + extractor->wellPathData()->rkbDiff();
         double rockEndTVDRKB    = extractor->cellIntersectionTVDs().back() + extractor->wellPathData()->rkbDiff();
-        return {{waterStartTVDRKB, waterEndTVDRKB}, {waterEndTVDRKB, rockEndTVDRKB}};
+        return { { waterStartTVDRKB, waterEndTVDRKB }, { waterEndTVDRKB, rockEndTVDRKB } };
     }
     return {};
 }
@@ -2379,7 +2384,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             const std::vector<std::pair<double, double>> waterAndRockIntervals =
                 waterAndRockRegions( plot->depthType(), extractor );
             m_annotationTool->attachNamedRegions( m_plotWidget,
-                                                  {"Sea Level", ""},
+                                                  { "Sea Level", "" },
                                                   xRange,
                                                   waterAndRockIntervals,
                                                   m_regionAnnotationDisplay(),
@@ -2387,7 +2392,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                   ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
                                                   m_showRegionLabels(),
                                                   RiuPlotAnnotationTool::LEFT_COLUMN,
-                                                  {Qt::SolidPattern, Qt::Dense6Pattern} );
+                                                  { Qt::SolidPattern, Qt::Dense6Pattern } );
         }
 
         if ( m_formationSource == CASE )
@@ -2585,16 +2590,16 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
             }
         }
 
-        const std::map<RiaDefines::WellPathComponentType, int> sortIndices = {{RiaDefines::WELL_PATH, 0},
-                                                                              {RiaDefines::CASING, 1},
-                                                                              {RiaDefines::LINER, 2},
-                                                                              {RiaDefines::PERFORATION_INTERVAL, 3},
-                                                                              {RiaDefines::FISHBONES, 4},
-                                                                              {RiaDefines::FRACTURE, 5},
-                                                                              {RiaDefines::PACKER, 6},
-                                                                              {RiaDefines::ICD, 7},
-                                                                              {RiaDefines::AICD, 8},
-                                                                              {RiaDefines::ICV, 9}};
+        const std::map<RiaDefines::WellPathComponentType, int> sortIndices = { { RiaDefines::WELL_PATH, 0 },
+                                                                               { RiaDefines::CASING, 1 },
+                                                                               { RiaDefines::LINER, 2 },
+                                                                               { RiaDefines::PERFORATION_INTERVAL, 3 },
+                                                                               { RiaDefines::FISHBONES, 4 },
+                                                                               { RiaDefines::FRACTURE, 5 },
+                                                                               { RiaDefines::PACKER, 6 },
+                                                                               { RiaDefines::ICD, 7 },
+                                                                               { RiaDefines::AICD, 8 },
+                                                                               { RiaDefines::ICV, 9 } };
 
         std::stable_sort( allWellPathComponents.begin(),
                           allWellPathComponents.end(),
