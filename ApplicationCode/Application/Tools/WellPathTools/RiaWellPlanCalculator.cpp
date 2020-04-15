@@ -33,7 +33,7 @@ RiaWellPlanCalculator::RiaWellPlanCalculator( const cvf::Vec3d&              sta
 {
     if ( m_lineArcEndPoints.size() < 2 ) return;
 
-    WellPlanSegment segment = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    WellPlanSegment segment = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
     RiaOffshoreSphericalCoords startAziIncRad( m_startTangent );
     segment.inc = cvf::Math::toDegrees( startAziIncRad.inc() );
@@ -58,9 +58,12 @@ RiaWellPlanCalculator::RiaWellPlanCalculator( const cvf::Vec3d&              sta
 //--------------------------------------------------------------------------------------------------
 void RiaWellPlanCalculator::addSegment( cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d* endTangent )
 {
-    cvf::Vec3d p1p2 = p2 - p1;
+    cvf::Vec3d p1p2     = p2 - p1;
+    double     xyLength = std::sqrt( p1p2.x() * p1p2.x() + p1p2.y() * p1p2.y() );
+    double     zLength  = std::abs( p1p2.z() );
 
-    CVF_ASSERT( p1p2.lengthSquared() > 1e-20 );
+    // We only show two decimals in the well plan anyway.
+    if ( xyLength < 1.0e-2 && zLength < 1.0e-2 ) return;
 
     if ( cvf::GeometryTools::getAngle( t1, p1p2 ) < 1e-5 )
     {
@@ -77,7 +80,7 @@ void RiaWellPlanCalculator::addSegment( cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d
 //--------------------------------------------------------------------------------------------------
 void RiaWellPlanCalculator::addLineSegment( cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d* endTangent )
 {
-    WellPlanSegment segment = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    WellPlanSegment segment = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
     cvf::Vec3d p1p2   = p2 - p1;
     double     length = p1p2.length();
@@ -107,7 +110,7 @@ void RiaWellPlanCalculator::addLineSegment( cvf::Vec3d p1, cvf::Vec3d p2, cvf::V
 //--------------------------------------------------------------------------------------------------
 void RiaWellPlanCalculator::addArcSegment( cvf::Vec3d t1, cvf::Vec3d p1, cvf::Vec3d p2, cvf::Vec3d* endTangent )
 {
-    WellPlanSegment segment = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    WellPlanSegment segment = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
     RiaArcCurveCalculator arcCalc( p1, t1, p2 );
 

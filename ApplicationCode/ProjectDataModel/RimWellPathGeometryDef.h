@@ -48,8 +48,8 @@ public:
 
     double airGap() const;
     void   setAirGap( double airGap );
-    double mdrkbAtFirstTarget() const;
-    void   setMdrkbAtFirstTarget( double mdrkb );
+    double mdAtFirstTarget() const;
+    void   setMdAtFirstTarget( double mdrkb );
 
     cvf::ref<RigWellPath> createWellPathGeometry();
 
