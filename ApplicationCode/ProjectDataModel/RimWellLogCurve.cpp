@@ -148,8 +148,8 @@ void RimWellLogCurve::setValuesWithMdAndTVD( const std::vector<double>& xValues,
                                              bool                       isExtractionCurve,
                                              const QString&             xUnits )
 {
-    std::map<RiaDefines::DepthTypeEnum, std::vector<double>> depths = {{RiaDefines::MEASURED_DEPTH, measuredDepths},
-                                                                       {RiaDefines::TRUE_VERTICAL_DEPTH, tvdMSL}};
+    std::map<RiaDefines::DepthTypeEnum, std::vector<double>> depths = { { RiaDefines::MEASURED_DEPTH, measuredDepths },
+                                                                        { RiaDefines::TRUE_VERTICAL_DEPTH, tvdMSL } };
     setValuesAndDepths( xValues, depths, rkbDiff, depthUnit, isExtractionCurve, xUnits );
 }
 
@@ -263,7 +263,7 @@ void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                         const QVariant&            newValue )
 {
     RimPlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
-    if ( changedField == &m_showCurve )
+    if ( changedField == &m_showCurve && m_showCurve() )
     {
         updateZoomInParentPlot();
     }
