@@ -149,16 +149,16 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
 
             if ( wellPathSourceInfo )
             {
-                double mdrkbAtFirstTarget =
+                double mdAtFirstTarget =
                     wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
 
                 RimModeledWellPath* modeledWellPath = dynamic_cast<RimModeledWellPath*>( wellPathSourceInfo->wellPath() );
                 if ( modeledWellPath )
                 {
-                    mdrkbAtFirstTarget += modeledWellPath->geometryDefinition()->mdrkbAtFirstTarget();
+                    mdAtFirstTarget += modeledWellPath->geometryDefinition()->mdAtFirstTarget();
                 }
 
-                m_geometryToAddTargetsTo->setMdrkbAtFirstTarget( mdrkbAtFirstTarget );
+                m_geometryToAddTargetsTo->setMdAtFirstTarget( mdAtFirstTarget );
             }
         }
 

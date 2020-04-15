@@ -132,19 +132,17 @@ QString RimModeledWellPath::wellPlanText()
     formatter.setTableRowLineAppendText( "" );
 
     std::vector<RifTextDataTableColumn> tableHeader;
-    tableHeader.push_back( {"MDRKB"} );
-    tableHeader.push_back( {"CL"} );
-    tableHeader.push_back( {"Inc"} );
-    tableHeader.push_back( {"Azi"} );
-    tableHeader.push_back( {"TVDMSL"} );
-    tableHeader.push_back( {"NS"} );
-    tableHeader.push_back( {"EW"} );
-    tableHeader.push_back( {"Dogleg"} );
-    tableHeader.push_back( {"Build"} );
-    tableHeader.push_back( {"Turn"} );
+    std::vector<QString> columns = { "MDRKB", "CL", "Inc", "Azi", "TVDMSL", "NS", "EW", "Dogleg", "Build", "Turn" };
+    for ( QString column : columns )
+    {
+        tableHeader.push_back(
+            RifTextDataTableColumn( column,
+                                    RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_FLOAT, 2 ) ) );
+    }
+
     formatter.header( tableHeader );
 
-    double mdrkbAtFirstTarget = m_geometryDefinition->mdrkbAtFirstTarget();
+    double mdrkbAtFirstTarget = m_geometryDefinition->mdAtFirstTarget() + m_geometryDefinition->airGap();
     if ( m_geometryDefinition )
     {
         std::vector<RiaWellPlanCalculator::WellPlanSegment> wellPlan = m_geometryDefinition->wellPlan();
