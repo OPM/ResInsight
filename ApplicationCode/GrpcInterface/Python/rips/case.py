@@ -12,6 +12,27 @@ Operate on a ResInsight case specified by a Case Id integer.
 Not meant to be constructed separately but created by one of the following
 methods in Project: loadCase, case, allCases, selectedCases
 
+Result Definition
+-----------------
+When working with grid case results, the following two argumenst are used in many functions to identify a
+result
+
+**Result Definition enums**::
+    
+    property_type           |       | porosity_model
+    (str enum)              |       | (str enum)
+    ----------------------- | ----- | --------------
+    DYNAMIC_NATIVE          |       | MATRIX_MODEL
+    STATIC_NATIVE           |       | FRACTURE_MODEL
+    SOURSIMRL               |       |
+    GENERATED               |       |
+    INPUT_PROPERTY          |       |
+    FORMATION_NAMES         |       |
+    FLOW_DIAGNOSTICS        |       |
+    INJECTION_FLOODING      |       |
+
+
+
 Attributes:
     id (int): Case Id corresponding to case Id in ResInsight project.
     name (str): Case name
@@ -127,7 +148,7 @@ def replace(self, new_grid_file):
     """Replace the current case grid with a new grid loaded from file
 
     Arguments:
-        new_egrid_file (str): path to EGRID file
+        new_egrid_file (str): Path to EGRID file
     """
     project = self.ancestor(rips.project.Project)
     self._execute_command(replaceCase=Cmd.ReplaceCaseRequest(
@@ -137,8 +158,7 @@ def replace(self, new_grid_file):
 
 @add_method(Case)
 def cell_count(self, porosity_model="MATRIX_MODEL"):
-    """Get a cell count object containing number of active cells and
-    total number of cells
+    """Get a cell count object containing number of active cells and total number of cells
 
     Arguments:
         porosity_model (str): String representing an enum.
@@ -147,6 +167,14 @@ def cell_count(self, porosity_model="MATRIX_MODEL"):
         Cell Count object with the following integer attributes:
             active_cell_count: number of active cells
             reservoir_cell_count: total number of reservoir cells
+
+    **CellCount class description**::
+
+        Parameter               | Description               | Type
+        ----------------------- | ------------------------- | -----
+        active_cell_count       | Number of active cells    | Integer
+        reservoir_cell_count    | Total number of cells     | Integer
+
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Case_pb2.CellInfoRequest(case_request=self.__request(),
@@ -164,7 +192,7 @@ def cell_info_for_active_cells_async(self, porosity_model="MATRIX_MODEL"):
     Returns:
         Stream of **CellInfo** objects
 
-    See cell_info_for_active_cells() for detalis on the **CellInfo** class.
+    See :meth:`rips.case.cell_info_for_active_cells()` for detalis on the **CellInfo** class.
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Case_pb2.CellInfoRequest(case_request=self.__request(),
@@ -234,7 +262,20 @@ def time_steps(self):
 def reservoir_boundingbox(self):
     """Get the reservoir bounding box
 
-        Returns: A class with six double members: min_x, max_x, min_y, max_y, min_z, max_z
+        Returns: BoundingBox
+
+    **BoundingBox class description**::
+
+        Type      | Name
+        --------- | ----------
+        int       | min_x
+        int       | max_x
+        int       | min_y
+        int       | max_y
+        int       | min_z
+        int       | max_z
+
+
     """
     return self.__case_stub.GetReservoirBoundingBox(self.__request())
 
@@ -255,11 +296,11 @@ def days_since_start(self):
 @add_method(Case)
 def view(self, view_id):
     """Get a particular view belonging to a case by providing view id
+    
     Arguments:
         view_id(int): view id
 
-    Returns: a view object
-
+    Returns: :class:`rips.generated.pdm_objects.View`
     """
     views = self.views()
     for view_object in views:
@@ -269,7 +310,10 @@ def view(self, view_id):
 
 @add_method(Case)
 def create_view(self):
-    """Create a new view in the current case"""
+    """Create a new view in the current case
+
+        Returns: :class:`rips.generated.pdm_objects.View`
+    """
     return self.view(
         self._execute_command(createView=Cmd.CreateViewRequest(
             caseId=self.id)).createViewResult.viewId)
@@ -511,17 +555,10 @@ def available_properties(self,
                             porosity_model="MATRIX_MODEL"):
     """Get a list of available properties
 
-    Arguments:
-        property_type (str): string corresponding to property_type enum. Choices::
-            - DYNAMIC_NATIVE
-            - STATIC_NATIVE
-            - SOURSIMRL
-            - GENERATED
-            - INPUT_PROPERTY
-            - FORMATION_NAMES
-            - FLOW_DIAGNOSTICS
-            - INJECTION_FLOODING
+    For description, see `Result Definition`_
 
+    Arguments:
+        property_type (str): string corresponding to property_type enum.
         porosity_model(str): 'MATRIX_MODEL' or 'FRACTURE_MODEL'.
     """
 
@@ -541,13 +578,13 @@ def active_cell_property_async(self,
                                 property_name,
                                 time_step,
                                 porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all active cells. Async, so returns an iterator
+    """Get a cell property for all active cells. Async, so returns an iterator. For description, see `Result Definition`_
 
         Arguments:
-            property_type(str): string enum. See available()
+            property_type(str): string enum
             property_name(str): name of an Eclipse property
             time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum. See available()
+            porosity_model(str): string enum
 
         Returns:
             An iterator to a chunk object containing an array of double values
@@ -571,13 +608,13 @@ def active_cell_property(self,
                             property_name,
                             time_step,
                             porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all active cells. Sync, so returns a list
+    """Get a cell property for all active cells. Sync, so returns a list. For description, see `Result Definition`_
 
         Arguments:
-            property_type(str): string enum. See available()
+            property_type(str): string enum
             property_name(str): name of an Eclipse property
             time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum. See available()
+            porosity_model(str): string enum
 
         Returns:
             A list containing double values
@@ -598,13 +635,13 @@ def selected_cell_property_async(self,
                                     property_name,
                                     time_step,
                                     porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all selected cells. Async, so returns an iterator
+    """Get a cell property for all selected cells. Async, so returns an iterator. For description, see `Result Definition`_
 
         Arguments:
-            property_type(str): string enum. See available()
+            property_type(str): string enum
             property_name(str): name of an Eclipse property
             time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum. See available()
+            porosity_model(str): string enum
 
         Returns:
             An iterator to a chunk object containing an array of double values
@@ -628,13 +665,13 @@ def selected_cell_property(self,
                             property_name,
                             time_step,
                             porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all selected cells. Sync, so returns a list
+    """Get a cell property for all selected cells. Sync, so returns a list. For description, see `Result Definition`_
 
         Arguments:
-            property_type(str): string enum. See available()
+            property_type(str): string enum
             property_name(str): name of an Eclipse property
             time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum. See available()
+            porosity_model(str): string enum
 
         Returns:
             A list containing double values
@@ -657,14 +694,14 @@ def grid_property_async(
         time_step,
         grid_index=0,
         porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all grid cells. Async, so returns an iterator
+    """Get a cell property for all grid cells. Async, so returns an iterator. For description, see `Result Definition`_
 
         Arguments:
-            property_type(str): string enum. See available()
+            property_type(str): string enum
             property_name(str): name of an Eclipse property
             time_step(int): the time step for which to get the property for
             gridIndex(int): index to the grid we're getting values for
-            porosity_model(str): string enum. See available()
+            porosity_model(str): string enum
 
         Returns:
             An iterator to a chunk object containing an array of double values
@@ -691,14 +728,14 @@ def grid_property(
         time_step,
         grid_index=0,
         porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all grid cells. Synchronous, so returns a list
+    """Get a cell property for all grid cells. Synchronous, so returns a list. For description, see `Result Definition`_
 
         Arguments:
-            property_type(str): string enum. See available()
+            property_type(str): string enum
             property_name(str): name of an Eclipse property
             time_step(int): the time step for which to get the property for
             grid_index(int): index to the grid we're getting values for
-            porosity_model(str): string enum. See available()
+            porosity_model(str): string enum
 
         Returns:
             A list of double values
@@ -720,14 +757,14 @@ def set_active_cell_property_async(
         property_name,
         time_step,
         porosity_model="MATRIX_MODEL"):
-    """Set cell property for all active cells Async. Takes an iterator to the input values
+    """Set cell property for all active cells Async. Takes an iterator to the input values. For description, see `Result Definition`_
 
         Arguments:
             values_iterator(iterator): an iterator to the properties to be set
-            property_type(str): string enum. See available()
+            property_type(str): string enum
             property_name(str): name of an Eclipse property
             time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum. See available()
+            porosity_model(str): string enum
     """
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
@@ -751,14 +788,14 @@ def set_active_cell_property(
         property_name,
         time_step,
         porosity_model="MATRIX_MODEL"):
-    """Set a cell property for all active cells.
+    """Set a cell property for all active cells. For description, see `Result Definition`_
 
         Arguments:
             values(list): a list of double precision floating point numbers
-            property_type(str): string enum. See available()
+            property_type(str): string enum
             property_name(str): name of an Eclipse property
             time_step(int): the time step for which to get the property for
-            porosity_model(str): string enum. See available()
+            porosity_model(str): string enum
     """
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
@@ -784,15 +821,15 @@ def set_grid_property(
         time_step,
         grid_index=0,
         porosity_model="MATRIX_MODEL"):
-    """Set a cell property for all grid cells.
+    """Set a cell property for all grid cells. For description, see `Result Definition`_
 
         Arguments:
             values(list): a list of double precision floating point numbers
-            property_type(str): string enum. See available()
+            property_type(str): string enum
             property_name(str): name of an Eclipse property
             time_step(int): the time step for which to get the property for
             grid_index(int): index to the grid we're setting values for
-            porosity_model(str): string enum. See available()
+            porosity_model(str): string enum
     """
     property_type_enum = Properties_pb2.PropertyType.Value(property_type)
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
@@ -844,8 +881,7 @@ def create_well_bore_stability_plot(self, well_path, time_step, parameters=None)
         well_path(str): well path name
         time_step(int): time step
 
-    Returns:
-        A new plot object
+        Returns: :class:`rips.generated.pdm_objects.WellBoreStabilityPlot`
     """
     pb2_parameters = None
     if parameters is not None:
@@ -881,7 +917,8 @@ def simulation_wells(self):
     """Get a list of all simulation wells for a case
 
     Returns:
-        A list of rips **SimulationWell** objects
+        :class:`rips.generated.pdm_objects.SimulationWell`
+
     """
     wells = self.descendants(SimulationWell)
     return wells
@@ -950,8 +987,20 @@ def active_cell_corners(
         Arguments:
             porosity_model(str): string enum. See available()
 
-        Returns:
-            A list of CellCorners
+    **CellCorner class description**::
+
+        Parameter   | Description   | Type
+        ----------- | ------------  | -----
+        c0          |               | Vec3d
+        c1          |               | Vec3d
+        c2          |               | Vec3d
+        c3          |               | Vec3d
+        c4          |               | Vec3d
+        c5          |               | Vec3d
+        c6          |               | Vec3d
+        c7          |               | Vec3d
+
+
     """
     cell_corners = []
     generator = self.active_cell_corners_async(porosity_model)
@@ -997,6 +1046,16 @@ def coarsening_info(self):
 @add_method(Case)
 def available_nnc_properties(self):
     """Get a list of available NNC properties
+
+  **NNCConnection class description**::
+
+        Parameter               | Description                                   | Type
+        ------------------------| --------------------------------------------- | -----
+        cell_grid_index1        | Reservoir Cell Index to cell 1                | int32
+        cell_grid_index2        | Reservoir Cell Index to cell 2                | int32
+        cell1                   | Reservoir Cell IJK to cell 1                  | Vec3i
+        cell2                   | Reservoir Cell IJK to cell 1                  | Vec3i
+    
     """
     return self.__nnc_properties_stub.GetAvailableNNCProperties(self.__request()).properties
 
