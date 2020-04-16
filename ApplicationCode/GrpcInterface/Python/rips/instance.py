@@ -46,7 +46,7 @@ class Instance:
                                         options=[
                                             ('grpc.enable_http_proxy',
                                              False)
-                                            ])
+                                        ])
         app = App_pb2_grpc.AppStub(channel)
         try:
             app.GetVersion(Empty(), timeout=1)
@@ -91,7 +91,7 @@ class Instance:
                 return None
 
         print("Trying port " + str(port))
-        while Instance.__is_port_in_use(port):        
+        while Instance.__is_port_in_use(port):
             port += 1
             print("Trying port " + str(port))
 
@@ -266,7 +266,7 @@ class Instance:
         Set the plot window size in pixels
 
         **Parameters**::
-    
+
             Parameter | Description      | Type
             --------- | ---------------- | -----
             width     | Width in pixels  | Integer

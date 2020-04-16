@@ -68,12 +68,14 @@ def test_10kSync(rips_instance, initialize_test):
     for i in range(0, len(new_data)):
         assert(new_data[i] == new_prop_vals[i])
 
+
 def test_non_existing_dynamic_values(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
 
     with pytest.raises(grpc.RpcError):
         case.nnc_connections_dynamic_values("x", 0)
+
 
 def test_invalid_time_steps(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"

@@ -7,6 +7,7 @@ import rips
 
 import dataroot
 
+
 def test_summary_import_and_find(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/flow_diagnostics_test/SIMPLE_SUMMARY2.SMSPEC"
     summary_case = rips_instance.project.import_summary_case(casePath)
@@ -36,6 +37,7 @@ def test_summary_data(rips_instance, initialize_test):
 
     summary_data = summary_case.summary_vector_values("FOPT")
     assert(len(summary_data.values) == 60)
+
 
 def test_summary_resample(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/flow_diagnostics_test/SIMPLE_SUMMARY2.SMSPEC"

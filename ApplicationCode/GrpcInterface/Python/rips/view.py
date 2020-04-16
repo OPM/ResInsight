@@ -9,6 +9,7 @@ import rips.case  # Circular import of Case, which already imports View. Use ful
 from rips.pdmobject import add_method
 from rips.generated.pdm_objects import View, ViewWindow, EclipseView, GeoMechView
 
+
 @add_method(View)
 def apply_cell_result(self, result_type, result_variable):
     """Apply a regular cell result
@@ -29,6 +30,7 @@ def apply_cell_result(self, result_type, result_variable):
     cell_result.result_type = result_type
     cell_result.result_variable = result_variable
     cell_result.update()
+
 
 @add_method(View)
 def apply_flow_diagnostics_cell_result(
@@ -71,12 +73,14 @@ def apply_flow_diagnostics_cell_result(
         cell_result.selected_producer_tracers = producers
     cell_result.update()
 
+
 @add_method(View)
 def clone(self):
     """Clone the current view"""
     view_id = self._execute_command(cloneView=Cmd.CloneViewRequest(
         viewId=self.id)).createViewResult.viewId
     return self.case().view(view_id)
+
 
 @add_method(View)
 def set_time_step(self, time_step):
@@ -85,10 +89,11 @@ def set_time_step(self, time_step):
     return self._execute_command(setTimeStep=Cmd.SetTimeStepParams(
         caseId=case_id, viewId=self.id, timeStep=time_step))
 
+
 @add_method(View)
 def export_sim_well_fracture_completions(self, time_step,
-                                            simulation_well_names, file_split,
-                                            compdat_export):
+                                         simulation_well_names, file_split,
+                                         compdat_export):
     """Export fracture completions for simulation wells
 
     **Parameters**::
@@ -129,12 +134,13 @@ def export_sim_well_fracture_completions(self, time_step,
             fileSplit=file_split,
             compdatExport=compdat_export))
 
+
 @add_method(View)
 def export_visible_cells(self,
-                            export_keyword='FLUXNUM',
-                            visible_active_cells_value=1,
-                            hidden_active_cells_value=0,
-                            inactive_cells_value=0):
+                         export_keyword='FLUXNUM',
+                         visible_active_cells_value=1,
+                         hidden_active_cells_value=0,
+                         inactive_cells_value=0):
     """Export special properties for all visible cells.
 
     Arguments:
@@ -154,6 +160,7 @@ def export_visible_cells(self,
             hiddenActiveCellsValue=hidden_active_cells_value,
             inactiveCellsValue=inactive_cells_value))
 
+
 @add_method(View)
 def export_property(self, undefined_value=0.0):
     """ Export the current Eclipse property from the view
@@ -168,6 +175,7 @@ def export_property(self, undefined_value=0.0):
             viewIds=[self.id],
             undefinedValue=undefined_value))
 
+
 @add_method(ViewWindow)
 def case(self):
     """Get the case the view belongs to"""
@@ -175,10 +183,11 @@ def case(self):
     assert(mycase is not None)
     return mycase
 
+
 @add_method(ViewWindow)
 def export_snapshot(self, prefix='', export_folder=''):
     """ Export snapshot for the current view
-        
+
     Arguments:
         prefix (str): Exported file name prefix
         export_folder(str): The path to export to. By default will use the global export folder
@@ -186,7 +195,7 @@ def export_snapshot(self, prefix='', export_folder=''):
     case_id = self.case().id
     return self._execute_command(
         exportSnapshots=Cmd.ExportSnapshotsRequest(type='VIEWS',
-                                                    prefix=prefix,
-                                                    caseId=case_id,
-                                                    viewId=self.id,
-                                                    exportFolder=export_folder))
+                                                   prefix=prefix,
+                                                   caseId=case_id,
+                                                   viewId=self.id,
+                                                   exportFolder=export_folder))
