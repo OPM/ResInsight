@@ -183,6 +183,12 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringLis
     if ( !sumCaseColl ) return false;
 
     RifSummaryCaseRestartSelector fileSelector;
+
+    if ( !RiaGuiApplication::isRunning() )
+    {
+        fileSelector.showDialog( false );
+    }
+
     fileSelector.setEnsembleOrGroupMode( ensembleOrGroup );
     fileSelector.determineFilesToImportFromSummaryFiles( fileNames );
 
