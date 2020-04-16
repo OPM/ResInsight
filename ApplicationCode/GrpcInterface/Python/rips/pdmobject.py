@@ -17,28 +17,33 @@ import rips.generated.Commands_pb2 as Cmd
 import rips.generated.Commands_pb2_grpc as CmdRpc
 from rips.generated.pdm_objects import PdmObject, class_from_keyword
 
+
 def camel_to_snake(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
+
 def snake_to_camel(name):
     return ''.join(word.title() for word in name.split('_'))
+
 
 def add_method(cls):
     def decorator(func):
         setattr(cls, func.__name__, func)
-        return func # returning func means func can still be used normally
+        return func  # returning func means func can still be used normally
     return decorator
+
 
 def add_static_method(cls):
     def decorator(func):
-        @wraps(func) 
-        def wrapper(*args, **kwargs): 
+        @wraps(func)
+        def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
         setattr(cls, func.__name__, wrapper)
         # Note we are not binding func, but wrapper which accepts self but does exactly the same as func
-        return func # returning func means func can still be used normally
+        return func  # returning func means func can still be used normally
     return decorator
+
 
 @add_method(PdmObject)
 def _execute_command(self, **command_params):
@@ -51,13 +56,14 @@ def _execute_command(self, **command_params):
 
     return response
 
+
 @add_method(PdmObject)
 def __custom_init__(self, pb2_object, channel):
     self.__warnings = []
     self.__chunk_size = 8160
 
     self._channel = channel
-    
+
     # Create stubs
     if self._channel:
         self._pdm_object_stub = PdmObject_pb2_grpc.PdmObjectServiceStub(self._channel)
@@ -66,7 +72,7 @@ def __custom_init__(self, pb2_object, channel):
     if pb2_object is not None:
         # Copy parameters from ResInsight
         assert(not isinstance(pb2_object, PdmObject))
-        self._pb2_object = pb2_object        
+        self._pb2_object = pb2_object
         for camel_keyword in self._pb2_object.parameters:
             snake_keyword = camel_to_snake(camel_keyword)
             setattr(self, snake_keyword, self.__get_grpc_value(camel_keyword))
@@ -74,6 +80,7 @@ def __custom_init__(self, pb2_object, channel):
         # Copy parameters from PdmObject defaults
         self._pb2_object = PdmObject_pb2.PdmObject(class_keyword=self.__class__.__name__)
         self.__copy_to_pb2()
+
 
 @add_method(PdmObject)
 def copy_from(self, object):
@@ -84,18 +91,21 @@ def copy_from(self, object):
             value = getattr(object, attribute)
             # This is crucial to avoid overwriting methods
             if not callable(value):
-                setattr(self, attribute, value)  
+                setattr(self, attribute, value)
     if self.__custom_init__ is not None:
         self.__custom_init__(self._pb2_object, self._channel)
     self.update()
+
 
 @add_method(PdmObject)
 def warnings(self):
     return self.__warnings
 
-@add_method(PdmObject)       
+
+@add_method(PdmObject)
 def has_warnings(self):
     return len(self.__warnings) > 0
+
 
 @add_method(PdmObject)
 def __copy_to_pb2(self):
@@ -108,15 +118,18 @@ def __copy_to_pb2(self):
                     camel_kw = snake_to_camel(snake_kw)
                     self.__set_grpc_value(camel_kw, value)
 
+
 @add_method(PdmObject)
 def pb2_object(self):
     """ Private method"""
     return self._pb2_object
 
+
 @add_method(PdmObject)
 def channel(self):
     """ Private method"""
     return self._channel
+
 
 @add_method(PdmObject)
 def address(self):
@@ -128,15 +141,18 @@ def address(self):
 
     return self._pb2_object.address
 
+
 @add_method(PdmObject)
 def set_visible(self, visible):
     """Set the visibility of the object in the ResInsight project tree"""
     self._pb2_object.visible = visible
 
+
 @add_method(PdmObject)
 def visible(self):
     """Get the visibility of the object in the ResInsight project tree"""
-    return self._pb2_object.visible        
+    return self._pb2_object.visible
+
 
 @add_method(PdmObject)
 def print_object_info(self):
@@ -147,11 +163,12 @@ def print_object_info(self):
         if not snake_kw.startswith("_") and not callable(getattr(self, snake_kw)):
             camel_kw = snake_to_camel(snake_kw)
             print("   " + snake_kw + " [" + type(getattr(self, snake_kw)).__name__ +
-                    "]: " + str(getattr(self, snake_kw)))
+                  "]: " + str(getattr(self, snake_kw)))
     print("Object Methods:")
     for snake_kw in dir(self):
         if not snake_kw.startswith("_") and callable(getattr(self, snake_kw)):
-            print ("   " + snake_kw)
+            print("   " + snake_kw)
+
 
 @add_method(PdmObject)
 def __convert_from_grpc_value(self, value):
@@ -173,6 +190,7 @@ def __convert_from_grpc_value(self, value):
                 return self.__makelist(value)
             return value
 
+
 @add_method(PdmObject)
 def __convert_to_grpc_value(self, value):
     if isinstance(value, bool):
@@ -188,13 +206,16 @@ def __convert_to_grpc_value(self, value):
         return "[" + ", ".join(list_of_strings) + "]"
     return str(value)
 
+
 @add_method(PdmObject)
 def __get_grpc_value(self, camel_keyword):
     return self.__convert_from_grpc_value(self._pb2_object.parameters[camel_keyword])
 
+
 @add_method(PdmObject)
 def __set_grpc_value(self, camel_keyword, value):
     self._pb2_object.parameters[camel_keyword] = self.__convert_to_grpc_value(value)
+
 
 @add_method(PdmObject)
 def set_value(self, snake_keyword, value):
@@ -208,9 +229,11 @@ def set_value(self, snake_keyword, value):
     setattr(self, snake_keyword, value)
     self.update()
 
+
 @add_method(PdmObject)
 def __islist(self, value):
     return value.startswith("[") and value.endswith("]")
+
 
 @add_method(PdmObject)
 def __makelist(self, list_string):
@@ -222,6 +245,7 @@ def __makelist(self, list_string):
         values.append(self.__convert_from_grpc_value(string))
     return values
 
+
 @add_method(PdmObject)
 def __from_pb2_to_pdm_objects(self, pb2_object_list, super_class_definition):
     pdm_object_list = []
@@ -231,8 +255,9 @@ def __from_pb2_to_pdm_objects(self, pb2_object_list, super_class_definition):
             child_class_definition = super_class_definition
 
         pdm_object = child_class_definition(pb2_object=pb2_object, channel=self.channel())
-        pdm_object_list.append(pdm_object)    
+        pdm_object_list.append(pdm_object)
     return pdm_object_list
+
 
 @add_method(PdmObject)
 def descendants(self, class_definition):
@@ -254,8 +279,9 @@ def descendants(self, class_definition):
         return self.__from_pb2_to_pdm_objects(object_list, class_definition)
     except grpc.RpcError as e:
         if e.code() == grpc.StatusCode.NOT_FOUND:
-            return [] # Valid empty result
-        raise e   
+            return []  # Valid empty result
+        raise e
+
 
 @add_method(PdmObject)
 def children(self, child_field, class_definition=PdmObject):
@@ -274,6 +300,7 @@ def children(self, child_field, class_definition=PdmObject):
         if e.code() == grpc.StatusCode.NOT_FOUND:
             return []
         raise e
+
 
 @add_method(PdmObject)
 def ancestor(self, class_definition):
@@ -301,11 +328,13 @@ def ancestor(self, class_definition):
             return None
         raise e
 
+
 @add_method(PdmObject)
 def _call_get_method_async(self, method_name):
     request = PdmObject_pb2.PdmObjectGetterRequest(object=self._pb2_object, method=method_name)
     for chunk in self._pdm_object_stub.CallPdmObjectGetter(request):
         yield chunk
+
 
 @add_method(PdmObject)
 def _call_get_method(self, method_name):
@@ -317,6 +346,7 @@ def _call_get_method(self, method_name):
             all_values.append(value)
     return all_values
 
+
 @add_method(PdmObject)
 def __generate_set_method_chunks(self, array, method_request):
     index = -1
@@ -324,22 +354,23 @@ def __generate_set_method_chunks(self, array, method_request):
     while index < len(array):
         chunk = PdmObject_pb2.PdmObjectSetterChunk()
         if index is -1:
-            chunk.set_request.CopyFrom(PdmObject_pb2.PdmObjectSetterRequest(request=method_request, data_count=len(array)))
+            chunk.set_request.CopyFrom(PdmObject_pb2.PdmObjectSetterRequest(
+                request=method_request, data_count=len(array)))
             index += 1
         else:
             actual_chunk_size = min(len(array) - index + 1, self.__chunk_size)
             if isinstance(array[0], float):
                 chunk.CopyFrom(
                     PdmObject_pb2.PdmObjectSetterChunk(doubles=PdmObject_pb2.DoubleArray(data=array[index:index +
-                                                            actual_chunk_size])))
+                                                                                                    actual_chunk_size])))
             elif isinstance(array[0], int):
                 chunk.CopyFrom(
                     PdmObject_pb2.PdmObjectSetterChunk(ints=PdmObject_pb2.IntArray(data=array[index:index +
-                                                            actual_chunk_size])))
+                                                                                              actual_chunk_size])))
             elif isinstance(array[0], str):
                 chunk.CopyFrom(
                     PdmObject_pb2.PdmObjectSetterChunk(strings=PdmObject_pb2.StringArray(data=array[index:index +
-                                                            actual_chunk_size])))
+                                                                                                    actual_chunk_size])))
             else:
                 raise Exception("Wrong data type for set method")
             index += actual_chunk_size
@@ -348,20 +379,24 @@ def __generate_set_method_chunks(self, array, method_request):
     chunk = PdmObject_pb2.PdmObjectSetterChunk()
     yield chunk
 
+
 @add_method(PdmObject)
 def _call_set_method(self, method_name, values):
-    method_request = PdmObject_pb2.PdmObjectGetterRequest(object=self._pb2_object, method=method_name)
+    method_request = PdmObject_pb2.PdmObjectGetterRequest(
+        object=self._pb2_object, method=method_name)
     request_iterator = self.__generate_set_method_chunks(values, method_request)
     reply = self._pdm_object_stub.CallPdmObjectSetter(request_iterator)
     if reply.accepted_value_count < len(values):
         raise IndexError
+
 
 @add_method(PdmObject)
 def _call_pdm_method(self, method_name, **kwargs):
     pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
     for key, value in kwargs.items():
         pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(value)
-    request = PdmObject_pb2.PdmObjectMethodRequest(object=self._pb2_object, method=method_name, params=pb2_params)
+    request = PdmObject_pb2.PdmObjectMethodRequest(
+        object=self._pb2_object, method=method_name, params=pb2_params)
 
     pb2_object = self._pdm_object_stub.CallPdmObjectMethod(request)
 
@@ -371,6 +406,7 @@ def _call_pdm_method(self, method_name, **kwargs):
 
     pdm_object = child_class_definition(pb2_object=pb2_object, channel=self.channel())
     return pdm_object
+
 
 @add_method(PdmObject)
 def update(self):

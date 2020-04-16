@@ -15,6 +15,7 @@ class Grid:
     :meth:`rips.case.grid()`
     :meth:`rips.case.grids()`
     """
+
     def __init__(self, index, case, channel):
         self.__channel = channel
         self.__stub = Grid_pb2_grpc.GridStub(self.__channel)
@@ -32,7 +33,6 @@ class Grid:
         return self.__stub.GetDimensions(
             Grid_pb2.GridRequest(case_request=case_request,
                                  grid_index=self.index)).dimensions
-
 
     def cell_centers_async(self):
         """The cells center for all cells in given grid async.

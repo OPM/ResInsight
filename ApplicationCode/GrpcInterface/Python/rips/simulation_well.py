@@ -15,9 +15,11 @@ from rips.generated.pdm_objects import SimulationWell
 from rips.pdmobject import PdmObject, add_method
 import rips.case
 
+
 @add_method(SimulationWell)
 def __custom_init__(self, pb2_object, channel):
     self._simulation_well_stub = SimulationWell_pb2_grpc.SimulationWellStub(channel)
+
 
 @add_method(SimulationWell)
 def status(self, timestep):
@@ -38,6 +40,7 @@ def status(self, timestep):
                                                                 well_name=self.name,
                                                                 timestep=timestep)
     return self._simulation_well_stub.GetSimulationWellStatus(sim_well_request)
+
 
 @add_method(SimulationWell)
 def cells(self, timestep):
@@ -64,6 +67,7 @@ def cells(self, timestep):
                                                                 well_name=self.name,
                                                                 timestep=timestep)
     return self._simulation_well_stub.GetSimulationWellCells(sim_well_request).data
+
 
 @add_method(SimulationWell)
 def case(self):

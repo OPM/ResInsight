@@ -33,10 +33,10 @@ release = '2019.04.01'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-	'sphinx_markdown_builder'
+    'sphinx_markdown_builder'
 ]
 
-master_doc  = 'PythonRips'
+master_doc = 'PythonRips'
 
 napoleon_google_docstring = True
 
@@ -56,7 +56,7 @@ exclude_patterns = ['build/*', 'rips.rst']
 #
 html_theme = 'alabaster'
 
-smartquotes=False
+smartquotes = False
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

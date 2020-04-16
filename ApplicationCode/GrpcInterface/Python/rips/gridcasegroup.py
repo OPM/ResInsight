@@ -9,10 +9,11 @@ from rips.case import Case
 import rips.generated.Commands_pb2 as Cmd
 from rips.generated.pdm_objects import GridCaseGroup
 
+
 @add_method(GridCaseGroup)
 def create_statistics_case(self):
     """Create a Statistics case in the Grid Case Group
-        
+
     Returns:
         :class:`rips.generated.pdm_objects.EclipseCase`
     """
@@ -22,10 +23,11 @@ def create_statistics_case(self):
     return Case(self.channel,
                 command_reply.createStatisticsCaseResult.caseId)
 
+
 @add_method(GridCaseGroup)
 def statistics_cases(self):
     """Get a list of all statistics cases in the Grid Case Group
-    
+
     Returns: 
         List of :class:`rips.generated.pdm_objects.EclipseCase`
 
@@ -33,10 +35,11 @@ def statistics_cases(self):
     stat_case_collection = self.children("StatisticsCaseCollection")[0]
     return stat_case_collection.children("Reservoirs")
 
+
 @add_method(GridCaseGroup)
 def views(self):
     """Get a list of views belonging to a grid case group
-    
+
     Returns: 
         List of :class:`rips.generated.pdm_objects.EclipseView`
 
@@ -46,6 +49,7 @@ def views(self):
     for pdm_object in pdm_objects:
         view_list.append(pdm_object)
     return view_list
+
 
 @add_method(GridCaseGroup)
 def view(self, view_id):
@@ -62,6 +66,7 @@ def view(self, view_id):
         if view_object.id == view_id:
             return view_object
     return None
+
 
 @add_method(GridCaseGroup)
 def compute_statistics(self, case_ids=None):

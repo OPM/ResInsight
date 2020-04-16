@@ -12,6 +12,8 @@ Operate on a ResInsight case specified by a Case Id integer.
 Not meant to be constructed separately but created by one of the following
 methods in Project: loadCase, case, allCases, selectedCases
 
+.. _result-definition-label:
+
 Result Definition
 -----------------
 When working with grid case results, the following two argumenst are used in many functions to identify a
@@ -66,6 +68,7 @@ from rips.view import View
 from rips.generated.pdm_objects import WellBoreStabilityPlot, WbsParameters
 from rips.simulation_well import SimulationWell
 
+
 @add_method(Case)
 def __custom_init__(self, pb2_object, channel):
     self.__case_stub = Case_pb2_grpc.CaseStub(self._channel)
@@ -75,6 +78,7 @@ def __custom_init__(self, pb2_object, channel):
 
     # Public properties
     self.chunk_size = 8160
+
 
 @add_method(Case)
 def __grid_count(self):
@@ -86,9 +90,11 @@ def __grid_count(self):
             return 0
         return 0
 
+
 @add_method(Case)
 def __request(self):
     return Case_pb2.CaseRequest(id=self.id)
+
 
 @add_method(Case)
 def __generate_property_input_iterator(self, values_iterator, parameters):
@@ -100,6 +106,7 @@ def __generate_property_input_iterator(self, values_iterator, parameters):
         valmsg = Properties_pb2.PropertyChunk(values=values)
         chunk.values.CopyFrom(valmsg)
         yield chunk
+
 
 @add_method(Case)
 def __generate_property_input_chunks(self, array, parameters):
@@ -113,13 +120,14 @@ def __generate_property_input_chunks(self, array, parameters):
             actual_chunk_size = min(len(array) - index + 1, self.chunk_size)
             chunk.values.CopyFrom(
                 Properties_pb2.PropertyChunk(values=array[index:index +
-                                                            actual_chunk_size]))
+                                                          actual_chunk_size]))
             index += actual_chunk_size
 
         yield chunk
     # Final empty message to signal completion
     chunk = Properties_pb2.PropertyInputChunk()
     yield chunk
+
 
 @add_method(Case)
 def grid(self, index):
@@ -133,6 +141,7 @@ def grid(self, index):
     """
     return Grid(index, self, self.channel())
 
+
 @add_method(Case)
 def grids(self):
     """Get a list of all rips Grid objects in the case
@@ -144,6 +153,7 @@ def grids(self):
     for i in range(0, self.__grid_count()):
         grid_list.append(Grid(i, self, self.channel()))
     return grid_list
+
 
 @add_method(Case)
 def replace(self, new_grid_file):
@@ -157,6 +167,7 @@ def replace(self, new_grid_file):
         newGridFile=new_grid_file, caseId=self.id))
     new_case = project.case(self.id)
     self.copy_from(new_case)
+
 
 @add_method(Case)
 def cell_count(self, porosity_model="MATRIX_MODEL"):
@@ -180,8 +191,9 @@ def cell_count(self, porosity_model="MATRIX_MODEL"):
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Case_pb2.CellInfoRequest(case_request=self.__request(),
-                                        porosity_model=porosity_model_enum)
+                                       porosity_model=porosity_model_enum)
     return self.__case_stub.GetCellCount(request)
+
 
 @add_method(Case)
 def cell_info_for_active_cells_async(self, porosity_model="MATRIX_MODEL"):
@@ -198,8 +210,9 @@ def cell_info_for_active_cells_async(self, porosity_model="MATRIX_MODEL"):
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Case_pb2.CellInfoRequest(case_request=self.__request(),
-                                        porosity_model=porosity_model_enum)
+                                       porosity_model=porosity_model_enum)
     return self.__case_stub.GetCellInfoForActiveCells(request)
+
 
 @add_method(Case)
 def cell_info_for_active_cells(self, porosity_model="MATRIX_MODEL"):
@@ -239,6 +252,7 @@ def cell_info_for_active_cells(self, porosity_model="MATRIX_MODEL"):
             received_active_cells.append(active_cell)
     return received_active_cells
 
+
 @add_method(Case)
 def time_steps(self):
     """Get a list containing all time steps
@@ -259,6 +273,7 @@ def time_steps(self):
 
     """
     return self.__case_stub.GetTimeSteps(self.__request()).dates
+
 
 @add_method(Case)
 def reservoir_boundingbox(self):
@@ -282,25 +297,28 @@ def reservoir_boundingbox(self):
     """
     return self.__case_stub.GetReservoirBoundingBox(self.__request())
 
+
 @add_method(Case)
 def reservoir_depth_range(self):
     """Get the reservoir depth range
-        
+
     Returns:
         A tuple with two members. The first is the minimum depth, the second is the maximum depth
     """
     bbox = self.reservoir_boundingbox()
     return -bbox.max_z, -bbox.min_z
 
+
 @add_method(Case)
 def days_since_start(self):
     """Get a list of decimal values representing days since the start of the simulation"""
     return self.__case_stub.GetDaysSinceStart(self.__request()).day_decimals
 
+
 @add_method(Case)
 def view(self, view_id):
     """Get a particular view belonging to a case by providing view id
-    
+
     Arguments:
         view_id(int): view id
 
@@ -313,6 +331,7 @@ def view(self, view_id):
             return view_object
     return None
 
+
 @add_method(Case)
 def create_view(self):
     """Create a new view in the current case
@@ -323,6 +342,7 @@ def create_view(self):
     return self.view(
         self._execute_command(createView=Cmd.CreateViewRequest(
             caseId=self.id)).createViewResult.viewId)
+
 
 @add_method(Case)
 def export_snapshots_of_all_views(self, prefix="", export_folder=""):
@@ -336,6 +356,7 @@ def export_snapshots_of_all_views(self, prefix="", export_folder=""):
     return self._execute_command(
         exportSnapshots=Cmd.ExportSnapshotsRequest(
             type="VIEWS", prefix=prefix, caseId=self.id, viewId=-1, exportFolder=export_folder))
+
 
 @add_method(Case)
 def export_well_path_completions(
@@ -403,6 +424,7 @@ def export_well_path_completions(
             combinationMode=combination_mode,
         ))
 
+
 @add_method(Case)
 def export_msw(self, well_path):
     """
@@ -413,6 +435,7 @@ def export_msw(self, well_path):
     """
     return self._execute_command(exportMsw=Cmd.ExportMswRequest(
         caseId=self.id, wellPath=well_path))
+
 
 @add_method(Case)
 def create_multiple_fractures(
@@ -457,6 +480,7 @@ def create_multiple_fractures(
             spacing=spacing,
             action=action,
         ))
+
 
 @add_method(Case)
 def create_lgr_for_completion(
@@ -504,6 +528,7 @@ def create_lgr_for_completion(
             splitType=split_type,
         ))
 
+
 @add_method(Case)
 def create_saturation_pressure_plots(self):
     """
@@ -513,6 +538,7 @@ def create_saturation_pressure_plots(self):
     return self._execute_command(
         createSaturationPressurePlots=Cmd.CreateSatPressPlotRequest(
             caseIds=case_ids))
+
 
 @add_method(Case)
 def export_flow_characteristics(
@@ -555,13 +581,14 @@ def export_flow_characteristics(
             aquiferCellThreshold=aquifer_cell_threshold,
         ))
 
+
 @add_method(Case)
 def available_properties(self,
-                            property_type,
-                            porosity_model="MATRIX_MODEL"):
+                         property_type,
+                         porosity_model="MATRIX_MODEL"):
     """Get a list of available properties
 
-    For description, see `Result Definition`_
+    For argument details, see :ref:`result-definition-label`
 
     Arguments:
         property_type (str): string corresponding to property_type enum.
@@ -578,13 +605,14 @@ def available_properties(self,
     return self.__properties_stub.GetAvailableProperties(
         request).property_names
 
+
 @add_method(Case)
 def active_cell_property_async(self,
-                                property_type,
-                                property_name,
-                                time_step,
-                                porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all active cells. Async, so returns an iterator. For description, see `Result Definition`_
+                               property_type,
+                               property_name,
+                               time_step,
+                               porosity_model="MATRIX_MODEL"):
+    """Get a cell property for all active cells. Async, so returns an iterator. For argument details, see :ref:`result-definition-label`
 
         Arguments:
             property_type(str): string enum
@@ -608,13 +636,14 @@ def active_cell_property_async(self,
     for chunk in self.__properties_stub.GetActiveCellProperty(request):
         yield chunk
 
+
 @add_method(Case)
 def active_cell_property(self,
-                            property_type,
-                            property_name,
-                            time_step,
-                            porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all active cells. Sync, so returns a list. For description, see `Result Definition`_
+                         property_type,
+                         property_name,
+                         time_step,
+                         porosity_model="MATRIX_MODEL"):
+    """Get a cell property for all active cells. Sync, so returns a list. For argument details, see :ref:`result-definition-label`
 
         Arguments:
             property_type(str): string enum
@@ -635,13 +664,14 @@ def active_cell_property(self,
             all_values.append(value)
     return all_values
 
+
 @add_method(Case)
 def selected_cell_property_async(self,
-                                    property_type,
-                                    property_name,
-                                    time_step,
-                                    porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all selected cells. Async, so returns an iterator. For description, see `Result Definition`_
+                                 property_type,
+                                 property_name,
+                                 time_step,
+                                 porosity_model="MATRIX_MODEL"):
+    """Get a cell property for all selected cells. Async, so returns an iterator. For argument details, see :ref:`result-definition-label`
 
         Arguments:
             property_type(str): string enum
@@ -665,13 +695,14 @@ def selected_cell_property_async(self,
     for chunk in self.__properties_stub.GetSelectedCellProperty(request):
         yield chunk
 
+
 @add_method(Case)
 def selected_cell_property(self,
-                            property_type,
-                            property_name,
-                            time_step,
-                            porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all selected cells. Sync, so returns a list. For description, see `Result Definition`_
+                           property_type,
+                           property_name,
+                           time_step,
+                           porosity_model="MATRIX_MODEL"):
+    """Get a cell property for all selected cells. Sync, so returns a list. For argument details, see :ref:`result-definition-label`
 
         Arguments:
             property_type(str): string enum
@@ -685,12 +716,13 @@ def selected_cell_property(self,
     """
     all_values = []
     generator = self.selected_cell_property_async(property_type,
-                                                    property_name, time_step,
-                                                    porosity_model)
+                                                  property_name, time_step,
+                                                  porosity_model)
     for chunk in generator:
         for value in chunk.values:
             all_values.append(value)
     return all_values
+
 
 @add_method(Case)
 def grid_property_async(
@@ -700,7 +732,7 @@ def grid_property_async(
         time_step,
         grid_index=0,
         porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all grid cells. Async, so returns an iterator. For description, see `Result Definition`_
+    """Get a cell property for all grid cells. Async, so returns an iterator. For argument details, see :ref:`result-definition-label`
 
         Arguments:
             property_type(str): string enum
@@ -726,6 +758,7 @@ def grid_property_async(
     for chunk in self.__properties_stub.GetGridProperty(request):
         yield chunk
 
+
 @add_method(Case)
 def grid_property(
         self,
@@ -734,7 +767,7 @@ def grid_property(
         time_step,
         grid_index=0,
         porosity_model="MATRIX_MODEL"):
-    """Get a cell property for all grid cells. Synchronous, so returns a list. For description, see `Result Definition`_
+    """Get a cell property for all grid cells. Synchronous, so returns a list. For argument details, see :ref:`result-definition-label`
 
         Arguments:
             property_type(str): string enum
@@ -748,12 +781,13 @@ def grid_property(
     """
     all_values = []
     generator = self.grid_property_async(property_type, property_name,
-                                            time_step, grid_index,
-                                            porosity_model)
+                                         time_step, grid_index,
+                                         porosity_model)
     for chunk in generator:
         for value in chunk.values:
             all_values.append(value)
     return all_values
+
 
 @add_method(Case)
 def set_active_cell_property_async(
@@ -763,7 +797,7 @@ def set_active_cell_property_async(
         property_name,
         time_step,
         porosity_model="MATRIX_MODEL"):
-    """Set cell property for all active cells Async. Takes an iterator to the input values. For description, see `Result Definition`_
+    """Set cell property for all active cells Async. Takes an iterator to the input values. For argument details, see :ref:`result-definition-label`
 
         Arguments:
             values_iterator(iterator): an iterator to the properties to be set
@@ -786,6 +820,7 @@ def set_active_cell_property_async(
         values_iterator, request)
     self.__properties_stub.SetActiveCellProperty(request_iterator)
 
+
 @add_method(Case)
 def set_active_cell_property(
         self,
@@ -794,7 +829,7 @@ def set_active_cell_property(
         property_name,
         time_step,
         porosity_model="MATRIX_MODEL"):
-    """Set a cell property for all active cells. For description, see `Result Definition`_
+    """Set a cell property for all active cells. For argument details, see :ref:`result-definition-label`
 
         Arguments:
             values(list): a list of double precision floating point numbers
@@ -818,6 +853,7 @@ def set_active_cell_property(
     if reply.accepted_value_count < len(values):
         raise IndexError
 
+
 @add_method(Case)
 def set_grid_property(
         self,
@@ -827,7 +863,7 @@ def set_grid_property(
         time_step,
         grid_index=0,
         porosity_model="MATRIX_MODEL"):
-    """Set a cell property for all grid cells. For description, see `Result Definition`_
+    """Set a cell property for all grid cells. For argument details, see :ref:`result-definition-label`
 
         Arguments:
             values(list): a list of double precision floating point numbers
@@ -852,6 +888,7 @@ def set_grid_property(
     reply = self.__properties_stub.SetGridProperty(request_iterator)
     if reply.accepted_value_count < len(values):
         raise IndexError
+
 
 @add_method(Case)
 def export_property(
@@ -879,6 +916,7 @@ def export_property(
         exportFile=export_file,
     ))
 
+
 @add_method(Case)
 def create_well_bore_stability_plot(self, well_path, time_step, parameters=None):
     """ Create a new well bore stability plot
@@ -896,12 +934,13 @@ def create_well_bore_stability_plot(self, well_path, time_step, parameters=None)
         pb2_parameters = parameters.pb2_object()
 
     plot_result = self._execute_command(createWellBoreStabilityPlot=Cmd.CreateWbsPlotRequest(caseId=self.id,
-                                                                                            wellPath=well_path,
-                                                                                            timeStep=time_step,
-                                                                                            wbsParameters=pb2_parameters))
+                                                                                             wellPath=well_path,
+                                                                                             timeStep=time_step,
+                                                                                             wbsParameters=pb2_parameters))
     project = self.ancestor(rips.project.Project)
     plot = project.plot(view_id=plot_result.createWbsPlotResult.viewId)
     return plot
+
 
 @add_method(Case)
 def import_formation_names(self, formation_files=None):
@@ -919,6 +958,7 @@ def import_formation_names(self, formation_files=None):
     self._execute_command(importFormationNames=Cmd.ImportFormationNamesRequest(formationFiles=formation_files,
                                                                                applyToCaseId=self.id))
 
+
 @add_method(Case)
 def simulation_wells(self):
     """Get a list of all simulation wells for a case
@@ -929,6 +969,7 @@ def simulation_wells(self):
     """
     wells = self.descendants(SimulationWell)
     return wells
+
 
 @add_method(Case)
 def active_cell_centers_async(
@@ -945,8 +986,9 @@ def active_cell_centers_async(
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Case_pb2.CellInfoRequest(case_request=self.__request(),
-                                        porosity_model=porosity_model_enum)
+                                       porosity_model=porosity_model_enum)
     return self.__case_stub.GetCellCenterForActiveCells(request)
+
 
 @add_method(Case)
 def active_cell_centers(
@@ -967,6 +1009,7 @@ def active_cell_centers(
             cell_centers.append(value)
     return cell_centers
 
+
 @add_method(Case)
 def active_cell_corners_async(
         self,
@@ -982,8 +1025,9 @@ def active_cell_corners_async(
     """
     porosity_model_enum = Case_pb2.PorosityModelType.Value(porosity_model)
     request = Case_pb2.CellInfoRequest(case_request=self.__request(),
-                                        porosity_model=porosity_model_enum)
+                                       porosity_model=porosity_model_enum)
     return self.__case_stub.GetCellCornersForActiveCells(request)
+
 
 @add_method(Case)
 def active_cell_corners(
@@ -1016,15 +1060,17 @@ def active_cell_corners(
             cell_corners.append(value)
     return cell_corners
 
+
 @add_method(Case)
 def selected_cells_async(self):
     """Get the selected cells. Async, so returns an iterator.
-    
+
         Returns:
             An iterator to a chunk object containing an array of cells.
             Loop through the chunks and then the cells within the chunk to get all cells.
     """
     return self.__case_stub.GetSelectedCells(self.__request())
+
 
 @add_method(Case)
 def selected_cells(self):
@@ -1040,6 +1086,7 @@ def selected_cells(self):
             cells.append(value)
     return cells
 
+
 @add_method(Case)
 def coarsening_info(self):
     """Get a coarsening information for all grids in the case.
@@ -1049,6 +1096,7 @@ def coarsening_info(self):
             for each entry.
     """
     return self.__case_stub.GetCoarseningInfoArray(self.__request()).data
+
 
 @add_method(Case)
 def available_nnc_properties(self):
@@ -1062,9 +1110,10 @@ def available_nnc_properties(self):
         cell_grid_index2        | Reservoir Cell Index to cell 2                | int32
         cell1                   | Reservoir Cell IJK to cell 1                  | Vec3i
         cell2                   | Reservoir Cell IJK to cell 1                  | Vec3i
-    
+
     """
     return self.__nnc_properties_stub.GetAvailableNNCProperties(self.__request()).properties
+
 
 @add_method(Case)
 def nnc_connections_async(self):
@@ -1075,6 +1124,7 @@ def nnc_connections_async(self):
             Loop through the chunks and then the connection within the chunk to get all connections.
     """
     return self.__nnc_properties_stub.GetNNCConnections(self.__request())
+
 
 @add_method(Case)
 def nnc_connections(self):
@@ -1090,13 +1140,15 @@ def nnc_connections(self):
             connections.append(value)
     return connections
 
+
 @add_method(Case)
 def __nnc_connections_values_async(self, property_name, property_type, time_step):
     request = NNCProperties_pb2.NNCValuesRequest(case_id=self.id,
-                                                    property_name=property_name,
-                                                    property_type=property_type,
-                                                    time_step=time_step)
+                                                 property_name=property_name,
+                                                 property_type=property_type,
+                                                 time_step=time_step)
     return self.__nnc_properties_stub.GetNNCValues(request)
+
 
 @add_method(Case)
 def __nnc_values_generator_to_list(self, generator):
@@ -1107,10 +1159,11 @@ def __nnc_values_generator_to_list(self, generator):
             vals.append(value)
     return vals
 
+
 @add_method(Case)
 def nnc_connections_static_values_async(self, property_name):
     """Get the static NNC values. Async, so returns an iterator.
-    
+
         Returns:
             An iterator to a chunk object containing an list of doubles.
             Loop through the chunks and then the values within the chunk to get values
@@ -1120,10 +1173,11 @@ def nnc_connections_static_values_async(self, property_name):
     """
     return self.__nnc_connections_values_async(property_name, NNCProperties_pb2.NNC_STATIC, 0)
 
+
 @add_method(Case)
 def nnc_connections_static_values(self, property_name):
     """Get the static NNC values.
-    
+
         Returns:
             A list of doubles. The order of the list matches the list from
             nnc_connections, i.e. the nth object of nnc_connections() refers to nth
@@ -1132,10 +1186,11 @@ def nnc_connections_static_values(self, property_name):
     generator = self.nnc_connections_static_values_async(property_name)
     return self.__nnc_values_generator_to_list(generator)
 
+
 @add_method(Case)
 def nnc_connections_dynamic_values_async(self, property_name, time_step):
     """Get the dynamic NNC values. Async, so returns an iterator.
-    
+
         Returns:
             An iterator to a chunk object containing an list of doubles.
             Loop through the chunks and then the values within the chunk to get values
@@ -1145,10 +1200,11 @@ def nnc_connections_dynamic_values_async(self, property_name, time_step):
     """
     return self.__nnc_connections_values_async(property_name, NNCProperties_pb2.NNC_DYNAMIC, time_step)
 
+
 @add_method(Case)
 def nnc_connections_dynamic_values(self, property_name, time_step):
     """Get the dynamic NNC values.
-    
+
         Returns:
             A list of doubles. The order of the list matches the list from
             nnc_connections, i.e. the nth object of nnc_connections() refers to nth
@@ -1157,10 +1213,11 @@ def nnc_connections_dynamic_values(self, property_name, time_step):
     generator = self.nnc_connections_dynamic_values_async(property_name, time_step)
     return self.__nnc_values_generator_to_list(generator)
 
+
 @add_method(Case)
 def nnc_connections_generated_values_async(self, property_name, time_step):
     """Get the generated NNC values. Async, so returns an iterator.
-    
+
         Returns:
             An iterator to a chunk object containing an list of doubles.
             Loop through the chunks and then the values within the chunk to get values
@@ -1170,10 +1227,11 @@ def nnc_connections_generated_values_async(self, property_name, time_step):
     """
     return self.__nnc_connections_values_async(property_name, NNCProperties_pb2.NNC_GENERATED, time_step)
 
+
 @add_method(Case)
 def nnc_connections_generated_values(self, property_name, time_step):
     """Get the generated NNC values.
-    
+
         Returns:
             A list of doubles. The order of the list matches the list from
             nnc_connections, i.e. the nth object of nnc_connections() refers to nth
@@ -1181,6 +1239,7 @@ def nnc_connections_generated_values(self, property_name, time_step):
     """
     generator = self.nnc_connections_generated_values_async(property_name, time_step)
     return self.__nnc_values_generator_to_list(generator)
+
 
 @add_method(Case)
 def __generate_nnc_property_input_chunks(self, array, parameters):
@@ -1200,6 +1259,7 @@ def __generate_nnc_property_input_chunks(self, array, parameters):
     # Final empty message to signal completion
     chunk = NNCProperties_pb2.NNCValuesChunk()
     yield chunk
+
 
 @add_method(Case)
 def set_nnc_connections_values(

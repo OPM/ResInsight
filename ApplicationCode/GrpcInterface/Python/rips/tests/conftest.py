@@ -8,19 +8,25 @@ import rips
 
 _rips_instance = None
 
+
 @pytest.fixture
 def rips_instance():
     return _rips_instance
 
+
 @pytest.fixture
 def initialize_test():
-    _rips_instance.project.close() # make sure ResInsight is clean before execution of test
+    _rips_instance.project.close()  # make sure ResInsight is clean before execution of test
     yield initialize_test
-    _rips_instance.project.close() # make sure ResInsight is clean after test
+    _rips_instance.project.close()  # make sure ResInsight is clean after test
+
 
 def pytest_addoption(parser):
-    parser.addoption("--console", action="store_true", default=False, help="Run as console application")
-    parser.addoption("--existing", action="store_true", default=False, help="Look for existing ResInsight")
+    parser.addoption("--console", action="store_true", default=False,
+                     help="Run as console application")
+    parser.addoption("--existing", action="store_true", default=False,
+                     help="Look for existing ResInsight")
+
 
 def pytest_configure(config):
     global _rips_instance
@@ -35,6 +41,7 @@ def pytest_configure(config):
     if not _rips_instance:
         print("Need a valid ResInsight executable to launch tests")
         exit(0)
+
 
 def pytest_unconfigure(config):
     if not config.getoption('--existing'):

@@ -6,6 +6,7 @@ import rips
 
 import dataroot
 
+
 def test_10k(rips_instance, initialize_test):
     case_root_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC"
     case_path = case_root_path + "/TEST10K_FLT_LGR_NNC.EGRID"
