@@ -44,6 +44,7 @@ def open(self, path):
 @add_method(Project)
 def save(self, path=""):
     """Save the project to the existing project file, or to a new file
+    
     Arguments:
         path(str): File path to the file to save the project to. If empty, saves to the active project file
     """
@@ -62,7 +63,7 @@ def load_case(self, path):
     Arguments:
         path(str): file path to case
     Returns:
-        A rips Case object
+        :class:`rips.generated.pdm_objects.Case`
     """
     command_reply = self._execute_command(loadCase=Cmd.FilePathRequest(
         path=path))
@@ -73,7 +74,7 @@ def selected_cases(self):
     """Get a list of all cases selected in the project tree
 
     Returns:
-        A list of rips Case objects
+        A list of :class:`rips.generated.pdm_objects.Case`
     """
     case_infos = self._project_stub.GetSelectedCases(Empty())
     cases = []
@@ -86,7 +87,7 @@ def cases(self):
     """Get a list of all cases in the project
 
     Returns:
-        A list of rips Case objects
+        A list of :class:`rips.generated.pdm_objects.Case`
     """
     return self.descendants(Case)
 
@@ -97,7 +98,7 @@ def case(self, case_id):
     Arguments:
         id(int): case id
     Returns:
-        A rips Case object
+        :class:`rips.generated.pdm_objects.Case`
     """
     allCases = self.cases()
     for case in allCases:
@@ -124,7 +125,7 @@ def create_grid_case_group(self, case_paths):
     Arguments:
         case_paths (list): list of file path strings
     Returns:
-        A case group id and name
+        :class:`rips.generated.pdm_objects.GridCaseGroup`
     """
     command_reply = self._execute_command(
         createGridCaseGroup=Cmd.CreateGridCaseGroupRequest(
@@ -143,7 +144,8 @@ def view(self, view_id):
         
     Arguments:
         view_id(int): view id
-    Returns: a view object
+    Returns:
+        :class:`rips.generated.pdm_objects.View`
     """
     views = self.views()
     for view_object in views:
@@ -153,7 +155,11 @@ def view(self, view_id):
 
 @add_method(Project)
 def plots(self):
-    """Get a list of all plots belonging to a project"""
+    """Get a list of all plots belonging to a project
+    
+    Returns:
+        List of :class:`rips.generated.pdm_objects.Plot`
+    """
     pdm_objects = self.descendants(PlotWindow)
     plot_list = []
     for pdm_object in pdm_objects:
@@ -164,9 +170,12 @@ def plots(self):
 @add_method(Project)
 def plot(self, view_id):
     """Get a particular plot by providing view id
+    
     Arguments:
         view_id(int): view id
-    Returns: a plot object
+    
+    Returns:
+        :class:`rips.generated.pdm_objects.Plot`
     """
     plots = self.plots()
     for plot_object in plots:
@@ -176,7 +185,12 @@ def plot(self, view_id):
 
 @add_method(Project)
 def grid_case_groups(self):
-    """Get a list of all grid case groups in the project"""
+    """Get a list of all grid case groups in the project
+
+    Returns:
+        List of :class:`rips.generated.pdm_objects.GridCaseGroup`
+    
+    """
     case_groups = self.descendants(GridCaseGroup)
     return case_groups
 
@@ -187,7 +201,8 @@ def grid_case_group(self, group_id):
     Arguments:
         groupId(int): group id
 
-    Returns: a grid case group object
+    Returns:
+        :class:`rips.generated.pdm_objects.GridCaseGroup`
     """
     case_groups = self.grid_case_groups()
     for case_group in case_groups:
@@ -276,7 +291,7 @@ def import_well_paths(self, well_path_files=None, well_path_folder=''):
         well_path_folder(str): A folder path containing files to import
 
     Returns:
-        A list of WellPath objects
+        List of :class:`rips.generated.pdm_objects.WellPath`
     """
     if well_path_files is None:
         well_path_files = []
@@ -293,7 +308,7 @@ def well_paths(self):
     """Get a list of all well paths in the project
 
     Returns:
-        A list of rips WellPath objects
+        List of :class:`rips.generated.pdm_objects.WellPath`
     """
     return self.descendants(WellPath)
 
@@ -302,7 +317,7 @@ def well_path_by_name(self, well_path_name):
     """Get a specific well path by name from the project
 
     Returns:
-        A WellPath object
+        :class:`rips.generated.pdm_objects.WellPath`
     """
     all_well_paths = self.well_paths()
     for well_path in all_well_paths:

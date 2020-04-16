@@ -14,7 +14,7 @@ def create_statistics_case(self):
     """Create a Statistics case in the Grid Case Group
         
     Returns:
-        A new Case
+        :class:`rips.generated.pdm_objects.EclipseCase`
     """
     command_reply = self._execute_command(
         createStatisticsCase=Cmd.CreateStatisticsCaseRequest(
@@ -24,13 +24,23 @@ def create_statistics_case(self):
 
 @add_method(GridCaseGroup)
 def statistics_cases(self):
-    """Get a list of all statistics cases in the Grid Case Group"""
+    """Get a list of all statistics cases in the Grid Case Group
+    
+    Returns: 
+        List of :class:`rips.generated.pdm_objects.EclipseCase`
+
+    """
     stat_case_collection = self.children("StatisticsCaseCollection")[0]
     return stat_case_collection.children("Reservoirs")
 
 @add_method(GridCaseGroup)
 def views(self):
-    """Get a list of views belonging to a grid case group"""
+    """Get a list of views belonging to a grid case group
+    
+    Returns: 
+        List of :class:`rips.generated.pdm_objects.EclipseView`
+
+    """
     pdm_objects = self.descendants(EclipseView)
     view_list = []
     for pdm_object in pdm_objects:
@@ -43,7 +53,8 @@ def view(self, view_id):
     Arguments:
         id(int): view id
 
-    Returns: a view object
+    Returns:
+        List of :class:`rips.generated.pdm_objects.EclipseView`
 
     """
     views = self.views()
@@ -57,8 +68,7 @@ def compute_statistics(self, case_ids=None):
     """ Compute statistics for the given case ids
 
     Arguments:
-        case_ids(list of integers): list of case ids.
-        If this is None all cases in group are included
+        case_ids(list of integers): List of case ids. If this is None all cases in group are included
 
     """
     if case_ids is None:

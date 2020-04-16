@@ -11,9 +11,9 @@ import rips.generated.Grid_pb2_grpc as Grid_pb2_grpc
 
 
 class Grid:
-    """Grid Information. Not meant to be constructed separately
-
-    Create Grid objects using methods on Case: Grid() and Grids()
+    """Grid Information. Created by methods in Case
+    :meth:`rips.case.grid()`
+    :meth:`rips.case.grids()`
     """
     def __init__(self, index, case, channel):
         self.__channel = channel
