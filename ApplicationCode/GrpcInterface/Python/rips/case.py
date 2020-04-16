@@ -128,7 +128,8 @@ def grid(self, index):
     Arguments:
         index (int): The grid index
 
-    Returns: :class:`rips.grid.Grid`
+    Returns: 
+        :class:`rips.grid.Grid`
     """
     return Grid(index, self, self.channel())
 
@@ -136,7 +137,8 @@ def grid(self, index):
 def grids(self):
     """Get a list of all rips Grid objects in the case
 
-        Returns: List of :class:`rips.grid.Grid`
+    Returns: 
+        List of :class:`rips.grid.Grid`
     """
     grid_list = []
     for i in range(0, self.__grid_count()):
@@ -262,7 +264,8 @@ def time_steps(self):
 def reservoir_boundingbox(self):
     """Get the reservoir bounding box
 
-        Returns: BoundingBox
+    Returns:
+        BoundingBox
 
     **BoundingBox class description**::
 
@@ -283,7 +286,8 @@ def reservoir_boundingbox(self):
 def reservoir_depth_range(self):
     """Get the reservoir depth range
         
-    Returns: A tuple with two members. The first is the minimum depth, the second is the maximum depth
+    Returns:
+        A tuple with two members. The first is the minimum depth, the second is the maximum depth
     """
     bbox = self.reservoir_boundingbox()
     return -bbox.max_z, -bbox.min_z
@@ -300,7 +304,8 @@ def view(self, view_id):
     Arguments:
         view_id(int): view id
 
-    Returns: :class:`rips.generated.pdm_objects.View`
+    Returns:
+        :class:`rips.generated.pdm_objects.View`
     """
     views = self.views()
     for view_object in views:
@@ -312,7 +317,8 @@ def view(self, view_id):
 def create_view(self):
     """Create a new view in the current case
 
-        Returns: :class:`rips.generated.pdm_objects.View`
+    Returns: 
+        :class:`rips.generated.pdm_objects.View`
     """
     return self.view(
         self._execute_command(createView=Cmd.CreateViewRequest(
@@ -881,7 +887,8 @@ def create_well_bore_stability_plot(self, well_path, time_step, parameters=None)
         well_path(str): well path name
         time_step(int): time step
 
-        Returns: :class:`rips.generated.pdm_objects.WellBoreStabilityPlot`
+    Returns:
+        :class:`rips.generated.pdm_objects.WellBoreStabilityPlot`
     """
     pb2_parameters = None
     if parameters is not None:
