@@ -327,6 +327,13 @@ void RimIntersectionResultDefinition::fieldChangedByUi( const caf::PdmFieldHandl
 
     if ( changedField == &m_isActive || ( changedField == &m_timeStep && isInAction ) )
     {
+        std::vector<PdmObject*> referringObjects;
+        this->objectsWithReferringPtrFieldsOfType( referringObjects );
+        for ( auto* obj : referringObjects )
+        {
+            obj->updateConnectedEditors();
+        }
+
         RimGridView* gridView = nullptr;
         this->firstAncestorOrThisOfType( gridView );
         if ( gridView ) gridView->scheduleCreateDisplayModelAndRedraw();
