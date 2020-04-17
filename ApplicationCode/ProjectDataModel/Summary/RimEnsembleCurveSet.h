@@ -131,6 +131,9 @@ public:
 
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
 
+    static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
+                                                      RimSummaryCaseCollection*      summaryCaseGroup );
+
 private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );
     void updateStatisticsCurves( const std::vector<RimSummaryCase*>& sumCases );
@@ -148,9 +151,6 @@ private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
-    void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                               RimSummaryCaseCollection*      summaryCaseGroup );
 
     void updateCurveColors();
     void updateQwtPlotAxis();

@@ -45,6 +45,8 @@
 #include "RimAnnotationTextAppearance.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimCommandObject.h"
+#include "RimCorrelationPlot.h"
+#include "RimCorrelationPlotCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
@@ -331,7 +333,7 @@ bool RiaApplication::openFile( const QString& fileName )
     }
     else if ( fileType & RiaDefines::ANY_ECLIPSE_FILE )
     {
-        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{fileName}, true );
+        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, true );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
     }
 
@@ -1546,6 +1548,7 @@ void RiaApplication::loadAndUpdatePlotData()
     RimGridCrossPlotCollection*          gcpColl  = nullptr;
     RimSaturationPressurePlotCollection* sppColl  = nullptr;
     RimAnalysisPlotCollection*           alsColl  = nullptr;
+    RimCorrelationPlotCollection*        corrColl = nullptr;
     RimMultiPlotCollection*              gpwColl  = nullptr;
 
     if ( m_project->mainPlotCollection() )
@@ -1586,6 +1589,10 @@ void RiaApplication::loadAndUpdatePlotData()
         {
             alsColl = m_project->mainPlotCollection()->analysisPlotCollection();
         }
+        if ( m_project->mainPlotCollection->correlationPlotCollection() )
+        {
+            corrColl = m_project->mainPlotCollection()->correlationPlotCollection();
+        }
         if ( m_project->mainPlotCollection()->multiPlotCollection() )
         {
             gpwColl = m_project->mainPlotCollection()->multiPlotCollection();
@@ -1602,6 +1609,7 @@ void RiaApplication::loadAndUpdatePlotData()
     plotCount += gcpColl ? gcpColl->gridCrossPlots().size() : 0;
     plotCount += sppColl ? sppColl->plots().size() : 0;
     plotCount += alsColl ? alsColl->plots().size() : 0;
+    plotCount += corrColl ? corrColl->plots().size() : 0;
     plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
 
     if ( plotCount > 0 )
@@ -1682,6 +1690,15 @@ void RiaApplication::loadAndUpdatePlotData()
             for ( const auto& alsPlot : alsColl->plots() )
             {
                 alsPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( corrColl )
+        {
+            for ( const auto& corrPlot : corrColl->plots() )
+            {
+                corrPlot->loadDataAndUpdate();
                 plotProgress.incrementProgress();
             }
         }
@@ -1807,7 +1824,7 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 
             std::vector<std::shared_ptr<const caf::PdmObject>> commandObjects;
 
-            QStringList excludedClassNames{"TestCommand1", "TC2"}; // See RifCommandCore-Text.cpp
+            QStringList excludedClassNames{ "TestCommand1", "TC2" }; // See RifCommandCore-Text.cpp
 
             auto allObjects = caf::PdmMarkdownBuilder::createAllObjects( caf::PdmDefaultObjectFactory::instance() );
             for ( auto classObject : allObjects )

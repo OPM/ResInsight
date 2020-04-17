@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2020-  Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,38 +18,31 @@
 
 #pragma once
 
-#include <cmath>
-#include <numeric>
-#include <vector>
+#include "cafPdmChildArrayField.h"
+#include "cafPdmObject.h"
 
-class QString;
+class RimCorrelationPlot;
 
 //==================================================================================================
-//
-//
-//
+///
+///
 //==================================================================================================
-class RiaStatisticsTools
+class RimCorrelationPlotCollection : public caf::PdmObject
 {
+    CAF_PDM_HEADER_INIT;
+
 public:
-    static const QString replacePercentileByPValueText( const QString& percentile );
+    RimCorrelationPlotCollection();
+    ~RimCorrelationPlotCollection() override;
 
-    template <class NumberType>
-    static bool isInvalidNumber( NumberType value )
-    {
-        return !isValidNumber<NumberType>( value );
-    }
+    RimCorrelationPlot* createCorrelationPlot();
+    void                updateSummaryNameHasChanged();
+    void                removeSummaryPlot( RimCorrelationPlot* CorrelationPlot );
 
-    template <class NumberType>
-    static bool isValidNumber( NumberType value )
-    {
-        if ( std::isinf( value ) ) return false;
-        if ( std::isnan( value ) ) return false;
+    std::vector<RimCorrelationPlot*> plots();
 
-        return true;
-    }
+    void deleteAllChildObjects();
 
-    static double pearsonCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues );
-
-    static double spearmanCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues );
+private:
+    caf::PdmChildArrayField<RimCorrelationPlot*> m_correlationPlots;
 };

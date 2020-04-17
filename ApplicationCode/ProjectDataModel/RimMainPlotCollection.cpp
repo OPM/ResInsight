@@ -19,6 +19,7 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "RimCorrelationPlotCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimGridCrossPlot.h"
@@ -38,9 +39,9 @@
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
+#include "RimAnalysisPlotCollection.h"
 #include "RiuMainWindow.h"
 #include "RiuProjectPropertyView.h"
-#include "RimAnalysisPlotCollection.h"
 
 CAF_PDM_SOURCE_INIT( RimMainPlotCollection, "MainPlotCollection" );
 
@@ -68,6 +69,9 @@ RimMainPlotCollection::RimMainPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_analysisPlotCollection, "AnalysisPlotCollection", "Analysis Plots", "", "", "" );
     m_analysisPlotCollection.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_correlationPlotCollection, "CorrelationPlotCollection", "Correlation Plots", "", "", "" );
+    m_correlationPlotCollection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection, "SummaryCrossPlotCollection", "Summary Cross Plots", "", "", "" );
     m_summaryCrossPlotCollection.uiCapability()->setUiHidden( true );
@@ -99,6 +103,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_saturationPressurePlotCollection = new RimSaturationPressurePlotCollection;
     m_multiPlotCollection              = new RimMultiPlotCollection;
     m_analysisPlotCollection           = new RimAnalysisPlotCollection;
+    m_correlationPlotCollection        = new RimCorrelationPlotCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,11 +203,19 @@ RimMultiPlotCollection* RimMainPlotCollection::multiPlotCollection()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 RimAnalysisPlotCollection* RimMainPlotCollection::analysisPlotCollection()
 {
     return m_analysisPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCorrelationPlotCollection* RimMainPlotCollection::correlationPlotCollection()
+{
+    return m_correlationPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,6 +233,7 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_saturationPressurePlotCollection()->deleteAllChildObjects();
     m_multiPlotCollection()->deleteAllChildObjects();
     m_analysisPlotCollection()->deleteAllChildObjects();
+    m_correlationPlotCollection()->deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

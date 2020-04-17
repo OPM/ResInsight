@@ -42,6 +42,7 @@
 #include "RimCommandObject.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimContextCommandBuilder.h"
+#include "RimCorrelationPlotCollection.h"
 #include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
@@ -1363,6 +1364,11 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( mainPlotCollection->analysisPlotCollection() )
             {
                 itemCollection->add( mainPlotCollection->analysisPlotCollection() );
+            }
+
+            if ( mainPlotCollection->correlationPlotCollection() )
+            {
+                itemCollection->add( mainPlotCollection->correlationPlotCollection() );
             }
 
             if ( mainPlotCollection->summaryCrossPlotCollection() )

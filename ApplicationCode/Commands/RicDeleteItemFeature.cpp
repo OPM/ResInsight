@@ -21,9 +21,11 @@
 #include "RicDeleteItemExec.h"
 #include "RicDeleteItemExecData.h"
 
+#include "RimAnalysisPlot.h"
 #include "RimAsciiDataCurve.h"
 #include "RimBoxIntersection.h"
 #include "RimCellRangeFilter.h"
+#include "RimCorrelationPlot.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
@@ -75,7 +77,6 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafSelectionManager.h"
 
-#include "RimAnalysisPlot.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicDeleteItemFeature, "RicDeleteItemFeature" );
@@ -154,6 +155,7 @@ bool isDeletable( caf::PdmUiItem* uiItem )
 
     if ( dynamic_cast<RimGridCrossPlotDataSet*>( uiItem ) ) return true;
     if ( dynamic_cast<RimAnalysisPlot*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimCorrelationPlot*>( uiItem ) ) return true;
     if ( dynamic_cast<RimPlotDataFilterItem*>( uiItem ) ) return true;
 
     if ( dynamic_cast<RimMultiPlot*>( uiItem ) ) return true;

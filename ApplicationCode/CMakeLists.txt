@@ -76,6 +76,7 @@ include_directories(
 
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/AnalysisPlots
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/CorrelationPlots
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Annotations
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
@@ -143,6 +144,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     
     ProjectDataModel/CMakeLists_files.cmake
     ProjectDataModel/AnalysisPlots/CMakeLists_files.cmake
+	ProjectDataModel/CorrelationPlots/CMakeLists_files.cmake
     ProjectDataModel/GridCrossPlots/CMakeLists_files.cmake
     ProjectDataModel/GridCrossPlots/CellFilters/CMakeLists_files.cmake
     ProjectDataModel/Summary/CMakeLists_files.cmake
@@ -170,6 +172,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/AnnotationCommands/CMakeLists_files.cmake
     Commands/CompletionCommands/CMakeLists_files.cmake
     Commands/CompletionExportCommands/CMakeLists_files.cmake
+	Commands/CorrelationPlotCommands/CMakeLists_files.cmake
     Commands/CrossSectionCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake

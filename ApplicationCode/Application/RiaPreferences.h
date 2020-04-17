@@ -93,6 +93,7 @@ public:
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
+    QString        dateTimeFormat() const;
 
     bool        searchPlotTemplateFoldersRecursively() const;
     QStringList plotTemplateFolders() const;

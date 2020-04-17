@@ -160,6 +160,24 @@ else()
     
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
+###############################################
+# Init GIT submodules if they haven't already #
+###############################################
+find_package(Git QUIET)
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+	# Update submodules as needed
+    option(GIT_SUBMODULE "Check submodules during build" ON)
+    if(GIT_SUBMODULE)
+		set (SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty/${SUBMODULE}")
+		message(STATUS "Initializing GIT submodules")
+		execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+						WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+						RESULT_VARIABLE GIT_SUBMOD_RESULT)
+		if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+			message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+		endif()
+    endif()
+endif()
 
 ################################################################################
 # HDF5
@@ -303,6 +321,20 @@ add_subdirectory(ThirdParty/clipper)
 
 list(APPEND THIRD_PARTY_LIBRARIES
     clipper
+)
+
+################################################################################
+# GNU GSL
+################################################################################
+
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/ThirdParty/gsl/CMakeLists.txt")
+    message(FATAL_ERROR "The GSL submodule was not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+endif()
+
+add_subdirectory(ThirdParty/gsl)
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    gsl
 )
 
 ################################################################################

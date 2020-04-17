@@ -24,10 +24,12 @@
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"
+#include "RimAnalysisPlot.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimCorrelationPlot.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimEnsembleCurveFilterCollection.h"
@@ -53,7 +55,6 @@
 
 #include "RiuPlotMainWindow.h"
 
-#include "RimAnalysisPlot.h"
 #include "cafNotificationCenter.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmDocument.h"
@@ -346,6 +347,15 @@ void RicDeleteItemExec::redo()
             if ( analysisPlot )
             {
                 analysisPlot->loadDataAndUpdate();
+            }
+        }
+
+        {
+            RimCorrelationPlot* corrPlot;
+            parentObj->firstAncestorOrThisOfType( corrPlot );
+            if ( corrPlot )
+            {
+                corrPlot->loadDataAndUpdate();
             }
         }
     }

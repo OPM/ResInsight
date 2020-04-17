@@ -28,6 +28,8 @@
 #include "Rim3dWellLogExtractionCurve.h"
 #include "Rim3dWellLogFileCurve.h"
 #include "Rim3dWellLogRftCurve.h"
+#include "RimAnalysisPlot.h"
+#include "RimAnalysisPlotCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationGroupCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -37,6 +39,8 @@
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimCorrelationPlot.h"
+#include "RimCorrelationPlotCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -85,6 +89,8 @@
 #include "RimObservedSummaryData.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimPlotDataFilterCollection.h"
+#include "RimPlotDataFilterItem.h"
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
@@ -148,10 +154,6 @@
 #include <QString>
 #include <QStringList>
 
-#include "RimAnalysisPlot.h"
-#include "RimAnalysisPlotCollection.h"
-#include "RimPlotDataFilterCollection.h"
-#include "RimPlotDataFilterItem.h"
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -523,6 +525,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewAnalysisPlotFeature";
             menuBuilder << "RicNewPlotDataFilterFeature";
+        }
+        else if ( dynamic_cast<RimCorrelationPlotCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewCorrelationPlotFeature";
+        }
+        else if ( dynamic_cast<RimCorrelationPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewCorrelationPlotFeature";
         }
         else if ( dynamic_cast<RimPlotDataFilterCollection*>( firstUiItem ) )
         {

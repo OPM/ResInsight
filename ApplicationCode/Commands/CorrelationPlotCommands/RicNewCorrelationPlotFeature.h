@@ -1,8 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-     Statoil ASA
-//  Copyright (C) 2013-     Ceetron Solutions AS
-//  Copyright (C) 2011-2012 Ceetron AS
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,38 +18,18 @@
 
 #pragma once
 
-#include <cmath>
-#include <numeric>
-#include <vector>
-
-class QString;
+#include "cafCmdFeature.h"
 
 //==================================================================================================
-//
-//
-//
+///
 //==================================================================================================
-class RiaStatisticsTools
+class RicNewCorrelationPlotFeature : public caf::CmdFeature
 {
-public:
-    static const QString replacePercentileByPValueText( const QString& percentile );
+    CAF_CMD_HEADER_INIT;
 
-    template <class NumberType>
-    static bool isInvalidNumber( NumberType value )
-    {
-        return !isValidNumber<NumberType>( value );
-    }
-
-    template <class NumberType>
-    static bool isValidNumber( NumberType value )
-    {
-        if ( std::isinf( value ) ) return false;
-        if ( std::isnan( value ) ) return false;
-
-        return true;
-    }
-
-    static double pearsonCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues );
-
-    static double spearmanCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues );
+protected:
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

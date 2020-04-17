@@ -892,6 +892,14 @@ const QString& RiaPreferences::timeFormat() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaPreferences::dateTimeFormat() const
+{
+    return QString( "%1 %2" ).arg( m_dateFormat() ).arg( m_timeFormat() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaPreferences::searchPlotTemplateFoldersRecursively() const
 {
     return m_searchPlotTemplateFoldersRecursively();

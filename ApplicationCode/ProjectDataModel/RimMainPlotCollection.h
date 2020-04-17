@@ -27,6 +27,7 @@
 #include <QPointer>
 
 class RimAnalysisPlotCollection;
+class RimCorrelationPlotCollection;
 class RimWellLogPlotCollection;
 class RimRftPlotCollection;
 class RimPltPlotCollection;
@@ -58,6 +59,7 @@ public:
     RimSummaryPlotCollection*            summaryPlotCollection();
     RimSummaryCrossPlotCollection*       summaryCrossPlotCollection();
     RimAnalysisPlotCollection*           analysisPlotCollection();
+    RimCorrelationPlotCollection*        correlationPlotCollection();
     RimFlowPlotCollection*               flowPlotCollection();
     RimGridCrossPlotCollection*          gridCrossPlotCollection();
     RimSaturationPressurePlotCollection* saturationPressurePlotCollection();
@@ -83,6 +85,7 @@ private:
     caf::PdmChildField<RimSummaryPlotCollection*>            m_summaryPlotCollection;
     caf::PdmChildField<RimSummaryCrossPlotCollection*>       m_summaryCrossPlotCollection;
     caf::PdmChildField<RimAnalysisPlotCollection*>           m_analysisPlotCollection;
+    caf::PdmChildField<RimCorrelationPlotCollection*>        m_correlationPlotCollection;
     caf::PdmChildField<RimFlowPlotCollection*>               m_flowPlotCollection;
     caf::PdmChildField<RimGridCrossPlotCollection*>          m_gridCrossPlotCollection;
     caf::PdmChildField<RimSaturationPressurePlotCollection*> m_saturationPressurePlotCollection;
