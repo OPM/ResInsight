@@ -18,6 +18,12 @@
 
 #include "RimSummaryAddress.h"
 
+#include "RiaApplication.h"
+
+#include "RimProject.h"
+#include "RimSummaryCalculation.h"
+#include "RimSummaryCalculationCollection.h"
+
 namespace caf
 {
 template <>
@@ -65,6 +71,7 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitFieldNoDefault( &m_cellK, "SummaryCellK", "K", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_aquiferNumber, "SummaryAquifer", "Aquifer", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_isErrorResult, "IsErrorResult", "Is Error Result", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_calculationId, "CalculationId", "Calculation Id", "", "", "" );
 
     m_category          = RifEclipseSummaryAddress::SUMMARY_INVALID;
     m_regionNumber      = -1;
@@ -75,12 +82,15 @@ RimSummaryAddress::RimSummaryAddress()
     m_cellK             = -1;
     m_aquiferNumber     = -1;
     m_isErrorResult     = false;
+    m_calculationId     = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryAddress::~RimSummaryAddress() {}
+RimSummaryAddress::~RimSummaryAddress()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -98,9 +108,10 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
     m_aquiferNumber     = addr.aquiferNumber();
     m_isErrorResult     = addr.isErrorResult();
 
-    m_cellI = addr.cellI();
-    m_cellJ = addr.cellJ();
-    m_cellK = addr.cellK();
+    m_cellI         = addr.cellI();
+    m_cellJ         = addr.cellJ();
+    m_cellK         = addr.cellK();
+    m_calculationId = addr.id();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,5 +131,27 @@ RifEclipseSummaryAddress RimSummaryAddress::address()
                                      m_cellJ(),
                                      m_cellK(),
                                      m_aquiferNumber,
-                                     m_isErrorResult );
+                                     m_isErrorResult,
+                                     m_calculationId );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::ensureIdIsAssigned()
+{
+    if ( m_category == RifEclipseSummaryAddress::SUMMARY_CALCULATED && m_calculationId == -1 )
+    {
+        RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+
+        for ( const RimSummaryCalculation* c : calcColl->calculations() )
+        {
+            QString description = c->description();
+
+            if ( description == m_quantityName )
+            {
+                m_calculationId = c->id();
+            }
+        }
+    }
 }

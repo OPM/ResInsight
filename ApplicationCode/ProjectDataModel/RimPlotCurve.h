@@ -63,11 +63,8 @@ public:
     void          reattachQwtCurve();
     QwtPlotCurve* qwtPlotCurve() const;
 
-    void         setColor( const cvf::Color3f& color );
-    cvf::Color3f color() const
-    {
-        return m_curveColor;
-    }
+    void                          setColor( const cvf::Color3f& color );
+    cvf::Color3f                  color() const { return m_curveColor; }
     void                          setLineStyle( RiuQwtPlotCurve::LineStyleEnum lineStyle );
     void                          setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle );
     RiuQwtSymbol::PointSymbolEnum symbol();
@@ -88,10 +85,7 @@ public:
     void updateCurveNameAndUpdatePlotLegendAndTitle();
     void updateCurveNameNoLegendUpdate();
 
-    QString curveName() const
-    {
-        return m_curveName;
-    }
+    QString         curveName() const { return m_curveName; }
     virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const
     {
         return m_curveName;
@@ -128,12 +122,20 @@ protected:
                                       const std::vector<double>&   errorValues,
                                       bool                         keepOnlyPositiveValues,
                                       RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ERROR_ALONG_Y_AXIS );
+    void setSamplesFromXYValues( const std::vector<double>& xValues,
+                                 const std::vector<double>& yValues,
+                                 bool                       keepOnlyPositiveValues );
+    void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
+                                        const std::vector<double>&    yValues,
+                                        bool                          keepOnlyPositiveValues );
+
+    void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
+                                        const std::vector<double>& yValues,
+                                        bool                       keepOnlyPositiveValues );
 
 protected:
     // Overridden PDM methods
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle*          objectToggleField() override;
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

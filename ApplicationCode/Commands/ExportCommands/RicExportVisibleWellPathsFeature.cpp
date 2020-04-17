@@ -46,9 +46,7 @@ CAF_CMD_SOURCE_INIT( RicExportVisibleWellPathsFeature, "RicExportVisibleWellPath
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportVisibleWellPathsFeature::exportWellPath( const RimWellPath* wellPath,
-                                                       double             mdStepSize,
-                                                       const QString&     folder )
+void RicExportVisibleWellPathsFeature::exportWellPath( const RimWellPath* wellPath, double mdStepSize, const QString& folder )
 {
     auto   geom   = wellPath->wellPathGeometry();
     double currMd = geom->measureDepths().front() - mdStepSize;

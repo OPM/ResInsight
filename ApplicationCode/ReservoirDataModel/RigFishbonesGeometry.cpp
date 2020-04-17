@@ -36,8 +36,7 @@ RigFisbonesGeometry::RigFisbonesGeometry( RimFishbonesMultipleSubs* fishbonesSub
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<cvf::Vec3d, double>> RigFisbonesGeometry::coordsForLateral( size_t subIndex,
-                                                                                  size_t lateralIndex ) const
+std::vector<std::pair<cvf::Vec3d, double>> RigFisbonesGeometry::coordsForLateral( size_t subIndex, size_t lateralIndex ) const
 {
     CVF_ASSERT( lateralIndex < m_fishbonesSub->lateralLengths().size() );
 
@@ -60,11 +59,7 @@ std::vector<std::pair<cvf::Vec3d, double>> RigFisbonesGeometry::coordsForLateral
     cvf::Vec3d lateralInitialDirection;
     cvf::Mat4d buildAngleRotationMatrix;
 
-    computeLateralPositionAndOrientation( subIndex,
-                                          lateralIndex,
-                                          &position,
-                                          &lateralInitialDirection,
-                                          &buildAngleRotationMatrix );
+    computeLateralPositionAndOrientation( subIndex, lateralIndex, &position, &lateralInitialDirection, &buildAngleRotationMatrix );
 
     return computeCoordsAlongLateral( m_fishbonesSub->measuredDepth( subIndex ),
                                       m_fishbonesSub->lateralLengths()[lateralIndex],
@@ -115,8 +110,7 @@ void RigFisbonesGeometry::computeLateralPositionAndOrientation( size_t      subI
             double intialRotationAngle  = m_fishbonesSub->rotationAngle( subIndex );
             double lateralOffsetDegrees = 360.0 / m_fishbonesSub->lateralLengths().size();
 
-            double lateralOffsetRadians = cvf::Math::toRadians( intialRotationAngle +
-                                                                lateralOffsetDegrees * lateralIndex );
+            double lateralOffsetRadians = cvf::Math::toRadians( intialRotationAngle + lateralOffsetDegrees * lateralIndex );
 
             cvf::Mat4d lateralOffsetMatrix = cvf::Mat4d::fromRotation( alongWellPath, lateralOffsetRadians );
 

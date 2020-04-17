@@ -15,7 +15,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent )
-    : RiuGridPlotWindow( plotDefinition, parent )
+    : RiuMultiPlotPage( plotDefinition, parent )
 {
     m_trackScrollBar = new QScrollBar( nullptr );
     m_trackScrollBar->setOrientation( Qt::Vertical );
@@ -25,14 +25,6 @@ RiuWellLogPlot::RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent 
     m_trackScrollBarLayout->addWidget( m_trackScrollBar, 0 );
 
     connect( m_trackScrollBar, SIGNAL( valueChanged( int ) ), this, SLOT( slotSetMinDepth( int ) ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuWellLogPlot::isScrollbarVisible() const
-{
-    return m_trackScrollBar->isVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,9 +40,9 @@ RimWellLogPlot* RiuWellLogPlot::wellLogPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::setScrollbarVisible( bool visible )
+RimViewWindow* RiuWellLogPlot::ownerViewWindow() const
 {
-    m_trackScrollBar->setVisible( visible );
+    return m_plotDefinition;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +59,6 @@ void RiuWellLogPlot::updateVerticalScrollBar( double minVisible, double maxVisib
         m_trackScrollBar->setRange( (int)minAvailable, (int)( ( maxAvailable - visibleRange ) ) );
         m_trackScrollBar->setPageStep( (int)visibleRange );
         m_trackScrollBar->setValue( (int)minVisible );
-        m_trackScrollBar->setVisible( true );
     }
     m_trackScrollBar->blockSignals( false );
 }
@@ -75,9 +66,11 @@ void RiuWellLogPlot::updateVerticalScrollBar( double minVisible, double maxVisib
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuWellLogPlot::willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const
+void RiuWellLogPlot::renderTo( QPaintDevice* paintDevice )
 {
-    return dynamic_cast<const RiuWellLogTrack*>( plotWidget ) != nullptr;
+    m_trackScrollBar->setVisible( false );
+    RiuMultiPlotPage::renderTo( paintDevice );
+    m_trackScrollBar->setVisible( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,13 +87,11 @@ bool RiuWellLogPlot::showYAxis( int row, int column ) const
 void RiuWellLogPlot::reinsertScrollbar()
 {
     QList<QPointer<RiuQwtPlotWidget>> plotWidgets = this->visiblePlotWidgets();
-    QList<QPointer<RiuQwtPlotLegend>> legends     = this->visibleLegends();
-    int                               rowCount    = this->m_gridLayout->rowCount();
+    QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
     int                               colCount    = this->m_gridLayout->columnCount();
 
+    m_gridLayout->addLayout( m_trackScrollBarLayout, 2, colCount, 1, 1 );
     m_trackScrollBar->setVisible( !plotWidgets.empty() );
-
-    m_gridLayout->addLayout( m_trackScrollBarLayout, 2, colCount, rowCount * 2 - 1, 1 );
     m_gridLayout->setColumnStretch( colCount, 0 );
 }
 
@@ -123,7 +114,7 @@ void RiuWellLogPlot::slotSetMinDepth( int value )
 
     double delta = value - minimumDepth;
     wellLogPlotDefinition()->setDepthAxisRange( minimumDepth + delta, maximumDepth + delta );
-    wellLogPlotDefinition()->setAutoScaleYEnabled( false );
+    wellLogPlotDefinition()->setAutoScaleDepthEnabled( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,6 +122,7 @@ void RiuWellLogPlot::slotSetMinDepth( int value )
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::performUpdate()
 {
+    m_trackScrollBar->setVisible( false );
     reinsertPlotWidgets();
     reinsertScrollbar();
     int axisShift = alignCanvasTops();

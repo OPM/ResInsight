@@ -38,6 +38,7 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
+#include <QDoubleValidator>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -53,13 +54,22 @@ namespace caf
 class PdmUiDoubleValueEditorAttribute : public PdmUiEditorAttribute
 {
 public:
+    enum class NumberFormat
+    {
+        FIXED,
+        SCIENTIFIC,
+        AUTOMATIC
+    };
     PdmUiDoubleValueEditorAttribute()
     {
         m_decimals = 6;
+        m_numberFormat = NumberFormat::AUTOMATIC;
     }
 
 public:
-    int m_decimals;
+    int                        m_decimals;
+    NumberFormat               m_numberFormat;
+    QPointer<QDoubleValidator> m_validator;
 };
 
 //==================================================================================================

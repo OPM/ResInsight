@@ -28,14 +28,14 @@
 
 #include <memory>
 
-class QMdiSubWindow;
-
-class RiuViewer;
-
 struct RimMdiWindowGeometry;
+
+class QMdiSubWindow;
+class RiuViewer;
 class RimViewWindow;
-class RicSummaryCurveCreatorDialog;
+class RicSummaryPlotEditorDialog;
 class RicSummaryCurveCalculatorDialog;
+class RiuMessagePanel;
 
 namespace caf
 {
@@ -84,12 +84,14 @@ public:
     void addToTemporaryWidgets( QWidget* widget );
 
     void updateWellLogPlotToolBar();
-    void updateGridPlotWindowToolBar();
+    void updateMultiPlotToolBar();
     void updateSummaryPlotToolBar( bool forceUpdateUi = false );
     void setFocusToLineEditInSummaryToolBar();
 
-    RicSummaryCurveCreatorDialog*    summaryCurveCreatorDialog();
+    RicSummaryPlotEditorDialog*      summaryCurveCreatorDialog();
     RicSummaryCurveCalculatorDialog* summaryCurveCalculatorDialog();
+
+    RiuMessagePanel* messagePanel();
 
 protected:
     void closeEvent( QCloseEvent* event ) override;
@@ -124,17 +126,18 @@ private:
 
     RiuMdiArea*                    m_mdiArea;
     caf::PdmPointer<RimViewWindow> m_activePlotViewWindow;
+    QPointer<RiuMessagePanel>      m_messagePanel;
 
     QMenu* m_windowMenu;
 
     caf::PdmUiToolBarEditor*                     m_wellLogPlotToolBarEditor;
-    caf::PdmUiToolBarEditor*                     m_gridPlotWindowToolBarEditor;
+    caf::PdmUiToolBarEditor*                     m_multiPlotToolBarEditor;
     caf::PdmUiToolBarEditor*                     m_summaryPlotToolBarEditor;
     std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
 
     caf::PdmUiPropertyView* m_pdmUiPropertyView;
 
-    QPointer<RicSummaryCurveCreatorDialog>    m_summaryCurveCreatorDialog;
+    QPointer<RicSummaryPlotEditorDialog>      m_summaryCurveCreatorDialog;
     QPointer<RicSummaryCurveCalculatorDialog> m_summaryCurveCalculatorDialog;
 
     std::vector<QWidget*> m_temporaryWidgets;

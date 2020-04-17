@@ -135,8 +135,7 @@ protected:
     virtual double              calculateRayLengthInCell( size_t            globalCellIdx,
                                                           const cvf::Vec3d& highestPoint,
                                                           const cvf::Vec3d& lowestPoint ) const                    = 0;
-    virtual double              getParameterWeightForCell( size_t                     globalCellIdx,
-                                                           const std::vector<double>& parameterWeights ) const     = 0;
+    virtual double getParameterWeightForCell( size_t globalCellIdx, const std::vector<double>& parameterWeights ) const = 0;
 
     virtual size_t gridResultIndex( size_t globalCellIdx ) const;
 
@@ -201,9 +200,7 @@ protected:
 
 protected:
     // Framework overrides
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;

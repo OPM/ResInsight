@@ -42,8 +42,7 @@ RigEclipseWellLogExtractor* RiaExtractionTools::wellLogExtractorEclipseCase( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RiaExtractionTools::wellLogExtractorGeoMechCase( RimWellPath*    wellPath,
-                                                                             RimGeoMechCase* geomCase )
+RigGeoMechWellLogExtractor* RiaExtractionTools::wellLogExtractorGeoMechCase( RimWellPath* wellPath, RimGeoMechCase* geomCase )
 {
     auto wlPlotCollection = wellLogPlotCollection();
     if ( !wlPlotCollection ) return nullptr;

@@ -65,7 +65,9 @@ RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr( const RigMainGrid* grid, R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivReservoirFaultsPartMgr::~RivReservoirFaultsPartMgr() {}
+RivReservoirFaultsPartMgr::~RivReservoirFaultsPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -154,19 +156,42 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
         {
             if ( faultCollection->showNNCs() )
             {
-                bool showNncs = true;
+                bool showNncs           = true;
+                bool showCompleteNncGeo = false;
+
+                RigEclipseResultAddress eclipseResultAddress;
+                if ( faultResultColors->showCustomFaultResult() )
+                {
+                    eclipseResultAddress = faultResultColors->customFaultResult()->eclipseResultAddress();
+                }
+                else
+                {
+                    eclipseResultAddress = cellResultColors->eclipseResultAddress();
+                }
+
+                if ( eclipseResultAddress.m_resultCatType == RiaDefines::ALLEN_DIAGRAMS )
+                {
+                    showCompleteNncGeo = true;
+                }
+
+                {
+                    QStringList stringsToMatch{RiaDefines::combinedRiTranResultName(),
+                                               RiaDefines::combinedRiMultResultName(),
+                                               RiaDefines::combinedRiAreaNormTranResultName(),
+                                               RiaDefines::combinedTransmissibilityResultName(),
+                                               RiaDefines::combinedMultResultName()};
+
+                    for ( const auto& s : stringsToMatch )
+                    {
+                        if ( eclipseResultAddress.m_resultName.contains( s, Qt::CaseInsensitive ) )
+                        {
+                            showCompleteNncGeo = true;
+                        }
+                    }
+                }
+
                 if ( faultCollection->hideNncsWhenNoResultIsAvailable() )
                 {
-                    RigEclipseResultAddress eclipseResultAddress;
-                    if ( faultResultColors->showCustomFaultResult() )
-                    {
-                        eclipseResultAddress = faultResultColors->customFaultResult()->eclipseResultAddress();
-                    }
-                    else
-                    {
-                        eclipseResultAddress = cellResultColors->eclipseResultAddress();
-                    }
-
                     RigMainGrid* mainGrid = m_reservoirView->mainGrid();
                     if ( !( mainGrid && mainGrid->nncData()->hasScalarValues( eclipseResultAddress ) ) )
                     {
@@ -176,7 +201,14 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
 
                 if ( showNncs )
                 {
-                    rivFaultPart->appendNNCFacesToModel( &parts );
+                    if ( showCompleteNncGeo )
+                    {
+                        rivFaultPart->appendCompleteNNCFacesToModel( &parts );
+                    }
+                    else
+                    {
+                        rivFaultPart->appendNativeNNCFacesToModel( &parts );
+                    }
                 }
             }
         }

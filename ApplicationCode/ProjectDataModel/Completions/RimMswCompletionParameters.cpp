@@ -38,9 +38,7 @@ void RimMswCompletionParameters::PressureDropEnum::setUp()
 {
     addItem( RimMswCompletionParameters::HYDROSTATIC, "H--", "Hydrostatic" );
     addItem( RimMswCompletionParameters::HYDROSTATIC_FRICTION, "HF-", "Hydrostatic + Friction" );
-    addItem( RimMswCompletionParameters::HYDROSTATIC_FRICTION_ACCELERATION,
-             "HFA",
-             "Hydrostatic + Friction + Acceleration" );
+    addItem( RimMswCompletionParameters::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration" );
     setDefault( RimMswCompletionParameters::HYDROSTATIC_FRICTION );
 }
 
@@ -98,7 +96,9 @@ RimMswCompletionParameters::RimMswCompletionParameters( bool enableReferenceDept
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMswCompletionParameters::~RimMswCompletionParameters() {}
+RimMswCompletionParameters::~RimMswCompletionParameters()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -131,8 +131,7 @@ double RimMswCompletionParameters::linerDiameter( RiaEclipseUnitTools::UnitSyste
     {
         return RiaEclipseUnitTools::feetToMeter( m_linerDiameter() );
     }
-    else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC &&
-              unitSystem == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( m_linerDiameter() );
     }
@@ -165,8 +164,7 @@ double RimMswCompletionParameters::roughnessFactor( RiaEclipseUnitTools::UnitSys
     {
         return RiaEclipseUnitTools::feetToMeter( m_roughnessFactor() );
     }
-    else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC &&
-              unitSystem == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( m_roughnessFactor() );
     }

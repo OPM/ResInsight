@@ -19,9 +19,9 @@
 
 #include "RicAppendIntersectionFeature.h"
 
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimTensorResults.h"
 
@@ -81,7 +81,9 @@ RicAppendIntersectionFeatureCmd::RicAppendIntersectionFeatureCmd( RimIntersectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicAppendIntersectionFeatureCmd::~RicAppendIntersectionFeatureCmd() {}
+RicAppendIntersectionFeatureCmd::~RicAppendIntersectionFeatureCmd()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -98,8 +100,8 @@ void RicAppendIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT( m_intersectionCollection );
 
-    RimIntersection* intersection = new RimIntersection();
-    intersection->name            = QString( "Intersection" );
+    RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
+    intersection->setName( "Intersection" );
     m_intersectionCollection->appendIntersectionAndUpdate( intersection );
 
     RimGridView* view = nullptr;
@@ -116,4 +118,6 @@ void RicAppendIntersectionFeatureCmd::redo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendIntersectionFeatureCmd::undo() {}
+void RicAppendIntersectionFeatureCmd::undo()
+{
+}

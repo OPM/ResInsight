@@ -21,12 +21,13 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RiaGuiApplication.h"
-#include "RiuGridPlotWindow.h"
+#include "RiuMultiPlotPage.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotWidget.h"
 
-#include "RimGridPlotWindow.h"
-#include "RimPlotInterface.h"
+#include "RimMultiPlot.h"
+#include "RimPlotWindow.h"
+#include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
 #include "cafSelectionManager.h"
@@ -50,9 +51,11 @@ bool RicDeleteSubPlotFeature::isCommandEnabled()
         size_t plotsSelected = 0;
         for ( caf::PdmObject* object : selection )
         {
-            RimGridPlotWindow* gridPlotWindow = nullptr;
-            object->firstAncestorOrThisOfType( gridPlotWindow );
-            if ( dynamic_cast<RimPlotInterface*>( object ) && gridPlotWindow )
+            RimMultiPlot*   multiPlot   = nullptr;
+            RimWellLogPlot* wellLogPlot = nullptr;
+            object->firstAncestorOrThisOfType( multiPlot );
+            object->firstAncestorOrThisOfType( wellLogPlot );
+            if ( dynamic_cast<RimPlotWindow*>( object ) && ( multiPlot || wellLogPlot ) )
             {
                 plotsSelected++;
             }
@@ -70,30 +73,36 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return;
 
-    std::vector<caf::PdmObject*> selection;
+    std::vector<RimPlot*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    std::set<RimGridPlotWindow*> alteredPlotWindows;
+    std::set<RimPlotWindow*> alteredPlotWindows;
 
-    for ( size_t i = 0; i < selection.size(); i++ )
+    for ( RimPlot* plot : selection )
     {
-        RimPlotInterface* plot = dynamic_cast<RimPlotInterface*>( selection[i] );
+        if ( !plot ) continue;
 
-        RimGridPlotWindow* plotWindow = nullptr;
-        selection[i]->firstAncestorOrThisOfType( plotWindow );
-        if ( plot && plotWindow )
+        RimMultiPlot*   multiPlot   = nullptr;
+        RimWellLogPlot* wellLogPlot = nullptr;
+        plot->firstAncestorOrThisOfType( multiPlot );
+        plot->firstAncestorOrThisOfType( wellLogPlot );
+        if ( multiPlot )
         {
-            alteredPlotWindows.insert( plotWindow );
-            plotWindow->removePlot( plot );
-            caf::SelectionManager::instance()->removeObjectFromAllSelections( selection[i] );
+            alteredPlotWindows.insert( multiPlot );
+            multiPlot->removePlot( plot );
+            caf::SelectionManager::instance()->removeObjectFromAllSelections( plot );
 
-            plotWindow->updateConnectedEditors();
+            multiPlot->updateConnectedEditors();
             delete plot;
         }
-    }
+        else if ( wellLogPlot )
+        {
+            alteredPlotWindows.insert( wellLogPlot );
+            wellLogPlot->removePlot( plot );
+            caf::SelectionManager::instance()->removeObjectFromAllSelections( plot );
 
-    for ( RimGridPlotWindow* plotWindow : alteredPlotWindows )
-    {
-        plotWindow->uiCapability()->updateConnectedEditors();
+            wellLogPlot->updateConnectedEditors();
+            delete plot;
+        }
     }
 }
 

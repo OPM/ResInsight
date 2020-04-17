@@ -23,6 +23,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 #include "RiaStatisticsTools.h"
+#include "RiaSummaryTools.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -45,7 +46,7 @@
 
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotCurve.h"
-#include "RiuSummaryCurveDefSelectionDialog.h"
+#include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
@@ -142,7 +143,9 @@ RimSummaryCurve::RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve::~RimSummaryCurve() {}
+RimSummaryCurve::~RimSummaryCurve()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -370,8 +373,8 @@ RiaDefines::PlotAxis RimSummaryCurve::axisY() const
 QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                       bool*                      useOptionsOnly )
 {
-    QList<caf::PdmOptionItemInfo> options = this->RimPlotCurve::calculateValueOptions( fieldNeedingOptions,
-                                                                                       useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options =
+        this->RimPlotCurve::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
     if ( !options.isEmpty() ) return options;
 
     if ( fieldNeedingOptions == &m_yValuesSummaryCase || fieldNeedingOptions == &m_xValuesSummaryCase )
@@ -384,7 +387,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
 
         for ( RimSummaryCase* rimCase : cases )
         {
-            options.push_back( caf::PdmOptionItemInfo( rimCase->caseName(), rimCase ) );
+            options.push_back( caf::PdmOptionItemInfo( rimCase->displayCaseName(), rimCase ) );
         }
 
         if ( options.size() > 0 )
@@ -495,9 +498,9 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                 if ( curveMerger.allXValues().size() > 0 )
                 {
-                    m_qwtPlotCurve->setSamplesFromXValuesAndYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
-                                                                     curveMerger.interpolatedYValuesForAllXValues( 1 ),
-                                                                     isLogCurve );
+                    this->setSamplesFromXYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
+                                                  curveMerger.interpolatedYValuesForAllXValues( 1 ),
+                                                  isLogCurve );
                 }
                 else
                 {
@@ -529,12 +532,12 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                             }
                             else
                             {
-                                m_qwtPlotCurve->setSamplesFromXValuesAndYValues( timeSteps, curveValuesY, isLogCurve );
+                                this->setSamplesFromXYValues( timeSteps, curveValuesY, isLogCurve );
                             }
                         }
                         else
                         {
-                            m_qwtPlotCurve->setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, isLogCurve );
+                            this->setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, isLogCurve );
                         }
                     }
                 }
@@ -552,7 +555,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         }
                     }
 
-                    m_qwtPlotCurve->setSamplesFromXValuesAndYValues( timeFromSimulationStart, curveValuesY, isLogCurve );
+                    this->setSamplesFromXYValues( timeFromSimulationStart, curveValuesY, isLogCurve );
                 }
             }
             else
@@ -563,7 +566,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( shouldPopulateViewWithEmptyData )
         {
-            m_qwtPlotCurve->setSamplesFromXValuesAndYValues( std::vector<double>(), std::vector<double>(), isLogCurve );
+            this->setSamplesFromXYValues( std::vector<double>(), std::vector<double>(), isLogCurve );
         }
 
         if ( updateParentPlot && m_parentQwtPlot )
@@ -583,7 +586,7 @@ void RimSummaryCurve::updateLegendsInPlot()
 {
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
-    plot->updateAllLegendItems();
+    plot->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -793,12 +796,12 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
     {
         return QString( "%1.%2.%3" )
             .arg( QString::fromStdString( addressUiText ) )
-            .arg( m_yValuesSummaryCase->caseName() )
+            .arg( m_yValuesSummaryCase->nativeCaseName() )
             .arg( group->name() );
     }
     else
     {
-        return QString( "%1.%2" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->caseName() );
+        return QString( "%1.%2" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->nativeCaseName() );
     }
 }
 
@@ -929,9 +932,9 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_yPushButtonSelectSummaryAddress )
     {
-        RiuSummaryCurveDefSelectionDialog dlg( nullptr );
-        RimSummaryCase*                   candidateCase    = m_yValuesSummaryCase();
-        RifEclipseSummaryAddress          candicateAddress = m_yValuesSummaryAddress->address();
+        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RimSummaryCase*                 candidateCase    = m_yValuesSummaryCase();
+        RifEclipseSummaryAddress        candicateAddress = m_yValuesSummaryAddress->address();
 
         if ( candidateCase == nullptr )
         {
@@ -963,9 +966,9 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_xPushButtonSelectSummaryAddress )
     {
-        RiuSummaryCurveDefSelectionDialog dlg( nullptr );
-        RimSummaryCase*                   candidateCase    = m_xValuesSummaryCase();
-        RifEclipseSummaryAddress          candicateAddress = m_xValuesSummaryAddress->address();
+        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RimSummaryCase*                 candidateCase    = m_xValuesSummaryCase();
+        RifEclipseSummaryAddress        candicateAddress = m_xValuesSummaryAddress->address();
 
         if ( candidateCase == nullptr )
         {
@@ -1125,7 +1128,7 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
     if ( m_yValuesSummaryAddress() )
     {
         auto address = m_yValuesSummaryAddress()->address();
-        if ( address.hasAccumulatedData() )
+        if ( RiaSummaryTools::hasAccumulatedData( address ) )
         {
             m_curveInterpolation = RiuQwtPlotCurve::INTERPOLATION_POINT_TO_POINT;
         }

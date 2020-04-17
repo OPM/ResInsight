@@ -162,7 +162,7 @@ void RimViewLinker::updateCellResult()
                         }
 
                         eclipseView->scheduleCreateDisplayModelAndRedraw();
-                        eclipseView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                        eclipseView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
 
                     eclipseView->cellResult()->updateIconState();
@@ -196,7 +196,7 @@ void RimViewLinker::updateCellResult()
                         }
 
                         geoView->scheduleCreateDisplayModelAndRedraw();
-                        geoView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                        geoView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
 
                     geoView->cellResult()->updateIconState();

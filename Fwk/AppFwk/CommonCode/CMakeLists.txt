@@ -2,6 +2,12 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (CommonCode)
 
+# Unity Build
+if (CAF_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+  set(CMAKE_UNITY_BUILD true)
+endif()
+
 # Open GL
 find_package( OpenGL )
 

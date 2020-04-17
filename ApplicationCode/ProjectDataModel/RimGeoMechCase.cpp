@@ -26,7 +26,9 @@
 #include "RicfCommandObject.h"
 #include "RifOdbReader.h"
 
+#include "RigFemPart.h"
 #include "RigFemPartCollection.h"
+#include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
@@ -47,26 +49,42 @@
 #include "RimTools.h"
 #include "RimWellLogPlotCollection.h"
 
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
 
+#include "cvfVector3.h"
+
 #include <QFile>
 #include <QIcon>
 
+#include <array>
+
 CAF_PDM_SOURCE_INIT( RimGeoMechCase, "ResInsightGeoMechCase" );
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase::RimGeoMechCase( void )
     : m_applyTimeFilter( false )
 {
-    CAF_PDM_InitObject( "Geomechanical Case", ":/GeoMechCase48x48.png", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "GeoMechanical Case",
+                                                    ":/GeoMechCase48x48.png",
+                                                    "",
+                                                    "The GeoMechanical Results Case",
+                                                    "GeoMechCase",
+                                                    "The Abaqus Based GeoMech Case" );
 
-    RICF_InitFieldNoDefault( &m_caseFileName, "CaseFileName", "Case File Name", "", "", "" );
-    m_caseFileName.uiCapability()->setUiReadOnly( true );
-    CAF_PDM_InitFieldNoDefault( &geoMechViews, "GeoMechViews", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithKeywordNoDefault( &geoMechViews,
+                                                     "GeoMechViews",
+                                                     "Views",
+                                                     "",
+                                                     "",
+                                                     "",
+                                                     "All GeoMech Views in the Case" );
     geoMechViews.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_cohesion, "CaseCohesion", 10.0, "Cohesion", "", "Used to calculate the SE:SFI result", "" );
@@ -78,12 +96,7 @@ RimGeoMechCase::RimGeoMechCase( void )
                        "Used to calculate the SE:SFI result",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNames,
-                                "ElementPropertyFileNames",
-                                "Element Property Files",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNames, "ElementPropertyFileNames", "Element Property Files", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNameIndexUiSelection,
                                 "ElementPropertyFileNameIndexUiSelection",
@@ -129,22 +142,6 @@ RimGeoMechCase::~RimGeoMechCase( void )
         // At this point, we assume that memory should be released
         CVF_ASSERT( this->geoMechData()->refCount() == 1 );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechCase::setFileName( const QString& fileName )
-{
-    m_caseFileName.v().setPath( fileName );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimGeoMechCase::caseFileName() const
-{
-    return m_caseFileName().path();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -306,6 +303,7 @@ RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase( std::string* err
         fileNames.push_back( fileName.path() );
     }
     geoMechCaseData->femPartResults()->addElementPropertyFiles( fileNames );
+    geoMechCaseData->femPartResults()->setCalculationParameters( m_cohesion, cvf::Math::toRadians( m_frictionAngleDeg() ) );
 
     m_geoMechCaseData = geoMechCaseData;
 
@@ -444,6 +442,43 @@ QString RimGeoMechCase::timeStepName( int frameIdx ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimGeoMechCase::reservoirBoundingBox()
+{
+    cvf::BoundingBox boundingBox;
+
+    RigGeoMechCaseData* rigCaseData = this->geoMechData();
+    if ( rigCaseData && rigCaseData->femPartResults() && rigCaseData->femParts()->part( 0 ) )
+    {
+        RigFemPart*           femPart     = rigCaseData->femParts()->part( 0 );
+        const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
+
+        RigFemResultAddress       porBarAddr( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "" );
+        const std::vector<float>& resultValues = rigCaseData->femPartResults()->resultValues( porBarAddr, 0, 0 );
+
+        for ( int i = 0; i < femPart->elementCount(); ++i )
+        {
+            size_t resValueIdx = femPart->elementNodeResultIdx( (int)i, 0 );
+            CVF_ASSERT( resValueIdx < resultValues.size() );
+            double scalarValue   = resultValues[resValueIdx];
+            bool   validPorValue = scalarValue != std::numeric_limits<double>::infinity();
+
+            if ( validPorValue )
+            {
+                std::array<cvf::Vec3d, 8> hexCorners;
+                femPartGrid->cellCornerVertices( i, hexCorners.data() );
+                for ( size_t c = 0; c < 8; ++c )
+                {
+                    boundingBox.add( hexCorners[c] );
+                }
+            }
+        }
+    }
+    return boundingBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimGeoMechCase::activeCellsBoundingBox() const
 {
     return allCellsBoundingBox();
@@ -477,18 +512,6 @@ double RimGeoMechCase::characteristicCellSize() const
     }
 
     return 10.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechCase::setFormationNames( RimFormationNames* formationNames )
-{
-    activeFormationNames = formationNames;
-    if ( m_geoMechCaseData.notNull() && formationNames != nullptr )
-    {
-        m_geoMechCaseData->femPartResults()->setActiveFormationNames( formationNames->formationNamesData() );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -599,7 +622,7 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    if ( changedField == &activeFormationNames )
+    if ( changedField == &m_activeFormationNames )
     {
         updateFormationNamesData();
     }
@@ -693,7 +716,7 @@ void RimGeoMechCase::updateFormationNamesData()
 
                 view->scheduleGeometryRegen( PROPERTY_FILTERED );
                 view->scheduleCreateDisplayModelAndRedraw();
-                geomView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                geomView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
             }
         }
     }
@@ -821,7 +844,7 @@ void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     uiOrdering.add( &m_caseFileName );
 
     caf::PdmUiGroup* caseGroup = uiOrdering.addNewGroup( "Case Options" );
-    caseGroup->add( &activeFormationNames );
+    caseGroup->add( &m_activeFormationNames );
     caseGroup->add( &m_cohesion );
     caseGroup->add( &m_frictionAngleDeg );
 

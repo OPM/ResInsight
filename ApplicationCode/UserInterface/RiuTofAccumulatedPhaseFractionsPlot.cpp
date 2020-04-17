@@ -61,8 +61,9 @@ RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot( RimTof
     setDefaults();
     QwtText title( "Cumulative Saturation by Time of Flight" );
     QFont   titleFont = title.font();
-    titleFont.setPointSize( 12 );
+    titleFont.setPointSize( 10 );
     title.setFont( titleFont );
+    title.setRenderFlags( title.renderFlags() | Qt::TextWordWrap );
     setTitle( title );
 
     m_watCurve = new QwtPlotCurve;
@@ -120,7 +121,11 @@ RiuTofAccumulatedPhaseFractionsPlot::~RiuTofAccumulatedPhaseFractionsPlot()
 //--------------------------------------------------------------------------------------------------
 QSize RiuTofAccumulatedPhaseFractionsPlot::sizeHint() const
 {
-    return QSize( 370, 250 );
+    QSize plotSizeHint = QwtPlot::sizeHint();
+
+    plotSizeHint.setWidth( std::max( plotSizeHint.width(), 400 ) );
+    plotSizeHint.setHeight( std::max( plotSizeHint.height(), 250 ) );
+    return plotSizeHint;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,7 +211,7 @@ void RiuTofAccumulatedPhaseFractionsPlot::setDefaults()
     setAxisMaxMinor( QwtPlot::xBottom, 2 );
     setAxisMaxMinor( QwtPlot::yLeft, 3 );
 
-    QSizePolicy sizePolicy( QSizePolicy::Maximum, QSizePolicy::Maximum );
+    QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
     sizePolicy.setHeightForWidth( true );
     setSizePolicy( sizePolicy );
     updateGeometry();

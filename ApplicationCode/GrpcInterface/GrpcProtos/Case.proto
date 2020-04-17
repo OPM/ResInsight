@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "PdmObject.proto";
+import "Definitions.proto";
 
 package rips;
 
@@ -9,11 +10,15 @@ service Case
 	rpc GetGridCount(CaseRequest) returns(GridCount) {}
 	rpc GetCellCount(CellInfoRequest) returns (CellCount) {}
 	rpc GetCellInfoForActiveCells(CellInfoRequest) returns (stream CellInfoArray) {}
+	rpc GetCellCenterForActiveCells(CellInfoRequest) returns (stream CellCenters) {}
+	rpc GetCellCornersForActiveCells(CellInfoRequest) returns (stream CellCornersArray) {}
 	rpc GetCoarseningInfoArray(CaseRequest) returns (CoarseningInfoArray) {}
 	rpc GetTimeSteps(CaseRequest) returns (TimeStepDates) {}
+	rpc GetSelectedCells(CaseRequest) returns (stream SelectedCells) {}
 	rpc GetDaysSinceStart(CaseRequest) returns (DaysSinceStart) {}
 	rpc GetCaseInfo(CaseRequest) returns (CaseInfo) {}
 	rpc GetPdmObject(CaseRequest) returns (PdmObject) {}
+	rpc GetReservoirBoundingBox(CaseRequest) returns (BoundingBox) {}
 }
 
 message CaseRequest {
@@ -33,6 +38,16 @@ message CaseInfoArray
   repeated CaseInfo data = 1;
 }
 
+message BoundingBox
+{
+	double min_x = 1;
+	double max_x = 2;
+	double min_y = 3;
+	double max_y = 4;
+	double min_z = 5;
+	double max_z = 6;
+}
+
 message CaseGroup
 {
   int32 id    = 1;
@@ -47,12 +62,6 @@ message CaseGroups
 message GridCount
 {
 	int32 count = 1;
-}
-
-message Vec3i {
-  int32 i = 1;
-  int32 j = 2;
-  int32 k = 3;
 }
 
 message CellCount
@@ -116,4 +125,16 @@ message TimeStepDate
 message DaysSinceStart
 {
 	repeated double day_decimals = 1;
+}
+
+message SelectedCell
+{
+	int32 grid_index = 1;
+	Vec3i ijk        = 2;
+}
+
+
+message SelectedCells
+{
+	repeated SelectedCell cells = 1;
 }

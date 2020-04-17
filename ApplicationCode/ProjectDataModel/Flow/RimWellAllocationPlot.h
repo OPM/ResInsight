@@ -66,6 +66,7 @@ public:
     RimWellAllocationPlot();
     ~RimWellAllocationPlot() override;
 
+    int  id() const final;
     void setFromSimulationWell( RimSimWellInView* simWell );
 
     void    setDescription( const QString& description );
@@ -80,6 +81,7 @@ public:
     caf::PdmObject*                      plotLegend();
     RimEclipseResultCase*                rimCase();
     int                                  timeStep();
+    FlowType                             flowType();
 
     QString wellName() const;
 
@@ -89,13 +91,8 @@ public:
 
 protected:
     // Overridden PDM methods
-    caf::PdmFieldHandle* userDescriptionField() override
-    {
-        return &m_userName;
-    }
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    caf::PdmFieldHandle* userDescriptionField() override { return &m_userName; }
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     std::set<QString> findSortedWellNames();
 
@@ -126,6 +123,7 @@ private:
                                               size_t                      timeStep );
 
     // RimViewWindow overrides
+    void assignIdIfNecessary() final;
 
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;

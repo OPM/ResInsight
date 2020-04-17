@@ -22,9 +22,9 @@
 
 #include "RiaApplication.h"
 
+#include "RimBoxIntersection.h"
 #include "RimCase.h"
 #include "RimGridView.h"
-#include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
 #include "RiuViewerCommands.h"
 
@@ -54,7 +54,7 @@ bool RicIntersectionBoxXSliceFeature::isCommandEnabled()
 void RicIntersectionBoxXSliceFeature::onActionTriggered( bool isChecked )
 {
     RicIntersectionFeatureImpl::createIntersectionBoxSlize( "X-slice (Intersection box)",
-                                                            RimIntersectionBox::PLANE_STATE_X );
+                                                            RimBoxIntersection::PLANE_STATE_X );
 }
 
 //--------------------------------------------------------------------------------------------------

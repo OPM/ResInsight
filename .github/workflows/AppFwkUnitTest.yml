@@ -1,0 +1,52 @@
+name: Application Framework Build with Unit Tests
+
+on: [push, pull_request]
+jobs:
+  ResInsight-x64:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: 5.9.9
+          modules: qtscript 
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      - name: Install Linux dependencies
+        if: "contains( matrix.os, 'ubuntu')"
+        run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
+      - name: Build AppFwk with Unit Tests
+        uses: lukka/run-cmake@v1
+        with:
+          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+          cmakeListsTxtPath: '${{ github.workspace }}/Fwk/AppFwk/CMakeLists.txt'
+          cmakeAppendedArgs:  
+          buildDirectory: ${{ github.workspace }}/cmakebuild
+          buildWithCMakeArgs: '--config Release'
+          useVcpkgToolchainFile: false
+      - name: Run Unit Tests Windows
+        if: contains( matrix.os, 'windows')  
+        shell: bash
+        run: |
+          cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/Release/cafPdmCore_UnitTests
+          cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/Release/cafPdmXml_UnitTests
+          cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/Release/cafProjectDataModel_UnitTests
+      - name: Run Unit Tests Linux
+        if: "!contains( matrix.os, 'windows')"
+        shell: bash
+        run: |
+          cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
+          cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/cafPdmXml_UnitTests
+          cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
+          

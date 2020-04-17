@@ -53,17 +53,12 @@ public:
 
     void   recalculateStartMD();
     double startMD() const;
-    double mainBoreSkinFactor() const
-    {
-        return m_skinFactor;
-    }
+    double mainBoreSkinFactor() const { return m_skinFactor; }
     double mainBoreDiameter( RiaEclipseUnitTools::UnitSystem unitSystem ) const;
     void   setUnitSystemSpecificDefaults();
 
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void initAfterRead() override;
 

@@ -38,25 +38,23 @@ RimSaturationPressurePlotCollection::RimSaturationPressurePlotCollection()
 {
     CAF_PDM_InitObject( "Saturation Pressure Plots", ":/SummaryXPlotsLight16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_saturationPressurePlots,
-                                "SaturationPressurePlots",
-                                "Saturation Pressure Plots",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_saturationPressurePlots, "SaturationPressurePlots", "Saturation Pressure Plots", "", "", "" );
     m_saturationPressurePlots.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSaturationPressurePlotCollection::~RimSaturationPressurePlotCollection() {}
+RimSaturationPressurePlotCollection::~RimSaturationPressurePlotCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSaturationPressurePlot*>
-    RimSaturationPressurePlotCollection::createSaturationPressurePlots( RimEclipseResultCase* eclipseResultCase )
+    RimSaturationPressurePlotCollection::createSaturationPressurePlots( RimEclipseResultCase* eclipseResultCase,
+                                                                        int                   timeStep )
 {
     std::vector<RimSaturationPressurePlot*> generatedPlots;
 
@@ -95,7 +93,10 @@ std::vector<RimSaturationPressurePlot*>
 
             // As discussed with Liv Merete, it is not any use for creation of different plots for matrix/fracture. For
             // now, use hardcoded value for MATRIX
-            plot->assignCaseAndEquilibriumRegion( RiaDefines::MATRIX_MODEL, eclipseResultCase, zeroBasedEquilibriumRegion );
+            plot->assignCaseAndEquilibriumRegion( RiaDefines::MATRIX_MODEL,
+                                                  eclipseResultCase,
+                                                  zeroBasedEquilibriumRegion,
+                                                  timeStep );
 
             m_saturationPressurePlots.push_back( plot );
 

@@ -54,8 +54,8 @@ bool RicPasteEclipseViewsFeature::isCommandEnabled()
         return false;
     }
 
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimIdenticalGridCaseGroup* gridCaseGroup = RicPasteFeatureImpl::findGridCaseGroup( destinationObject );
     if ( gridCaseGroup ) return false;
@@ -71,8 +71,8 @@ bool RicPasteEclipseViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteEclipseViewsFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimEclipseCase* eclipseCase = RicPasteFeatureImpl::findEclipseCase( destinationObject );
     assert( eclipseCase );

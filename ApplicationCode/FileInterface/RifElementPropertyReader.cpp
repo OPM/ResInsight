@@ -36,15 +36,16 @@ RifElementPropertyReader::RifElementPropertyReader( const std::vector<int>& elem
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifElementPropertyReader::~RifElementPropertyReader() {}
+RifElementPropertyReader::~RifElementPropertyReader()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RifElementPropertyReader::addFile( const std::string& fileName )
 {
-    RifElementPropertyMetadata metaData = RifElementPropertyTableReader::readMetadata(
-        QString::fromStdString( fileName ) );
+    RifElementPropertyMetadata metaData = RifElementPropertyTableReader::readMetadata( QString::fromStdString( fileName ) );
     for ( QString field : metaData.dataColumns )
     {
         m_fieldsMetaData[field.toStdString()] = metaData;

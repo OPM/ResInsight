@@ -36,10 +36,6 @@
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellPath.h"
 
-#include "RimFlowPlotCollection.h"
-#include "RimMainPlotCollection.h"
-#include "RimProject.h"
-
 #include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +62,9 @@ RigEclipseCaseData::RigEclipseCaseData( RimEclipseCase* ownerCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseCaseData::~RigEclipseCaseData() {}
+RigEclipseCaseData::~RigEclipseCaseData()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -257,7 +255,8 @@ void RigEclipseCaseData::computeWellCellsPrGrid()
                     if ( gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size() )
                     {
                         // NOTE : We do not check if the grid cell is active as we do for well head.
-                        // If we add test for active cell, thorough testing and verification of the new behaviour must be adressed
+                        // If we add test for active cell, thorough testing and verification of the new behaviour must
+                        // be adressed
 
                         m_wellCellsInGrid[gridIndex]->set( gridCellIndex, true );
                         m_gridCellToResultWellIndex[gridIndex]->set( gridCellIndex, static_cast<cvf::uint>( wIdx ) );
@@ -503,9 +502,8 @@ std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches( cons
     const RigSimWellData* simWellData = findSimWellData( simWellName );
     if ( !simWellData ) return branches;
 
-    std::tuple<QString, bool, bool> simWellSeachItem = std::make_tuple( simWellName,
-                                                                        includeAllCellCenters,
-                                                                        useAutoDetectionOfBranches );
+    std::tuple<QString, bool, bool> simWellSeachItem =
+        std::make_tuple( simWellName, includeAllCellCenters, useAutoDetectionOfBranches );
 
     if ( m_simWellBranchCache.find( simWellSeachItem ) == m_simWellBranchCache.end() )
     {
@@ -618,8 +616,7 @@ const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo( RiaDefines::Porosit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setActiveCellInfo( RiaDefines::PorosityModelType porosityModel,
-                                            RigActiveCellInfo*            activeCellInfo )
+void RigEclipseCaseData::setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo )
 {
     if ( porosityModel == RiaDefines::MATRIX_MODEL )
     {
@@ -710,26 +707,30 @@ void RigEclipseCaseData::setActiveFormationNames( RigFormationNames* activeForma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setActiveFormationNamesAndUpdatePlots( RigFormationNames* activeFormationNames )
+const RigFormationNames* RigEclipseCaseData::activeFormationNames() const
 {
-    setActiveFormationNames( activeFormationNames );
-
-    RimProject* project = RiaApplication::instance()->project();
-    if ( project )
-    {
-        if ( project->mainPlotCollection() )
-        {
-            project->mainPlotCollection->updatePlotsWithFormations();
-        }
-    }
+    return m_matrixModelResults->activeFormationNames();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFormationNames* RigEclipseCaseData::activeFormationNames()
+const std::vector<QString> RigEclipseCaseData::formationNames() const
 {
-    return m_matrixModelResults->activeFormationNames();
+    if ( activeFormationNames() )
+    {
+        return activeFormationNames()->formationNames();
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigAllenDiagramData* RigEclipseCaseData::allenDiagramData()
+{
+    return m_matrixModelResults->allenDiagramData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -771,8 +772,7 @@ const std::vector<double>* RigEclipseCaseData::resultValues( RiaDefines::Porosit
     const std::vector<double>* swatResults = nullptr;
     if ( gridCellResults->ensureKnownResultLoaded( RigEclipseResultAddress( type, resultName ) ) )
     {
-        swatResults = &(
-            gridCellResults->cellScalarResults( RigEclipseResultAddress( type, resultName ), timeStepIndex ) );
+        swatResults = &( gridCellResults->cellScalarResults( RigEclipseResultAddress( type, resultName ), timeStepIndex ) );
     }
 
     return swatResults;

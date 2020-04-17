@@ -157,8 +157,8 @@ void Rim3dWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> Rim3dWellLogRftCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                           bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo>
+    Rim3dWellLogRftCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -186,10 +186,9 @@ QList<caf::PdmOptionItemInfo> Rim3dWellLogRftCurve::calculateValueOptions( const
             }
             if ( options.empty() )
             {
-                options.push_back(
-                    caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(
-                                                RifEclipseRftAddress::NONE ),
-                                            RifEclipseRftAddress::NONE ) );
+                options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(
+                                                               RifEclipseRftAddress::NONE ),
+                                                           RifEclipseRftAddress::NONE ) );
             }
         }
     }

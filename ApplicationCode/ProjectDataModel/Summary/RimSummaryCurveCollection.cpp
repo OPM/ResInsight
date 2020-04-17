@@ -384,8 +384,8 @@ RimSummaryCurve* RimSummaryCurveCollection::curveForSourceStepping() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotSourceStepping* RimSummaryCurveCollection::sourceSteppingObject(
-    RimSummaryPlotSourceStepping::SourceSteppingType sourceSteppingType ) const
+RimSummaryPlotSourceStepping*
+    RimSummaryCurveCollection::sourceSteppingObject( RimSummaryPlotSourceStepping::SourceSteppingType sourceSteppingType ) const
 {
     if ( sourceSteppingType == RimSummaryPlotSourceStepping::X_AXIS )
     {

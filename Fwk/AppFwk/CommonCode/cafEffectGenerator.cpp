@@ -136,6 +136,7 @@ cvf::ref<cvf::RenderStatePolygonOffset> EffectGenerator::createAndConfigurePolyg
     {
         case PO_1:          rs->setFactor(1.0f);  rs->setUnits(1.0f); break;
         case PO_2:          rs->setFactor(2.0f);  rs->setUnits(2.0f); break;
+        case PO_POS_LARGE:  rs->setFactor(3.0f);  rs->setUnits(50.0f); break;
         case PO_NEG_LARGE:  rs->setFactor(-1.0f); rs->setUnits(-30.0f); break;
         default:
             CVF_FAIL_MSG("Unhandled polygon offset enum");

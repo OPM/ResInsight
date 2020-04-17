@@ -66,9 +66,7 @@ std::set<size_t>
     if ( caseData )
     {
         cvf::ref<RigEclipseWellLogExtractor> extractor =
-            new RigEclipseWellLogExtractor( caseData,
-                                            wellPath,
-                                            caseData->ownerCase()->caseUserDescription().toStdString() );
+            new RigEclipseWellLogExtractor( caseData, wellPath, caseData->ownerCase()->caseUserDescription().toStdString() );
 
         std::vector<WellPathCellIntersectionInfo> intersections = extractor->cellIntersectionInfosAlongWellPath();
         for ( const auto& intersection : intersections )

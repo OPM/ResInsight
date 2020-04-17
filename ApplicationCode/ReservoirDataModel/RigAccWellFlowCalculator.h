@@ -82,10 +82,7 @@ public:
     const std::vector<double>& accumulatedTracerFlowPrPseudoLength( const QString& tracerName, size_t branchIdx ) const;
     const std::vector<double>& tracerFlowPrPseudoLength( const QString& tracerName, size_t branchIdx ) const;
 
-    const std::vector<QString>& tracerNames() const
-    {
-        return m_tracerNames;
-    }
+    const std::vector<QString>& tracerNames() const { return m_tracerNames; }
 
     std::vector<std::pair<QString, double>> totalTracerFractions() const;
 
@@ -109,8 +106,7 @@ private:
     bool                isWellFlowConsistent() const;
     std::vector<double> calculateAccumulatedFractions( const std::vector<double>& accumulatedFlowPrTracer ) const;
     std::vector<size_t> wrpToUniqueWrpIndexFromBottom( const std::vector<RigWellResultPoint>& branchCells ) const;
-    static size_t       connectionIndexFromTop( const std::vector<size_t>& resPointToConnectionIndexFromBottom,
-                                                size_t                     clSegIdx );
+    static size_t connectionIndexFromTop( const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx );
     std::vector<size_t> findDownStreamBranchIdxs( const RigWellResultPoint& connectionPoint ) const;
 
     std::vector<std::pair<QString, double>> totalWellFlowPrTracer() const;

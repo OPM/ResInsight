@@ -55,8 +55,6 @@ public:
     RimGeoMechCase( void );
     ~RimGeoMechCase( void ) override;
 
-    void           setFileName( const QString& fileName );
-    QString        caseFileName() const;
     CaseOpenStatus openGeoMechCase( std::string* errorMessage );
 
     RigGeoMechCaseData*       geoMechData();
@@ -75,12 +73,11 @@ public:
     QStringList            timeStepStrings() const override;
     QString                timeStepName( int frameIdx ) const override;
 
+    cvf::BoundingBox reservoirBoundingBox() override;
     cvf::BoundingBox activeCellsBoundingBox() const override;
     cvf::BoundingBox allCellsBoundingBox() const override;
 
     double characteristicCellSize() const override;
-
-    void setFormationNames( RimFormationNames* formationNames ) override;
 
     void addElementPropertyFiles( const std::vector<caf::FilePath>& filenames );
 
@@ -96,9 +93,7 @@ private:
     static std::vector<QDateTime> vectorOfValidDateTimesFromTimeStepStrings( const QStringList& timeStepStrings );
     static QDateTime              dateTimeFromTimeStepString( const QString& timeStepString );
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
@@ -118,7 +113,6 @@ private:
 
 private:
     cvf::ref<RigGeoMechCaseData>              m_geoMechCaseData;
-    caf::PdmField<caf::FilePath>              m_caseFileName;
     caf::PdmField<double>                     m_cohesion;
     caf::PdmField<double>                     m_frictionAngleDeg;
     caf::PdmField<std::vector<caf::FilePath>> m_elementPropertyFileNames;

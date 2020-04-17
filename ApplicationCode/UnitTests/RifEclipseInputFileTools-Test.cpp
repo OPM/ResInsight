@@ -246,7 +246,7 @@ TEST( RifEclipseInputFileToolsTest, FaultData )
                                                                                    &isStopParsingKeywordDetected,
                                                                                    includeStatementAbsolutePathPrefix );
 
-        EXPECT_EQ( (int)1041, keywordContent.size() );
+        EXPECT_EQ( (int)977, keywordContent.size() );
 
         /*
                 for (const auto& s : keywordContent)
@@ -316,5 +316,73 @@ TEST( RifEclipseInputFileToolsTest, StopAtKeyword )
                                                                                    includeStatementAbsolutePathPrefix );
         EXPECT_TRUE( isStopParsingKeywordDetected );
         EXPECT_TRUE( keywordContent.isEmpty() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseInputFileToolsTest, DISABLED_FindFilesWithVfp )
+{
+    QString fileName = "d:/gitroot-ceesol/ResInsight-regression-test/ModelData/norne/NORNE_ATW2013.DATA";
+
+    {
+        QFile data( fileName );
+        if ( !data.open( QFile::ReadOnly ) )
+        {
+            return;
+        }
+
+        const QString                            keyword( "VFPPROD" );
+        const QString                            keywordToStopParsing;
+        const qint64                             startPositionInFile = 0;
+        std::vector<std::pair<QString, QString>> pathAliasDefinitions;
+        QStringList                              keywordContent;
+        std::vector<QString>                     fileNamesContainingKeyword;
+        bool                                     isStopParsingKeywordDetected = false;
+        const QString                            includeStatementAbsolutePathPrefix;
+
+        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
+                                                                                   keywordToStopParsing,
+                                                                                   data,
+                                                                                   startPositionInFile,
+                                                                                   pathAliasDefinitions,
+                                                                                   &keywordContent,
+                                                                                   &fileNamesContainingKeyword,
+                                                                                   &isStopParsingKeywordDetected,
+                                                                                   includeStatementAbsolutePathPrefix );
+
+        //        EXPECT_TRUE( isStopParsingKeywordDetected );
+        //        EXPECT_TRUE( keywordContent.isEmpty() );
+    }
+
+    {
+        QFile data( fileName );
+        if ( !data.open( QFile::ReadOnly ) )
+        {
+            return;
+        }
+
+        const QString                            keyword( "VFPINJ" );
+        const QString                            keywordToStopParsing;
+        const qint64                             startPositionInFile = 0;
+        std::vector<std::pair<QString, QString>> pathAliasDefinitions;
+        QStringList                              keywordContent;
+        std::vector<QString>                     fileNamesContainingKeyword;
+        bool                                     isStopParsingKeywordDetected = false;
+        const QString                            includeStatementAbsolutePathPrefix;
+
+        RifEclipseInputFileTools::readKeywordAndParseIncludeStatementsRecursively( keyword,
+                                                                                   keywordToStopParsing,
+                                                                                   data,
+                                                                                   startPositionInFile,
+                                                                                   pathAliasDefinitions,
+                                                                                   &keywordContent,
+                                                                                   &fileNamesContainingKeyword,
+                                                                                   &isStopParsingKeywordDetected,
+                                                                                   includeStatementAbsolutePathPrefix );
+
+        //      EXPECT_TRUE( isStopParsingKeywordDetected );
+        //        EXPECT_TRUE( keywordContent.isEmpty() );
     }
 }

@@ -89,7 +89,7 @@ void RicNewViewFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RicNewViewFeature::createReservoirView( RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase )
 {
-    Rim3dView* insertedView = nullptr;
+    RimGridView* insertedView = nullptr;
 
     if ( eclipseCase )
     {

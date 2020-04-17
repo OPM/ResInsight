@@ -9,6 +9,7 @@ service Properties
 {
 	rpc GetAvailableProperties(AvailablePropertiesRequest) returns (AvailableProperties) {}
 	rpc GetActiveCellProperty(PropertyRequest) returns (stream PropertyChunk) {}
+	rpc GetSelectedCellProperty(PropertyRequest) returns (stream PropertyChunk) {}
 	rpc GetGridProperty(PropertyRequest)       returns (stream PropertyChunk) {}
 	rpc SetActiveCellProperty(stream PropertyInputChunk) returns (ClientToServerStreamReply) {}
 	rpc SetGridProperty(stream PropertyInputChunk) returns (ClientToServerStreamReply) {}

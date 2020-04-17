@@ -10,3 +10,37 @@ message ClientToServerStreamReply
 {
 	int64 accepted_value_count = 1;
 }
+
+message Vec3i {
+  int32 i = 1;
+  int32 j = 2;
+  int32 k = 3;
+}
+
+message Vec3d
+{
+	double x = 1;
+	double y = 2;
+	double z = 3;
+}
+
+message CellCenters
+{
+	repeated Vec3d centers = 1;
+}
+
+message CellCorners {
+        Vec3d c0 = 1;
+        Vec3d c1 = 2;
+        Vec3d c2 = 3;
+        Vec3d c3 = 4;
+        Vec3d c4 = 5;
+        Vec3d c5 = 6;
+        Vec3d c6 = 7;
+        Vec3d c7 = 8;
+}
+
+message CellCornersArray
+{
+	repeated CellCorners cells = 1;
+}

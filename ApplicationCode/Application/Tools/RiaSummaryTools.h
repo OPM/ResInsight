@@ -18,11 +18,16 @@
 
 #pragma once
 
+#include <vector>
+
 class RimSummaryPlotCollection;
 class RimSummaryPlot;
 class RimSummaryCrossPlot;
 class RimSummaryCrossPlotCollection;
 class RimSummaryCaseMainCollection;
+class RimSummaryCase;
+
+class RifEclipseSummaryAddress;
 
 class QString;
 
@@ -37,9 +42,11 @@ class PdmObject;
 class RiaSummaryTools
 {
 public:
-    static RimSummaryPlotCollection*     summaryPlotCollection();
-    static RimSummaryCaseMainCollection* summaryCaseMainCollection();
-    static void notifyCalculatedCurveNameHasChanged( const QString& previousCurveName, const QString& currentCurveName );
+    static RimSummaryPlotCollection*      summaryPlotCollection();
+    static RimSummaryCrossPlotCollection* summaryCrossPlotCollection();
+    static RimSummaryCaseMainCollection*  summaryCaseMainCollection();
+
+    static void notifyCalculatedCurveNameHasChanged( int calculationId, const QString& currentCurveName );
 
     static RimSummaryPlot*           parentSummaryPlot( caf::PdmObject* object );
     static RimSummaryPlotCollection* parentSummaryPlotCollection( caf::PdmObject* object );
@@ -47,4 +54,9 @@ public:
     static RimSummaryCrossPlot*           parentCrossPlot( caf::PdmObject* object );
     static RimSummaryCrossPlotCollection* parentCrossPlotCollection( caf::PdmObject* object );
     static bool                           isSummaryCrossPlot( const RimSummaryPlot* plot );
+
+    static bool hasAccumulatedData( const RifEclipseSummaryAddress& address );
+    static void getSummaryCasesAndAddressesForCalculation( int                                    id,
+                                                           std::vector<RimSummaryCase*>&          cases,
+                                                           std::vector<RifEclipseSummaryAddress>& addresses );
 };

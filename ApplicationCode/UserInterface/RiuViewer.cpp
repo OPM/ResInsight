@@ -97,8 +97,7 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
 {
     cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
     QFont      font         = RiaGuiApplication::instance()->font();
-    font.setPointSize( RiaFontCache::pointSizeFromFontSizeEnum(
-        RiaGuiApplication::instance()->preferences()->defaultSceneFontSize() ) );
+    font.setPointSize( RiaGuiApplication::instance()->preferences()->defaultSceneFontSize() );
 
     m_axisCross = new cvf::OverlayAxisCross( m_mainCamera.p(), standardFont );
     m_axisCross->setAxisLabels( "X", "Y", "Z" );
@@ -437,8 +436,7 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
             }
 
             {
-                m_shortInfoLabelCompView->setText( "<center>" + compView->ownerCase()->caseUserDescription() +
-                                                   "</center>" );
+                m_shortInfoLabelCompView->setText( "<center>" + compView->ownerCase()->caseUserDescription() + "</center>" );
                 QPoint topLeft = QPoint( compViewItemsXPos, yPos );
                 m_shortInfoLabelCompView->resize( columnWidth, m_shortInfoLabelCompView->sizeHint().height() );
                 m_shortInfoLabelCompView->render( painter, topLeft );
@@ -769,8 +767,7 @@ void RiuViewer::updateLegendLayout()
             {
                 int legendWidth = prefSize.x();
                 legend->setLayoutFixedPosition( cvf::Vec2i( xPos, yPos ) );
-                legend->setRenderSize(
-                    cvf::Vec2ui( legendWidth, viewPortHeight - 2 * border - 2 * edgeAxisBorderHeight ) );
+                legend->setRenderSize( cvf::Vec2ui( legendWidth, viewPortHeight - 2 * border - 2 * edgeAxisBorderHeight ) );
                 xPos += legendWidth + border;
             }
             else
@@ -1331,8 +1328,7 @@ void RiuViewer::updateFonts()
     m_showAxisCross = true;
 
     QFont font = QApplication::font();
-    font.setPointSize(
-        RiaFontCache::pointSizeFromFontSizeEnum( RiaApplication::instance()->preferences()->defaultSceneFontSize() ) );
+    font.setPointSize( RiaApplication::instance()->preferences()->defaultSceneFontSize() );
 
     m_zScaleLabel->setFont( font );
     m_infoLabel->setFont( font );
@@ -1466,10 +1462,7 @@ void RiuViewer::updateOverlayItemsStyle()
     QColor progressColor( Qt::green );
     progressColor.setAlphaF( 0.8f );
     backgroundColor.setAlphaF( 0.8f );
-    m_animationProgress->setTextBackgroundAndProgressColor( contrastColor,
-                                                            backgroundColor,
-                                                            backgroundFrameColor,
-                                                            progressColor );
+    m_animationProgress->setTextBackgroundAndProgressColor( contrastColor, backgroundColor, backgroundFrameColor, progressColor );
     m_animationProgressCompView->setTextBackgroundAndProgressColor( contrastColor,
                                                                     backgroundColor,
                                                                     backgroundFrameColor,

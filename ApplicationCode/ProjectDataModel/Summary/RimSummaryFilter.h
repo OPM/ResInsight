@@ -55,9 +55,7 @@ public:
 
     bool isIncludedByFilter( const RifEclipseSummaryAddress& addr ) const;
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     friend class RimSummaryCurve;

@@ -141,8 +141,7 @@ void RicDeleteSummaryCaseCollectionFeature::setupActionLook( QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection(
-    RimSummaryCaseCollection* summaryCaseCollection )
+void RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection( RimSummaryCaseCollection* summaryCaseCollection )
 {
     std::vector<RimSummaryCase*> summaryCases = summaryCaseCollection->allSummaryCases();
     if ( summaryCases.size() == 0 ) return;

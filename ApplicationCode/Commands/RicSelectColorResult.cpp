@@ -23,10 +23,10 @@
 #include "Rim2dIntersectionView.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
 
 #include "Riu3DMainWindowTools.h"
 

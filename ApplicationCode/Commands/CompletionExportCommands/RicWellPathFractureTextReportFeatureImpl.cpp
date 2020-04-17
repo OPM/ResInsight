@@ -254,7 +254,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createWellFileLocationText( co
             if ( fileWellPath )
             {
                 formatter.add( wellPath->name() );
-                formatter.add( fileWellPath->filepath() );
+                formatter.add( fileWellPath->filePath() );
                 formatter.rowCompleted();
             }
         }
@@ -531,9 +531,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         floatNumberColumn( "LPerf" ),
         floatNumberColumn( "PerfEff" ),
         floatNumberColumn( "Wdia" ),
-        RifTextDataTableColumn( "Dfac",
-                                RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ),
-                                RIGHT ),
+        RifTextDataTableColumn( "Dfac", RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ), RIGHT ),
     };
 
     formatter.header( header );

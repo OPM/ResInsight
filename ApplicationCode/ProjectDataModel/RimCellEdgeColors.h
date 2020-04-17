@@ -83,12 +83,9 @@ public:
 
     void setActive( bool active );
 
-    double ignoredScalarValue()
-    {
-        return m_ignoredResultScalar;
-    }
-    void gridScalarIndices( RigEclipseResultAddress resultIndices[6] );
-    void cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* metaData );
+    double ignoredScalarValue() { return m_ignoredResultScalar; }
+    void   gridScalarIndices( RigEclipseResultAddress resultIndices[6] );
+    void   cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* metaData );
 
     void loadResult();
     bool hasResult() const;
@@ -106,9 +103,7 @@ public:
 
 protected:
     void                          initAfterRead() override;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

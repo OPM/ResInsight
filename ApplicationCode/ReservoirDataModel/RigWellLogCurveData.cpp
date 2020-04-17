@@ -20,8 +20,8 @@
 #include "RigWellLogCurveData.h"
 
 #include "RiaCurveDataTools.h"
-
 #include "RiaEclipseUnitTools.h"
+#include "RiaWellLogUnitTools.h"
 
 #include "cvfAssert.h"
 #include "cvfMath.h"
@@ -35,12 +35,15 @@ RigWellLogCurveData::RigWellLogCurveData()
 {
     m_isExtractionCurve = false;
     m_depthUnit         = RiaDefines::UNIT_METER;
+    m_xUnitString       = RiaWellLogUnitTools<double>::noUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogCurveData::~RigWellLogCurveData() {}
+RigWellLogCurveData::~RigWellLogCurveData()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -48,6 +51,7 @@ RigWellLogCurveData::~RigWellLogCurveData() {}
 void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>& xValues,
                                               const std::vector<double>& depths,
                                               RiaDefines::DepthTypeEnum  depthType,
+                                              double                     rkbDiff,
                                               RiaDefines::DepthUnitType  depthUnit,
                                               bool                       isExtractionCurve )
 {
@@ -56,6 +60,7 @@ void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>& xValues
     m_xValues           = xValues;
     m_depths[depthType] = depths;
     m_depthUnit         = depthUnit;
+    m_rkbDiff           = rkbDiff;
 
     // Disable depth value filtering is intended to be used for
     // extraction curve data
@@ -69,6 +74,7 @@ void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>& xValues
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>&                                      xValues,
                                               const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
+                                              double                                                          rkbDiff,
                                               RiaDefines::DepthUnitType                                       depthUnit,
                                               bool isExtractionCurve )
 {
@@ -80,6 +86,7 @@ void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>&        
     m_xValues   = xValues;
     m_depths    = depths;
     m_depthUnit = depthUnit;
+    m_rkbDiff   = rkbDiff;
 
     // Disable depth value filtering is intended to be used for
     // extraction curve data
@@ -91,9 +98,42 @@ void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>&        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigWellLogCurveData::xValues() const
+void RigWellLogCurveData::setXUnits( const QString& xUnitString )
+{
+    m_xUnitString = xUnitString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogCurveData::xValues() const
 {
     return m_xValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogCurveData::xValues( const QString& units ) const
+{
+    std::vector<double> convertedValues;
+    if ( units != m_xUnitString && RiaWellLogUnitTools<double>::convertValues( depths( RiaDefines::TRUE_VERTICAL_DEPTH_RKB ),
+                                                                               m_xValues,
+                                                                               &convertedValues,
+                                                                               m_xUnitString,
+                                                                               units ) )
+    {
+        return convertedValues;
+    }
+    return m_xValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RigWellLogCurveData::xUnits() const
+{
+    return m_xUnitString;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +142,33 @@ const std::vector<double>& RigWellLogCurveData::xValues() const
 std::vector<double> RigWellLogCurveData::depths( RiaDefines::DepthTypeEnum depthType ) const
 {
     auto it = m_depths.find( depthType );
-    return it != m_depths.end() ? it->second : std::vector<double>();
+    if ( it != m_depths.end() )
+    {
+        return it->second;
+    }
+
+    if ( m_rkbDiff != 0.0 )
+    {
+        if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB && m_depths.count( RiaDefines::TRUE_VERTICAL_DEPTH ) )
+        {
+            std::vector<double> tvds = depths( RiaDefines::TRUE_VERTICAL_DEPTH );
+            for ( double& tvdValue : tvds )
+            {
+                tvdValue += m_rkbDiff;
+            }
+            return tvds;
+        }
+        else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH && m_depths.count( RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) )
+        {
+            std::vector<double> tvds = depths( RiaDefines::TRUE_VERTICAL_DEPTH_RKB );
+            for ( double& tvdValue : tvds )
+            {
+                tvdValue -= m_rkbDiff;
+            }
+            return tvds;
+        }
+    }
+    return std::vector<double>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,6 +182,20 @@ std::set<RiaDefines::DepthTypeEnum> RigWellLogCurveData::availableDepthTypes() c
     {
         depthTypes.insert( depthValuePair.first );
     }
+
+    if ( m_rkbDiff != 0.0 )
+    {
+        if ( depthTypes.count( RiaDefines::TRUE_VERTICAL_DEPTH ) && !depthTypes.count( RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) )
+        {
+            depthTypes.insert( RiaDefines::TRUE_VERTICAL_DEPTH_RKB );
+        }
+        else if ( depthTypes.count( RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) &&
+                  !depthTypes.count( RiaDefines::TRUE_VERTICAL_DEPTH ) )
+        {
+            depthTypes.insert( RiaDefines::TRUE_VERTICAL_DEPTH );
+        }
+    }
+
     return depthTypes;
 }
 
@@ -147,7 +227,8 @@ std::vector<double> RigWellLogCurveData::depthPlotValues( RiaDefines::DepthTypeE
         }
         else
         {
-            std::vector<double> convertedValues = convertDepthValues( destinationDepthUnit, depthValues );
+            std::vector<double> convertedValues =
+                RiaWellLogUnitTools<double>::convertDepths( depthValues, m_depthUnit, destinationDepthUnit );
             RiaCurveDataTools::getValuesByIntervals( convertedValues, m_intervalsOfContinousValidValues, &filteredValues );
         }
     }
@@ -171,13 +252,13 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
     std::vector<double> xValues;
     std::vector<double> measuredDepths;
 
-    bool                isTvDepthsAvailable = false;
+    bool                isTVDAvailable = false;
     std::vector<double> tvDepths;
 
     auto mdIt  = m_depths.find( RiaDefines::MEASURED_DEPTH );
     auto tvdIt = m_depths.find( RiaDefines::TRUE_VERTICAL_DEPTH );
 
-    if ( tvdIt != m_depths.end() && !tvdIt->second.empty() ) isTvDepthsAvailable = true;
+    if ( tvdIt != m_depths.end() && !tvdIt->second.empty() ) isTVDAvailable = true;
 
     if ( mdIt != m_depths.end() && !mdIt->second.empty() )
     {
@@ -193,7 +274,7 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
 
             double segmentStartTvd = 0.0;
             double segmentEndTvd   = 0.0;
-            if ( isTvDepthsAvailable )
+            if ( isTVDAvailable )
             {
                 segmentStartTvd = tvdIt->second[segmentStartIdx];
                 segmentEndTvd   = tvdIt->second[segmentStartIdx + 1];
@@ -208,7 +289,7 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
                 // The tvd calculation is a simplification. We should use the wellpath, as it might have a better
                 // resolution, and have a none-linear shape This is much simpler, and possibly accurate enough ?
 
-                if ( isTvDepthsAvailable )
+                if ( isTVDAvailable )
                 {
                     tvDepths.push_back( ( 1.0 - endWeight ) * segmentStartTvd + endWeight * segmentEndTvd );
                 }
@@ -222,19 +303,15 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
 
     cvf::ref<RigWellLogCurveData> reSampledData = new RigWellLogCurveData;
 
-    if ( isTvDepthsAvailable )
+    if ( isTVDAvailable )
     {
         std::map<RiaDefines::DepthTypeEnum, std::vector<double>> resampledDepths =
             {{RiaDefines::TRUE_VERTICAL_DEPTH, tvDepths}, {RiaDefines::MEASURED_DEPTH, measuredDepths}};
-        reSampledData->setValuesAndDepths( xValues, resampledDepths, m_depthUnit, true );
+        reSampledData->setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true );
     }
     else
     {
-        reSampledData->setValuesAndDepths( xValues,
-                                           measuredDepths,
-                                           RiaDefines::MEASURED_DEPTH,
-                                           m_depthUnit,
-                                           m_isExtractionCurve );
+        reSampledData->setValuesAndDepths( xValues, measuredDepths, RiaDefines::MEASURED_DEPTH, 0.0, m_depthUnit, m_isExtractionCurve );
     }
 
     return reSampledData;
@@ -283,9 +360,9 @@ void RigWellLogCurveData::splitIntervalAtEmptySpace( const std::vector<double>& 
 {
     CVF_ASSERT( intervals );
 
-    CVF_ASSERT( startIdx < stopIdx );
+    CVF_ASSERT( startIdx <= stopIdx );
 
-    if ( stopIdx - startIdx == 1 )
+    if ( stopIdx - startIdx <= 1 )
     {
         intervals->push_back( std::make_pair( startIdx, stopIdx ) );
         return;
@@ -368,53 +445,4 @@ bool RigWellLogCurveData::calculateDepthRange( RiaDefines::DepthTypeEnum depthTy
 RiaDefines::DepthUnitType RigWellLogCurveData::depthUnit() const
 {
     return m_depthUnit;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::convertFromMeterToFeet( const std::vector<double>& valuesInMeter )
-{
-    std::vector<double> valuesInFeet( valuesInMeter.size() );
-
-    for ( size_t i = 0; i < valuesInMeter.size(); i++ )
-    {
-        valuesInFeet[i] = valuesInMeter[i] * RiaEclipseUnitTools::feetPerMeter();
-    }
-
-    return valuesInFeet;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::convertFromFeetToMeter( const std::vector<double>& valuesInFeet )
-{
-    std::vector<double> valuesInMeter( valuesInFeet.size() );
-
-    for ( size_t i = 0; i < valuesInFeet.size(); i++ )
-    {
-        valuesInMeter[i] = valuesInFeet[i] / RiaEclipseUnitTools::feetPerMeter();
-    }
-
-    return valuesInMeter;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::convertDepthValues( RiaDefines::DepthUnitType  destinationDepthUnit,
-                                                             const std::vector<double>& values ) const
-{
-    CVF_ASSERT( destinationDepthUnit != m_depthUnit );
-
-    if ( destinationDepthUnit == RiaDefines::UNIT_METER && m_depthUnit == RiaDefines::UNIT_FEET )
-    {
-        return convertFromFeetToMeter( values );
-    }
-    else if ( destinationDepthUnit == RiaDefines::UNIT_FEET && m_depthUnit == RiaDefines::UNIT_METER )
-    {
-        return convertFromMeterToFeet( values );
-    }
-    return values;
 }

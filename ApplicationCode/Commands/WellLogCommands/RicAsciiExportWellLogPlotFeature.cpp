@@ -55,8 +55,8 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered( bool isChecked )
 
     std::vector<RimWellLogPlot*> selectedWellLogPlots;
     caf::SelectionManager::instance()->objectsByType( &selectedWellLogPlots );
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder(
-        "PLOT_ASCIIEXPORT_DIR" );
+    QString defaultDir =
+        RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "PLOT_ASCIIEXPORT_DIR" );
 
     caf::ProgressInfo pi( selectedWellLogPlots.size(), QString( "Exporting plot data to ASCII" ) );
     size_t            progress = 0;
@@ -128,8 +128,7 @@ QString RicAsciiExportWellLogPlotFeature::makeValidExportFileName( const RimWell
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( const QString&        fileName,
-                                                                  const RimWellLogPlot* wellLogPlot )
+bool RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( const QString& fileName, const RimWellLogPlot* wellLogPlot )
 {
     QFile file( fileName );
     if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) )

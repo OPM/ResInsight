@@ -39,8 +39,8 @@ CAF_CMD_SOURCE_INIT( RicPasteAsciiDataCurveFeature, "RicPasteAsciiDataCurveFeatu
 //--------------------------------------------------------------------------------------------------
 bool RicPasteAsciiDataCurveFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     if ( !destinationObject )
     {
@@ -62,8 +62,8 @@ bool RicPasteAsciiDataCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataCurveFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     CVF_ASSERT( destinationObject );
 
     RimSummaryPlot* summaryPlot = nullptr;

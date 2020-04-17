@@ -20,9 +20,11 @@
 
 #include "RiaDefines.h"
 #include "RigWellLogCurveData.h"
+#include "RigWellPath.h"
 #include "RimCase.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellPath.h"
 
 #include "cafUtils.h"
 
@@ -58,28 +60,25 @@ public:
     {
         CVF_ASSERT( lasFile );
 
-        std::vector<double> wellLogValues = m_curveData->xValues();
-        for ( size_t vIdx = 0; vIdx < wellLogValues.size(); vIdx++ )
+        if ( !m_curveData->xValues().empty() )
         {
-            double value = wellLogValues[vIdx];
-            if ( value == HUGE_VAL || value == -HUGE_VAL || value != value )
+            std::vector<double> wellLogValues = m_curveData->xValues( QString::fromStdString( m_unit ) );
+            for ( size_t vIdx = 0; vIdx < wellLogValues.size(); vIdx++ )
             {
-                wellLogValues[vIdx] = absentValue;
+                double value = wellLogValues[vIdx];
+                if ( value == HUGE_VAL || value == -HUGE_VAL || value != value )
+                {
+                    wellLogValues[vIdx] = absentValue;
+                }
             }
+
+            lasFile->AddLog( m_channelName, m_unit, m_comment, wellLogValues );
         }
-
-        lasFile->AddLog( m_channelName, m_unit, m_comment, wellLogValues );
     }
 
-    std::string channelName() const
-    {
-        return m_channelName;
-    }
+    std::string channelName() const { return m_channelName; }
 
-    const RigWellLogCurveData* curveData() const
-    {
-        return m_curveData;
-    }
+    const RigWellLogCurveData* curveData() const { return m_curveData; }
 
 private:
     std::string m_channelName;
@@ -99,40 +98,19 @@ public:
     {
     }
 
-    void setWellName( const QString& wellName )
-    {
-        m_wellName = wellName;
-    }
+    void setWellName( const QString& wellName ) { m_wellName = wellName; }
 
-    QString wellName()
-    {
-        return m_wellName;
-    }
+    QString wellName() { return m_wellName; }
 
-    void setCaseName( const QString& caseName )
-    {
-        m_caseName = caseName;
-    }
+    void setCaseName( const QString& caseName ) { m_caseName = caseName; }
 
-    void setDate( const QString& date )
-    {
-        m_date = date;
-    }
+    void setDate( const QString& date ) { m_date = date; }
 
-    void setRkbDiff( double rkbDiff )
-    {
-        m_rkbDiff = rkbDiff;
-    }
+    void setRkbDiff( double rkbDiff ) { m_rkbDiff = rkbDiff; }
 
-    void enableTvdrkbExport()
-    {
-        m_exportTvdrkb = true;
-    }
+    void enableTvdrkbExport() { m_exportTvdrkb = true; }
 
-    double rkbDiff()
-    {
-        return m_rkbDiff;
-    }
+    double rkbDiff() { return m_rkbDiff; }
 
     void addLogData( const std::string&         channelName,
                      const std::string&         unit,
@@ -210,11 +188,7 @@ public:
         }
         else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_NONE )
         {
-            CVF_ASSERT( false );
-            lasFile->AddLog( "DEPTH",
-                             "",
-                             "Depth in Connection number",
-                             firstCurveData->depths( RiaDefines::MEASURED_DEPTH ) );
+            lasFile->AddLog( "DEPTH", "", "Depth in Connection number", firstCurveData->depths( RiaDefines::MEASURED_DEPTH ) );
         }
 
         if ( firstCurveData->depths( RiaDefines::TRUE_VERTICAL_DEPTH ).size() )
@@ -263,10 +237,6 @@ public:
         else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_FEET )
         {
             lasFile->setDepthUnit( "FT" );
-        }
-        else if ( firstCurveData->depthUnit() == RiaDefines::UNIT_NONE )
-        {
-            CVF_ASSERT( false );
         }
 
         double absentValue = SingleLasFileMetaData::createAbsentValue( m_minimumCurveValue );
@@ -339,19 +309,22 @@ void RigLasFileExporter::setResamplingInterval( double interval )
 //--------------------------------------------------------------------------------------------------
 void RigLasFileExporter::wellPathsAndRkbDiff( std::vector<QString>* wellNames, std::vector<double>* rkbDiffs )
 {
-    std::vector<SingleLasFileMetaData> lasFileDescriptions = createLasFileDescriptions( m_curves );
+    std::vector<SingleLasFileMetaData> lasFileDescriptions = createLasFileDescriptions( m_curves, false );
 
     std::set<QString> uniqueWellNames;
 
     for ( auto metaData : lasFileDescriptions )
     {
-        QString wellName = metaData.wellName();
-        if ( uniqueWellNames.find( wellName ) == uniqueWellNames.end() )
+        if ( metaData.rkbDiff() != std::numeric_limits<double>::infinity() )
         {
-            uniqueWellNames.insert( wellName );
+            QString wellName = metaData.wellName();
+            if ( uniqueWellNames.find( wellName ) == uniqueWellNames.end() )
+            {
+                uniqueWellNames.insert( wellName );
 
-            wellNames->push_back( wellName );
-            rkbDiffs->push_back( metaData.rkbDiff() );
+                wellNames->push_back( wellName );
+                rkbDiffs->push_back( metaData.rkbDiff() );
+            }
         }
     }
 }
@@ -363,7 +336,7 @@ void RigLasFileExporter::setRkbDiffs( const std::vector<QString>& wellNames, con
 {
     assert( wellNames.size() == rkbDiffs.size() );
 
-    std::vector<SingleLasFileMetaData> lasFileDescriptions = createLasFileDescriptions( m_curves );
+    std::vector<SingleLasFileMetaData> lasFileDescriptions = createLasFileDescriptions( m_curves, false );
 
     for ( size_t i = 0; i < wellNames.size(); i++ )
     {
@@ -382,11 +355,13 @@ void RigLasFileExporter::setRkbDiffs( const std::vector<QString>& wellNames, con
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RigLasFileExporter::writeToFolder( const QString& exportFolder,
                                                         const QString& filePrefix /*= ""*/,
-                                                        bool           capitalizeFileName /*= false*/ )
+                                                        bool           capitalizeFileName /*= false*/,
+                                                        bool           alwaysOverwrite /*= false*/,
+                                                        bool           convertCurveUnits /*= false*/ )
 {
     std::vector<QString> writtenFiles;
 
-    std::vector<SingleLasFileMetaData> lasFileDescriptions = createLasFileDescriptions( m_curves );
+    std::vector<SingleLasFileMetaData> lasFileDescriptions = createLasFileDescriptions( m_curves, convertCurveUnits );
 
     applyUserDefinedRkbOffsets( &lasFileDescriptions );
 
@@ -408,14 +383,11 @@ std::vector<QString> RigLasFileExporter::writeToFolder( const QString& exportFol
             fileName = fileName.toUpper();
         }
         QString fullPathName = dir.absoluteFilePath( fileName );
-        if ( caf::Utils::fileExists( fullPathName ) )
+        if ( caf::Utils::fileExists( fullPathName ) && !alwaysOverwrite )
         {
             QString txt = QString( "File %1 exists.\n\nDo you want to overwrite the file?" ).arg( fullPathName );
-            int     ret = QMessageBox::question( nullptr,
-                                             "LAS File Export",
-                                             txt,
-                                             QMessageBox::Yes | QMessageBox::No,
-                                             QMessageBox::Yes );
+            int     ret =
+                QMessageBox::question( nullptr, "LAS File Export", txt, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes );
 
             if ( ret != QMessageBox::Yes ) continue;
         }
@@ -435,7 +407,7 @@ std::vector<QString> RigLasFileExporter::writeToFolder( const QString& exportFol
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<SingleLasFileMetaData>
-    RigLasFileExporter::createLasFileDescriptions( const std::vector<RimWellLogCurve*>& curves )
+    RigLasFileExporter::createLasFileDescriptions( const std::vector<RimWellLogCurve*>& curves, bool convertCurveUnits )
 {
     std::vector<RimWellLogCurve*> eclipseCurves;
     std::vector<RimWellLogCurve*> geoMechCurves;
@@ -465,9 +437,9 @@ std::vector<SingleLasFileMetaData>
 
     std::vector<SingleLasFileMetaData> lasFileDescriptions;
 
-    appendLasFileDescriptions( externalLasCurves, &lasFileDescriptions );
-    appendLasFileDescriptions( eclipseCurves, &lasFileDescriptions );
-    appendLasFileDescriptions( geoMechCurves, &lasFileDescriptions );
+    appendLasFileDescriptions( externalLasCurves, &lasFileDescriptions, convertCurveUnits );
+    appendLasFileDescriptions( eclipseCurves, &lasFileDescriptions, convertCurveUnits );
+    appendLasFileDescriptions( geoMechCurves, &lasFileDescriptions, convertCurveUnits );
 
     return lasFileDescriptions;
 }
@@ -476,7 +448,8 @@ std::vector<SingleLasFileMetaData>
 ///
 //--------------------------------------------------------------------------------------------------
 void RigLasFileExporter::appendLasFileDescriptions( const std::vector<RimWellLogCurve*>& curves,
-                                                    std::vector<SingleLasFileMetaData>*  lasFileDescriptions )
+                                                    std::vector<SingleLasFileMetaData>*  lasFileDescriptions,
+                                                    bool                                 convertCurveUnits )
 {
     CVF_ASSERT( lasFileDescriptions );
 
@@ -541,8 +514,8 @@ void RigLasFileExporter::appendLasFileDescriptions( const std::vector<RimWellLog
                 const RigWellLogCurveData* curveData = nullptr;
                 if ( m_isResampleActive )
                 {
-                    cvf::ref<RigWellLogCurveData> resampledData = curve->curveData()->calculateResampledCurveData(
-                        m_resamplingInterval );
+                    cvf::ref<RigWellLogCurveData> resampledData =
+                        curve->curveData()->calculateResampledCurveData( m_resamplingInterval );
                     m_resampledCurveDatas.push_back( resampledData.p() );
 
                     curveData = resampledData.p();
@@ -551,7 +524,14 @@ void RigLasFileExporter::appendLasFileDescriptions( const std::vector<RimWellLog
                 {
                     curveData = curve->curveData();
                 }
-                singleLasFileMeta.addLogData( curve->wellLogChannelName().toStdString(), "NO_UNIT", "", curveData );
+                QString units = curve->curveData()->xUnits();
+
+                if ( convertCurveUnits || units == RiaWellLogUnitTools<double>::barX100UnitString() )
+                {
+                    units = curve->wellLogChannelUnits();
+                }
+
+                singleLasFileMeta.addLogData( curve->wellLogChannelName().toStdString(), units.toStdString(), "", curveData );
             }
         }
 
@@ -585,9 +565,9 @@ QString RigLasFileExporter::caseNameFromCurve( RimWellLogCurve* curve )
 double RigLasFileExporter::rkbDiff( RimWellLogCurve* curve )
 {
     RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
-    if ( extractionCurve )
+    if ( extractionCurve && extractionCurve->wellPath() )
     {
-        return extractionCurve->rkbDiff();
+        return extractionCurve->wellPath()->wellPathGeometry()->rkbDiff();
     }
 
     return HUGE_VAL;

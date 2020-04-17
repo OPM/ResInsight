@@ -46,8 +46,8 @@ double RigActiveCellsResultAccessor::cellScalar( size_t gridLocalCellIndex ) con
 
     if ( resultValueIndex < m_reservoirResultValues->size() ) return m_reservoirResultValues->at( resultValueIndex );
 
-    CVF_TIGHT_ASSERT( resultValueIndex <
-                      m_activeCellInfo->reservoirActiveCellCount() ); // Because some static results might lack LGR data
+    CVF_TIGHT_ASSERT( resultValueIndex < m_activeCellInfo->reservoirActiveCellCount() ); // Because some static results
+                                                                                         // might lack LGR data
 
     return HUGE_VAL;
 }
@@ -73,8 +73,8 @@ double RigActiveCellsResultAccessor::cellScalarGlobIdx( size_t reservoirCellInde
 
     if ( resultValueIndex < m_reservoirResultValues->size() ) return m_reservoirResultValues->at( resultValueIndex );
 
-    CVF_TIGHT_ASSERT( resultValueIndex <
-                      m_activeCellInfo->reservoirActiveCellCount() ); // Because some static results might lack LGR data
+    CVF_TIGHT_ASSERT( resultValueIndex < m_activeCellInfo->reservoirActiveCellCount() ); // Because some static results
+                                                                                         // might lack LGR data
 
     return HUGE_VAL;
 }

@@ -29,6 +29,7 @@
 #include <QString>
 
 #include <map>
+#include <string>
 #include <vector>
 
 class RifGeoMechReaderInterface;
@@ -55,21 +56,15 @@ public:
                                  const RigFemPartCollection* femPartCollection );
     ~RigFemPartResultsCollection() override;
 
-    void               setActiveFormationNames( RigFormationNames* activeFormationNames );
-    RigFormationNames* activeFormationNames();
+    void                 setActiveFormationNames( RigFormationNames* activeFormationNames );
+    std::vector<QString> formationNames() const;
 
     void                             addElementPropertyFiles( const std::vector<QString>& filenames );
     std::vector<RigFemResultAddress> removeElementPropertyFiles( const std::vector<QString>& filenames );
 
     void   setCalculationParameters( double cohesion, double frictionAngleRad );
-    double parameterCohesion() const
-    {
-        return m_cohesion;
-    }
-    double parameterFrictionAngleRad() const
-    {
-        return m_frictionAngleRad;
-    }
+    double parameterCohesion() const { return m_cohesion; }
+    double parameterFrictionAngleRad() const { return m_frictionAngleRad; }
 
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
     std::vector<std::string>                        filteredStepNames() const;
@@ -120,6 +115,10 @@ public:
 
     static std::vector<RigFemResultAddress> tensorComponentAddresses( const RigFemResultAddress& resVarAddr );
     static std::vector<RigFemResultAddress> tensorPrincipalComponentAdresses( const RigFemResultAddress& resVarAddr );
+    static std::set<RigFemResultAddress>    normalizedResults();
+    static bool                             isNormalizableResult( const RigFemResultAddress& result );
+
+    void setNormalizationAirGap( double normalizationAirGap );
 
 private:
     RigFemScalarResultFrames* findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
@@ -156,20 +155,29 @@ private:
     RigFemScalarResultFrames* calculateST_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateGamma( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateFormationIndices( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* calculateStressGradients( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* calculateNodalGradients( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* calculateNormalizedResult( int partIndex, const RigFemResultAddress& resVarAddr );
+
+    const RigFormationNames* activeFormationNames() const;
 
 private:
     cvf::Collection<RigFemPartResults>  m_femPartResults;
     cvf::ref<RifGeoMechReaderInterface> m_readerInterface;
     cvf::ref<RifElementPropertyReader>  m_elementPropertyReader;
     cvf::cref<RigFemPartCollection>     m_femParts;
-    cvf::ref<RigFormationNames>         m_activeFormationNamesData;
+    cvf::cref<RigFormationNames>        m_activeFormationNamesData;
 
     double m_cohesion;
     double m_frictionAngleRad;
+    double m_normalizationAirGap;
 
     RigStatisticsDataCache*          statistics( const RigFemResultAddress& resVarAddr );
     std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache>> m_resultStatistics;
+
+    static std::vector<std::string> getStressComponentNames();
+    static std::vector<std::string> getStressGradientComponentNames();
 };
 
 class RigFemPart;
@@ -183,18 +191,9 @@ public:
                                         int                 m_face,
                                         const cvf::Vec3d&   intersectionPointInDomain );
 
-    int resultIndexToClosestResult()
-    {
-        return m_resultIndexToClosestResult;
-    }
-    int closestNodeId()
-    {
-        return m_closestNodeId;
-    }
-    int closestElementNodeResIdx()
-    {
-        return m_closestElementNodeResIdx;
-    }
+    int resultIndexToClosestResult() { return m_resultIndexToClosestResult; }
+    int closestNodeId() { return m_closestNodeId; }
+    int closestElementNodeResIdx() { return m_closestElementNodeResIdx; }
 
 private:
     int m_resultIndexToClosestResult;

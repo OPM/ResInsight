@@ -107,9 +107,7 @@ RiaGrpcUnaryCallback<ServiceT, RequestT, ReplyT>::RiaGrpcUnaryCallback( ServiceT
 template <typename ServiceT, typename RequestT, typename ReplyT>
 RiaGrpcCallbackInterface* RiaGrpcUnaryCallback<ServiceT, RequestT, ReplyT>::createNewFromThis() const
 {
-    return new RiaGrpcUnaryCallback<ServiceT, RequestT, ReplyT>( this->m_service,
-                                                                 this->m_methodImpl,
-                                                                 this->m_methodRequest );
+    return new RiaGrpcUnaryCallback<ServiceT, RequestT, ReplyT>( this->m_service, this->m_methodImpl, this->m_methodRequest );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -350,8 +348,8 @@ void RiaGrpcClientToServerStreamCallback<ServiceT, RequestT, ReplyT, StateHandle
     }
     else
     {
-        CAF_ASSERT( m_stateHandler->streamedValueCount() <= m_stateHandler->cellCount() );
-        if ( m_stateHandler->streamedValueCount() == m_stateHandler->cellCount() )
+        CAF_ASSERT( m_stateHandler->streamedValueCount() <= m_stateHandler->totalValueCount() );
+        if ( m_stateHandler->streamedValueCount() == m_stateHandler->totalValueCount() )
         {
             this->setNextCallState( RiaGrpcCallbackInterface::FINISH_REQUEST );
             m_reader.Finish( this->m_reply, grpc::Status::OK, this );

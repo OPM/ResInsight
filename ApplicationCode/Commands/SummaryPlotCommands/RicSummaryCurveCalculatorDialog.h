@@ -21,7 +21,7 @@
 #include <QDialog>
 #include <memory>
 
-class RicSummaryCurveCalculatorEditor;
+class RicSummaryCurveCalculatorWidgetCreator;
 class RimSummaryCalculation;
 
 //==================================================================================================
@@ -46,5 +46,5 @@ private:
     size_t dirtyCount() const;
 
 private:
-    std::unique_ptr<RicSummaryCurveCalculatorEditor> m_summaryCalcEditor;
+    std::unique_ptr<RicSummaryCurveCalculatorWidgetCreator> m_summaryCalcEditor;
 };

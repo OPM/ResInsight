@@ -23,9 +23,13 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCellColors.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCellEdgeColors.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.h
 ${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPath.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurement.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilePath.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttribute.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttributeCollection.h
@@ -72,13 +76,14 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.h
-${CMAKE_CURRENT_LIST_DIR}/RimPlotInterface.h
+${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.h
-${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindow.h
+${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimWbsParameters.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewLinker.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewLinkerCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogExtractionCurve.h
@@ -88,11 +93,14 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersection.h
+${CMAKE_CURRENT_LIST_DIR}/RimExtrudedCurveIntersection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.h
+${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.h
-${CMAKE_CURRENT_LIST_DIR}/RimIntersectionBox.h
+${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilter.h
@@ -137,7 +145,12 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.h
-${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindowCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilter.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInViewCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInView.h
+${CMAKE_CURRENT_LIST_DIR}/RimWellDiskConfig.h
 )
 
 
@@ -165,9 +178,13 @@ ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCellColors.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimCellEdgeColors.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimSimWellInViewTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFileWellPath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimModeledWellPath.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurement.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilePath.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathGeometryDef.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttribute.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellPathAttributeCollection.cpp
@@ -214,11 +231,12 @@ ${CMAKE_CURRENT_LIST_DIR}/RimMainPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimRftPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPltPlotCollection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimPlotInterface.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindow.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWbsParameters.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewLinker.cpp
@@ -230,11 +248,14 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellLogFileCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogRftCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimExtrudedCurveIntersection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimIntersectionCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultDefinition.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimIntersectionResultsDefinitionCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimContextCommandBuilder.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGridCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotCurve.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimIntersectionBox.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimBoxIntersection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimAdvancedSnapshotExportDefinition.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMdiWindowController.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPropertyFilter.cpp
@@ -279,7 +300,12 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimGridPlotWindowCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilter.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInViewCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInView.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimWellDiskConfig.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -290,5 +316,8 @@ list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
+list(APPEND QT_MOC_HEADERS
+${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
+)
 
 source_group( "ProjectDataModel" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

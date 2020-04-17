@@ -66,8 +66,7 @@ bool isExcplicitHandled( char secondChar )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(
-    const std::set<RiaSummaryCurveDefinition>& curveDefinitions )
+RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator( const std::set<RiaSummaryCurveDefinition>& curveDefinitions )
 {
     m_allSummaryCaseNames = getAllSummaryCaseNames();
     m_allSummaryWellNames = getAllSummaryWellNames();
@@ -191,17 +190,17 @@ void RimSummaryCurveAppearanceCalculator::assignDimensions( CurveAppearanceType 
 void RimSummaryCurveAppearanceCalculator::updateApperanceIndices()
 {
     {
-        std::map<std::string, size_t> caseAppearanceIndices = mapNameToAppearanceIndex( m_caseAppearanceType,
-                                                                                        m_allSummaryCaseNames );
+        std::map<std::string, size_t> caseAppearanceIndices =
+            mapNameToAppearanceIndex( m_caseAppearanceType, m_allSummaryCaseNames );
         for ( auto& pair : m_caseToAppearanceIdxMap )
         {
-            pair.second = static_cast<int>(
-                caseAppearanceIndices[pair.first->summaryHeaderFilename().toUtf8().constData()] );
+            pair.second =
+                static_cast<int>( caseAppearanceIndices[pair.first->summaryHeaderFilename().toUtf8().constData()] );
         }
     }
     {
-        std::map<std::string, size_t> wellAppearanceIndices = mapNameToAppearanceIndex( m_wellAppearanceType,
-                                                                                        m_allSummaryWellNames );
+        std::map<std::string, size_t> wellAppearanceIndices =
+            mapNameToAppearanceIndex( m_wellAppearanceType, m_allSummaryWellNames );
         for ( auto& pair : m_welToAppearanceIdxMap )
         {
             pair.second = static_cast<int>( wellAppearanceIndices[pair.first] );
@@ -247,13 +246,13 @@ std::map<std::string, size_t>
     }
     else if ( appearance == CurveAppearanceType::SYMBOL )
     {
-        numOptions = caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::size() -
-                     1; // -1 since the No symbol option is not counted see cycledSymbol()
+        numOptions = caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::size() - 1; // -1 since the No symbol option is not
+                                                                              // counted see cycledSymbol()
     }
     else if ( appearance == CurveAppearanceType::LINE_STYLE )
     {
-        numOptions = caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>::size() -
-                     1; // -1 since the No symbol option is not counted see cycledLineStyle()
+        numOptions = caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>::size() - 1; // -1 since the No symbol option is not
+                                                                               // counted see cycledLineStyle()
     }
     else
     {

@@ -18,8 +18,8 @@
 
 #include "RicSummaryCurveCalculatorDialog.h"
 
-#include "RicSummaryCurveCalculator.h"
-#include "RicSummaryCurveCalculatorEditor.h"
+#include "RicSummaryCurveCalculatorUi.h"
+#include "RicSummaryCurveCalculatorWidgetCreator.h"
 
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
@@ -45,7 +45,9 @@ RicSummaryCurveCalculatorDialog::RicSummaryCurveCalculatorDialog( QWidget* paren
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog() {}
+RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -62,7 +64,7 @@ void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi( RimSummaryCalcu
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorDialog::slotTryCloseDialog()
 {
-    RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculator::calculationCollection();
+    RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculatorUi::calculationCollection();
 
     if ( dirtyCount() > 0 )
     {
@@ -113,7 +115,8 @@ void RicSummaryCurveCalculatorDialog::setUp()
     QVBoxLayout* mainLayout = new QVBoxLayout( this );
     mainLayout->setContentsMargins( 0, 0, 0, 0 );
 
-    m_summaryCalcEditor = std::unique_ptr<RicSummaryCurveCalculatorEditor>( new RicSummaryCurveCalculatorEditor() );
+    m_summaryCalcEditor =
+        std::unique_ptr<RicSummaryCurveCalculatorWidgetCreator>( new RicSummaryCurveCalculatorWidgetCreator() );
     mainLayout->addWidget( m_summaryCalcEditor->getOrCreateWidget( this ) );
 
     QDialogButtonBox* buttonBox = new QDialogButtonBox( QDialogButtonBox::Close );
@@ -131,7 +134,7 @@ size_t RicSummaryCurveCalculatorDialog::dirtyCount() const
 {
     size_t count = 0;
 
-    RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculator::calculationCollection();
+    RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculatorUi::calculationCollection();
     for ( auto c : calculationCollection->calculations() )
     {
         if ( c->isDirty() )

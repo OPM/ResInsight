@@ -29,7 +29,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 
-#include "RiuSummaryCurveDefSelectionDialog.h"
+#include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
@@ -89,7 +89,7 @@ void RimSummaryCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle*
         bool updateContainingEditor = false;
 
         {
-            RiuSummaryCurveDefSelectionDialog dlg( nullptr );
+            RiuSummaryVectorSelectionDialog dlg( nullptr );
             dlg.hideEnsembles();
 
             readDataFromApplicationStore( &dlg );
@@ -132,7 +132,7 @@ void RimSummaryCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle*
 QString RimSummaryCalculationVariable::summaryAddressDisplayString() const
 {
     QString caseName;
-    if ( m_case() ) caseName = m_case()->caseName();
+    if ( m_case() ) caseName = m_case()->displayCaseName();
 
     return RiaSummaryCurveDefinition::curveDefinitionText( caseName, m_summaryAddress()->address() );
 }
@@ -168,11 +168,10 @@ void RimSummaryCalculationVariable::defineUiOrdering( QString uiConfigName, caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationVariable::defineObjectEditorAttribute( QString                    uiConfigName,
-                                                                 caf::PdmUiEditorAttribute* attribute )
+void RimSummaryCalculationVariable::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    caf::PdmUiTableViewPushButtonEditorAttribute* attr = dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>(
-        attribute );
+    caf::PdmUiTableViewPushButtonEditorAttribute* attr =
+        dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>( attribute );
     if ( attr )
     {
         attr->registerPushButtonTextForFieldKeyword( m_button.keyword(), "Edit" );
@@ -182,7 +181,7 @@ void RimSummaryCalculationVariable::defineObjectEditorAttribute( QString        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationVariable::readDataFromApplicationStore( RiuSummaryCurveDefSelectionDialog* selectionDialog ) const
+void RimSummaryCalculationVariable::readDataFromApplicationStore( RiuSummaryVectorSelectionDialog* selectionDialog ) const
 {
     if ( !selectionDialog ) return;
 

@@ -27,9 +27,7 @@ template <>
 void AppEnum<RimLegendConfig::RangeModeType>::setUp()
 {
     addItem( RimLegendConfig::AUTOMATIC_ALLTIMESTEPS, "AUTOMATIC_ALLTIMESTEPS", "Min and Max for All Timesteps" );
-    addItem( RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP,
-             "AUTOMATIC_CURRENT_TIMESTEP",
-             "Min and Max for Current Timestep" );
+    addItem( RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP, "AUTOMATIC_CURRENT_TIMESTEP", "Min and Max for Current Timestep" );
     addItem( RimLegendConfig::USER_DEFINED, "USER_DEFINED_MAX_MIN", "User Defined Range" );
     setDefault( RimLegendConfig::AUTOMATIC_ALLTIMESTEPS );
 }
@@ -38,9 +36,13 @@ void AppEnum<RimLegendConfig::RangeModeType>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimLegendConfig::RimLegendConfig() {}
+RimLegendConfig::RimLegendConfig()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimLegendConfig::~RimLegendConfig() {}
+RimLegendConfig::~RimLegendConfig()
+{
+}

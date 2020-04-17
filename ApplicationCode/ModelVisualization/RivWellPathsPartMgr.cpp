@@ -38,7 +38,9 @@ RivWellPathsPartMgr::RivWellPathsPartMgr( Rim3dView* view )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellPathsPartMgr::~RivWellPathsPartMgr() {}
+RivWellPathsPartMgr::~RivWellPathsPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -86,8 +88,6 @@ void RivWellPathsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList
                                                              double                            characteristicCellSize,
                                                              const cvf::BoundingBox&           wellPathClipBoundingBox )
 {
-    if ( !isWellPathVisible() ) return;
-
     createPartManagersIfRequired();
 
     for ( auto& partMgr : m_wellPathsPartMgrs )
@@ -112,7 +112,9 @@ void RivWellPathsPartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellPathsPartMgr::scheduleGeometryRegen() {}
+void RivWellPathsPartMgr::scheduleGeometryRegen()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

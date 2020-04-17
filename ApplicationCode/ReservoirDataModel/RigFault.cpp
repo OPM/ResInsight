@@ -26,7 +26,9 @@ cvf::ref<RigFaultsPrCellAccumulator> RigFault::m_faultsPrCellAcc;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFault::RigFault() {}
+RigFault::RigFault()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -191,7 +193,8 @@ void RigFault::accumulateFaultsPrCell( RigFaultsPrCellAccumulator* faultsPrCellA
 {
     for ( const FaultFace& ff : m_faultFaces )
     {
-        // Could detect overlapping faults here .... if (faultsPrCellAcc->faultIdx(ff.m_nativeReservoirCellIndex, ff.m_nativeFace)
+        // Could detect overlapping faults here .... if (faultsPrCellAcc->faultIdx(ff.m_nativeReservoirCellIndex,
+        // ff.m_nativeFace)
         // >= 0)
 
         faultsPrCellAcc->setFaultIdx( ff.m_nativeReservoirCellIndex, ff.m_nativeFace, faultIdx );

@@ -19,6 +19,10 @@
 
 #pragma once
 
+#include "RiaNncDefines.h"
+
+#include "RigNncConnection.h"
+
 #include "cvfObject.h"
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"
@@ -31,28 +35,6 @@ class RigMainGrid;
 class RigCell;
 class RigEclipseResultAddress;
 
-class RigConnection
-{
-public:
-    RigConnection()
-        : m_c1GlobIdx( cvf::UNDEFINED_SIZE_T )
-        , m_c1Face( cvf::StructGridInterface::NO_FACE )
-        , m_c2GlobIdx( cvf::UNDEFINED_SIZE_T )
-    {
-    }
-
-    bool hasCommonArea() const
-    {
-        return m_polygon.size() > 0;
-    }
-
-    size_t                             m_c1GlobIdx;
-    cvf::StructGridInterface::FaceType m_c1Face;
-    size_t                             m_c2GlobIdx;
-
-    std::vector<cvf::Vec3d> m_polygon;
-};
-
 class RigNNCData : public cvf::Object
 {
 public:
@@ -63,53 +45,15 @@ public:
         NNC_GENERATED
     };
 
-    static QString propertyNameFluxWat()
-    {
-        return "FLRWAT";
-    }
-    static QString propertyNameFluxOil()
-    {
-        return "FLROIL";
-    }
-    static QString propertyNameFluxGas()
-    {
-        return "FLRGAS";
-    }
-    static QString propertyNameCombTrans()
-    {
-        return "TRAN";
-    }
-    static QString propertyNameRiCombTrans()
-    {
-        return "riTRAN";
-    }
-    static QString propertyNameRiCombTransByArea()
-    {
-        return "riTRANbyArea";
-    }
-    static QString propertyNameRiCombMult()
-    {
-        return "riMULT";
-    }
-
     RigNNCData();
 
-    void processConnections( const RigMainGrid& mainGrid );
+    void processNativeConnections( const RigMainGrid& mainGrid );
+    void computeCompleteSetOfNncs( const RigMainGrid* mainGrid );
 
-    static cvf::StructGridInterface::FaceType calculateCellFaceOverlap( const RigCell&           c1,
-                                                                        const RigCell&           c2,
-                                                                        const RigMainGrid&       mainGrid,
-                                                                        std::vector<size_t>*     connectionPolygon,
-                                                                        std::vector<cvf::Vec3d>* connectionIntersections );
+    void   setConnections( std::vector<RigConnection>& connections );
+    size_t nativeConnectionCount() const;
 
-    std::vector<RigConnection>& connections()
-    {
-        return m_connections;
-    }
-    const std::vector<RigConnection>& connections() const
-    {
-        return m_connections;
-    }
+    const std::vector<RigConnection>& connections() const;
 
     std::vector<double>&       makeStaticConnectionScalarResult( QString nncDataType );
     const std::vector<double>* staticConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const;
@@ -123,10 +67,9 @@ public:
     const std::vector<double>* dynamicConnectionScalarResultByName( const QString& nncDataType, size_t timeStep ) const;
 
     std::vector<std::vector<double>>& makeGeneratedConnectionScalarResult( QString nncDataType, size_t timeStepCount );
-    const std::vector<std::vector<double>>*
-                                      generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const;
-    const std::vector<double>*        generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr,
-                                                                       size_t                         timeStep ) const;
+    const std::vector<std::vector<double>>* generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const;
+    const std::vector<double>*              generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr,
+                                                                             size_t                         timeStep ) const;
     std::vector<std::vector<double>>* generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr );
     std::vector<double>* generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr, size_t timeStep );
     const std::vector<std::vector<double>>* generatedConnectionScalarResultByName( const QString& nncDataType ) const;
@@ -146,6 +89,7 @@ private:
 
 private:
     std::vector<RigConnection>                          m_connections;
+    size_t                                              m_nativeConnectionCount;
     std::map<QString, std::vector<std::vector<double>>> m_connectionResults;
     std::map<RigEclipseResultAddress, QString>          m_resultAddrToNNCDataType;
 };

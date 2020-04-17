@@ -25,10 +25,8 @@ namespace cvf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d GeometryTools::computeFaceCenter( const cvf::Vec3d& v0,
-                                             const cvf::Vec3d& v1,
-                                             const cvf::Vec3d& v2,
-                                             const cvf::Vec3d& v3 )
+cvf::Vec3d
+    GeometryTools::computeFaceCenter( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3 )
 {
     cvf::Vec3d centerCoord = v0;
     centerCoord += v1;
@@ -173,6 +171,31 @@ double GeometryTools::signedAreaPlanarPolygon( const cvf::Vec3d& planeNormal, co
                       ( polygon[( i + 1 ) % polygon.size()][Y] + polygon[i][Y] );
     }
     return signedArea;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// This method below is more correct than the one above, both in naming and behaviour.
+/// Should be replaced, but is not done now to avoid possible sideeffects
+/// The difference is the sign of the area. The one below retuns correct sign according to the plane normal
+/// provided
+//--------------------------------------------------------------------------------------------------
+template <typename Vec3Type>
+double closestAxisSignedAreaPlanarPolygon( const cvf::Vec3d& planeNormal, const std::vector<Vec3Type>& polygon )
+{
+    int Z = cvf::GeometryTools::findClosestAxis( planeNormal );
+    int X = ( Z + 1 ) % 3;
+    int Y = ( Z + 2 ) % 3;
+
+    // Use Shoelace formula to calculate signed area.
+    // https://en.wikipedia.org/wiki/Shoelace_formula
+    double signedArea = 0.0;
+    for ( size_t i = 0; i < polygon.size(); ++i )
+    {
+        signedArea += ( polygon[( i + 1 ) % polygon.size()][X] + polygon[i][X] ) *
+                      ( polygon[( i + 1 ) % polygon.size()][Y] - polygon[i][Y] );
+    }
+
+    return ( planeNormal[Z] > 0 ) ? signedArea : -signedArea;
 }
 
 /*
@@ -557,7 +580,8 @@ int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d p0,
 //
 //    p = (xp, yp, zp)
 
-cvf::Vec3d barycentricCoordsExperiment(const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const cvf::Vec3d& p)
+cvf::Vec3d barycentricCoordsExperiment(const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const
+cvf::Vec3d& p)
 {
     det = x0(y1*z2 - y2*z1) + x1(y2*z0 - z2*y0) + x2(y0*z1 - y1*z0);
 
@@ -579,10 +603,8 @@ inline double TriArea2D( double x1, double y1, double x2, double y2, double x3, 
 // These can be used as weights for interpolating scalar values across the triangle
 // Based on section 3.4 in "Real Time collision detection" by Christer Ericson
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d GeometryTools::barycentricCoords( const cvf::Vec3d& t0,
-                                             const cvf::Vec3d& t1,
-                                             const cvf::Vec3d& t2,
-                                             const cvf::Vec3d& p )
+cvf::Vec3d
+    GeometryTools::barycentricCoords( const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const cvf::Vec3d& p )
 {
     // Unnormalized triangle normal
     cvf::Vec3d m = ( t1 - t0 ^ t2 - t0 );
@@ -880,12 +902,17 @@ bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices
         ++w; // v + 1;
         if ( w == m_polygonIndices.end() ) w = m_polygonIndices.begin(); // if (nv <= w) w = 0;
 
-        if ( isTriangleValid( u, v, w ) )
+        EarClipTesselator::TriangleStatus triStatus = calculateTriangleStatus( u, v, w );
+
+        if ( triStatus != INVALID_TRIANGLE )
         {
             // Indices of the vertices
-            triangleIndices->push_back( *u );
-            triangleIndices->push_back( *v );
-            triangleIndices->push_back( *w );
+            if ( triStatus == VALID_TRIANGLE )
+            {
+                triangleIndices->push_back( *u );
+                triangleIndices->push_back( *v );
+                triangleIndices->push_back( *w );
+            }
 
             // Remove v from remaining polygon
             m_polygonIndices.erase( v );
@@ -904,9 +931,9 @@ bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices
 /// Is this a valid triangle ? ( No points inside, and points not on a line. )
 //--------------------------------------------------------------------------------------------------
 
-bool EarClipTesselator::isTriangleValid( std::list<size_t>::const_iterator u,
-                                         std::list<size_t>::const_iterator v,
-                                         std::list<size_t>::const_iterator w ) const
+EarClipTesselator::TriangleStatus EarClipTesselator::calculateTriangleStatus( std::list<size_t>::const_iterator u,
+                                                                              std::list<size_t>::const_iterator v,
+                                                                              std::list<size_t>::const_iterator w ) const
 {
     CVF_ASSERT( m_X > -1 && m_Y > -1 );
 
@@ -914,9 +941,17 @@ bool EarClipTesselator::isTriangleValid( std::list<size_t>::const_iterator u,
     cvf::Vec3d B = ( *m_nodeCoords )[*v];
     cvf::Vec3d C = ( *m_nodeCoords )[*w];
 
-    if ( m_areaTolerance >
-         ( ( ( B[m_X] - A[m_X] ) * ( C[m_Y] - A[m_Y] ) ) - ( ( B[m_Y] - A[m_Y] ) * ( C[m_X] - A[m_X] ) ) ) )
-        return false;
+    double mainAxisProjectedArea = ( ( B[m_X] - A[m_X] ) * ( C[m_Y] - A[m_Y] ) ) -
+                                   ( ( B[m_Y] - A[m_Y] ) * ( C[m_X] - A[m_X] ) );
+    if ( -m_areaTolerance > mainAxisProjectedArea )
+    {
+        // Definite negative triangle
+        return INVALID_TRIANGLE;
+    }
+    else if ( fabs( mainAxisProjectedArea ) < m_areaTolerance )
+    {
+        return NEAR_ZERO_AREA_TRIANGLE;
+    }
 
     std::list<size_t>::const_iterator c;
     std::list<size_t>::const_iterator outside;
@@ -948,15 +983,16 @@ bool EarClipTesselator::isTriangleValid( std::list<size_t>::const_iterator u,
 
         cvf::Vec3d P = ( *m_nodeCoords )[*c];
 
-        if ( isPointInsideTriangle( A, B, C, P ) ) return false;
+        if ( isPointInsideTriangle( A, B, C, P ) ) return INVALID_TRIANGLE;
     }
 
-    return true;
+    return VALID_TRIANGLE;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Decides if a point P is inside of the triangle defined by A, B, C.
 /// By calculating the "double area" (cross product) of Corner to corner x Corner to point vectors
+/// If cross product is negative, the point is outside
 //--------------------------------------------------------------------------------------------------
 
 bool EarClipTesselator::isPointInsideTriangle( const cvf::Vec3d& A,
@@ -983,7 +1019,8 @@ bool EarClipTesselator::isPointInsideTriangle( const cvf::Vec3d& A,
     double aCROSSbp = ax * bpy - ay * bpx;
     double cCROSSap = cx * apy - cy * apx;
     double bCROSScp = bx * cpy - by * cpx;
-    double tol      = 0;
+    double tol      = -m_areaTolerance;
+
     return ( ( aCROSSbp >= tol ) && ( bCROSScp >= tol ) && ( cCROSSap >= tol ) );
 };
 
@@ -1152,8 +1189,7 @@ bool FanEarClipTesselator::isTriangleValid( size_t u, size_t v, size_t w )
     cvf::Vec3d B = ( *m_nodeCoords )[v];
     cvf::Vec3d C = ( *m_nodeCoords )[w];
 
-    if ( m_areaTolerance >
-         ( ( ( B[m_X] - A[m_X] ) * ( C[m_Y] - A[m_Y] ) ) - ( ( B[m_Y] - A[m_Y] ) * ( C[m_X] - A[m_X] ) ) ) )
+    if ( m_areaTolerance > ( ( ( B[m_X] - A[m_X] ) * ( C[m_Y] - A[m_Y] ) ) - ( ( B[m_Y] - A[m_Y] ) * ( C[m_X] - A[m_X] ) ) ) )
         return false;
 
     std::list<size_t>::const_iterator c;

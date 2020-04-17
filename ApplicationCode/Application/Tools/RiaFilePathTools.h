@@ -32,8 +32,7 @@
 class RiaFilePathTools
 {
 public:
-    static const QChar SEPARATOR;
-
+    static const QChar                 separator();
     static QString                     toInternalSeparator( const QString& path );
     static QString&                    appendSeparatorIfNo( QString& path );
     static QString                     relativePath( const QString& rootDir, const QString& dir );

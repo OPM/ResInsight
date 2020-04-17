@@ -52,8 +52,8 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* w
     , m_maxColumnOffset( 0.0 )
     , m_showLabel( false )
 {
-    CVF_ASSERT( wellPath );
-    double wellStart = wellPath->wellPathGeometry()->measureDepths().front();
+    CVF_ASSERT( wellPath && wellPath->wellPathGeometry() );
+    double wellStart = 0.0;
     double wellEnd   = wellPath->wellPathGeometry()->measureDepths().back();
     m_startMD        = wellStart;
     m_endMD          = wellEnd;
@@ -201,16 +201,8 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         double       markerDepth   = startDepth;
         while ( markerDepth < endDepth - 5 )
         {
-            addMarker( -casingTrackEnd,
-                       markerDepth,
-                       markerSize,
-                       RiuQwtSymbol::SYMBOL_LEFT_ALIGNED_TRIANGLE,
-                       componentColor() );
-            addMarker( casingTrackEnd,
-                       markerDepth,
-                       markerSize,
-                       RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE,
-                       componentColor() );
+            addMarker( -casingTrackEnd, markerDepth, markerSize, RiuQwtSymbol::SYMBOL_LEFT_ALIGNED_TRIANGLE, componentColor() );
+            addMarker( casingTrackEnd, markerDepth, markerSize, RiuQwtSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor() );
 
             markerDepth += markerSpacing;
         }
@@ -265,16 +257,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
     {
         for ( double md : m_subMDs )
         {
-            addMarker( 0.0,
-                       md,
-                       16,
-                       RiuQwtSymbol::SYMBOL_ELLIPSE,
-                       componentColor(),
-                       "",
-                       Qt::AlignCenter,
-                       Qt::Horizontal,
-                       false,
-                       true );
+            addMarker( 0.0, md, 16, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true );
         }
         m_combinedComponentGroup.addLegendItem(
             createMarker( 0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor() ) );
@@ -283,16 +266,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
     {
         for ( double md : m_subMDs )
         {
-            addMarker( 0.0,
-                       md,
-                       16,
-                       RiuQwtSymbol::SYMBOL_ELLIPSE,
-                       componentColor(),
-                       "",
-                       Qt::AlignCenter,
-                       Qt::Horizontal,
-                       false,
-                       true );
+            addMarker( 0.0, md, 16, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true );
         }
         m_combinedComponentGroup.addLegendItem(
             createMarker( 0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor() ) );
@@ -301,24 +275,15 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
     {
         for ( double md : m_subMDs )
         {
-            addMarker( 0.0,
-                       md,
-                       16,
-                       RiuQwtSymbol::SYMBOL_ELLIPSE,
-                       componentColor(),
-                       "",
-                       Qt::AlignCenter,
-                       Qt::Horizontal,
-                       false,
-                       true );
+            addMarker( 0.0, md, 16, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true );
         }
         m_combinedComponentGroup.addLegendItem(
             createMarker( 0.0, 0.0, 12.0, RiuQwtSymbol::SYMBOL_ELLIPSE, componentColor() ) );
     }
     else if ( m_componentType == RiaDefines::PACKER )
     {
-        addColumnFeature( -casingTrackEnd, -0.25, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
-        addColumnFeature( 0.25, casingTrackEnd, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
+        addColumnFeature( -1.1 * casingTrackEnd, -0.25, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
+        addColumnFeature( 0.25, 1.1 * casingTrackEnd, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
         addMarker( casingTrackEnd, midDepth, 10, RiuQwtSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor( 0.0 ), label() );
     }
     m_combinedComponentGroup.setTitle( legendTitle() );
@@ -333,12 +298,36 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
     double startDepth = m_startMD;
     double endDepth   = m_endMD;
 
-    if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+    if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH || m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
     {
-        cvf::Vec3d startPoint = m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_startMD );
-        cvf::Vec3d endPoint   = m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_endMD );
-        startDepth            = -startPoint.z();
-        endDepth              = -endPoint.z();
+        endDepth       = -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_endMD ).z();
+        double rkbDiff = m_wellPath->wellPathGeometry()->rkbDiff();
+        if ( rkbDiff == std::numeric_limits<double>::infinity() )
+        {
+            rkbDiff = 0.0;
+        }
+
+        if ( m_componentType == RiaDefines::WELL_PATH )
+        {
+            startDepth = 0.0;
+            if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+            {
+                startDepth -= rkbDiff;
+            }
+            else if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+            {
+                endDepth += m_wellPath->wellPathGeometry()->rkbDiff();
+            }
+        }
+        else
+        {
+            startDepth = -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_startMD ).z();
+            if ( m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+            {
+                startDepth += m_wellPath->wellPathGeometry()->rkbDiff();
+                endDepth += m_wellPath->wellPathGeometry()->rkbDiff();
+            }
+        }
     }
     return std::make_pair( startDepth, endDepth );
 }
@@ -357,16 +346,8 @@ void RiuWellPathComponentPlotItem::addMarker( double                        posX
                                               bool                          drawLine /*= false*/,
                                               bool                          contrastTextColor /*= true*/ )
 {
-    QwtPlotItem* marker = createMarker( posX,
-                                        depth,
-                                        size,
-                                        symbolType,
-                                        baseColor,
-                                        label,
-                                        labelAlignment,
-                                        labelOrientation,
-                                        drawLine,
-                                        contrastTextColor );
+    QwtPlotItem* marker =
+        createMarker( posX, depth, size, symbolType, baseColor, label, labelAlignment, labelOrientation, drawLine, contrastTextColor );
     m_combinedComponentGroup.addPlotItem( marker );
 }
 

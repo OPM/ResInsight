@@ -49,15 +49,13 @@ CAF_CMD_SOURCE_INIT( RicCreateSaturationPressurePlotsFeature, "RicCreateSaturati
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSaturationPressurePlot*>
-    RicCreateSaturationPressurePlotsFeature::createPlots( RimEclipseResultCase* eclipseResultCase )
+    RicCreateSaturationPressurePlotsFeature::createPlots( RimEclipseResultCase* eclipseResultCase, int timeStep )
 {
     std::vector<RimSaturationPressurePlot*> plots;
 
     if ( !eclipseResultCase )
     {
-        RiaLogging::error(
-            "RicCreateSaturationPressurePlotsFeature:: No case specified for creation of saturation pressure plots" );
-
+        RiaLogging::error( "CreateSaturationPressurePlots:: No case specified" );
         return plots;
     }
 
@@ -71,32 +69,42 @@ std::vector<RimSaturationPressurePlot*>
 
         RigEclipseCaseData* eclipseCaseData = eclipseResultCase->eclipseCaseData();
 
-        bool requiredInputDataPresent = false;
-        if ( !eclipseCaseData->equilData().empty() )
+        if ( eclipseCaseData->equilData().empty() )
         {
-            if ( eclipseCaseData && eclipseCaseData->results( RiaDefines::MATRIX_MODEL ) )
-            {
-                RigCaseCellResultsData* resultData = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
-
-                if ( resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ) ) &&
-                     resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PDEW" ) ) &&
-                     resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PBUB" ) ) )
-                {
-                    requiredInputDataPresent = true;
-                }
-            }
+            RiaLogging::error( "CreateSaturationPressurePlots:: No EQUIL data available" );
+            return plots;
         }
 
-        if ( requiredInputDataPresent )
+        if ( eclipseCaseData && eclipseCaseData->results( RiaDefines::MATRIX_MODEL ) )
         {
-            plots = collection->createSaturationPressurePlots( eclipseResultCase );
-            for ( auto plot : plots )
+            RigCaseCellResultsData* resultData = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
+
+            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ) ) )
             {
-                plot->loadDataAndUpdate();
-                plot->zoomAll();
-                plot->updateConnectedEditors();
+                RiaLogging::error( "CreateSaturationPressurePlots : PRESSURE is not available " );
+                return plots;
+            }
+
+            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PDEW" ) ) )
+            {
+                RiaLogging::error( "CreateSaturationPressurePlots : PDEW is not available " );
+                return plots;
+            }
+
+            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PBUB" ) ) )
+            {
+                RiaLogging::error( "CreateSaturationPressurePlots : PBUB is not available " );
+                return plots;
             }
         }
+    }
+
+    plots = collection->createSaturationPressurePlots( eclipseResultCase, timeStep );
+    for ( auto plot : plots )
+    {
+        plot->loadDataAndUpdate();
+        plot->zoomAll();
+        plot->updateConnectedEditors();
     }
 
     return plots;
@@ -135,6 +143,7 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked 
     }
 
     RimEclipseResultCase* eclipseResultCase = nullptr;
+    int                   timeStep          = 0;
 
     if ( !eclipseCases.empty() )
     {
@@ -142,7 +151,8 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked 
         {
             eclipseResultCase = eclipseCases[0];
         }
-        else
+
+        if ( !eclipseResultCase || eclipseResultCase->timeStepDates().size() > 1 )
         {
             RicSaturationPressureUi saturationPressureUi;
             saturationPressureUi.setSelectedCase( eclipseCases[0] );
@@ -157,22 +167,25 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked 
             if ( propertyDialog.exec() == QDialog::Accepted )
             {
                 eclipseResultCase = dynamic_cast<RimEclipseResultCase*>( saturationPressureUi.selectedCase() );
+                timeStep          = saturationPressureUi.selectedTimeStep();
             }
         }
     }
 
     caf::PdmObject* objectToSelect = nullptr;
 
-    std::vector<RimSaturationPressurePlot*> plots = createPlots( eclipseResultCase );
+    std::vector<RimSaturationPressurePlot*> plots = createPlots( eclipseResultCase, timeStep );
     if ( plots.empty() )
     {
         QString text = "No plots generated.\n\n";
         text += "Data required to generate saturation/pressure plots:\n";
+        text += " - EQUIL property defining at least one region\n";
         text += " - EQLNUM property defining at least one region\n";
         text += " - Dynamic properties PRESSURE, PBUB and PDEW\n\n";
         text += "Make sure to add 'PBPD' to the RPTRST keyword in the SOLUTION selection. ";
         text += "If this is a two phase run (Oil/water or Gas/Water) or if both VAPOIL ";
-        text += "and DISGAS are disabled, saturation pressure are not valid.";
+        text += "and DISGAS are disabled, saturation pressure are not valid.\n\n";
+        text += "See error log for more details.";
 
         QMessageBox::warning( nullptr, "Saturation Pressure Plots", text );
 

@@ -100,8 +100,8 @@ bool RicGeoMechPropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechPropertyFilter* RicGeoMechPropertyFilterFeatureImpl::createPropertyFilter(
-    RimGeoMechPropertyFilterCollection* propertyFilterCollection )
+RimGeoMechPropertyFilter*
+    RicGeoMechPropertyFilterFeatureImpl::createPropertyFilter( RimGeoMechPropertyFilterCollection* propertyFilterCollection )
 {
     CVF_ASSERT( propertyFilterCollection );
 

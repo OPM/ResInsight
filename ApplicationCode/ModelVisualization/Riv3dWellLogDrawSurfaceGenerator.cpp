@@ -261,8 +261,8 @@ void Riv3dWellLogDrawSurfaceGenerator::createBackground( cvf::Vec3fArray* vertex
     }
 
     // Background specific
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt(
-        cvf::PrimitiveType::PT_TRIANGLE_STRIP );
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt =
+        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_TRIANGLE_STRIP );
     cvf::ref<cvf::UIntArray> indexArray = new cvf::UIntArray( backgroundIndices );
     indexedUInt->setIndices( indexArray.p() );
 

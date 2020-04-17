@@ -86,6 +86,8 @@ public:
     Rim3dView( void );
     ~Rim3dView( void ) override;
 
+    int id() const final;
+
     // Public fields:
 
     caf::PdmField<double> scaleZ;
@@ -186,8 +188,7 @@ protected:
 
     RimWellPathCollection* wellPathCollection() const;
 
-    void addWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
-                              const cvf::BoundingBox& wellPathClipBoundingBox );
+    void addWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox );
     void addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
                                      const cvf::BoundingBox& wellPathClipBoundingBox );
     void addAnnotationsToModel( cvf::ModelBasicList* annotationsModel );
@@ -225,9 +226,7 @@ protected:
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* backgroundColorField();
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -246,10 +245,15 @@ protected:
 
     // 3D display model data
     cvf::ref<cvf::ModelBasicList> m_wellPathPipeVizModel;
-    cvf::ref<cvf::ModelBasicList> m_crossSectionVizModel;
+    cvf::ref<cvf::ModelBasicList> m_intersectionVizModel;
     cvf::ref<RivWellPathsPartMgr> m_wellPathsPartManager;
 
 private:
+    friend class RimProject;
+
+    void setId( int id );
+    void assignIdIfNecessary() final;
+
     void     updateMdiWindowTitle() override;
     void     deleteViewWidget() override;
     QWidget* viewWidget() override;
@@ -284,10 +288,11 @@ private:
 private:
     QPointer<RiuViewer> m_viewer;
     QPointer<RiuViewer> m_overrideViewer;
-    bool                m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw; // To avoid infinite recursion if comparison views are pointing to each other.
+    bool m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw; // To avoid infinite recursion if comparison views
+                                                                   // are pointing to each other.
 
     // Fields
-
+    caf::PdmField<int>                     m_id;
     caf::PdmField<QString>                 m_name_OBSOLETE;
     caf::PdmChildField<RimViewNameConfig*> m_nameConfig;
     caf::PdmField<bool>                    m_disableLighting;

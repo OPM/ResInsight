@@ -42,15 +42,9 @@ public:
     void updateAzimuthBasedOnWellAzimuthAngle() override;
 
     double wellAzimuthAtFracturePosition() const override;
-    double fractureMD() const override
-    {
-        return m_location;
-    }
+    double fractureMD() const override { return m_location; }
 
-    int branchIndex() const
-    {
-        return m_branchIndex();
-    }
+    int branchIndex() const { return m_branchIndex(); }
 
     void loadDataAndUpdate() override;
 
@@ -59,9 +53,7 @@ public:
     bool isEnabled() const override; // RimWellPathCompletionsInterface override
 
 protected:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,

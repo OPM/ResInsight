@@ -67,7 +67,9 @@ RimWellPathValve::RimWellPathValve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathValve::~RimWellPathValve() {}
+RimWellPathValve::~RimWellPathValve()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -557,7 +559,7 @@ void RimWellPathValve::defineEditorAttribute( const caf::PdmFieldHandle* field,
                 RigWellPath* wellPathGeo = rimWellPath->wellPathGeometry();
                 if ( !wellPathGeo ) return;
 
-                if ( wellPathGeo->m_measuredDepths.size() > 2 )
+                if ( wellPathGeo->m_measuredDepths.size() > 1 )
                 {
                     minimumValue = wellPathGeo->measureDepths().front();
                     maximumValue = wellPathGeo->measureDepths().back();

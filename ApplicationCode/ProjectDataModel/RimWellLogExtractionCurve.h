@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "RigWbsParameter.h"
 #include "RimWellLogCurve.h"
 
 #include "cafPdmChildField.h"
@@ -63,14 +64,15 @@ public:
 
     TrajectoryType trajectoryType() const;
     QString        wellName() const override;
+    QString        wellLogChannelUiName() const override;
     QString        wellLogChannelName() const override;
+    QString        wellLogChannelUnits() const override;
     QString        wellDate() const override;
     int            branchIndex() const;
     bool           branchDetection() const;
 
     bool    isEclipseCurve() const;
     QString caseName() const;
-    double  rkbDiff() const;
 
     int  currentTimeStep() const;
     void setCurrentTimeStep( int timeStep );
@@ -94,9 +96,7 @@ protected:
     virtual void performDataExtraction( bool* isUsingPseudoLength );
     void extractData( bool* isUsingPseudoLength, bool performDataSmoothing = false, double smoothingThreshold = -1.0 );
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

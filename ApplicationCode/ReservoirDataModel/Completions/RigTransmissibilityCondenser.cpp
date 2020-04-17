@@ -38,7 +38,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigTransmissibilityCondenser::RigTransmissibilityCondenser() {}
+RigTransmissibilityCondenser::RigTransmissibilityCondenser()
+    : m_transmissibilityThreshold( 1.0e-9 )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -49,6 +52,7 @@ RigTransmissibilityCondenser::RigTransmissibilityCondenser( const RigTransmissib
     , m_externalCellAddrSet( copyFrom.m_externalCellAddrSet )
     , m_TiiInv( copyFrom.m_TiiInv )
     , m_Tie( copyFrom.m_Tie )
+    , m_transmissibilityThreshold( copyFrom.m_transmissibilityThreshold )
 {
 }
 
@@ -62,17 +66,33 @@ RigTransmissibilityCondenser& RigTransmissibilityCondenser::operator=( const Rig
     m_externalCellAddrSet         = rhs.m_externalCellAddrSet;
     m_TiiInv                      = rhs.m_TiiInv;
     m_Tie                         = rhs.m_Tie;
+    m_transmissibilityThreshold   = rhs.m_transmissibilityThreshold;
+
     return *this;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigTransmissibilityCondenser::addNeighborTransmissibility( CellAddress cell1,
-                                                                CellAddress cell2,
-                                                                double      transmissibility )
+void RigTransmissibilityCondenser::setTransmissibilityThreshold( double threshold )
 {
-    if ( transmissibility < 1e-9 ) return;
+    m_transmissibilityThreshold = threshold;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigTransmissibilityCondenser::transmissibilityThreshold() const
+{
+    return m_transmissibilityThreshold;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigTransmissibilityCondenser::addNeighborTransmissibility( CellAddress cell1, CellAddress cell2, double transmissibility )
+{
+    if ( transmissibility < m_transmissibilityThreshold ) return;
 
     m_condensedTransmissibilities.clear();
     m_externalCellAddrSet.clear();
@@ -149,11 +169,11 @@ std::map<size_t, double>
                     size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
                     size_t eclipseResultIndex  = actCellInfo->cellResultIndex( globalMatrixCellIdx );
                     CVF_ASSERT( eclipseResultIndex < currentMatrixPressures.size() );
-                    double unsignedDeltaPressure = std::abs( currentMatrixPressures[eclipseResultIndex] -
-                                                             currentWellPressure );
-                    double nonZeroDeltaPressure  = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
-                    maxNonZeroDeltaPressure      = std::max( maxNonZeroDeltaPressure, nonZeroDeltaPressure );
-                    minNonZeroDeltaPressure      = std::min( minNonZeroDeltaPressure, nonZeroDeltaPressure );
+                    double unsignedDeltaPressure =
+                        std::abs( currentMatrixPressures[eclipseResultIndex] - currentWellPressure );
+                    double nonZeroDeltaPressure = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
+                    maxNonZeroDeltaPressure     = std::max( maxNonZeroDeltaPressure, nonZeroDeltaPressure );
+                    minNonZeroDeltaPressure     = std::min( minNonZeroDeltaPressure, nonZeroDeltaPressure );
                 }
             }
         }
@@ -173,9 +193,9 @@ std::map<size_t, double>
 
                     originalLumpedMatrixToFractureTrans[globalMatrixCellIdx] += jt->second;
 
-                    double unsignedDeltaPressure = std::abs( currentMatrixPressures[eclipseResultIndex] -
-                                                             currentWellPressure );
-                    double nonZeroDeltaPressure  = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
+                    double unsignedDeltaPressure =
+                        std::abs( currentMatrixPressures[eclipseResultIndex] - currentWellPressure );
+                    double nonZeroDeltaPressure = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
 
                     jt->second *= nonZeroDeltaPressure / maxNonZeroDeltaPressure;
                 }
@@ -261,10 +281,15 @@ std::map<size_t, double> RigTransmissibilityCondenser::calculateEffectiveMatrixT
             auto fictitiousFractureToWellIt = ficticuousFractureToWellTransMap.find( globalMatrixCellIdx );
             CVF_ASSERT( fictitiousFractureToWellIt != ficticuousFractureToWellTransMap.end() );
             double fictitiousFractureToWellTrans = fictitiousFractureToWellIt->second;
+
             // T^dp_mw
-            effectiveMatrixToWellTrans[globalMatrixCellIdx] =
+            double transmissibilityValue =
                 RigFractureTransmissibilityEquations::effectiveMatrixToWellTransPDDHC( lumpedOriginalMatrixToFractureT,
                                                                                        fictitiousFractureToWellTrans );
+            if ( transmissibilityValue > m_transmissibilityThreshold )
+            {
+                effectiveMatrixToWellTrans[globalMatrixCellIdx] = transmissibilityValue;
+            }
         }
     }
     return effectiveMatrixToWellTrans;

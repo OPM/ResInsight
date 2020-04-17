@@ -66,18 +66,9 @@ public:
 
     cvf::Color3f color() const;
     bool         isShowingCurve() const;
-    virtual bool isShowingTimeDependentResult() const
-    {
-        return isShowingCurve();
-    }
-    virtual bool showInView( const Rim3dView* gridView ) const
-    {
-        return isShowingCurve();
-    }
-    virtual bool followAnimationTimeStep() const
-    {
-        return false;
-    }
+    virtual bool isShowingTimeDependentResult() const { return isShowingCurve(); }
+    virtual bool showInView( const Rim3dView* gridView ) const { return isShowingCurve(); }
+    virtual bool followAnimationTimeStep() const { return false; }
     virtual void curveValuesAndMds( std::vector<double>* values, std::vector<double>* measuredDepthValues ) const = 0;
     virtual void curveValuesAndMdsAtTimeStep( std::vector<double>* values,
                                               std::vector<double>* measuredDepthValues,
@@ -99,9 +90,7 @@ public:
 
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 configurationUiOrdering( caf::PdmUiOrdering& uiOrdering );
     void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                 QString                    uiConfigName,

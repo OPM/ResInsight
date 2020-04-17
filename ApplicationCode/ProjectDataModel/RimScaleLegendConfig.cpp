@@ -100,13 +100,7 @@ RimScaleLegendConfig::RimScaleLegendConfig()
     CAF_PDM_InitObject( "Color Legend", ":/Legend.png", "", "" );
     CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Show Legend", "", "", "" );
     m_showLegend.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitField( &m_numLevels,
-                       "NumberOfLevels",
-                       8,
-                       "Number of Levels",
-                       "",
-                       "A hint on how many tick marks you whish.",
-                       "" );
+    CAF_PDM_InitField( &m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.", "" );
     CAF_PDM_InitField( &m_precision,
                        "Precision",
                        4,
@@ -144,7 +138,9 @@ RimScaleLegendConfig::RimScaleLegendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimScaleLegendConfig::~RimScaleLegendConfig() {}
+RimScaleLegendConfig::~RimScaleLegendConfig()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -190,7 +186,7 @@ void RimScaleLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 
         view->updateDisplayModelForCurrentTimeStepAndRedraw();
 
-        view->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
     // Update stim plan templates if relevant
@@ -544,8 +540,8 @@ void RimScaleLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimScaleLegendConfig::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                           bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo>
+    RimScaleLegendConfig::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     bool hasStimPlanParent         = false;
     bool hasEnsembleCurveSetParent = false;
@@ -580,7 +576,8 @@ QList<caf::PdmOptionItemInfo> RimScaleLegendConfig::calculateValueOptions( const
 
     if ( fieldNeedingOptions == &m_colorRangeMode )
     {
-        // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
+        // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of
+        // this type
         std::vector<ColorRangesType> rangeTypes;
         if ( !hasEnsembleCurveSetParent )
         {

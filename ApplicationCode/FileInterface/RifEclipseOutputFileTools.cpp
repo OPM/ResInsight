@@ -45,12 +45,16 @@
 //--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
-RifEclipseOutputFileTools::RifEclipseOutputFileTools() {}
+RifEclipseOutputFileTools::RifEclipseOutputFileTools()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Destructor
 //--------------------------------------------------------------------------------------------------
-RifEclipseOutputFileTools::~RifEclipseOutputFileTools() {}
+RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
+{
+}
 
 struct KeywordItemCounter
 {
@@ -61,10 +65,7 @@ struct KeywordItemCounter
     {
     }
 
-    bool operator==( const std::string& rhs ) const
-    {
-        return this->m_keyword == rhs;
-    }
+    bool operator==( const std::string& rhs ) const { return this->m_keyword == rhs; }
 
     std::string m_keyword;
     size_t      m_aggregatedItemCount;
@@ -121,7 +122,8 @@ void getDayMonthYear( const ecl_kw_type* intehead_kw, int* day, int* month, int*
 //--------------------------------------------------------------------------------------------------
 void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
                                            std::vector<QDateTime>* timeSteps,
-                                           std::vector<double>*    daysSinceSimulationStart )
+                                           std::vector<double>*    daysSinceSimulationStart,
+                                           size_t*                 perTimeStepHeaderKeywordCount )
 {
     if ( !ecl_file ) return;
 
@@ -151,13 +153,12 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         }
     }
 
-    bool allTimeStepsOnSameDate = true;
+    bool useStartOfSimulationDate = true;
     {
         // See https://github.com/OPM/ResInsight/issues/4770
 
-        std::set<int> days;
-        std::set<int> months;
-        std::set<int> years;
+        std::set<std::tuple<int, int, int>> uniqueDays;
+
         for ( int i = 0; i < numINTEHEAD; i++ )
         {
             ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, i );
@@ -167,9 +168,7 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
             int year  = 0;
             getDayMonthYear( kwINTEHEAD, &day, &month, &year );
 
-            days.insert( day );
-            months.insert( month );
-            years.insert( year );
+            uniqueDays.insert( std::make_tuple( day, month, year ) );
         }
 
         std::set<double> uniqueDayValues;
@@ -178,10 +177,15 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
             uniqueDayValues.insert( dayValue );
         }
 
-        if ( days.size() == 1 && months.size() == 1 && years.size() == 1 && uniqueDayValues.size() == 1 )
+        if ( uniqueDays.size() == 1 && uniqueDayValues.size() == 1 )
         {
-            QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime(
-                QDate( *years.begin(), *months.begin(), *days.begin() ) );
+            int day   = 0;
+            int month = 0;
+            int year  = 0;
+
+            std::tie( day, month, year ) = *( uniqueDays.begin() );
+
+            QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime( QDate( year, month, day ) );
 
             timeSteps->push_back( reportDateTime );
             daysSinceSimulationStart->push_back( *uniqueDayValues.begin() );
@@ -193,15 +197,26 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
             return;
         }
 
-        if ( days.size() > 1 ) allTimeStepsOnSameDate = false;
-        if ( months.size() > 1 ) allTimeStepsOnSameDate = false;
-        if ( years.size() > 1 ) allTimeStepsOnSameDate = false;
+        // Some simulations might end up with wrong data reported for day/month/year. If this situation is detected,
+        // base all time step on double values and use start of simulation as first date
+        // See https://github.com/OPM/ResInsight/issues/4850
+        if ( uniqueDays.size() == dayValues.size() ) useStartOfSimulationDate = false;
     }
 
     std::set<QDateTime> existingTimesteps;
     for ( int i = 0; i < numINTEHEAD; i++ )
     {
-        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, i );
+        ecl_kw_type* kwINTEHEAD = nullptr;
+
+        if ( useStartOfSimulationDate )
+        {
+            kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, 0 );
+        }
+        else
+        {
+            kwINTEHEAD = ecl_file_iget_named_kw( ecl_file, INTEHEAD_KW, i );
+        }
+
         CVF_ASSERT( kwINTEHEAD );
         int day   = 0;
         int month = 0;
@@ -213,7 +228,7 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
 
         double dayDoubleValue = dayValues[i];
         int    dayValue       = cvf::Math::floor( dayDoubleValue );
-        if ( allTimeStepsOnSameDate )
+        if ( useStartOfSimulationDate )
         {
             reportDateTime = reportDateTime.addDays( dayValue );
         }
@@ -222,11 +237,22 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         double milliseconds = dayFraction * 24.0 * 60.0 * 60.0 * 1000.0;
 
         reportDateTime = reportDateTime.addMSecs( milliseconds );
+
         if ( existingTimesteps.insert( reportDateTime ).second )
         {
             timeSteps->push_back( reportDateTime );
             daysSinceSimulationStart->push_back( dayDoubleValue );
         }
+    }
+
+    if ( perTimeStepHeaderKeywordCount )
+    {
+        // 6X simulator can report more then one keyword block per time step. Report the total number of keywords per
+        // time steps to be able to read data from correct index
+        //
+        // See https://github.com/OPM/ResInsight/issues/5763
+        //
+        *perTimeStepHeaderKeywordCount = numINTEHEAD / timeSteps->size();
     }
 }
 
@@ -403,17 +429,18 @@ bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( const QString&
 void RifEclipseOutputFileTools::readGridDimensions( const QString&                 gridFileName,
                                                     std::vector<std::vector<int>>& gridDimensions )
 {
-    ecl_grid_type* grid = ecl_grid_alloc(
-        RiaStringEncodingTools::toNativeEncoded( gridFileName ).data() ); // bootstrap ecl_grid instance
+    ecl_grid_type* grid = ecl_grid_alloc( RiaStringEncodingTools::toNativeEncoded( gridFileName ).data() ); // bootstrap
+                                                                                                            // ecl_grid
+                                                                                                            // instance
     stringlist_type* lgr_names = ecl_grid_alloc_lgr_name_list( grid ); // get a list of all the lgr names.
 
     // printf("grid:%s has %d a total of %d lgr's \n", grid_filename , stringlist_get_size( lgr_names ));
     for ( int lgr_nr = 0; lgr_nr < stringlist_get_size( lgr_names ); lgr_nr++ )
     {
-        ecl_grid_type* lgr_grid =
-            ecl_grid_get_lgr( grid,
-                              stringlist_iget( lgr_names,
-                                               lgr_nr ) ); // get the ecl_grid instance of the lgr - by name.
+        ecl_grid_type* lgr_grid = ecl_grid_get_lgr( grid,
+                                                    stringlist_iget( lgr_names,
+                                                                     lgr_nr ) ); // get the ecl_grid instance of the lgr
+                                                                                 // - by name.
 
         int nx, ny, nz, active_size;
         ecl_grid_get_dims( lgr_grid, &nx, &ny, &nz, &active_size ); // get some size info from this lgr.
@@ -465,8 +492,8 @@ cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicRe
     cvf::ref<RifEclipseRestartDataAccess> resultsAccess;
 
     // Look for unified restart file
-    QString unrstFileName = RifEclipseOutputFileTools::firstFileNameOfType( filesWithSameBaseName,
-                                                                            ECL_UNIFIED_RESTART_FILE );
+    QString unrstFileName =
+        RifEclipseOutputFileTools::firstFileNameOfType( filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE );
     if ( unrstFileName.size() > 0 )
     {
         resultsAccess = new RifEclipseUnifiedRestartFileAccess();
@@ -475,8 +502,8 @@ cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicRe
     else
     {
         // Look for set of restart files (one file per time step)
-        QStringList restartFiles = RifEclipseOutputFileTools::filterFileNamesOfType( filesWithSameBaseName,
-                                                                                     ECL_RESTART_FILE );
+        QStringList restartFiles =
+            RifEclipseOutputFileTools::filterFileNamesOfType( filesWithSameBaseName, ECL_RESTART_FILE );
         if ( restartFiles.size() > 0 )
         {
             resultsAccess = new RifEclipseRestartFilesetAccess();

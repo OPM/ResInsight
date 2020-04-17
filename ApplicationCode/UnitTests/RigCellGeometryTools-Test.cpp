@@ -114,10 +114,7 @@ TEST( RigCellGeometryTools, calculateCellVolumeTest2 )
 
     cvf::BoundingBox          overlapBoundingBox;
     std::array<cvf::Vec3d, 8> overlapVertices;
-    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices,
-                                                             innerBBox,
-                                                             &overlapVertices,
-                                                             &overlapBoundingBox );
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices, innerBBox, &overlapVertices, &overlapBoundingBox );
     EXPECT_DOUBLE_EQ( expectedOverlap, RigCellGeometryTools::calculateCellVolume( overlapVertices ) );
 
     cvf::BoundingBox smallerInnerBBox( cvf::Vec3d( 25.0, 25.0, -10.0 ), cvf::Vec3d( 75.0, 75.0, 25.0 ) );
@@ -128,10 +125,7 @@ TEST( RigCellGeometryTools, calculateCellVolumeTest2 )
     EXPECT_DOUBLE_EQ( 50 * 50 * 25, RigCellGeometryTools::calculateCellVolume( overlapVertices ) );
 
     cvf::BoundingBox smallerBBox( cvf::Vec3d( 50.0, 50.0, 0.0 ), cvf::Vec3d( 100.0, 100.0, 100.0 ) );
-    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices,
-                                                             smallerBBox,
-                                                             &overlapVertices,
-                                                             &overlapBoundingBox );
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices, smallerBBox, &overlapVertices, &overlapBoundingBox );
     double tipVolume = 50 * 50 * 50 * 0.5;
     EXPECT_DOUBLE_EQ( tipVolume, RigCellGeometryTools::calculateCellVolume( overlapVertices ) );
 
@@ -321,9 +315,7 @@ TEST( RigCellGeometryTools, polylinePolygonIntersectionTest )
 
     {
         std::vector<std::vector<cvf::Vec3d>> clippedLines =
-            RigCellGeometryTools::clipPolylineByPolygon( polyLine,
-                                                         polygonExample,
-                                                         RigCellGeometryTools::INTERPOLATE_LINE_Z );
+            RigCellGeometryTools::clipPolylineByPolygon( polyLine, polygonExample, RigCellGeometryTools::INTERPOLATE_LINE_Z );
 
         EXPECT_EQ( (size_t)1, clippedLines.size() );
         EXPECT_EQ( (size_t)3, clippedLines.front().size() );
@@ -460,7 +452,8 @@ TEST( RigWellPathStimplanIntersector, intersection )
     {
         cvf::Mat4d fractureXf = cvf::Mat4d::IDENTITY;
 
-        //         std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f, 0.0f} };
+        //         std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f,
+        //         0.0f} };
         double                               perforationLength = 10;
         double                               wellRadius        = 1.5;
         std::vector<std::vector<cvf::Vec3d>> stpCellPolygons   = {
@@ -523,5 +516,139 @@ TEST( RigWellPathStimplanIntersector, intersection )
             EXPECT_EQ( (size_t)0, it->first );
             EXPECT_EQ( 2, it->second.endpointCount );
         }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Test of whether we can transport edge information trough clipper clipping
+// Seems as if it might be possible, but clipper will ignore the edge information
+// processed by the callback if one of the edges is horizontal
+//
+
+#include "clipper/clipper.hpp"
+double clipperConversionFactor2 = 10000; // For transform to clipper int
+
+ClipperLib::IntPoint toClipperEdgePoint( const cvf::Vec3d& cvfPoint )
+{
+    int xInt = cvfPoint.x() * clipperConversionFactor2;
+    int yInt = cvfPoint.y() * clipperConversionFactor2;
+    int zInt = cvfPoint.z();
+    return ClipperLib::IntPoint( xInt, yInt, zInt );
+}
+
+cvf::Vec3d fromClipperEdgePoint( const ClipperLib::IntPoint& clipPoint )
+{
+    double zDValue;
+
+    if ( clipPoint.Z == std::numeric_limits<int>::max() )
+    {
+        zDValue = HUGE_VAL;
+    }
+    else
+    {
+        zDValue = clipPoint.Z;
+    }
+
+    return cvf::Vec3d( clipPoint.X / clipperConversionFactor2, clipPoint.Y / clipperConversionFactor2, zDValue );
+}
+
+void swapPointsIfNeedeed( ClipperLib::IntPoint*& p1, ClipperLib::IntPoint*& p2 )
+{
+    if ( p1->Z > p2->Z )
+    {
+        std::swap( p1, p2 );
+    }
+
+    if ( ( p2->Z - p1->Z ) > 1 ) // End edge of polygon
+    {
+        std::swap( p1, p2 ); // Swap back
+    }
+}
+
+void clipperEdgeIntersectCallback( ClipperLib::IntPoint& e1bot,
+                                   ClipperLib::IntPoint& e1top,
+                                   ClipperLib::IntPoint& e2bot,
+                                   ClipperLib::IntPoint& e2top,
+                                   ClipperLib::IntPoint& pt )
+{
+    ClipperLib::IntPoint* e11 = &e1bot;
+    ClipperLib::IntPoint* e12 = &e1top;
+    ClipperLib::IntPoint* e21 = &e2bot;
+    ClipperLib::IntPoint* e22 = &e2top;
+
+    swapPointsIfNeedeed( e11, e12 );
+    swapPointsIfNeedeed( e21, e22 );
+
+    cvf::Vec3f e1( e12->X - e11->X, e12->Y - e11->Y, 0.0 );
+    cvf::Vec3f e2( e22->X - e21->X, e22->Y - e21->Y, 0.0 );
+
+    cvf::Vec3f up = e1 ^ e2;
+    if ( up.z() > 0 )
+    {
+        pt.Z = e12->Z;
+        std::cout << "E1 :" << e11->Z << " " << e12->Z << std::endl;
+        std::cout << "E2 :" << e21->Z << " " << e22->Z << std::endl << std::endl;
+    }
+    else
+    {
+        pt.Z = e22->Z;
+        std::cout << "E1 :" << e21->Z << " " << e22->Z << std::endl;
+        std::cout << "E2 :" << e11->Z << " " << e12->Z << std::endl << std::endl;
+    }
+}
+
+TEST( RigCellGeometryTools, ClipperEdgeTracking )
+{
+    // If the first edges of the polygons are horizontal, the edge tracking will fail.
+    // Encode polygon and edge into Z coordinate of the vertex
+
+    std::vector<cvf::Vec3d> polygon1 = {{0.0, 0.51, 1002.0}, {1.0, 0.5, 1000.0}, {0.0, 1.0, 1001.0}};
+    std::vector<cvf::Vec3d> polygon2 = {{0.5, 0.01, 2002.0}, {1.0, 0.0, 2000.0}, {0.5, 1.0, 2001.0}};
+
+    std::vector<std::vector<cvf::Vec3d>> clippedPolygons;
+
+    // Convert to int for clipper library and store as clipper "path"
+    ClipperLib::Path polygon1path;
+    for ( const cvf::Vec3d& v : polygon1 )
+    {
+        polygon1path.push_back( toClipperEdgePoint( v ) );
+    }
+
+    ClipperLib::Path polygon2path;
+    for ( const cvf::Vec3d& v : polygon2 )
+    {
+        polygon2path.push_back( toClipperEdgePoint( v ) );
+    }
+
+    ClipperLib::Clipper clpr;
+    clpr.AddPath( polygon1path, ClipperLib::ptSubject, true );
+    clpr.AddPath( polygon2path, ClipperLib::ptClip, true );
+
+    clpr.ZFillFunction( &clipperEdgeIntersectCallback );
+
+    ClipperLib::Paths solution;
+    clpr.Execute( ClipperLib::ctIntersection, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd );
+
+    // Convert back to std::vector<std::vector<cvf::Vec3d> >
+    for ( ClipperLib::Path pathInSol : solution )
+    {
+        std::vector<cvf::Vec3d> clippedPolygon;
+        for ( ClipperLib::IntPoint IntPosition : pathInSol )
+        {
+            clippedPolygon.push_back( fromClipperEdgePoint( IntPosition ) );
+        }
+        clippedPolygons.push_back( clippedPolygon );
+    }
+
+    int pIdx = 1;
+    for ( auto& polygon : clippedPolygons )
+    {
+        std::cout << "Polygon: " << pIdx << std::endl;
+        for ( auto& point : polygon )
+        {
+            std::cout << "   [ " << point[0] << ", " << point[1] << ", " << point[2] << " ]" << std::endl;
+        }
+        pIdx++;
     }
 }

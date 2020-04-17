@@ -48,6 +48,7 @@ class RimWellPathCollection;
 class Rim3dView;
 class Riv3dWellLogPlanePartMgr;
 class RivWellConnectionFactorPartMgr;
+class RimWellMeasurementInView;
 
 class QDateTime;
 
@@ -93,6 +94,10 @@ private:
                                           const caf::DisplayCoordTransform* displayCoordTransform,
                                           double                            characteristicCellSize );
 
+    void appendWellMeasurementsToModel( cvf::ModelBasicList*              model,
+                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                        double                            characteristicCellSize );
+
     void appendImportedFishbonesToModel( cvf::ModelBasicList*              model,
                                          const caf::DisplayCoordTransform* displayCoordTransform,
                                          double                            characteristicCellSize );
@@ -122,8 +127,13 @@ private:
     void                          clearAllBranchData();
     inline RimWellPathCollection* wellPathCollection() const;
     inline double wellPathRadius( double characteristicCellSize, RimWellPathCollection* wellPathCollection );
+    double        wellMeasurementRadius( double                          characteristicCellSize,
+                                         const RimWellPathCollection*    wellPathCollection,
+                                         const RimWellMeasurementInView* wellMeasurementInView );
 
     bool isWellPathWithinBoundingBox( const cvf::BoundingBox& wellPathClipBoundingBox ) const;
+
+    static cvf::Color3f mapWellMeasurementToColor( const QString& measurementKind, double value );
 
 private:
     caf::PdmPointer<RimWellPath> m_rimWellPath;

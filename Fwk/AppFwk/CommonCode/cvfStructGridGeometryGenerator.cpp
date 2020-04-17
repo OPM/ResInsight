@@ -260,11 +260,23 @@ ref<DrawableGeo> StructGridGeometryGenerator::createOutlineMeshDrawable(double c
     return geo;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+ref<DrawableGeo> StructGridGeometryGenerator::createMeshDrawableFromSingleCell(const StructGridInterface* grid, 
+                                                                               size_t cellIndex)
+{
+    return createMeshDrawableFromSingleCell(grid, 
+                                            cellIndex, 
+                                            grid->displayModelOffset());
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ref<DrawableGeo> StructGridGeometryGenerator::createMeshDrawableFromSingleCell(const StructGridInterface* grid, size_t cellIndex)
+ref<DrawableGeo> StructGridGeometryGenerator::createMeshDrawableFromSingleCell(const StructGridInterface* grid, 
+                                                                               size_t cellIndex, 
+                                                                               const cvf::Vec3d& displayModelOffset)
 {
     cvf::Vec3d cornerVerts[8];
     grid->cellCornerVertices(cellIndex, cornerVerts);
@@ -281,7 +293,7 @@ ref<DrawableGeo> StructGridGeometryGenerator::createMeshDrawableFromSingleCell(c
         int n;
         for (n = 0; n < 4; n++)
         {
-            vertices.push_back(cvf::Vec3f(cornerVerts[faceConn[n]] - grid->displayModelOffset()));
+            vertices.push_back(cvf::Vec3f(cornerVerts[faceConn[n]] - displayModelOffset));
         }
     }
 

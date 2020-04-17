@@ -55,9 +55,7 @@ public:
 class RivEclipseIntersectionGrid : public RivIntersectionHexGridInterface
 {
 public:
-    RivEclipseIntersectionGrid( const RigMainGrid*       mainGrid,
-                                const RigActiveCellInfo* activeCellInfo,
-                                bool                     showInactiveCells );
+    RivEclipseIntersectionGrid( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, bool showInactiveCells );
 
     cvf::Vec3d       displayOffset() const override;
     cvf::BoundingBox boundingBox() const override;
@@ -123,7 +121,7 @@ public:
 
     Where the k's are normalized distances along the edge, from the edge start vertex .
 
-    This is the interpolation sceme:
+    This is the interpolation scheme:
 
     v   = (1 - k  )* v1   + k *v2;
 
@@ -205,21 +203,31 @@ public:
         m_weights[1] = ( (float)( normDistFromE1V1 ) );
     }
 
-    int size() const
+    explicit RivIntersectionVertexWeights( const std::array<size_t, 8>& vxIds, const std::array<double, 8>& explicitWeights )
+        : m_count( 8 )
+        , m_vxIds( vxIds )
     {
-        return m_count;
+        for ( size_t i = 0; i < 8; ++i )
+        {
+            m_weights[i] = static_cast<float>( explicitWeights[i] );
+        }
     }
-    size_t vxId( int idx ) const
-    {
-        return m_vxIds[idx];
-    }
-    float weight( int idx ) const
-    {
-        return m_weights[idx];
-    }
+
+    int    size() const { return m_count; }
+    size_t vxId( int idx ) const { return m_vxIds[idx]; }
+    float  weight( int idx ) const { return m_weights[idx]; }
 
 private:
     std::array<size_t, 8> m_vxIds;
     std::array<float, 8>  m_weights;
     int                   m_count;
+};
+
+class RivIntersectionGeometryGeneratorIF
+{
+public:
+    virtual bool                                             isAnyGeometryPresent() const                       = 0;
+    virtual const std::vector<size_t>&                       triangleToCellIndex() const                        = 0;
+    virtual const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const = 0;
+    virtual const cvf::Vec3fArray*                           triangleVxes() const                               = 0;
 };

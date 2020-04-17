@@ -18,6 +18,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaFontCache.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseFileNameTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaStringListSerializer.h
+${CMAKE_CURRENT_LIST_DIR}/RiaNncDefines.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -40,6 +41,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaFontCache.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaEclipseFileNameTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaStringListSerializer.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaNncDefines.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

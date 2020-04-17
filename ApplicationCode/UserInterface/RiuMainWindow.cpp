@@ -36,10 +36,10 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
-#include "RimIntersection.h"
 #include "RimProject.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimViewLinker.h"
@@ -239,8 +239,8 @@ void RiuMainWindow::cleanupGuiCaseClose()
 
     for ( auto& additionalProjectView : m_additionalProjectViews )
     {
-        RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>(
-            additionalProjectView->widget() );
+        RiuProjectAndPropertyView* projPropView =
+            dynamic_cast<RiuProjectAndPropertyView*>( additionalProjectView->widget() );
         if ( projPropView )
         {
             projPropView->showProperties( nullptr );
@@ -371,9 +371,8 @@ void RiuMainWindow::createActions()
     // connect(m_drawStyleLinesSolidAction,    SIGNAL(triggered()), SLOT(slotDrawStyleLinesSolid()));
     m_dsActionGroup->addAction( m_drawStyleLinesSolidAction );
 
-    m_drawStyleFaultLinesSolidAction = new QAction( QIcon( ":/draw_style_surface_w_fault_mesh_24x24.png" ),
-                                                    "Fault Mesh And Surfaces",
-                                                    this );
+    m_drawStyleFaultLinesSolidAction =
+        new QAction( QIcon( ":/draw_style_surface_w_fault_mesh_24x24.png" ), "Fault Mesh And Surfaces", this );
     m_dsActionGroup->addAction( m_drawStyleFaultLinesSolidAction );
 
     m_drawStyleSurfOnlyAction = new QAction( QIcon( ":/draw_style_surface_24x24.png" ), "&Surface Only", this );
@@ -394,9 +393,8 @@ void RiuMainWindow::createActions()
     m_toggleFaultsLabelAction->setCheckable( true );
     connect( m_toggleFaultsLabelAction, SIGNAL( toggled( bool ) ), SLOT( slotToggleFaultLabelsAction( bool ) ) );
 
-    m_showWellCellsAction = new QAction( QIcon( ":/draw_style_WellCellsToRangeFilter_24x24.png" ),
-                                         "&Show Well Cells",
-                                         this );
+    m_showWellCellsAction =
+        new QAction( QIcon( ":/draw_style_WellCellsToRangeFilter_24x24.png" ), "&Show Well Cells", this );
     m_showWellCellsAction->setCheckable( true );
     m_showWellCellsAction->setToolTip( "Show Well Cells" );
     connect( m_showWellCellsAction, SIGNAL( toggled( bool ) ), SLOT( slotShowWellCellsAction( bool ) ) );
@@ -451,11 +449,13 @@ void RiuMainWindow::createMenus()
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathsImportSsihubFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellLogsImportFileFeature" ) );
     importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathFormationsImportFileFeature" ) );
+    importWellMenu->addAction( cmdFeatureMgr->action( "RicImportWellMeasurementsFeature" ) );
 
     importMenu->addSeparator();
     importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedDataInMenuFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedFmuDataInMenuFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportFormationNamesFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportSurfacesFeature" ) );
 
     QMenu* exportMenu = fileMenu->addMenu( "&Export" );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToFileFeature" ) );
@@ -510,7 +510,6 @@ void RiuMainWindow::createMenus()
 
     connect( viewMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshViewActions() ) );
 
-    // Debug menu
     testMenu->addAction( m_mockModelAction );
     testMenu->addAction( m_mockResultsModelAction );
     testMenu->addAction( m_mockLargeResultsModelAction );
@@ -523,6 +522,9 @@ void RiuMainWindow::createMenus()
     testMenu->addAction( m_executePaintEventPerformanceTest );
     testMenu->addAction( cmdFeatureMgr->action( "RicLaunchUnitTestsFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicRunCommandFileFeature" ) );
+    testMenu->addAction( cmdFeatureMgr->action( "RicExportObjectAndFieldKeywordsFeature" ) );
+    testMenu->addAction( cmdFeatureMgr->action( "RicSaveProjectNoGlobalPathsFeature" ) );
+
     testMenu->addSeparator();
 
     testMenu->addAction( cmdFeatureMgr->action( "RicHoloLensExportToFolderFeature" ) );
@@ -539,6 +541,9 @@ void RiuMainWindow::createMenus()
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpSummaryCommandLineFeature" ) );
     helpMenu->addSeparator();
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpOpenUsersGuideFeature" ) );
+    helpMenu->addAction( cmdFeatureMgr->action( "RicSearchHelpFeature" ) );
+
+    connect( helpMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshHelpActions() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1142,8 +1147,8 @@ void RiuMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
     {
         if ( !additionalProjectView ) continue;
 
-        RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>(
-            additionalProjectView->widget() );
+        RiuProjectAndPropertyView* projPropView =
+            dynamic_cast<RiuProjectAndPropertyView*>( additionalProjectView->widget() );
         if ( projPropView )
         {
             projPropView->setPdmItem( pdmRoot );
@@ -1172,8 +1177,7 @@ void RiuMainWindow::slotViewFromSouth()
 {
     if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
     {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, 1, 0 ),
-                                                                              cvf::Vec3d( 0, 0, 1 ) );
+        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, 1, 0 ), cvf::Vec3d( 0, 0, 1 ) );
     }
 }
 
@@ -1196,8 +1200,7 @@ void RiuMainWindow::slotViewFromWest()
 {
     if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
     {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 1, 0, 0 ),
-                                                                              cvf::Vec3d( 0, 0, 1 ) );
+        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 1, 0, 0 ), cvf::Vec3d( 0, 0, 1 ) );
     }
 }
 
@@ -1220,8 +1223,7 @@ void RiuMainWindow::slotViewFromBelow()
 {
     if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
     {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, 0, 1 ),
-                                                                              cvf::Vec3d( 0, 1, 0 ) );
+        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, 0, 1 ), cvf::Vec3d( 0, 1, 0 ) );
     }
 }
 
@@ -1296,9 +1298,8 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
                     QModelIndex tmp = route[i];
                     if ( newSelectionIndex.isValid() )
                     {
-                        newSelectionIndex = m_projectTreeView->treeView()->model()->index( tmp.row(),
-                                                                                           tmp.column(),
-                                                                                           newSelectionIndex );
+                        newSelectionIndex =
+                            m_projectTreeView->treeView()->model()->index( tmp.row(), tmp.column(), newSelectionIndex );
                     }
                 }
 
@@ -1653,8 +1654,9 @@ void RiuMainWindow::restoreTreeViewState()
         QString currentIndexString = RiaApplication::instance()->project()->mainWindowCurrentModelIndexPath;
         if ( !currentIndexString.isEmpty() )
         {
-            QModelIndex mi = caf::QTreeViewStateSerializer::getModelIndexFromString( m_projectTreeView->treeView()->model(),
-                                                                                     currentIndexString );
+            QModelIndex mi =
+                caf::QTreeViewStateSerializer::getModelIndexFromString( m_projectTreeView->treeView()->model(),
+                                                                        currentIndexString );
             m_projectTreeView->treeView()->setCurrentIndex( mi );
         }
     }
@@ -1720,8 +1722,7 @@ void RiuMainWindow::updateMemoryUsage()
     }
 
     QColor usageColor( (int)( okColor.red() * ( 1.0 - currentUsageFraction ) + warningColor.red() * currentUsageFraction ),
-                       (int)( okColor.green() * ( 1.0 - currentUsageFraction ) +
-                              warningColor.green() * currentUsageFraction ),
+                       (int)( okColor.green() * ( 1.0 - currentUsageFraction ) + warningColor.green() * currentUsageFraction ),
                        (int)( okColor.blue() * ( 1.0 - currentUsageFraction ) +
                               warningColor.blue() * currentUsageFraction ) );
 
@@ -1740,8 +1741,7 @@ void RiuMainWindow::updateMemoryUsage()
     m_memoryUsedButton->setText( QString( "Memory Used: %1 MiB" ).arg( currentUsage ) );
     m_memoryTotalStatus->setText( QString( "Total Physical Memory: %1 MiB" ).arg( totalPhysicalMemory ) );
 
-    m_memoryUsedButton->setStyleSheet(
-        QString( "QLabel {color: %1; padding: 0px 5px 0px 0px;}" ).arg( usageColor.name() ) );
+    m_memoryUsedButton->setStyleSheet( QString( "QLabel {color: %1; padding: 0px 5px 0px 0px;}" ).arg( usageColor.name() ) );
     m_memoryTotalStatus->setStyleSheet( QString( "QLabel {padding: 0px 5px 0px 0px; }" ) );
 }
 

@@ -41,7 +41,7 @@ class RicfExportLgrForCompletions : public RicfCommandObject
 public:
     RicfExportLgrForCompletions();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<int>                  m_caseId;

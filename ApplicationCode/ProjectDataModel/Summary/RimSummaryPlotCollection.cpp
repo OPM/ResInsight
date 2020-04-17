@@ -22,6 +22,9 @@
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
 
+#include "cafPdmFieldScriptability.h"
+#include "cafPdmObjectScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RimSummaryPlotCollection, "SummaryPlotCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -29,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlotCollection, "SummaryPlotCollection" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection::RimSummaryPlotCollection()
 {
-    CAF_PDM_InitObject( "Summary Plots", ":/SummaryPlotsLight16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Summary Plots", ":/SummaryPlotsLight16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &summaryPlots, "SummaryPlots", "Summary Plots", "", "", "" );
     summaryPlots.uiCapability()->setUiHidden( true );
@@ -90,8 +93,7 @@ void RimSummaryPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionItemInf
     for ( RimSummaryPlot* plot : summaryPlots() )
     {
         QString displayName = plot->description();
-        optionInfos->push_back(
-            caf::PdmOptionItemInfo( displayName, plot, false, plot->uiCapability()->uiIconProvider() ) );
+        optionInfos->push_back( caf::PdmOptionItemInfo( displayName, plot, false, plot->uiCapability()->uiIconProvider() ) );
     }
 }
 

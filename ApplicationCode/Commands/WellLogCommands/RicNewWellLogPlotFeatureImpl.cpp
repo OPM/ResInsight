@@ -43,7 +43,8 @@
 //--------------------------------------------------------------------------------------------------
 RimWellBoreStabilityPlot*
     RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( bool           showAfterCreation /*= true*/,
-                                                               const QString& plotDescription /*= QString("")*/ )
+                                                               const QString& plotDescription /*= QString("")*/,
+                                                               const RimWbsParameters* params /*= nullptr*/ )
 {
     RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
     CVF_ASSERT( wellLogPlotColl );
@@ -52,17 +53,22 @@ RimWellBoreStabilityPlot*
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
 
     RimWellBoreStabilityPlot* plot = new RimWellBoreStabilityPlot();
+    if ( params )
+    {
+        plot->copyWbsParameters( params );
+    }
+
     plot->setAsPlotMdiWindow();
 
     wellLogPlotColl->wellLogPlots().push_back( plot );
 
     if ( !plotDescription.isEmpty() )
     {
-        plot->setDescription( plotDescription );
+        plot->nameConfig()->setCustomName( plotDescription );
     }
     else
     {
-        plot->setDescription(
+        plot->nameConfig()->setCustomName(
             QString( "Well Bore Stability Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots.size() ) );
     }
 
@@ -92,11 +98,12 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterC
 
     if ( !plotDescription.isEmpty() )
     {
-        plot->setDescription( plotDescription );
+        plot->nameConfig()->setCustomName( plotDescription );
     }
     else
     {
-        plot->setDescription( QString( "Well Log Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots.size() ) );
+        plot->nameConfig()->setCustomName(
+            QString( "Well Log Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots.size() ) );
     }
 
     if ( showAfterCreation )

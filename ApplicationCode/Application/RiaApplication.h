@@ -158,9 +158,7 @@ public:
     QString             pythonPath() const;
     QProcessEnvironment pythonProcessEnvironment() const;
 
-    bool launchProcess( const QString&             program,
-                        const QStringList&         arguments,
-                        const QProcessEnvironment& processEnvironment );
+    bool launchProcess( const QString& program, const QStringList& arguments, const QProcessEnvironment& processEnvironment );
     bool launchProcessForMultipleCases( const QString&             program,
                                         const QStringList&         arguments,
                                         const std::vector<int>&    caseIds,
@@ -222,6 +220,13 @@ protected:
 
     virtual void startMonitoringWorkProgress( caf::UiProcess* uiProcess ) {}
     virtual void stopMonitoringWorkProgress() {}
+
+    void loadAndUpdatePlotData();
+
+    friend class RiaRegressionTestRunner;
+    void resetProject();
+
+    bool generateCode( const QString& outputPath, QString* errMsg );
 
 protected:
     cvf::ref<cvf::Font> m_defaultSceneFont;

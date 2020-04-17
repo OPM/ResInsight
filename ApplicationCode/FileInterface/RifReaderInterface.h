@@ -62,18 +62,14 @@ public:
                                 size_t                        stepIndex,
                                 std::vector<double>*          values ) = 0;
 
-    void setFilenamesWithFaults( const std::vector<QString>& filenames )
-    {
-        m_filenamesWithFaults = filenames;
-    }
-    std::vector<QString> filenamesWithFaults()
-    {
-        return m_filenamesWithFaults;
-    }
+    void setFilenamesWithFaults( const std::vector<QString>& filenames ) { m_filenamesWithFaults = filenames; }
+    std::vector<QString> filenamesWithFaults() { return m_filenamesWithFaults; }
 
     void setTimeStepFilter( const std::vector<size_t>& fileTimeStepIndices );
 
     virtual std::set<RiaDefines::PhaseType> availablePhases() const;
+
+    virtual void updateFromGridCount( size_t gridCount ){};
 
 protected:
     bool   isTimeStepIncludedByFilter( size_t timeStepIndex ) const;

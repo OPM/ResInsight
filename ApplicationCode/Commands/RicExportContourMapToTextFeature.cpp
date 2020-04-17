@@ -36,6 +36,7 @@
 #include "RiuViewer.h"
 
 #include "cafCmdFeatureManager.h"
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
@@ -49,11 +50,11 @@ RICF_SOURCE_INIT( RicExportContourMapToTextFeature, "RicExportContourMapToTextFe
 
 RicExportContourMapToTextFeature::RicExportContourMapToTextFeature()
 {
-    RICF_InitFieldNoDefault( &m_exportFileName, "exportFileName", "", "", "", "" );
-    RICF_InitFieldNoDefault( &m_exportLocalCoordinates, "exportLocalCoordinates", "", "", "", "" );
-    RICF_InitFieldNoDefault( &m_undefinedValueLabel, "undefinedValueLabel", "", "", "", "" );
-    RICF_InitFieldNoDefault( &m_excludeUndefinedValues, "excludeUndefinedValues", "", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_exportFileName, "exportFileName", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_exportLocalCoordinates, "exportLocalCoordinates", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_undefinedValueLabel, "undefinedValueLabel", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_excludeUndefinedValues, "excludeUndefinedValues", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View Id", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,13 +128,13 @@ void RicExportContourMapToTextFeature::onActionTriggered( bool isChecked )
         m_undefinedValueLabel    = featureUi.undefinedValueLabel();
         m_excludeUndefinedValues = featureUi.excludeUndefinedValues();
 
-        RicfCommandResponse response = execute();
-        QStringList         messages = response.messages();
+        caf::PdmScriptResponse response = execute();
+        QStringList            messages = response.messages();
 
         if ( !messages.empty() )
         {
             QString displayMessage = QString( "Problem exporting contour map:\n%2" ).arg( messages.join( "\n" ) );
-            if ( response.status() == RicfCommandResponse::COMMAND_ERROR )
+            if ( response.status() == caf::PdmScriptResponse::COMMAND_ERROR )
             {
                 RiaLogging::error( displayMessage );
             }
@@ -230,8 +231,8 @@ std::pair<RimEclipseContourMapView*, RimGeoMechContourMapView*> RicExportContour
     RimEclipseContourMapView* existingEclipseContourMap = nullptr;
     RimGeoMechContourMapView* existingGeoMechContourMap = nullptr;
 
-    auto contextMenuWidget = dynamic_cast<RiuViewer*>(
-        caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+    auto contextMenuWidget =
+        dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
 
     if ( contextMenuWidget )
     {
@@ -273,10 +274,10 @@ void RicExportContourMapToTextFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicExportContourMapToTextFeature::execute()
+caf::PdmScriptResponse RicExportContourMapToTextFeature::execute()
 {
-    RicfCommandResponse response;
-    QStringList         errorMessages, warningMessages;
+    caf::PdmScriptResponse response;
+    QStringList            errorMessages, warningMessages;
 
     RiaApplication* app = RiaApplication::instance();
 
@@ -297,7 +298,7 @@ RicfCommandResponse RicExportContourMapToTextFeature::execute()
 
     if ( !myView )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, "No contour map view found" );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, "No contour map view found" );
         return response;
     }
 
@@ -339,7 +340,7 @@ RicfCommandResponse RicExportContourMapToTextFeature::execute()
 
     for ( QString errorMessage : errorMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
 
     return response;

@@ -59,7 +59,7 @@ public:
 public:
     RicfExportWellLogPlotData();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<ExportFormatEnum> m_format;
@@ -69,4 +69,5 @@ private:
     caf::PdmField<bool>             m_exportTvdRkb;
     caf::PdmField<bool>             m_capitalizeFileNames;
     caf::PdmField<double>           m_resampleInterval;
+    caf::PdmField<bool>             m_convertCurveUnits;
 };

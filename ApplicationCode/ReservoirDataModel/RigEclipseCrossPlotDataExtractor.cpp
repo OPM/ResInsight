@@ -33,21 +33,18 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseCrossPlotResult
-    RigEclipseCrossPlotDataExtractor::extract( RigEclipseCaseData*            caseData,
-                                               int                            resultTimeStep,
-                                               const RigEclipseResultAddress& xAddress,
-                                               const RigEclipseResultAddress& yAddress,
-                                               RigGridCrossPlotCurveGrouping  groupingType,
-                                               const RigEclipseResultAddress& groupAddress,
-                                               std::map<int, cvf::UByteArray> timeStepCellVisibilityMap )
+RigEclipseCrossPlotResult RigEclipseCrossPlotDataExtractor::extract( RigEclipseCaseData*            caseData,
+                                                                     int                            resultTimeStep,
+                                                                     const RigEclipseResultAddress& xAddress,
+                                                                     const RigEclipseResultAddress& yAddress,
+                                                                     RigGridCrossPlotCurveGrouping  groupingType,
+                                                                     const RigEclipseResultAddress& groupAddress,
+                                                                     std::map<int, cvf::UByteArray> timeStepCellVisibilityMap )
 {
     RigEclipseCrossPlotResult result;
 
     RigCaseCellResultsData* resultData = caseData->results( RiaDefines::MATRIX_MODEL );
     if ( !resultData ) return result;
-
-    RigFormationNames* activeFormationNames = resultData->activeFormationNames();
 
     const std::vector<std::vector<double>>* catValuesForAllSteps = nullptr;
 
@@ -136,6 +133,8 @@ RigEclipseCrossPlotResult
                 }
                 else if ( groupingType == GROUP_BY_FORMATION )
                 {
+                    const RigFormationNames* activeFormationNames = resultData->activeFormationNames();
+
                     if ( activeFormationNames )
                     {
                         int    category = 0;

@@ -63,7 +63,9 @@ RicCreateWellTargetsPickEventHandler::RicCreateWellTargetsPickEventHandler( RimW
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicCreateWellTargetsPickEventHandler::~RicCreateWellTargetsPickEventHandler() {}
+RicCreateWellTargetsPickEventHandler::~RicCreateWellTargetsPickEventHandler()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -96,37 +98,39 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
         auto firstPickItem      = eventObject.m_pickItemInfos.front();
         auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>( firstPickItem.sourceInfo() );
 
-        auto intersectionPointInDomain = rimView->displayCoordTransform()->transformToDomainCoord(
-            firstPickItem.globalPickedPoint() );
+        auto intersectionPointInDomain =
+            rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
         bool   doSetAzimuthAndInclination = false;
         double azimuth                    = 0.0;
         double inclination                = 0.0;
 
         if ( wellPathSourceInfo )
         {
-            targetPointInDomain = wellPathSourceInfo->closestPointOnCenterLine( firstPickItem.faceIdx(),
-                                                                                intersectionPointInDomain );
-
+            targetPointInDomain =
+                wellPathSourceInfo->closestPointOnCenterLine( firstPickItem.faceIdx(), intersectionPointInDomain );
             double md = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
             doSetAzimuthAndInclination =
                 calculateAzimuthAndInclinationAtMd( md,
                                                     wellPathSourceInfo->wellPath()->wellPathGeometry(),
                                                     &azimuth,
                                                     &inclination );
+            double rkbDiff = wellPathSourceInfo->wellPath()->wellPathGeometry()->rkbDiff();
+            if ( m_geometryToAddTargetsTo->airGap() == 0.0 && rkbDiff != std::numeric_limits<double>::infinity() )
+            {
+                m_geometryToAddTargetsTo->setAirGap( rkbDiff );
+            }
         }
         else if ( isGridSourceObject( firstPickItem.sourceInfo() ) )
         {
             targetPointInDomain        = intersectionPointInDomain;
             doSetAzimuthAndInclination = false;
 
-            cvf::Vec3d domainRayOrigin = rimView->displayCoordTransform()->transformToDomainCoord(
-                firstPickItem.globalRayOrigin() );
+            cvf::Vec3d domainRayOrigin =
+                rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalRayOrigin() );
             cvf::Vec3d domainRayEnd = targetPointInDomain + ( targetPointInDomain - domainRayOrigin );
 
-            cvf::Vec3d hexElementIntersection = findHexElementIntersection( rimView,
-                                                                            firstPickItem,
-                                                                            domainRayOrigin,
-                                                                            domainRayEnd );
+            cvf::Vec3d hexElementIntersection =
+                findHexElementIntersection( rimView, firstPickItem, domainRayOrigin, domainRayEnd );
             CVF_TIGHT_ASSERT( !hexElementIntersection.isUndefined() );
             if ( !hexElementIntersection.isUndefined() )
             {
@@ -145,16 +149,16 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
 
             if ( wellPathSourceInfo )
             {
-                double mdrkbAtFirstTarget = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(),
-                                                                               intersectionPointInDomain );
+                double mdAtFirstTarget =
+                    wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
 
                 RimModeledWellPath* modeledWellPath = dynamic_cast<RimModeledWellPath*>( wellPathSourceInfo->wellPath() );
                 if ( modeledWellPath )
                 {
-                    mdrkbAtFirstTarget += modeledWellPath->geometryDefinition()->mdrkbAtFirstTarget();
+                    mdAtFirstTarget += modeledWellPath->geometryDefinition()->mdAtFirstTarget();
                 }
 
-                m_geometryToAddTargetsTo->setMdrkbAtFirstTarget( mdrkbAtFirstTarget );
+                m_geometryToAddTargetsTo->setMdAtFirstTarget( mdAtFirstTarget );
             }
         }
 

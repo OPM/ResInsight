@@ -20,7 +20,7 @@
 
 #include "Rim2dIntersectionView.h"
 #include "RimCase.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 
 CAF_PDM_SOURCE_INIT( Rim2dIntersectionViewCollection, "Intersection2dViewCollection" );
 
@@ -43,7 +43,9 @@ Rim2dIntersectionViewCollection::Rim2dIntersectionViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionViewCollection::~Rim2dIntersectionViewCollection() {}
+Rim2dIntersectionViewCollection::~Rim2dIntersectionViewCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -61,11 +63,11 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
     RimCase* parentCase = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( parentCase );
 
-    std::vector<RimIntersection*> allOrderedIntersectionsInCase;
+    std::vector<RimExtrudedCurveIntersection*> allOrderedIntersectionsInCase;
     parentCase->descendantsIncludingThisOfType( allOrderedIntersectionsInCase );
 
-    std::set<RimIntersection*> currentIntersections( allOrderedIntersectionsInCase.begin(),
-                                                     allOrderedIntersectionsInCase.end() );
+    std::set<RimExtrudedCurveIntersection*> currentIntersections( allOrderedIntersectionsInCase.begin(),
+                                                                  allOrderedIntersectionsInCase.end() );
 
     // Delete views without a valid intersection
 
@@ -83,7 +85,7 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
 
     // Build map from intersection to view
 
-    std::map<RimIntersection*, Rim2dIntersectionView*> intersectionToViewMap;
+    std::map<RimExtrudedCurveIntersection*, Rim2dIntersectionView*> intersectionToViewMap;
     for ( Rim2dIntersectionView* iv : m_intersectionViews )
     {
         CVF_ASSERT( iv && iv->intersection() );
@@ -94,7 +96,7 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
 
     // Insert the old views in correct order, and create new views as we go
 
-    for ( RimIntersection* intersection : allOrderedIntersectionsInCase )
+    for ( RimExtrudedCurveIntersection* intersection : allOrderedIntersectionsInCase )
     {
         auto it = intersectionToViewMap.find( intersection );
         if ( it == intersectionToViewMap.end() )

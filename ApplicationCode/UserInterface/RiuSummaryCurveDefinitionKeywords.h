@@ -27,52 +27,16 @@
 class RiuSummaryCurveDefinitionKeywords
 {
 public:
-    static QString sources()
-    {
-        return "SourcesKeyword";
-    };
-    static QString summaryTypes()
-    {
-        return "SummaryTypesKeyword";
-    };
-    static QString summaries()
-    {
-        return "SummariesKeyword";
-    };
-    static QString regions()
-    {
-        return "RegionsKeyword";
-    };
-    static QString region2region()
-    {
-        return "Region2RegionKeyword";
-    };
-    static QString wellGroup()
-    {
-        return "WellGroupKeyword";
-    };
-    static QString wells()
-    {
-        return "WellsKeyword";
-    };
-    static QString completions()
-    {
-        return "CompletionsKeyword";
-    };
-    static QString lgrWells()
-    {
-        return "LgrWellsKeyword";
-    };
-    static QString wellSegments()
-    {
-        return "WellSegmentsKeyword";
-    };
-    static QString appearance()
-    {
-        return "AppearanceKeyword";
-    };
-    static QString nameConfig()
-    {
-        return "NameConfigKeyword";
-    };
+    static QString sources() { return "SourcesKeyword"; };
+    static QString summaryTypes() { return "SummaryTypesKeyword"; };
+    static QString summaries() { return "SummariesKeyword"; };
+    static QString regions() { return "RegionsKeyword"; };
+    static QString region2region() { return "Region2RegionKeyword"; };
+    static QString wellGroup() { return "WellGroupKeyword"; };
+    static QString wells() { return "WellsKeyword"; };
+    static QString completions() { return "CompletionsKeyword"; };
+    static QString lgrWells() { return "LgrWellsKeyword"; };
+    static QString wellSegments() { return "WellSegmentsKeyword"; };
+    static QString appearance() { return "AppearanceKeyword"; };
+    static QString nameConfig() { return "NameConfigKeyword"; };
 };

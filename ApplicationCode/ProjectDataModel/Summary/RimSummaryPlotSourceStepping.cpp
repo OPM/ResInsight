@@ -193,7 +193,7 @@ QList<caf::PdmOptionItemInfo>
         auto summaryCases = RimSummaryPlotSourceStepping::summaryCasesForSourceStepping();
         for ( auto sumCase : summaryCases )
         {
-            options.append( caf::PdmOptionItemInfo( sumCase->caseName(), sumCase ) );
+            options.append( caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase ) );
         }
 
         return options;
@@ -850,8 +850,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::computeVisibleFi
 
             if ( analyzer.wellCompletions( m_wellName().toStdString() ).size() == 1 )
             {
-                QString txt = QString::fromStdString(
-                    *( analyzer.wellCompletions( m_wellName().toStdString() ).begin() ) );
+                QString txt = QString::fromStdString( *( analyzer.wellCompletions( m_wellName().toStdString() ).begin() ) );
                 m_completion = txt;
                 m_completion.uiCapability()->setUiHidden( false );
 

@@ -22,7 +22,7 @@
 #include "RigEquil.h"
 
 #include "RimEclipseCase.h"
-#include "RimPlotInterface.h"
+#include "RimPlot.h"
 #include "RimTools.h"
 #include "RimViewWindow.h"
 
@@ -34,9 +34,7 @@ template <>
 void RimPlotAxisAnnotation::ExportKeywordEnum::setUp()
 {
     addItem( RimPlotAxisAnnotation::PL_USER_DEFINED, "User Defined", "User Defined" );
-    addItem( RimPlotAxisAnnotation::PL_EQUIL_WATER_OIL_CONTACT,
-             "PL_EQUIL_WATER_OIL_CONTACT",
-             "PL_EQUIL_WATER_OIL_CONTACT" );
+    addItem( RimPlotAxisAnnotation::PL_EQUIL_WATER_OIL_CONTACT, "PL_EQUIL_WATER_OIL_CONTACT", "PL_EQUIL_WATER_OIL_CONTACT" );
     addItem( RimPlotAxisAnnotation::PL_EQUIL_GAS_OIL_CONTACT, "PL_EQUIL_GAS_OIL_CONTACT", "PL_EQUIL_GAS_OIL_CONTACT" );
     setDefault( RimPlotAxisAnnotation::PL_USER_DEFINED );
 }
@@ -158,7 +156,7 @@ void RimPlotAxisAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* changed
                                               const QVariant&            oldValue,
                                               const QVariant&            newValue )
 {
-    RimPlotInterface* parentPlot = nullptr;
+    RimPlot* parentPlot = nullptr;
     this->firstAncestorOrThisOfType( parentPlot );
     if ( parentPlot )
     {
@@ -250,8 +248,8 @@ void RimPlotAxisAnnotation::updateName()
 
     if ( m_annotationType() == PL_EQUIL_WATER_OIL_CONTACT || m_annotationType() == PL_EQUIL_GAS_OIL_CONTACT )
     {
-        double diffBetweenTwoContactDepths = std::fabs( selectedItem().gasOilContactDepth() -
-                                                        selectedItem().waterOilContactDepth() );
+        double diffBetweenTwoContactDepths =
+            std::fabs( selectedItem().gasOilContactDepth() - selectedItem().waterOilContactDepth() );
 
         if ( diffBetweenTwoContactDepths < 0.1 )
         {

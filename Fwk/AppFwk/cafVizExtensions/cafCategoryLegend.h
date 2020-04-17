@@ -46,9 +46,10 @@ protected:
             charHeight = 0.0f;
             lineSpacing = 0.0f;
             margins = cvf::Vec2f::ZERO;
-            tickEndX = 0.0f;
             tickStartX = 0.0f;
             tickMidX = 0.0f;
+            tickEndX = 0.0f;
+            tickTextLeadSpace = 0.0f;
 
             overallLegendSize = setSize;
         }

@@ -59,7 +59,9 @@ RivWellConnectionFactorPartMgr::RivWellConnectionFactorPartMgr( RimWellPath*    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellConnectionFactorPartMgr::~RivWellConnectionFactorPartMgr() {}
+RivWellConnectionFactorPartMgr::~RivWellConnectionFactorPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -78,7 +80,8 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel( cvf::Mod
 
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
-    const RigVirtualPerforationTransmissibilities* trans = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
+    const RigVirtualPerforationTransmissibilities* trans =
+        eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
     if ( !trans ) return;
 
     auto completionsForWellPath = trans->multipleCompletionsPerEclipseCell( m_rimWellPath, frameIndex );
@@ -101,8 +104,8 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel( cvf::Mod
 
     std::vector<WellPathCellIntersectionInfo> wellPathCellIntersections;
     {
-        RigEclipseWellLogExtractor* extractor = RiaExtractionTools::wellLogExtractorEclipseCase( m_rimWellPath,
-                                                                                                 eclipseCase );
+        RigEclipseWellLogExtractor* extractor =
+            RiaExtractionTools::wellLogExtractorEclipseCase( m_rimWellPath, eclipseCase );
         if ( extractor )
         {
             wellPathCellIntersections = extractor->cellIntersectionInfosAlongWellPath();
@@ -190,9 +193,10 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel( cvf::Mod
     {
         double characteristicCellSize = eclView->ownerCase()->characteristicCellSize();
 
-        double radius = m_rimWellPath->wellPathRadius( characteristicCellSize ) *
-                        m_virtualPerforationResult->geometryScaleFactor();
-        radius *= 2.0; // Enlarge the radius slightly to make the connection factor visible if geometry scale factor is set to 1.0
+        double radius =
+            m_rimWellPath->wellPathRadius( characteristicCellSize ) * m_virtualPerforationResult->geometryScaleFactor();
+        radius *= 2.0; // Enlarge the radius slightly to make the connection factor visible if geometry scale factor is
+                       // set to 1.0
 
         m_geometryGenerator = new RivWellConnectionFactorGeometryGenerator( completionVizDataItems, radius );
 
@@ -201,8 +205,8 @@ void RivWellConnectionFactorPartMgr::appendDynamicGeometryPartsToModel( cvf::Mod
         cvf::ref<cvf::Part> part = m_geometryGenerator->createSurfacePart( scalarMapper, eclView->isLightingDisabled() );
         if ( part.notNull() )
         {
-            cvf::ref<RivWellConnectionSourceInfo> sourceInfo = new RivWellConnectionSourceInfo( m_rimWellPath,
-                                                                                                m_geometryGenerator.p() );
+            cvf::ref<RivWellConnectionSourceInfo> sourceInfo =
+                new RivWellConnectionSourceInfo( m_rimWellPath, m_geometryGenerator.p() );
             part->setSourceInfo( sourceInfo.p() );
 
             model->addPart( part.p() );

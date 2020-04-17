@@ -55,10 +55,7 @@ struct RigMDCellIdxEnterLeaveKey
     double measuredDepth;
     size_t hexIndex;
     bool   isEnteringCell; // As opposed to leaving.
-    bool   isLeavingCell() const
-    {
-        return !isEnteringCell;
-    }
+    bool   isLeavingCell() const { return !isEnteringCell; }
 
     bool operator<( const RigMDCellIdxEnterLeaveKey& other ) const
     {
@@ -101,10 +98,7 @@ struct RigMDEnterLeaveCellIdxKey
 
     double measuredDepth;
     bool   isEnteringCell; // As opposed to leaving.
-    bool   isLeavingCell() const
-    {
-        return !isEnteringCell;
-    }
+    bool   isLeavingCell() const { return !isEnteringCell; }
     size_t hexIndex;
 
     bool operator<( const RigMDEnterLeaveCellIdxKey& other ) const

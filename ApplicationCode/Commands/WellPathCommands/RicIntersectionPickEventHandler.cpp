@@ -19,8 +19,8 @@
 #include "RicIntersectionPickEventHandler.h"
 #include "RiaApplication.h"
 
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
@@ -41,13 +41,13 @@ RicIntersectionPickEventHandler* RicIntersectionPickEventHandler::instance()
 //--------------------------------------------------------------------------------------------------
 bool RicIntersectionPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObject )
 {
-    std::vector<RimIntersection*> selection;
+    std::vector<RimExtrudedCurveIntersection*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
 
     if ( selection.size() == 1 )
     {
         {
-            RimIntersection* intersection = selection[0];
+            RimExtrudedCurveIntersection* intersection = selection[0];
 
             RimGridView* gridView = nullptr;
             intersection->firstAncestorOrThisOfTypeAsserted( gridView );
@@ -59,8 +59,8 @@ bool RicIntersectionPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& e
 
             cvf::ref<caf::DisplayCoordTransform> transForm = gridView->displayCoordTransform();
 
-            cvf::Vec3d domainCoord = transForm->transformToDomainCoord(
-                eventObject.m_pickItemInfos.front().globalPickedPoint() );
+            cvf::Vec3d domainCoord =
+                transForm->transformToDomainCoord( eventObject.m_pickItemInfos.front().globalPickedPoint() );
 
             if ( intersection->inputPolyLineFromViewerEnabled() )
             {

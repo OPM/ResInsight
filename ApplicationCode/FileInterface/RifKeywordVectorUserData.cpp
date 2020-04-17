@@ -35,12 +35,16 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifKeywordVectorUserData::RifKeywordVectorUserData() {}
+RifKeywordVectorUserData::RifKeywordVectorUserData()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifKeywordVectorUserData::~RifKeywordVectorUserData() {}
+RifKeywordVectorUserData::~RifKeywordVectorUserData()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -168,7 +172,8 @@ bool RifKeywordVectorUserData::parse( const QString& data, const QString& custom
                                                    -1,
                                                    -1,
                                                    -1,
-                                                   false );
+                                                   false,
+                                                   -1 );
 
                     m_allResultAddresses.insert( addr );
 

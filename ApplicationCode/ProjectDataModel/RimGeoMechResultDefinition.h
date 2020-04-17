@@ -32,6 +32,7 @@ class RimGeoMechPropertyFilter;
 class RifGeoMechReaderInterface;
 class RigGeoMechCaseData;
 class RimGeoMechCase;
+class RimRegularLegendConfig;
 
 //==================================================================================================
 ///
@@ -45,9 +46,10 @@ public:
     RimGeoMechResultDefinition( void );
     ~RimGeoMechResultDefinition( void ) override;
 
-    void setGeoMechCase( RimGeoMechCase* geomCase );
+    void            setGeoMechCase( RimGeoMechCase* geomCase );
+    RimGeoMechCase* geoMechCase() const;
 
-    RigGeoMechCaseData* ownerCaseData();
+    RigGeoMechCaseData* ownerCaseData() const;
     bool                hasResult();
     void                loadResult();
     void                setAddWellPathDerivedResults( bool addWellPathDerivedResults );
@@ -62,28 +64,41 @@ public:
     QString             diffResultUiShortName() const;
     void                setResultAddress( const RigFemResultAddress& resultAddress );
 
-    QString resultFieldUiName();
-    QString resultComponentUiName();
+    QString resultFieldUiName() const;
+    QString resultComponentUiName() const;
+    QString resultVariableUiName() const;
+    QString resultVariableName() const;
+    QString currentResultUnits() const;
+    QString defaultLasUnits() const;
 
-    bool hasCategoryResult()
-    {
-        return m_resultPositionType() == RIG_FORMATION_NAMES;
-    }
+    double normalizationAirGap() const;
+    void   setNormalizationAirGap( double airGap );
+
+    bool hasCategoryResult() const { return m_resultPositionType() == RIG_FORMATION_NAMES; }
+
+    void updateLegendTextAndRanges( RimRegularLegendConfig* legendConfigToUpdate,
+                                    const QString&          legendHeading,
+                                    int                     timeStepIndex );
 
 protected:
     virtual void updateLegendCategorySettings(){};
     void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    friend class RimIntersectionResultDefinition;
 
 private:
     // Overridden PDM methods
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
-    void                          initAfterRead() override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
+    void calculateNormalizationAirGapDefault();
+
+    void initAfterRead() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
     // Metadata and option build tools
 
     std::map<std::string, std::vector<std::string>> getResultMetaDataForUIFieldSetting();
@@ -94,6 +109,8 @@ private:
 
     static QString convertToUiResultFieldName( QString resultFieldName );
 
+    bool normalizableResultSelected() const;
+
     // Data Fields
 
     caf::PdmField<caf::AppEnum<RigFemResultPosEnum>> m_resultPositionType;
@@ -101,6 +118,8 @@ private:
     caf::PdmField<QString>                           m_resultComponentName;
     caf::PdmField<int>                               m_timeLapseBaseTimestep;
     caf::PdmField<int>                               m_compactionRefLayer;
+    caf::PdmField<bool>                              m_normalizeByHydrostaticPressure;
+    caf::PdmField<double>                            m_normalizationAirGap;
 
     // UI Fields only
     friend class RimGeoMechPropertyFilter; // Property filter needs the ui fields

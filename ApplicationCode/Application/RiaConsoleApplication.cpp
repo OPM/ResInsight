@@ -130,6 +130,23 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
         return RiaApplication::EXIT_COMPLETED;
     }
 
+    // Code generation
+    // -----------------
+    if ( cvf::Option o = progOpt->option( "generate" ) )
+    {
+        CVF_ASSERT( o.valueCount() == 1 );
+        QString outputFile = cvfqt::Utils::toQString( o.value( 0 ) );
+
+        QString errMsg;
+        if ( !RiaApplication::generateCode( outputFile, &errMsg ) )
+        {
+            RiaLogging::error( QString( "Error: %1" ).arg( errMsg ) );
+            return RiaApplication::EXIT_WITH_ERROR;
+        }
+
+        return RiaApplication::EXIT_COMPLETED;
+    }
+
     // Unit testing
     // --------------------------------------------------------
     if ( cvf::Option o = progOpt->option( "unittest" ) )
@@ -205,8 +222,8 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
             {
                 // One argument is available, use replace case for first occurrence in the project
 
-                std::vector<QString> gridFileNames = readFileListFromTextFile(
-                    cvfqt::Utils::toQString( o.safeValue( 0 ) ) );
+                std::vector<QString> gridFileNames =
+                    readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( 0 ) ) );
                 projectModifier->setReplaceSourceCasesFirstOccurrence( gridFileNames );
             }
             else
@@ -214,9 +231,9 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
                 size_t optionIdx = 0;
                 while ( optionIdx < o.valueCount() )
                 {
-                    const int            groupId       = o.safeValue( optionIdx++ ).toInt( -1 );
-                    std::vector<QString> gridFileNames = readFileListFromTextFile(
-                        cvfqt::Utils::toQString( o.safeValue( optionIdx++ ) ) );
+                    const int            groupId = o.safeValue( optionIdx++ ).toInt( -1 );
+                    std::vector<QString> gridFileNames =
+                        readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( optionIdx++ ) ) );
 
                     if ( groupId != -1 && !gridFileNames.empty() )
                     {
@@ -258,8 +275,8 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( cvf::P
 
     if ( cvf::Option o = progOpt->option( "case" ) )
     {
-        QStringList fileNames = RicImportGeneralDataFeature::fileNamesFromCaseNames(
-            cvfqt::Utils::toQStringList( o.values() ) );
+        QStringList fileNames =
+            RicImportGeneralDataFeature::fileNamesFromCaseNames( cvfqt::Utils::toQStringList( o.values() ) );
 
         RicImportGeneralDataFeature::openEclipseFilesFromFileNames( fileNames, true );
     }
@@ -407,6 +424,7 @@ void RiaConsoleApplication::onProjectOpeningError( const QString& errMsg )
 //--------------------------------------------------------------------------------------------------
 void RiaConsoleApplication::onProjectOpened()
 {
+    loadAndUpdatePlotData();
     processEvents();
 }
 

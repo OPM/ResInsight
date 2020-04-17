@@ -20,6 +20,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RigCaseRealizationParameters.h"
 
+#include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -44,8 +45,10 @@ public:
     ~RimSummaryCase() override;
 
     virtual QString summaryHeaderFilename() const;
-    virtual QString caseName() const = 0;
-    QString         shortName() const;
+    QString         displayCaseName() const;
+    QString         nativeCaseName() const;
+    void            setCaseId( int caseId );
+    int             caseId() const;
 
     RiaEclipseUnitTools::UnitSystemType unitsSystem();
 
@@ -57,10 +60,7 @@ public:
     virtual void                       createRftReaderInterface() {}
     virtual RifSummaryReaderInterface* summaryReader() = 0;
     virtual RifReaderRftInterface*     rftReader();
-    virtual QString                    errorMessagesFromReader()
-    {
-        return QString();
-    }
+    virtual QString                    errorMessagesFromReader();
 
     virtual void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) = 0;
 
@@ -76,20 +76,25 @@ public:
     bool                                          operator<( const RimSummaryCase& rhs ) const;
 
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void updateTreeItemName();
 
-    caf::PdmField<QString> m_shortName;
-    caf::PdmField<bool>    m_useAutoShortName;
-    caf::PdmField<QString> m_summaryHeaderFilename;
-    bool                   m_isObservedData;
+    virtual QString caseName() const = 0;
+
+    void initAfterRead() override;
+
+private:
+    static QString uniqueShortNameForCase( RimSummaryCase* summaryCase );
+
+protected:
+    caf::PdmField<QString>       m_shortName;
+    caf::PdmField<bool>          m_useAutoShortName;
+    caf::PdmField<caf::FilePath> m_summaryHeaderFilename;
+    bool                         m_isObservedData;
+    caf::PdmField<int>           m_caseId;
 
     std::shared_ptr<RigCaseRealizationParameters> m_crlParameters;
 
     static const QString DEFAULT_DISPLAY_NAME;
-
-private:
-    void initAfterRead() override;
 };

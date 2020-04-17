@@ -38,10 +38,7 @@
 class RiaGetWellNames : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetWellNames" );
-    }
+    static QString commandName() { return QString( "GetWellNames" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -84,8 +81,8 @@ public:
     }
 };
 
-static bool RiaGetWellNames_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellNames>(
-    RiaGetWellNames::commandName() );
+static bool RiaGetWellNames_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellNames>( RiaGetWellNames::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -93,10 +90,7 @@ static bool RiaGetWellNames_init = RiaSocketCommandFactory::instance()->register
 class RiaGetWellStatus : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetWellStatus" );
-    }
+    static QString commandName() { return QString( "GetWellStatus" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -130,9 +124,8 @@ public:
 
         if ( currentWellResult.isNull() )
         {
-            server->showErrorMessage(
-                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                RiaSocketServer::tr( "Could not find the well with name : \"%1\"" ).arg( wellName ) );
+            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                                      RiaSocketServer::tr( "Could not find the well with name : \"%1\"" ).arg( wellName ) );
 
             return true;
         }
@@ -226,8 +219,8 @@ public:
     }
 };
 
-static bool RiaGetWellStatus_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellStatus>(
-    RiaGetWellStatus::commandName() );
+static bool RiaGetWellStatus_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellStatus>( RiaGetWellStatus::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -235,10 +228,7 @@ static bool RiaGetWellStatus_init = RiaSocketCommandFactory::instance()->registe
 class RiaGetWellCells : public RiaSocketCommand
 {
 public:
-    static QString commandName()
-    {
-        return QString( "GetWellCells" );
-    }
+    static QString commandName() { return QString( "GetWellCells" ); }
 
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
@@ -269,9 +259,8 @@ public:
 
         if ( currentWellResult.isNull() )
         {
-            server->showErrorMessage(
-                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                RiaSocketServer::tr( "Could not find the well with name : \"%1\"" ).arg( wellName ) );
+            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                                      RiaSocketServer::tr( "Could not find the well with name : \"%1\"" ).arg( wellName ) );
 
             socketStream << (quint64)0;
             return true;
@@ -349,5 +338,5 @@ public:
     }
 };
 
-static bool RiaGetWellCells_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellCells>(
-    RiaGetWellCells::commandName() );
+static bool RiaGetWellCells_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellCells>( RiaGetWellCells::commandName() );

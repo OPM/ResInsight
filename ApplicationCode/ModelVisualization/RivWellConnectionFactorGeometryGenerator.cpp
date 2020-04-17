@@ -30,9 +30,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerator(
-    std::vector<CompletionVizData>& completionVizData,
-    float                           radius )
+RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerator( std::vector<CompletionVizData>& completionVizData,
+                                                                                    float radius )
     : m_completionVizData( completionVizData )
     , m_radius( radius )
     , m_trianglesPerConnection( 0 )
@@ -42,7 +41,9 @@ RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellConnectionFactorGeometryGenerator::~RivWellConnectionFactorGeometryGenerator() {}
+RivWellConnectionFactorGeometryGenerator::~RivWellConnectionFactorGeometryGenerator()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -313,7 +314,8 @@ void RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry( std
                                                                              float                    thickness )
 {
     // Suggested improvement
-    // As the nodes are duplicated, it will be possible create only vertices and then use DrawableGeo::setFromTriangleVertexArray
+    // As the nodes are duplicated, it will be possible create only vertices and then use
+    // DrawableGeo::setFromTriangleVertexArray
 
     auto p0 = cvf::Vec3f::Y_AXIS * thickness;
     auto p1 = -p0;

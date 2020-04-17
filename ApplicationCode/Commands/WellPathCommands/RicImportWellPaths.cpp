@@ -31,6 +31,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -62,30 +64,41 @@ RICF_SOURCE_INIT( RicImportWellPaths, "RicWellPathsImportFileFeature", "importWe
 //--------------------------------------------------------------------------------------------------
 RicImportWellPaths::RicImportWellPaths()
 {
-    RICF_InitFieldNoDefault( &m_wellPathFolder, "wellPathFolder", "", "", "", "" );
-    RICF_InitFieldNoDefault( &m_wellPathFiles, "wellPathFiles", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_wellPathFolder, "wellPathFolder", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_wellPathFiles, "wellPathFiles", "", "", "", "" );
 }
 
-RicfCommandResponse RicImportWellPaths::execute()
+caf::PdmScriptResponse RicImportWellPaths::execute()
 {
     QStringList errorMessages, warningMessages;
     QStringList wellPathFiles;
 
-    QDir wellPathFolder( m_wellPathFolder );
-
-    if ( wellPathFolder.exists() )
+    QDir wellPathDir;
+    if ( m_wellPathFolder().isEmpty() )
     {
-        QStringList nameFilters;
-        nameFilters << RicImportWellPaths::wellPathNameFilters();
-        QStringList relativePaths = wellPathFolder.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
-        for ( QString relativePath : relativePaths )
-        {
-            wellPathFiles.push_back( wellPathFolder.absoluteFilePath( relativePath ) );
-        }
+        wellPathDir = QDir( RiaApplication::instance()->startDir() );
     }
     else
     {
-        errorMessages << ( m_wellPathFolder() + " does not exist" );
+        wellPathDir = QDir( m_wellPathFolder );
+    }
+
+    if ( !m_wellPathFolder().isEmpty() )
+    {
+        if ( wellPathDir.exists() )
+        {
+            QStringList nameFilters;
+            nameFilters << RicImportWellPaths::wellPathNameFilters();
+            QStringList relativePaths = wellPathDir.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
+            for ( QString relativePath : relativePaths )
+            {
+                wellPathFiles.push_back( wellPathDir.absoluteFilePath( relativePath ) );
+            }
+        }
+        else
+        {
+            errorMessages << ( wellPathDir.absolutePath() + " does not exist" );
+        }
     }
 
     for ( QString wellPathFile : m_wellPathFiles() )
@@ -94,13 +107,17 @@ RicfCommandResponse RicImportWellPaths::execute()
         {
             wellPathFiles.push_back( wellPathFile );
         }
+        else if ( QFileInfo::exists( wellPathDir.absoluteFilePath( wellPathFile ) ) )
+        {
+            wellPathFiles.push_back( wellPathDir.absoluteFilePath( wellPathFile ) );
+        }
         else
         {
             errorMessages << ( wellPathFile + " does not exist" );
         }
     }
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
     if ( !wellPathFiles.empty() )
     {
         std::vector<RimWellPath*> importedWellPaths = importWellPaths( wellPathFiles, &warningMessages );
@@ -122,12 +139,12 @@ RicfCommandResponse RicImportWellPaths::execute()
 
     for ( QString warningMessage : warningMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warningMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warningMessage );
     }
 
     for ( QString errorMessage : errorMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
 
     return response;
@@ -199,16 +216,14 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
 
     QString nameList = QString( "Well Paths (%1);;All Files (*.*)" ).arg( wellPathNameFilters().join( " " ) );
 
-    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                                   "Import Well Paths",
-                                                                   defaultDir,
-                                                                   nameList );
+    QStringList wellPathFilePaths =
+        QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(), "Import Well Paths", defaultDir, nameList );
 
     if ( wellPathFilePaths.size() >= 1 )
     {
-        m_wellPathFiles.v()          = std::vector<QString>( wellPathFilePaths.begin(), wellPathFilePaths.end() );
-        RicfCommandResponse response = execute();
-        QStringList         messages = response.messages();
+        m_wellPathFiles.v()             = std::vector<QString>( wellPathFilePaths.begin(), wellPathFilePaths.end() );
+        caf::PdmScriptResponse response = execute();
+        QStringList            messages = response.messages();
 
         if ( !messages.empty() )
         {
@@ -218,7 +233,7 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
             {
                 QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "Well Path Loading", displayMessage );
             }
-            if ( response.status() == RicfCommandResponse::COMMAND_ERROR )
+            if ( response.status() == caf::PdmScriptResponse::COMMAND_ERROR )
             {
                 RiaLogging::error( displayMessage );
             }

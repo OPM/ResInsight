@@ -101,7 +101,9 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimTernaryLegendConfig::~RimTernaryLegendConfig() {}
+RimTernaryLegendConfig::~RimTernaryLegendConfig()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -159,7 +161,7 @@ void RimTernaryLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         }
 
         view->updateDisplayModelForCurrentTimeStepAndRedraw();
-        view->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }
 

@@ -302,8 +302,7 @@ void RimViewController::updateOverrides()
                 {
                     if ( isPropertyFilterOveridden() )
                     {
-                        manGeoView->setOverridePropertyFilterCollection(
-                            masterGeoView->geoMechPropertyFilterCollection() );
+                        manGeoView->setOverridePropertyFilterCollection( masterGeoView->geoMechPropertyFilterCollection() );
                     }
                     else
                     {
@@ -617,14 +616,12 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
         dependEclGrid = dependEclipseView->mainGrid();
     }
 
-    if ( masterGeomechView && masterGeomechView->geoMechCase()->geoMechData() &&
-         masterGeomechView->femParts()->partCount() )
+    if ( masterGeomechView && masterGeomechView->geoMechCase()->geoMechData() && masterGeomechView->femParts()->partCount() )
     {
         masterFemPart = masterGeomechView->femParts()->part( 0 );
     }
 
-    if ( dependGeomechView && dependGeomechView->geoMechCase()->geoMechData() &&
-         dependGeomechView->femParts()->partCount() )
+    if ( dependGeomechView && dependGeomechView->geoMechCase()->geoMechData() && dependGeomechView->femParts()->partCount() )
     {
         dependFemPart = dependGeomechView->femParts()->part( 0 );
     }
@@ -727,7 +724,7 @@ void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView() co
 
     if ( this->isResultColorControlled() && this->managedView() )
     {
-        this->managedView()->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        this->managedView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }
 
@@ -999,7 +996,8 @@ void RimViewController::updateRangeFilterOverrides( RimCellRangeFilter* changedR
         QString                       xmlRangeFilterCollCopy = sourceFilterCollection->writeObjectToXmlString();
         PdmObjectHandle*              objectCopy =
             PdmXmlObjectHandle::readUnknownObjectFromXmlString( xmlRangeFilterCollCopy,
-                                                                caf::PdmDefaultObjectFactory::instance() );
+                                                                caf::PdmDefaultObjectFactory::instance(),
+                                                                true );
         RimCellRangeFilterCollection* overrideRangeFilterColl = dynamic_cast<RimCellRangeFilterCollection*>( objectCopy );
 
         // Convert the range filter to fit in the managed view if needed

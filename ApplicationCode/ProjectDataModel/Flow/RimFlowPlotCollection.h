@@ -24,6 +24,8 @@
 
 class RimWellAllocationPlot;
 class RimFlowCharacteristicsPlot;
+class RimWellDistributionPlot;
+class RimWellDistributionPlotCollection;
 
 //==================================================================================================
 ///
@@ -41,15 +43,17 @@ public:
     void   loadDataAndUpdate();
     size_t plotCount() const;
 
-    void                        addWellAllocPlotToStoredPlots( RimWellAllocationPlot* plot );
-    void                        addFlowCharacteristicsPlotToStoredPlots( RimFlowCharacteristicsPlot* plot );
-    RimWellAllocationPlot*      defaultWellAllocPlot();
-    RimFlowCharacteristicsPlot* defaultFlowCharacteristicsPlot();
-    void                        ensureDefaultFlowPlotsAreCreated();
+    void                               addWellAllocPlotToStoredPlots( RimWellAllocationPlot* plot );
+    void                               addFlowCharacteristicsPlotToStoredPlots( RimFlowCharacteristicsPlot* plot );
+    RimWellAllocationPlot*             defaultWellAllocPlot();
+    RimFlowCharacteristicsPlot*        defaultFlowCharacteristicsPlot();
+    RimWellDistributionPlotCollection* wellDistributionPlotCollection() const;
+    void                               ensureDefaultFlowPlotsAreCreated();
 
 private:
-    caf::PdmChildField<RimFlowCharacteristicsPlot*>      m_flowCharacteristicsPlot;
-    caf::PdmChildField<RimWellAllocationPlot*>           m_defaultWellAllocPlot;
-    caf::PdmChildArrayField<RimWellAllocationPlot*>      m_storedWellAllocPlots;
-    caf::PdmChildArrayField<RimFlowCharacteristicsPlot*> m_storedFlowCharacteristicsPlots;
+    caf::PdmChildField<RimFlowCharacteristicsPlot*>        m_flowCharacteristicsPlot;
+    caf::PdmChildField<RimWellAllocationPlot*>             m_defaultWellAllocPlot;
+    caf::PdmChildField<RimWellDistributionPlotCollection*> m_wellDistributionPlotCollection;
+    caf::PdmChildArrayField<RimWellAllocationPlot*>        m_storedWellAllocPlots;
+    caf::PdmChildArrayField<RimFlowCharacteristicsPlot*>   m_storedFlowCharacteristicsPlots;
 };

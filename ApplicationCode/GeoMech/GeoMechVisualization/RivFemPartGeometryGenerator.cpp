@@ -51,7 +51,9 @@ RivFemPartGeometryGenerator::RivFemPartGeometryGenerator( const RigFemPart* part
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemPartGeometryGenerator::~RivFemPartGeometryGenerator() {}
+RivFemPartGeometryGenerator::~RivFemPartGeometryGenerator()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Generate surface drawable geo from the specified region
@@ -201,10 +203,9 @@ void RivFemPartGeometryGenerator::computeArrays()
                     continue; // Invisible face
                 }
 
-                int        faceNodeCount              = 0;
-                const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( eType,
-                                                                                                 lfIdx,
-                                                                                                 &faceNodeCount );
+                int        faceNodeCount = 0;
+                const int* localElmNodeIndicesForFace =
+                    RigFemTypes::localElmNodeIndicesForFace( eType, lfIdx, &faceNodeCount );
                 if ( faceNodeCount == 4 )
                 {
                     cvf::Vec3f quadVxs0( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] ) -
@@ -286,8 +287,10 @@ void RivFemPartGeometryGenerator::setElementVisibility( const cvf::UByteArray* c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSingleElement( const RigFemPart* part,
-                                                                                             size_t            elmIdx )
+cvf::ref<cvf::DrawableGeo>
+    RivFemPartGeometryGenerator::createMeshDrawableFromSingleElement( const RigFemPart* part,
+                                                                      size_t            elmIdx,
+                                                                      const cvf::Vec3d& displayModelOffset )
 {
     cvf::ref<cvf::Vec3fArray> quadVertices;
 
@@ -301,7 +304,7 @@ cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSi
 
         const int* elmNodeIndices = part->connectivities( elmIdx );
 
-        cvf::Vec3d displayOffset = part->boundingBox().min();
+        // cvf::Vec3d displayOffset = part->boundingBox().min();
 
         for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
         {
@@ -310,13 +313,13 @@ cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSi
             if ( faceNodeCount == 4 )
             {
                 vertices.push_back( cvf::Vec3f(
-                    cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] ) - displayOffset ) );
+                    cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] ) - displayModelOffset ) );
                 vertices.push_back( cvf::Vec3f(
-                    cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] ) - displayOffset ) );
+                    cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] ) - displayModelOffset ) );
                 vertices.push_back( cvf::Vec3f(
-                    cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] ) - displayOffset ) );
+                    cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] ) - displayModelOffset ) );
                 vertices.push_back( cvf::Vec3f(
-                    cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] ) - displayOffset ) );
+                    cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] ) - displayModelOffset ) );
             }
             else
             {

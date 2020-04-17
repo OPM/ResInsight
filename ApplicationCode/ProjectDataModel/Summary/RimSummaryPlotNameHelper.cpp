@@ -28,7 +28,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotNameHelper::RimSummaryPlotNameHelper() {}
+RimSummaryPlotNameHelper::RimSummaryPlotNameHelper()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -293,7 +295,7 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
 
         if ( summaryCase )
         {
-            m_titleCaseName = summaryCase->shortName();
+            m_titleCaseName = summaryCase->displayCaseName();
         }
     }
     else if ( ensembleCases.size() == 1 && summaryCases.empty() )

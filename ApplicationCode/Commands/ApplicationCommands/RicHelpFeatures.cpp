@@ -27,6 +27,7 @@
 #include "RiuMainWindow.h"
 
 #include "cafAboutDialog.h"
+#include "cafSelectionManager.h"
 #include "cafViewer.h"
 
 #include <QAction>
@@ -39,6 +40,7 @@ CAF_CMD_SOURCE_INIT( RicHelpAboutFeature, "RicHelpAboutFeature" );
 CAF_CMD_SOURCE_INIT( RicHelpCommandLineFeature, "RicHelpCommandLineFeature" );
 CAF_CMD_SOURCE_INIT( RicHelpSummaryCommandLineFeature, "RicHelpSummaryCommandLineFeature" );
 CAF_CMD_SOURCE_INIT( RicHelpOpenUsersGuideFeature, "RicHelpOpenUsersGuideFeature" );
+CAF_CMD_SOURCE_INIT( RicSearchHelpFeature, "RicSearchHelpFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -251,7 +253,7 @@ void RicHelpOpenUsersGuideFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
-    QString usersGuideUrl = "https://resinsight.org/getting-started/";
+    QString usersGuideUrl = "https://resinsight.org/getting-started/overview/";
 
     if ( !QDesktopServices::openUrl( usersGuideUrl ) )
     {
@@ -266,6 +268,55 @@ void RicHelpOpenUsersGuideFeature::onActionTriggered( bool isChecked )
 void RicHelpOpenUsersGuideFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&Users Guide" );
+
+    // applyShortcutWithHintToAction( actionToSetup, QKeySequence::HelpContents );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicSearchHelpFeature::isCommandEnabled()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSearchHelpFeature::onActionTriggered( bool isChecked )
+{
+    this->disableModelChangeContribution();
+
+    QString usersGuideUrl = "https://resinsight.org/getting-started/overview/";
+
+    caf::PdmUiItem* uiItem = caf::SelectionManager::instance()->selectedItem();
+    if ( uiItem && !uiItem->uiName().isEmpty() )
+    {
+        usersGuideUrl = "https://resinsight.org/search/?q=" + uiItem->uiName();
+    }
+
+    if ( !QDesktopServices::openUrl( usersGuideUrl ) )
+    {
+        QErrorMessage* errorHandler = QErrorMessage::qtHandler();
+        errorHandler->showMessage( "Failed open browser with the following url\n\n" + usersGuideUrl );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSearchHelpFeature::setupActionLook( QAction* actionToSetup )
+{
+    caf::PdmUiItem* uiItem = caf::SelectionManager::instance()->selectedItem();
+
+    if ( uiItem && !uiItem->uiName().isEmpty() )
+    {
+        actionToSetup->setText( "Search Help For: " + uiItem->uiName() );
+    }
+    else
+    {
+        actionToSetup->setText( "Search Help" );
+    }
 
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::HelpContents );
 }

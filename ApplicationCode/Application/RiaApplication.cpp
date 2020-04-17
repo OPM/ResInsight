@@ -27,6 +27,7 @@
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
 #include "RiaSocketServer.h"
+#include "RiaTextStringTools.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
 
@@ -34,7 +35,7 @@
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicfCommandFileExecutor.h"
-#include "RicfMessages.h"
+#include "RicfCommandObject.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
@@ -55,10 +56,13 @@
 #include "RimGridCrossPlotCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
+#include "RimMultiPlot.h"
+#include "RimMultiPlotCollection.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
+#include "RimPlotWindow.h"
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
@@ -72,6 +76,7 @@
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSurfaceCollection.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
@@ -84,9 +89,16 @@
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
+#include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
 #include "RiuViewerCommands.h"
 
+#include "cafPdmCodeGenerator.h"
+#include "cafPdmDataValueField.h"
+#include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmMarkdownBuilder.h"
+#include "cafPdmMarkdownGenerator.h"
+#include "cafPdmScriptIOMessages.h"
 #include "cafPdmSettings.h"
 #include "cafPdmUiModelChangeDetector.h"
 #include "cafProgressInfo.h"
@@ -101,6 +113,7 @@
 #include <QFileInfo>
 
 #include <iostream>
+#include <memory>
 
 #ifdef WIN32
 #include <windows.h>
@@ -499,6 +512,13 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
         }
     }
 
+    {
+        RimMainPlotCollection* mainPlotColl = m_project->mainPlotCollection();
+
+        mainPlotColl->ensureCalculationIdsAreAssigned();
+        mainPlotColl->ensureDefaultFlowPlotsAreCreated();
+    }
+
     for ( RimOilField* oilField : m_project->oilFields )
     {
         if ( oilField == nullptr ) continue;
@@ -536,10 +556,13 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
                 fracture->loadDataAndUpdate();
             }
         }
+
+        oilField->surfaceCollection()->loadData();
     }
 
     // If load action is specified to recalculate statistics, do it now.
-    // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will be clamped
+    // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will
+    // be clamped
     if ( loadAction & PLA_CALCULATE_STATISTICS )
     {
         for ( size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++ )
@@ -701,7 +724,7 @@ bool RiaApplication::saveProjectAs( const QString& fileName, QString* errorMessa
 
     onProjectBeingSaved();
 
-    if ( !m_project->writeFile() )
+    if ( !m_project->writeProjectFile() )
     {
         CAF_ASSERT( errorMessage );
         *errorMessage = QString( "Not possible to save project file. Make sure you have sufficient access "
@@ -810,7 +833,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
     QString   caseName = gridFileName.completeBaseName();
 
     RimGeoMechCase* geoMechCase = new RimGeoMechCase();
-    geoMechCase->setFileName( fileName );
+    geoMechCase->setGridFileName( fileName );
     geoMechCase->caseUserDescription = caseName;
     geoMechCase->setApplyTimeFilter( applyTimeStepFilter );
     m_project->assignCaseIdToCase( geoMechCase );
@@ -842,6 +865,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
     progress.setProgressDescription( "Loading results information" );
 
     m_project->updateConnectedEditors();
+    Riu3DMainWindowTools::setExpanded( riv );
 
     return true;
 }
@@ -849,8 +873,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths,
-                                                               QStringList*   errorMessages )
+std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths, QStringList* errorMessages )
 {
     CAF_ASSERT( errorMessages );
 
@@ -923,8 +946,8 @@ std::vector<RimWellLogFile*> RiaApplication::addWellLogsToModel( const QList<QSt
         m_project->updateConnectedEditors();
     }
 
-    std::vector<RimWellLogFile*> wellLogFiles = oilField->wellPathCollection->addWellLogs( wellLogFilePaths,
-                                                                                           errorMessages );
+    std::vector<RimWellLogFile*> wellLogFiles =
+        oilField->wellPathCollection->addWellLogs( wellLogFilePaths, errorMessages );
 
     oilField->wellPathCollection->updateConnectedEditors();
 
@@ -1100,7 +1123,8 @@ bool RiaApplication::launchProcess( const QString&             program,
 
             stopMonitoringWorkProgress();
 
-            //            QMessageBox::warning(m_mainWindow, "Script execution", "Failed to start script executable located at\n" + program);
+            //            QMessageBox::warning(m_mainWindow, "Script execution", "Failed to start script executable
+            //            located at\n" + program);
 
             return false;
         }
@@ -1191,6 +1215,8 @@ void RiaApplication::applyPreferences()
         this->project()->updateConnectedEditors();
     }
 
+    caf::ProgressInfoStatic::setEnabled( m_preferences->showProgressBar() );
+
     m_preferences->writePreferencesToApplicationStore();
 }
 
@@ -1235,8 +1261,8 @@ QVariant RiaApplication::cacheDataObject( const QString& key ) const
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::executeCommandFile( const QString& commandFile )
 {
-    QFile        file( commandFile );
-    RicfMessages messages;
+    QFile                    file( commandFile );
+    caf::PdmScriptIOMessages messages;
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
     {
         // TODO : Error logging?
@@ -1344,6 +1370,12 @@ int RiaApplication::launchUnitTests()
 #endif
 
     testing::InitGoogleTest( &argc, argv );
+
+    //
+    // Use the gtest filter to execute a subset of tests
+    //::testing::GTEST_FLAG( filter ) = "*RifCaseRealizationParametersReaderTest*";
+    //
+    //
 
     // Use this macro in main() to run all tests.  It returns 0 if all
     // tests are successful, or 1 otherwise.
@@ -1496,4 +1528,297 @@ void RiaApplication::initialize()
 int RiaApplication::launchUnitTestsWithConsole()
 {
     return launchUnitTests();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::loadAndUpdatePlotData()
+{
+    RimWellLogPlotCollection*            wlpColl  = nullptr;
+    RimSummaryPlotCollection*            spColl   = nullptr;
+    RimSummaryCrossPlotCollection*       scpColl  = nullptr;
+    RimFlowPlotCollection*               flowColl = nullptr;
+    RimRftPlotCollection*                rftColl  = nullptr;
+    RimPltPlotCollection*                pltColl  = nullptr;
+    RimGridCrossPlotCollection*          gcpColl  = nullptr;
+    RimSaturationPressurePlotCollection* sppColl  = nullptr;
+    RimMultiPlotCollection*              gpwColl  = nullptr;
+
+    if ( m_project->mainPlotCollection() )
+    {
+        if ( m_project->mainPlotCollection()->wellLogPlotCollection() )
+        {
+            wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->summaryPlotCollection() )
+        {
+            spColl = m_project->mainPlotCollection()->summaryPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->summaryCrossPlotCollection() )
+        {
+            scpColl = m_project->mainPlotCollection()->summaryCrossPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->flowPlotCollection() )
+        {
+            flowColl = m_project->mainPlotCollection()->flowPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->rftPlotCollection() )
+        {
+            rftColl = m_project->mainPlotCollection()->rftPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->pltPlotCollection() )
+        {
+            pltColl = m_project->mainPlotCollection()->pltPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->gridCrossPlotCollection() )
+        {
+            gcpColl = m_project->mainPlotCollection()->gridCrossPlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->saturationPressurePlotCollection() )
+        {
+            sppColl = m_project->mainPlotCollection()->saturationPressurePlotCollection();
+        }
+        if ( m_project->mainPlotCollection()->multiPlotCollection() )
+        {
+            gpwColl = m_project->mainPlotCollection()->multiPlotCollection();
+        }
+    }
+
+    size_t plotCount = 0;
+    plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
+    plotCount += spColl ? spColl->summaryPlots().size() : 0;
+    plotCount += scpColl ? scpColl->summaryPlots().size() : 0;
+    plotCount += flowColl ? flowColl->plotCount() : 0;
+    plotCount += rftColl ? rftColl->rftPlots().size() : 0;
+    plotCount += pltColl ? pltColl->pltPlots().size() : 0;
+    plotCount += gcpColl ? gcpColl->gridCrossPlots().size() : 0;
+    plotCount += sppColl ? sppColl->plots().size() : 0;
+    plotCount += gpwColl ? gpwColl->multiPlots().size() : 0;
+
+    if ( plotCount > 0 )
+    {
+        caf::ProgressInfo plotProgress( plotCount, "Loading Plot Data" );
+        if ( wlpColl )
+        {
+            for ( size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx )
+            {
+                wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( spColl )
+        {
+            for ( size_t wlpIdx = 0; wlpIdx < spColl->summaryPlots().size(); ++wlpIdx )
+            {
+                spColl->summaryPlots[wlpIdx]->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( scpColl )
+        {
+            for ( auto plot : scpColl->summaryPlots() )
+            {
+                plot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( flowColl )
+        {
+            plotProgress.setNextProgressIncrement( flowColl->plotCount() );
+            flowColl->loadDataAndUpdate();
+            plotProgress.incrementProgress();
+        }
+
+        if ( rftColl )
+        {
+            for ( const auto& rftPlot : rftColl->rftPlots() )
+            {
+                rftPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( pltColl )
+        {
+            for ( const auto& pltPlot : pltColl->pltPlots() )
+            {
+                pltPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( gcpColl )
+        {
+            for ( const auto& gcpPlot : gcpColl->gridCrossPlots() )
+            {
+                gcpPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( sppColl )
+        {
+            for ( const auto& sppPlot : sppColl->plots() )
+            {
+                sppPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+
+        if ( gpwColl )
+        {
+            for ( const auto& multiPlot : gpwColl->multiPlots() )
+            {
+                multiPlot->loadDataAndUpdate();
+                plotProgress.incrementProgress();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::resetProject()
+{
+    if ( m_project.notNull() )
+    {
+        delete m_project.p();
+        m_project = nullptr;
+    }
+
+    if ( m_preferences )
+    {
+        delete m_preferences;
+        m_preferences = nullptr;
+    }
+
+    initialize();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
+{
+    CAF_ASSERT( errMsg );
+
+    std::string fileExt = QFileInfo( fileName ).suffix().toStdString();
+
+    {
+        // TODO: Manually instantiate the markdown generator until cmake issues are fixed
+        // This will make sure the markdown generator is registered in the factory in the cafPdmScripting library
+        caf::PdmMarkdownGenerator testObj;
+    }
+
+    std::unique_ptr<caf::PdmCodeGenerator> generator( caf::PdmCodeGeneratorFactory::instance()->create( fileExt ) );
+    if ( !generator )
+    {
+        *errMsg = QString( "No code generator matches the provided file extension" );
+        return false;
+    }
+
+    auto markdownGenerator = dynamic_cast<caf::PdmMarkdownGenerator*>( generator.get() );
+    if ( markdownGenerator )
+    {
+        QFileInfo fi( fileName );
+        QDir      dir( fi.absoluteDir() );
+
+        QString baseName = fi.baseName();
+
+        {
+            QString outputFileName = dir.absoluteFilePath( baseName + "_class.md" );
+
+            QFile outputFile( outputFileName );
+            if ( !outputFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+            {
+                *errMsg = QString( "Could not open file %1 for writing" ).arg( outputFileName );
+                return false;
+            }
+            QTextStream out( &outputFile );
+
+            {
+                out << "+++ \n";
+                out << "title =  \"Python Classes (BETA)\" \n";
+                out << "published = true \n";
+                out << "weight = 95 \n";
+                out << "+++ \n";
+
+                out << "# Introduction\n\n";
+                out << "As the Python interface is growing release by release, we are investigating how to automate "
+                       "the building of documentation. This document shows the inheritance relationship between "
+                       "objects derived from **PdmObject**. The **PdmObject** is the base object for all "
+                       "objects automatically created based on the data model in ResInsight.";
+            }
+
+            out << generator->generate( caf::PdmDefaultObjectFactory::instance() );
+        }
+
+        {
+            QString outputFileName = dir.absoluteFilePath( baseName + "_commands.md" );
+
+            QFile outputFile( outputFileName );
+            if ( !outputFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+            {
+                *errMsg = QString( "Could not open file %1 for writing" ).arg( outputFileName );
+                return false;
+            }
+            QTextStream out( &outputFile );
+
+            {
+                out << "+++ \n";
+                out << "title =  \"Command Reference (BETA)\" \n";
+                out << "published = true \n";
+                out << "weight = 96 \n";
+                out << "+++ \n";
+
+                out << "# Introduction\n\n";
+                out << "As the Python interface is growing release by release, we are investigating how to automate "
+                       "the building of reference documentation. This document is not complete, but will improve as "
+                       "the automation "
+                       "moves forward.\n";
+
+                out << "## Currently missing features\n\n";
+                out << " - Description of enums\n";
+                out << " - Description of return values/classes\n";
+                out << " - Description of each object\n";
+            }
+
+            std::vector<std::shared_ptr<const caf::PdmObject>> commandObjects;
+
+            QStringList excludedClassNames{"TestCommand1", "TC2"}; // See RifCommandCore-Text.cpp
+
+            auto allObjects = caf::PdmMarkdownBuilder::createAllObjects( caf::PdmDefaultObjectFactory::instance() );
+            for ( auto classObject : allObjects )
+            {
+                if ( dynamic_cast<const RicfCommandObject*>( classObject.get() ) )
+                {
+                    if ( !excludedClassNames.contains( classObject->classKeyword(), Qt::CaseInsensitive ) )
+                    {
+                        commandObjects.push_back( classObject );
+                    }
+                }
+            }
+
+            out << caf::PdmMarkdownBuilder::generateDocCommandObjects( commandObjects );
+        }
+    }
+    else
+    {
+        QFile outputFile( fileName );
+        if ( !outputFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
+        {
+            *errMsg = QString( "Could not open file %1 for writing" ).arg( fileName );
+            return false;
+        }
+        QTextStream out( &outputFile );
+
+        out << generator->generate( caf::PdmDefaultObjectFactory::instance() );
+    }
+
+    return true;
 }

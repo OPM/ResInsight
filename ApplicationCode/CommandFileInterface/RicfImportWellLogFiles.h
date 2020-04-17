@@ -50,7 +50,7 @@ class RicfImportWellLogFiles : public RicfCommandObject
 public:
     RicfImportWellLogFiles();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<QString>              m_wellLogFileFolder;

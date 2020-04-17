@@ -25,8 +25,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivPolylineGenerator::createLineAlongPolylineDrawable( const std::vector<cvf::Vec3d>& polyLine,
-                                                                                  bool closeLine )
+cvf::ref<cvf::DrawableGeo>
+    RivPolylineGenerator::createLineAlongPolylineDrawable( const std::vector<cvf::Vec3d>& polyLine, bool closeLine )
 {
     std::vector<std::vector<cvf::Vec3d>> polyLines;
     polyLines.push_back( polyLine );

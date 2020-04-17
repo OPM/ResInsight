@@ -59,15 +59,38 @@ void RiaPreferences::SummaryHistoryCurveStyleModeType::setUp()
     addItem( RiaPreferences::SYMBOLS_AND_LINES, "SYMBOLS_AND_LINES", "Symbols and Lines" );
     setDefault( RiaPreferences::SYMBOLS );
 }
+
+template <>
+void RiaPreferences::PageSizeEnum::setUp()
+{
+    addItem( QPageSize::A3, "A3", "A3" );
+    addItem( QPageSize::A4, "A4", "A4" );
+    addItem( QPageSize::A5, "A5", "A5" );
+    addItem( QPageSize::A6, "A6", "A6" );
+    addItem( QPageSize::Letter, "LETTER", "US Letter" );
+    addItem( QPageSize::Legal, "LEGAL", "US Legal" );
+    addItem( QPageSize::Ledger, "LEDGER", "US Ledger" );
+    addItem( QPageSize::Tabloid, "TABLOID", "US Tabloid" );
+    setDefault( QPageSize::A4 );
+}
+
+template <>
+void RiaPreferences::PageOrientationEnum::setUp()
+{
+    addItem( QPageLayout::Portrait, "PORTRAIT", "Portrait" );
+    addItem( QPageLayout::Landscape, "LANDSCAPE", "Landscape" );
+    setDefault( QPageLayout::Portrait );
+}
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RiaPreferences, "RiaPreferences" );
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiaPreferences::RiaPreferences( void )
 {
-    CAF_PDM_InitField( &navigationPolicy,
+    CAF_PDM_InitField( &m_navigationPolicy,
                        "navigationPolicy",
                        caf::AppEnum<RiaGuiApplication::RINavigationPolicy>( RiaGuiApplication::NAVIGATION_POLICY_RMS ),
                        "Navigation Mode",
@@ -128,7 +151,7 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitField( &ssihubAddress, "ssihubAddress", QString( "http://" ), "SSIHUB Address", "", "", "" );
     ssihubAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitFieldNoDefault( &defaultMeshModeType, "defaultMeshModeType", "Show Grid Lines", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_defaultMeshModeType, "defaultMeshModeType", "Show Grid Lines", "", "", "" );
     CAF_PDM_InitField( &defaultGridLineColors,
                        "defaultGridLineColors",
                        RiaColorTables::defaultGridLineColor(),
@@ -159,14 +182,14 @@ RiaPreferences::RiaPreferences( void )
                        "The viewer background color for new views",
                        "" );
 
-    CAF_PDM_InitField( &defaultScaleFactorZ, "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "" );
+    CAF_PDM_InitField( &m_defaultScaleFactorZ, "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "" );
 
     caf::AppEnum<RiaFontCache::FontSize> fontSize     = RiaFontCache::FONT_SIZE_8;
     caf::AppEnum<RiaFontCache::FontSize> plotFontSize = RiaFontCache::FONT_SIZE_10;
-    CAF_PDM_InitField( &defaultSceneFontSize, "fontSizeInScene", fontSize, "Viewer Font Size", "", "", "" );
-    CAF_PDM_InitField( &defaultAnnotationFontSize, "defaultAnnotationFontSize", fontSize, "Annotation Font Size", "", "", "" );
-    CAF_PDM_InitField( &defaultWellLabelFontSize, "wellLabelFontSize", fontSize, "Well Label Font Size", "", "", "" );
-    CAF_PDM_InitField( &defaultPlotFontSize, "defaultPlotFontSize", plotFontSize, "Plot Font Size", "", "", "" );
+    CAF_PDM_InitField( &defaultSceneFontSize, "defaultSceneFontSizePt", fontSize, "Viewer Font Size", "", "", "" );
+    CAF_PDM_InitField( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", fontSize, "Annotation Font Size", "", "", "" );
+    CAF_PDM_InitField( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", fontSize, "Well Label Font Size", "", "", "" );
+    CAF_PDM_InitField( &defaultPlotFontSize, "defaultPlotFontSizePt", plotFontSize, "Plot Font Size", "", "", "" );
 
     CAF_PDM_InitField( &showLasCurveWithoutTvdWarning,
                        "showLasCurveWithoutTvdWarning",
@@ -205,8 +228,11 @@ RiaPreferences::RiaPreferences( void )
                        "" );
     m_includeFractureDebugInfoFile.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &showLegendBackground, "showLegendBackground", true, "Show Box around Legends", "", "", "" );
-    showLegendBackground.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    CAF_PDM_InitField( &m_showLegendBackground, "showLegendBackground", true, "Show Box around Legends", "", "", "" );
+    m_showLegendBackground.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_enableFaultsByDefault, "enableFaultsByDefault", true, "Enable Faults By Default", "", "", "" );
+    m_enableFaultsByDefault.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File", "", "", "" );
     lastUsedProjectFileName.uiCapability()->setUiHidden( true );
@@ -306,6 +332,9 @@ RiaPreferences::RiaPreferences( void )
     m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_timeFormat = RiaQDateTimeTools::supportedTimeFormats().front();
 
+    CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar", "", "", "" );
+    m_showProgressBar.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)", "", "", "" );
     m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_searchPlotTemplateFoldersRecursively,
@@ -337,6 +366,41 @@ RiaPreferences::RiaPreferences( void )
                        "",
                        "" );
     m_useMultipleThreadsWhenLoadingSummaryData.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_pageSize, "pageSize", "Page Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pageOrientation, "pageOrientation", "Page Orientation", "", "", "" );
+    CAF_PDM_InitField( &m_pageLeftMargin, "pageLeftMargin", defaultMarginSize( m_pageSize() ), "Left Margin", "", "", "" );
+    CAF_PDM_InitField( &m_pageTopMargin, "pageTopMargin", defaultMarginSize( m_pageSize() ), "Top Margin", "", "", "" );
+    CAF_PDM_InitField( &m_pageRightMargin, "pageRightMargin", defaultMarginSize( m_pageSize() ), "Right Margin", "", "", "" );
+    CAF_PDM_InitField( &m_pageBottomMargin, "pageBottomMargin", defaultMarginSize( m_pageSize() ), "Bottom Margin", "", "", "" );
+
+    caf::AppEnum<RiaFontCache::FontSize> invalidFontSize = RiaFontCache::INVALID;
+    CAF_PDM_InitField( &m_defaultSceneFontSize_OBSOLETE, "fontSizeInScene", invalidFontSize, "Viewer Font Size", "", "", "" );
+    m_defaultSceneFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
+
+    CAF_PDM_InitField( &m_defaultAnnotationFontSize_OBSOLETE,
+                       "defaultAnnotationFontSize",
+                       invalidFontSize,
+                       "Annotation Font Size",
+                       "",
+                       "",
+                       "" );
+    m_defaultAnnotationFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
+
+    CAF_PDM_InitField( &m_defaultWellLabelFontSize_OBSOLETE,
+                       "wellLabelFontSize",
+                       invalidFontSize,
+                       "Well Label Font Size",
+                       "",
+                       "",
+                       "" );
+    m_defaultWellLabelFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
+
+    CAF_PDM_InitField( &m_defaultPlotFontSize_OBSOLETE, "defaultPlotFontSize", invalidFontSize, "Plot Font Size", "", "", "" );
+    m_defaultPlotFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
+
+    CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer", "", "", "" );
+    m_openExportedPdfInViewer.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -374,8 +438,9 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
          field == &m_showTestToolbar || field == &m_includeFractureDebugInfoFile ||
          field == &showLasCurveWithoutTvdWarning || field == &holoLensDisableCertificateVerification ||
          field == &m_showProjectChangedDialog || field == &m_searchPlotTemplateFoldersRecursively ||
-         field == &showLegendBackground || field == &m_showSummaryTimeAsLongString ||
-         field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData )
+         field == &m_showLegendBackground || field == &m_showSummaryTimeAsLongString ||
+         field == &m_showViewIdInProjectTree || field == &m_useMultipleThreadsWhenLoadingSummaryData ||
+         field == &m_enableFaultsByDefault || field == &m_showProgressBar || field == &m_openExportedPdfInViewer )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -419,10 +484,11 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         fontGroup->add( &defaultPlotFontSize, false );
 
         caf::PdmUiGroup* viewsGroup = uiOrdering.addNewGroup( "3d Views" );
-        viewsGroup->add( &defaultMeshModeType );
-        viewsGroup->add( &navigationPolicy );
-        viewsGroup->add( &defaultScaleFactorZ );
-        viewsGroup->add( &showLegendBackground );
+        viewsGroup->add( &m_defaultMeshModeType );
+        viewsGroup->add( &m_navigationPolicy );
+        viewsGroup->add( &m_defaultScaleFactorZ );
+        viewsGroup->add( &m_showLegendBackground );
+        viewsGroup->add( &m_enableFaultsByDefault );
 
         caf::PdmUiGroup* otherGroup = uiOrdering.addNewGroup( "Other" );
         otherGroup->add( &ssihubAddress );
@@ -467,7 +533,26 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Plot Templates" );
         group->add( &m_plotTemplateFolders );
         group->add( &m_searchPlotTemplateFoldersRecursively );
+
+        caf::PdmUiGroup* pageSetup = uiOrdering.addNewGroup( "Page Setup" );
+        pageSetup->add( &m_pageSize );
+        pageSetup->add( &m_pageOrientation, false );
+        pageSetup->add( &m_pageLeftMargin );
+        pageSetup->add( &m_pageRightMargin, false );
+        pageSetup->add( &m_pageTopMargin );
+        pageSetup->add( &m_pageBottomMargin, false );
+
+        QString unitLabel = " [mm]";
+        if ( QPageSize( m_pageSize() ).definitionUnits() == QPageSize::Inch )
+        {
+            unitLabel = " [in]";
+        }
+        m_pageLeftMargin.uiCapability()->setUiName( "Left Margin" + unitLabel );
+        m_pageRightMargin.uiCapability()->setUiName( "Right Margin" + unitLabel );
+        m_pageTopMargin.uiCapability()->setUiName( "Top Margin" + unitLabel );
+        m_pageBottomMargin.uiCapability()->setUiName( "Bottom Margin" + unitLabel );
     }
+
     else if ( uiConfigName == RiaPreferences::tabNameScripting() )
     {
         caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup( "Octave" );
@@ -488,6 +573,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     else if ( uiConfigName == RiaPreferences::tabNameExport() )
     {
         uiOrdering.add( &csvTextExportFieldSeparator );
+        uiOrdering.add( &m_openExportedPdfInViewer );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -504,6 +590,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             group->add( &m_showHud );
         }
 
+        uiOrdering.add( &m_showProgressBar );
         uiOrdering.add( &m_showProjectChangedDialog );
         uiOrdering.add( &m_showTestToolbar );
         uiOrdering.add( &m_includeFractureDebugInfoFile );
@@ -544,9 +631,9 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
     {
         for ( auto dateFormat : RiaQDateTimeTools::supportedDateFormats() )
         {
-            QDate   exampleDate    = QDate( 2019, 8, 16 );
-            QString fullDateFormat = RiaQDateTimeTools::dateFormatString( dateFormat,
-                                                                          RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+            QDate   exampleDate = QDate( 2019, 8, 16 );
+            QString fullDateFormat =
+                RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
             QString uiText = QString( "%1 (%2)" ).arg( fullDateFormat ).arg( exampleDate.toString( fullDateFormat ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( dateFormat ) ) );
@@ -573,14 +660,44 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::initAfterRead()
 {
-    // If the stored font size is larger than the maximum enum value, the stored font size is actually point size
-    int defaultSceneFontEnumValue = static_cast<int>( defaultSceneFontSize.v() );
-    if ( defaultSceneFontEnumValue > (int)RiaFontCache::MAX_FONT_SIZE )
+    // If the stored font size is smaller than the minimum enum value, the stored font size is actually just an enum value
+    int defaultSceneFontEnumValue = static_cast<int>( m_defaultSceneFontSize_OBSOLETE.v() );
+    if ( defaultSceneFontEnumValue >= (int)RiaFontCache::MIN_FONT_SIZE )
     {
-        defaultSceneFontSize = RiaFontCache::fontSizeEnumFromPointSize( defaultSceneFontEnumValue );
+        defaultSceneFontSize = RiaFontCache::legacyEnumToPointSize( defaultSceneFontEnumValue );
+    }
+    int defaultWellLabelFontEnumValue = static_cast<int>( m_defaultWellLabelFontSize_OBSOLETE.v() );
+    if ( defaultWellLabelFontEnumValue >= (int)RiaFontCache::MIN_FONT_SIZE )
+    {
+        defaultWellLabelFontSize = RiaFontCache::legacyEnumToPointSize( defaultWellLabelFontEnumValue );
+    }
+    int defaultAnnotationFontEnumValue = static_cast<int>( m_defaultAnnotationFontSize_OBSOLETE.v() );
+    if ( defaultAnnotationFontEnumValue >= (int)RiaFontCache::MIN_FONT_SIZE )
+    {
+        defaultAnnotationFontSize = RiaFontCache::legacyEnumToPointSize( defaultAnnotationFontEnumValue );
+    }
+    int defaultPlotFontEnumValue = static_cast<int>( m_defaultPlotFontSize_OBSOLETE.v() );
+    if ( defaultPlotFontEnumValue >= (int)RiaFontCache::MIN_FONT_SIZE )
+    {
+        defaultPlotFontSize = RiaFontCache::legacyEnumToPointSize( defaultPlotFontEnumValue );
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                       const QVariant&            oldValue,
+                                       const QVariant&            newValue )
+{
+    if ( changedField == &m_pageSize )
+    {
+        m_pageLeftMargin   = defaultMarginSize( m_pageSize() );
+        m_pageRightMargin  = defaultMarginSize( m_pageSize() );
+        m_pageTopMargin    = defaultMarginSize( m_pageSize() );
+        m_pageBottomMargin = defaultMarginSize( m_pageSize() );
+    }
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -629,6 +746,22 @@ QString RiaPreferences::tabNameSystem()
     return "System";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaPreferences::defaultMarginSize( QPageSize::PageSizeId pageSizeId )
+{
+    QPageSize::Unit unit = QPageSize( pageSizeId ).definitionUnits();
+
+    if ( unit == QPageSize::Inch )
+    {
+        return 1.0;
+    }
+    else
+    {
+        return 20.0;
+    }
+}
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -834,6 +967,22 @@ bool RiaPreferences::useMultipleThreadsWhenReadingSummaryData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showProgressBar() const
+{
+    return m_showProgressBar;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::openExportedPdfInViewer() const
+{
+    return m_openExportedPdfInViewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::defaultFontSizes() const
 {
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes;
@@ -850,4 +999,63 @@ std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::de
 void RiaPreferences::writePreferencesToApplicationStore()
 {
     caf::PdmSettings::writeFieldsToApplicationStore( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QPageLayout RiaPreferences::defaultPageLayout() const
+{
+    QPageSize   pageSize( m_pageSize() );
+    QPageLayout layout( pageSize, m_pageOrientation(), margins(), (QPageLayout::Unit)pageSize.definitionUnits() );
+    layout.setMode( QPageLayout::StandardMode );
+    return layout;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMarginsF RiaPreferences::margins() const
+{
+    return QMarginsF( m_pageLeftMargin, m_pageTopMargin, m_pageRightMargin, m_pageBottomMargin );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::MeshModeType RiaPreferences::defaultMeshModeType() const
+{
+    return m_defaultMeshModeType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaGuiApplication::RINavigationPolicy RiaPreferences::navigationPolicy() const
+{
+    return m_navigationPolicy();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferences::defaultScaleFactorZ() const
+{
+    return m_defaultScaleFactorZ();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::showLegendBackground() const
+{
+    return m_showLegendBackground();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::enableFaultsByDefault() const
+{
+    return m_enableFaultsByDefault;
 }

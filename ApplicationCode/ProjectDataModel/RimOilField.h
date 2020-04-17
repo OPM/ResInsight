@@ -37,6 +37,7 @@ class RimSummaryCaseMainCollection;
 class RimWellPathCollection;
 class RimAnnotationCollection;
 class RimMeasurement;
+class RimSurfaceCollection;
 
 //==================================================================================================
 ///
@@ -56,8 +57,6 @@ public:
     RimValveTemplateCollection*       valveTemplateCollection();
     const RimValveTemplateCollection* valveTemplateCollection() const;
 
-    QString uniqueShortNameForCase( RimSummaryCase* summaryCase );
-
     caf::PdmChildField<RimEclipseCaseCollection*>        analysisModels;
     caf::PdmChildField<RimGeoMechModels*>                geoMechModels;
     caf::PdmChildField<RimWellPathCollection*>           wellPathCollection;
@@ -67,6 +66,7 @@ public:
     caf::PdmChildField<RimFormationNamesCollection*>     formationNamesCollection;
     caf::PdmChildField<RimAnnotationCollection*>         annotationCollection;
     caf::PdmChildField<RimMeasurement*>                  measurement;
+    caf::PdmChildField<RimSurfaceCollection*>            surfaceCollection;
 
 protected:
     void initAfterRead() override;

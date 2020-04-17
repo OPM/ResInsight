@@ -18,9 +18,9 @@ property_list = ['SOIL', 'PRESSURE'] # list of parameter for snapshot
 print ("Looping through cases")
 for case in cases:
     print("Case name: ", case.name)
-    print("Case id: ", case.case_id)
+    print("Case id: ", case.id)
     # Get grid path and its folder name
-    case_path = case.grid_path()
+    case_path = case.file_path
     folder_name = os.path.dirname(case_path)
     
     # create a folder to hold the snapshots
@@ -34,10 +34,11 @@ for case in cases:
    
     time_steps = case.time_steps()
     print('Number of time_steps: ' + str(len(time_steps)))
-        
-    view = case.views()[0]
-    for property in property_list:
-        view.apply_cell_result(result_type='DYNAMIC_NATIVE', result_variable=property)
+
+    for view in case.views():
+        if view.is_eclipse_view():
+            for property in property_list:
+                view.apply_cell_result(result_type='DYNAMIC_NATIVE', result_variable=property)
         for time_step in range(0, len(time_steps), 10):
             view.set_time_step(time_step = time_step)
             view.export_snapshot()

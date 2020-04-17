@@ -26,9 +26,12 @@ class RimAnnotationInViewCollection;
 class RimEclipseContourMapProjection;
 class Rim3dOverlayInfoConfig;
 class RimIntersectionCollection;
+class RimIntersectionResultsDefinitionCollection;
 class RimPropertyFilterCollection;
 class RimGridCollection;
 class RimCellRangeFilterCollection;
+class RimWellMeasurementInViewCollection;
+class RimSurfaceInViewCollection;
 
 class RimGridView : public Rim3dView
 {
@@ -44,15 +47,17 @@ public:
 
     cvf::ref<cvf::UByteArray> currentTotalCellVisibility();
 
-    RimIntersectionCollection* crossSectionCollection() const;
+    RimIntersectionCollection*                  intersectionCollection() const;
+    RimSurfaceInViewCollection*                 surfaceInViewCollection() const;
+    RimIntersectionResultsDefinitionCollection* separateIntersectionResultsCollection() const;
+    RimIntersectionResultsDefinitionCollection* separateSurfaceResultsCollection() const;
+    RimAnnotationInViewCollection*              annotationCollection() const;
+    RimWellMeasurementInViewCollection*         measurementCollection() const;
 
     virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
-
-    void                                rangeFiltersUpdated();
-    RimCellRangeFilterCollection*       rangeFilterCollection();
-    const RimCellRangeFilterCollection* rangeFilterCollection() const;
-
-    RimAnnotationInViewCollection* annotationCollection() const;
+    void                                       rangeFiltersUpdated();
+    RimCellRangeFilterCollection*              rangeFilterCollection();
+    const RimCellRangeFilterCollection*        rangeFilterCollection() const;
 
     bool hasOverridenRangeFilterCollection();
     void setOverrideRangeFilterCollection( RimCellRangeFilterCollection* rfc );
@@ -69,30 +74,40 @@ public:
                         int                         fontSize,
                         bool                        forceChange = false ) override;
 
+    void updateWellMeasurements();
+    void updateSurfacesInViewTreeItems();
+
 protected:
-    virtual void updateViewFollowingRangeFilterUpdates();
-    void         initAfterRead() override;
-    void         onClearReservoirCellVisibilitiesIfNeccessary() override;
-    virtual void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) = 0;
-    void         selectOverlayInfoConfig() override;
-
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
-
+    virtual void       updateViewFollowingRangeFilterUpdates();
+    void               onClearReservoirCellVisibilitiesIfNeccessary() override;
+    virtual void       calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) = 0;
+    void               selectOverlayInfoConfig() override;
     RimGridCollection* gridCollection() const;
+    void               clearReservoirCellVisibilities();
 
-    void clearReservoirCellVisibilities();
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void initAfterRead() override;
 
-protected: // Fields
-    caf::PdmChildField<RimIntersectionCollection*>     m_crossSectionCollection;
-    caf::PdmChildField<Rim3dOverlayInfoConfig*>        m_overlayInfoConfig;
-    caf::PdmChildField<RimCellRangeFilterCollection*>  m_rangeFilterCollection;
-    caf::PdmChildField<RimCellRangeFilterCollection*>  m_overrideRangeFilterCollection;
-    caf::PdmChildField<RimGridCollection*>             m_gridCollection;
-    caf::PdmChildField<RimAnnotationInViewCollection*> m_annotationCollection;
+protected:
+    cvf::ref<cvf::ModelBasicList> m_surfaceVizModel;
+
+    // Fields
+    caf::PdmChildField<RimIntersectionCollection*> m_intersectionCollection;
+
+    caf::PdmChildField<RimIntersectionResultsDefinitionCollection*> m_intersectionResultDefCollection;
+    caf::PdmChildField<RimIntersectionResultsDefinitionCollection*> m_surfaceResultDefCollection;
+
+    caf::PdmChildField<Rim3dOverlayInfoConfig*>             m_overlayInfoConfig;
+    caf::PdmChildField<RimCellRangeFilterCollection*>       m_rangeFilterCollection;
+    caf::PdmChildField<RimCellRangeFilterCollection*>       m_overrideRangeFilterCollection;
+    caf::PdmChildField<RimGridCollection*>                  m_gridCollection;
+    caf::PdmChildField<RimAnnotationInViewCollection*>      m_annotationCollection;
+    caf::PdmChildField<RimWellMeasurementInViewCollection*> m_wellMeasurementCollection;
+    caf::PdmChildField<RimSurfaceInViewCollection*>         m_surfaceCollection;
 
 private:
+    void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
+
     cvf::ref<cvf::UByteArray> m_currentReservoirCellVisibility;
     RimViewLinker*            viewLinkerIfMasterView() const;
     bool                      m_previousGridModeMeshLinesWasFaults;

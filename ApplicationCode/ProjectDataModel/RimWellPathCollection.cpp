@@ -38,6 +38,7 @@
 #include "RimPerforationCollection.h"
 #include "RimProject.h"
 #include "RimWellLogFile.h"
+#include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -46,6 +47,7 @@
 #include "RifWellPathImporter.h"
 
 #include "cafPdmUiEditorHandle.h"
+#include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
 #include <QFile>
@@ -103,8 +105,11 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitField( &wellPathClipZDistance, "WellPathClipZDistance", 100, "Well Path Clipping Depth Distance", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &wellPaths, "WellPaths", "Well Paths", "", "", "" );
-
     wellPaths.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellMeasurements, "WellMeasurements", "Measurements", "", "", "" );
+    m_wellMeasurements = new RimWellMeasurementCollection;
+    m_wellMeasurements.uiCapability()->setUiTreeHidden( true );
 
     m_wellPathImporter            = new RifWellPathImporter;
     m_wellPathFormationsImporter  = new RifWellPathFormationsImporter;
@@ -144,15 +149,11 @@ void RimWellPathCollection::loadDataAndUpdate()
         RimModeledWellPath* mWPath = dynamic_cast<RimModeledWellPath*>( wellPaths[wpIdx] );
         if ( fWPath )
         {
-            if ( !fWPath->filepath().isEmpty() )
+            if ( !fWPath->filePath().isEmpty() )
             {
                 QString errorMessage;
                 if ( !fWPath->readWellPathFile( &errorMessage, m_wellPathImporter ) )
                 {
-                    if ( RiaGuiApplication::isRunning() )
-                    {
-                        QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "File open error", errorMessage );
-                    }
                     RiaLogging::warning( errorMessage );
                 }
             }
@@ -164,21 +165,7 @@ void RimWellPathCollection::loadDataAndUpdate()
                     QString errorMessage;
                     if ( !wellLogFile->readFile( &errorMessage ) )
                     {
-                        QString displayMessage = "Could not open the well log file: \n" + wellLogFile->fileName();
-
-                        if ( !errorMessage.isEmpty() )
-                        {
-                            displayMessage += "\n\n";
-                            displayMessage += errorMessage;
-                        }
-
                         RiaLogging::warning( errorMessage );
-                        if ( RiaGuiApplication::isRunning() )
-                        {
-                            QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
-                                                  "File open error",
-                                                  displayMessage );
-                        }
                     }
                 }
             }
@@ -217,11 +204,12 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
             f1.setFileName( filePath );
             QString s1 = f1.fileName();
             QFile   f2;
-            f2.setFileName( fWPath->filepath() );
+            f2.setFileName( fWPath->filePath() );
             QString s2 = f2.fileName();
             if ( s1 == s2 )
             {
-                // printf("Attempting to open well path JSON file that is already open:\n  %s\n", (const char*) filePath.toLocal8Bit());
+                // printf("Attempting to open well path JSON file that is already open:\n  %s\n", (const char*)
+                // filePath.toLocal8Bit());
                 alreadyOpen = true;
                 errorMessages->push_back( QString( "%1 is already loaded" ).arg( filePath ) );
                 break;
@@ -280,7 +268,7 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
         RimFileWellPath* existingWellPath = dynamic_cast<RimFileWellPath*>( tryFindMatchingWellPath( wellPath->name() ) );
         if ( existingWellPath )
         {
-            existingWellPath->setFilepath( wellPath->filepath() );
+            existingWellPath->setFilepath( wellPath->filePath() );
             existingWellPath->setWellPathIndexInFile( wellPath->wellPathIndexInFile() );
             existingWellPath->readWellPathFile( nullptr, m_wellPathImporter );
 
@@ -425,6 +413,24 @@ void RimWellPathCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Clipping" );
     advancedGroup->add( &wellPathClip );
     advancedGroup->add( &wellPathClipZDistance );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
+{
+    if ( !m_wellMeasurements->isEmpty() )
+    {
+        uiTreeOrdering.add( &m_wellMeasurements );
+    }
+
+    if ( !wellPaths.empty() )
+    {
+        uiTreeOrdering.add( &wellPaths );
+    }
+
+    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -591,7 +597,7 @@ void RimWellPathCollection::removeWellPath( RimWellPath* wellPath )
         for ( size_t i = 0; i < wellPaths.size(); i++ )
         {
             RimFileWellPath* fWPath = dynamic_cast<RimFileWellPath*>( wellPaths[i] );
-            if ( fWPath && fWPath->filepath() == fileWellPath->filepath() )
+            if ( fWPath && fWPath->filePath() == fileWellPath->filePath() )
             {
                 isFilePathUsed = true;
                 break;
@@ -602,7 +608,7 @@ void RimWellPathCollection::removeWellPath( RimWellPath* wellPath )
         {
             // One file can have multiple well paths
             // If no other well paths are referencing the filepath, remove cached data from the file reader
-            m_wellPathImporter->removeFilePath( fileWellPath->filepath() );
+            m_wellPathImporter->removeFilePath( fileWellPath->filePath() );
         }
     }
     updateAllRequiredEditors();
@@ -654,4 +660,22 @@ RiaEclipseUnitTools::UnitSystemType RimWellPathCollection::findUnitSystemForWell
         return eclipseCaseData->unitsType();
     }
     return RiaEclipseUnitTools::UNITS_UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+
+RimWellMeasurementCollection* RimWellPathCollection::measurementCollection()
+{
+    return m_wellMeasurements;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+
+const RimWellMeasurementCollection* RimWellPathCollection::measurementCollection() const
+{
+    return m_wellMeasurements;
 }

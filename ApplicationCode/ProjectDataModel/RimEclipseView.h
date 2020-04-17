@@ -24,6 +24,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
 #include "cvfArray.h"
 
@@ -57,8 +58,11 @@ class RimStimPlanColors;
 class RimVirtualPerforationResults;
 class RiuViewer;
 class RivReservoirSimWellsPartMgr;
-class RivIntersectionPartMgr;
+class RivExtrudedCurveIntersectionPartMgr;
 class RivReservoirViewPartMgr;
+class RimRegularLegendConfig;
+class RimTernaryLegendConfig;
+class RimEclipseResultDefinition;
 
 namespace cvf
 {
@@ -98,9 +102,12 @@ public:
     const RimEclipsePropertyFilterCollection* eclipsePropertyFilterCollection() const;
     void setOverridePropertyFilterCollection( RimEclipsePropertyFilterCollection* pfc );
 
-    RigCaseCellResultsData*  currentGridCellResults();
+    RigCaseCellResultsData*  currentGridCellResults() const;
     const RigActiveCellInfo* currentActiveCellInfo() const;
     RimEclipseCellColors*    currentFaultResultColors();
+
+    std::vector<double> currentCellResultData() const;
+    void                setCurrentCellResultData( const std::vector<double>& values );
 
     void            setEclipseCase( RimEclipseCase* reservoir );
     RimEclipseCase* eclipseCase() const;
@@ -130,9 +137,7 @@ public:
     void calculateVisibleWellCellsIncFence( cvf::UByteArray* visibleCells, RigGridBase* grid );
 
     // Overridden PDM methods:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void updateIconStateForFilterCollections();
 
     void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) override;
@@ -153,7 +158,6 @@ protected:
     void onLoadDataAndUpdate() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
-    void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
     bool isShowingActiveCellsOnly() override;
     void onUpdateDisplayModelForCurrentTimeStep() override;
     void updateVisibleGeometriesAndCellColors();
@@ -176,9 +180,12 @@ private:
     void updateStaticCellColors( RivCellSetEnum geometryType );
 
     void onUpdateLegends() override;
-    void updateMinMaxValuesAndAddLegendToView( QString                 legendLabel,
-                                               RimEclipseCellColors*   resultColors,
-                                               RigCaseCellResultsData* cellResultsData );
+    void updateLegendRangesTextAndVisibility( RimRegularLegendConfig*     legendConfig,
+                                              RimTernaryLegendConfig*     ternaryLegendConfig,
+                                              QString                     legendLabel,
+                                              RimEclipseResultDefinition* eclResDef,
+                                              int                         timeStepIndex );
+
     void onResetLegendsInViewer() override;
     void updateVirtualConnectionLegendRanges();
 
@@ -202,6 +209,8 @@ private:
     caf::PdmChildField<RimEclipseFaultColors*>        m_faultResultSettings;
     caf::PdmChildField<RimStimPlanColors*>            m_fractureColors;
     caf::PdmChildField<RimVirtualPerforationResults*> m_virtualPerforationResult;
+
+    caf::PdmProxyValueField<std::vector<double>> m_cellResultData;
 
     caf::PdmChildField<RimSimWellInViewCollection*> m_wellCollection;
     caf::PdmChildField<RimFaultInViewCollection*>   m_faultCollection;

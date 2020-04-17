@@ -92,14 +92,7 @@ public:
 
     const RigVirtualPerforationTransmissibilities* computeAndGetVirtualPerforationTransmissibilities();
 
-    virtual QString locationOnDisc() const
-    {
-        return QString();
-    }
-    virtual QString gridFileName() const
-    {
-        return QString();
-    }
+    virtual QString locationOnDisc() const { return QString(); }
 
     RimCaseCollection*                  parentCaseCollection();
     RimEclipseContourMapViewCollection* contourMapCollection();
@@ -109,6 +102,7 @@ public:
     QString                timeStepName( int frameIdx ) const override;
     std::vector<QDateTime> timeStepDates() const override;
 
+    cvf::BoundingBox reservoirBoundingBox() override;
     cvf::BoundingBox activeCellsBoundingBox() const override;
     cvf::BoundingBox allCellsBoundingBox() const override;
     cvf::Vec3d       displayModelOffset() const override;
@@ -117,23 +111,22 @@ public:
 
     double characteristicCellSize() const override;
 
-    void setFormationNames( RimFormationNames* formationNames ) override;
-
     std::set<QString> sortedSimWellNames() const;
+
+    void loadAndSyncronizeInputProperties( bool includeGridFileName );
 
 protected:
     void initAfterRead() override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     void updateFormationNamesData() override;
 
     // Internal methods
 protected:
-    void computeCachedData();
-    void setReservoirData( RigEclipseCaseData* eclipseCase );
+    void                 computeCachedData();
+    void                 setReservoirData( RigEclipseCaseData* eclipseCase );
+    std::vector<QString> additionalFiles() const;
 
 private:
     void                    createTimeStepFormatString();
@@ -145,8 +138,8 @@ protected:
     caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
 
 private:
-    caf::PdmField<QString> m_filesContainingFaultsSemColSeparated;
-    caf::PdmField<bool>    m_releaseResultMemory;
+    caf::PdmField<std::vector<caf::FilePath>> m_filesContainingFaults;
+    caf::PdmField<bool>                       m_releaseResultMemory;
 
     caf::PdmChildField<RimEclipseContourMapViewCollection*> m_contourMapCollection;
 

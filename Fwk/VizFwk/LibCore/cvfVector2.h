@@ -53,7 +53,7 @@ template<typename S>
 class Vector2
 {
 public:
-    Vector2() {}
+    Vector2();
     Vector2(S x, S y);
     Vector2(const Vector2& other);
 

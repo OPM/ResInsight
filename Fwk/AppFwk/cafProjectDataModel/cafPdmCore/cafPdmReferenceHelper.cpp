@@ -48,6 +48,14 @@
 namespace caf
 {
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString rootIdentifierString()
+{
+    return "$ROOT$";
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -303,9 +311,16 @@ QString PdmReferenceHelper::referenceFromFieldToObject(PdmFieldHandle* fromField
 
    QStringList referenceList = referenceFromRootToObjectAsStringList(lastCommonAnchestor, toObj);
    
-   for (size_t i = 0; i < levelCountToCommonAnchestor; ++i)
+   if (idxToLastCommonAnchestor == 0)
    {
-       referenceList.push_front("..");
+       referenceList.push_front(rootIdentifierString());
+   }
+   else
+   {
+       for (size_t i = 0; i < levelCountToCommonAnchestor; ++i)
+       {
+           referenceList.push_front("..");
+       }
    }
  
    QString completeReference = referenceList.join(" ");
@@ -326,18 +341,26 @@ PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference(PdmFieldHandle* fr
     PdmObjectHandle* lastCommonAnchestor = fromField->ownerObject();
     CAF_ASSERT(lastCommonAnchestor);
  
-    while (!decodedReference.empty() && decodedReference.front() == "..")
+    if (!decodedReference.empty() && decodedReference.front() == rootIdentifierString())
     {
-        PdmFieldHandle* parentField = lastCommonAnchestor->parentField();
-        if (!parentField)
-        {
-            // Error: Relative object reference has an invalid number of parent levels
-            return nullptr;
-        }
-
-        lastCommonAnchestor = parentField->ownerObject();
-        CAF_ASSERT(lastCommonAnchestor);
+        lastCommonAnchestor = findRoot(lastCommonAnchestor);
         decodedReference.pop_front();
+    }
+    else
+    {    
+        while (!decodedReference.empty() && decodedReference.front() == "..")
+        {
+            PdmFieldHandle* parentField = lastCommonAnchestor->parentField();
+            if (!parentField)
+            {
+                // Error: Relative object reference has an invalid number of parent levels
+                return nullptr;
+            }
+
+            lastCommonAnchestor = parentField->ownerObject();
+            CAF_ASSERT(lastCommonAnchestor);
+            decodedReference.pop_front();
+        }
     }
 
     return objectFromReferenceStringList(lastCommonAnchestor, decodedReference);

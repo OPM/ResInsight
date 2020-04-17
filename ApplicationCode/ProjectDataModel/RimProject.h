@@ -39,6 +39,7 @@ class RimTextAnnotation;
 class RimReachCircleAnnotation;
 class RimPolylinesAnnotation;
 class RimSummaryCalculationCollection;
+class RimSummaryCalculation;
 class RimCase;
 class RimCommandObject;
 class RimCommandObject;
@@ -57,6 +58,7 @@ class RimSummaryCaseCollection;
 class RimSummaryCaseMainCollection;
 class Rim3dView;
 class RimGridView;
+class RimPlotWindow;
 class RimViewLinker;
 class RimViewLinkerCollection;
 class RimViewWindow;
@@ -105,6 +107,8 @@ public:
     caf::PdmField<QString> plotWindowTreeViewState;
     caf::PdmField<QString> plotWindowCurrentModelIndexPath;
 
+    bool writeProjectFile();
+
     void setScriptDirectories( const QString& scriptDirectories );
     void setPlotTemplateFolders( const QStringList& plotTemplateFolders );
 
@@ -116,7 +120,11 @@ public:
 
     void assignCaseIdToCase( RimCase* reservoirCase );
     void assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup );
-    void assignViewIdToView( RimViewWindow* view );
+    void assignViewIdToView( Rim3dView* view );
+    void assignPlotIdToPlotWindow( RimPlotWindow* plotWindow );
+    void assignCalculationIdToCalculation( RimSummaryCalculation* calculation );
+    void assignCaseIdToSummaryCase( RimSummaryCase* summaryCase );
+    void assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollection );
 
     void allCases( std::vector<RimCase*>& cases ) const;
 
@@ -187,9 +195,13 @@ protected:
 
 private:
     template <typename T>
-    void fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& typedFields );
+    void fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& fieldContents );
+
+    void transferPathsToGlobalPathList();
+    void distributePathsFromGlobalPathList();
 
 private:
+    caf::PdmField<QString> m_globalPathList;
     caf::PdmField<QString> m_projectFileVersionString;
 
     caf::PdmChildField<RimDialogData*>             m_dialogData;
@@ -204,6 +216,10 @@ private:
     int m_nextValidCaseId;
     int m_nextValidCaseGroupId;
     int m_nextValidViewId;
+    int m_nextValidPlotId;
+    int m_nextValidCalculationId;
+    int m_nextValidSummaryCaseId;
+    int m_nextValidEnsembleId;
 
     caf::PdmChildArrayField<RimEclipseCase*>            casesObsolete; // obsolete
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroupsObsolete; // obsolete
@@ -213,7 +229,7 @@ private:
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void RimProject::fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& typedFields )
+void RimProject::fieldContentsByType( caf::PdmObjectHandle* object, std::vector<T*>& fieldContents )
 {
     if ( !object ) return;
 
@@ -224,15 +240,18 @@ void RimProject::fieldContentsByType( caf::PdmObjectHandle* object, std::vector<
 
     for ( const auto& field : allFieldsInObject )
     {
+        auto xmlFieldCapability = field->xmlCapability();
+        if ( xmlFieldCapability && !xmlFieldCapability->isIOWritable() ) continue;
+
         caf::PdmField<T>* typedField = dynamic_cast<caf::PdmField<T>*>( field );
-        if ( typedField ) typedFields.push_back( &typedField->v() );
+        if ( typedField ) fieldContents.push_back( &typedField->v() );
 
         caf::PdmField<std::vector<T>>* typedFieldInVector = dynamic_cast<caf::PdmField<std::vector<T>>*>( field );
         if ( typedFieldInVector )
         {
             for ( T& typedFieldFromVector : typedFieldInVector->v() )
             {
-                typedFields.push_back( &typedFieldFromVector );
+                fieldContents.push_back( &typedFieldFromVector );
             }
         }
 
@@ -241,6 +260,6 @@ void RimProject::fieldContentsByType( caf::PdmObjectHandle* object, std::vector<
 
     for ( const auto& child : children )
     {
-        fieldContentsByType( child, typedFields );
+        fieldContentsByType( child, fieldContents );
     }
 }

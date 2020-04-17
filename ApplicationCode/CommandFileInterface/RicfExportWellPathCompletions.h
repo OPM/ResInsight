@@ -37,7 +37,7 @@ class RicfExportWellPathCompletions : public RicfCommandObject
 public:
     RicfExportWellPathCompletions();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<int>                  m_caseId;

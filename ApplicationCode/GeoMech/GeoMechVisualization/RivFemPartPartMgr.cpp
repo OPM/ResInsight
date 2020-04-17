@@ -125,8 +125,7 @@ void RivFemPartPartMgr::generatePartGeometry( RivFemPartGeometryGenerator& geoBu
             part->setTransform( m_scaleTransform.p() );
 
             // Set mapping from triangle face index to element index
-            cvf::ref<RivFemPickSourceInfo> si = new RivFemPickSourceInfo( m_gridIdx,
-                                                                          geoBuilder.triangleToElementMapper() );
+            cvf::ref<RivFemPickSourceInfo> si = new RivFemPickSourceInfo( m_gridIdx, geoBuilder.triangleToElementMapper() );
             part->setSourceInfo( si.p() );
 
             part->updateBoundingBox();
@@ -256,9 +255,8 @@ void RivFemPartPartMgr::updateCellResultColor( size_t timeStepIndex, RimGeoMechC
             resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
         }
 
-        const std::vector<float>& resultValues = caseData->femPartResults()->resultValues( resVarAddress,
-                                                                                           m_gridIdx,
-                                                                                           (int)timeStepIndex );
+        const std::vector<float>& resultValues =
+            caseData->femPartResults()->resultValues( resVarAddress, m_gridIdx, (int)timeStepIndex );
 
         const std::vector<size_t>* vxToResultMapping = nullptr;
         int                        vxCount           = 0;
@@ -267,8 +265,7 @@ void RivFemPartPartMgr::updateCellResultColor( size_t timeStepIndex, RimGeoMechC
         {
             vxToResultMapping = &( m_surfaceGenerator.quadVerticesToNodeIdxMapping() );
         }
-        else if ( resVarAddress.resultPosType == RIG_ELEMENT_NODAL ||
-                  resVarAddress.resultPosType == RIG_INTEGRATION_POINT ||
+        else if ( resVarAddress.resultPosType == RIG_ELEMENT_NODAL || resVarAddress.resultPosType == RIG_INTEGRATION_POINT ||
                   resVarAddress.resultPosType == RIG_FORMATION_NAMES )
         {
             vxToResultMapping = &( m_surfaceGenerator.quadVerticesToGlobalElmNodeIdx() );
@@ -338,4 +335,6 @@ void RivFemPartPartMgr::updateCellResultColor( size_t timeStepIndex, RimGeoMechC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemPartPartMgr::~RivFemPartPartMgr() {}
+RivFemPartPartMgr::~RivFemPartPartMgr()
+{
+}

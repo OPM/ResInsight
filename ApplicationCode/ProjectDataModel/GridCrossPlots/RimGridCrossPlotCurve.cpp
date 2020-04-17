@@ -72,7 +72,7 @@ void RimGridCrossPlotCurve::setSamples( const std::vector<double>& xValues, cons
 {
     CVF_ASSERT( xValues.size() == yValues.size() );
 
-    if ( xValues.empty() || yValues.empty() ) return;
+    if ( xValues.empty() || yValues.empty() || !m_qwtPlotCurve ) return;
 
     m_qwtPlotCurve->setSamples( &xValues[0], &yValues[0], static_cast<int>( xValues.size() ) );
 }
@@ -107,6 +107,8 @@ size_t RimGridCrossPlotCurve::sampleCount() const
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::determineLegendIcon()
 {
+    if ( !m_qwtPlotCurve ) return;
+
     RimGridCrossPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
     int fontSize = plot->legendFontSize();
@@ -118,7 +120,10 @@ void RimGridCrossPlotCurve::determineLegendIcon()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::setBlackAndWhiteLegendIcons( bool blackAndWhite )
 {
-    m_qwtPlotCurve->setBlackAndWhiteLegendIcon( blackAndWhite );
+    if ( m_qwtPlotCurve )
+    {
+        m_qwtPlotCurve->setBlackAndWhiteLegendIcon( blackAndWhite );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

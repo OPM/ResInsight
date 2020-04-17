@@ -21,8 +21,9 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaStatisticsTools.h"
+#include "RiuAbstractLegendFrame.h"
 
-#include "SummaryPlotCommands/RicSummaryCurveCreator.h"
+#include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "RifEnsembleStatisticsReader.h"
 #include "RifReaderEclipseSummary.h"
@@ -47,10 +48,11 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuCvfOverlayItemWidget.h"
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotCurve.h"
-#include "RiuSummaryCurveDefSelectionDialog.h"
 #include "RiuSummaryQwtPlot.h"
+#include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiLineEditor.h"
@@ -112,13 +114,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_yPushButtonSelectSummaryAddress = false;
 
-    CAF_PDM_InitField( &m_colorMode,
-                       "ColorMode",
-                       caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ),
-                       "Coloring Mode",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
 
     CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3::BLACK ), "Color", "", "", "" );
 
@@ -386,7 +382,7 @@ RimRegularLegendConfig* RimEnsembleCurveSet::legendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QFrame* RimEnsembleCurveSet::legendFrame() const
+RiuDraggableOverlayFrame* RimEnsembleCurveSet::legendFrame() const
 {
     return m_legendOverlayFrame;
 }
@@ -576,9 +572,9 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_yPushButtonSelectSummaryAddress )
     {
-        RiuSummaryCurveDefSelectionDialog dlg( nullptr );
-        RimSummaryCaseCollection*         candidateEnsemble = m_yValuesSummaryCaseCollection();
-        RifEclipseSummaryAddress          candicateAddress  = m_yValuesSummaryAddress->address();
+        RiuSummaryVectorSelectionDialog dlg( nullptr );
+        RimSummaryCaseCollection*       candidateEnsemble = m_yValuesSummaryCaseCollection();
+        RifEclipseSummaryAddress        candicateAddress  = m_yValuesSummaryAddress->address();
 
         dlg.hideSummaryCases();
         dlg.setEnsembleAndAddress( candidateEnsemble, candicateAddress );
@@ -677,7 +673,7 @@ void RimEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
         uiTreeOrdering.add( m_legendConfig() );
     }
 
-    if ( uiConfigName != RicSummaryCurveCreator::CONFIGURATION_NAME )
+    if ( uiConfigName != RicSummaryPlotEditorUi::CONFIGURATION_NAME )
     {
         uiTreeOrdering.add( m_curveFilters );
     }
@@ -860,10 +856,9 @@ void RimEnsembleCurveSet::updateCurveColors()
                 {
                     if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
                         continue;
-                    RimSummaryCase* rimCase    = curve->summaryCaseY();
-                    cvf::Color3f    curveColor = RimEnsembleCurveSetColorManager::caseColor( m_legendConfig,
-                                                                                          rimCase,
-                                                                                          ensembleParam );
+                    RimSummaryCase* rimCase = curve->summaryCaseY();
+                    cvf::Color3f    curveColor =
+                        RimEnsembleCurveSetColorManager::caseColor( m_legendConfig, rimCase, ensembleParam );
                     curve->setColor( curveColor );
                     curve->updateCurveAppearance();
                 }
@@ -891,9 +886,10 @@ void RimEnsembleCurveSet::updateCurveColors()
         {
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame = new RiuCvfOverlayItemWidget( plot->viewer(), plot->viewer()->canvas() );
+                m_legendOverlayFrame =
+                    new RiuDraggableOverlayFrame( plot->viewer()->canvas(), plot->viewer()->overlayMargins() );
             }
-            m_legendOverlayFrame->updateFromOverlayItem( m_legendConfig()->titledOverlayFrame() );
+            m_legendOverlayFrame->setContentFrame( m_legendConfig->makeLegendFrame() );
             plot->viewer()->addOverlayFrame( m_legendOverlayFrame );
         }
         else

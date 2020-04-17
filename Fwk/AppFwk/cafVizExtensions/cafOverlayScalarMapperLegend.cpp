@@ -682,7 +682,7 @@ cvf::Vec2ui OverlayScalarMapperLegend::preferredSize()
     OverlayColorLegendLayoutInfo layout({200,200}); // Use default size
     layoutInfo(&layout);
 
-    float prefferredYSize =   2 * layout.margins.y() 
+    float preferredYSize =   2 * layout.margins.y() 
                             + layout.lineSpacing * this->titleStrings().size() 
                             + 1.5f * layout.lineSpacing * m_tickValues.size();
     
@@ -706,18 +706,17 @@ cvf::Vec2ui OverlayScalarMapperLegend::preferredSize()
         maxTickTextWidth = maxTickTextWidth <  textWidth ?  textWidth : maxTickTextWidth;
     }
 
-    float prefferredXSize = layout.tickEndX + layout.margins.x() + layout.tickTextLeadSpace + maxTickTextWidth;
+    float preferredXSize = layout.tickEndX + layout.margins.x() + layout.tickTextLeadSpace + maxTickTextWidth;
 
     for (const cvf::String& titleLine : titleStrings())
     {
         float titleWidth =  this->font()->textExtent(titleLine).x() + 2*layout.margins.x();
-        prefferredXSize = prefferredXSize < titleWidth ? titleWidth : prefferredXSize;
+        preferredXSize = preferredXSize < titleWidth ? titleWidth : preferredXSize;
     }
 
-    prefferredXSize = std::min(prefferredXSize, 400.0f);
+    preferredXSize = std::min(preferredXSize, 400.0f);
 
-    return { (unsigned int)(std::ceil(prefferredXSize)), (unsigned int)(std::ceil(prefferredYSize)) };
-
+    return { (unsigned int)(std::ceil(preferredXSize)), (unsigned int)(std::ceil(preferredYSize)) };
 }
 
 } // namespace cvf

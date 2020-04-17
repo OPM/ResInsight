@@ -69,10 +69,10 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
     mainLayout->addWidget( m_titleLabel, 0, Qt::AlignCenter );
 
     auto plotWidgetsLayout = new QHBoxLayout();
-    auto rightColumnLayout = new QVBoxLayout();
+    auto leftColumnLayout  = new QVBoxLayout();
 
     mainLayout->addLayout( plotWidgetsLayout );
-    plotWidgetsLayout->addLayout( rightColumnLayout );
+    plotWidgetsLayout->addLayout( leftColumnLayout );
 
     m_legendWidget = new RiuNightchartsWidget( this );
     new RiuPlotObjectPicker( m_legendWidget, m_plotDefinition->plotLegend() );
@@ -81,17 +81,17 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
     menuBuilder << "RicShowTotalAllocationDataFeature";
     new RiuContextMenuLauncher( m_legendWidget, menuBuilder );
 
-    rightColumnLayout->addWidget( m_legendWidget );
+    leftColumnLayout->addWidget( m_legendWidget );
     m_legendWidget->showPie( false );
 
     QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget( this );
     new RiuPlotObjectPicker( totalFlowAllocationWidget, m_plotDefinition->totalWellFlowPlot() );
     new RiuContextMenuLauncher( totalFlowAllocationWidget, menuBuilder );
 
-    rightColumnLayout->addWidget( totalFlowAllocationWidget, Qt::AlignTop );
-    rightColumnLayout->addWidget( m_plotDefinition->tofAccumulatedPhaseFractionsPlot()->createViewWidget( this ),
-                                  Qt::AlignTop );
-    rightColumnLayout->addStretch();
+    leftColumnLayout->addWidget( totalFlowAllocationWidget, Qt::AlignTop );
+    leftColumnLayout->addWidget( m_plotDefinition->tofAccumulatedPhaseFractionsPlot()->createViewWidget( this ),
+                                 Qt::AlignTop );
+    leftColumnLayout->addStretch();
 
     QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createPlotWidget();
 
@@ -101,7 +101,9 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellAllocationPlot::~RiuWellAllocationPlot() {}
+RiuWellAllocationPlot::~RiuWellAllocationPlot()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -185,6 +187,7 @@ void RiuWellAllocationPlot::contextMenuEvent( QContextMenuEvent* event )
     caf::CmdFeatureMenuBuilder menuBuilder;
 
     menuBuilder << "RicShowContributingWellsFromPlotFeature";
+    menuBuilder << "RicShowCumulativePhasePlotFeature";
 
     menuBuilder.appendToMenu( &menu );
 
@@ -205,4 +208,6 @@ QSize RiuWellAllocationPlot::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellAllocationPlot::setDefaults() {}
+void RiuWellAllocationPlot::setDefaults()
+{
+}

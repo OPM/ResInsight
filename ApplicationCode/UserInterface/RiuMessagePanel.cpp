@@ -45,9 +45,7 @@ RiuMessagePanel::RiuMessagePanel( QDockWidget* parent )
     m_textEdit->setLineWrapMode( QPlainTextEdit::NoWrap );
     m_textEdit->setContextMenuPolicy( Qt::CustomContextMenu );
 
-    connect( m_textEdit,
-             SIGNAL( customContextMenuRequested( const QPoint& ) ),
-             SLOT( slotShowContextMenu( const QPoint& ) ) );
+    connect( m_textEdit, SIGNAL( customContextMenuRequested( const QPoint& ) ), SLOT( slotShowContextMenu( const QPoint& ) ) );
 
     layout->addWidget( m_textEdit );
 }
@@ -139,10 +137,17 @@ void RiuMessagePanel::slotClearMessages()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMessagePanelLogger::RiuMessagePanelLogger( RiuMessagePanel* messagePanel )
-    : m_messagePanel( messagePanel )
-    , m_logLevel( RI_LL_WARNING )
+RiuMessagePanelLogger::RiuMessagePanelLogger()
+    : m_logLevel( RI_LL_WARNING )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMessagePanelLogger::addMessagePanel( RiuMessagePanel* messagePanel )
+{
+    m_messagePanel.push_back( messagePanel );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,8 +208,11 @@ void RiuMessagePanelLogger::writeToMessagePanel( RILogLevel messageLevel, const 
         return;
     }
 
-    if ( m_messagePanel )
+    for ( auto panel : m_messagePanel )
     {
-        m_messagePanel->addMessage( messageLevel, message );
+        if ( panel )
+        {
+            panel->addMessage( messageLevel, message );
+        }
     }
 }

@@ -61,7 +61,9 @@ RivSimWellPipesPartMgr::RivSimWellPipesPartMgr( RimSimWellInView* well )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivSimWellPipesPartMgr::~RivSimWellPipesPartMgr() {}
+RivSimWellPipesPartMgr::~RivSimWellPipesPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -295,8 +297,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
                                 continue;
                             }
 
-                            if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() &&
-                                 !wResCell->m_isOpen )
+                            if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() && !wResCell->m_isOpen )
                             {
                                 continue;
                             }
@@ -327,14 +328,16 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
                 if ( !completionVizDataItems.empty() )
                 {
                     double radius = pipeRadius * virtualPerforationResult->geometryScaleFactor();
-                    radius *= 2.0; // Enlarge the radius slightly to make the connection factor visible if geometry scale factor is set to 1.0
+                    radius *= 2.0; // Enlarge the radius slightly to make the connection factor visible if geometry
+                                   // scale factor is set to 1.0
 
                     pbd.m_connectionFactorGeometryGenerator =
                         new RivWellConnectionFactorGeometryGenerator( completionVizDataItems, radius );
 
                     cvf::ScalarMapper*  scalarMapper = virtualPerforationResult->legendConfig()->scalarMapper();
-                    cvf::ref<cvf::Part> part         = pbd.m_connectionFactorGeometryGenerator
-                                                   ->createSurfacePart( scalarMapper, eclipseView->isLightingDisabled() );
+                    cvf::ref<cvf::Part> part =
+                        pbd.m_connectionFactorGeometryGenerator->createSurfacePart( scalarMapper,
+                                                                                    eclipseView->isLightingDisabled() );
                     if ( part.notNull() )
                     {
                         cvf::ref<RivSimWellConnectionSourceInfo> simWellSourceInfo =
@@ -463,8 +466,8 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
 
         if ( wellBranch.m_surfaceDrawable.notNull() )
         {
-            cvf::ref<cvf::Vec2fArray> surfTexCoords = const_cast<cvf::Vec2fArray*>(
-                wellBranch.m_surfaceDrawable->textureCoordArray() );
+            cvf::ref<cvf::Vec2fArray> surfTexCoords =
+                const_cast<cvf::Vec2fArray*>( wellBranch.m_surfaceDrawable->textureCoordArray() );
             if ( surfTexCoords.isNull() )
             {
                 surfTexCoords = new cvf::Vec2fArray;
@@ -477,7 +480,8 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
 
             if ( wResFrame.m_isOpen )
             {
-                // Use slightly larger geometry for open wells to avoid z-fighting when two wells are located at the same position
+                // Use slightly larger geometry for open wells to avoid z-fighting when two wells are located at the
+                // same position
 
                 wellBranch.m_surfacePart->setDrawable( wellBranch.m_largeSurfaceDrawable.p() );
             }
@@ -492,8 +496,8 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
         // Find or create texture coords array for pipe center line
         if ( wellBranch.m_centerLineDrawable.notNull() )
         {
-            cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>(
-                wellBranch.m_centerLineDrawable->textureCoordArray() );
+            cvf::ref<cvf::Vec2fArray> lineTexCoords =
+                const_cast<cvf::Vec2fArray*>( wellBranch.m_centerLineDrawable->textureCoordArray() );
 
             if ( lineTexCoords.isNull() )
             {

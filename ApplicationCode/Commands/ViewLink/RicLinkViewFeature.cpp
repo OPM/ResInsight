@@ -49,8 +49,8 @@ public:
 
     bool prepareToExecute()
     {
-        auto contextViewer = dynamic_cast<RiuViewer*>(
-            caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+        auto contextViewer =
+            dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
 
         if ( contextViewer )
         {
@@ -98,15 +98,9 @@ public:
         return false;
     }
 
-    void execute()
-    {
-        RicLinkVisibleViewsFeature::linkViews( m_viewsToLink );
-    }
+    void execute() { RicLinkVisibleViewsFeature::linkViews( m_viewsToLink ); }
 
-    const std::vector<RimGridView*>& viewsToLink()
-    {
-        return m_viewsToLink;
-    }
+    const std::vector<RimGridView*>& viewsToLink() { return m_viewsToLink; }
 
 private:
     std::vector<RimGridView*> m_viewsToLink;

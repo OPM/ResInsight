@@ -35,7 +35,9 @@ CAF_CMD_SOURCE_INIT( RicImportObservedDataInMenuFeature, "RicImportObservedDataI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicImportObservedDataInMenuFeature::RicImportObservedDataInMenuFeature() {}
+RicImportObservedDataInMenuFeature::RicImportObservedDataInMenuFeature()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

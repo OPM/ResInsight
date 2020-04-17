@@ -37,6 +37,8 @@
 
 #pragma once
 
+#include <vector>
+
 class QString;
 
 namespace caf
@@ -56,7 +58,7 @@ class PdmObjectFactory
 public:
 
     virtual PdmObjectHandle* create(const QString& classNameKeyword) = 0;
-
+    virtual std::vector<QString> classKeywords() const = 0;
 protected:
     PdmObjectFactory() {}
     virtual ~PdmObjectFactory() {}

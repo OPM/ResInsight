@@ -48,9 +48,6 @@
 
 namespace caf
 {
-
-
-
 //==================================================================================================
 /// "Private" class for implementation of a factory for PdmObjectBase derived objects
 /// Every PdmObject must register with this factory to be readable
@@ -67,25 +64,27 @@ public:
     template< typename PdmObjectBaseDerivative >
     bool                registerCreator()
     {
-        std::map<QString, PdmObjectCreatorBase*>::iterator entryIt;
+        std::vector<QString> classNameKeywords = PdmObjectBaseDerivative::classKeywordAliases();
 
-        QString classNameKeyword = PdmObjectBaseDerivative::classKeywordStatic();
-
-        entryIt = m_factoryMap.find(classNameKeyword);
-        if (entryIt == m_factoryMap.end())
+        for (QString classNameKeyword : classNameKeywords)
         {
-            m_factoryMap[classNameKeyword] = new PdmObjectCreator<PdmObjectBaseDerivative>();
-            return true;
+            auto entryIt = m_factoryMap.find(classNameKeyword);
+            if (entryIt != m_factoryMap.end())
+            {
+                CAF_ASSERT(classNameKeyword != entryIt->first); // classNameKeyword has already been used
+                CAF_ASSERT(false); // To be sure ..
+                return false;  // never hit;
+            }
         }
-        else
+        auto object = new PdmObjectCreator<PdmObjectBaseDerivative>();
+        for (QString classNameKeyword : classNameKeywords)
         {
-            CAF_ASSERT(classNameKeyword != entryIt->first); // classNameKeyword has already been used
-            CAF_ASSERT(false); // To be sure ..
-            return false;  // never hit;
+            m_factoryMap[classNameKeyword] = object;
         }
+        return true;
     }
 
-    std::vector<QString> classKeywords() const;
+    std::vector<QString> classKeywords() const override;
 
 private:
     PdmDefaultObjectFactory()  {}

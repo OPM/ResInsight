@@ -52,6 +52,8 @@ public:
 
     RimWellLogCurveCommonDataSource();
 
+    void setCaseType( RiaDefines::CaseType caseType );
+
     RimCase*      caseToApply() const;
     void          setCaseToApply( RimCase* val );
     int           trajectoryTypeToApply() const;
@@ -90,9 +92,7 @@ public:
     static QString smoothingUiOrderinglabel();
 
 protected:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -102,6 +102,8 @@ protected:
     void                          modifyCurrentIndex( caf::PdmValueField* field, int indexOffset );
 
 private:
+    RiaDefines::CaseType m_caseType;
+
     caf::PdmPtrField<RimCase*>     m_case;
     caf::PdmField<int>             m_trajectoryType;
     caf::PdmPtrField<RimWellPath*> m_wellPath;

@@ -28,10 +28,8 @@
 #include "RimGeoMechModels.h"
 #include "RimMeasurement.h"
 #include "RimObservedDataCollection.h"
-#include "RimObservedSummaryData.h"
-#include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimValveTemplateCollection.h"
+#include "RimSurfaceCollection.h"
 #include "RimWellPathCollection.h"
 
 CAF_PDM_SOURCE_INIT( RimOilField, "ResInsightOilField" );
@@ -48,19 +46,9 @@ RimOilField::RimOilField( void )
 
     CAF_PDM_InitFieldNoDefault( &completionTemplateCollection, "CompletionTemplateCollection", "", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &summaryCaseMainCollection,
-                                "SummaryCaseCollection",
-                                "Summary Cases",
-                                ":/GridModels.png",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &summaryCaseMainCollection, "SummaryCaseCollection", "Summary Cases", ":/GridModels.png", "", "" );
     CAF_PDM_InitFieldNoDefault( &formationNamesCollection, "FormationNamesCollection", "Formations", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &observedDataCollection,
-                                "ObservedDataCollection",
-                                "Observed Data",
-                                ":/Cases16x16.png",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &observedDataCollection, "ObservedDataCollection", "Observed Data", ":/Cases16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &annotationCollection, "AnnotationCollection", "Annotations", "", "", "" );
 
@@ -71,18 +59,20 @@ RimOilField::RimOilField( void )
                                 "",
                                 "" );
 
-    completionTemplateCollection = new RimCompletionTemplateCollection;
-
     CAF_PDM_InitFieldNoDefault( &measurement, "Measurement", "Measurement", "", "", "" );
     measurement = new RimMeasurement();
     measurement.xmlCapability()->disableIO();
 
-    analysisModels            = new RimEclipseCaseCollection();
-    wellPathCollection        = new RimWellPathCollection();
-    summaryCaseMainCollection = new RimSummaryCaseMainCollection();
-    observedDataCollection    = new RimObservedDataCollection();
-    formationNamesCollection  = new RimFormationNamesCollection();
-    annotationCollection      = new RimAnnotationCollection();
+    CAF_PDM_InitFieldNoDefault( &surfaceCollection, "SurfaceCollection", "Surfaces", "", "", "" );
+    surfaceCollection = new RimSurfaceCollection();
+
+    completionTemplateCollection = new RimCompletionTemplateCollection;
+    analysisModels               = new RimEclipseCaseCollection();
+    wellPathCollection           = new RimWellPathCollection();
+    summaryCaseMainCollection    = new RimSummaryCaseMainCollection();
+    observedDataCollection       = new RimObservedDataCollection();
+    formationNamesCollection     = new RimFormationNamesCollection();
+    annotationCollection         = new RimAnnotationCollection();
 
     m_fractureTemplateCollection_OBSOLETE = new RimFractureTemplateCollection;
     m_fractureTemplateCollection_OBSOLETE.xmlCapability()->setIOWritable( false );
@@ -91,7 +81,9 @@ RimOilField::RimOilField( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimOilField::~RimOilField( void ) {}
+RimOilField::~RimOilField( void )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -123,73 +115,6 @@ RimValveTemplateCollection* RimOilField::valveTemplateCollection()
 const RimValveTemplateCollection* RimOilField::valveTemplateCollection() const
 {
     return completionTemplateCollection()->valveTemplateCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimOilField::uniqueShortNameForCase( RimSummaryCase* summaryCase )
-{
-    std::set<QString> allAutoShortNames;
-
-    std::vector<RimSummaryCase*>         allCases          = summaryCaseMainCollection->allSummaryCases();
-    std::vector<RimObservedSummaryData*> observedDataCases = observedDataCollection->allObservedSummaryData();
-
-    for ( auto observedData : observedDataCases )
-    {
-        allCases.push_back( observedData );
-    }
-
-    for ( RimSummaryCase* sumCase : allCases )
-    {
-        if ( sumCase && sumCase != summaryCase )
-        {
-            allAutoShortNames.insert( sumCase->shortName() );
-        }
-    }
-
-    bool foundUnique = false;
-
-    QString caseName = summaryCase->caseName();
-    QString shortName;
-
-    if ( caseName.size() > 2 )
-    {
-        QString candidate;
-        candidate += caseName[0];
-
-        for ( int i = 1; i < caseName.size(); ++i )
-        {
-            if ( allAutoShortNames.count( candidate + caseName[i] ) == 0 )
-            {
-                shortName   = candidate + caseName[i];
-                foundUnique = true;
-                break;
-            }
-        }
-    }
-    else
-    {
-        shortName = caseName.left( 2 );
-        if ( allAutoShortNames.count( shortName ) == 0 )
-        {
-            foundUnique = true;
-        }
-    }
-
-    int autoNumber = 0;
-
-    while ( !foundUnique )
-    {
-        QString candidate = shortName + QString::number( autoNumber++ );
-        if ( allAutoShortNames.count( candidate ) == 0 )
-        {
-            shortName   = candidate;
-            foundUnique = true;
-        }
-    }
-
-    return shortName;
 }
 
 //--------------------------------------------------------------------------------------------------

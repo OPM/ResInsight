@@ -151,9 +151,9 @@ bool RimWellLogFile::readFile( QString* errorMessage )
         m_wellLogDataFile = new RigWellLogFile;
     }
 
-    m_name = QFileInfo( m_fileName ).fileName();
+    m_name = QFileInfo( m_fileName().path() ).fileName();
 
-    if ( !m_wellLogDataFile->open( m_fileName, errorMessage ) )
+    if ( !m_wellLogDataFile->open( m_fileName().path(), errorMessage ) )
     {
         m_wellLogDataFile = nullptr;
         return false;
@@ -169,10 +169,9 @@ bool RimWellLogFile::readFile( QString* errorMessage )
     }
     else if ( !isDateValid( m_date() ) )
     {
-        *errorMessage =
-            QString(
-                "The LAS-file '%1' contains no recognizable date. Please assign a date in the LAS-file property panel" )
-                .arg( m_name() );
+        *errorMessage = QString( "The LAS-file '%1' contains no recognizable date. Please assign a date in the "
+                                 "LAS-file property panel" )
+                            .arg( m_name() );
 
         m_date = DEFAULT_DATE_TIME;
     }
@@ -191,7 +190,7 @@ bool RimWellLogFile::readFile( QString* errorMessage )
     this->firstAncestorOrThisOfType( wellPath );
     if ( wellPath )
     {
-        if ( wellPath->filepath().isEmpty() ) // Has dummy wellpath
+        if ( wellPath->filePath().isEmpty() ) // Has dummy wellpath
         {
             wellPath->setName( m_wellName );
         }
@@ -242,22 +241,23 @@ bool RimWellLogFile::hasFlowData() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFile::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    bool                 foundFile = false;
-    std::vector<QString> searchedPaths;
-
-    QString fileNameCandidate =
-        RimTools::relocateFile( m_fileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
-    if ( foundFile )
-    {
-        m_fileName = fileNameCandidate;
-    }
+    // bool                 foundFile = false;
+    // std::vector<QString> searchedPaths;
+    //
+    // QString fileNameCandidate =
+    //     RimTools::relocateFile( m_fileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
+    // if ( foundFile )
+    // {
+    //     m_fileName = fileNameCandidate;
+    // }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<double, double>> RimWellLogFile::findMdAndChannelValuesForWellPath( const RimWellPath* wellPath,
-                                                                                          const QString& channelName )
+                                                                                          const QString& channelName,
+                                                                                          QString* unitString /*=nullptr*/ )
 {
     CVF_ASSERT( wellPath );
     std::vector<RimWellLogFile*> wellLogFiles;
@@ -268,6 +268,10 @@ std::vector<std::pair<double, double>> RimWellLogFile::findMdAndChannelValuesFor
         std::vector<double> channelValues = fileData->values( channelName );
         if ( !channelValues.empty() )
         {
+            if ( unitString )
+            {
+                *unitString = fileData->wellLogChannelUnitString( channelName );
+            }
             std::vector<double> depthValues = fileData->depthValues();
             CVF_ASSERT( depthValues.size() == channelValues.size() );
             std::vector<std::pair<double, double>> depthValuePairs;

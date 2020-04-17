@@ -105,8 +105,8 @@ bool RicPointTangentManipulator::eventFilter( QObject* obj, QEvent* inputEvent )
 
                 if ( m_partManager->isManipulatorActive() )
                 {
-                    m_isDraggingInComparisonView = m_viewer->isMousePosWithinComparisonView( mouseEvent->x(),
-                                                                                             mouseEvent->y() );
+                    m_isDraggingInComparisonView =
+                        m_viewer->isMousePosWithinComparisonView( mouseEvent->x(), mouseEvent->y() );
 
                     emit notifySelected();
 

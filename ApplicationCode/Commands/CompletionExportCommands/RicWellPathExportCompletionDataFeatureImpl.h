@@ -64,10 +64,7 @@ public:
     {
     }
 
-    bool isValid() const
-    {
-        return m_isValid;
-    }
+    bool isValid() const { return m_isValid; }
 
     void setData( double effectiveH, double effectiveK, double connectionFactor, double kh )
     {
@@ -79,23 +76,11 @@ public:
         m_kh               = kh;
     }
 
-    double effectiveH() const
-    {
-        return m_effectiveH;
-    }
+    double effectiveH() const { return m_effectiveH; }
 
-    double effectiveK() const
-    {
-        return m_effectiveK;
-    }
-    double connectionFactor() const
-    {
-        return m_connectionFactor;
-    }
-    double kh() const
-    {
-        return m_kh;
-    }
+    double effectiveK() const { return m_effectiveK; }
+    double connectionFactor() const { return m_connectionFactor; }
+    double kh() const { return m_kh; }
 
 private:
     bool   m_isValid;
@@ -111,9 +96,8 @@ private:
 class RicWellPathExportCompletionDataFeatureImpl
 {
 public:
-    static CellDirection calculateCellMainDirection( RimEclipseCase*   eclipseCase,
-                                                     size_t            globalCellIndex,
-                                                     const cvf::Vec3d& lengthsInCell );
+    static CellDirection
+        calculateCellMainDirection( RimEclipseCase* eclipseCase, size_t globalCellIndex, const cvf::Vec3d& lengthsInCell );
 
     static TransmissibilityData
         calculateTransmissibilityData( RimEclipseCase*    eclipseCase,
@@ -139,9 +123,8 @@ public:
     static std::vector<RigCompletionData> computeStaticCompletionsForWellPath( RimWellPath*    wellPath,
                                                                                RimEclipseCase* eclipseCase );
 
-    static std::vector<RigCompletionData> computeDynamicCompletionsForWellPath( RimWellPath*    wellPath,
-                                                                                RimEclipseCase* eclipseCase,
-                                                                                size_t          timeStepIndex );
+    static std::vector<RigCompletionData>
+        computeDynamicCompletionsForWellPath( RimWellPath* wellPath, RimEclipseCase* eclipseCase, size_t timeStepIndex );
 
     static std::vector<RigCompletionData>
         generatePerforationsCompdatValues( const RimWellPath*                                wellPath,
@@ -176,13 +159,12 @@ private:
                                       QFilePtr                                                 exportFile,
                                       const std::map<QString, std::vector<RigCompletionData>>& completions );
 
-    static void
-        sortAndExportCompletionsToFile( RimEclipseCase*                                   eclipseCase,
-                                        const QString&                                    exportFolder,
-                                        const QString&                                    fileName,
-                                        const std::vector<RigCompletionData>&             completions,
-                                        const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems,
-                                        RicExportCompletionDataSettingsUi::CompdatExportType exportType );
+    static void sortAndExportCompletionsToFile( RimEclipseCase*                                   eclipseCase,
+                                                const QString&                                    exportFolder,
+                                                const QString&                                    fileName,
+                                                const std::vector<RigCompletionData>&             completions,
+                                                const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems,
+                                                RicExportCompletionDataSettingsUi::CompdatExportType exportType );
 
     static void exportCompdatAndWpimultTables( RimEclipseCase*                                          sourceCase,
                                                QFilePtr                                                 exportFile,

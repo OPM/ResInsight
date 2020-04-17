@@ -26,10 +26,13 @@
 #include "cafPdmFieldCvfColor.h" // Include to make Pdm work for cvf::Color
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmPtrField.h"
 #include "cafTristate.h"
 
 class RimEclipseView;
 class RimSimWellInView;
+class RimWellDiskConfig;
+class RimSummaryCase;
 
 //==================================================================================================
 ///
@@ -91,6 +94,22 @@ public:
         WELLPIPE_COLOR_UNIFORM
     };
 
+    enum WellDiskPropertyType
+    {
+        PROPERTY_TYPE_PREDEFINED,
+        PROPERTY_TYPE_SINGLE
+    };
+
+    enum WellDiskPropertyConfigType
+    {
+        PRODUCTION_RATES,
+        INJECTION_RATES,
+        CUMULATIVE_PRODUCTION_RATES,
+        CUMULATIVE_INJECTION_RATES,
+        PRODUCTION_INJECTION_RATES,
+        CUMULATIVE_PRODUCTION_INJECTION_RATES
+    };
+
     typedef caf::AppEnum<RimSimWellInViewCollection::WellPipeColors> WellPipeColorsEnum;
 
     caf::PdmField<bool> isActive;
@@ -106,10 +125,7 @@ public:
     void setShowWellCellsState( bool enable );
     bool showWellCells();
 
-    bool showWellCommunicationLines()
-    {
-        return m_showWellCommunicationLines();
-    }
+    bool showWellCommunicationLines() { return m_showWellCommunicationLines(); }
 
     caf::PdmField<WellFenceEnum> wellCellFenceType;
     caf::PdmField<double>        wellCellTransparencyLevel;
@@ -120,6 +136,11 @@ public:
     caf::PdmField<WellHeadPositionEnum> wellHeadPosition;
 
     caf::PdmField<bool> isAutoDetectingBranches;
+
+    QString wellDiskPropertyUiText() const;
+    bool    isWellDisksVisible() const;
+    bool    showWellDiskLabelBackground() const;
+    bool    showWellDiskQuantityLables() const;
 
     caf::PdmChildArrayField<RimSimWellInView*> wells;
 
@@ -136,12 +157,19 @@ public:
 
     static void updateWellAllocationPlots();
 
+    void   setDefaultSourceCaseForWellDisks();
+    void   updateWellDisks();
+    double wellDiskScaleFactor() const;
+
+    caf::PdmField<cvf::Color3f> wellDiskColor;
+
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly );
 
     caf::PdmFieldHandle* objectToggleField() override;
     void                 initAfterRead() override;
@@ -149,6 +177,8 @@ protected:
 private:
     void calculateWellGeometryVisibility( size_t frameIndex );
     void updateStateFromEnabledChildCount( size_t showLabelCount, caf::PdmField<caf::Tristate>* fieldToUpdate );
+    void updateWellDisks( const RimWellDiskConfig& wellDiskConfig );
+    RimWellDiskConfig getActiveWellDiskConfig() const;
 
 private:
     RimEclipseView*                      m_reservoirView;
@@ -162,10 +192,20 @@ private:
     caf::PdmField<caf::Tristate> m_showWellHead;
     caf::PdmField<caf::Tristate> m_showWellPipe;
     caf::PdmField<caf::Tristate> m_showWellSpheres;
+    caf::PdmField<caf::Tristate> m_showWellDisks;
     caf::PdmField<caf::Tristate> m_showWellCells;
     caf::PdmField<caf::Tristate> m_showWellCellFence;
 
     caf::PdmField<bool> m_showWellCommunicationLines;
+
+    // Well Discs
+    caf::PdmField<caf::AppEnum<WellDiskPropertyType>>       m_wellDiskPropertyType;
+    caf::PdmField<caf::AppEnum<WellDiskPropertyConfigType>> m_wellDiskPropertyConfigType;
+    caf::PdmPtrField<RimSummaryCase*>                       m_wellDiskSummaryCase;
+    caf::PdmField<QString>                                  m_wellDiskQuantity;
+    caf::PdmField<bool>                                     m_wellDiskShowQuantityLabels;
+    caf::PdmField<bool>                                     m_wellDiskshowLabelsBackground;
+    caf::PdmField<double>                                   m_wellDiskScaleFactor;
 
     // Obsolete fields
     caf::PdmField<WellVisibilityEnum>       obsoleteField_wellPipeVisibility;

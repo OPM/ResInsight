@@ -62,8 +62,7 @@ void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
     RiaGuiApplication* app           = RiaGuiApplication::instance();
     QString            pathCacheName = "INPUT_FILES";
     QStringList        fileNames =
-        RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( "Import Summary Case Group",
-                                                                               pathCacheName );
+        RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( "Import Summary Case Group", pathCacheName );
 
     if ( fileNames.isEmpty() ) return;
 

@@ -21,17 +21,18 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
-class RimDerivedEnsembleCase;
+class RimDerivedSummaryCase;
+class RimSummaryCase;
 
 //==================================================================================================
 ///
 //==================================================================================================
 class RifDerivedEnsembleReader : public RifSummaryReaderInterface
 {
-    static const std::vector<time_t> EMPTY_TIME_STEPS_VECTOR;
-
 public:
-    RifDerivedEnsembleReader( RimDerivedEnsembleCase* derivedCase, RifSummaryReaderInterface* sourceSummaryReader1 );
+    RifDerivedEnsembleReader( RimDerivedSummaryCase*     derivedCase,
+                              RifSummaryReaderInterface* sourceSummaryReader1,
+                              RifSummaryReaderInterface* sourceSummaryReader2 );
 
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
@@ -39,5 +40,5 @@ public:
     RiaEclipseUnitTools::UnitSystem unitSystem() const override;
 
 private:
-    RimDerivedEnsembleCase* m_derivedCase;
+    RimDerivedSummaryCase* m_derivedCase;
 };

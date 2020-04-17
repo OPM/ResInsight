@@ -19,7 +19,9 @@ RimEclipseContourMapViewCollection::RimEclipseContourMapViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseContourMapViewCollection::~RimEclipseContourMapViewCollection() {}
+RimEclipseContourMapViewCollection::~RimEclipseContourMapViewCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

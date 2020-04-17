@@ -237,8 +237,8 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
                 {
                     if ( !templateWithMatchingUnit )
                     {
-                        templateWithMatchingUnit = dynamic_cast<RimFractureTemplate*>(
-                            fractureTemplate->xmlCapability()->copyByXmlSerialization(
+                        templateWithMatchingUnit =
+                            dynamic_cast<RimFractureTemplate*>( fractureTemplate->xmlCapability()->copyByXmlSerialization(
                                 caf::PdmDefaultObjectFactory::instance() ) );
 
                         auto currentUnit = fractureTemplate->fractureTemplateUnit();
@@ -338,8 +338,8 @@ void RimFractureTemplateCollection::initAfterRead()
 
         for ( RimWellPathFracture* fracture : wellPathFractures )
         {
-            RimStimPlanFractureTemplate* stimPlanFractureTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(
-                fracture->fractureTemplate() );
+            RimStimPlanFractureTemplate* stimPlanFractureTemplate =
+                dynamic_cast<RimStimPlanFractureTemplate*>( fracture->fractureTemplate() );
             if ( stimPlanFractureTemplate )
             {
                 if ( stimPlanFractureTemplate->showStimPlanMesh() == false )
@@ -387,8 +387,8 @@ void RimFractureTemplateCollection::initAfterRead()
 
             for ( RimFracture* fracture : fractures )
             {
-                RimStimPlanFractureTemplate* stimPlanFractureTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(
-                    fracture->fractureTemplate() );
+                RimStimPlanFractureTemplate* stimPlanFractureTemplate =
+                    dynamic_cast<RimStimPlanFractureTemplate*>( fracture->fractureTemplate() );
                 if ( stimPlanFractureTemplate )
                 {
                     stimPlanFractureTemplatesInView[stimPlanFractureTemplate];

@@ -17,19 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "RicfCommandResponse.h"
-#include "RicfFieldCapability.h"
-#include "RicfObjectCapability.h"
+
 #include "cafCmdFeature.h"
 #include "cafPdmObject.h"
-
-#define RICF_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitField( field, keyword, default, uiName, iconResourceName, toolTip, whatsThis ); \
-    AddRicfCapabilityToField( field )
-
-#define RICF_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis ) \
-    CAF_PDM_InitFieldNoDefault( field, keyword, uiName, iconResourceName, toolTip, whatsThis ); \
-    AddRicfCapabilityToField( field )
+#include "cafPdmObjectScriptability.h"
+#include "cafPdmScriptResponse.h"
 
 #define RICF_HEADER_INIT \
     CAF_CMD_HEADER_INIT; \
@@ -50,11 +42,11 @@
 //
 //
 //==================================================================================================
-class RicfCommandObject : public caf::PdmObject, public RicfObjectCapability
+class RicfCommandObject : public caf::PdmObject, public caf::PdmObjectScriptability
 {
 public:
     RicfCommandObject();
     ~RicfCommandObject() override;
 
-    virtual RicfCommandResponse execute() = 0;
+    virtual caf::PdmScriptResponse execute() = 0;
 };

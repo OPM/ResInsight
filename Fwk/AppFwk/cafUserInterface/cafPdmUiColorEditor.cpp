@@ -93,6 +93,11 @@ void PdmUiColorEditor::configureAndUpdateUi(const QString& uiConfigName)
         }
     }
 
+    bool isReadOnly = uiField()->isUiReadOnly(uiConfigName);
+    m_colorTextLabel->setEnabled(!isReadOnly);
+    m_colorSelectionButton->setEnabled(!isReadOnly);
+    m_colorPreviewLabel->setEnabled(!isReadOnly);
+
     QColor col = uiField()->uiValue().value<QColor>();
     setColorOnWidget(col);
 }
@@ -143,7 +148,7 @@ QWidget* PdmUiColorEditor::createEditorWidget(QWidget * parent)
     QFontMetrics fontMetrics = QApplication::fontMetrics();
 
     buttonLayout->addWidget(m_colorPreviewLabel);
-    m_colorSelectionButton->setMinimumWidth(fontMetrics.width(m_colorPreviewLabel->text()) + 15);
+    m_colorSelectionButton->setMinimumWidth(fontMetrics.boundingRect(m_colorPreviewLabel->text()).width() + 15);
 
     layout->addWidget(m_colorTextLabel);
     layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Ignored));

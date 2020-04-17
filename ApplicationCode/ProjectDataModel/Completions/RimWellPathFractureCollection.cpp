@@ -50,7 +50,9 @@ RimWellPathFractureCollection::RimWellPathFractureCollection( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathFractureCollection::~RimWellPathFractureCollection() {}
+RimWellPathFractureCollection::~RimWellPathFractureCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -132,14 +132,14 @@ std::vector<RigCompletionData>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdatValues(
-    RimEclipseCase*                             caseToApply,
-    const QString&                              wellNameForExport,
-    const RigWellPath*                          wellPathGeometry,
-    const std::vector<const RimFracture*>&      fractures,
-    std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
-    QTextStream*                                outputStreamForIntermediateResultsText,
-    PressureDepletionParameters                 pdParams )
+std::vector<RigCompletionData>
+    RicExportFractureCompletionsImpl::generateCompdatValues( RimEclipseCase*                        caseToApply,
+                                                             const QString&                         wellNameForExport,
+                                                             const RigWellPath*                     wellPathGeometry,
+                                                             const std::vector<const RimFracture*>& fractures,
+                                                             std::vector<RicWellPathFractureReportItem>* fractureDataReportItems,
+                                                             QTextStream* outputStreamForIntermediateResultsText,
+                                                             PressureDepletionParameters pdParams )
 {
     std::vector<RigCompletionData> fractureCompletions;
 
@@ -218,7 +218,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 {
     std::vector<RigCompletionData> fractureCompletions;
 
-    if ( !caseToApply || !caseToApply->eclipseCaseData() )
+    if ( !caseToApply || !caseToApply->eclipseCaseData() || !wellPathGeometry )
     {
         return fractureCompletions;
     }
@@ -266,8 +266,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     const std::vector<double>*              currentMatrixPressures = nullptr;
     if ( performPressureDepletionScaling )
     {
-        pressureResultVector = &results->cellScalarResults(
-            RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ) );
+        pressureResultVector =
+            &results->cellScalarResults( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ) );
         CVF_ASSERT( !pressureResultVector->empty() );
 
         if ( pdParams.pressureScalingTimeStep < static_cast<int>( pressureResultVector->size() ) )
@@ -288,6 +288,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
     std::vector<std::vector<RigCompletionData>> sharedComplForFracture( fractures.size() );
 
+    const double transmissibilityThreshold = 1e-9;
+
 #pragma omp parallel for
     for ( int i = 0; i < (int)fractures.size(); i++ )
     {
@@ -299,8 +301,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         const RigFractureGrid* fractureGrid = fracTemplate->fractureGrid();
         if ( !fractureGrid ) continue;
 
-        bool useFiniteConductivityInFracture = ( fracTemplate->conductivityType() ==
-                                                 RimFractureTemplate::FINITE_CONDUCTIVITY );
+        bool useFiniteConductivityInFracture =
+            ( fracTemplate->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY );
 
         // If finite cond chosen and conductivity not present in stimplan file, do not calculate trans for this fracture
         if ( useFiniteConductivityInFracture && !checkForStimPlanConductivity( fracTemplate, fracture ) )
@@ -309,6 +311,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         }
 
         RigTransmissibilityCondenser transCondenser;
+        transCondenser.setTransmissibilityThreshold( transmissibilityThreshold );
 
         //////
         // Calculate Matrix To Fracture Trans
@@ -361,9 +364,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                     scaledCondenser.calculateFicticiousFractureToWellTransmissibilities();
                 // b. Calculate new effective matrix to well transmissibilities
                 std::map<size_t, double> effectiveMatrixToWellTrans =
-                    scaledCondenser
-                        .calculateEffectiveMatrixToWellTransmissibilities( originalLumpedMatrixToFractureTrans,
-                                                                           fictitiousFractureToWellTransmissibilities );
+                    scaledCondenser.calculateEffectiveMatrixToWellTransmissibilities( originalLumpedMatrixToFractureTrans,
+                                                                                      fictitiousFractureToWellTransmissibilities );
                 matrixToWellTrans = effectiveMatrixToWellTrans;
             }
         }
@@ -458,9 +460,9 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
             currentDate = caseTimeSteps.back();
         }
 
-        RifEclipseSummaryAddress      wbhpPressureAddress = RifEclipseSummaryAddress::wellAddress( "WBHP",
-                                                                                              wellPathName.toStdString() );
-        RimSummaryCaseMainCollection* mainCollection      = RiaSummaryTools::summaryCaseMainCollection();
+        RifEclipseSummaryAddress wbhpPressureAddress =
+            RifEclipseSummaryAddress::wellAddress( "WBHP", wellPathName.toStdString() );
+        RimSummaryCaseMainCollection* mainCollection = RiaSummaryTools::summaryCaseMainCollection();
         if ( mainCollection )
         {
             RimSummaryCase* summaryCase = mainCollection->findSummaryCaseFromEclipseResultCase( resultCase );
@@ -529,10 +531,9 @@ bool RicExportFractureCompletionsImpl::checkForStimPlanConductivity( const RimFr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportFractureCompletionsImpl::calculateInternalFractureTransmissibilities(
-    const RigFractureGrid*        fractureGrid,
-    double                        cDarcyInCorrectUnit,
-    RigTransmissibilityCondenser& transCondenser )
+void RicExportFractureCompletionsImpl::calculateInternalFractureTransmissibilities( const RigFractureGrid* fractureGrid,
+                                                                                    double cDarcyInCorrectUnit,
+                                                                                    RigTransmissibilityCondenser& transCondenser )
 {
     for ( size_t i = 0; i < fractureGrid->iCellCount(); i++ )
     {
@@ -596,13 +597,12 @@ void RicExportFractureCompletionsImpl::calculateInternalFractureTransmissibiliti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities(
-    const RimFractureTemplate*    fracTemplate,
-    const RigFractureGrid*        fractureGrid,
-    const RimFracture*            fracture,
-    double                        cDarcyInCorrectUnit,
-    const RigWellPath*            wellPathGeometry,
-    RigTransmissibilityCondenser& transCondenser )
+void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities( const RimFractureTemplate* fracTemplate,
+                                                                                  const RigFractureGrid* fractureGrid,
+                                                                                  const RimFracture*     fracture,
+                                                                                  double cDarcyInCorrectUnit,
+                                                                                  const RigWellPath* wellPathGeometry,
+                                                                                  RigTransmissibilityCondenser& transCondenser )
 {
     ////
     // If fracture has orientation Azimuth or Transverse, assume only radial inflow
@@ -624,9 +624,7 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
                                                                                  cDarcyInCorrectUnit );
 
         transCondenser.addNeighborTransmissibility( {true, RigTransmissibilityCondenser::CellAddress::WELL, 1},
-                                                    {false,
-                                                     RigTransmissibilityCondenser::CellAddress::STIMPLAN,
-                                                     wellCellIndex},
+                                                    {false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex},
                                                     radialTrans );
     }
     else if ( fracTemplate->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
@@ -650,8 +648,7 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
             if ( intersection.hlength > 0.0 || intersection.vlength > 0.0 )
             {
                 linearTrans =
-                    RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans( fractureWellCell
-                                                                                             .getConductivityValue(),
+                    RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans( fractureWellCell.getConductivityValue(),
                                                                                          fractureWellCell.cellSizeX(),
                                                                                          fractureWellCell.cellSizeZ(),
                                                                                          intersection.vlength,
@@ -674,8 +671,8 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<size_t, double> RicExportFractureCompletionsImpl::calculateMatrixToWellTransmissibilities(
-    RigTransmissibilityCondenser& transCondenser )
+std::map<size_t, double>
+    RicExportFractureCompletionsImpl::calculateMatrixToWellTransmissibilities( RigTransmissibilityCondenser& transCondenser )
 {
     std::map<size_t, double> matrixToWellTransmissibilities;
 
@@ -684,12 +681,14 @@ std::map<size_t, double> RicExportFractureCompletionsImpl::calculateMatrixToWell
     {
         if ( externalCell.m_cellIndexSpace == RigTransmissibilityCondenser::CellAddress::ECLIPSE )
         {
-            double trans = transCondenser.condensedTransmissibility( externalCell,
-                                                                     {true,
-                                                                      RigTransmissibilityCondenser::CellAddress::WELL,
-                                                                      1} );
+            double trans =
+                transCondenser.condensedTransmissibility( externalCell,
+                                                          {true, RigTransmissibilityCondenser::CellAddress::WELL, 1} );
 
-            matrixToWellTransmissibilities.insert( std::make_pair( externalCell.m_globalCellIdx, trans ) );
+            if ( trans > transCondenser.transmissibilityThreshold() )
+            {
+                matrixToWellTransmissibilities.insert( std::make_pair( externalCell.m_globalCellIdx, trans ) );
+            }
         }
     }
     return matrixToWellTransmissibilities;
@@ -732,9 +731,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportFractureCompletionsImpl::computeNonDarcyFlowParameters(
-    const RimFracture*              fracture,
-    std::vector<RigCompletionData>& allCompletionsForOneFracture )
+void RicExportFractureCompletionsImpl::computeNonDarcyFlowParameters( const RimFracture*              fracture,
+                                                                      std::vector<RigCompletionData>& allCompletionsForOneFracture )
 {
     double dFactorForFracture = fracture->nonDarcyProperties().dFactor;
     double khForFracture      = fracture->nonDarcyProperties().conductivity;
@@ -757,8 +755,7 @@ void RicExportFractureCompletionsImpl::computeNonDarcyFlowParameters(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicExportFractureCompletionsImpl::sumUpTransmissibilities(
-    const std::vector<RigCompletionData>& allCompletionsForOneFracture )
+double RicExportFractureCompletionsImpl::sumUpTransmissibilities( const std::vector<RigCompletionData>& allCompletionsForOneFracture )
 {
     double transmissibility = 0.0;
     for ( const auto& c : allCompletionsForOneFracture )

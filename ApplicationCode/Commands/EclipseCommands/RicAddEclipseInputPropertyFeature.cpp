@@ -19,9 +19,11 @@
 
 #include "RicAddEclipseInputPropertyFeature.h"
 
+#include "RimEclipseCellColors.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseResultCase.h"
+#include "RimEclipseView.h"
 
 #include "RiaApplication.h"
 #include "Riu3DMainWindowTools.h"
@@ -41,7 +43,9 @@ CAF_CMD_SOURCE_INIT( RicAddEclipseInputPropertyFeature, "RicAddEclipseInputPrope
 bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
 {
     return caf::SelectionManager::instance()->selectedItemOfType<RimEclipseInputCase>() ||
-           caf::SelectionManager::instance()->selectedItemOfType<RimEclipseResultCase>();
+           caf::SelectionManager::instance()->selectedItemOfType<RimEclipseResultCase>() ||
+           caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCellColors>() ||
+           caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,8 +53,11 @@ bool RicAddEclipseInputPropertyFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 {
-    RimEclipseCase* eclipseCase = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>();
-    if ( !eclipseCase ) return;
+    RimEclipseCase* eclipseCase = getEclipseCase();
+    if ( !eclipseCase )
+    {
+        return;
+    }
 
     RimEclipseInputPropertyCollection* inputPropertyCollection = eclipseCase->inputPropertyCollection();
     if ( !inputPropertyCollection ) return;
@@ -82,4 +89,38 @@ void RicAddEclipseInputPropertyFeature::setupActionLook( QAction* actionToSetup 
 {
     actionToSetup->setText( "Add Input Property" );
     actionToSetup->setIcon( QIcon( ":/EclipseInput48x48.png" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RicAddEclipseInputPropertyFeature::getEclipseCase() const
+{
+    RimEclipseCase* eclipseCase = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCase>();
+    if ( eclipseCase )
+    {
+        return eclipseCase;
+    }
+
+    RimEclipseCellColors* cellColors = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseCellColors>();
+    if ( cellColors )
+    {
+        cellColors->firstAncestorOrThisOfType( eclipseCase );
+        if ( eclipseCase )
+        {
+            return eclipseCase;
+        }
+    }
+
+    RimEclipseView* eclipseView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
+    if ( eclipseView )
+    {
+        eclipseView->firstAncestorOrThisOfType( eclipseCase );
+        if ( eclipseCase )
+        {
+            return eclipseCase;
+        }
+    }
+
+    return nullptr;
 }

@@ -28,6 +28,8 @@
 
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
+#include "RicfCommandObject.h"
+#include "RifEclipseInputPropertyLoader.h"
 #include "RifReaderSettings.h"
 
 #include "RigActiveCellInfo.h"
@@ -43,11 +45,13 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
+#include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimFormationNames.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
@@ -63,6 +67,8 @@
 #include "RimWellPathCollection.h"
 
 #include "cafPdmDocument.h"
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
 
@@ -76,9 +82,20 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimEclipseCase, "RimReservoir" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::RimEclipseCase()
 {
-    CAF_PDM_InitObject( "EclipseCase", ":/Case48x48.png", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "EclipseCase",
+                                                    ":/Case48x48.png",
+                                                    "",
+                                                    "",
+                                                    "Reservoir",
+                                                    "Abtract base class for Eclipse Cases" );
 
-    CAF_PDM_InitFieldNoDefault( &reservoirViews, "ReservoirViews", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithKeywordNoDefault( &reservoirViews,
+                                                     "ReservoirViews",
+                                                     "Views",
+                                                     "",
+                                                     "",
+                                                     "",
+                                                     "All Eclipse Views in the case" );
     reservoirViews.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "", "", "", "" );
@@ -89,8 +106,8 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitField( &m_flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "" );
     CAF_PDM_InitField( &m_flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaultsSemColSeparated, "CachedFileNamesContainingFaults", "", "", "", "" );
-    m_filesContainingFaultsSemColSeparated.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaults, "CachedFileNamesContainingFaults", "", "", "", "" );
+    m_filesContainingFaults.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "" );
     m_contourMapCollection = new RimEclipseContourMapViewCollection;
@@ -288,10 +305,13 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
     {
         rimEclipseView->cellResult()->setResultType( RiaDefines::DYNAMIC_NATIVE );
 
-        if ( RiaApplication::instance()->preferences()->loadAndShowSoil )
+        auto prefs = RiaApplication::instance()->preferences();
+        if ( prefs->loadAndShowSoil )
         {
             rimEclipseView->cellResult()->setResultVariable( "SOIL" );
         }
+
+        rimEclipseView->faultCollection()->showFaultCollection = prefs->enableFaultsByDefault();
 
         rimEclipseView->hasUserRequestedAnimation = true;
 
@@ -464,7 +484,7 @@ void RimEclipseCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
             }
         }
     }
-    else if ( changedField == &activeFormationNames )
+    else if ( changedField == &m_activeFormationNames )
     {
         updateFormationNamesData();
     }
@@ -480,12 +500,25 @@ void RimEclipseCase::updateFormationNamesData()
     {
         if ( activeFormationNames() )
         {
-            rigEclipseCase->setActiveFormationNamesAndUpdatePlots( activeFormationNames()->formationNamesData() );
+            rigEclipseCase->setActiveFormationNames( activeFormationNames()->formationNamesData() );
         }
         else
         {
-            rigEclipseCase->setActiveFormationNamesAndUpdatePlots( nullptr );
+            rigEclipseCase->setActiveFormationNames( nullptr );
         }
+
+        // Update plots based on formations
+        {
+            RimProject* project = RiaApplication::instance()->project();
+            if ( project )
+            {
+                if ( project->mainPlotCollection() )
+                {
+                    project->mainPlotCollection->updatePlotsWithFormations();
+                }
+            }
+        }
+
         std::vector<Rim3dView*> views = this->views();
         for ( Rim3dView* view : views )
         {
@@ -523,7 +556,7 @@ void RimEclipseCase::updateFormationNamesData()
 
                 view->scheduleGeometryRegen( PROPERTY_FILTERED );
                 view->scheduleCreateDisplayModelAndRedraw();
-                eclView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                eclView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
             }
         }
     }
@@ -619,6 +652,46 @@ RimEclipseInputPropertyCollection* RimEclipseCase::inputPropertyCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RimEclipseCase::additionalFiles() const
+{
+    std::vector<QString> additionalFiles;
+    for ( const RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
+    {
+        if ( inputProperty->fileName == gridFileName() ) continue;
+
+        additionalFiles.push_back( inputProperty->fileName().path() );
+    }
+
+    return additionalFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Loads input property data from the gridFile and additional files
+/// Creates new InputProperties if necessary, and flags the unused ones as obsolete
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::loadAndSyncronizeInputProperties( bool includeGridFileName )
+{
+    // Make sure we actually have reservoir data
+
+    CVF_ASSERT( this->eclipseCaseData() );
+    CVF_ASSERT( this->eclipseCaseData()->mainGrid()->gridPointDimensions() != cvf::Vec3st( 0, 0, 0 ) );
+
+    // Then read the properties from all the files referenced by the InputReservoir
+
+    std::vector<QString> filenames;
+    for ( const QString& fileName : additionalFiles() )
+    {
+        filenames.push_back( fileName );
+    }
+
+    if ( includeGridFileName ) filenames.push_back( gridFileName() );
+
+    RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(), eclipseCaseData(), filenames );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseCase::setReservoirData( RigEclipseCaseData* eclipseCase )
 {
     m_rigEclipseCase = eclipseCase;
@@ -642,6 +715,14 @@ void RimEclipseCase::createTimeStepFormatString()
     std::vector<QDateTime> timeStepDates = this->timeStepDates();
 
     m_timeStepFormatString = RiaQDateTimeTools::createTimeFormatStringFromDates( timeStepDates );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimEclipseCase::reservoirBoundingBox()
+{
+    return activeCellsBoundingBox();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -746,12 +827,12 @@ const RimReservoirCellResultsStorage* RimEclipseCase::resultsStorage( RiaDefines
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RimEclipseCase::filesContainingFaults() const
 {
-    QString              separatedPaths = m_filesContainingFaultsSemColSeparated;
-    QStringList          pathList       = separatedPaths.split( ";", QString::SkipEmptyParts );
     std::vector<QString> stdPathList;
 
-    for ( auto& path : pathList )
-        stdPathList.push_back( path );
+    for ( auto& filePath : m_filesContainingFaults() )
+    {
+        stdPathList.push_back( filePath.path() );
+    }
 
     return stdPathList;
 }
@@ -759,20 +840,15 @@ std::vector<QString> RimEclipseCase::filesContainingFaults() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::setFilesContainingFaults( const std::vector<QString>& val )
+void RimEclipseCase::setFilesContainingFaults( const std::vector<QString>& pathStrings )
 {
-    QString separatedPaths;
-
-    for ( size_t i = 0; i < val.size(); ++i )
+    std::vector<caf::FilePath> filePaths;
+    for ( const auto& pathString : pathStrings )
     {
-        const auto& path = val[i];
-        separatedPaths += path;
-        if ( !( i + 1 >= val.size() ) )
-        {
-            separatedPaths += ";";
-        }
+        filePaths.push_back( pathString );
     }
-    m_filesContainingFaultsSemColSeparated = separatedPaths;
+
+    m_filesContainingFaults = filePaths;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -820,7 +896,7 @@ bool RimEclipseCase::openReserviorCase()
                                                                          RiaDefines::combinedTransmissibilityResultName() );
                 if ( results->hasResultEntry( combinedTransmissibilityResAddr ) )
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RigNNCData::propertyNameCombTrans(),
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameCombTrans(),
                                                                                    combinedTransmissibilityResAddr );
                 }
 
@@ -828,7 +904,7 @@ bool RimEclipseCase::openReserviorCase()
                                                                   RiaDefines::combinedWaterFluxResultName() );
                 if ( results->hasResultEntry( combinedWaterFluxResAddr ) )
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RigNNCData::propertyNameFluxWat(),
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxWat(),
                                                                                    combinedWaterFluxResAddr );
                 }
 
@@ -836,7 +912,7 @@ bool RimEclipseCase::openReserviorCase()
                                                                 RiaDefines::combinedOilFluxResultName() );
                 if ( results->hasResultEntry( combinedOilFluxResAddr ) )
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RigNNCData::propertyNameFluxOil(),
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxOil(),
                                                                                    combinedOilFluxResAddr );
                 }
                 RigEclipseResultAddress combinedGasFluxResAddr( RiaDefines::DYNAMIC_NATIVE,
@@ -844,7 +920,7 @@ bool RimEclipseCase::openReserviorCase()
 
                 if ( results->hasResultEntry( combinedGasFluxResAddr ) )
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RigNNCData::propertyNameFluxGas(),
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxGas(),
                                                                                    combinedGasFluxResAddr );
                 }
             }
@@ -954,18 +1030,6 @@ double RimEclipseCase::characteristicCellSize() const
     }
 
     return 10.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseCase::setFormationNames( RimFormationNames* formationNames )
-{
-    activeFormationNames = formationNames;
-    if ( m_rigEclipseCase.notNull() && formationNames != nullptr )
-    {
-        m_rigEclipseCase->setActiveFormationNamesAndUpdatePlots( formationNames->formationNamesData() );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

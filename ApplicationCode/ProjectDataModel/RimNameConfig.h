@@ -30,10 +30,7 @@ class RimNameConfigHolderInterface
 {
 public:
     virtual QString createAutoName() const = 0;
-    void            updateAutoName()
-    {
-        performAutoNameUpdate();
-    }
+    void            updateAutoName() { performAutoNameUpdate(); }
 
 protected:
     virtual void performAutoNameUpdate() {}
@@ -61,9 +58,7 @@ public:
 
 protected:
     void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void         fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                   const QVariant&            oldValue,
-                                   const QVariant&            newValue ) override;
+    void         fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QString      autoName() const;
     virtual void updateAllSettings();
     void         initAfterRead() override;

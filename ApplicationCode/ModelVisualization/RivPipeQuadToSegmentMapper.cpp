@@ -22,4 +22,6 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivPipeQuadToSegmentMapper::RivPipeQuadToSegmentMapper() {}
+RivPipeQuadToSegmentMapper::RivPipeQuadToSegmentMapper()
+{
+}

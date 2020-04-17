@@ -33,4 +33,6 @@ RivFemPickSourceInfo::RivFemPickSourceInfo( int partIndex, RivFemPartTriangleToE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFemPickSourceInfo::~RivFemPickSourceInfo() {}
+RivFemPickSourceInfo::~RivFemPickSourceInfo()
+{
+}

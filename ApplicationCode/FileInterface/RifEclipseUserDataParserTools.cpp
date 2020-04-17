@@ -544,8 +544,8 @@ std::vector<std::string> RifEclipseUserDataParserTools::findValidHeaderLines( st
 
                     columnCount = words.size();
 
-                    minimunRequiredExtraHeaderLines = RifEclipseUserDataKeywordTools::computeRequiredHeaderLineCount(
-                        words );
+                    minimunRequiredExtraHeaderLines =
+                        RifEclipseUserDataKeywordTools::computeRequiredHeaderLineCount( words );
 
                     headerLines.push_back( line );
                 }

@@ -26,8 +26,11 @@ class RimCase;
 
 namespace caf
 {
+class PdmChildArrayFieldHandle;
+class PdmChildFieldHandle;
+class PdmFieldHandle;
 class PdmObject;
-class PdmValueField;
+class PdmObjectHandle;
 } // namespace caf
 
 namespace rips
@@ -36,6 +39,7 @@ class PdmObject;
 }
 
 class QString;
+class QVariant;
 
 //==================================================================================================
 //
@@ -48,15 +52,18 @@ public:
     virtual std::vector<RiaGrpcCallbackInterface*> createCallbacks() = 0;
     virtual ~RiaGrpcServiceInterface()                               = default;
     static RimCase* findCase( int caseId );
-    static size_t   numberOfMessagesForByteCount( size_t messageSize, size_t byteCount = 64 * 1024u );
+    static size_t   numberOfDataUnitsInPackage( size_t dataUnitSize, size_t packageByteCount = 64 * 1024u );
 
-    static void copyPdmObjectFromCafToRips( const caf::PdmObject* source, rips::PdmObject* destination );
-    static void copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObject* destination );
+    static void copyPdmObjectFromCafToRips( const caf::PdmObjectHandle* source, rips::PdmObject* destination );
+    static void copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination );
 
-    static void assignFieldValue( const QString& stringValue, caf::PdmValueField* field );
+    static bool
+        assignFieldValue( const QString& stringValue, caf::PdmFieldHandle* field, QVariant* oldValue, QVariant* newValue );
 
-    static caf::PdmObject*
-        emplaceChildArrayField( caf::PdmObject* parent, const QString& fieldLabel, const QString& classKeyword );
+    static caf::PdmObjectHandle* emplaceChildField( caf::PdmObject* parent, const QString& fieldLabel );
+
+    static caf::PdmObjectHandle* emplaceChildField( caf::PdmChildFieldHandle* childField );
+    static caf::PdmObjectHandle* emplaceChildArrayField( caf::PdmChildArrayFieldHandle* childArrayField );
 };
 
 #include "cafFactory.h"

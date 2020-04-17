@@ -28,14 +28,16 @@
 #include "RimProject.h"
 #include "RimTimeStepFilter.h"
 
-#include "cafPdmObjectFactory.h"
-
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "RimCase" );
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmObjectFactory.h"
+#include "cafPdmObjectScriptability.h"
+
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "Case", "RimCase" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -43,15 +45,23 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCase, "RimCase" );
 RimCase::RimCase()
     : m_isInActiveDestruction( false )
 {
-    CAF_PDM_InitObject( "Case", ":/Case48x48.png", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Case", ":/Case48x48.png", "", "", "Case", "The ResInsight base class for Cases" );
 
-    RICF_InitField( &caseUserDescription, "CaseUserDescription", QString(), "Case Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &caseUserDescription, "Name", QString(), "Case Name", "", "", "" );
+    caseUserDescription.registerKeywordAlias( "CaseUserDescription" );
 
-    RICF_InitField( &caseId, "CaseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &caseId, "Id", -1, "Case ID", "", "", "" );
+    caseId.registerKeywordAlias( "CaseId" );
     caseId.uiCapability()->setUiReadOnly( true );
-    caseId.capability<RicfFieldHandle>()->setIOWriteable( false );
+    caseId.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
 
-    CAF_PDM_InitFieldNoDefault( &activeFormationNames, "DefaultFormationNames", "Formation Names File", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_caseFileName, "FilePath", "Case File Name", "", "", "" );
+    m_caseFileName.registerKeywordAlias( "CaseFileName" );
+    m_caseFileName.registerKeywordAlias( "GridFileName" );
+
+    m_caseFileName.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_activeFormationNames, "DefaultFormationNames", "Formation Names File", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter", "", "", "" );
     m_timeStepFilter.uiCapability()->setUiHidden( true );
@@ -74,6 +84,22 @@ RimCase::RimCase()
 RimCase::~RimCase()
 {
     m_isInActiveDestruction = true; // Needed because destruction of m_intersectionViews results in call to views()
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase::setGridFileName( const QString& fileName )
+{
+    m_caseFileName.v().setPath( fileName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCase::gridFileName() const
+{
+    return m_caseFileName().path();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,7 +148,15 @@ cvf::Vec3d RimCase::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 void RimCase::setFormationNames( RimFormationNames* formationNames )
 {
-    activeFormationNames = formationNames;
+    m_activeFormationNames = formationNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFormationNames* RimCase::activeFormationNames() const
+{
+    return m_activeFormationNames();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,7 +190,7 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFiel
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &activeFormationNames )
+    if ( fieldNeedingOptions == &m_activeFormationNames )
     {
         RimProject* proj = RiaApplication::instance()->project();
         if ( proj && proj->activeOilField() && proj->activeOilField()->formationNamesCollection() )
@@ -185,4 +219,12 @@ void RimCase::initAfterRead()
     {
         RiaApplication::instance()->project()->assignCaseIdToCase( this );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimCase::userDescriptionField()
+{
+    return &caseUserDescription;
 }

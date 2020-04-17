@@ -99,8 +99,7 @@ void RigFlowDiagTimeStepResult::setInjProdWellPairFlux( const std::string&      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagTimeStepResult::addResult( const RigFlowDiagResultAddress& resAddr,
-                                           const std::map<int, double>&    cellValues )
+void RigFlowDiagTimeStepResult::addResult( const RigFlowDiagResultAddress& resAddr, const std::map<int, double>& cellValues )
 {
     std::vector<double>& activeCellValues = m_nativeResults[resAddr];
 
@@ -194,7 +193,9 @@ RigFlowDiagSolverInterface::RigFlowDiagSolverInterface( RimEclipseResultCase* ec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFlowDiagSolverInterface::~RigFlowDiagSolverInterface() {}
+RigFlowDiagSolverInterface::~RigFlowDiagSolverInterface()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -266,8 +267,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
         if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( gridFileName, &m_filesWithSameBaseName ) )
             return result;
 
-        QString firstRestartFileName = RifEclipseOutputFileTools::firstFileNameOfType( m_filesWithSameBaseName,
-                                                                                       ECL_UNIFIED_RESTART_FILE );
+        QString firstRestartFileName =
+            RifEclipseOutputFileTools::firstFileNameOfType( m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE );
         if ( !firstRestartFileName.isEmpty() )
         {
             m_opmFlowDiagStaticData->m_unifiedRestartData.reset(
@@ -276,8 +277,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
         }
         else
         {
-            QStringList restartFileNames = RifEclipseOutputFileTools::filterFileNamesOfType( m_filesWithSameBaseName,
-                                                                                             ECL_RESTART_FILE );
+            QStringList restartFileNames =
+                RifEclipseOutputFileTools::filterFileNamesOfType( m_filesWithSameBaseName, ECL_RESTART_FILE );
 
             size_t restartFileCount = static_cast<size_t>( restartFileNames.size() );
             size_t maxTimeStepCount =
@@ -285,10 +286,10 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
             if ( restartFileCount <= timeStepIndex && restartFileCount != maxTimeStepCount )
             {
-                QMessageBox::
-                    critical( nullptr,
-                              "ResInsight",
-                              "Flow Diagnostics: Could not find all the restart files. Results will not be loaded." );
+                QMessageBox::critical( nullptr,
+                                       "ResInsight",
+                                       "Flow Diagnostics: Could not find all the restart files. Results will not be "
+                                       "loaded." );
                 return result;
             }
 
@@ -375,8 +376,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
         const std::vector<Opm::ECLWellSolution::WellData> well_fluxes = wsol.solution( *currentRestartData, gridNames );
 
-        WellInFluxPrCell = RigFlowDiagInterfaceTools::extractWellFlows( *( m_opmFlowDiagStaticData->m_eclGraph ),
-                                                                        well_fluxes );
+        WellInFluxPrCell =
+            RigFlowDiagInterfaceTools::extractWellFlows( *( m_opmFlowDiagStaticData->m_eclGraph ), well_fluxes );
 
         m_opmFlowDiagStaticData->m_fldToolbox->assignInflowFlux( WellInFluxPrCell );
     }
@@ -561,22 +562,16 @@ void RigFlowDiagSolverInterface::assignPhaseCorrecedPORV( RigFlowDiagResultAddre
     switch ( phaseSelection )
     {
         case RigFlowDiagResultAddress::PHASE_OIL:
-            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
-                                                             RiaDefines::DYNAMIC_NATIVE,
-                                                             "SOIL",
-                                                             timeStepIdx );
+            phaseSaturation =
+                eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SOIL", timeStepIdx );
             break;
         case RigFlowDiagResultAddress::PHASE_GAS:
-            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
-                                                             RiaDefines::DYNAMIC_NATIVE,
-                                                             "SGAS",
-                                                             timeStepIdx );
+            phaseSaturation =
+                eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStepIdx );
             break;
         case RigFlowDiagResultAddress::PHASE_WAT:
-            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
-                                                             RiaDefines::DYNAMIC_NATIVE,
-                                                             "SWAT",
-                                                             timeStepIdx );
+            phaseSaturation =
+                eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SWAT", timeStepIdx );
             break;
         default:
             m_opmFlowDiagStaticData->m_fldToolbox->assignPoreVolume( m_opmFlowDiagStaticData->m_poreVolume );
@@ -649,10 +644,8 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
 
     try
     {
-        Graph flowCapStorCapCurve = flowCapacityStorageCapacityCurve( *injector_tof,
-                                                                      *producer_tof,
-                                                                      poreVolume,
-                                                                      max_pv_fraction );
+        Graph flowCapStorCapCurve =
+            flowCapacityStorageCapacityCurve( *injector_tof, *producer_tof, poreVolume, max_pv_fraction );
 
         result.m_storageCapFlowCapCurve                = flowCapStorCapCurve;
         result.m_lorenzCoefficient                     = lorenzCoefficient( flowCapStorCapCurve );
@@ -699,10 +692,12 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve>
                                                 Opm::ECLPhaseIndex::Liquid}; // oil rel-perm in oil-gas system
     const Opm::ECLSaturationFunc::RawCurve pcgo{Opm::ECLSaturationFunc::RawCurve::Function::CapPress,
                                                 Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,
-                                                Opm::ECLPhaseIndex::Vapour}; // gas/oil capillary pressure (Pg-Po) in G/O system
+                                                Opm::ECLPhaseIndex::Vapour}; // gas/oil capillary pressure (Pg-Po) in
+                                                                             // G/O system
     const Opm::ECLSaturationFunc::RawCurve pcow{Opm::ECLSaturationFunc::RawCurve::Function::CapPress,
                                                 Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater,
-                                                Opm::ECLPhaseIndex::Aqua}; // oil/water capillary pressure (Po-Pw) in O/W system
+                                                Opm::ECLPhaseIndex::Aqua}; // oil/water capillary pressure (Po-Pw) in
+                                                                           // O/W system
 
     std::vector<std::pair<RelPermCurve::Ident, std::string>> curveIdentNameArr;
     std::vector<Opm::ECLSaturationFunc::RawCurve>            satFuncRequests;
@@ -891,12 +886,13 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( size_t  activ
         {
             std::vector<double> phasePress = {pressure};
             std::vector<double> mixRatio   = {rs};
-            std::vector<double> valArr     = m_opmFlowDiagStaticData->m_eclPvtCurveCollection
-                                             ->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::FVF,
-                                                                         Opm::ECLPhaseIndex::Liquid,
-                                                                         static_cast<int>( activeCellIndex ),
-                                                                         phasePress,
-                                                                         mixRatio );
+            std::vector<double> valArr =
+                m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::FVF,
+                                                                                            Opm::ECLPhaseIndex::Liquid,
+                                                                                            static_cast<int>(
+                                                                                                activeCellIndex ),
+                                                                                            phasePress,
+                                                                                            mixRatio );
             if ( valArr.size() > 0 )
             {
                 *bo = valArr[0];
@@ -907,12 +903,13 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( size_t  activ
         {
             std::vector<double> phasePress = {pressure};
             std::vector<double> mixRatio   = {rv};
-            std::vector<double> valArr     = m_opmFlowDiagStaticData->m_eclPvtCurveCollection
-                                             ->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::FVF,
-                                                                         Opm::ECLPhaseIndex::Vapour,
-                                                                         static_cast<int>( activeCellIndex ),
-                                                                         phasePress,
-                                                                         mixRatio );
+            std::vector<double> valArr =
+                m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getDynamicPropertyNative( Opm::ECLPVT::RawCurve::FVF,
+                                                                                            Opm::ECLPhaseIndex::Vapour,
+                                                                                            static_cast<int>(
+                                                                                                activeCellIndex ),
+                                                                                            phasePress,
+                                                                                            mixRatio );
             if ( valArr.size() > 0 )
             {
                 *bg = valArr[0];

@@ -33,6 +33,7 @@ void caf::AppEnum<RiaDefines::ResultCatType>::setUp()
     addItem( RiaDefines::GENERATED, "GENERATED", "Generated" );
     addItem( RiaDefines::INPUT_PROPERTY, "INPUT_PROPERTY", "Input Property" );
     addItem( RiaDefines::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names" );
+    addItem( RiaDefines::ALLEN_DIAGRAMS, "ALLEN_DIAGRAMS", "Allen Diagrams" );
     addItem( RiaDefines::FLOW_DIAGNOSTICS, "FLOW_DIAGNOSTICS", "Flow Diagnostics" );
     addItem( RiaDefines::INJECTION_FLOODING, "INJECTION_FLOODING", "Injection Flooding" );
     setDefault( RiaDefines::DYNAMIC_NATIVE );
@@ -55,6 +56,7 @@ void caf::AppEnum<RiaDefines::DepthTypeEnum>::setUp()
     addItem( RiaDefines::TRUE_VERTICAL_DEPTH, "TRUE_VERTICAL_DEPTH", "True Vertical Depth (MSL)" );
     addItem( RiaDefines::PSEUDO_LENGTH, "PSEUDO_LENGTH", "Pseudo Length" );
     addItem( RiaDefines::CONNECTION_NUMBER, "CONNECTION_NUMBER", "Connection Number" );
+    addItem( RiaDefines::TRUE_VERTICAL_DEPTH_RKB, "TRUE_VERTICAL_DEPTH_RKB", "True Vertical Depth (RKB)" );
     setDefault( RiaDefines::MEASURED_DEPTH );
 }
 
@@ -65,6 +67,15 @@ void caf::AppEnum<RiaDefines::PlotAxis>::setUp()
     addItem( RiaDefines::PLOT_AXIS_RIGHT, "PLOT_AXIS_RIGHT", "Right" );
 
     setDefault( RiaDefines::PLOT_AXIS_LEFT );
+}
+
+template <>
+void caf::AppEnum<RiaDefines::PhaseType>::setUp()
+{
+    addItem( RiaDefines::OIL_PHASE, "OIL_PHASE", "Oil" );
+    addItem( RiaDefines::GAS_PHASE, "GAS_PHASE", "Gas" );
+    addItem( RiaDefines::WATER_PHASE, "WATER_PHASE", "Water" );
+    setDefault( RiaDefines::OIL_PHASE );
 }
 
 template <>
@@ -362,6 +373,22 @@ QString RiaDefines::completionTypeResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaDefines::formationBinaryAllenResultName()
+{
+    return "Binary Formation Allen";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::formationAllenResultName()
+{
+    return "Formation Allen";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaDefines::mockModelBasic()
 {
     return "Result Mock Debug Model Simple";
@@ -410,7 +437,7 @@ QString RiaDefines::activeFormationNamesResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsAzimuthResultName()
+QString RiaDefines::wbsAzimuthResult()
 {
     return "Azimuth";
 }
@@ -418,7 +445,7 @@ QString RiaDefines::wbsAzimuthResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsInclinationResultName()
+QString RiaDefines::wbsInclinationResult()
 {
     return "Inclination";
 }
@@ -426,7 +453,7 @@ QString RiaDefines::wbsInclinationResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsPPResultName()
+QString RiaDefines::wbsPPResult()
 {
     return "PP";
 }
@@ -434,15 +461,23 @@ QString RiaDefines::wbsPPResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsSHResultName()
+QString RiaDefines::wbsSHResult()
 {
-    return "SH";
+    return "SHMIN";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsOBGResultName()
+QString RiaDefines::wbsSHMkResult()
+{
+    return "SH_MK";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::wbsOBGResult()
 {
     return "OBG";
 }
@@ -450,7 +485,7 @@ QString RiaDefines::wbsOBGResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsFGResultName()
+QString RiaDefines::wbsFGResult()
 {
     return "FG";
 }
@@ -458,7 +493,7 @@ QString RiaDefines::wbsFGResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsSFGResultName()
+QString RiaDefines::wbsSFGResult()
 {
     return "SFG";
 }
@@ -466,41 +501,24 @@ QString RiaDefines::wbsSFGResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsPoissonParameterName()
+std::vector<QString> RiaDefines::wbsAngleResultNames()
 {
-    return "RATIO";
+    return {wbsAzimuthResult(), wbsInclinationResult()};
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::wbsUCSParameterName()
+std::vector<QString> RiaDefines::wbsDerivedResultNames()
 {
-    return "UCS";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaDefines::wellPathAngleResultNames()
-{
-    return {wbsAzimuthResultName(), wbsInclinationResultName()};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaDefines::wellPathStabilityResultNames()
-{
-    return {wbsFGResultName(), wbsOBGResultName(), wbsPPResultName(), wbsSFGResultName(), wbsSHResultName()};
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaDefines::wellPathStabilityParameterNames()
-{
-    return {wbsPoissonParameterName(), wbsUCSParameterName()};
+    return {
+        wbsFGResult(),
+        wbsOBGResult(),
+        wbsPPResult(),
+        wbsSFGResult(),
+        wbsSHResult(),
+        wbsSHMkResult(),
+    };
 }
 
 //--------------------------------------------------------------------------------------------------

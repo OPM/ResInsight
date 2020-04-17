@@ -31,7 +31,9 @@ CAF_PDM_UI_3D_OBJECT_EDITOR_SOURCE_INIT( RicWellPathGeometry3dEditor );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicWellPathGeometry3dEditor::RicWellPathGeometry3dEditor() {}
+RicWellPathGeometry3dEditor::RicWellPathGeometry3dEditor()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

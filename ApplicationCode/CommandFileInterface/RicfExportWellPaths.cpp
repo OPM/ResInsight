@@ -36,6 +36,7 @@
 #include "RiaWellNameComparer.h"
 
 #include "cafCmdFeatureManager.h"
+#include "cafPdmFieldIOScriptability.h"
 
 CAF_PDM_SOURCE_INIT( RicfExportWellPaths, "exportWellPaths" );
 
@@ -44,14 +45,14 @@ CAF_PDM_SOURCE_INIT( RicfExportWellPaths, "exportWellPaths" );
 //--------------------------------------------------------------------------------------------------
 RicfExportWellPaths::RicfExportWellPaths()
 {
-    RICF_InitField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
-    RICF_InitField( &m_mdStepSize, "mdStepSize", 5.0, "MD Step Size", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_mdStepSize, "mdStepSize", 5.0, "MD Step Size", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportWellPaths::execute()
+caf::PdmScriptResponse RicfExportWellPaths::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -66,7 +67,7 @@ RicfCommandResponse RicfExportWellPaths::execute()
             QString error( QString( "exportWellPaths: These well paths were not found: " ) +
                            wellsNotFound.join( ", " ) );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
 
@@ -74,7 +75,7 @@ RicfCommandResponse RicfExportWellPaths::execute()
     {
         QString error( "No well paths found" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::WELLPATHS );
@@ -94,5 +95,5 @@ RicfCommandResponse RicfExportWellPaths::execute()
             feature->exportWellPath( wellPath, m_mdStepSize, exportFolder, false );
         }
     }
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

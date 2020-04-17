@@ -59,9 +59,10 @@
 #include "RimGeoMechView.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
-#include "RimGridPlotWindowCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
+#include "RimMultiPlot.h"
+#include "RimMultiPlotCollection.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
@@ -116,6 +117,7 @@
 #include "cvfqtUtils.h"
 
 #include <QDebug>
+#include <QDesktopWidget>
 #include <QDir>
 #include <QErrorMessage>
 #include <QFileDialog>
@@ -240,10 +242,8 @@ QString RiaGuiApplication::promptForProjectSaveAsFileName() const
         startPath += "/ResInsightProject.rsp";
     }
 
-    QString fileName = QFileDialog::getSaveFileName( nullptr,
-                                                     tr( "Save File" ),
-                                                     startPath,
-                                                     tr( "Project Files (*.rsp);;All files(*.*)" ) );
+    QString fileName =
+        QFileDialog::getSaveFileName( nullptr, tr( "Save File" ), startPath, tr( "Project Files (*.rsp);;All files(*.*)" ) );
     return fileName;
 }
 
@@ -297,141 +297,6 @@ bool RiaGuiApplication::saveProjectAs( const QString& fileName )
     }
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::loadAndUpdatePlotData()
-{
-    RimWellLogPlotCollection*            wlpColl  = nullptr;
-    RimSummaryPlotCollection*            spColl   = nullptr;
-    RimSummaryCrossPlotCollection*       scpColl  = nullptr;
-    RimFlowPlotCollection*               flowColl = nullptr;
-    RimRftPlotCollection*                rftColl  = nullptr;
-    RimPltPlotCollection*                pltColl  = nullptr;
-    RimGridCrossPlotCollection*          gcpColl  = nullptr;
-    RimSaturationPressurePlotCollection* sppColl  = nullptr;
-
-    if ( m_project->mainPlotCollection() )
-    {
-        if ( m_project->mainPlotCollection()->wellLogPlotCollection() )
-        {
-            wlpColl = m_project->mainPlotCollection()->wellLogPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->summaryPlotCollection() )
-        {
-            spColl = m_project->mainPlotCollection()->summaryPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->summaryCrossPlotCollection() )
-        {
-            scpColl = m_project->mainPlotCollection()->summaryCrossPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->flowPlotCollection() )
-        {
-            flowColl = m_project->mainPlotCollection()->flowPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->rftPlotCollection() )
-        {
-            rftColl = m_project->mainPlotCollection()->rftPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->pltPlotCollection() )
-        {
-            pltColl = m_project->mainPlotCollection()->pltPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->gridCrossPlotCollection() )
-        {
-            gcpColl = m_project->mainPlotCollection()->gridCrossPlotCollection();
-        }
-        if ( m_project->mainPlotCollection()->saturationPressurePlotCollection() )
-        {
-            sppColl = m_project->mainPlotCollection()->saturationPressurePlotCollection();
-        }
-    }
-
-    size_t plotCount = 0;
-    plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
-    plotCount += spColl ? spColl->summaryPlots().size() : 0;
-    plotCount += scpColl ? scpColl->summaryPlots().size() : 0;
-    plotCount += flowColl ? flowColl->plotCount() : 0;
-    plotCount += rftColl ? rftColl->rftPlots().size() : 0;
-    plotCount += pltColl ? pltColl->pltPlots().size() : 0;
-    plotCount += gcpColl ? gcpColl->gridCrossPlots().size() : 0;
-    plotCount += sppColl ? sppColl->plots().size() : 0;
-
-    if ( plotCount > 0 )
-    {
-        caf::ProgressInfo plotProgress( plotCount, "Loading Plot Data" );
-        if ( wlpColl )
-        {
-            for ( size_t wlpIdx = 0; wlpIdx < wlpColl->wellLogPlots().size(); ++wlpIdx )
-            {
-                wlpColl->wellLogPlots[wlpIdx]->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( spColl )
-        {
-            for ( size_t wlpIdx = 0; wlpIdx < spColl->summaryPlots().size(); ++wlpIdx )
-            {
-                spColl->summaryPlots[wlpIdx]->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( scpColl )
-        {
-            for ( auto plot : scpColl->summaryPlots() )
-            {
-                plot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( flowColl )
-        {
-            plotProgress.setNextProgressIncrement( flowColl->plotCount() );
-            flowColl->loadDataAndUpdate();
-            plotProgress.incrementProgress();
-        }
-
-        if ( rftColl )
-        {
-            for ( const auto& rftPlot : rftColl->rftPlots() )
-            {
-                rftPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( pltColl )
-        {
-            for ( const auto& pltPlot : pltColl->pltPlots() )
-            {
-                pltPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( gcpColl )
-        {
-            for ( const auto& gcpPlot : gcpColl->gridCrossPlots() )
-            {
-                gcpPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-
-        if ( sppColl )
-        {
-            for ( const auto& sppPlot : sppColl->plots() )
-            {
-                sppPlot->loadDataAndUpdate();
-                plotProgress.incrementProgress();
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -527,10 +392,13 @@ bool RiaGuiApplication::useShaders() const
 {
     if ( !m_preferences->useShaders() ) return false;
 
-    bool isShadersSupported = caf::Viewer::isShadersSupported();
-    if ( !isShadersSupported ) return false;
+    bool isShadersSupported = true;
+    if ( platformName() != "offscreen" ) // Avoid opengl access if we are in qt offscreen mode
+    {
+        isShadersSupported = caf::Viewer::isShadersSupported();
+    }
 
-    return true;
+    return isShadersSupported;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -556,8 +424,13 @@ void RiaGuiApplication::initialize()
     RiuPlotMainWindow* plotMainWindow = getOrCreateMainPlotWindow();
     plotMainWindow->hideAllDockWidgets();
 
-    RiaLogging::setLoggerInstance( new RiuMessagePanelLogger( m_mainWindow->messagePanel() ) );
-    RiaLogging::loggerInstance()->setLevel( RI_LL_DEBUG );
+    {
+        auto logger = new RiuMessagePanelLogger;
+        logger->addMessagePanel( m_mainWindow->messagePanel() );
+        logger->addMessagePanel( m_mainPlotWindow->messagePanel() );
+        RiaLogging::setLoggerInstance( logger );
+        RiaLogging::loggerInstance()->setLevel( RI_LL_DEBUG );
+    }
     m_socketServer = new RiaSocketServer( this );
 }
 
@@ -579,6 +452,23 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
     {
         this->showFormattedTextInMessageBoxOrConsole( "The current command line options in ResInsight are:\n" +
                                                       this->commandLineParameterHelp() );
+        return RiaApplication::EXIT_COMPLETED;
+    }
+
+    // Code generation
+    // -----------------
+    if ( cvf::Option o = progOpt->option( "generate" ) )
+    {
+        CVF_ASSERT( o.valueCount() == 1 );
+        QString outputFile = cvfqt::Utils::toQString( o.value( 0 ) );
+
+        QString errMsg;
+        if ( !RiaApplication::generateCode( outputFile, &errMsg ) )
+        {
+            RiaLogging::error( QString( "Error: %1" ).arg( errMsg ) );
+            return RiaApplication::EXIT_WITH_ERROR;
+        }
+
         return RiaApplication::EXIT_COMPLETED;
     }
 
@@ -741,8 +631,8 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
             {
                 // One argument is available, use replace case for first occurrence in the project
 
-                std::vector<QString> gridFileNames = readFileListFromTextFile(
-                    cvfqt::Utils::toQString( o.safeValue( 0 ) ) );
+                std::vector<QString> gridFileNames =
+                    readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( 0 ) ) );
                 projectModifier->setReplaceSourceCasesFirstOccurrence( gridFileNames );
             }
             else
@@ -750,9 +640,9 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
                 size_t optionIdx = 0;
                 while ( optionIdx < o.valueCount() )
                 {
-                    const int            groupId       = o.safeValue( optionIdx++ ).toInt( -1 );
-                    std::vector<QString> gridFileNames = readFileListFromTextFile(
-                        cvfqt::Utils::toQString( o.safeValue( optionIdx++ ) ) );
+                    const int            groupId = o.safeValue( optionIdx++ ).toInt( -1 );
+                    std::vector<QString> gridFileNames =
+                        readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( optionIdx++ ) ) );
 
                     if ( groupId != -1 && !gridFileNames.empty() )
                     {
@@ -794,8 +684,8 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
     if ( cvf::Option o = progOpt->option( "case" ) )
     {
-        QStringList fileNames = RicImportGeneralDataFeature::fileNamesFromCaseNames(
-            cvfqt::Utils::toQStringList( o.values() ) );
+        QStringList fileNames =
+            RicImportGeneralDataFeature::fileNamesFromCaseNames( cvfqt::Utils::toQStringList( o.values() ) );
 
         RicImportGeneralDataFeature::OpenCaseResults results =
             RicImportGeneralDataFeature::openEclipseFilesFromFileNames( fileNames, true );
@@ -1562,8 +1452,8 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
                         existingViewsWithCustomColors = true;
                     }
                     if ( m_preferences->defaultScaleFactorZ() != oldPreferences->defaultScaleFactorZ() &&
-                         rim3dView->scaleZ() != static_cast<double>( oldPreferences->defaultScaleFactorZ ) &&
-                         rim3dView->scaleZ() != static_cast<double>( m_preferences->defaultScaleFactorZ ) )
+                         rim3dView->scaleZ() != static_cast<double>( oldPreferences->defaultScaleFactorZ() ) &&
+                         rim3dView->scaleZ() != static_cast<double>( m_preferences->defaultScaleFactorZ() ) )
                     {
                         existingViewsWithCustomZScale = true;
                     }
@@ -1589,10 +1479,9 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
 
                 for ( auto fontTypeSizePair : fontSizes )
                 {
-                    RiaFontCache::FontSize oldFontSizeEnum = oldPreferences->defaultFontSizes()[fontTypeSizePair.first];
-                    if ( oldFontSizeEnum != fontTypeSizePair.second )
+                    RiaFontCache::FontSize oldFontSize = oldPreferences->defaultFontSizes()[fontTypeSizePair.first];
+                    if ( oldFontSize != fontTypeSizePair.second )
                     {
-                        int oldFontSize = RiaFontCache::pointSizeFromFontSizeEnum( oldFontSizeEnum );
                         if ( viewWindow->hasCustomFontSizes( fontTypeSizePair.first, oldFontSize ) )
                         {
                             existingObjectsWithCustomFonts = true;
@@ -1624,15 +1513,14 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
             }
 
             QMessageBox::StandardButton reply;
-            reply =
-                QMessageBox::question( m_mainWindow,
-                                       QString( "Apply %1 to Existing Views or Plots?" ).arg( listString ),
-                                       QString( "You have changed default %1 and have existing views or plots with "
-                                                "different settings.\n" )
-                                               .arg( listString ) +
-                                           QString(
-                                               "Do you want to apply the new default settings to all existing views?" ),
-                                       QMessageBox::Ok | QMessageBox::Cancel );
+            reply                   = QMessageBox::question( m_mainWindow,
+                                           QString( "Apply %1 to Existing Views or Plots?" ).arg( listString ),
+                                           QString( "You have changed default %1 and have existing views or plots with "
+                                                    "different settings.\n" )
+                                                   .arg( listString ) +
+                                               QString( "Do you want to apply the new default settings to all existing "
+                                                        "views?" ),
+                                           QMessageBox::Ok | QMessageBox::Cancel );
             applySettingsToAllViews = ( reply == QMessageBox::Ok );
         }
 
@@ -1640,11 +1528,10 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
         {
             for ( auto fontTypeSizePair : fontSizes )
             {
-                RiaFontCache::FontSize oldFontSizeEnum = oldPreferences->defaultFontSizes()[fontTypeSizePair.first];
-                if ( oldFontSizeEnum != fontTypeSizePair.second )
+                RiaFontCache::FontSize oldFontSize = oldPreferences->defaultFontSizes()[fontTypeSizePair.first];
+                int                    newFontSize = fontTypeSizePair.second;
+                if ( oldFontSize != newFontSize )
                 {
-                    int oldFontSize = RiaFontCache::pointSizeFromFontSizeEnum( oldFontSizeEnum );
-                    int newFontSize = RiaFontCache::pointSizeFromFontSizeEnum( fontTypeSizePair.second );
                     viewWindow->applyFontSize( fontTypeSizePair.first, oldFontSize, newFontSize, applySettingsToAllViews );
                 }
             }
@@ -1665,9 +1552,8 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
                     rim3dView->applyBackgroundColorAndFontChanges();
                 }
 
-                if ( oldPreferences &&
-                     ( applySettingsToAllViews ||
-                       rim3dView->scaleZ == static_cast<double>( oldPreferences->defaultScaleFactorZ() ) ) )
+                if ( oldPreferences && ( applySettingsToAllViews ||
+                                         rim3dView->scaleZ == static_cast<double>( oldPreferences->defaultScaleFactorZ() ) ) )
                 {
                     rim3dView->scaleZ = static_cast<double>( m_preferences->defaultScaleFactorZ() );
                     rim3dView->updateScaling();
@@ -1702,6 +1588,18 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences* oldPreference
             if ( oldPreferences->defaultPlotFontSize() != m_preferences->defaultPlotFontSize() )
             {
                 m_mainWindow->applyFontSizesToDockedPlots();
+            }
+
+            if ( oldPreferences->defaultPageLayout() != m_preferences->defaultPageLayout() )
+            {
+                for ( RimViewWindow* viewWindow : allViewWindows )
+                {
+                    RimPlotWindow* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
+                    if ( plotWindow )
+                    {
+                        plotWindow->updateLayout();
+                    }
+                }
             }
         }
 
@@ -1740,9 +1638,17 @@ void RiaGuiApplication::updateGrpcServer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RiaGuiApplication::applicationResolution()
+{
+    return RiaGuiApplication::instance()->desktop()->logicalDpiX();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::startMonitoringWorkProgress( caf::UiProcess* uiProcess )
 {
-    m_mainWindow->processMonitor()->startMonitorWorkProcess( m_workerProcess );
+    m_mainWindow->processMonitor()->startMonitorWorkProcess( uiProcess );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -36,8 +36,10 @@
 #include "RigFemPartResults.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigFormationNames.h"
+#include "RigHexGradientTools.h"
 #include "RigHexIntersectionTools.h"
 #include "RigStatisticsDataCache.h"
+#include "RigWbsParameter.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -45,10 +47,9 @@
 #include "RimWellLogPlotCollection.h"
 
 #include "cafProgressInfo.h"
-#include "cvfBoundingBox.h"
-
-#include "cafProgressInfo.h"
 #include "cafTensor3.h"
+
+#include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 #include "cvfMath.h"
 
@@ -100,14 +101,17 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         femPartResult->initResultSteps( filteredStepNames );
     }
 
-    m_cohesion         = 10.0;
-    m_frictionAngleRad = cvf::Math::toRadians( 30.0 );
+    m_cohesion            = 10.0;
+    m_frictionAngleRad    = cvf::Math::toRadians( 30.0 );
+    m_normalizationAirGap = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemPartResultsCollection::~RigFemPartResultsCollection() {}
+RigFemPartResultsCollection::~RigFemPartResultsCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -138,7 +142,20 @@ void RigFemPartResultsCollection::setActiveFormationNames( RigFormationNames* ac
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFormationNames* RigFemPartResultsCollection::activeFormationNames()
+std::vector<QString> RigFemPartResultsCollection::formationNames() const
+{
+    if ( activeFormationNames() )
+    {
+        return activeFormationNames()->formationNames();
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigFormationNames* RigFemPartResultsCollection::activeFormationNames() const
 {
     return m_activeFormationNamesData.p();
 }
@@ -148,9 +165,23 @@ RigFormationNames* RigFemPartResultsCollection::activeFormationNames()
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::addElementPropertyFiles( const std::vector<QString>& filenames )
 {
+    std::vector<RigFemResultAddress> newAddresses;
     for ( const QString& filename : filenames )
     {
         m_elementPropertyReader->addFile( filename.toStdString() );
+
+        // Collect all addresses which was added in this file
+        std::vector<std::string> fields = m_elementPropertyReader->fieldsInFile( filename.toStdString() );
+        for ( const std::string& field : fields )
+        {
+            newAddresses.push_back( RigFemResultAddress( RIG_ELEMENT, field, "" ) );
+        }
+    }
+
+    // Invalidate previous result if already in cache
+    for ( const RigFemResultAddress& address : newAddresses )
+    {
+        this->deleteResult( address );
     }
 }
 
@@ -254,8 +285,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
         std::vector<RigFemScalarResultFrames*> resultsForEachComponent;
         for ( const auto& resultAddressOfComponent : resultAddressOfComponents )
         {
-            resultsForEachComponent.push_back(
-                m_femPartResults[partIndex]->createScalarResult( resultAddressOfComponent ) );
+            resultsForEachComponent.push_back( m_femPartResults[partIndex]->createScalarResult( resultAddressOfComponent ) );
         }
 
         int               frameCount = this->frameCount();
@@ -278,11 +308,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
                 switch ( resVarAddr.resultPosType )
                 {
                     case RIG_NODAL:
-                        m_readerInterface->readNodeField( resVarAddr.fieldName,
-                                                          partIndex,
-                                                          stepIndex,
-                                                          fIdx,
-                                                          &componentDataVectors );
+                        m_readerInterface->readNodeField( resVarAddr.fieldName, partIndex, stepIndex, fIdx, &componentDataVectors );
                         break;
                     case RIG_ELEMENT_NODAL:
                         m_readerInterface->readElementNodeField( resVarAddr.fieldName,
@@ -312,8 +338,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
 
     if ( !frames )
     {
-        frames = m_femPartResults[partIndex]->createScalarResult(
-            resVarAddr ); // Create a dummy empty result, if the request did not specify the component.
+        frames = m_femPartResults[partIndex]->createScalarResult( resVarAddr ); // Create a dummy empty result, if the
+                                                                                // request did not specify the component.
     }
 
     return frames;
@@ -332,6 +358,9 @@ std::map<std::string, std::vector<std::string>>
         if ( activeFormationNames() ) fieldCompNames["Active Formation Names"];
     }
 
+    const std::vector<std::string> stressComponentNames         = getStressComponentNames();
+    const std::vector<std::string> stressGradientComponentNames = getStressGradientComponentNames();
+
     if ( m_readerInterface.notNull() )
     {
         if ( resPos == RIG_NODAL )
@@ -349,15 +378,10 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["SE"].push_back( "DSM" );
             fieldCompNames["SE"].push_back( "FOS" );
 
-            fieldCompNames["SE"].push_back( "S11" );
-            fieldCompNames["SE"].push_back( "S22" );
-            fieldCompNames["SE"].push_back( "S33" );
-            fieldCompNames["SE"].push_back( "S12" );
-            fieldCompNames["SE"].push_back( "S13" );
-            fieldCompNames["SE"].push_back( "S23" );
-            fieldCompNames["SE"].push_back( "S1" );
-            fieldCompNames["SE"].push_back( "S2" );
-            fieldCompNames["SE"].push_back( "S3" );
+            for ( auto& s : stressComponentNames )
+            {
+                fieldCompNames["SE"].push_back( s );
+            }
 
             fieldCompNames["SE"].push_back( "S1inc" );
             fieldCompNames["SE"].push_back( "S1azi" );
@@ -369,15 +393,10 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["ST"].push_back( "STM" );
             fieldCompNames["ST"].push_back( "Q" );
 
-            fieldCompNames["ST"].push_back( "S11" );
-            fieldCompNames["ST"].push_back( "S22" );
-            fieldCompNames["ST"].push_back( "S33" );
-            fieldCompNames["ST"].push_back( "S12" );
-            fieldCompNames["ST"].push_back( "S13" );
-            fieldCompNames["ST"].push_back( "S23" );
-            fieldCompNames["ST"].push_back( "S1" );
-            fieldCompNames["ST"].push_back( "S2" );
-            fieldCompNames["ST"].push_back( "S3" );
+            for ( auto& s : stressComponentNames )
+            {
+                fieldCompNames["ST"].push_back( s );
+            }
 
             fieldCompNames["ST"].push_back( "S1inc" );
             fieldCompNames["ST"].push_back( "S1azi" );
@@ -500,15 +519,37 @@ std::map<std::string, std::vector<std::string>>
         }
         else if ( resPos == RIG_WELLPATH_DERIVED )
         {
-            std::vector<QString> angles = RiaDefines::wellPathAngleResultNames();
+            std::vector<QString> angles = RiaDefines::wbsAngleResultNames();
             for ( QString angle : angles )
             {
                 fieldCompNames[angle.toStdString()];
             }
-            std::vector<QString> derivedResults = RiaDefines::wellPathStabilityResultNames();
+            std::vector<QString> derivedResults = RiaDefines::wbsDerivedResultNames();
             for ( QString result : derivedResults )
             {
                 fieldCompNames[result.toStdString()];
+            }
+            std::set<RigWbsParameter> wbsParameters = RigWbsParameter::allParameters();
+            for ( const RigWbsParameter& parameter : wbsParameters )
+            {
+                fieldCompNames[parameter.name().toStdString()];
+            }
+        }
+        else if ( resPos == RIG_DIFFERENTIALS )
+        {
+            fieldCompNames["POR-Bar"];
+            fieldCompNames["POR-Bar"].push_back( "X" );
+            fieldCompNames["POR-Bar"].push_back( "Y" );
+            fieldCompNames["POR-Bar"].push_back( "Z" );
+
+            for ( auto& s : stressGradientComponentNames )
+            {
+                fieldCompNames["SE"].push_back( s );
+            }
+
+            for ( auto& s : stressGradientComponentNames )
+            {
+                fieldCompNames["ST"].push_back( s );
             }
         }
     }
@@ -706,6 +747,10 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult(
         frameCountProgress.incrementProgress();
 
         calculateGammaFromFrames( partIndex, srcDataFrames, srcPORDataFrames, dstDataFrames, &frameCountProgress );
+        if ( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) )
+        {
+            dstDataFrames = calculateNormalizedResult( partIndex, resVarAddr );
+        }
 
         return dstDataFrames;
     }
@@ -957,6 +1002,329 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSTM( i
         frameCountProgress.incrementProgress();
     }
 
+    return dstDataFrames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradients( int                        partIndex,
+                                                                                 const RigFemResultAddress& resVarAddr )
+{
+    CVF_ASSERT( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" );
+
+    caf::ProgressInfo frameCountProgress( this->frameCount() * 2, "" );
+    frameCountProgress.setProgressDescription(
+        "Calculating gradient: " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    frameCountProgress.setNextProgressIncrement( this->frameCount() );
+
+    QString origFieldName     = QString::fromStdString( resVarAddr.fieldName );
+    QString origComponentName = QString::fromStdString( resVarAddr.componentName );
+    // Split out the direction of the component name: SE-X => SE
+    QString componentName = origComponentName.left( origComponentName.lastIndexOf( QChar( '-' ) ) );
+
+    RigFemScalarResultFrames* inputResultFrames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType,
+                                                           resVarAddr.fieldName,
+                                                           componentName.toStdString() ) );
+
+    RigFemScalarResultFrames* dataFramesX = m_femPartResults[partIndex]->createScalarResult(
+        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-X" ) );
+    RigFemScalarResultFrames* dataFramesY = m_femPartResults[partIndex]->createScalarResult(
+        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-Y" ) );
+    RigFemScalarResultFrames* dataFramesZ = m_femPartResults[partIndex]->createScalarResult(
+        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, componentName.toStdString() + "-Z" ) );
+    frameCountProgress.incrementProgress();
+
+    const RigFemPart*              femPart      = m_femParts->part( partIndex );
+    int                            elementCount = femPart->elementCount();
+    const std::vector<cvf::Vec3f>& nodeCoords   = femPart->nodes().coordinates;
+
+    int frameCount = inputResultFrames->frameCount();
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        const std::vector<float>& inputData = inputResultFrames->frameData( fIdx );
+
+        std::vector<float>& dstFrameDataX = dataFramesX->frameData( fIdx );
+        std::vector<float>& dstFrameDataY = dataFramesY->frameData( fIdx );
+        std::vector<float>& dstFrameDataZ = dataFramesZ->frameData( fIdx );
+        size_t              valCount      = inputData.size();
+        dstFrameDataX.resize( valCount );
+        dstFrameDataY.resize( valCount );
+        dstFrameDataZ.resize( valCount );
+
+#pragma omp parallel for schedule( dynamic )
+        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
+        {
+            const int*     cornerIndices = femPart->connectivities( elmIdx );
+            RigElementType elmType       = femPart->elementType( elmIdx );
+
+            if ( !( elmType == HEX8P || elmType == HEX8 ) ) continue;
+
+            // Find the corner coordinates for element
+            std::array<cvf::Vec3d, 8> hexCorners;
+            for ( int i = 0; i < 8; i++ )
+            {
+                hexCorners[i] = cvf::Vec3d( nodeCoords[cornerIndices[i]] );
+            }
+
+            // Find the corresponding corner values for the element
+            std::array<double, 8> cornerValues;
+
+            int elmNodeCount = RigFemTypes::elmentNodeCount( elmType );
+            for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+            {
+                size_t elmNodResIdx     = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                cornerValues[elmNodIdx] = inputData[elmNodResIdx];
+            }
+
+            std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
+
+            for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+            {
+                size_t elmNodResIdx         = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                dstFrameDataX[elmNodResIdx] = gradients[elmNodIdx].x();
+                dstFrameDataY[elmNodResIdx] = gradients[elmNodIdx].y();
+                dstFrameDataZ[elmNodResIdx] = gradients[elmNodIdx].z();
+            }
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    RigFemScalarResultFrames* requestedStress = this->findOrLoadScalarResult( partIndex, resVarAddr );
+    CVF_ASSERT( requestedStress );
+    return requestedStress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradients( int                        partIndex,
+                                                                                const RigFemResultAddress& resVarAddr )
+{
+    CVF_ASSERT( resVarAddr.fieldName == "POR-Bar" );
+    CVF_ASSERT( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" );
+
+    caf::ProgressInfo frameCountProgress( this->frameCount() * 5, "" );
+    frameCountProgress.setProgressDescription(
+        "Calculating gradient: " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    frameCountProgress.setNextProgressIncrement( this->frameCount() );
+
+    RigFemScalarResultFrames* dataFramesX =
+        m_femPartResults[partIndex]->createScalarResult( RigFemResultAddress( RIG_NODAL, resVarAddr.fieldName, "X" ) );
+    frameCountProgress.incrementProgress();
+    frameCountProgress.setNextProgressIncrement( this->frameCount() );
+
+    RigFemScalarResultFrames* dataFramesY =
+        m_femPartResults[partIndex]->createScalarResult( RigFemResultAddress( RIG_NODAL, resVarAddr.fieldName, "Y" ) );
+    frameCountProgress.incrementProgress();
+    frameCountProgress.setNextProgressIncrement( this->frameCount() );
+
+    RigFemScalarResultFrames* dataFramesZ =
+        m_femPartResults[partIndex]->createScalarResult( RigFemResultAddress( RIG_NODAL, resVarAddr.fieldName, "Z" ) );
+    frameCountProgress.incrementProgress();
+    frameCountProgress.setNextProgressIncrement( this->frameCount() );
+
+    RigFemResultAddress       porResultAddr( RIG_NODAL, "POR-Bar", "" );
+    RigFemScalarResultFrames* srcDataFrames = this->findOrLoadScalarResult( partIndex, porResultAddr );
+
+    frameCountProgress.incrementProgress();
+
+    const RigFemPart* femPart = m_femParts->part( partIndex );
+    float             inf     = std::numeric_limits<float>::infinity();
+
+    const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
+    size_t                         nodeCount  = femPart->nodes().nodeIds.size();
+
+    int frameCount = srcDataFrames->frameCount();
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        const std::vector<float>& srcFrameData  = srcDataFrames->frameData( fIdx );
+        std::vector<float>&       dstFrameDataX = dataFramesX->frameData( fIdx );
+        std::vector<float>&       dstFrameDataY = dataFramesY->frameData( fIdx );
+        std::vector<float>&       dstFrameDataZ = dataFramesZ->frameData( fIdx );
+
+        if ( srcFrameData.empty() ) continue; // Create empty results if we have no POR result.
+
+        size_t valCount = femPart->elementNodeResultCount();
+        dstFrameDataX.resize( valCount, inf );
+        dstFrameDataY.resize( valCount, inf );
+        dstFrameDataZ.resize( valCount, inf );
+
+        int elementCount = femPart->elementCount();
+
+#pragma omp parallel for schedule( dynamic )
+        for ( long nodeIdx = 0; nodeIdx < static_cast<long>( nodeCount ); nodeIdx++ )
+        {
+            const std::vector<int> elements = femPart->elementsUsingNode( nodeIdx );
+
+            // Compute the average of the elements contributing to this node
+            cvf::Vec3d result         = cvf::Vec3d::ZERO;
+            int        nValidElements = 0;
+            for ( int elmIdx : elements )
+            {
+                RigElementType elmType = femPart->elementType( elmIdx );
+                if ( elmType == HEX8P )
+                {
+                    // Find the corner coordinates and values for the node
+                    std::array<cvf::Vec3d, 8> hexCorners;
+                    std::array<double, 8>     cornerValues;
+
+                    int elmNodeCount = RigFemTypes::elmentNodeCount( elmType );
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                    {
+                        size_t elmNodResIdx   = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        size_t resultValueIdx = femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
+
+                        cornerValues[elmNodIdx] = srcFrameData[resultValueIdx];
+                        hexCorners[elmNodIdx]   = cvf::Vec3d( nodeCoords[resultValueIdx] );
+                    }
+
+                    std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
+
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                    {
+                        size_t elmNodResIdx   = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        size_t resultValueIdx = femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
+                        // Only use the gradient for particular corner corresponding to the node
+                        if ( static_cast<size_t>( nodeIdx ) == resultValueIdx )
+                        {
+                            result.add( gradients[elmNodIdx] );
+                        }
+                    }
+
+                    nValidElements++;
+                }
+            }
+
+            if ( nValidElements > 0 )
+            {
+                // Round very small values to zero to avoid ugly coloring when gradients
+                // are dominated by floating point math artifacts.
+                double epsilon = 1.0e-6;
+                result /= static_cast<double>( nValidElements );
+                dstFrameDataX[nodeIdx] = std::abs( result.x() ) > epsilon ? result.x() : 0.0;
+                dstFrameDataY[nodeIdx] = std::abs( result.y() ) > epsilon ? result.y() : 0.0;
+                dstFrameDataZ[nodeIdx] = std::abs( result.z() ) > epsilon ? result.z() : 0.0;
+            }
+        }
+
+        frameCountProgress.incrementProgress();
+    }
+
+    RigFemScalarResultFrames* requestedGradient = this->findOrLoadScalarResult( partIndex, resVarAddr );
+    CVF_ASSERT( requestedGradient );
+    return requestedGradient;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNormalizedResult( int                        partIndex,
+                                                                                  const RigFemResultAddress& resVarAddr )
+{
+    CVF_ASSERT( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) );
+
+    RigFemResultAddress unscaledResult = resVarAddr;
+    if ( unscaledResult.resultPosType == RIG_NODAL && unscaledResult.fieldName == "POR-Bar" )
+        unscaledResult.resultPosType = RIG_ELEMENT_NODAL;
+    unscaledResult.normalizedByHydrostaticPressure = false;
+
+    CAF_ASSERT( unscaledResult.resultPosType == RIG_ELEMENT_NODAL );
+
+    caf::ProgressInfo frameCountProgress( this->frameCount() * 4, "Calculating Normalized Result" );
+
+    RigFemScalarResultFrames* porDataFrames = nullptr;
+    RigFemScalarResultFrames* srcDataFrames = nullptr;
+    RigFemScalarResultFrames* dstDataFrames = nullptr;
+
+    {
+        auto task     = frameCountProgress.task( "Loading POR Result", this->frameCount() );
+        porDataFrames = this->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
+        if ( !porDataFrames ) return nullptr;
+    }
+
+    {
+        auto task     = frameCountProgress.task( "Loading Unscaled Result", this->frameCount() );
+        srcDataFrames = this->findOrLoadScalarResult( partIndex, unscaledResult );
+        if ( !srcDataFrames ) return nullptr;
+    }
+    {
+        auto task     = frameCountProgress.task( "Creating Space for Normalized Result", this->frameCount() );
+        dstDataFrames = m_femPartResults[partIndex]->createScalarResult( RigFemResultAddress( resVarAddr ) );
+        if ( !dstDataFrames ) return nullptr;
+    }
+
+    frameCountProgress.setProgressDescription( "Normalizing Result" );
+    frameCountProgress.setNextProgressIncrement( 1u );
+
+    const RigFemPart*     femPart     = m_femParts->part( partIndex );
+    const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
+
+    float                          inf          = std::numeric_limits<float>::infinity();
+    int                            elmNodeCount = femPart->elementCount();
+    const std::vector<cvf::Vec3f>& nodeCoords   = femPart->nodes().coordinates;
+
+    int frameCount = srcDataFrames->frameCount();
+    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    {
+        const std::vector<float>& porFrameData = porDataFrames->frameData( fIdx );
+        const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
+        std::vector<float>&       dstFrameData = dstDataFrames->frameData( fIdx );
+
+        size_t resultCount = srcFrameData.size();
+        dstFrameData.resize( resultCount );
+
+        if ( unscaledResult.resultPosType == RIG_ELEMENT_NODAL )
+        {
+#pragma omp parallel for schedule( dynamic )
+            for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
+            {
+                RigElementType elmType = femPart->elementType( elmIdx );
+                if ( !( elmType == HEX8 || elmType == HEX8P ) ) continue;
+
+                bool porRegion = false;
+                for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
+                {
+                    size_t    elmNodeResIdx     = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
+                    const int nodeIdx           = femPart->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
+                    dstFrameData[elmNodeResIdx] = srcFrameData[elmNodeResIdx];
+                    if ( porFrameData[elmNodeResIdx] != std::numeric_limits<float>::infinity() )
+                    {
+                        porRegion = true;
+                    }
+                }
+                if ( porRegion )
+                {
+                    // This is in the POR-region. Use hydrostatic pressure from the individual nodes
+                    for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
+                    {
+                        size_t    elmNodeResIdx    = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
+                        const int nodeIdx          = femPart->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
+                        double    tvdRKB           = std::abs( nodeCoords[nodeIdx].z() ) + m_normalizationAirGap;
+                        double hydrostaticPressure = RiaWellLogUnitTools<double>::hydrostaticPorePressureBar( tvdRKB );
+                        dstFrameData[elmNodeResIdx] /= hydrostaticPressure;
+                    }
+                }
+                else
+                {
+                    // Over/under/sideburden. Use hydrostatic pressure from cell centroid.
+                    cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
+                    double     cellCentroidTvdRKB = std::abs( cellCentroid.z() ) + m_normalizationAirGap;
+                    double     cellCenterHydroStaticPressure =
+                        RiaWellLogUnitTools<double>::hydrostaticPorePressureBar( cellCentroidTvdRKB );
+
+                    for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
+                    {
+                        size_t elmNodeResIdx = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
+                        dstFrameData[elmNodeResIdx] /= cellCenterHydroStaticPressure;
+                    }
+                }
+            }
+        }
+    }
     return dstDataFrames;
 }
 
@@ -1242,10 +1610,9 @@ RigFemScalarResultFrames*
 
             for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
             {
-                int        faceNodeCount              = 0;
-                const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( elmType,
-                                                                                                 lfIdx,
-                                                                                                 &faceNodeCount );
+                int        faceNodeCount = 0;
+                const int* localElmNodeIndicesForFace =
+                    RigFemTypes::localElmNodeIndicesForFace( elmType, lfIdx, &faceNodeCount );
                 if ( faceNodeCount == 4 )
                 {
                     int        elmNodFaceResIdxFaceStart = elmNodFaceResIdxElmStart + lfIdx * 4; // HACK
@@ -1339,7 +1706,8 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAngles( i
     int                            frameCount      = this->frameCount();
 
     // HACK ! Todo : make it robust against other elements than Hex8
-    size_t valCount = femPart->elementCount() * 24; // Number of Elm Node Face results 24 = 4 * num faces = 3* numElmNodes
+    size_t valCount = femPart->elementCount() * 24; // Number of Elm Node Face results 24 = 4 * num faces = 3*
+                                                    // numElmNodes
 
     for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
     {
@@ -1361,10 +1729,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAngles( i
 
             for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
             {
-                int        faceNodeCount              = 0;
-                const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( elmType,
-                                                                                                 lfIdx,
-                                                                                                 &faceNodeCount );
+                int        faceNodeCount = 0;
+                const int* localElmNodeIndicesForFace =
+                    RigFemTypes::localElmNodeIndicesForFace( elmType, lfIdx, &faceNodeCount );
                 if ( faceNodeCount == 4 )
                 {
                     int        elmNodFaceResIdxFaceStart = elmNodFaceResIdxElmStart + lfIdx * 4; // HACK
@@ -1378,9 +1745,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAngles( i
                     cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx( quadVxs[2] - quadVxs[0],
                                                                                              quadVxs[3] - quadVxs[1] );
                     RiaOffshoreSphericalCoords sphCoord(
-                        cvf::Vec3f( rotMx.rowCol( 0, 2 ),
-                                    rotMx.rowCol( 1, 2 ),
-                                    rotMx.rowCol( 2, 2 ) ) ); // Use Ez from the matrix as plane normal
+                        cvf::Vec3f( rotMx.rowCol( 0, 2 ), rotMx.rowCol( 1, 2 ), rotMx.rowCol( 2, 2 ) ) ); // Use Ez
+                                                                                                          // from the
+                                                                                                          // matrix
+                                                                                                          // as plane
+                                                                                                          // normal
 
                     for ( int qIdx = 0; qIdx < 4; ++qIdx )
                     {
@@ -1415,40 +1784,34 @@ RigFemScalarResultFrames*
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
 
-    RigFemScalarResultFrames* s11Frames = this->findOrLoadScalarResult( partIndex,
-                                                                        RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                             resVarAddr.fieldName,
-                                                                                             "S11" ) );
+    RigFemScalarResultFrames* s11Frames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S11" ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s22Frames = this->findOrLoadScalarResult( partIndex,
-                                                                        RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                             resVarAddr.fieldName,
-                                                                                             "S22" ) );
+    RigFemScalarResultFrames* s22Frames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S22" ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s33Frames = this->findOrLoadScalarResult( partIndex,
-                                                                        RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                             resVarAddr.fieldName,
-                                                                                             "S33" ) );
+    RigFemScalarResultFrames* s33Frames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S33" ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s12Frames = this->findOrLoadScalarResult( partIndex,
-                                                                        RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                             resVarAddr.fieldName,
-                                                                                             "S12" ) );
+    RigFemScalarResultFrames* s12Frames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S12" ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s13Frames = this->findOrLoadScalarResult( partIndex,
-                                                                        RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                             resVarAddr.fieldName,
-                                                                                             "S13" ) );
+    RigFemScalarResultFrames* s13Frames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S13" ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s23Frames = this->findOrLoadScalarResult( partIndex,
-                                                                        RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                             resVarAddr.fieldName,
-                                                                                             "S23" ) );
+    RigFemScalarResultFrames* s23Frames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S23" ) );
 
     RigFemScalarResultFrames* s1Frames = m_femPartResults[partIndex]->createScalarResult(
         RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S1" ) );
@@ -1573,40 +1936,34 @@ RigFemScalarResultFrames*
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
 
-    RigFemScalarResultFrames* s11Frames = this->findOrLoadScalarResult( partIndex,
-                                                                        RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                             resVarAddr.fieldName,
-                                                                                             "E11" ) );
+    RigFemScalarResultFrames* s11Frames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "E11" ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s22Frames = this->findOrLoadScalarResult( partIndex,
-                                                                        RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                             resVarAddr.fieldName,
-                                                                                             "E22" ) );
+    RigFemScalarResultFrames* s22Frames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "E22" ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s33Frames = this->findOrLoadScalarResult( partIndex,
-                                                                        RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                             resVarAddr.fieldName,
-                                                                                             "E33" ) );
+    RigFemScalarResultFrames* s33Frames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "E33" ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s12Frames = this->findOrLoadScalarResult( partIndex,
-                                                                        RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                             resVarAddr.fieldName,
-                                                                                             "E12" ) );
+    RigFemScalarResultFrames* s12Frames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "E12" ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s13Frames = this->findOrLoadScalarResult( partIndex,
-                                                                        RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                             resVarAddr.fieldName,
-                                                                                             "E13" ) );
+    RigFemScalarResultFrames* s13Frames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "E13" ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s23Frames = this->findOrLoadScalarResult( partIndex,
-                                                                        RigFemResultAddress( resVarAddr.resultPosType,
-                                                                                             resVarAddr.fieldName,
-                                                                                             "E23" ) );
+    RigFemScalarResultFrames* s23Frames =
+        this->findOrLoadScalarResult( partIndex,
+                                      RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "E23" ) );
 
     RigFemScalarResultFrames* s1Frames = m_femPartResults[partIndex]->createScalarResult(
         RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "E1" ) );
@@ -1968,8 +2325,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_12_13_23( int
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateGamma( int                        partIndex,
-                                                                       const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateGamma( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "" );
     frameCountProgress.setProgressDescription(
@@ -2031,7 +2387,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFormationIndices
     float  inf      = std::numeric_limits<float>::infinity();
     dstFrameData.resize( valCount, inf );
 
-    RigFormationNames* activeFormNames = m_activeFormationNamesData.p();
+    const RigFormationNames* activeFormNames = m_activeFormationNamesData.p();
 
     frameCountProgress.incrementProgress();
 
@@ -2083,6 +2439,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
     if ( resVarAddr.isTimeLapse() )
     {
         return calculateTimeLapseResult( partIndex, resVarAddr );
+    }
+
+    if ( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) )
+    {
+        return calculateNormalizedResult( partIndex, resVarAddr );
     }
 
     if ( resVarAddr.resultPosType == RIG_ELEMENT_NODAL_FACE )
@@ -2141,6 +2502,19 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
         return calculateMeanStressSTM( partIndex, resVarAddr );
     }
 
+    if ( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" )
+    {
+        const std::vector<std::string> allowedComponentNames = getStressGradientComponentNames();
+
+        for ( auto& allowedComponentName : allowedComponentNames )
+        {
+            if ( resVarAddr.componentName == allowedComponentName )
+            {
+                return calculateStressGradients( partIndex, resVarAddr );
+            }
+        }
+    }
+
     if ( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SEM" )
     {
         return calculateMeanStressSEM( partIndex, resVarAddr );
@@ -2154,7 +2528,16 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
     if ( resVarAddr.fieldName == "POR-Bar" )
     {
         if ( resVarAddr.resultPosType == RIG_NODAL )
-            return calculateBarConvertedResult( partIndex, resVarAddr, "POR" );
+        {
+            if ( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" )
+            {
+                return calculateNodalGradients( partIndex, resVarAddr );
+            }
+            else
+            {
+                return calculateBarConvertedResult( partIndex, resVarAddr, "POR" );
+            }
+        }
         else
             return calculateEnIpPorBarResult( partIndex, resVarAddr );
     }
@@ -2188,14 +2571,14 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
         return calculatePrincipalStressValues( partIndex, resVarAddr );
     }
 
-    if ( resVarAddr.fieldName == "ST" && ( resVarAddr.componentName == "S11" || resVarAddr.componentName == "S22" ||
-                                           resVarAddr.componentName == "S33" ) )
+    if ( resVarAddr.fieldName == "ST" &&
+         ( resVarAddr.componentName == "S11" || resVarAddr.componentName == "S22" || resVarAddr.componentName == "S33" ) )
     {
         return calculateST_11_22_33( partIndex, resVarAddr );
     }
 
-    if ( resVarAddr.fieldName == "ST" && ( resVarAddr.componentName == "S12" || resVarAddr.componentName == "S13" ||
-                                           resVarAddr.componentName == "S23" ) )
+    if ( resVarAddr.fieldName == "ST" &&
+         ( resVarAddr.componentName == "S12" || resVarAddr.componentName == "S13" || resVarAddr.componentName == "S23" ) )
     {
         return calculateST_12_13_23( partIndex, resVarAddr );
     }
@@ -2324,7 +2707,8 @@ std::vector<RigFemResultAddress>
     if ( fcIt != fieldAndComponentNames.end() )
     {
         std::vector<std::string> compNames = fcIt->second;
-        if ( !resVarAddr.componentName.empty() ) // If we did not request a particular component, do not add the components
+        if ( !resVarAddr.componentName.empty() ) // If we did not request a particular component, do not add the
+                                                 // components
         {
             for ( const auto& compName : compNames )
             {
@@ -2679,6 +3063,68 @@ std::vector<RigFemResultAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<RigFemResultAddress> RigFemPartResultsCollection::normalizedResults()
+{
+    std::set<std::string> validFields     = {"SE", "ST"};
+    std::set<std::string> validComponents = {"S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3"};
+
+    std::set<RigFemResultAddress> results;
+    for ( auto field : validFields )
+    {
+        for ( auto component : validComponents )
+        {
+            results.insert(
+                RigFemResultAddress( RIG_ELEMENT_NODAL, field, component, RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+        }
+    }
+    results.insert(
+        RigFemResultAddress( RIG_ELEMENT_NODAL, "SE", "SEM", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+    results.insert(
+        RigFemResultAddress( RIG_ELEMENT_NODAL, "ST", "STM", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+    results.insert(
+        RigFemResultAddress( RIG_ELEMENT_NODAL, "ST", "Q", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+
+    results.insert( RigFemResultAddress( RIG_NODAL, "POR-Bar", "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+    results.insert(
+        RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+
+    return results;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigFemPartResultsCollection::isNormalizableResult( const RigFemResultAddress& result )
+{
+    for ( auto normRes : normalizedResults() )
+    {
+        if ( normRes.resultPosType == result.resultPosType && normRes.fieldName == result.fieldName &&
+             normRes.componentName == result.componentName )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::setNormalizationAirGap( double normalizationAirGap )
+{
+    if ( std::abs( m_normalizationAirGap - normalizationAirGap ) > 1.0e-8 )
+    {
+        for ( auto result : normalizedResults() )
+        {
+            this->deleteResult( result );
+        }
+    }
+    m_normalizationAirGap = normalizationAirGap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents( const RigFemResultAddress& resVarAddr,
                                                                              int                        frameIndex,
                                                                              double*                    localMin,
@@ -2797,11 +3243,9 @@ void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents( co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFemResultAddress>
-    RigFemPartResultsCollection::tensorComponentAddresses( const RigFemResultAddress& resVarAddr )
+std::vector<RigFemResultAddress> RigFemPartResultsCollection::tensorComponentAddresses( const RigFemResultAddress& resVarAddr )
 {
-    std::vector<RigFemResultAddress> addresses( 6,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "" ) );
+    std::vector<RigFemResultAddress> addresses( 6, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "" ) );
 
     if ( resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST" )
     {
@@ -2872,9 +3316,9 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator( RigFemPa
 
         if ( closestLocalNode >= 0 )
         {
-            int nodeIdx                = elmentConn[closestLocalNode];
-            m_closestElementNodeResIdx = static_cast<int>(
-                femPart->elementNodeResultIdx( elementIndex, closestLocalNode ) );
+            int nodeIdx = elmentConn[closestLocalNode];
+            m_closestElementNodeResIdx =
+                static_cast<int>( femPart->elementNodeResultIdx( elementIndex, closestLocalNode ) );
 
             if ( resultPosition == RIG_NODAL )
             {
@@ -2904,12 +3348,11 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator( RigFemPa
             int closestLocFaceNode  = -1;
             int closestLocalElmNode = -1;
             {
-                RigElementType elmType                    = femPart->elementType( elementIndex );
-                const int*     elmNodeIndices             = femPart->connectivities( elementIndex );
-                int            faceNodeCount              = 0;
-                const int*     localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( elmType,
-                                                                                                 m_face,
-                                                                                                 &faceNodeCount );
+                RigElementType elmType        = femPart->elementType( elementIndex );
+                const int*     elmNodeIndices = femPart->connectivities( elementIndex );
+                int            faceNodeCount  = 0;
+                const int*     localElmNodeIndicesForFace =
+                    RigFemTypes::localElmNodeIndicesForFace( elmType, m_face, &faceNodeCount );
 
                 float minDist = std::numeric_limits<float>::infinity();
                 for ( int faceNodIdx = 0; faceNodIdx < faceNodeCount; ++faceNodIdx )
@@ -2932,9 +3375,9 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator( RigFemPa
 
             if ( closestLocFaceNode >= 0 )
             {
-                elmNodFaceResIdx           = elmNodFaceResIdxFaceStart + closestLocFaceNode;
-                m_closestElementNodeResIdx = static_cast<int>(
-                    femPart->elementNodeResultIdx( elementIndex, closestLocalElmNode ) );
+                elmNodFaceResIdx = elmNodFaceResIdxFaceStart + closestLocFaceNode;
+                m_closestElementNodeResIdx =
+                    static_cast<int>( femPart->elementNodeResultIdx( elementIndex, closestLocalElmNode ) );
             }
         }
 
@@ -3040,4 +3483,32 @@ void findReferenceElementForNode( const RigFemPart& part, size_t nodeIdx, size_t
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RigFemPartResultsCollection::getStressComponentNames()
+{
+    return {"S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3"};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RigFemPartResultsCollection::getStressGradientComponentNames()
+{
+    std::vector<std::string> directions           = {"X", "Y", "Z"};
+    std::vector<std::string> stressComponentNames = getStressComponentNames();
+
+    std::vector<std::string> stressGradientComponentNames;
+    for ( auto& s : stressComponentNames )
+    {
+        for ( auto& d : directions )
+        {
+            stressGradientComponentNames.push_back( s + "-" + d );
+        }
+    }
+
+    return stressGradientComponentNames;
 }

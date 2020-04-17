@@ -30,6 +30,7 @@
 #include "RigFemResultPosEnum.h"
 #include "RigGeoMechCaseData.h"
 
+#include "Rim2dIntersectionView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
@@ -63,7 +64,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuMohrsCirclePlot::RiuMohrsCirclePlot( QWidget* parent )
     : RiuDockedQwtPlot( parent )
-    , m_sourceGeoMechViewOfLastPlot( nullptr )
+    , m_viewToFollowAnimationFrom( nullptr )
     , m_scheduleUpdateAxisScaleTimer( nullptr )
 {
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
@@ -99,25 +100,30 @@ RiuMohrsCirclePlot::~RiuMohrsCirclePlot()
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::appendSelection( const RiuSelectionItem* selectionItem )
 {
+    m_viewToFollowAnimationFrom = nullptr;
+
     if ( this->isVisible() )
     {
-        m_sourceGeoMechViewOfLastPlot = nullptr;
+        Rim3dView*               newFollowAnimView    = nullptr;
+        RiuGeoMechSelectionItem* geoMechSelectionItem = nullptr;
 
-        const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>(
-            selectionItem );
+        geoMechSelectionItem = extractGeoMechSelectionItem( selectionItem, newFollowAnimView );
+
         if ( geoMechSelectionItem )
         {
-            RimGeoMechView* geoMechView = geoMechSelectionItem->m_view;
-            CVF_ASSERT( geoMechView );
-
             const size_t       gridIndex = geoMechSelectionItem->m_gridIndex;
             const size_t       cellIndex = geoMechSelectionItem->m_cellIndex;
             const cvf::Color3f color     = geoMechSelectionItem->m_color;
 
-            queryData( geoMechView, gridIndex, cellIndex, cvf::Color3ub( color ) );
+            addOrUpdateCurves( geoMechSelectionItem->m_resultDefinition,
+                               geoMechSelectionItem->m_timestepIdx,
+                               gridIndex,
+                               cellIndex,
+                               cvf::Color3ub( color ) );
+
             updatePlot();
 
-            m_sourceGeoMechViewOfLastPlot = geoMechView;
+            m_viewToFollowAnimationFrom = geoMechSelectionItem->m_view;
         }
     }
     else
@@ -133,7 +139,7 @@ void RiuMohrsCirclePlot::clearPlot()
 {
     deletePlotItems();
 
-    m_sourceGeoMechViewOfLastPlot = nullptr;
+    m_viewToFollowAnimationFrom = nullptr;
 
     this->replot();
 }
@@ -148,9 +154,10 @@ void RiuMohrsCirclePlot::updateOnTimeStepChanged( Rim3dView* changedView )
         return;
     }
 
-    // Don't update the plot if the view that changed time step is different from the view that was the source of the current plot
-    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( changedView );
-    if ( !geoMechView || geoMechView != m_sourceGeoMechViewOfLastPlot )
+    // Don't update the plot if the view that changed time step is different
+    // from the view that was the source of the current plot
+
+    if ( changedView != m_viewToFollowAnimationFrom )
     {
         return;
     }
@@ -160,7 +167,11 @@ void RiuMohrsCirclePlot::updateOnTimeStepChanged( Rim3dView* changedView )
 
     for ( const MohrsCirclesInfo& mohrInfo : mohrsCiclesInfosCopy )
     {
-        queryData( mohrInfo.view, mohrInfo.gridIndex, mohrInfo.elmIndex, mohrInfo.color );
+        addOrUpdateCurves( mohrInfo.geomResDef,
+                           changedView->currentTimeStep(),
+                           mohrInfo.gridIndex,
+                           mohrInfo.elmIndex,
+                           mohrInfo.color );
     }
 
     updatePlot();
@@ -185,7 +196,7 @@ QSize RiuMohrsCirclePlot::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::addMohrCircles( const MohrsCirclesInfo& mohrsCirclesInfo )
+void RiuMohrsCirclePlot::addOrUpdateMohrCircleCurves( const MohrsCirclesInfo& mohrsCirclesInfo )
 {
     const cvf::Vec3f& principals = mohrsCirclesInfo.principals;
 
@@ -263,12 +274,12 @@ void RiuMohrsCirclePlot::deleteCircles()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::addEnvelopeCurve( const cvf::Vec3f& principals, RimGeoMechView* view )
+void RiuMohrsCirclePlot::addorUpdateEnvelopeCurve( const cvf::Vec3f& principals, const RimGeoMechCase* geomCase )
 {
-    if ( !view ) return;
+    if ( !geomCase ) return;
 
-    double cohesion      = view->geoMechCase()->cohesion();
-    double frictionAngle = view->geoMechCase()->frictionAngleDeg();
+    double cohesion      = geomCase->cohesion();
+    double frictionAngle = geomCase->frictionAngleDeg();
 
     if ( cohesion == HUGE_VAL || frictionAngle == HUGE_VAL || frictionAngle >= 90 )
     {
@@ -294,17 +305,17 @@ void RiuMohrsCirclePlot::addEnvelopeCurve( const cvf::Vec3f& principals, RimGeoM
     yVals[1] = ( cohesion / x ) * ( x + principals[0] );
 
     // If envelope for the view already exists, check if a "larger" envelope should be created
-    if ( m_envolopePlotItems.find( view ) != m_envolopePlotItems.end() )
+    if ( m_envolopePlotItems.find( geomCase ) != m_envolopePlotItems.end() )
     {
-        if ( yVals[1] <= m_envolopePlotItems[view]->maxYValue() )
+        if ( yVals[1] <= m_envolopePlotItems[geomCase]->maxYValue() )
         {
             return;
         }
         else
         {
-            m_envolopePlotItems[view]->detach();
-            delete m_envolopePlotItems[view];
-            m_envolopePlotItems.erase( view );
+            m_envolopePlotItems[geomCase]->detach();
+            delete m_envolopePlotItems[geomCase];
+            m_envolopePlotItems.erase( geomCase );
         }
     }
 
@@ -315,17 +326,17 @@ void RiuMohrsCirclePlot::addEnvelopeCurve( const cvf::Vec3f& principals, RimGeoM
     qwtCurve->setStyle( QwtPlotCurve::Lines );
     qwtCurve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
 
-    const QPen curvePen( envelopeColor( view ) );
+    const QPen curvePen( envelopeColor( geomCase ) );
     qwtCurve->setPen( curvePen );
 
     qwtCurve->setTitle( QString( "<b>Envelope for %1</b>, (<b>S<sub>0</sub></b>: %2, <b>&Phi;</b>: %3)" )
-                            .arg( view->geoMechCase()->caseUserDescription )
+                            .arg( geomCase->caseUserDescription() )
                             .arg( cohesion )
                             .arg( frictionAngle ) );
 
     qwtCurve->attach( this );
 
-    m_envolopePlotItems[view] = qwtCurve;
+    m_envolopePlotItems[geomCase] = qwtCurve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -333,7 +344,7 @@ void RiuMohrsCirclePlot::addEnvelopeCurve( const cvf::Vec3f& principals, RimGeoM
 //--------------------------------------------------------------------------------------------------
 void RiuMohrsCirclePlot::deleteEnvelopes()
 {
-    for ( const std::pair<RimGeoMechView*, QwtPlotCurve*>& envelope : m_envolopePlotItems )
+    for ( const std::pair<const RimGeoMechCase*, QwtPlotCurve*>& envelope : m_envolopePlotItems )
     {
         envelope.second->detach();
         delete envelope.second;
@@ -345,26 +356,26 @@ void RiuMohrsCirclePlot::deleteEnvelopes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::queryData( RimGeoMechView*      geoMechView,
-                                    size_t               gridIndex,
-                                    size_t               elmIndex,
-                                    const cvf::Color3ub& color )
+bool RiuMohrsCirclePlot::addOrUpdateCurves( const RimGeoMechResultDefinition* geomResDef,
+                                            size_t                            timeStepIndex,
+                                            size_t                            gridIndex,
+                                            size_t                            elmIndex,
+                                            const cvf::Color3ub&              color )
 {
-    CVF_ASSERT( geoMechView );
-    m_sourceGeoMechViewOfLastPlot = geoMechView;
+    RigFemPart* femPart = geomResDef->ownerCaseData()->femParts()->part( gridIndex );
 
-    RigFemPart* femPart = geoMechView->femParts()->part( gridIndex );
-    if ( femPart->elementType( elmIndex ) != HEX8P ) return;
+    if ( femPart->elementType( elmIndex ) != HEX8P ) return false;
 
-    int                          frameIdx         = geoMechView->currentTimeStep();
-    RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
-    RigFemResultAddress          address( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "SE", "" );
+    RigFemPartResultsCollection* resultCollection = geomResDef->geoMechCase()->geoMechData()->femPartResults();
+
+    RigFemResultAddress address( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "SE", "" );
 
     // TODO: All tensors are calculated every time this function is called. FIX
-    std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors( address, 0, frameIdx );
+
+    std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors( address, 0, (int)timeStepIndex );
     if ( vertexTensors.empty() )
     {
-        return;
+        return false;
     }
 
     // Calculate average tensor in element
@@ -379,11 +390,11 @@ void RiuMohrsCirclePlot::queryData( RimGeoMechView*      geoMechView,
 
     if ( !isValidPrincipals( principals ) )
     {
-        return;
+        return false;
     }
 
-    double cohesion         = geoMechView->geoMechCase()->cohesion();
-    double frictionAngleDeg = geoMechView->geoMechCase()->frictionAngleDeg();
+    double cohesion         = geomResDef->geoMechCase()->cohesion();
+    double frictionAngleDeg = geomResDef->geoMechCase()->frictionAngleDeg();
 
     size_t i, j, k;
     bool   validIndex = femPart->getOrCreateStructGrid()->ijkFromCellIndex( elmIndex, &i, &j, &k );
@@ -397,12 +408,20 @@ void RiuMohrsCirclePlot::queryData( RimGeoMechView*      geoMechView,
                                       i,
                                       j,
                                       k,
-                                      geoMechView,
+                                      geomResDef,
                                       calculateFOS( principals, frictionAngleDeg, cohesion ),
                                       color );
 
-        addMohrsCirclesInfo( mohrsCircle );
+        m_mohrsCiclesInfos.push_back( mohrsCircle );
+
+        addorUpdateEnvelopeCurve( mohrsCircle.principals, mohrsCircle.geomResDef->geoMechCase() );
+        addOrUpdateMohrCircleCurves( mohrsCircle );
+        updateTransparentCurvesOnPrincipals();
+
+        return true;
     }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -413,18 +432,6 @@ void RiuMohrsCirclePlot::updatePlot()
     setAxesScaleAndReplot();
     // Update axis scale is called one more time because the legend which is added on a later stage may disrupt the canvas
     scheduleUpdateAxisScale();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMohrsCirclePlot::addMohrsCirclesInfo( const MohrsCirclesInfo& mohrsCircleInfo )
-{
-    m_mohrsCiclesInfos.push_back( mohrsCircleInfo );
-
-    addEnvelopeCurve( mohrsCircleInfo.principals, mohrsCircleInfo.view );
-    addMohrCircles( mohrsCircleInfo );
-    updateTransparentCurvesOnPrincipals();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,19 +575,19 @@ float RiuMohrsCirclePlot::calculateFOS( const cvf::Vec3f& principals, double fri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QColor RiuMohrsCirclePlot::envelopeColor( RimGeoMechView* view )
+QColor RiuMohrsCirclePlot::envelopeColor( const RimGeoMechCase* geomCase )
 {
-    if ( m_envolopeColors.find( view ) == m_envolopeColors.end() )
+    if ( m_envolopeColors.find( geomCase ) == m_envolopeColors.end() )
     {
-        cvf::Color3ub cvfColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3ub(
-            m_envolopeColors.size() );
+        cvf::Color3ub cvfColor =
+            RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3ub( m_envolopeColors.size() );
 
         QColor color( cvfColor.r(), cvfColor.g(), cvfColor.b() );
 
-        m_envolopeColors[view] = color;
+        m_envolopeColors[geomCase] = color;
     }
 
-    return m_envolopeColors[view];
+    return m_envolopeColors[geomCase];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -635,7 +642,7 @@ void RiuMohrsCirclePlot::idealAxesEndPoints( double* xMin, double* xMax, double*
     *yMax = -HUGE_VAL;
 
     double maxYEnvelope = -HUGE_VAL;
-    for ( const std::pair<RimGeoMechView*, QwtPlotCurve*>& envelope : m_envolopePlotItems )
+    for ( const std::pair<const RimGeoMechCase*, QwtPlotCurve*>& envelope : m_envolopePlotItems )
     {
         double tempMax = envelope.second->maxYValue();
         if ( tempMax > maxYEnvelope )
@@ -647,7 +654,7 @@ void RiuMohrsCirclePlot::idealAxesEndPoints( double* xMin, double* xMax, double*
     *yMax = std::max( maxYEnvelope, 1.2 * largestCircleRadiusInPlot() );
 
     double minXEvelope = HUGE_VAL;
-    for ( const std::pair<RimGeoMechView*, QwtPlotCurve*>& envelope : m_envolopePlotItems )
+    for ( const std::pair<const RimGeoMechCase*, QwtPlotCurve*>& envelope : m_envolopePlotItems )
     {
         double tempMin = envelope.second->minXValue();
         if ( tempMin < minXEvelope )
@@ -711,4 +718,38 @@ void RiuMohrsCirclePlot::setAxesScaleAndReplot()
     this->setAxisScale( QwtPlot::xBottom, xMin, xMaxDisplayed );
 
     this->replot();
+}
+
+RiuGeoMechSelectionItem* RiuMohrsCirclePlot::extractGeoMechSelectionItem( const RiuSelectionItem* selectionItem,
+                                                                          Rim3dView*&             newFollowAnimView )
+{
+    newFollowAnimView                             = nullptr;
+    RiuGeoMechSelectionItem* geoMechSelectionItem = nullptr;
+
+    geoMechSelectionItem = dynamic_cast<RiuGeoMechSelectionItem*>( const_cast<RiuSelectionItem*>( selectionItem ) );
+
+    if ( geoMechSelectionItem )
+    {
+        // If we clicked in an geoMech view, and hit something using the standard result definition there,
+        // set this up to follow the animation there.
+
+        RimGeoMechView* clickedInEclView = dynamic_cast<RimGeoMechView*>( geoMechSelectionItem->m_view.p() );
+
+        if ( clickedInEclView && clickedInEclView->cellResult() == geoMechSelectionItem->m_resultDefinition.p() )
+        {
+            newFollowAnimView = geoMechSelectionItem->m_view;
+        }
+    }
+    else
+    {
+        auto intersectionSelItem = dynamic_cast<const Riu2dIntersectionSelectionItem*>( selectionItem );
+
+        if ( intersectionSelItem && intersectionSelItem->geoMechSelectionItem() )
+        {
+            geoMechSelectionItem = intersectionSelItem->geoMechSelectionItem();
+            newFollowAnimView    = intersectionSelItem->view();
+        }
+    }
+
+    return geoMechSelectionItem;
 }

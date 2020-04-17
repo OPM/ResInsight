@@ -15,6 +15,16 @@ namespace caf
 /// 
 //==================================================================================================
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template < typename FieldType>
+bool caf::PdmFieldXmlCap<FieldType>::isVectorField() const
+{
+    return is_vector<FieldType>();
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -208,7 +218,15 @@ bool caf::PdmFieldXmlCap<FieldType>::resolveReferences()
 
      return foundValidObjectFromString;
  }
-
+ 
+ //--------------------------------------------------------------------------------------------------
+ ///
+ //--------------------------------------------------------------------------------------------------
+ template < typename DataType>
+ bool caf::PdmFieldXmlCap< caf::PdmPtrArrayField<DataType*> >::isVectorField() const
+ {
+     return true;
+ }
 
 //==================================================================================================
 /// XML Implementation for PdmChildField<>
@@ -247,7 +265,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
         else
         {
             PdmXmlObjectHandle* xmlObject = xmlObj(obj);
-            if (!xmlObject || xmlObject->classKeyword() != className)
+            if (!xmlObject || !xmlObject->matchesClassKeyword(className))
             {
                 CAF_ASSERT(false); // Inconsistency in the factory. It creates objects of wrong type from the ClassKeyword
 
@@ -267,7 +285,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
     }
 
     PdmXmlObjectHandle* xmlObject = xmlObj(obj);
-    if (!xmlObject || xmlObject->classKeyword() != className)
+    if (!xmlObject || !xmlObject->matchesClassKeyword(className))
     {
         // Error: Field contains different class type than on file
         std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Unknown object type with class name: " << className.toLatin1().data() << " found while reading the field : " << m_field->keyword().toLatin1().data() << std::endl;
@@ -281,7 +299,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
 
     // Everything seems ok, so read the contents of the object:
 
-    xmlObject->readFields(xmlStream, objectFactory);
+    xmlObject->readFields(xmlStream, objectFactory, false);
 
     // Make stream point to endElement of this field
 
@@ -382,7 +400,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
         }
 
         PdmXmlObjectHandle* xmlObject = xmlObj(obj);
-        if (!xmlObject || xmlObject->classKeyword() != className)
+        if (!xmlObject || !xmlObject->matchesClassKeyword(className))
         {
             CAF_ASSERT(false); // There is an inconsistency in the factory. It creates objects of type not matching the ClassKeyword
 
@@ -397,7 +415,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
             continue;
         }
 
-        xmlObject->readFields(xmlStream, objectFactory);
+        xmlObject->readFields(xmlStream, objectFactory, false);
 
         m_field->m_pointers.push_back(PdmPointer<DataType>());
         m_field->m_pointers.back().setRawPtr(obj);
@@ -418,6 +436,63 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
 //--------------------------------------------------------------------------------------------------
 template < typename DataType>
 bool caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType *>>::resolveReferences()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template < typename DataType>
+bool caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::isVectorField() const
+{
+    return true;
+}
+
+//==================================================================================================
+/// XML Implementation for PdmFieldXmlCap<std::vector<DataType>> methods
+/// 
+//==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template < typename DataType>
+bool caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::isVectorField() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType >
+ void  caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::readFieldData(QXmlStreamReader& xmlStream, 
+                                          PdmObjectFactory* objectFactory)
+ { 
+     this->assertValid(); 
+     typename FieldType::FieldDataType value; 
+     PdmFieldReader<typename FieldType::FieldDataType>::readFieldData(value, xmlStream, objectFactory);  
+     m_field->setValue(value); 
+ }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType >
+void caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::writeFieldData(QXmlStreamWriter& xmlStream) const
+ { 
+     this->assertValid(); 
+     PdmFieldWriter<typename FieldType::FieldDataType>::writeFieldData(m_field->value(), xmlStream); 
+ }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template < typename DataType>
+bool caf::PdmFieldXmlCap<caf::PdmField<std::vector<DataType>>>::resolveReferences()
 {
     return true;
 }

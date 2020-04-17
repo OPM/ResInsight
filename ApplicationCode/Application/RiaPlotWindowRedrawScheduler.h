@@ -26,7 +26,8 @@
 
 #include <vector>
 
-class RiuGridPlotWindow;
+class RiuMultiPlotPage;
+class RiuMultiPlotBook;
 class RiuQwtPlotWidget;
 
 class RiaPlotWindowRedrawScheduler : public QObject
@@ -35,7 +36,8 @@ class RiaPlotWindowRedrawScheduler : public QObject
 
 public:
     static RiaPlotWindowRedrawScheduler* instance();
-    void                                 schedulePlotWindowUpdate( RiuGridPlotWindow* plotWindow );
+    void                                 scheduleMultiPlotWindowUpdate( RiuMultiPlotBook* plotWindow );
+    void                                 scheduleMultiPlotPageUpdate( RiuMultiPlotPage* plotWindow );
     void                                 schedulePlotWidgetReplot( RiuQwtPlotWidget* plotWidget );
     void                                 clearAllScheduledUpdates();
     void                                 performScheduledUpdatesAndReplots();
@@ -50,7 +52,8 @@ private:
     void startTimer( int msecs );
 
 private:
-    std::vector<QPointer<RiuQwtPlotWidget>>  m_plotWidgetsToReplot;
-    std::vector<QPointer<RiuGridPlotWindow>> m_plotWindowsToUpdate;
-    QScopedPointer<QTimer>                   m_plotWindowUpdateTimer;
+    std::vector<QPointer<RiuQwtPlotWidget>> m_plotWidgetsToReplot;
+    std::vector<QPointer<RiuMultiPlotBook>> m_plotWindowsToUpdate;
+    std::vector<QPointer<RiuMultiPlotPage>> m_plotPagesToUpdate;
+    QScopedPointer<QTimer>                  m_plotWindowUpdateTimer;
 };

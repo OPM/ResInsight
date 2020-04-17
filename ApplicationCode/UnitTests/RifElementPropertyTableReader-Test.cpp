@@ -15,8 +15,8 @@ static const QString ELEM_PROP_TEST_DATA_DIRECTORY = QString( "%1/RifElementProp
 //--------------------------------------------------------------------------------------------------
 TEST( RicElementPropertyTableReaderTest, BasicUsage )
 {
-    RifElementPropertyMetadata metadata = RifElementPropertyTableReader::readMetadata( ELEM_PROP_TEST_DATA_DIRECTORY +
-                                                                                       "ELASTIC_TABLE.inp" );
+    RifElementPropertyMetadata metadata =
+        RifElementPropertyTableReader::readMetadata( ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE.inp" );
 
     RifElementPropertyTable table;
     RifElementPropertyTableReader::readData( &metadata, &table );
@@ -40,8 +40,8 @@ TEST( RicElementPropertyTableReaderTest, ParseFailed )
 {
     try
     {
-        RifElementPropertyMetadata metadata = RifElementPropertyTableReader::readMetadata(
-            ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error.inp" );
+        RifElementPropertyMetadata metadata =
+            RifElementPropertyTableReader::readMetadata( ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error.inp" );
 
         RifElementPropertyTable table;
         RifElementPropertyTableReader::readData( &metadata, &table );

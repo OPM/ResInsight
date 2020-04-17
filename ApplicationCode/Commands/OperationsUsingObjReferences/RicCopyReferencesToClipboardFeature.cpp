@@ -19,15 +19,15 @@
 
 #include "RicCopyReferencesToClipboardFeature.h"
 
+#include "RimBoxIntersection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimFractureTemplate.h"
 #include "RimGeoMechView.h"
 #include "RimGridCrossPlotCurve.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimIntersection.h"
-#include "RimIntersectionBox.h"
 #include "RimMimeData.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
@@ -141,11 +141,11 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported( caf::PdmObjec
     {
         return true;
     }
-    else if ( dynamic_cast<RimIntersection*>( pdmObject ) )
+    else if ( dynamic_cast<RimExtrudedCurveIntersection*>( pdmObject ) )
     {
         return true;
     }
-    else if ( dynamic_cast<RimIntersectionBox*>( pdmObject ) )
+    else if ( dynamic_cast<RimBoxIntersection*>( pdmObject ) )
     {
         return true;
     }

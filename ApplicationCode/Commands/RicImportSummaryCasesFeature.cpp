@@ -176,14 +176,19 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringLis
     RiaApplication* app  = RiaApplication::instance();
     RimProject*     proj = app->project();
 
-    RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField()
-                                                    ? proj->activeOilField()->summaryCaseMainCollection()
-                                                    : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl =
+        proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
 
     if ( newCases ) newCases->clear();
     if ( !sumCaseColl ) return false;
 
     RifSummaryCaseRestartSelector fileSelector;
+
+    if ( !RiaGuiApplication::isRunning() )
+    {
+        fileSelector.showDialog( false );
+    }
+
     fileSelector.setEnsembleOrGroupMode( ensembleOrGroup );
     fileSelector.determineFilesToImportFromSummaryFiles( fileNames );
 
@@ -199,7 +204,6 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringLis
     {
         QString errorMessage = fileSelector.createCombinedErrorMessage();
         RiaLogging::error( errorMessage );
-        QMessageBox::warning( nullptr, QString( "Problem Importing Summary Case File(s)" ), errorMessage );
     }
 
     return true;
@@ -210,11 +214,10 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringLis
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryCasesFeature::addSummaryCases( const std::vector<RimSummaryCase*>& cases )
 {
-    RiaApplication*               app         = RiaApplication::instance();
-    RimProject*                   proj        = app->project();
-    RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField()
-                                                    ? proj->activeOilField()->summaryCaseMainCollection()
-                                                    : nullptr;
+    RiaApplication*               app  = RiaApplication::instance();
+    RimProject*                   proj = app->project();
+    RimSummaryCaseMainCollection* sumCaseColl =
+        proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     sumCaseColl->addCases( cases );
 
     sumCaseColl->updateAllRequiredEditors();

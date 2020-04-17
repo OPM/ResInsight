@@ -49,10 +49,7 @@ class RivReservoirViewPartMgr : public cvf::Object
 public:
     explicit RivReservoirViewPartMgr( RimEclipseView* resv );
 
-    cvf::Transform* scaleTransform()
-    {
-        return m_scaleTransform.p();
-    }
+    cvf::Transform* scaleTransform() { return m_scaleTransform.p(); }
 
     void                   clearGeometryCache();
     void                   scheduleGeometryRegen( RivCellSetEnum geometryType );
@@ -78,9 +75,7 @@ public:
 
     // Faults
     void appendFaultsStaticGeometryPartsToModel( cvf::ModelBasicList* model, RivCellSetEnum geometryType );
-    void appendFaultsDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
-                                                  RivCellSetEnum       geometryType,
-                                                  size_t               frameIndex );
+    void appendFaultsDynamicGeometryPartsToModel( cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex );
     void updateFaultColors( RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultColors );
     void updateFaultCellEdgeResultColor( RivCellSetEnum        geometryType,
                                          size_t                timeStepIndex,
@@ -106,10 +101,7 @@ public:
 
 private:
     void createGeometry( RivCellSetEnum geometryType );
-    void computeVisibility( cvf::UByteArray* cellVisibility,
-                            RivCellSetEnum   geometryType,
-                            RigGridBase*     grid,
-                            size_t           gridIdx );
+    void computeVisibility( cvf::UByteArray* cellVisibility, RivCellSetEnum geometryType, RigGridBase* grid, size_t gridIdx );
 
     void createPropertyFilteredNoneWellCellGeometry( size_t frameIndex );
     void createPropertyFilteredWellGeometry( size_t frameIndex );

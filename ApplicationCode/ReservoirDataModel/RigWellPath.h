@@ -57,9 +57,7 @@ public:
     void   twoClosestPoints( const cvf::Vec3d& position, cvf::Vec3d* p1, cvf::Vec3d* p2 ) const;
 
     std::pair<std::vector<cvf::Vec3d>, std::vector<double>>
-        clippedPointSubset( double  startMD,
-                            double  endMD,
-                            double* horizontalLengthAlongWellToStartClipPoint = nullptr ) const;
+        clippedPointSubset( double startMD, double endMD, double* horizontalLengthAlongWellToStartClipPoint = nullptr ) const;
 
     std::vector<cvf::Vec3d> wellPathPointsIncludingInterpolatedIntersectionPoint( double intersectionMeasuredDepth ) const;
 

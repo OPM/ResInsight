@@ -37,10 +37,7 @@ public:
     RimCommandObject();
     ~RimCommandObject() override;
 
-    virtual bool isAsyncronous()
-    {
-        return false;
-    };
+    virtual bool isAsyncronous() { return false; };
 
     virtual void redo(){};
     virtual void undo(){};
@@ -71,9 +68,7 @@ public:
 
     caf::PdmFieldHandle* userDescriptionField() override;
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     bool isAsyncronous() override;
 };

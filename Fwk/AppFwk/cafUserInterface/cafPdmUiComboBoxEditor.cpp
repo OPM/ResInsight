@@ -230,6 +230,25 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
         {
             m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
             m_comboBox->setMinimumContentsLength(m_attributes.minimumContentsLength);
+            // Make sure the popup adjusts to the content even if the widget itself doesn't
+            QFont font = m_comboBox->view()->font();
+            
+            int maxTextWidth = 0;
+            bool labelsElided = false;
+            for (const PdmOptionItemInfo& option : options)
+            {
+                QString label = option.optionUiText();
+                if (label.size() > m_attributes.maximumMenuContentsLength)
+                {
+                    label.resize(m_attributes.maximumMenuContentsLength);
+                    labelsElided = true;
+                }
+                maxTextWidth  = std::max(maxTextWidth, QFontMetrics(font).boundingRect(label).width());
+            }
+
+            int marginWidth = m_comboBox->view()->contentsMargins().left() + m_comboBox->view()->contentsMargins().right();
+            m_comboBox->view()->setMinimumWidth(maxTextWidth + marginWidth);
+            m_comboBox->view()->setTextElideMode(labelsElided ? Qt::ElideMiddle : Qt::ElideNone);
         }
 
         if (m_attributes.enableEditableContent)

@@ -1230,8 +1230,16 @@ ecl_smspec_type * ecl_smspec_fread_alloc(const char *header_file, const char * k
     const ecl::smspec_node * day_node = ecl_smspec_get_var_node(ecl_smspec->misc_var_index, "DAY");
     if (day_node != NULL) {
       ecl_smspec->day_index   = smspec_node_get_params_index( day_node );
-      ecl_smspec->month_index = smspec_node_get_params_index( &ecl_smspec->misc_var_index["MONTH"] );
-      ecl_smspec->year_index  = smspec_node_get_params_index( &ecl_smspec->misc_var_index["YEAR"] );
+      
+      const ecl::smspec_node * month_node = ecl_smspec_get_var_node(ecl_smspec->misc_var_index, "MONTH");
+      if (month_node != NULL) {
+          ecl_smspec->month_index = smspec_node_get_params_index( month_node );
+      }
+
+      const ecl::smspec_node * year_node = ecl_smspec_get_var_node(ecl_smspec->misc_var_index, "YEAR");
+      if (year_node != NULL) {
+          ecl_smspec->year_index = smspec_node_get_params_index( year_node );
+      }
     }
 
     if ((ecl_smspec->time_index == -1) && ( ecl_smspec->day_index == -1)) {

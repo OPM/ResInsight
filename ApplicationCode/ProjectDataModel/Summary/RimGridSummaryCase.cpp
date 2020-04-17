@@ -18,11 +18,14 @@
 
 #include "RimGridSummaryCase.h"
 
+#include "RicfCommandObject.h"
 #include "RifReaderEclipseSummary.h"
 
 #include "RimEclipseCase.h"
 #include "RimFileSummaryCase.h"
 #include "RimProject.h"
+
+#include "cafPdmObjectScriptability.h"
 
 #include <QFileInfo>
 
@@ -39,6 +42,10 @@ CAF_PDM_SOURCE_INIT( RimGridSummaryCase, "GridSummaryCase" );
 //--------------------------------------------------------------------------------------------------
 RimGridSummaryCase::RimGridSummaryCase()
 {
+    CAF_PDM_InitScriptableObject( "Grid Summary Case",
+                                  ":/SummaryCases16x16.png",
+                                  "",
+                                  "A Summary Case based on extracting grid data." );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "Associated3DCase", "Eclipse Case", "", "", "" );
     m_eclipseCase.uiCapability()->setUiHidden( true );
 
@@ -57,7 +64,9 @@ RimGridSummaryCase::RimGridSummaryCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridSummaryCase::~RimGridSummaryCase() {}
+RimGridSummaryCase::~RimGridSummaryCase()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -115,7 +124,7 @@ RimEclipseCase* RimGridSummaryCase::associatedEclipseCase()
             if ( eclCase )
             {
                 QString sumHeaderFileName = summaryHeaderFilenameFromEclipseCase( eclCase );
-                if ( sumHeaderFileName == m_summaryHeaderFilename )
+                if ( sumHeaderFileName == m_summaryHeaderFilename().path() )
                 {
                     m_eclipseCase = eclCase;
                     this->updateAutoShortName();
@@ -135,7 +144,7 @@ RimEclipseCase* RimGridSummaryCase::associatedEclipseCase()
 //--------------------------------------------------------------------------------------------------
 QString RimGridSummaryCase::summaryHeaderFilename() const
 {
-    if ( !m_eclipseCase() ) return m_summaryHeaderFilename();
+    if ( !m_eclipseCase() ) return m_summaryHeaderFilename().path();
 
     return summaryHeaderFilenameFromEclipseCase( m_eclipseCase() );
 }
@@ -173,8 +182,8 @@ void RimGridSummaryCase::updateFilePathsFromProjectPath( const QString& newProje
 //--------------------------------------------------------------------------------------------------
 void RimGridSummaryCase::createSummaryReaderInterface()
 {
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
-                                                                               m_includeRestartFiles );
+    m_summaryFileReader =
+        RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(), m_includeRestartFiles );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -45,7 +45,9 @@ RivFishbonesSubsPartMgr::RivFishbonesSubsPartMgr( RimFishbonesMultipleSubs* subs
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivFishbonesSubsPartMgr::~RivFishbonesSubsPartMgr() {}
+RivFishbonesSubsPartMgr::~RivFishbonesSubsPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -92,8 +94,8 @@ void RivFishbonesSubsPartMgr::buildParts( const caf::DisplayCoordTransform* disp
     {
         for ( size_t lateralIndex : sub.lateralIndices )
         {
-            std::vector<cvf::Vec3d> lateralDomainCoords = m_rimFishbonesSubs->coordsForLateral( sub.subIndex,
-                                                                                                lateralIndex );
+            std::vector<cvf::Vec3d> lateralDomainCoords =
+                m_rimFishbonesSubs->coordsForLateral( sub.subIndex, lateralIndex );
 
             std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords( lateralDomainCoords );
 

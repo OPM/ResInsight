@@ -92,8 +92,7 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
     addWindowZoom( m_sweepEffPlot );
     m_sweepEffPlot->setTitle( "Sweep Efficiency" );
 
-    int legendFontSize = RiaFontCache::pointSizeFromFontSizeEnum(
-        RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    int legendFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
 
     {
         QwtText axisTitle = m_sweepEffPlot->axisTitle( QwtPlot::xBottom );
@@ -149,7 +148,9 @@ void RiuFlowCharacteristicsPlot::addWindowZoom( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuFlowCharacteristicsPlot::~RiuFlowCharacteristicsPlot() {}
+RiuFlowCharacteristicsPlot::~RiuFlowCharacteristicsPlot()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -239,9 +240,8 @@ void RiuFlowCharacteristicsPlot::addFlowCapStorageCapCurve( const QDateTime&    
 {
     CVF_ASSERT( !m_dateToColorMap.empty() );
 
-    RiuQwtPlotCurve* plotCurve = createEmptyCurve( m_flowCapVsStorageCapPlot,
-                                                   dateTime.toString(),
-                                                   m_dateToColorMap[dateTime] );
+    RiuQwtPlotCurve* plotCurve =
+        createEmptyCurve( m_flowCapVsStorageCapPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
     plotCurve->setSamplesFromXValuesAndYValues( xVals, yVals, false );
     m_flowCapVsStorageCapPlot->replot();
 }
@@ -373,7 +373,9 @@ QSize RiuFlowCharacteristicsPlot::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuFlowCharacteristicsPlot::setDefaults() {}
+void RiuFlowCharacteristicsPlot::setDefaults()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -60,7 +60,9 @@ RimAnnotationGroupCollection::RimAnnotationGroupCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationGroupCollection::~RimAnnotationGroupCollection() {}
+RimAnnotationGroupCollection::~RimAnnotationGroupCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

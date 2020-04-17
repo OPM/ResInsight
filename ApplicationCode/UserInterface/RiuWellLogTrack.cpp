@@ -19,7 +19,12 @@
 
 #include "RiuWellLogTrack.h"
 
+#include "RimWellLogCurve.h"
+#include "RimWellLogExtractionCurve.h"
 #include "RimWellLogTrack.h"
+
+#include "RiuQwtCurvePointTracker.h"
+#include "RiuRimQwtPlotCurve.h"
 
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
@@ -27,67 +32,97 @@
 
 #include <QWheelEvent>
 
-#define RIU_SCROLLWHEEL_ZOOMFACTOR 1.1
-#define RIU_SCROLLWHEEL_PANFACTOR 0.1
+class RiuWellLogCurvePointTracker : public RiuQwtCurvePointTracker
+{
+public:
+    RiuWellLogCurvePointTracker( QwtPlot* plot, IPlotCurveInfoTextProvider* curveInfoTextProvider )
+        : RiuQwtCurvePointTracker( plot, false, curveInfoTextProvider )
+    {
+    }
+
+protected:
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    QwtText trackerText( const QPoint& pos ) const override
+    {
+        QwtText txt;
+
+        if ( m_plot )
+        {
+            QwtPlot::Axis relatedYAxis = QwtPlot::yLeft;
+            QwtPlot::Axis relatedXAxis = QwtPlot::xTop;
+
+            QString curveInfoText;
+            QString depthAxisValueString;
+            QString xAxisValueString;
+            QPointF closestPoint =
+                closestCurvePoint( pos, &curveInfoText, &xAxisValueString, &depthAxisValueString, &relatedXAxis, &relatedYAxis );
+            if ( !closestPoint.isNull() )
+            {
+                QString str = QString( "depth = %1, value = %2" ).arg( depthAxisValueString ).arg( xAxisValueString );
+
+                if ( !curveInfoText.isEmpty() )
+                {
+                    str = QString( "%1: " ).arg( curveInfoText ) + str;
+                }
+
+                txt.setText( str );
+            }
+
+            updateClosestCurvePointMarker( closestPoint, relatedXAxis, relatedYAxis );
+        }
+
+        return txt;
+    }
+};
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* plotTrackDefinition, QWidget* parent /*= nullptr */ )
-    : RiuQwtPlotWidget( plotTrackDefinition, parent )
+class WellLogCurveInfoTextProvider : public IPlotCurveInfoTextProvider
+{
+public:
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    QString curveInfoText( QwtPlotCurve* curve ) override
+    {
+        RiuRimQwtPlotCurve* riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>( curve );
+        RimWellLogCurve*    wlCurve  = nullptr;
+        if ( riuCurve )
+        {
+            wlCurve = dynamic_cast<RimWellLogCurve*>( riuCurve->ownerRimCurve() );
+            if ( wlCurve )
+            {
+                return QString( "%1" ).arg( wlCurve->curveName() );
+            }
+        }
+
+        return "";
+    }
+};
+static WellLogCurveInfoTextProvider wellLogCurveInfoTextProvider;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nullptr */ )
+    : RiuQwtPlotWidget( track, parent )
 {
     setAxisEnabled( QwtPlot::yLeft, true );
     setAxisEnabled( QwtPlot::yRight, false );
     setAxisEnabled( QwtPlot::xTop, true );
     setAxisEnabled( QwtPlot::xBottom, false );
+
+    new RiuWellLogCurvePointTracker( this, &wellLogCurveInfoTextProvider );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellLogTrack::~RiuWellLogTrack() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuWellLogTrack::eventFilter( QObject* watched, QEvent* event )
+RiuWellLogTrack::~RiuWellLogTrack()
 {
-    QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>( event );
-    if ( wheelEvent && watched == canvas() )
-    {
-        RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotDefinition() );
-        CAF_ASSERT( track );
-
-        RimWellLogPlot* wellLogPlot = nullptr;
-        track->firstAncestorOrThisOfType( wellLogPlot );
-
-        if ( wellLogPlot )
-        {
-            if ( wheelEvent->modifiers() & Qt::ControlModifier )
-            {
-                QwtScaleMap scaleMap   = canvasMap( QwtPlot::yLeft );
-                double      zoomCenter = scaleMap.invTransform( wheelEvent->pos().y() );
-
-                if ( wheelEvent->delta() > 0 )
-                {
-                    wellLogPlot->setDepthAxisRangeByFactorAndCenter( RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter );
-                }
-                else
-                {
-                    wellLogPlot->setDepthAxisRangeByFactorAndCenter( 1.0 / RIU_SCROLLWHEEL_ZOOMFACTOR, zoomCenter );
-                }
-            }
-            else
-            {
-                wellLogPlot->setDepthAxisRangeByPanDepth( wheelEvent->delta() < 0 ? RIU_SCROLLWHEEL_PANFACTOR
-                                                                                  : -RIU_SCROLLWHEEL_PANFACTOR );
-            }
-
-            event->accept();
-            return true;
-        }
-    }
-    return RiuQwtPlotWidget::eventFilter( watched, event );
 }
 
 //--------------------------------------------------------------------------------------------------

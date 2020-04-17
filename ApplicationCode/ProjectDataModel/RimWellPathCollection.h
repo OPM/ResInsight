@@ -42,6 +42,7 @@ class RimProject;
 class RimWellLogFile;
 class RimWellPath;
 class RifWellPathFormationsImporter;
+class RimWellMeasurementCollection;
 class QString;
 
 namespace cvf
@@ -111,13 +112,16 @@ public:
     bool   anyWellsContainingPerforationIntervals() const;
     size_t modelledWellPathCount() const;
 
+    RimWellMeasurementCollection*       measurementCollection();
+    const RimWellMeasurementCollection* measurementCollection() const;
+
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+
     caf::PdmFieldHandle* objectToggleField() override;
 
     void readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray );
@@ -125,7 +129,8 @@ private:
 
     RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath( const RimWellPath* wellPath );
 
-    RifWellPathImporter*           m_wellPathImporter;
-    RifWellPathFormationsImporter* m_wellPathFormationsImporter;
-    caf::PdmPointer<RimWellPath>   m_mostRecentlyUpdatedWellPath;
+    RifWellPathImporter*                              m_wellPathImporter;
+    RifWellPathFormationsImporter*                    m_wellPathFormationsImporter;
+    caf::PdmPointer<RimWellPath>                      m_mostRecentlyUpdatedWellPath;
+    caf::PdmChildField<RimWellMeasurementCollection*> m_wellMeasurements;
 };

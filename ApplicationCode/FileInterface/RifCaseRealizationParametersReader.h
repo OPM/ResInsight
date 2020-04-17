@@ -52,15 +52,13 @@ public:
 
     static std::shared_ptr<RifCaseRealizationReader> createReaderFromFileName( const QString& fileName );
 
-protected:
-    QFile* openFile();
-    void   closeFile();
+    static QString parametersFileName();
+    static QString runSpecificationFileName();
 
+protected:
     std::shared_ptr<RigCaseRealizationParameters> m_parameters;
 
-private:
     QString m_fileName;
-    QFile*  m_file;
 };
 
 //==================================================================================================
@@ -74,13 +72,6 @@ public:
     ~RifCaseRealizationParametersReader() override;
 
     void parse() override;
-
-private:
-    QTextStream* openDataStream();
-    void         closeDataStream();
-
-private:
-    QTextStream* m_textStream;
 };
 
 //==================================================================================================
@@ -104,4 +95,5 @@ class RifCaseRealizationParametersFileLocator
 {
 public:
     static QString locate( const QString& modelPath );
+    static int     realizationNumber( const QString& modelPath );
 };

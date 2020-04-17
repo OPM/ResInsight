@@ -60,29 +60,21 @@ public:
     void                    setDefaultResultName();
     QString                 unit() const;
     cvf::Color3f            defaultColor() const;
-    bool                    showStimPlanMesh() const
-    {
-        return m_showStimPlanMesh;
-    }
-    void setShowStimPlanMesh( bool showStimPlanMesh );
+    bool                    showStimPlanMesh() const { return m_showStimPlanMesh; }
+    void                    setShowStimPlanMesh( bool showStimPlanMesh );
 
     void loadDataAndUpdate();
     void updateLegendData();
 
     void                    updateStimPlanTemplates() const;
-    StimPlanResultColorType stimPlanResultColorType() const
-    {
-        return m_stimPlanCellVizMode();
-    };
+    StimPlanResultColorType stimPlanResultColorType() const { return m_stimPlanCellVizMode(); };
 
     void updateConductivityResultName();
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 

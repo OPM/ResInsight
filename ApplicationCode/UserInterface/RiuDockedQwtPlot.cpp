@@ -41,19 +41,19 @@ void RiuDockedQwtPlot::applyFontSizes( bool replot /*= false*/ )
 {
     std::set<QwtPlot::Axis> allAxes = {QwtPlot::xBottom, QwtPlot::yLeft, QwtPlot::xTop, QwtPlot::yRight};
 
-    RiaFontCache::FontSize fontSizeEnum  = RiaApplication::instance()->preferences()->defaultPlotFontSize();
-    int                    fontPointSize = RiaFontCache::pointSizeFromFontSizeEnum( fontSizeEnum ) - 1;
+    int fontPointSize = RiaApplication::instance()->preferences()->defaultPlotFontSize() - 1;
 
     for ( QwtPlot::Axis axis : allAxes )
     {
         QwtText text = this->axisTitle( axis );
         QFont   font = text.font();
-        font.setPointSize( fontPointSize );
+        font.setPixelSize(
+            RiaFontCache::pointSizeToPixelSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() ) );
         text.setFont( font );
         this->setAxisTitle( axis, text );
 
         QFont valuesFont = this->axisFont( axis );
-        valuesFont.setPointSize( fontPointSize );
+        valuesFont.setPixelSize( font.pixelSize() );
         this->setAxisFont( axis, valuesFont );
     }
 

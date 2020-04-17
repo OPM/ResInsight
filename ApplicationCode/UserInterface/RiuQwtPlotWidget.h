@@ -19,10 +19,11 @@
 
 #pragma once
 
-#include "RiuWidgetStyleSheet.h"
+#include "RiuInterfaceToViewWindow.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafUiStyleSheet.h"
 
 #include "qwt_plot.h"
 
@@ -31,7 +32,8 @@
 #include <set>
 
 class RiaPlotWindowRedrawScheduler;
-class RimPlotInterface;
+class RimPlot;
+class RiuDraggableOverlayFrame;
 
 class QwtLegend;
 class QwtPicker;
@@ -42,26 +44,29 @@ class QwtPlotPicker;
 
 class QEvent;
 class QLabel;
+class QPainter;
+class QPaintDevice;
+class QWheelEvent;
 
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RiuQwtPlotWidget : public QwtPlot
+class RiuQwtPlotWidget : public QwtPlot, public RiuInterfaceToViewWindow
 {
     Q_OBJECT
 
 public:
-    RiuQwtPlotWidget( RimPlotInterface* plotTrackDefinition, QWidget* parent = nullptr );
+    RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent = nullptr );
     ~RiuQwtPlotWidget() override;
 
-    RimPlotInterface* plotDefinition() const;
-    caf::PdmObject*   plotOwner() const;
+    RimPlot* plotDefinition();
 
     bool isChecked() const;
 
-    void setDraggable( bool draggable );
+    int colSpan() const;
+    int rowSpan() const;
 
     int  axisTitleFontSize( QwtPlot::Axis axis ) const;
     int  axisValueFontSize( QwtPlot::Axis axis ) const;
@@ -73,6 +78,11 @@ public:
 
     void setAxisTitleText( QwtPlot::Axis axis, const QString& title );
     void setAxisTitleEnabled( QwtPlot::Axis axis, bool enable );
+
+    void           setPlotTitle( const QString& plotTitle );
+    const QString& plotTitle() const;
+    void           setPlotTitleEnabled( bool enabled );
+    bool           plotTitleEnabled() const;
 
     QwtInterval axisRange( QwtPlot::Axis axis );
     void        setAxisRange( QwtPlot::Axis axis, double min, double max );
@@ -96,23 +106,40 @@ public:
     bool   frameIsInFrontOfThis( const QRect& frameGeometry );
     QPoint dragStartPosition() const;
 
-    int widthScaleFactor() const;
-
     void scheduleReplot();
-    void setWidgetState( RiuWidgetStyleSheet::StateTag widgetState );
+    void stashWidgetStates();
+    void restoreWidgetStates();
+    void setWidgetState( const QString& widgetState );
 
-    void addOverlayFrame( QFrame* overlayWidget );
-    void removeOverlayFrame( QFrame* overlayWidget );
+    void addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
+    void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
     void updateLayout() override;
 
+    void renderTo( QPainter* painter, const QRect& targetRect, double scaling );
+    void renderTo( QPaintDevice* painter, const QRect& targetRect );
+    int  overlayMargins() const;
+
+    RimViewWindow* ownerViewWindow() const override;
+
+signals:
+    void plotSelected( bool toggleSelection );
+    void axisSelected( int axisId, bool toggleSelection );
+    void curveSelected( QwtPlotCurve* curve, bool toggleSelection );
+    void onKeyPressEvent( QKeyEvent* event );
+    void onWheelEvent( QWheelEvent* event );
+
 protected:
+    bool eventFilter( QObject* watched, QEvent* event ) override;
+    void hideEvent( QHideEvent* event ) override;
+    void showEvent( QShowEvent* event ) override;
+    void resizeEvent( QResizeEvent* event ) override;
+    void keyPressEvent( QKeyEvent* event ) override;
+
+    void applyPlotTitleToQwt();
+    void applyAxisTitleToQwt( QwtPlot::Axis axis );
+
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
-    bool  eventFilter( QObject* watched, QEvent* event ) override;
-    void  hideEvent( QHideEvent* event ) override;
-    void  showEvent( QShowEvent* event ) override;
-
-    void applyAxisTitleToQwt( QwtPlot::Axis axis );
 
     virtual void selectPoint( QwtPlotCurve* curve, int pointNumber );
     virtual void clearPointSelection();
@@ -120,7 +147,6 @@ protected:
     virtual void endZoomOperations();
 
 private:
-    void       selectPlotOwner( bool toggleItemInSelection = false );
     void       selectClosestCurve( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
     void       replot() override;
@@ -128,21 +154,24 @@ private:
     void highlightCurve( const QwtPlotCurve* closestCurve );
     void resetCurveHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
+    void recalculateAxisExtents( QwtPlot::Axis axis );
 
-    RiuWidgetStyleSheet createPlotStyleSheet() const;
-    RiuWidgetStyleSheet createCanvasStyleSheet() const;
+    caf::UiStyleSheet createPlotStyleSheet() const;
+    caf::UiStyleSheet createCanvasStyleSheet() const;
 
     void updateOverlayFrameLayout();
 
 private:
-    caf::PdmPointer<caf::PdmObject>  m_plotOwner;
+    caf::PdmPointer<RimPlot>         m_plotDefinition;
     QPoint                           m_clickPosition;
     std::map<QwtPlot::Axis, QString> m_axisTitles;
     std::map<QwtPlot::Axis, bool>    m_axisTitlesEnabled;
     QPointer<QwtPlotPicker>          m_plotPicker;
-    bool                             m_draggable;
+    const int                        m_overlayMargins;
+    QString                          m_plotTitle;
+    bool                             m_plotTitleEnabled;
 
-    QList<QPointer<QFrame>> m_overlayFrames;
+    QList<QPointer<RiuDraggableOverlayFrame>> m_overlayFrames;
 
     struct CurveColors
     {
@@ -154,8 +183,8 @@ private:
     std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
     std::map<QwtPlotCurve*, double>      m_originalZValues;
 
-    RiuWidgetStyleSheet m_plotStyleSheet;
-    RiuWidgetStyleSheet m_canvasStyleSheet;
+    caf::UiStyleSheet m_plotStyleSheet;
+    caf::UiStyleSheet m_canvasStyleSheet;
 
     friend class RiaPlotWindowRedrawScheduler;
 };

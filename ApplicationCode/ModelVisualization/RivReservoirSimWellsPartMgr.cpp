@@ -31,6 +31,7 @@
 
 #include "RivSimWellPipesPartMgr.h"
 #include "RivWellConnectionsPartMgr.h"
+#include "RivWellDiskPartMgr.h"
 #include "RivWellHeadPartMgr.h"
 #include "RivWellSpheresPartMgr.h"
 
@@ -53,7 +54,9 @@ RivReservoirSimWellsPartMgr::RivReservoirSimWellsPartMgr( RimEclipseView* reserv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivReservoirSimWellsPartMgr::~RivReservoirSimWellsPartMgr() {}
+RivReservoirSimWellsPartMgr::~RivReservoirSimWellsPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -63,6 +66,7 @@ void RivReservoirSimWellsPartMgr::clearGeometryCache()
     m_wellPipesPartMgrs.clear();
     m_wellHeadPartMgrs.clear();
     m_wellSpheresPartMgrs.clear();
+    m_wellDiskPartMgrs.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,6 +112,25 @@ void RivReservoirSimWellsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelB
                                                                       frameIndex,
                                                                       m_reservoirView->displayCoordTransform().p() );
         m_wellHeadPartMgrs[wIdx]->appendDynamicGeometryPartsToModel( model,
+                                                                     frameIndex,
+                                                                     m_reservoirView->displayCoordTransform().p() );
+    }
+
+    // Well disks
+    if ( m_reservoirView->wellCollection()->wells.size() != m_wellDiskPartMgrs.size() )
+    {
+        m_wellDiskPartMgrs.clear();
+
+        for ( size_t i = 0; i < m_reservoirView->wellCollection()->wells.size(); ++i )
+        {
+            RivWellDiskPartMgr* wellDiskMgr = new RivWellDiskPartMgr( m_reservoirView->wellCollection()->wells[i] );
+            m_wellDiskPartMgrs.push_back( wellDiskMgr );
+        }
+    }
+
+    for ( size_t wIdx = 0; wIdx != m_wellDiskPartMgrs.size(); ++wIdx )
+    {
+        m_wellDiskPartMgrs[wIdx]->appendDynamicGeometryPartsToModel( model,
                                                                      frameIndex,
                                                                      m_reservoirView->displayCoordTransform().p() );
     }

@@ -107,22 +107,21 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList& fil
     // Import summary cases
     if ( !summaryFileInfos.empty() )
     {
-        RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField()
-                                                        ? project->activeOilField()->summaryCaseMainCollection()
-                                                        : nullptr;
+        RimSummaryCaseMainCollection* sumCaseColl =
+            project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
         if ( sumCaseColl )
         {
             std::vector<RimSummaryCase*> newSumCases = sumCaseColl->createSummaryCasesFromFileInfos( summaryFileInfos );
             for ( RimSummaryCase* newSumCase : newSumCases )
             {
                 RimSummaryCaseCollection* existingCollection = nullptr;
-                QString                   gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(
-                    newSumCase->summaryHeaderFilename() );
+                QString                   gridCaseFile =
+                    RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( newSumCase->summaryHeaderFilename() );
                 RimEclipseCase* gridCase = project->eclipseCaseFromGridFileName( gridCaseFile );
                 if ( gridCase )
                 {
-                    RimSummaryCase* existingSummaryCase = sumCaseColl->findSummaryCaseFromFileName(
-                        newSumCase->summaryHeaderFilename() );
+                    RimSummaryCase* existingSummaryCase =
+                        sumCaseColl->findSummaryCaseFromFileName( newSumCase->summaryHeaderFilename() );
                     RimGridSummaryCase* existingGridSummaryCase = dynamic_cast<RimGridSummaryCase*>( existingSummaryCase );
                     RimFileSummaryCase* existingFileSummaryCase = dynamic_cast<RimFileSummaryCase*>( existingSummaryCase );
                     if ( existingGridSummaryCase )
@@ -451,8 +450,7 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList&          fil
 
     project->activeOilField()->analysisModels()->updateConnectedEditors();
 
-    if ( RiaGuiApplication::isRunning() && gridCaseGroup &&
-         gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0 )
+    if ( RiaGuiApplication::isRunning() && gridCaseGroup && gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0 )
     {
         RiuMainWindow::instance()->selectAsCurrentItem( gridCaseGroup->statisticsCaseCollection()->reservoirs[0] );
     }

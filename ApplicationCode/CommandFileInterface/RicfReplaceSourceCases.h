@@ -34,7 +34,7 @@ class RicfReplaceSourceCases : public RicfCommandObject
 public:
     RicfReplaceSourceCases();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<QString> m_gridListFile;

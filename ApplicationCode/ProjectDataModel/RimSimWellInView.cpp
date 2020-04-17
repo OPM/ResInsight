@@ -20,6 +20,8 @@
 
 #include "RimSimWellInView.h"
 
+#include "RicfCommandObject.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
@@ -31,18 +33,23 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
+#include "RimGridSummaryCase.h"
 #include "RimIntersectionCollection.h"
 #include "RimPropertyFilterCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimSimWellInViewTools.h"
+#include "RimWellDiskConfig.h"
 
 #include "RiuMainWindow.h"
 
 #include "RivReservoirViewPartMgr.h"
 
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmUiTreeOrdering.h"
+
 #include "cvfMath.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -57,9 +64,15 @@ CAF_PDM_SOURCE_INIT( RimSimWellInView, "Well" );
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView::RimSimWellInView()
 {
-    CAF_PDM_InitObject( "Well", ":/Well.png", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Simulation Well",
+                                                    ":/Well.png",
+                                                    "",
+                                                    "",
+                                                    "SimulationWell",
+                                                    "An Eclipse Simulation Well" );
 
-    CAF_PDM_InitFieldNoDefault( &name, "WellName", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &name, "Name", "Name", "", "", "" );
+    name.registerKeywordAlias( "WellName" );
 
     CAF_PDM_InitField( &showWell, "ShowWell", true, "Show well ", "", "", "" );
 
@@ -67,10 +80,14 @@ RimSimWellInView::RimSimWellInView()
     CAF_PDM_InitField( &showWellHead, "ShowWellHead", true, "Well Head", "", "", "" );
     CAF_PDM_InitField( &showWellPipe, "ShowWellPipe", true, "Pipe", "", "", "" );
     CAF_PDM_InitField( &showWellSpheres, "ShowWellSpheres", false, "Spheres", "", "", "" );
+    CAF_PDM_InitField( &showWellDisks, "ShowWellDisks", false, "Disks", "", "", "" );
 
     CAF_PDM_InitField( &wellHeadScaleFactor, "WellHeadScaleFactor", 1.0, "Well Head Scale", "", "", "" );
     CAF_PDM_InitField( &pipeScaleFactor, "WellPipeRadiusScale", 1.0, "Pipe Radius Scale", "", "", "" );
     CAF_PDM_InitField( &wellPipeColor, "WellPipeColor", cvf::Color3f( 0.588f, 0.588f, 0.804f ), "Pipe Color", "", "", "" );
+
+    cvf::Color3f defaultWellDiskColor = cvf::Color3::OLIVE;
+    CAF_PDM_InitField( &wellDiskColor, "WellDiskColor", defaultWellDiskColor, "Disk Color", "", "", "" );
 
     CAF_PDM_InitField( &showWellCells, "ShowWellCells", false, "Well Cells", "", "", "" );
     CAF_PDM_InitField( &showWellCellFence, "ShowWellCellFence", false, "Well Cell Fence", "", "", "" );
@@ -113,7 +130,8 @@ void RimSimWellInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( reservoirView )
     {
         if ( &showWellLabel == changedField || &showWellHead == changedField || &showWellPipe == changedField ||
-             &showWellSpheres == changedField || &wellPipeColor == changedField )
+             &showWellSpheres == changedField || &showWellDisks == changedField || &wellPipeColor == changedField ||
+             &wellDiskColor == changedField )
         {
             reservoirView->scheduleCreateDisplayModelAndRedraw();
             schedule2dIntersectionViewUpdate();
@@ -271,8 +289,8 @@ double RimSimWellInView::pipeRadius()
 
     double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
 
-    double pipeRadius = reservoirView->wellCollection()->pipeScaleFactor() * this->pipeScaleFactor() *
-                        characteristicCellSize;
+    double pipeRadius =
+        reservoirView->wellCollection()->pipeScaleFactor() * this->pipeScaleFactor() * characteristicCellSize;
 
     return pipeRadius;
 }
@@ -401,6 +419,7 @@ void RimSimWellInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     appearanceGroup->add( &showWellHead );
     appearanceGroup->add( &showWellPipe );
     appearanceGroup->add( &showWellSpheres );
+    appearanceGroup->add( &showWellDisks );
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Well Cells and Fence" );
     filterGroup->add( &showWellCells );
@@ -413,6 +432,7 @@ void RimSimWellInView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup( "Colors" );
     colorGroup->add( &wellPipeColor );
+    colorGroup->add( &wellDiskColor );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -473,7 +493,7 @@ bool RimSimWellInView::isWellCellsVisible() const
 
     if ( !this->showWellCells() ) return false;
 
-    if ( reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
+    if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
     if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
          reservoirView->rangeFilterCollection()->hasActiveFilters() )
@@ -514,7 +534,7 @@ bool RimSimWellInView::isWellPipeVisible( size_t frameIndex ) const
 
     if ( !this->showWellPipe() ) return false;
 
-    if ( reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
+    if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
     if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
          ( reservoirView->rangeFilterCollection()->hasActiveFilters() ||
@@ -556,7 +576,7 @@ bool RimSimWellInView::isWellSpheresVisible( size_t frameIndex ) const
 
     if ( !this->showWellSpheres() ) return false;
 
-    if ( reservoirView->crossSectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
+    if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
     if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
          reservoirView->rangeFilterCollection()->hasActiveFilters() )
@@ -578,6 +598,14 @@ bool RimSimWellInView::isUsingCellCenterForPipe() const
     this->firstAncestorOrThisOfType( wellColl );
 
     return ( wellColl && wellColl->wellPipeCoordType() == RimSimWellInViewCollection::WELLPIPE_CELLCENTER );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigWellDiskData RimSimWellInView::wellDiskData() const
+{
+    return m_wellDiskData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -611,6 +639,172 @@ const RigSimWellData* RimSimWellInView::simWellData() const
 size_t RimSimWellInView::resultWellIndex() const
 {
     return m_resultWellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig, bool* isOk )
+{
+    const RimEclipseView* reservoirView = nullptr;
+    this->firstAncestorOrThisOfType( reservoirView );
+    if ( !reservoirView ) return false;
+    if ( !reservoirView->eclipseCase() ) return false;
+
+    size_t                 timeStep      = static_cast<size_t>( reservoirView->currentTimeStep() );
+    std::vector<QDateTime> caseTimeSteps = reservoirView->eclipseCase()->timeStepDates();
+    QDateTime              currentDate;
+    if ( timeStep < caseTimeSteps.size() )
+    {
+        currentDate = caseTimeSteps[timeStep];
+    }
+    else
+    {
+        currentDate = caseTimeSteps.back();
+    }
+
+    RifSummaryReaderInterface* summaryReader = nullptr;
+    {
+        if ( wellDiskConfig.sourceCase() )
+        {
+            summaryReader = wellDiskConfig.sourceCase()->summaryReader();
+        }
+    }
+
+    if ( !summaryReader )
+    {
+        m_isValidDisk = false;
+        return -1.0;
+    }
+
+    if ( wellDiskConfig.isSingleProperty() )
+    {
+        double singleProperty = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
+                                                                                name(),
+                                                                                wellDiskConfig.getSingleProperty(),
+                                                                                currentDate,
+                                                                                isOk );
+        if ( !( *isOk ) )
+        {
+            m_isValidDisk = false;
+            return -1.0;
+        }
+
+        m_wellDiskData.setSinglePropertyValue( singleProperty );
+    }
+    else
+    {
+        m_isInjector = RimSimWellInViewTools::isInjector( this );
+
+        double oil = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
+                                                                     name(),
+                                                                     wellDiskConfig.getOilProperty( m_isInjector ),
+                                                                     currentDate,
+                                                                     isOk );
+        if ( !( *isOk ) )
+        {
+            m_isValidDisk = false;
+            return -1.0;
+        }
+
+        double gas = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
+                                                                     name(),
+                                                                     wellDiskConfig.getGasProperty( m_isInjector ),
+                                                                     currentDate,
+                                                                     isOk ) /
+                     1000.0;
+        if ( !( *isOk ) )
+        {
+            m_isValidDisk = false;
+            return -1.0;
+        }
+
+        double water = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
+                                                                       name(),
+                                                                       wellDiskConfig.getWaterProperty( m_isInjector ),
+                                                                       currentDate,
+                                                                       isOk );
+        if ( !( *isOk ) )
+        {
+            m_isValidDisk = false;
+            return -1.0;
+        }
+
+        m_wellDiskData.setOilGasWater( oil, gas, water );
+    }
+
+    m_isValidDisk = true;
+
+    return m_wellDiskData.total();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSimWellInView::scaleDisk( double minValue, double maxValue )
+{
+    if ( m_isValidDisk )
+    {
+        m_diskScale = 1.0 + ( m_wellDiskData.total() - minValue ) / ( maxValue - minValue );
+    }
+    else
+    {
+        m_diskScale = 1.0;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimSimWellInView::boundingBoxInDomainCoords() const
+{
+    std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
+    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
+
+    auto noConst = const_cast<RimSimWellInView*>( this );
+    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( noConst,
+                                                                              pipeBranchesCLCoords,
+                                                                              pipeBranchesCellIds );
+
+    cvf::BoundingBox bb;
+    for ( auto branch : pipeBranchesCLCoords )
+    {
+        if ( !branch.empty() )
+        {
+            // Estimate the bounding box based on first, middle and last coordinate of branches
+            bb.add( branch.front() );
+
+            size_t mid = branch.size() / 2;
+            bb.add( branch[mid] );
+
+            bb.add( branch.back() );
+        }
+    }
+
+    return bb;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSimWellInView::isValidDisk() const
+{
+    return m_isValidDisk;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSimWellInView::diskScale() const
+{
+    if ( m_isValidDisk )
+    {
+        return m_diskScale;
+    }
+    else
+    {
+        return 1.0;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

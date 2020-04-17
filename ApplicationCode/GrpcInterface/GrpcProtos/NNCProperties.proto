@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+import "Case.proto";
+import "Definitions.proto";
+
+package rips;
+
+service NNCProperties
+{
+	rpc GetAvailableNNCProperties(CaseRequest) returns (AvailableNNCProperties) {}
+	rpc GetNNCConnections(CaseRequest) returns (stream NNCConnections) {}
+	rpc GetNNCValues(NNCValuesRequest) returns (stream NNCValues) {}
+	rpc SetNNCValues(stream NNCValuesChunk) returns (ClientToServerStreamReply) {}
+}
+
+enum NNCPropertyType
+{
+	NNC_DYNAMIC   = 0;
+	NNC_STATIC    = 1;
+	NNC_GENERATED = 2;
+}
+
+message AvailableNNCProperty
+{
+	string                   name = 1;
+	NNCPropertyType property_type = 2;
+}
+
+message AvailableNNCProperties
+{
+	repeated AvailableNNCProperty properties = 1;
+}
+
+message NNCConnection
+{
+	int32 cell_grid_index1 = 1;
+	int32 cell_grid_index2 = 2;
+	Vec3i cell1            = 3;
+	Vec3i cell2            = 4;
+}
+
+message NNCConnections
+{
+	repeated NNCConnection connections = 1;
+}
+
+message NNCValuesRequest
+{
+	int32                 case_id = 1;
+	string          property_name = 2;
+	NNCPropertyType property_type = 3;
+	int32               time_step = 4;
+}
+
+message NNCValues
+{
+	repeated double values = 1;
+}
+
+message NNCValuesInputRequest
+{
+	int32                    case_id = 1;
+	string             property_name = 2;
+	PorosityModelType porosity_model = 3;
+	int32                  time_step = 4;
+}
+
+message NNCValuesChunk
+{
+	oneof ChunkType
+	{
+		// Params needs to be sent in the first message
+		NNCValuesInputRequest params = 1;
+		NNCValues             values = 2;
+	}
+}

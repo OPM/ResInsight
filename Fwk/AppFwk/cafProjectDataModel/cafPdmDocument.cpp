@@ -79,12 +79,12 @@ void PdmDocument::readFile(QIODevice* xmlFile)
         xmlStream.readNext();
         if (xmlStream.isStartElement())
         {
-            if (xmlStream.name() != classKeyword())
+            if (!matchesClassKeyword(xmlStream.name().toString()))
             {
                 // Error: This is not a Ceetron Pdm based xml document
                 return;
             }
-            readFields(xmlStream, PdmDefaultObjectFactory::instance());
+            readFields(xmlStream, PdmDefaultObjectFactory::instance(), false);
         }
     }
 

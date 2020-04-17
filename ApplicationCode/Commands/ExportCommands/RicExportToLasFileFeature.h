@@ -39,17 +39,21 @@ public:
     static std::vector<QString> exportToLasFiles( const QString&        exportFolder,
                                                   const QString&        filePrefix,
                                                   const RimWellLogPlot* plotWindow,
-                                                  bool                  exportTvdRkb        = false,
-                                                  bool                  capitalizeFileNames = false,
-                                                  double                resampleInterval    = 0.0 );
+                                                  bool                  exportTvdRkb,
+                                                  bool                  capitalizeFileNames,
+                                                  bool                  alwaysOverwrite,
+                                                  double                resampleInterval,
+                                                  bool                  convertCurveUnits );
 
     static std::vector<QString> exportToLasFiles( const QString&                exportFolder,
                                                   const QString&                filePrefix,
                                                   std::vector<RimWellLogCurve*> curves,
-                                                  const std::vector<QString>&   wellNames = std::vector<QString>(),
-                                                  const std::vector<double>&    rkbDiffs  = std::vector<double>(),
-                                                  bool                          capitalizeFileNames = false,
-                                                  double                        resampleInterval    = 0.0 );
+                                                  const std::vector<QString>&   wellNames,
+                                                  const std::vector<double>&    rkbDiffs,
+                                                  bool                          capitalizeFileNames,
+                                                  bool                          alwaysOverwrite,
+                                                  double                        resampleInterval,
+                                                  bool                          convertCurveUnits );
 
 protected:
     // Overrides

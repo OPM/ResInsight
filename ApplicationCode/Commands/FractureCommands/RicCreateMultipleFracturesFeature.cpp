@@ -117,8 +117,8 @@ void RicCreateMultipleFracturesFeature::slotAppendFractures()
             // If this is the first fracture, set default result name
             if ( fractureCollection->allFractures().empty() )
             {
-                RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(
-                    RiaApplication::instance()->activeReservoirView() );
+                RimEclipseView* activeView =
+                    dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeReservoirView() );
                 if ( activeView )
                 {
                     activeView->fractureColors()->setDefaultResultName();
@@ -152,7 +152,9 @@ void RicCreateMultipleFracturesFeature::slotAppendFractures()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateMultipleFracturesFeature::slotClose() {}
+void RicCreateMultipleFracturesFeature::slotClose()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -218,8 +220,9 @@ void RicCreateMultipleFracturesFeature::onActionTriggered( bool isChecked )
         dialogButtonBox->clear();
 
         {
-            QPushButton* pushButton = dialogButtonBox->addButton( RiuCreateMultipleFractionsUi::REPLACE_FRACTURES_BUTTON_TEXT,
-                                                                  QDialogButtonBox::ActionRole );
+            QPushButton* pushButton =
+                dialogButtonBox->addButton( RiuCreateMultipleFractionsUi::REPLACE_FRACTURES_BUTTON_TEXT,
+                                            QDialogButtonBox::ActionRole );
             connect( pushButton, SIGNAL( clicked() ), this, SLOT( slotDeleteAndAppendFractures() ) );
             pushButton->setDefault( false );
             pushButton->setAutoDefault( false );

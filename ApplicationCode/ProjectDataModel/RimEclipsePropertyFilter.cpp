@@ -403,15 +403,10 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                     if ( m_resultDefinition->resultType() == RiaDefines::FORMATION_NAMES )
                     {
                         CVF_ASSERT( parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData() );
-                        CVF_ASSERT(
-                            parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData()->activeFormationNames() );
 
-                        const std::vector<QString>& fnVector = parentContainer()
-                                                                   ->reservoirView()
-                                                                   ->eclipseCase()
-                                                                   ->eclipseCaseData()
-                                                                   ->activeFormationNames()
-                                                                   ->formationNames();
+                        const std::vector<QString> fnVector =
+                            parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData()->formationNames();
+
                         setCategoryNames( fnVector );
                     }
                     else if ( m_resultDefinition->resultVariable() == RiaDefines::completionTypeResultName() )

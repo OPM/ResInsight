@@ -54,6 +54,8 @@ public:
     RimTotalWellAllocationPlot();
     ~RimTotalWellAllocationPlot() override;
 
+    int id() const final;
+
     void    setDescription( const QString& description );
     QString description() const;
     QString totalAllocationAsText() const;
@@ -74,13 +76,11 @@ protected:
     QImage snapshotWindowContent() override;
 
     // Overridden PDM methods
-    caf::PdmFieldHandle* userDescriptionField() override
-    {
-        return &m_userName;
-    }
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    caf::PdmFieldHandle* userDescriptionField() override { return &m_userName; }
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+private:
+    void assignIdIfNecessary() final;
 
 private:
     caf::PdmField<bool>    m_showPlotTitle;

@@ -227,7 +227,6 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
         RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( wellPath, geomExtractor.p() );
 
         m_geomResultDefinition->loadResult();
-        geomExtractor->setRkbDiff( rkbDiff() );
         geomExtractor->curveData( m_geomResultDefinition->resultAddress(), timeStep, values );
     }
 }
@@ -454,8 +453,7 @@ void Rim3dWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* c
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    Rim3dWellLogExtractionCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly )
+    Rim3dWellLogExtractionCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -469,17 +467,9 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
-        QStringList timeStepNames;
-
-        if ( m_case )
-        {
-            timeStepNames = m_case->timeStepStrings();
-        }
         options.push_back( caf::PdmOptionItemInfo( QString( "Follow Animation Time Step" ), -1 ) );
-        for ( int i = 0; i < timeStepNames.size(); i++ )
-        {
-            options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
-        }
+
+        RimTools::timeStepsForCase( m_case, &options );
     }
 
     return options;

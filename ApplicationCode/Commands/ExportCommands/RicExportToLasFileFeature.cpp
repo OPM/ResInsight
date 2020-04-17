@@ -48,12 +48,14 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
                                                                   const RimWellLogPlot* plotWindow,
                                                                   bool                  exportTvdRkb,
                                                                   bool                  capitalizeFileNames,
-                                                                  double                resampleInterval )
+                                                                  bool                  alwaysOverwrite,
+                                                                  double                resampleInterval,
+                                                                  bool                  convertCurveUnits )
 {
-    std::vector<RimWellLogCurve*>  allCurves;
-    std::vector<RimPlotInterface*> plots = plotWindow->visiblePlots();
+    std::vector<RimWellLogCurve*> allCurves;
+    std::vector<RimPlot*>         plots = plotWindow->visiblePlots();
 
-    for ( RimPlotInterface* plot : plots )
+    for ( RimPlot* plot : plots )
     {
         RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plot );
         if ( track )
@@ -75,7 +77,9 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
                                  wellNames,
                                  rkbDiffs,
                                  capitalizeFileNames,
-                                 resampleInterval );
+                                 alwaysOverwrite,
+                                 resampleInterval,
+                                 convertCurveUnits );
     }
 }
 
@@ -88,7 +92,9 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
                                                                   const std::vector<QString>&   wellNames,
                                                                   const std::vector<double>&    rkbDiffs,
                                                                   bool                          capitalizeFileNames,
-                                                                  double                        resampleInterval )
+                                                                  bool                          alwaysOverwrite,
+                                                                  double                        resampleInterval,
+                                                                  bool                          convertCurveUnits )
 {
     RigLasFileExporter lasExporter( curves );
 
@@ -104,7 +110,8 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
         lasExporter.setRkbDiffs( wellNames, rkbDiffs );
     }
 
-    writtenFiles = lasExporter.writeToFolder( exportFolder, filePrefix, capitalizeFileNames );
+    writtenFiles =
+        lasExporter.writeToFolder( exportFolder, filePrefix, capitalizeFileNames, alwaysOverwrite, convertCurveUnits );
 
     // Remember the path to next time
     RiaApplication::instance()->setLastUsedDialogDirectory( "WELL_LOGS_DIR", exportFolder );
@@ -134,8 +141,8 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
     std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
     if ( curves.size() == 0 ) return;
 
-    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder(
-        "WELL_LOGS_DIR" );
+    QString defaultDir =
+        RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "WELL_LOGS_DIR" );
 
     RigLasFileExporter           lasExporter( curves );
     RicExportToLasFileResampleUi featureUi;
@@ -145,6 +152,8 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
     {
         featureUi.filePrefix         = "WBS_";
         featureUi.capitalizeFileName = true;
+        featureUi.exportTvdrkb       = true;
+        featureUi.setUnitConversionOptionEnabled( true );
     }
 
     {
@@ -160,7 +169,7 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
                                                  "",
                                                  QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
     RicExportFeatureImpl::configureForExport( propertyDialog.dialogButtonBox() );
-    propertyDialog.resize( QSize( 400, 330 ) );
+    propertyDialog.resize( QSize( 400, 360 ) );
 
     if ( propertyDialog.exec() == QDialog::Accepted && !featureUi.exportFolder().isEmpty() )
     {
@@ -186,7 +195,10 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
                           wellNames,
                           rkbDiffs,
                           featureUi.capitalizeFileName,
-                          resampleInterval );
+                          false,
+                          resampleInterval,
+                          featureUi.curveUnitConversion() ==
+                              RicExportToLasFileResampleUi::CurveUnitConversion::EXPORT_WITH_STANDARD_UNITS );
     }
 }
 

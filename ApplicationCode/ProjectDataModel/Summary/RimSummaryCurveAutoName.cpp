@@ -18,17 +18,21 @@
 
 #include "RimSummaryCurveAutoName.h"
 
+#include "RiaApplication.h"
 #include "RiaStatisticsTools.h"
 
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimEnsembleCurveSet.h"
+#include "RimProject.h"
+#include "RimSummaryCalculation.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlotNameHelper.h"
 
-#include "SummaryPlotCommands/RicSummaryCurveCreator.h"
+#include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "cafPdmUiPushButtonEditor.h"
 
@@ -75,7 +79,7 @@ QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& sum
     std::string caseNameY;
     if ( caseNameY.empty() && summaryCurve && summaryCurve->summaryCaseY() )
     {
-        caseNameY = summaryCurve->summaryCaseY()->caseName().toStdString();
+        caseNameY = summaryCurve->summaryCaseY()->displayCaseName().toStdString();
     }
 
     {
@@ -110,7 +114,7 @@ QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& sum
     std::string caseNameX;
     if ( caseNameX.empty() && summaryCurve && summaryCurve->summaryCaseX() )
     {
-        caseNameX = summaryCurve->summaryCaseX()->caseName().toStdString();
+        caseNameX = summaryCurve->summaryCaseX()->displayCaseName().toStdString();
     }
 
     {
@@ -196,6 +200,18 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
             text = RiaStatisticsTools::replacePercentileByPValueText(
                        QString::fromStdString( summaryAddress.quantityName() ) )
                        .toStdString();
+        }
+        else if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+        {
+            // Need to add case name for calculated summary
+            RimProject*                      proj     = RiaApplication::instance()->project();
+            RimSummaryCalculationCollection* calcColl = proj->calculationCollection();
+
+            RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddress.id() );
+            if ( calculation )
+            {
+                text = calculation->description().toStdString();
+            }
         }
 
         if ( m_unit && !unitText.empty() )
@@ -385,7 +401,7 @@ void RimSummaryCurveAutoName::fieldChangedByUi( const caf::PdmFieldHandle* chang
         return;
     }
 
-    RicSummaryCurveCreator* curveCreator = dynamic_cast<RicSummaryCurveCreator*>( this->parentField()->ownerObject() );
+    RicSummaryPlotEditorUi* curveCreator = dynamic_cast<RicSummaryPlotEditorUi*>( this->parentField()->ownerObject() );
     if ( curveCreator )
     {
         curveCreator->updateCurveNames();

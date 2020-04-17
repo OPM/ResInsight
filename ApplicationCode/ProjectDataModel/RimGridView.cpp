@@ -23,20 +23,33 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
+#include "RimSurfaceCollection.h"
+#include "RimSurfaceInViewCollection.h"
 #include "RimTextAnnotation.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimViewNameConfig.h"
+#include "RimWellMeasurementInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
+#include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
 
+#include "RivSingleCellPartGenerator.h"
+
 #include "cvfModel.h"
+#include "cvfModelBasicList.h"
+#include "cvfPart.h"
 #include "cvfScene.h"
 
 #include <set>
@@ -61,9 +74,29 @@ RimGridView::RimGridView()
     m_overrideRangeFilterCollection.uiCapability()->setUiHidden( true );
     m_overrideRangeFilterCollection.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_crossSectionCollection, "CrossSections", "Intersections", "", "", "" );
-    m_crossSectionCollection.uiCapability()->setUiHidden( true );
-    m_crossSectionCollection = new RimIntersectionCollection();
+    CAF_PDM_InitFieldNoDefault( &m_intersectionCollection, "CrossSections", "Intersections", "", "", "" );
+    m_intersectionCollection.uiCapability()->setUiHidden( true );
+    m_intersectionCollection = new RimIntersectionCollection();
+
+    CAF_PDM_InitFieldNoDefault( &m_intersectionResultDefCollection,
+                                "IntersectionResultDefColl",
+                                "Separate Intersection Results",
+                                "",
+                                "",
+                                "" );
+    m_intersectionResultDefCollection.uiCapability()->setUiTreeHidden( true );
+    m_intersectionResultDefCollection = new RimIntersectionResultsDefinitionCollection;
+
+    CAF_PDM_InitFieldNoDefault( &m_surfaceResultDefCollection,
+                                "ReservoirSurfaceResultDefColl",
+                                "Separate Surface Results",
+                                "",
+                                "",
+                                "" );
+    m_surfaceResultDefCollection.uiCapability()->setUiTreeHidden( true );
+    m_surfaceResultDefCollection = new RimIntersectionResultsDefinitionCollection;
+    m_surfaceResultDefCollection->uiCapability()->setUiName( "Separate Surface Results" );
+    m_surfaceResultDefCollection->uiCapability()->setUiIcon( caf::QIconProvider( ":/ReservoirSurface16x16.png" ) );
 
     CAF_PDM_InitFieldNoDefault( &m_gridCollection, "GridCollection", "GridCollection", "", "", "" );
     m_gridCollection.uiCapability()->setUiHidden( true );
@@ -75,6 +108,16 @@ RimGridView::RimGridView()
     m_overlayInfoConfig = new Rim3dOverlayInfoConfig();
     m_overlayInfoConfig->setReservoirView( this );
     m_overlayInfoConfig.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_wellMeasurementCollection, "WellMeasurements", "Well Measurements", "", "", "" );
+    m_wellMeasurementCollection = new RimWellMeasurementInViewCollection;
+    m_wellMeasurementCollection.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field", "", "", "" );
+    m_surfaceCollection.uiCapability()->setUiTreeHidden( true );
+
+    m_surfaceVizModel = new cvf::ModelBasicList;
+    m_surfaceVizModel->setName( "SurfaceModel" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,9 +150,10 @@ RimGridView::~RimGridView( void )
 
     delete this->m_overlayInfoConfig();
 
+    delete m_wellMeasurementCollection;
     delete m_rangeFilterCollection;
     delete m_overrideRangeFilterCollection;
-    delete m_crossSectionCollection;
+    delete m_intersectionCollection;
     delete m_gridCollection;
 }
 
@@ -146,9 +190,41 @@ cvf::ref<cvf::UByteArray> RimGridView::currentTotalCellVisibility()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersectionCollection* RimGridView::crossSectionCollection() const
+RimIntersectionCollection* RimGridView::intersectionCollection() const
 {
-    return m_crossSectionCollection();
+    return m_intersectionCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceInViewCollection* RimGridView::surfaceInViewCollection() const
+{
+    return m_surfaceCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellMeasurementInViewCollection* RimGridView::measurementCollection() const
+{
+    return m_wellMeasurementCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIntersectionResultsDefinitionCollection* RimGridView::separateIntersectionResultsCollection() const
+{
+    return m_intersectionResultDefCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIntersectionResultsDefinitionCollection* RimGridView::separateSurfaceResultsCollection() const
+{
+    return m_surfaceResultDefCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -331,10 +407,9 @@ bool RimGridView::applyFontSize( RiaDefines::FontSettingType fontSettingType,
 
             if ( applyFontSizes )
             {
-                anyChange = annotations->applyFontSizeToAllTextAnnotations( oldFontSizeEnum,
-                                                                            newFontSizeEnum,
-                                                                            forceChange ) ||
-                            anyChange;
+                anyChange =
+                    annotations->applyFontSizeToAllTextAnnotations( oldFontSizeEnum, newFontSizeEnum, forceChange ) ||
+                    anyChange;
             }
         }
     }
@@ -372,8 +447,8 @@ void RimGridView::initAfterRead()
         // Current : Grid visualization mode is directly defined by m_gridCollection->isActive
         // This change was introduced in https://github.com/OPM/ResInsight/commit/f7bfe8d0
 
-        bool isGridVisualizationModeBefore_2018_1_1 = ( ( surfaceMode() == RimGridView::SURFACE ) ||
-                                                        ( meshMode() == RiaDefines::FULL_MESH ) );
+        bool isGridVisualizationModeBefore_2018_1_1 =
+            ( ( surfaceMode() == RimGridView::SURFACE ) || ( meshMode() == RiaDefines::FULL_MESH ) );
 
         m_gridCollection->setActive( isGridVisualizationModeBefore_2018_1_1 );
         if ( !isGridVisualizationModeBefore_2018_1_1 )
@@ -383,6 +458,59 @@ void RimGridView::initAfterRead()
             // and to avoid a strange setup when dropping out into grid mode again
             if ( surfaceMode() != RimGridView::NO_SURFACE ) surfaceMode = RimGridView::SURFACE;
             if ( meshMode() != RiaDefines::NO_MESH ) meshMode = RiaDefines::FULL_MESH;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
+{
+    Riu3dSelectionManager* riuSelManager = Riu3dSelectionManager::instance();
+
+    std::vector<RiuSelectionItem*> items;
+    riuSelManager->selectedItems( items );
+
+    for ( size_t i = 0; i < items.size(); i++ )
+    {
+        if ( items[i]->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT )
+        {
+            RiuGeoMechSelectionItem* geomSelItem = static_cast<RiuGeoMechSelectionItem*>( items[i] );
+
+            if ( geomSelItem && geomSelItem->m_view == this && geomSelItem->m_resultDefinition->geoMechCase() )
+            {
+                RivSingleCellPartGenerator partGen( geomSelItem->m_resultDefinition->geoMechCase(),
+                                                    geomSelItem->m_gridIndex,
+                                                    geomSelItem->m_cellIndex,
+                                                    this->ownerCase()->displayModelOffset() );
+
+                cvf::ref<cvf::Part> part = partGen.createPart( geomSelItem->m_color );
+                part->setTransform( this->scaleTransform() );
+
+                parts->push_back( part.p() );
+            }
+        }
+
+        if ( items[i]->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT )
+        {
+            RiuEclipseSelectionItem* eclipseSelItem = static_cast<RiuEclipseSelectionItem*>( items[i] );
+
+            if ( eclipseSelItem && eclipseSelItem->m_view == this )
+            {
+                CVF_ASSERT( eclipseSelItem->m_resultDefinition->eclipseCase() );
+                CVF_ASSERT( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData() );
+
+                RivSingleCellPartGenerator partGen( eclipseSelItem->m_resultDefinition->eclipseCase()->eclipseCaseData(),
+                                                    eclipseSelItem->m_gridIndex,
+                                                    eclipseSelItem->m_gridLocalCellIndex,
+                                                    this->ownerCase()->displayModelOffset() );
+
+                cvf::ref<cvf::Part> part = partGen.createPart( eclipseSelItem->m_color );
+                part->setTransform( this->scaleTransform() );
+
+                parts->push_back( part.p() );
+            }
         }
     }
 }
@@ -401,13 +529,11 @@ void RimGridView::onClearReservoirCellVisibilitiesIfNeccessary()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                    const QVariant&            oldValue,
-                                    const QVariant&            newValue )
+void RimGridView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &scaleZ )
     {
-        m_crossSectionCollection->updateIntersectionBoxGeometry();
+        m_intersectionCollection->updateIntersectionBoxGeometry();
     }
 
     Rim3dView::fieldChangedByUi( changedField, oldValue, newValue );
@@ -464,4 +590,37 @@ RimViewLinker* RimGridView::viewLinkerIfMasterView() const
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::updateWellMeasurements()
+{
+    m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridView::updateSurfacesInViewTreeItems()
+{
+    RimProject*           proj     = RiaApplication::instance()->project();
+    RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
+
+    if ( surfColl && surfColl->surfaces().size() )
+    {
+        if ( !m_surfaceCollection() )
+        {
+            m_surfaceCollection = new RimSurfaceInViewCollection();
+        }
+
+        m_surfaceCollection->updateFromSurfaceCollection();
+    }
+    else
+    {
+        delete m_surfaceCollection;
+    }
+
+    this->updateConnectedEditors();
 }

@@ -531,3 +531,44 @@ TEST( CellFaceIntersectionTst, PolygonAreaNormal3D )
         EXPECT_DOUBLE_EQ( 0.0, area.z() );
     }
 }
+
+TEST( EarClipTesselator, ErrorTest )
+{
+    std::vector<cvf::Vec3d> remainingPolygon{
+        cvf::Vec3d( 44.66, 20.17, 0 ),
+        cvf::Vec3d( 78.08, 35.26, 0 ),
+        cvf::Vec3d( 93.97, 35.83, 0 ),
+        cvf::Vec3d( 144.95, 44.42, 0 ),
+        cvf::Vec3d( 172.59, 39.73, 0 ),
+        cvf::Vec3d( 227.27, 24.01, 0 ),
+        cvf::Vec3d( 217.46, 45.72, 0 ),
+        cvf::Vec3d( 178.5, 57.61, 0 ),
+        cvf::Vec3d( 141.33, 63.82, 0 ),
+        cvf::Vec3d( 0, 0, 0 ),
+        cvf::Vec3d( 63.77, 0, 0 ),
+    };
+
+    double nativeTriangleArea = 21266;
+
+    cvf::EarClipTesselator tess;
+    tess.setNormal( cvf::Vec3d::Z_AXIS );
+    tess.setMinTriangleArea( 1e-3 * nativeTriangleArea );
+    cvf::Vec3dArray cvfNodes( remainingPolygon );
+    tess.setGlobalNodeArray( cvfNodes );
+
+    std::vector<size_t> polyIndexes;
+    for ( size_t idx = 0; idx < remainingPolygon.size(); ++idx )
+    {
+        polyIndexes.push_back( idx );
+    }
+    tess.setPolygonIndices( polyIndexes );
+
+    std::vector<size_t> triangleIndices;
+    bool                isTesselationOk = tess.calculateTriangles( &triangleIndices );
+
+    // CVF_ASSERT( isTesselationOk );
+    if ( !isTesselationOk )
+    {
+        // continue;
+    }
+}

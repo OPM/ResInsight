@@ -18,18 +18,14 @@
 
 #include "RifDerivedEnsembleReader.h"
 
-#include "RimDerivedEnsembleCase.h"
+#include "RimDerivedSummaryCase.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t> RifDerivedEnsembleReader::EMPTY_TIME_STEPS_VECTOR;
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDerivedEnsembleCase*    derivedCase,
-                                                    RifSummaryReaderInterface* sourceSummaryReader1 )
+RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDerivedSummaryCase*     derivedCase,
+                                                    RifSummaryReaderInterface* sourceSummaryReader1,
+                                                    RifSummaryReaderInterface* sourceSummaryReader2 )
 {
     CVF_ASSERT( derivedCase );
 
@@ -37,9 +33,19 @@ RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDerivedEnsembleCase*    d
 
     if ( sourceSummaryReader1 )
     {
-        // TODO: This is assuming that the addresses of both reader interfaces are equal
         m_allResultAddresses = sourceSummaryReader1->allResultAddresses();
         m_allErrorAddresses  = sourceSummaryReader1->allErrorAddresses();
+    }
+    if ( sourceSummaryReader2 )
+    {
+        for ( auto a : sourceSummaryReader2->allResultAddresses() )
+        {
+            m_allResultAddresses.insert( a );
+        }
+        for ( auto a : sourceSummaryReader2->allErrorAddresses() )
+        {
+            m_allErrorAddresses.insert( a );
+        }
     }
 }
 
@@ -48,11 +54,17 @@ RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDerivedEnsembleCase*    d
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifDerivedEnsembleReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    if ( !resultAddress.isValid() ) return EMPTY_TIME_STEPS_VECTOR;
+    if ( !resultAddress.isValid() )
+    {
+        static std::vector<time_t> empty;
+        return empty;
+    }
+
     if ( m_derivedCase->needsCalculation( resultAddress ) )
     {
         m_derivedCase->calculate( resultAddress );
     }
+
     return m_derivedCase->timeSteps( resultAddress );
 }
 

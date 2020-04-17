@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(Qwt)
 
+# Unity Build
+if (RESINSIGHT_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+  set(CMAKE_UNITY_BUILD true)
+endif()
+
 if (MSVC)
     # Disable some annoying warnings (relative to warning level 3)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267")

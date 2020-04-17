@@ -116,7 +116,7 @@ void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
         plotTrack->setDescription( QString( "Track %1" ).arg( pltPlot->plotCount() ) );
 
         pltPlotColl->addPlot( pltPlot );
-        pltPlot->setDescription( plotName );
+        pltPlot->nameConfig()->setCustomName( plotName );
 
         // pltPlot->applyInitialSelections();
         pltPlot->loadDataAndUpdate();

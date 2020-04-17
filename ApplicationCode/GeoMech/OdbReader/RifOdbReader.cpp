@@ -922,9 +922,10 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
         int*   elementLabels = bulkData.elementLabels();
         float* data          = bulkDataGetter.data();
 
-        RigElementType eType                    = toRigElementType( bulkData.baseElementType() );
-        const int*     elmNodeToIpResultMapping = localElmNodeToIntegrationPointMapping(
-            eType ); // Todo: Use the one in RigFemTypes.h, but we need to guard against unknown element types first.
+        RigElementType eType = toRigElementType( bulkData.baseElementType() );
+        const int*     elmNodeToIpResultMapping =
+            localElmNodeToIntegrationPointMapping( eType ); // Todo: Use the one in RigFemTypes.h, but we need to guard
+                                                            // against unknown element types first.
         if ( !elmNodeToIpResultMapping ) continue;
 
         for ( int elem = 0; elem < elemCount; elem++ )

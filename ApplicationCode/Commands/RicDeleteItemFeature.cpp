@@ -22,6 +22,7 @@
 #include "RicDeleteItemExecData.h"
 
 #include "RimAsciiDataCurve.h"
+#include "RimBoxIntersection.h"
 #include "RimCellRangeFilter.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEclipseInputProperty.h"
@@ -30,6 +31,7 @@
 #include "RimEllipseFractureTemplate.h"
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveSet.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimFishboneWellPath.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFlowCharacteristicsPlot.h"
@@ -39,11 +41,10 @@
 #include "RimGeoMechView.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimGridPlotWindow.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimIntersection.h"
-#include "RimIntersectionBox.h"
+#include "RimIntersectionResultDefinition.h"
+#include "RimMultiPlot.h"
 #include "RimPerforationInterval.h"
 #include "RimPolylinesAnnotation.h"
 #include "RimReachCircleAnnotation.h"
@@ -53,6 +54,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
+#include "RimSurface.h"
 #include "RimTextAnnotation.h"
 #include "RimViewController.h"
 #include "RimWellAllocationPlot.h"
@@ -110,14 +112,14 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     if ( dynamic_cast<RimWellLogCurve*>( uiItem ) ) return true;
     if ( dynamic_cast<RimSummaryPlot*>( uiItem ) )
     {
-        RimGridPlotWindow* plotWindow = nullptr;
+        RimMultiPlot* plotWindow = nullptr;
         static_cast<RimSummaryPlot*>( uiItem )->firstAncestorOrThisOfType( plotWindow );
         return plotWindow == nullptr;
     }
     if ( dynamic_cast<RimSummaryCurve*>( uiItem ) ) return true;
     if ( dynamic_cast<RimGridTimeHistoryCurve*>( uiItem ) ) return true;
-    if ( dynamic_cast<RimIntersection*>( uiItem ) ) return true;
-    if ( dynamic_cast<RimIntersectionBox*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimExtrudedCurveIntersection*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimBoxIntersection*>( uiItem ) ) return true;
     if ( dynamic_cast<RimFormationNames*>( uiItem ) ) return true;
     if ( dynamic_cast<RimFormationNamesCollection*>( uiItem ) ) return true;
     if ( dynamic_cast<RimFishboneWellPath*>( uiItem ) ) return true;
@@ -137,9 +139,12 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     if ( dynamic_cast<RimTextAnnotation*>( uiItem ) ) return true;
     if ( dynamic_cast<RimReachCircleAnnotation*>( uiItem ) ) return true;
     if ( dynamic_cast<RimPolylinesAnnotation*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimIntersectionResultDefinition*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimSurface*>( uiItem ) ) return true;
+
     if ( dynamic_cast<RimGridCrossPlot*>( uiItem ) )
     {
-        RimGridPlotWindow* plotWindow = nullptr;
+        RimMultiPlot* plotWindow = nullptr;
         static_cast<RimGridCrossPlot*>( uiItem )->firstAncestorOrThisOfType( plotWindow );
         return plotWindow == nullptr;
     }
@@ -147,6 +152,9 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     if ( dynamic_cast<RimGridCrossPlot*>( uiItem ) ) return true;
 
     if ( dynamic_cast<RimGridCrossPlotDataSet*>( uiItem ) ) return true;
+
+    if ( dynamic_cast<RimMultiPlot*>( uiItem ) ) return true;
+
     return false;
 }
 
@@ -167,8 +175,8 @@ bool RicDeleteItemFeature::isCommandEnabled()
         caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>( item );
         if ( !currentPdmObject ) return false;
 
-        caf::PdmChildArrayFieldHandle* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(
-            currentPdmObject->parentField() );
+        caf::PdmChildArrayFieldHandle* childArrayFieldHandle =
+            dynamic_cast<caf::PdmChildArrayFieldHandle*>( currentPdmObject->parentField() );
         if ( !childArrayFieldHandle ) return false;
     }
 
@@ -191,8 +199,8 @@ void RicDeleteItemFeature::onActionTriggered( bool isChecked )
         caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>( item );
         if ( !currentPdmObject ) continue;
 
-        caf::PdmChildArrayFieldHandle* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>(
-            currentPdmObject->parentField() );
+        caf::PdmChildArrayFieldHandle* childArrayFieldHandle =
+            dynamic_cast<caf::PdmChildArrayFieldHandle*>( currentPdmObject->parentField() );
         if ( !childArrayFieldHandle ) continue;
 
         int indexAfter = -1;
@@ -215,9 +223,9 @@ void RicDeleteItemFeature::onActionTriggered( bool isChecked )
 
         RicDeleteItemExecData* data = executeCmd->commandData();
         data->m_rootObject          = caf::PdmReferenceHelper::findRoot( childArrayFieldHandle );
-        data->m_pathToField         = caf::PdmReferenceHelper::referenceFromRootToField( data->m_rootObject,
-                                                                                 childArrayFieldHandle );
-        data->m_indexToObject       = indexAfter;
+        data->m_pathToField =
+            caf::PdmReferenceHelper::referenceFromRootToField( data->m_rootObject, childArrayFieldHandle );
+        data->m_indexToObject = indexAfter;
 
         caf::CmdExecCommandManager::instance()->processExecuteCommand( executeCmd );
     }

@@ -66,7 +66,17 @@ RimWellPathTarget::RimWellPathTarget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathTarget::~RimWellPathTarget() {}
+RimWellPathTarget::~RimWellPathTarget()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::setEnabled( bool enable )
+{
+    m_isEnabled = enable;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -232,9 +242,8 @@ void RimWellPathTarget::flagRadius1AsIncorrect( bool isEditable, bool isIncorrec
         if ( actualRadius < radius1() )
         {
             m_dogleg1.uiCapability()->setUiContentTextColor( Qt::red );
-            m_dogleg1.uiCapability()->setUiToolTip(
-                "Actual Dogleg: " + QString::number( doglegFromRadius( actualRadius ) ) +
-                "\nThe dogleg constraint is not satisfied!" );
+            m_dogleg1.uiCapability()->setUiToolTip( "Actual Dogleg: " + QString::number( doglegFromRadius( actualRadius ) ) +
+                                                    "\nThe dogleg constraint is not satisfied!" );
         }
         else
         {
@@ -262,9 +271,8 @@ void RimWellPathTarget::flagRadius2AsIncorrect( bool isEditable, bool isIncorrec
         if ( actualRadius < radius2() )
         {
             m_dogleg2.uiCapability()->setUiContentTextColor( Qt::red );
-            m_dogleg2.uiCapability()->setUiToolTip(
-                "Actual Dogleg: " + QString::number( doglegFromRadius( actualRadius ) ) +
-                "\nThe dogleg constraint is not satisfied!" );
+            m_dogleg2.uiCapability()->setUiToolTip( "Actual Dogleg: " + QString::number( doglegFromRadius( actualRadius ) ) +
+                                                    "\nThe dogleg constraint is not satisfied!" );
         }
         else
         {
@@ -321,9 +329,11 @@ QList<caf::PdmOptionItemInfo> RimWellPathTarget::calculateValueOptions( const ca
     {
         options.push_back(
             caf::PdmOptionItemInfo( "o->",
-                                    RimWellPathTarget::POINT_AND_TANGENT ) ); //, false, QIcon(":/WellTargetPointTangent16x16.png") ));
-        options.push_back(
-            caf::PdmOptionItemInfo( "o", RimWellPathTarget::POINT ) ); //, false, QIcon(":/WellTargetPoint16x16.png")));
+                                    RimWellPathTarget::POINT_AND_TANGENT ) ); //, false,
+                                                                              // QIcon(":/WellTargetPointTangent16x16.png")
+                                                                              //));
+        options.push_back( caf::PdmOptionItemInfo( "o", RimWellPathTarget::POINT ) ); //, false,
+                                                                                      // QIcon(":/WellTargetPoint16x16.png")));
     }
     return options;
 }

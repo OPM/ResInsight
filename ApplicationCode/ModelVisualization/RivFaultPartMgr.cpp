@@ -72,13 +72,22 @@ RivFaultPartMgr::RivFaultPartMgr( const RigGridBase*              grid,
     m_nativeFaultGenerator   = new RivFaultGeometryGenerator( grid, rimFault->faultGeometry(), true );
     m_oppositeFaultGenerator = new RivFaultGeometryGenerator( grid, rimFault->faultGeometry(), false );
 
-    m_NNCGenerator = new RivNNCGeometryGenerator( grid->mainGrid()->nncData(),
+    m_nativeFaultFacesTextureCoords   = new cvf::Vec2fArray;
+    m_oppositeFaultFacesTextureCoords = new cvf::Vec2fArray;
+
+    m_NNCGenerator = new RivNNCGeometryGenerator( false,
+                                                  grid->mainGrid()->nncData(),
                                                   grid->mainGrid()->displayModelOffset(),
                                                   connIdxes.p() );
 
-    m_nativeFaultFacesTextureCoords   = new cvf::Vec2fArray;
-    m_oppositeFaultFacesTextureCoords = new cvf::Vec2fArray;
-    m_NNCTextureCoords                = new cvf::Vec2fArray;
+    m_NNCTextureCoords = new cvf::Vec2fArray;
+
+    m_allenNNCGenerator = new RivNNCGeometryGenerator( true,
+                                                       grid->mainGrid()->nncData(),
+                                                       grid->mainGrid()->displayModelOffset(),
+                                                       connIdxes.p() );
+
+    m_allenNNCTextureCoords = new cvf::Vec2fArray;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,6 +98,7 @@ void RivFaultPartMgr::setCellVisibility( cvf::UByteArray* cellVisibilities )
     m_nativeFaultGenerator->setCellVisibility( cellVisibilities );
     m_oppositeFaultGenerator->setCellVisibility( cellVisibilities );
     m_NNCGenerator->setCellVisibility( cellVisibilities, m_grid.p() );
+    m_allenNNCGenerator->setCellVisibility( cellVisibilities, m_grid.p() );
 
     generatePartGeometry();
 }
@@ -120,6 +130,7 @@ void RivFaultPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCel
         {
             RivTernaryTextureCoordsCreator texturer( cellResultColors,
                                                      cellResultColors->ternaryLegendConfig(),
+                                                     eclipseView->wellCollection(),
                                                      timeStepIndex,
                                                      m_grid->gridIndex(),
                                                      m_nativeFaultGenerator->quadToCellFaceMapper() );
@@ -164,6 +175,7 @@ void RivFaultPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCel
         {
             RivTernaryTextureCoordsCreator texturer( cellResultColors,
                                                      cellResultColors->ternaryLegendConfig(),
+                                                     eclipseView->wellCollection(),
                                                      timeStepIndex,
                                                      m_grid->gridIndex(),
                                                      m_oppositeFaultGenerator->quadToCellFaceMapper() );
@@ -391,7 +403,41 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setEnableMask( faultBit );
             part->setPriority( RivPartPriority::PartType::Nnc );
 
+            cvf::ref<cvf::Effect> eff = new cvf::Effect;
+            part->setEffect( eff.p() );
+
             m_NNCFaces = part;
+        }
+    }
+
+    {
+        cvf::ref<cvf::DrawableGeo> geo = m_allenNNCGenerator->generateSurface();
+        if ( geo.notNull() )
+        {
+            geo->computeNormals();
+
+            if ( useBufferObjects )
+            {
+                geo->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
+            }
+
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName( "Allen NNC in Fault. Grid " + cvf::String( static_cast<int>( m_grid->gridIndex() ) ) );
+            part->setDrawable( geo.p() );
+
+            // Set mapping from triangle face index to cell index
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo( m_rimFault, m_grid->gridIndex() );
+            si->m_NNCIndices           = m_allenNNCGenerator->triangleToNNCIndex().p();
+            part->setSourceInfo( si.p() );
+
+            part->updateBoundingBox();
+            part->setEnableMask( faultBit );
+            part->setPriority( RivPartPriority::PartType::Nnc );
+
+            cvf::ref<cvf::Effect> eff = new cvf::Effect;
+            part->setEffect( eff.p() );
+
+            m_allenNNCFaces = part;
         }
     }
 
@@ -447,7 +493,9 @@ void RivFaultPartMgr::updatePartEffect()
             m_nativeFaultFaces->setPriority( RivPartPriority::PartType::TransparentFault );
         if ( m_oppositeFaultFaces.notNull() )
             m_oppositeFaultFaces->setPriority( RivPartPriority::PartType::TransparentFault );
+
         if ( m_NNCFaces.notNull() ) m_NNCFaces->setPriority( RivPartPriority::PartType::TransparentNnc );
+        if ( m_allenNNCFaces.notNull() ) m_allenNNCFaces->setPriority( RivPartPriority::PartType::TransparentNnc );
 
         if ( m_nativeFaultGridLines.notNull() )
         {
@@ -641,7 +689,15 @@ void RivFaultPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList* model )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::appendNNCFacesToModel( cvf::ModelBasicList* model )
+void RivFaultPartMgr::appendCompleteNNCFacesToModel( cvf::ModelBasicList* model )
+{
+    if ( m_allenNNCFaces.notNull() ) model->addPart( m_allenNNCFaces.p() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivFaultPartMgr::appendNativeNNCFacesToModel( cvf::ModelBasicList* model )
 {
     if ( m_NNCFaces.notNull() ) model->addPart( m_NNCFaces.p() );
 }
@@ -693,7 +749,13 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::updateNNCColors( size_t timeStepIndex, RimEclipseCellColors* cellResultColors )
 {
-    if ( m_NNCFaces.isNull() ) return;
+    bool updateNnc   = m_NNCFaces.notNull();
+    bool updateAllen = m_allenNNCFaces.notNull();
+
+    if ( !updateNnc && !updateAllen )
+    {
+        return;
+    }
 
     bool showNncsWithScalarMappedColor = false;
 
@@ -723,11 +785,24 @@ void RivFaultPartMgr::updateNNCColors( size_t timeStepIndex, RimEclipseCellColor
             if ( eclipseCase )
             {
                 size_t nativeTimeStepIndex = eclipseCase->uiToNativeTimeStepIndex( timeStepIndex );
-                m_NNCGenerator->textureCoordinates( m_NNCTextureCoords.p(),
-                                                    mapper,
-                                                    resultType,
-                                                    eclResAddr,
-                                                    nativeTimeStepIndex );
+
+                if ( updateNnc )
+                {
+                    m_NNCGenerator->textureCoordinates( m_NNCTextureCoords.p(),
+                                                        mapper,
+                                                        resultType,
+                                                        eclResAddr,
+                                                        nativeTimeStepIndex );
+                }
+
+                if ( updateAllen )
+                {
+                    m_allenNNCGenerator->textureCoordinates( m_allenNNCTextureCoords.p(),
+                                                             mapper,
+                                                             resultType,
+                                                             eclResAddr,
+                                                             nativeTimeStepIndex );
+                }
             }
         }
 
@@ -748,10 +823,21 @@ void RivFaultPartMgr::updateNNCColors( size_t timeStepIndex, RimEclipseCellColor
             nncEffect = nncEffgen.generateCachedEffect();
         }
 
-        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>( m_NNCFaces->drawable() );
-        if ( dg ) dg->setTextureCoordArray( m_NNCTextureCoords.p() );
+        if ( updateNnc )
+        {
+            cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>( m_NNCFaces->drawable() );
+            if ( dg ) dg->setTextureCoordArray( m_NNCTextureCoords.p() );
 
-        m_NNCFaces->setEffect( nncEffect.p() );
+            m_NNCFaces->setEffect( nncEffect.p() );
+        }
+
+        if ( updateAllen )
+        {
+            cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>( m_allenNNCFaces->drawable() );
+            if ( dg ) dg->setTextureCoordArray( m_allenNNCTextureCoords.p() );
+
+            m_allenNNCFaces->setEffect( nncEffect.p() );
+        }
     }
     else
     {
@@ -777,6 +863,14 @@ void RivFaultPartMgr::updateNNCColors( size_t timeStepIndex, RimEclipseCellColor
             nncEffect = nncEffgen.generateCachedEffect();
         }
 
-        m_NNCFaces->setEffect( nncEffect.p() );
+        if ( updateNnc )
+        {
+            m_NNCFaces->setEffect( nncEffect.p() );
+        }
+
+        if ( updateAllen )
+        {
+            m_allenNNCFaces->setEffect( nncEffect.p() );
+        }
     }
 }

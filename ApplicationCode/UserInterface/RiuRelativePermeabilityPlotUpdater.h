@@ -26,6 +26,9 @@ class RiuRelativePermeabilityPlotPanel;
 class Rim3dView;
 class RimEclipseView;
 class RigEclipseCaseData;
+class RimEclipseResultDefinition;
+class RiuSelectionItem;
+class RiuEclipseSelectionItem;
 
 //==================================================================================================
 //
@@ -40,19 +43,24 @@ public:
     void updateOnSelectionChanged( const RiuSelectionItem* selectionItem );
     void updateOnTimeStepChanged( Rim3dView* changedView );
 
+    static RiuEclipseSelectionItem* extractEclipseSelectionItem( const RiuSelectionItem* selectionItem,
+                                                                 Rim3dView*&             newFollowAnimView );
+    static QString                  constructCellReferenceText( const RigEclipseCaseData* eclipseCaseData,
+                                                                size_t                    gridIndex,
+                                                                size_t                    gridLocalCellIndex,
+                                                                const QString&            valueName,
+                                                                double                    cellValue );
+
 private:
-    static bool    queryDataAndUpdatePlot( const RimEclipseView&             eclipseView,
-                                           size_t                            gridIndex,
-                                           size_t                            gridLocalCellIndex,
-                                           RiuRelativePermeabilityPlotPanel* plotPanel );
-    static QString constructCellReferenceText( const RigEclipseCaseData* eclipseCaseData,
-                                               size_t                    gridIndex,
-                                               size_t                    gridLocalCellIndex,
-                                               double                    satnum );
+    static bool queryDataAndUpdatePlot( const RimEclipseResultDefinition* eclipseResDef,
+                                        size_t                            timeStepIndex,
+                                        size_t                            gridIndex,
+                                        size_t                            gridLocalCellIndex,
+                                        RiuRelativePermeabilityPlotPanel* plotPanel );
 
 private:
     QPointer<RiuRelativePermeabilityPlotPanel> m_targetPlotPanel;
-    const Rim3dView*                           m_sourceEclipseViewOfLastPlot;
+    const Rim3dView*                           m_viewToFollowAnimationFrom;
 };
 
 //==================================================================================================

@@ -70,15 +70,9 @@ class Rim3dOverlayInfoConfig : public caf::PdmObject
         double                     sum;
         double                     weightedMean;
         const std::vector<size_t>* histogram;
-        bool                       isValid( double parameter )
-        {
-            return parameter != HUGE_VAL && parameter != -HUGE_VAL;
-        }
+        bool isValid( double parameter ) { return parameter != HUGE_VAL && parameter != -HUGE_VAL; }
 
-        bool isValid()
-        {
-            return histogram && histogram->size() > 0 && isValid( min ) && isValid( max );
-        }
+        bool isValid() { return histogram && histogram->size() > 0 && isValid( min ) && isValid( max ); }
     };
 
 public:
@@ -120,9 +114,7 @@ public:
     };
 
 private:
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle* objectToggleField() override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                 updateEclipse3DInfo( RimEclipseView* reservoirView );

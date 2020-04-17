@@ -22,16 +22,17 @@
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"
+#include "RimBoxIntersection.h"
 #include "RimCase.h"
-#include "RimIntersection.h"
-#include "RimIntersectionBox.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimSimWellInView.h"
 
 #include "Riu3DMainWindowTools.h"
 
-#include "RivIntersectionBoxPartMgr.h"
-#include "RivIntersectionPartMgr.h"
+#include "RivBoxIntersectionPartMgr.h"
+#include "RivExtrudedCurveIntersectionPartMgr.h"
 
+#include "RimIntersectionResultDefinition.h"
 #include "cvfModelBasicList.h"
 
 CAF_PDM_SOURCE_INIT( RimIntersectionCollection, "CrossSectionCollection" );
@@ -77,17 +78,17 @@ void RimIntersectionCollection::applySingleColorEffect()
 {
     if ( !this->isActive() ) return;
 
-    for ( RimIntersection* cs : m_intersections )
+    for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {
-        if ( cs->isActive )
+        if ( cs->isActive() )
         {
             cs->intersectionPartMgr()->applySingleColorEffect();
         }
     }
 
-    for ( RimIntersectionBox* cs : m_intersectionBoxes )
+    for ( RimBoxIntersection* cs : m_intersectionBoxes )
     {
-        if ( cs->isActive )
+        if ( cs->isActive() )
         {
             cs->intersectionBoxPartMgr()->applySingleColorEffect();
         }
@@ -97,25 +98,42 @@ void RimIntersectionCollection::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::updateCellResultColor( size_t                        timeStepIndex,
-                                                       const cvf::ScalarMapper*      scalarColorMapper,
-                                                       const RivTernaryScalarMapper* ternaryColorMapper )
+void RimIntersectionCollection::updateCellResultColor( bool hasGeneralCellResult, size_t timeStepIndex )
 {
     if ( !this->isActive() ) return;
 
-    for ( RimIntersection* cs : m_intersections )
+    for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {
-        if ( cs->isActive )
+        if ( cs->isActive() )
         {
-            cs->intersectionPartMgr()->updateCellResultColor( timeStepIndex, scalarColorMapper, ternaryColorMapper );
+            bool showResults = cs->activeSeparateResultDefinition() ? cs->activeSeparateResultDefinition()->hasResult()
+                                                                    : hasGeneralCellResult;
+
+            if ( showResults )
+            {
+                cs->intersectionPartMgr()->updateCellResultColor( timeStepIndex, nullptr, nullptr );
+            }
+            else
+            {
+                cs->intersectionPartMgr()->applySingleColorEffect();
+            }
         }
     }
 
-    for ( RimIntersectionBox* cs : m_intersectionBoxes )
+    for ( RimBoxIntersection* cs : m_intersectionBoxes )
     {
-        if ( cs->isActive )
+        if ( cs->isActive() )
         {
-            cs->intersectionBoxPartMgr()->updateCellResultColor( timeStepIndex );
+            bool hasSeparateInterResult = cs->activeSeparateResultDefinition() &&
+                                          cs->activeSeparateResultDefinition()->hasResult();
+            if ( hasSeparateInterResult || hasGeneralCellResult )
+            {
+                cs->intersectionBoxPartMgr()->updateCellResultColor( timeStepIndex );
+            }
+            else
+            {
+                cs->intersectionBoxPartMgr()->applySingleColorEffect();
+            }
         }
     }
 }
@@ -123,27 +141,50 @@ void RimIntersectionCollection::updateCellResultColor( size_t                   
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
-                                                    cvf::ModelBasicList* model,
-                                                    cvf::Transform*      scaleTransform )
+bool RimIntersectionCollection::hasAnyActiveSeparateResults()
 {
-    if ( !isActive ) return;
+    if ( !this->isActive() ) return false;
 
-    for ( RimIntersection* cs : m_intersections )
+    for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {
-        if ( cs->isActive )
+        if ( cs->isActive() && cs->activeSeparateResultDefinition() && cs->activeSeparateResultDefinition()->hasResult() )
         {
-            cs->intersectionPartMgr()->appendNativeCrossSectionFacesToModel( model, scaleTransform );
+            return true;
+        }
+    }
+
+    for ( RimBoxIntersection* cs : m_intersectionBoxes )
+    {
+        if ( cs->isActive() && cs->activeSeparateResultDefinition() && cs->activeSeparateResultDefinition()->hasResult() )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::appendPartsToModel( Rim3dView& view, cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
+{
+    if ( !isActive() ) return;
+
+    for ( RimExtrudedCurveIntersection* cs : m_intersections )
+    {
+        if ( cs->isActive() )
+        {
+            cs->intersectionPartMgr()->appendIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
             cs->intersectionPartMgr()->appendPolylinePartsToModel( view, model, scaleTransform );
         }
     }
 
-    for ( RimIntersectionBox* cs : m_intersectionBoxes )
+    for ( RimBoxIntersection* cs : m_intersectionBoxes )
     {
-        if ( cs->isActive )
+        if ( cs->isActive() )
         {
-            cs->intersectionBoxPartMgr()->appendNativeCrossSectionFacesToModel( model, scaleTransform );
+            cs->intersectionBoxPartMgr()->appendNativeIntersectionFacesToModel( model, scaleTransform );
             cs->intersectionBoxPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
 
             if ( cs->show3dManipulator() )
@@ -161,12 +202,12 @@ void RimIntersectionCollection::appendPartsToModel( Rim3dView&           view,
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::rebuildGeometry()
 {
-    for ( RimIntersection* intersection : m_intersections )
+    for ( RimExtrudedCurveIntersection* intersection : m_intersections )
     {
         intersection->rebuildGeometry();
     }
 
-    for ( RimIntersectionBox* intersectionBox : m_intersectionBoxes )
+    for ( RimBoxIntersection* intersectionBox : m_intersectionBoxes )
     {
         intersectionBox->rebuildGeometry();
     }
@@ -175,7 +216,7 @@ void RimIntersectionCollection::rebuildGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimIntersection*> RimIntersectionCollection::intersections() const
+std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersections() const
 {
     return m_intersections.childObjects();
 }
@@ -183,7 +224,7 @@ std::vector<RimIntersection*> RimIntersectionCollection::intersections() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimIntersectionBox*> RimIntersectionCollection::intersectionBoxes() const
+std::vector<RimBoxIntersection*> RimIntersectionCollection::intersectionBoxes() const
 {
     return m_intersectionBoxes.childObjects();
 }
@@ -202,7 +243,8 @@ void RimIntersectionCollection::recomputeSimWellBranchData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersectionAndUpdate( RimIntersection* intersection, bool allowActiveViewChange )
+void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection,
+                                                             bool                          allowActiveViewChange )
 {
     m_intersections.push_back( intersection );
 
@@ -222,7 +264,7 @@ void RimIntersectionCollection::appendIntersectionAndUpdate( RimIntersection* in
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersectionNoUpdate( RimIntersection* intersection )
+void RimIntersectionCollection::appendIntersectionNoUpdate( RimExtrudedCurveIntersection* intersection )
 {
     m_intersections.push_back( intersection );
 }
@@ -242,7 +284,7 @@ void RimIntersectionCollection::syncronize2dIntersectionViews()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::scheduleCreateDisplayModelAndRedraw2dIntersectionViews()
 {
-    for ( RimIntersection* isection : m_intersections )
+    for ( RimExtrudedCurveIntersection* isection : m_intersections )
     {
         if ( isection->correspondingIntersectionView() )
         {
@@ -254,7 +296,7 @@ void RimIntersectionCollection::scheduleCreateDisplayModelAndRedraw2dIntersectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersectionBoxAndUpdate( RimIntersectionBox* intersectionBox )
+void RimIntersectionCollection::appendIntersectionBoxAndUpdate( RimBoxIntersection* intersectionBox )
 {
     m_intersectionBoxes.push_back( intersectionBox );
 
@@ -272,7 +314,7 @@ void RimIntersectionCollection::appendIntersectionBoxAndUpdate( RimIntersectionB
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersectionBoxNoUpdate( RimIntersectionBox* intersectionBox )
+void RimIntersectionCollection::appendIntersectionBoxNoUpdate( RimBoxIntersection* intersectionBox )
 {
     m_intersectionBoxes.push_back( intersectionBox );
 }
@@ -302,11 +344,12 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell( const RimSimWellInView* simWell ) const
 {
-    if ( !isActive ) return false;
+    if ( !isActive() ) return false;
 
-    for ( RimIntersection* cs : m_intersections )
+    for ( RimExtrudedCurveIntersection* cs : m_intersections )
     {
-        if ( cs->isActive && cs->type() == RimIntersection::CS_SIMULATION_WELL && cs->simulationWell() == simWell )
+        if ( cs->isActive() && cs->type() == RimExtrudedCurveIntersection::CS_SIMULATION_WELL &&
+             cs->simulationWell() == simWell )
         {
             return true;
         }
@@ -320,7 +363,7 @@ bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell( const Ri
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::updateIntersectionBoxGeometry()
 {
-    for ( RimIntersectionBox* intersectionBox : m_intersectionBoxes )
+    for ( RimBoxIntersection* intersectionBox : m_intersectionBoxes )
     {
         intersectionBox->updateBoxManipulatorGeometry();
     }

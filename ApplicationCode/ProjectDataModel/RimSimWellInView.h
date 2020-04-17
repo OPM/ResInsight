@@ -20,6 +20,10 @@
 
 #pragma once
 
+#include "Rim3dPropertiesInterface.h"
+
+#include "RigWellDiskData.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -38,12 +42,13 @@ struct RigWellResultPoint;
 
 class RimSimWellFractureCollection;
 class RigWellPath;
+class RimWellDiskConfig;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimSimWellInView : public caf::PdmObject
+class RimSimWellInView : public caf::PdmObject, public Rim3dPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -60,6 +65,10 @@ public:
     bool isWellPipeVisible( size_t frameIndex ) const;
     bool isWellSpheresVisible( size_t frameIndex ) const;
     bool isUsingCellCenterForPipe() const;
+
+    RigWellDiskData wellDiskData() const;
+    bool            isValidDisk() const;
+    double          diskScale() const;
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
@@ -83,21 +92,26 @@ public:
     caf::PdmField<bool> showWellHead;
     caf::PdmField<bool> showWellPipe;
     caf::PdmField<bool> showWellSpheres;
+    caf::PdmField<bool> showWellDisks;
 
     caf::PdmField<double> wellHeadScaleFactor;
     caf::PdmField<double> pipeScaleFactor;
 
     caf::PdmField<cvf::Color3f> wellPipeColor;
+    caf::PdmField<cvf::Color3f> wellDiskColor;
 
     caf::PdmField<bool> showWellCells;
     caf::PdmField<bool> showWellCellFence;
 
     caf::PdmChildField<RimSimWellFractureCollection*> simwellFractureCollection;
 
+    double calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig, bool* isOk );
+    void   scaleDisk( double minValue, double maxValue );
+
+    cvf::BoundingBox boundingBoxInDomainCoords() const override;
+
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
@@ -110,4 +124,9 @@ private:
 private:
     cvf::ref<RigSimWellData> m_simWellData;
     size_t                   m_resultWellIndex;
+    bool                     m_isInjector;
+
+    RigWellDiskData m_wellDiskData;
+    bool            m_isValidDisk;
+    double          m_diskScale;
 };

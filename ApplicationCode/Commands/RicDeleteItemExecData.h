@@ -37,13 +37,7 @@ public:
                             "CmdDeleteItemExecData tooltip",
                             "CmdDeleteItemExecData whatsthis" );
 
-        CAF_PDM_InitField( &m_pathToField,
-                           "PathToField",
-                           QString(),
-                           "PathToField",
-                           "",
-                           "PathToField tooltip",
-                           "PathToField whatsthis" );
+        CAF_PDM_InitField( &m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis" );
         CAF_PDM_InitField( &m_indexToObject,
                            "indexToObject",
                            -1,

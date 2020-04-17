@@ -21,11 +21,15 @@
 #include "RimCase.h"
 #include "RimProject.h"
 
-#include "RicfFieldHandle.h"
-#include "RicfMessages.h"
-
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmDataValueField.h"
+#include "cafPdmFieldScriptability.h"
 #include "cafPdmObject.h"
+#include "cafPdmObjectScriptability.h"
+#include "cafPdmObjectScriptabilityRegister.h"
+#include "cafPdmProxyValueField.h"
+#include "cafPdmScriptIOMessages.h"
 #include "cafPdmXmlFieldHandle.h"
 
 #include <grpcpp/grpcpp.h>
@@ -51,25 +55,39 @@ RimCase* RiaGrpcServiceInterface::findCase( int caseId )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Find the number of messages that will fit in the given bytes.
-/// The default argument is meant to be a sensible size for GRPC.
+/// Find the number of data items that will fit in the given bytes.
+/// The default argument for numBytesWantedInPackage is meant to be a sensible size for GRPC.
 //--------------------------------------------------------------------------------------------------
-size_t RiaGrpcServiceInterface::numberOfMessagesForByteCount( size_t messageSize,
-                                                              size_t numBytesWantedInPackage /*= 64 * 1024u*/ )
+size_t RiaGrpcServiceInterface::numberOfDataUnitsInPackage( size_t dataUnitSize, size_t packageByteCount /*= 64 * 1024u*/ )
 {
-    size_t messageCount = numBytesWantedInPackage / messageSize;
-    return messageCount;
+    size_t dataUnitCount = packageByteCount / dataUnitSize;
+    return dataUnitCount;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObject* source, rips::PdmObject* destination )
+void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHandle* source, rips::PdmObject* destination )
 {
-    CAF_ASSERT( source && destination );
+    CAF_ASSERT( source && destination && source->xmlCapability() );
 
-    destination->set_class_keyword( source->classKeyword().toStdString() );
+    QString classKeyword = source->xmlCapability()->classKeyword();
+    QString scriptName   = caf::PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
+    destination->set_class_keyword( scriptName.toStdString() );
     destination->set_address( reinterpret_cast<uint64_t>( source ) );
+
+    bool visible = true;
+    if ( source->uiCapability() && source->uiCapability()->objectToggleField() )
+    {
+        const caf::PdmField<bool>* boolField =
+            dynamic_cast<const caf::PdmField<bool>*>( source->uiCapability()->objectToggleField() );
+        if ( boolField )
+        {
+            visible = boolField->value();
+        }
+    }
+    destination->set_visible( visible );
+
     std::vector<caf::PdmFieldHandle*> fields;
     source->fields( fields );
 
@@ -80,13 +98,17 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObject* 
         if ( pdmValueField )
         {
             QString keyword    = pdmValueField->keyword();
-            auto    ricfHandle = field->template capability<RicfFieldHandle>();
+            auto    ricfHandle = field->template capability<caf::PdmFieldScriptability>();
             if ( ricfHandle != nullptr )
             {
-                QString     text;
-                QTextStream outStream( &text );
-                ricfHandle->writeFieldData( outStream, false );
-                ( *parametersMap )[keyword.toStdString()] = text.toStdString();
+                auto pdmProxyField = dynamic_cast<const caf::PdmProxyFieldHandle*>( field );
+                if ( !( pdmProxyField && pdmProxyField->isStreamingField() ) )
+                {
+                    QString     text;
+                    QTextStream outStream( &text );
+                    ricfHandle->readFromField( outStream, false );
+                    ( *parametersMap )[ricfHandle->scriptFieldName().toStdString()] = text.toStdString();
+                }
             }
         }
     }
@@ -95,24 +117,40 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObject* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObject* destination )
+void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject* source, caf::PdmObjectHandle* destination )
 {
-    CAF_ASSERT( source && destination );
-    CAF_ASSERT( source->class_keyword() == destination->classKeyword().toStdString() );
-    CAF_ASSERT( source->address() == reinterpret_cast<uint64_t>( destination ) );
+    CAF_ASSERT( source && destination && destination->xmlCapability() );
+
+    if ( destination->uiCapability() && destination->uiCapability()->objectToggleField() )
+    {
+        caf::PdmField<bool>* boolField =
+            dynamic_cast<caf::PdmField<bool>*>( destination->uiCapability()->objectToggleField() );
+        if ( boolField )
+        {
+            QVariant oldValue = boolField->toQVariant();
+            boolField->setValue( source->visible() );
+            QVariant newValue = boolField->toQVariant();
+            destination->uiCapability()->fieldChangedByUi( boolField, oldValue, newValue );
+        }
+    }
+
     std::vector<caf::PdmFieldHandle*> fields;
     destination->fields( fields );
 
     auto parametersMap = source->parameters();
     for ( auto field : fields )
     {
-        auto pdmValueField = dynamic_cast<caf::PdmValueField*>( field );
-        if ( pdmValueField )
+        auto scriptability = field->template capability<caf::PdmFieldScriptability>();
+        if ( scriptability )
         {
-            QString keyword = pdmValueField->keyword();
+            QString keyword = scriptability->scriptFieldName();
             QString value   = QString::fromStdString( parametersMap[keyword.toStdString()] );
 
-            assignFieldValue( value, pdmValueField );
+            QVariant oldValue, newValue;
+            if ( assignFieldValue( value, field, &oldValue, &newValue ) )
+            {
+                destination->uiCapability()->fieldChangedByUi( field, oldValue, newValue );
+            }
         }
     }
 }
@@ -120,48 +158,74 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGrpcServiceInterface::assignFieldValue( const QString& stringValue, caf::PdmValueField* field )
+bool RiaGrpcServiceInterface::assignFieldValue( const QString&       stringValue,
+                                                caf::PdmFieldHandle* field,
+                                                QVariant*            oldValue,
+                                                QVariant*            newValue )
 {
-    auto ricfHandle = field->template capability<RicfFieldHandle>();
-    if ( field && ricfHandle != nullptr )
+    CAF_ASSERT( oldValue && newValue );
+
+    auto scriptability = field->template capability<caf::PdmFieldScriptability>();
+    if ( field && scriptability != nullptr )
     {
-        QTextStream  stream( stringValue.toLatin1() );
-        RicfMessages messages;
-        ricfHandle->readFieldData( stream, nullptr, &messages, false );
+        caf::PdmValueField*      valueField = dynamic_cast<caf::PdmValueField*>( field );
+        QTextStream              stream( stringValue.toLatin1() );
+        caf::PdmScriptIOMessages messages;
+        if ( valueField ) *oldValue = valueField->toQVariant();
+        scriptability->writeToField( stream, nullptr, &messages, false, RiaApplication::instance()->project() );
+        if ( valueField ) *newValue = valueField->toQVariant();
+        return true;
     }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RiaGrpcServiceInterface::emplaceChildArrayField( caf::PdmObject* parent,
-                                                                 const QString&  fieldLabel,
-                                                                 const QString&  classKeyword )
+caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmObject* parent, const QString& fieldLabel )
 {
     std::vector<caf::PdmFieldHandle*> fields;
     parent->fields( fields );
 
-    QString childClassKeyword = classKeyword;
-
     for ( auto field : fields )
     {
         auto pdmChildArrayField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( field );
+        auto pdmChildField      = dynamic_cast<caf::PdmChildFieldHandle*>( field );
         if ( pdmChildArrayField && pdmChildArrayField->keyword() == fieldLabel )
         {
-            if ( childClassKeyword.isEmpty() )
-            {
-                childClassKeyword = pdmChildArrayField->xmlCapability()->childClassKeyword();
-            }
-
-            auto            pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create( childClassKeyword );
-            caf::PdmObject* pdmObject       = dynamic_cast<caf::PdmObject*>( pdmObjectHandle );
-            CAF_ASSERT( pdmObject );
-            if ( pdmObject )
-            {
-                pdmChildArrayField->insertAt( -1, pdmObject );
-                return pdmObject;
-            }
+            return emplaceChildArrayField( pdmChildArrayField );
+        }
+        else if ( pdmChildField && pdmChildField->keyword() == fieldLabel )
+        {
+            return emplaceChildField( pdmChildField );
         }
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmChildFieldHandle* childField )
+{
+    QString childClassKeyword = childField->xmlCapability()->dataTypeName();
+
+    auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create( childClassKeyword );
+    CAF_ASSERT( pdmObjectHandle );
+    childField->setChildObject( pdmObjectHandle );
+    return pdmObjectHandle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildArrayField( caf::PdmChildArrayFieldHandle* childArrayField )
+{
+    QString childClassKeyword = childArrayField->xmlCapability()->dataTypeName();
+
+    auto pdmObjectHandle = caf::PdmDefaultObjectFactory::instance()->create( childClassKeyword );
+    CAF_ASSERT( pdmObjectHandle );
+
+    childArrayField->insertAt( -1, pdmObjectHandle );
+    return pdmObjectHandle;
 }

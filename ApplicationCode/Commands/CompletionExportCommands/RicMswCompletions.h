@@ -68,10 +68,7 @@ public:
     {
     }
 
-    RigCompletionData::CompletionType completionType() const override
-    {
-        return RigCompletionData::FISHBONES;
-    }
+    RigCompletionData::CompletionType completionType() const override { return RigCompletionData::FISHBONES; }
 };
 
 //==================================================================================================

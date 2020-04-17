@@ -37,22 +37,30 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivSingleCellPartGenerator::RivSingleCellPartGenerator( RigEclipseCaseData* rigCaseData, size_t gridIndex, size_t cellIndex )
+RivSingleCellPartGenerator::RivSingleCellPartGenerator( RigEclipseCaseData* rigCaseData,
+                                                        size_t              gridIndex,
+                                                        size_t              cellIndex,
+                                                        const cvf::Vec3d&   displayModelOffset )
     : m_rigCaseData( rigCaseData )
     , m_gridIndex( gridIndex )
     , m_cellIndex( cellIndex )
     , m_geoMechCase( nullptr )
+    , m_displayModelOffset( displayModelOffset )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivSingleCellPartGenerator::RivSingleCellPartGenerator( RimGeoMechCase* rimGeoMechCase, size_t gridIndex, size_t cellIndex )
+RivSingleCellPartGenerator::RivSingleCellPartGenerator( RimGeoMechCase*   rimGeoMechCase,
+                                                        size_t            gridIndex,
+                                                        size_t            cellIndex,
+                                                        const cvf::Vec3d& displayModelOffset )
     : m_geoMechCase( rimGeoMechCase )
     , m_gridIndex( gridIndex )
     , m_cellIndex( cellIndex )
     , m_rigCaseData( nullptr )
+    , m_displayModelOffset( displayModelOffset )
 {
 }
 
@@ -88,7 +96,8 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawable()
     if ( m_rigCaseData && m_cellIndex != cvf::UNDEFINED_SIZE_T )
     {
         return cvf::StructGridGeometryGenerator::createMeshDrawableFromSingleCell( m_rigCaseData->grid( m_gridIndex ),
-                                                                                   m_cellIndex );
+                                                                                   m_cellIndex,
+                                                                                   m_displayModelOffset );
     }
     else if ( m_geoMechCase && m_cellIndex != cvf::UNDEFINED_SIZE_T )
     {
@@ -98,7 +107,7 @@ cvf::ref<cvf::DrawableGeo> RivSingleCellPartGenerator::createMeshDrawable()
         RigFemPart* femPart = m_geoMechCase->geoMechData()->femParts()->part( m_gridIndex );
         CVF_ASSERT( femPart );
 
-        return RivFemPartGeometryGenerator::createMeshDrawableFromSingleElement( femPart, m_cellIndex );
+        return RivFemPartGeometryGenerator::createMeshDrawableFromSingleElement( femPart, m_cellIndex, m_displayModelOffset );
     }
 
     return nullptr;

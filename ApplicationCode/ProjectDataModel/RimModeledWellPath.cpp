@@ -18,6 +18,7 @@
 
 #include "RimModeledWellPath.h"
 
+#include "RicfCommandObject.h"
 #include "RimProject.h"
 #include "RimWellPathGeometryDef.h"
 
@@ -25,7 +26,7 @@
 
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RifTextDataTableFormatter.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimPlotCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathFracture.h"
@@ -39,7 +40,10 @@ CAF_PDM_SOURCE_INIT( RimModeledWellPath, "ModeledWellPath" );
 //--------------------------------------------------------------------------------------------------
 RimModeledWellPath::RimModeledWellPath()
 {
-    CAF_PDM_InitObject( "Modeled WellPath", ":/EditableWell.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Modeled WellPath",
+                                  ":/EditableWell.png",
+                                  "",
+                                  "A Well Path created interactively in ResInsight" );
 
     CAF_PDM_InitFieldNoDefault( &m_geometryDefinition, "WellPathGeometryDef", "Trajectory", "", "", "" );
     m_geometryDefinition = new RimWellPathGeometryDef;
@@ -53,7 +57,9 @@ RimModeledWellPath::RimModeledWellPath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimModeledWellPath::~RimModeledWellPath() {}
+RimModeledWellPath::~RimModeledWellPath()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -83,7 +89,7 @@ void RimModeledWellPath::updateWellPathVisualization()
         fracture->loadDataAndUpdate();
     }
 
-    std::vector<RimIntersection*> refferingIntersections;
+    std::vector<RimExtrudedCurveIntersection*> refferingIntersections;
     this->objectsWithReferringPtrFieldsOfType( refferingIntersections );
 
     for ( auto intersection : refferingIntersections )
@@ -126,19 +132,17 @@ QString RimModeledWellPath::wellPlanText()
     formatter.setTableRowLineAppendText( "" );
 
     std::vector<RifTextDataTableColumn> tableHeader;
-    tableHeader.push_back( {"MDRKB"} );
-    tableHeader.push_back( {"CL"} );
-    tableHeader.push_back( {"Inc"} );
-    tableHeader.push_back( {"Azi"} );
-    tableHeader.push_back( {"TVDMSL"} );
-    tableHeader.push_back( {"NS"} );
-    tableHeader.push_back( {"EW"} );
-    tableHeader.push_back( {"Dogleg"} );
-    tableHeader.push_back( {"Build"} );
-    tableHeader.push_back( {"Turn"} );
+    std::vector<QString> columns = { "MDRKB", "CL", "Inc", "Azi", "TVDMSL", "NS", "EW", "Dogleg", "Build", "Turn" };
+    for ( QString column : columns )
+    {
+        tableHeader.push_back(
+            RifTextDataTableColumn( column,
+                                    RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_FLOAT, 2 ) ) );
+    }
+
     formatter.header( tableHeader );
 
-    double mdrkbAtFirstTarget = m_geometryDefinition->mdrkbAtFirstTarget();
+    double mdrkbAtFirstTarget = m_geometryDefinition->mdAtFirstTarget() + m_geometryDefinition->airGap();
     if ( m_geometryDefinition )
     {
         std::vector<RiaWellPlanCalculator::WellPlanSegment> wellPlan = m_geometryDefinition->wellPlan();

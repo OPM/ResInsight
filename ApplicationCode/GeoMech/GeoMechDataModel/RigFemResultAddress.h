@@ -35,19 +35,22 @@ public:
         , componentName( "" )
         , timeLapseBaseFrameIdx( NO_TIME_LAPSE )
         , refKLayerIndex( NO_COMPACTION )
+        , normalizedByHydrostaticPressure( false )
     {
     }
 
     RigFemResultAddress( RigFemResultPosEnum resPosType,
                          const std::string&  aFieldName,
                          const std::string&  aComponentName,
-                         int                 timeLapseBaseFrameIdx = NO_TIME_LAPSE,
-                         int                 refKLayerIndex        = NO_COMPACTION )
+                         int                 timeLapseBaseFrameIdx           = NO_TIME_LAPSE,
+                         int                 refKLayerIndex                  = NO_COMPACTION,
+                         bool                normalizedByHydrostaticPressure = false )
         : resultPosType( resPosType )
         , fieldName( aFieldName )
         , componentName( aComponentName )
         , timeLapseBaseFrameIdx( timeLapseBaseFrameIdx )
         , refKLayerIndex( refKLayerIndex )
+        , normalizedByHydrostaticPressure( normalizedByHydrostaticPressure )
     {
     }
 
@@ -56,34 +59,22 @@ public:
     std::string         componentName;
     int                 timeLapseBaseFrameIdx;
     int                 refKLayerIndex;
+    bool                normalizedByHydrostaticPressure;
 
-    static constexpr int allTimeLapsesValue()
-    {
-        return ALL_TIME_LAPSES;
-    }
-    static constexpr int noTimeLapseValue()
-    {
-        return NO_TIME_LAPSE;
-    }
-    static constexpr int noCompactionValue()
-    {
-        return NO_COMPACTION;
-    }
+    static constexpr int allTimeLapsesValue() { return ALL_TIME_LAPSES; }
+    static constexpr int noTimeLapseValue() { return NO_TIME_LAPSE; }
+    static constexpr int noCompactionValue() { return NO_COMPACTION; }
 
-    bool isTimeLapse() const
-    {
-        return timeLapseBaseFrameIdx > NO_TIME_LAPSE;
-    }
-    bool representsAllTimeLapses() const
-    {
-        return timeLapseBaseFrameIdx == ALL_TIME_LAPSES;
-    }
+    bool isTimeLapse() const { return timeLapseBaseFrameIdx > NO_TIME_LAPSE; }
+    bool representsAllTimeLapses() const { return timeLapseBaseFrameIdx == ALL_TIME_LAPSES; }
+    bool normalizeByHydrostaticPressure() const { return normalizedByHydrostaticPressure; }
 
     bool isValid() const
     {
         bool isTypeValid = resultPosType == RIG_NODAL || resultPosType == RIG_ELEMENT_NODAL ||
                            resultPosType == RIG_INTEGRATION_POINT || resultPosType == RIG_ELEMENT_NODAL_FACE ||
-                           resultPosType == RIG_FORMATION_NAMES || resultPosType == RIG_ELEMENT;
+                           resultPosType == RIG_FORMATION_NAMES || resultPosType == RIG_ELEMENT ||
+                           resultPosType == RIG_DIFFERENTIALS;
         bool isFieldValid = fieldName != "";
 
         return isTypeValid && isFieldValid;
@@ -91,6 +82,11 @@ public:
 
     bool operator<( const RigFemResultAddress& other ) const
     {
+        if ( normalizedByHydrostaticPressure != other.normalizedByHydrostaticPressure )
+        {
+            return ( normalizedByHydrostaticPressure < other.normalizedByHydrostaticPressure );
+        }
+
         if ( timeLapseBaseFrameIdx != other.timeLapseBaseFrameIdx )
         {
             return ( timeLapseBaseFrameIdx < other.timeLapseBaseFrameIdx );
@@ -117,7 +113,8 @@ public:
     bool operator==( const RigFemResultAddress& other ) const
     {
         if ( resultPosType != other.resultPosType || fieldName != other.fieldName ||
-             componentName != other.componentName || timeLapseBaseFrameIdx != other.timeLapseBaseFrameIdx )
+             componentName != other.componentName || timeLapseBaseFrameIdx != other.timeLapseBaseFrameIdx ||
+             normalizedByHydrostaticPressure != other.normalizedByHydrostaticPressure )
         {
             return false;
         }

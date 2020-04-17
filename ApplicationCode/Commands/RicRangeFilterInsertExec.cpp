@@ -36,7 +36,9 @@ RicRangeFilterInsertExec::RicRangeFilterInsertExec( RimCellRangeFilterCollection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicRangeFilterInsertExec::~RicRangeFilterInsertExec() {}
+RicRangeFilterInsertExec::~RicRangeFilterInsertExec()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -73,4 +75,6 @@ void RicRangeFilterInsertExec::redo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRangeFilterInsertExec::undo() {}
+void RicRangeFilterInsertExec::undo()
+{
+}

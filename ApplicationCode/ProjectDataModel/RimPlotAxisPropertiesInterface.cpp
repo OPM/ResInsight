@@ -30,6 +30,15 @@ void caf::AppEnum<RimPlotAxisPropertiesInterface::AxisTitlePositionType>::setUp(
 
     setDefault(RimPlotAxisPropertiesInterface::AXIS_TITLE_CENTER);
 }
+
+template <>
+void RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum::setUp()
+{
+    addItem( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW, "Few", "Few" );
+    addItem( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT, "Default", "Default" );
+    addItem( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_MANY, "Many", "Many" );
+    setDefault( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
+}
 } // namespace caf
 
 

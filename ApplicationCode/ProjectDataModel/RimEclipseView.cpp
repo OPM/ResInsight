@@ -27,6 +27,7 @@
 
 #include "HoloLensCommands/RicExportToSharingServerScheduler.h"
 
+#include "RicfCommandObject.h"
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -50,15 +51,19 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFracture.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimGeoMechResultDefinition.h"
 #include "RimGridCollection.h"
 #include "RimGridCrossPlotDataSet.h"
-#include "RimIntersection.h"
+#include "RimGridView.h"
 #include "RimIntersectionCollection.h"
+#include "RimIntersectionResultDefinition.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
@@ -67,11 +72,14 @@
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
+#include "RimSurfaceInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
 #include "RimVirtualPerforationResults.h"
+#include "RimWellMeasurementInView.h"
+#include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPathCollection.h"
 
 #include "Riu3dSelectionManager.h"
@@ -90,6 +98,8 @@
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafOverlayScalarMapperLegend.h"
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfDrawable.h"
@@ -103,7 +113,7 @@
 
 #include <climits>
 
-CAF_PDM_SOURCE_INIT( RimEclipseView, "ReservoirView" );
+CAF_PDM_XML_SOURCE_INIT( RimEclipseView, "ReservoirView" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -113,9 +123,20 @@ RimEclipseView::RimEclipseView()
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT( preferences );
 
-    CAF_PDM_InitObject( "Reservoir View", ":/3DView16x16.png", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Reservoir View",
+                                                    ":/3DView16x16.png",
+                                                    "",
+                                                    "The Eclipse 3d Reservoir View",
+                                                    "EclipseView",
+                                                    "The Eclipse 3d Reservoir View" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellResult, "GridCellResult", "Cell Result", ":/CellResult.png", "", "" );
+    CAF_PDM_InitScriptableFieldWithKeywordNoDefault( &m_cellResult,
+                                                     "GridCellResult",
+                                                     "CellResult",
+                                                     "Cell Result",
+                                                     ":/CellResult.png",
+                                                     "",
+                                                     "" );
     m_cellResult = new RimEclipseCellColors();
     m_cellResult.uiCapability()->setUiHidden( true );
     m_cellResult->setDiffResultOptionsEnabled( true );
@@ -159,8 +180,12 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitField( &m_showInactiveCells, "ShowInactiveCells", false, "Show Inactive Cells", "", "", "" );
     CAF_PDM_InitField( &m_showInvalidCells, "ShowInvalidCells", false, "Show Invalid Cells", "", "", "" );
 
-    this->cellResult()->setReservoirView( this );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_cellResultData, "CellResultData", "", "", "", "Current Eclipse Cell Result" );
+    m_cellResultData.xmlCapability()->disableIO();
+    m_cellResultData.registerGetMethod( this, &RimEclipseView::currentCellResultData );
+    m_cellResultData.registerSetMethod( this, &RimEclipseView::setCurrentCellResultData );
 
+    this->cellResult()->setReservoirView( this );
     this->cellEdgeResult()->setReservoirView( this );
     this->cellEdgeResult()->legendConfig()->setColorRange( RimRegularLegendConfig::PINK_WHITE );
 
@@ -338,6 +363,12 @@ void RimEclipseView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         scheduleCreateDisplayModelAndRedraw();
     }
+    else if ( changedField == &m_cellResultData )
+    {
+        currentGridCellResults()->recalculateStatistics( m_cellResult->eclipseResultAddress() );
+        setCurrentTimeStepAndUpdate( currentTimeStep() );
+        createDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -504,9 +535,8 @@ void RimEclipseView::onCreateDisplayModel()
 
         std::set<RivCellSetEnum> faultGeometryTypesToAppend = allVisibleFaultGeometryTypes();
         RivCellSetEnum           faultLabelType =
-            m_reservoirGridPartManager
-                ->geometryTypeForFaultLabels( faultGeometryTypesToAppend,
-                                              faultCollection()->isShowingFaultsAndFaultsOutsideFilters() );
+            m_reservoirGridPartManager->geometryTypeForFaultLabels( faultGeometryTypesToAppend,
+                                                                    faultCollection()->isShowingFaultsAndFaultsOutsideFilters() );
 
         for ( size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx )
         {
@@ -525,12 +555,21 @@ void RimEclipseView::onCreateDisplayModel()
 
     // Cross sections
 
-    m_crossSectionVizModel->removeAllParts();
-    m_crossSectionCollection->rebuildGeometry();
-    m_crossSectionCollection->appendPartsToModel( *this,
-                                                  m_crossSectionVizModel.p(),
+    m_intersectionVizModel->removeAllParts();
+    m_intersectionCollection->rebuildGeometry();
+    m_intersectionCollection->appendPartsToModel( *this,
+                                                  m_intersectionVizModel.p(),
                                                   m_reservoirGridPartManager->scaleTransform() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_crossSectionVizModel.p(), isUsingOverrideViewer() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+
+    // Surfaces
+
+    m_surfaceVizModel->removeAllParts();
+    if ( m_surfaceCollection )
+    {
+        m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
+        nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
+    }
 
     // Well path model
 
@@ -613,6 +652,8 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     updateVisibleGeometriesAndCellColors();
 
+    wellCollection()->updateWellDisks();
+
     appendWellsAndFracturesToModel();
 
     m_overlayInfoConfig()->update3DInfo();
@@ -659,8 +700,7 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
         else
         {
             m_reservoirGridPartManager->ensureDynamicGeometryPartsCreated( PROPERTY_FILTERED, m_currentTimeStep );
-            m_reservoirGridPartManager->ensureDynamicGeometryPartsCreated( PROPERTY_FILTERED_WELL_CELLS,
-                                                                           m_currentTimeStep );
+            m_reservoirGridPartManager->ensureDynamicGeometryPartsCreated( PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep );
         }
 
         setVisibleGridParts( geometriesToRecolor );
@@ -682,9 +722,8 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
         }
 
         RivCellSetEnum faultLabelType =
-            m_reservoirGridPartManager
-                ->geometryTypeForFaultLabels( faultGeometryTypesToAppend,
-                                              faultCollection()->isShowingFaultsAndFaultsOutsideFilters() );
+            m_reservoirGridPartManager->geometryTypeForFaultLabels( faultGeometryTypesToAppend,
+                                                                    faultCollection()->isShowingFaultsAndFaultsOutsideFilters() );
         if ( faultLabelType == PROPERTY_FILTERED )
         {
             m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel( frameParts.p(),
@@ -697,16 +736,16 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
         }
 
         // Set the transparency on all the Wellcell parts before setting the result color
-        float opacity = static_cast<float>(
-            1 - cvf::Math::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
+        float opacity =
+            static_cast<float>( 1 - cvf::Math::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
         m_reservoirGridPartManager->updateCellColor( PROPERTY_FILTERED_WELL_CELLS,
                                                      m_currentTimeStep,
                                                      cvf::Color4f( cvf::Color3f( cvf::Color3::WHITE ), opacity ) );
 
         if ( this->showInactiveCells() )
         {
-            if ( this->rangeFilterCollection()
-                     ->hasActiveFilters() ) // Wells not considered, because we do not have a INACTIVE_WELL_CELLS group yet.
+            if ( this->rangeFilterCollection()->hasActiveFilters() ) // Wells not considered, because we do not have a
+                                                                     // INACTIVE_WELL_CELLS group yet.
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel( frameParts.p(),
                                                                               RANGE_FILTERED_INACTIVE,
@@ -787,17 +826,11 @@ void RimEclipseView::updateVisibleGeometriesAndCellColors()
 
     this->updateFaultColors();
 
-    if ( ( this->hasUserRequestedAnimation() && this->cellResult()->hasResult() ) ||
-         this->cellResult()->isTernarySaturationSelected() )
-    {
-        m_crossSectionCollection->updateCellResultColor( m_currentTimeStep,
-                                                         this->cellResult()->legendConfig()->scalarMapper(),
-                                                         this->cellResult()->ternaryLegendConfig()->scalarMapper() );
-    }
-    else
-    {
-        m_crossSectionCollection->applySingleColorEffect();
-    }
+    bool hasGeneralCellResult = ( this->hasUserRequestedAnimation() && this->cellResult()->hasResult() ) ||
+                                this->cellResult()->isTernarySaturationSelected();
+
+    m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
+    if ( m_surfaceCollection ) m_surfaceCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -881,6 +914,8 @@ void RimEclipseView::appendWellsAndFracturesToModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::onLoadDataAndUpdate()
 {
+    this->updateSurfacesInViewTreeItems();
+
     onUpdateScaleTransform();
 
     if ( m_eclipseCase )
@@ -910,6 +945,8 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     this->faultCollection()->syncronizeFaults();
 
+    this->m_wellCollection->updateWellDisks();
+
     scheduleReservoirGridGeometryRegen();
     m_simWellsPartManager->clearGeometryCache();
 
@@ -932,6 +969,8 @@ void RimEclipseView::onLoadDataAndUpdate()
     {
         m_virtualPerforationResult->loadData();
     }
+
+    m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
 
     this->scheduleCreateDisplayModelAndRedraw();
 }
@@ -1005,8 +1044,8 @@ void RimEclipseView::updateStaticCellColors( RivCellSetEnum geometryType )
 //--------------------------------------------------------------------------------------------------
 cvf::Color4f RimEclipseView::colorFromCellCategory( RivCellSetEnum geometryType ) const
 {
-    float opacity = static_cast<float>(
-        1 - cvf::Math::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
+    float opacity =
+        static_cast<float>( 1 - cvf::Math::clamp( this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0 ) );
     cvf::Color4f color( cvf::Color3::ORANGE );
 
     switch ( geometryType )
@@ -1086,6 +1125,7 @@ QString RimEclipseView::createAutoName() const
 void RimEclipseView::onUpdateDisplayModelVisibility()
 {
     faultCollection()->updateConnectedEditors();
+    m_faultResultSettings->updateConnectedEditors();
 
     // This is required to update the read-only state of simulation wells
     // when a range filter is manipulated and visible simulation wells might change
@@ -1098,7 +1138,7 @@ void RimEclipseView::onUpdateDisplayModelVisibility()
 //--------------------------------------------------------------------------------------------------
 /// Convenience for quick access to results
 //--------------------------------------------------------------------------------------------------
-RigCaseCellResultsData* RimEclipseView::currentGridCellResults()
+RigCaseCellResultsData* RimEclipseView::currentGridCellResults() const
 {
     if ( m_eclipseCase )
     {
@@ -1200,11 +1240,35 @@ void RimEclipseView::onUpdateLegends()
     RigCaseCellResultsData* results = eclipseCase->results( cellResult()->porosityModel() );
     CVF_ASSERT( results );
 
-    updateMinMaxValuesAndAddLegendToView( QString( "Cell Results: \n" ), this->cellResult(), results );
+    updateLegendRangesTextAndVisibility( this->cellResult()->legendConfig(),
+                                         this->cellResult()->ternaryLegendConfig(),
+                                         QString( "Cell Results: \n" ),
+                                         this->cellResult(),
+                                         m_currentTimeStep );
 
     if ( this->faultResultSettings()->showCustomFaultResult() && this->faultResultSettings()->hasValidCustomResult() )
     {
-        updateMinMaxValuesAndAddLegendToView( QString( "Fault Results: \n" ), this->currentFaultResultColors(), results );
+        updateLegendRangesTextAndVisibility( currentFaultResultColors()->legendConfig(),
+                                             currentFaultResultColors()->ternaryLegendConfig(),
+                                             QString( "Fault Results: \n" ),
+                                             this->currentFaultResultColors(),
+                                             m_currentTimeStep );
+    }
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->updateLegendRangesTextAndVisibility( "Intersection Results:\n",
+                                                             nativeOrOverrideViewer(),
+                                                             isUsingOverrideViewer() );
+    }
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->updateLegendRangesTextAndVisibility( "Surface Results:\n",
+                                                             nativeOrOverrideViewer(),
+                                                             isUsingOverrideViewer() );
     }
 
     if ( this->cellEdgeResult()->legendConfig()->showLegend() )
@@ -1213,7 +1277,7 @@ void RimEclipseView::onUpdateLegends()
         {
             if ( this->cellEdgeResult()->isUsingSingleVariable() )
             {
-                this->cellEdgeResult()->singleVarEdgeResultColors()->updateLegendData( m_eclipseCase, m_currentTimeStep );
+                this->cellEdgeResult()->singleVarEdgeResultColors()->updateRangesForEmbeddedLegends( m_currentTimeStep );
             }
             else
             {
@@ -1237,7 +1301,7 @@ void RimEclipseView::onUpdateLegends()
                     }
                     else
                     {
-                        const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
+                        const std::vector<QString> fnVector = eclipseCase->formationNames();
                         cellEdgeResult()->legendConfig()->setNamedCategoriesInverse( fnVector );
                     }
                 }
@@ -1295,48 +1359,46 @@ void RimEclipseView::onUpdateLegends()
         nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( virtLegend->titledOverlayFrame(),
                                                                     isUsingOverrideViewer() );
     }
+
+    if ( m_wellMeasurementCollection->isChecked() )
+    {
+        for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+        {
+            if ( wellMeasurement->isChecked() && wellMeasurement->legendConfig()->showLegend() )
+            {
+                wellMeasurement->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::updateMinMaxValuesAndAddLegendToView( QString                 legendLabel,
-                                                           RimEclipseCellColors*   resultColors,
-                                                           RigCaseCellResultsData* cellResultsData )
+void RimEclipseView::updateLegendRangesTextAndVisibility( RimRegularLegendConfig*     legendConfig,
+                                                          RimTernaryLegendConfig*     ternaryLegendConfig,
+                                                          QString                     legendHeading,
+                                                          RimEclipseResultDefinition* eclResultDef,
+                                                          int                         timeStepIndex )
 {
-    resultColors->updateLegendData( m_eclipseCase, m_currentTimeStep );
+    eclResultDef->updateRangesForExplicitLegends( legendConfig, ternaryLegendConfig, timeStepIndex );
 
-    if ( resultColors->hasResult() && resultColors->legendConfig()->showLegend() )
+    if ( eclResultDef->hasResult() && legendConfig->showLegend() )
     {
-        QString title = legendLabel + resultColors->resultVariableUiName();
-        if ( !resultColors->diffResultUiShortName().isEmpty() )
-        {
-            title += QString( "\n%1" ).arg( resultColors->diffResultUiShortName() );
-        }
+        eclResultDef->updateLegendTitle( legendConfig, legendHeading );
 
-        if ( resultColors->hasDualPorFractureResult() )
-        {
-            QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText(
-                resultColors->porosityModel() );
-
-            title += QString( "\nDual Por : %1" ).arg( porosityModelText );
-        }
-
-        resultColors->legendConfig()->setTitle( title );
-        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( resultColors->legendConfig()->titledOverlayFrame(),
+        nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( legendConfig->titledOverlayFrame(),
                                                                     isUsingOverrideViewer() );
     }
 
-    size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
-    if ( resultColors->isTernarySaturationSelected() && maxTimeStepCount > 1 )
+    size_t maxTimeStepCount = eclResultDef->currentGridCellResults()->maxTimeStepCount();
+    if ( eclResultDef->isTernarySaturationSelected() && maxTimeStepCount > 1 )
     {
-        if ( resultColors->ternaryLegendConfig()->showLegend() &&
-             resultColors->ternaryLegendConfig()->titledOverlayFrame() )
+        if ( ternaryLegendConfig->showLegend() && ternaryLegendConfig->titledOverlayFrame() )
         {
-            resultColors->ternaryLegendConfig()->setTitle( legendLabel );
-            nativeOrOverrideViewer()
-                ->addColorLegendToBottomLeftCorner( resultColors->ternaryLegendConfig()->titledOverlayFrame(),
-                                                    isUsingOverrideViewer() );
+            ternaryLegendConfig->setTitle( legendHeading );
+            nativeOrOverrideViewer()->addColorLegendToBottomLeftCorner( ternaryLegendConfig->titledOverlayFrame(),
+                                                                        isUsingOverrideViewer() );
         }
     }
 }
@@ -1630,7 +1692,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
     {
         this->loadDataAndUpdate();
 
-        std::vector<RimIntersection*> intersections = m_crossSectionCollection->intersections();
+        std::vector<RimExtrudedCurveIntersection*> intersections = m_intersectionCollection->intersections();
         for ( auto intersection : intersections )
         {
             if ( intersection && intersection->correspondingIntersectionView() )
@@ -1714,7 +1776,11 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
     uiTreeOrdering.add( faultResultSettings() );
+    uiTreeOrdering.add( &m_intersectionResultDefCollection );
+    uiTreeOrdering.add( &m_surfaceResultDefCollection );
+
     uiTreeOrdering.add( wellCollection() );
+    uiTreeOrdering.add( &m_wellMeasurementCollection );
 
     {
         bool showFractureColors = false;
@@ -1737,7 +1803,9 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     uiTreeOrdering.add( faultCollection() );
     uiTreeOrdering.add( annotationCollection() );
-    uiTreeOrdering.add( crossSectionCollection() );
+    uiTreeOrdering.add( intersectionCollection() );
+
+    if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
 
     uiTreeOrdering.add( m_rangeFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );
@@ -1811,10 +1879,22 @@ bool RimEclipseView::isTimeStepDependentDataVisible() const
         if ( this->faultResultSettings()->customFaultResult()->isTernarySaturationSelected() ) return true;
     }
 
+    if ( this->intersectionCollection()->hasAnyActiveSeparateResults() )
+    {
+        return true;
+    }
+
+    if ( this->surfaceInViewCollection() && this->surfaceInViewCollection()->hasAnyActiveSeparateResults() )
+    {
+        return true;
+    }
+
     if ( this->wellPathCollection() && this->wellPathCollection()->anyWellsContainingPerforationIntervals() )
         return true;
 
     if ( this->hasVisibleTimeStepDependent3dWellLogCurves() ) return true;
+
+    if ( this->wellPathCollection() && this->wellCollection()->isWellDisksVisible() ) return true;
 
     return false;
 }
@@ -1837,6 +1917,45 @@ RimEclipseCellColors* RimEclipseView::currentFaultResultColors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RimEclipseView::currentCellResultData() const
+{
+    std::vector<double> resultData;
+    if ( currentGridCellResults() && cellResult() )
+    {
+        int timeStep = 0;
+        if ( cellResult()->hasDynamicResult() )
+        {
+            timeStep = this->currentTimeStep();
+        }
+        resultData = currentGridCellResults()->cellScalarResults( cellResult()->eclipseResultAddress() )[timeStep];
+    }
+    return resultData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::setCurrentCellResultData( const std::vector<double>& values )
+{
+    if ( currentGridCellResults() && cellResult() )
+    {
+        int timeStep = 0;
+        if ( cellResult()->hasDynamicResult() )
+        {
+            timeStep = this->currentTimeStep();
+        }
+        std::vector<double>* modResult =
+            currentGridCellResults()->modifiableCellScalarResult( cellResult()->eclipseResultAddress(), timeStep );
+        if ( modResult->size() == values.size() )
+        {
+            *modResult = values;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::onResetLegendsInViewer()
 {
     RimRegularLegendConfig* cellResultNormalLegendConfig = this->cellResult()->legendConfig();
@@ -1844,6 +1963,25 @@ void RimEclipseView::onResetLegendsInViewer()
 
     this->cellResult()->ternaryLegendConfig()->recreateLegend();
     this->cellEdgeResult()->legendConfig()->recreateLegend();
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->regularLegendConfig()->recreateLegend();
+        sepInterResDef->ternaryLegendConfig()->recreateLegend();
+    }
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->regularLegendConfig()->recreateLegend();
+        sepInterResDef->ternaryLegendConfig()->recreateLegend();
+    }
+
+    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+    {
+        wellMeasurement->legendConfig()->recreateLegend();
+    }
 
     nativeOrOverrideViewer()->removeAllColorLegends();
 }
@@ -1866,13 +2004,10 @@ void RimEclipseView::updateVirtualConnectionLegendRanges()
 
         virtualTransmissibilities->computeMinMax( &minValue, &maxValue, &posClosestToZero, &negClosestToZero );
 
-        if ( minValue != HUGE_VAL )
-        {
-            RimRegularLegendConfig* legendConfig = virtualPerforationResult()->legendConfig();
+        RimRegularLegendConfig* legendConfig = virtualPerforationResult()->legendConfig();
 
-            legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
-            legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
-        }
+        legendConfig->setAutomaticRanges( minValue, maxValue, minValue, maxValue );
+        legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
     }
 }
 
@@ -1969,9 +2104,8 @@ void RimEclipseView::calculateCurrentTotalCellVisibility( cvf::UByteArray* total
 
         for ( size_t gpIdx = 0; gpIdx < m_visibleGridParts.size(); ++gpIdx )
         {
-            const cvf::UByteArray* visibility = m_reservoirGridPartManager->cellVisibility( m_visibleGridParts[gpIdx],
-                                                                                            gridIdx,
-                                                                                            timeStep );
+            const cvf::UByteArray* visibility =
+                m_reservoirGridPartManager->cellVisibility( m_visibleGridParts[gpIdx], gridIdx, timeStep );
 
             for ( int lcIdx = 0; lcIdx < gridCellCount; ++lcIdx )
             {
@@ -1996,6 +2130,25 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
     absLegends.push_back( fractureColors()->activeLegend() );
     absLegends.push_back( virtualPerforationResult()->legendConfig() );
 
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        absLegends.push_back( sepInterResDef->regularLegendConfig() );
+        absLegends.push_back( sepInterResDef->ternaryLegendConfig() );
+    }
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
+    {
+        absLegends.push_back( sepInterResDef->regularLegendConfig() );
+        absLegends.push_back( sepInterResDef->ternaryLegendConfig() );
+    }
+
+    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+    {
+        absLegends.push_back( wellMeasurement->legendConfig() );
+    }
+
     return absLegends;
 }
 
@@ -2005,38 +2158,6 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
 bool RimEclipseView::isShowingActiveCellsOnly()
 {
     return !m_showInactiveCells;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimEclipseView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
-{
-    Riu3dSelectionManager*         riuSelManager = Riu3dSelectionManager::instance();
-    std::vector<RiuSelectionItem*> items;
-    riuSelManager->selectedItems( items );
-
-    for ( size_t i = 0; i < items.size(); i++ )
-    {
-        if ( items[i]->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT )
-        {
-            RiuEclipseSelectionItem* eclipseSelItem = static_cast<RiuEclipseSelectionItem*>( items[i] );
-            if ( eclipseSelItem && eclipseSelItem->m_view == this )
-            {
-                CVF_ASSERT( eclipseSelItem->m_view->eclipseCase() );
-                CVF_ASSERT( eclipseSelItem->m_view->eclipseCase()->eclipseCaseData() );
-
-                RivSingleCellPartGenerator partGen( eclipseSelItem->m_view->eclipseCase()->eclipseCaseData(),
-                                                    eclipseSelItem->m_gridIndex,
-                                                    eclipseSelItem->m_gridLocalCellIndex );
-
-                cvf::ref<cvf::Part> part = partGen.createPart( eclipseSelItem->m_color );
-                part->setTransform( this->scaleTransform() );
-
-                parts->push_back( part.p() );
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2069,7 +2190,9 @@ void RimEclipseView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel,
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseView::isUsingFormationNames() const
 {
-    if ( ( cellResult()->resultType() == RiaDefines::FORMATION_NAMES ) ) return true;
+    if ( cellResult()->resultType() == RiaDefines::FORMATION_NAMES ) return true;
+
+    if ( faultResultSettings()->customFaultResult()->resultType() == RiaDefines::ALLEN_DIAGRAMS ) return true;
 
     return eclipsePropertyFilterCollection()->isUsingFormationNames();
 }

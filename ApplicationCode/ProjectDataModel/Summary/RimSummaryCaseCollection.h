@@ -73,18 +73,9 @@ public:
     {
     }
 
-    bool isValid() const
-    {
-        return !name.isEmpty() && type != TYPE_NONE;
-    }
-    bool isNumeric() const
-    {
-        return type == TYPE_NUMERIC;
-    }
-    bool isText() const
-    {
-        return type == TYPE_TEXT;
-    }
+    bool   isValid() const { return !name.isEmpty() && type != TYPE_NONE; }
+    bool   isNumeric() const { return type == TYPE_NUMERIC; }
+    bool   isText() const { return type == TYPE_TEXT; }
     double normalizedStdDeviation() const;
 
     static void sortByBinnedVariation( std::vector<NameParameterPair>& parameterVector );
@@ -117,6 +108,8 @@ public:
     std::set<QString>                          wellsWithRftData() const;
     std::set<QDateTime>                        rftTimeStepsForWell( const QString& wellName ) const;
     RifReaderRftInterface*                     rftStatisticsReader();
+    void                                       setEnsembleId( int ensembleId );
+    int                                        ensembleId() const;
 
     EnsembleParameter ensembleParameter( const QString& paramName ) const;
     void              calculateEnsembleParametersIntersectionHash();
@@ -135,9 +128,7 @@ private:
     void                 updateIcon();
 
     void initAfterRead() override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 protected:
     virtual void onLoadDataAndUpdate();
@@ -152,6 +143,7 @@ private:
     caf::PdmProxyValueField<QString>         m_nameAndItemCount;
     caf::PdmField<bool>                      m_isEnsemble;
     cvf::ref<RifReaderEnsembleStatisticsRft> m_statisticsEclipseRftReader;
+    caf::PdmField<int>                       m_ensembleId;
 
     size_t m_commonAddressCount; // if different address count among cases, set to 0
 };

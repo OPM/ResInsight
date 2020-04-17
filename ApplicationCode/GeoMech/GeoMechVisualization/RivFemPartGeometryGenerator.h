@@ -42,29 +42,14 @@ class RigFemPartScalarDataAccess;
 class RivFemPartTriangleToElmMapper : public cvf::Object
 {
 public:
-    size_t triangleCount() const
-    {
-        return m_trianglesToElementIndex.size();
-    }
+    size_t triangleCount() const { return m_trianglesToElementIndex.size(); }
 
-    int elementIndex( size_t triangleIdx ) const
-    {
-        return m_trianglesToElementIndex[triangleIdx];
-    }
-    char elementFace( size_t triangleIdx ) const
-    {
-        return m_trianglesToElmFace[triangleIdx];
-    }
+    int  elementIndex( size_t triangleIdx ) const { return m_trianglesToElementIndex[triangleIdx]; }
+    char elementFace( size_t triangleIdx ) const { return m_trianglesToElmFace[triangleIdx]; }
 
     // Interface for building the mappings
-    std::vector<int>& triangleToElmIndexMap()
-    {
-        return m_trianglesToElementIndex;
-    }
-    std::vector<char>& triangleToElmFaceMap()
-    {
-        return m_trianglesToElmFace;
-    }
+    std::vector<int>&  triangleToElmIndexMap() { return m_trianglesToElementIndex; }
+    std::vector<char>& triangleToElmFaceMap() { return m_trianglesToElmFace; }
 
 private:
     std::vector<int>  m_trianglesToElementIndex;
@@ -88,10 +73,7 @@ public:
 
     // Access, valid after generation is done
 
-    const RigFemPart* activePart()
-    {
-        return m_part.p();
-    }
+    const RigFemPart* activePart() { return m_part.p(); }
 
     // Generated geometry
 
@@ -99,29 +81,19 @@ public:
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
     cvf::ref<cvf::DrawableGeo> createOutlineMeshDrawable( double creaseAngle );
 
-    const std::vector<size_t>& quadVerticesToNodeIdxMapping() const
-    {
-        return m_quadVerticesToNodeIdx;
-    }
-    const std::vector<size_t>& quadVerticesToGlobalElmNodeIdx() const
-    {
-        return m_quadVerticesToGlobalElmNodeIdx;
-    }
+    const std::vector<size_t>& quadVerticesToNodeIdxMapping() const { return m_quadVerticesToNodeIdx; }
+    const std::vector<size_t>& quadVerticesToGlobalElmNodeIdx() const { return m_quadVerticesToGlobalElmNodeIdx; }
     const std::vector<size_t>& quadVerticesToGlobalElmFaceNodeIdx() const
     {
         return m_quadVerticesToGlobalElmFaceNodeIdx;
     }
-    const std::vector<size_t>& quadVerticesToGlobalElmIdx() const
-    {
-        return m_quadVerticesToGlobalElmIdx;
-    }
+    const std::vector<size_t>& quadVerticesToGlobalElmIdx() const { return m_quadVerticesToGlobalElmIdx; }
 
-    RivFemPartTriangleToElmMapper* triangleToElementMapper()
-    {
-        return m_triangleMapper.p();
-    }
+    RivFemPartTriangleToElmMapper* triangleToElementMapper() { return m_triangleMapper.p(); }
 
-    static cvf::ref<cvf::DrawableGeo> createMeshDrawableFromSingleElement( const RigFemPart* grid, size_t elementIndex );
+    static cvf::ref<cvf::DrawableGeo> createMeshDrawableFromSingleElement( const RigFemPart* grid,
+                                                                           size_t            elementIndex,
+                                                                           const cvf::Vec3d& displayModelOffset );
 
 private:
     static cvf::ref<cvf::UIntArray> lineIndicesFromQuadVertexArray( const cvf::Vec3fArray* vertexArray );

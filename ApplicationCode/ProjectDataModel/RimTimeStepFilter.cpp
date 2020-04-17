@@ -72,13 +72,7 @@ RimTimeStepFilter::RimTimeStepFilter()
     CAF_PDM_InitField( &m_interval, "Interval", 1, "Interval", "", "", "" );
     m_interval.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_timeStepNamesFromFile,
-                       "TimeStepsFromFile",
-                       std::vector<QString>(),
-                       "TimeSteps From File",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_timeStepNamesFromFile, "TimeStepsFromFile", std::vector<QString>(), "TimeSteps From File", "", "", "" );
     m_timeStepNamesFromFile.xmlCapability()->disableIO();
     CAF_PDM_InitField( &m_dateFormat, "DateFormat", QString( "yyyy-MM-dd" ), "Date Format", "", "", "" );
 

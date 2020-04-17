@@ -26,8 +26,10 @@
 
 namespace caf
 {
+class PdmChildFieldHandle;
 class PdmValueField;
 class PdmObject;
+class PdmObjectHandle;
 template <typename T>
 class PdmField;
 } // namespace caf
@@ -58,8 +60,12 @@ private:
     void                           assignPdmFieldValue( caf::PdmValueField*                      pdmValueField,
                                                         const google::protobuf::Message&         params,
                                                         const google::protobuf::FieldDescriptor* paramDescriptor );
-    void                           assignGrpcFieldValue( google::protobuf::Message*               reply,
-                                                         const google::protobuf::FieldDescriptor* fieldDescriptor,
-                                                         const caf::PdmValueField*                pdmValueField );
-    void                           assignResultToReply( const caf::PdmObject* result, rips::CommandReply* reply );
+    void                           assignPdmObjectValues( caf::PdmObjectHandle*                    pdmObject,
+                                                          const google::protobuf::Message&         params,
+                                                          const google::protobuf::FieldDescriptor* paramDescriptor );
+
+    void assignGrpcFieldValue( google::protobuf::Message*               reply,
+                               const google::protobuf::FieldDescriptor* fieldDescriptor,
+                               const caf::PdmValueField*                pdmValueField );
+    void assignResultToReply( const caf::PdmObject* result, rips::CommandReply* reply );
 };

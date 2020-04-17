@@ -45,6 +45,5 @@ public:
 private:
     void readAllWellPathFormations( const QString& filePath );
 
-    std::map<QString /*filename*/, std::map<QString /*wellName*/, cvf::ref<RigWellPathFormations>>>
-        m_fileNameToWellPathFormationMap;
+    std::map<QString /*filename*/, std::map<QString /*wellName*/, cvf::ref<RigWellPathFormations>>> m_fileNameToWellPathFormationMap;
 };

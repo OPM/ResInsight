@@ -33,7 +33,9 @@
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 
+#include "RiuCvfOverlayItemWidget.h"
 #include "RiuGridCrossQwtPlot.h"
+#include "RiuScalarMapperLegendFrame.h"
 
 #include "RimCase.h"
 #include "RimEclipseCase.h"
@@ -57,6 +59,7 @@
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafProgressInfo.h"
+#include "cafTitledOverlayFrame.h"
 #include "cvfScalarMapper.h"
 #include "cvfqtUtils.h"
 
@@ -131,6 +134,18 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     m_plotCellFilterCollection = new RimPlotCellFilterCollection;
 
     setDefaults();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridCrossPlotDataSet::~RimGridCrossPlotDataSet()
+{
+    if ( m_legendOverlayFrame )
+    {
+        m_legendOverlayFrame->setParent( nullptr );
+        delete m_legendOverlayFrame;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,13 +290,15 @@ QString RimGridCrossPlotDataSet::createAutoName() const
         nameTags += timeStepString();
     }
 
+    QString fullTitle = nameTags.join( ", " );
+
     if ( m_nameConfig->addGrouping() && groupParameter() != "None" )
     {
         QString catTitle = groupTitle();
-        if ( !catTitle.isEmpty() ) nameTags += catTitle;
+        if ( !catTitle.isEmpty() ) fullTitle += QString( " [%1]" ).arg( catTitle );
     }
 
-    return nameTags.join( ", " );
+    return fullTitle;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,7 +308,7 @@ QString RimGridCrossPlotDataSet::groupTitle() const
 {
     if ( m_grouping != NO_GROUPING )
     {
-        return QString( "Grouped by %1" ).arg( groupParameter() );
+        return groupParameter();
     }
     return "";
 }
@@ -536,11 +553,10 @@ void RimGridCrossPlotDataSet::assignCurveDataGroups( const RigEclipseCrossPlotRe
 
             for ( size_t i = 0; i < result.xValues.size(); ++i )
             {
-                auto upperBoundIt    = std::lower_bound( tickValues.begin(),
-                                                      tickValues.end(),
-                                                      result.groupValuesContinuous[i] );
-                int  upperBoundIndex = static_cast<int>( upperBoundIt - tickValues.begin() );
-                int  categoryNum     = std::min( (int)tickValues.size() - 2, std::max( 0, upperBoundIndex - 1 ) );
+                auto upperBoundIt =
+                    std::lower_bound( tickValues.begin(), tickValues.end(), result.groupValuesContinuous[i] );
+                int upperBoundIndex = static_cast<int>( upperBoundIt - tickValues.begin() );
+                int categoryNum     = std::min( (int)tickValues.size() - 2, std::max( 0, upperBoundIndex - 1 ) );
                 m_groupedResults[categoryNum].xValues.push_back( result.xValues[i] );
                 m_groupedResults[categoryNum].yValues.push_back( result.yValues[i] );
                 if ( !result.groupValuesContinuous.empty() )
@@ -916,17 +932,9 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
-        QStringList timeStepNames;
-
-        if ( m_case )
-        {
-            timeStepNames = m_case->timeStepStrings();
-        }
         options.push_back( caf::PdmOptionItemInfo( "All Time Steps", -1 ) );
-        for ( int i = 0; i < timeStepNames.size(); i++ )
-        {
-            options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
-        }
+
+        RimTools::timeStepsForCase( m_case, &options );
     }
     else if ( fieldNeedingOptions == &m_cellFilterView )
     {
@@ -943,10 +951,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_grouping )
     {
-        std::set<RigGridCrossPlotCurveGrouping> validOptions = {NO_GROUPING,
-                                                                GROUP_BY_TIME,
-                                                                GROUP_BY_FORMATION,
-                                                                GROUP_BY_RESULT};
+        std::set<RigGridCrossPlotCurveGrouping> validOptions = {NO_GROUPING, GROUP_BY_TIME, GROUP_BY_FORMATION, GROUP_BY_RESULT};
         if ( !hasMultipleTimeSteps() )
         {
             validOptions.erase( GROUP_BY_TIME );
@@ -986,15 +991,11 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                 RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
                 if ( eclipseCase )
                 {
-                    RigFormationNames* formationNames = eclipseCase->eclipseCaseData()->activeFormationNames();
-                    if ( formationNames )
+                    const std::vector<QString> categoryNames = eclipseCase->eclipseCaseData()->formationNames();
+                    if ( !categoryNames.empty() )
                     {
-                        const std::vector<QString>& categoryNames = formationNames->formationNames();
-                        if ( !categoryNames.empty() )
-                        {
-                            legendConfig()->setNamedCategoriesInverse( categoryNames );
-                            legendConfig()->setAutomaticRanges( 0, categoryNames.size() - 1, 0, categoryNames.size() - 1 );
-                        }
+                        legendConfig()->setNamedCategoriesInverse( categoryNames );
+                        legendConfig()->setAutomaticRanges( 0, categoryNames.size() - 1, 0, categoryNames.size() - 1 );
                     }
                 }
             }
@@ -1017,14 +1018,23 @@ void RimGridCrossPlotDataSet::updateLegendRange()
                 RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
                 if ( eclipseCase )
                 {
-                    m_groupingProperty->updateLegendData( eclipseCase, m_timeStep() );
+                    m_groupingProperty->updateRangesForEmbeddedLegends( m_timeStep() );
                 }
             }
-            parent->addOrUpdateDataSetLegend( this );
+            if ( !m_legendOverlayFrame )
+            {
+                m_legendOverlayFrame =
+                    new RiuDraggableOverlayFrame( parent->viewer()->canvas(), parent->viewer()->overlayMargins() );
+            }
+            m_legendOverlayFrame->setContentFrame( legendConfig()->makeLegendFrame() );
+            parent->viewer()->addOverlayFrame( m_legendOverlayFrame );
         }
         else
         {
-            parent->removeDataSetLegend( this );
+            if ( m_legendOverlayFrame )
+            {
+                parent->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+            }
         }
     }
 }
@@ -1167,7 +1177,8 @@ bool RimGridCrossPlotDataSet::isYAxisLogarithmic() const
 ///
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotDataSet::configureForPressureSaturationCurves( RimEclipseResultCase* eclipseCase,
-                                                                    const QString&        dynamicResultName )
+                                                                    const QString&        dynamicResultName,
+                                                                    int                   timeStep )
 {
     m_case = eclipseCase;
 
@@ -1187,6 +1198,8 @@ void RimGridCrossPlotDataSet::configureForPressureSaturationCurves( RimEclipseRe
     m_nameConfig->addAxisVariables = false;
     m_nameConfig->addTimestep      = false;
     m_nameConfig->addGrouping      = false;
+
+    m_timeStep = timeStep;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1313,8 +1326,7 @@ void RimGridCrossPlotDataSet::defineEditorAttribute( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotDataSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                    QString                 uiConfigName /*= ""*/ )
+void RimGridCrossPlotDataSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     if ( groupingEnabled() )
     {

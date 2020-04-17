@@ -526,11 +526,11 @@ void PdmUiTreeViewItemDelegate::paint(QPainter *painter, const QStyleOptionViewI
     QFont font = QApplication::font();
     if (font.pixelSize() > 0)
     {
-        font.setPixelSize(std::max(1, font.pixelSize() - 2));
+        font.setPixelSize(std::max(1, font.pixelSize() - 1));
     }
     else
     {
-        font.setPointSize(std::max(1, font.pointSize() - 2));
+        font.setPointSize(std::max(1, font.pointSize() - 1));
     }
     painter->setFont(font);
 

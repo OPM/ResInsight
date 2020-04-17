@@ -26,18 +26,22 @@
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
+#include "RimPlot.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogTrack.h"
 
-#include "RiuGridPlotWindow.h"
+#include "RiuMultiPlotPage.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellLogPlot.h"
 
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiDoubleValueEditor.h"
 #include "cvfAssert.h"
 
 #include <QKeyEvent>
@@ -67,7 +71,10 @@ CAF_PDM_SOURCE_INIT( RimWellLogPlot, "WellLogPlot" );
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot::RimWellLogPlot()
 {
-    CAF_PDM_InitObject( "Well Log Plot", ":/WellLogPlot16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Well Log Plot",
+                                  ":/WellLogPlot16x16.png",
+                                  "",
+                                  "A Well Log Plot With a shared Depth Axis and Multiple Tracks" );
 
     CAF_PDM_InitFieldNoDefault( &m_commonDataSource,
                                 "CommonDataSource",
@@ -80,16 +87,24 @@ RimWellLogPlot::RimWellLogPlot()
     m_commonDataSource.xmlCapability()->disableIO();
     m_commonDataSource = new RimWellLogCurveCommonDataSource;
 
+    CAF_PDM_InitScriptableFieldWithIO( &m_showPlotWindowTitle, "ShowTitleInPlot", true, "Show Title", "", "", "" );
+
+    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
+    m_plotWindowTitle.xmlCapability()->setIOWritable( false );
+
     caf::AppEnum<RimWellLogPlot::DepthTypeEnum> depthType = RiaDefines::MEASURED_DEPTH;
-    CAF_PDM_InitField( &m_depthType, "DepthType", depthType, "Type", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_depthType, "DepthType", depthType, "Type", "", "", "" );
 
     caf::AppEnum<RiaDefines::DepthUnitType> depthUnit = RiaDefines::UNIT_METER;
-    CAF_PDM_InitField( &m_depthUnit, "DepthUnit", depthUnit, "Unit", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_depthUnit, "DepthUnit", depthUnit, "Unit", "", "", "" );
 
-    CAF_PDM_InitField( &m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "" );
-    CAF_PDM_InitField( &m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_depthAxisGridVisibility, "ShowDepthGridLines", "Show Grid Lines", "", "", "" );
-    CAF_PDM_InitField( &m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "" );
+    m_minVisibleDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+    m_maxVisibleDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_depthAxisGridVisibility, "ShowDepthGridLines", "Show Grid Lines", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "" );
     m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
@@ -97,15 +112,19 @@ RimWellLogPlot::RimWellLogPlot()
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_nameConfig = new RimWellLogPlotNameConfig();
 
+    CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "", "", "", "" );
+    m_plots.uiCapability()->setUiHidden( true );
+
     m_availableDepthUnits = {RiaDefines::UNIT_METER, RiaDefines::UNIT_FEET};
-    m_availableDepthTypes = {RiaDefines::MEASURED_DEPTH, RiaDefines::TRUE_VERTICAL_DEPTH};
+    m_availableDepthTypes = {RiaDefines::MEASURED_DEPTH, RiaDefines::TRUE_VERTICAL_DEPTH, RiaDefines::TRUE_VERTICAL_DEPTH_RKB};
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
 
     m_commonDataSourceEnabled = true;
-    m_showTitleInPlot         = false;
-    m_columnCountEnum         = RimGridPlotWindow::COLUMNS_UNLIMITED;
+
+    m_plotLegendsHorizontal = false;
+    setPlotTitleVisible( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +132,21 @@ RimWellLogPlot::RimWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot& RimWellLogPlot::operator=( RimWellLogPlot&& rhs )
 {
-    RimGridPlotWindow::operator=( std::move( rhs ) );
+    RimPlotWindow::operator=( std::move( rhs ) );
+
+    // Move all tracks
+    std::vector<RimPlot*> plots = rhs.m_plots.childObjects();
+    rhs.m_plots.clear();
+    for ( RimPlot* plot : plots )
+    {
+        m_plots.push_back( plot );
+    }
+
+    // Deliberately don't set m_plotWindowTitle. This operator is used for copying parameters from children.
+    // This only happens for some plots that used to own a plot but now inherits the plot.
+    // These all had their own description at top level which we don't want to overwrite.
+
+    m_showPlotWindowTitle = rhs.m_showPlotWindowTitle;
 
     auto dataSource = rhs.m_commonDataSource();
     rhs.m_commonDataSource.removeChildObject( dataSource );
@@ -126,9 +159,9 @@ RimWellLogPlot& RimWellLogPlot::operator=( RimWellLogPlot&& rhs )
     m_depthAxisGridVisibility = rhs.m_depthAxisGridVisibility();
     m_isAutoScaleDepthEnabled = rhs.m_isAutoScaleDepthEnabled();
 
-    auto nameConfig = rhs.m_nameConfig();
-    rhs.m_nameConfig.removeChildObject( nameConfig );
-    m_nameConfig = nameConfig;
+    // Deliberately don't copy m_nameConfig. This operator is used for copying parameters from children.
+    // This only happens for some plots that used to own a plot but now inherits the plot.
+    // These all had their own description at top level which we don't want to overwrite.
 
     m_minAvailableDepth = rhs.m_minAvailableDepth;
     m_maxAvailableDepth = rhs.m_maxAvailableDepth;
@@ -142,6 +175,19 @@ RimWellLogPlot::~RimWellLogPlot()
 {
     delete m_commonDataSource;
     delete m_nameConfig;
+
+    removeMdiWindowFromMdiArea();
+    m_plots.deleteAllChildObjects();
+
+    cleanupBeforeClose();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* RimWellLogPlot::viewWidget()
+{
+    return m_viewer;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,9 +201,119 @@ QWidget* RimWellLogPlot::createPlotWidget( QWidget* mainWindowParent /*= nullptr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogPlot::fullPlotTitle() const
+QString RimWellLogPlot::description() const
 {
-    return createAutoName();
+    return m_plotWindowTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogPlot::isPlotTitleVisible() const
+{
+    return m_showPlotWindowTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setPlotTitleVisible( bool visible )
+{
+    m_showPlotWindowTitle = visible;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::addPlot( RimPlot* plot )
+{
+    insertPlot( plot, m_plots.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::insertPlot( RimPlot* plot, size_t index )
+{
+    if ( plot )
+    {
+        m_plots.insert( index, plot );
+
+        if ( m_viewer )
+        {
+            plot->createPlotWidget();
+            m_viewer->insertPlot( plot->viewer(), index );
+        }
+        plot->setShowWindow( true );
+        plot->setLegendsVisible( false );
+
+        onPlotAdditionOrRemoval();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::removePlot( RimPlot* plot )
+{
+    if ( plot )
+    {
+        if ( m_viewer )
+        {
+            m_viewer->removePlot( plot->viewer() );
+        }
+        m_plots.removeChildObject( plot );
+
+        onPlotAdditionOrRemoval();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimWellLogPlot::plotCount() const
+{
+    return m_plots.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RimWellLogPlot::plotIndex( const RimPlot* plot ) const
+{
+    return m_plots.index( plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlot* RimWellLogPlot::plotByIndex( size_t index ) const
+{
+    return m_plots[index];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlot*> RimWellLogPlot::plots() const
+{
+    return m_plots.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlot*> RimWellLogPlot::visiblePlots() const
+{
+    std::vector<RimPlot*> allVisiblePlots;
+    for ( RimPlot* plot : m_plots() )
+    {
+        if ( plot->showWindow() )
+        {
+            allVisiblePlots.push_back( plot );
+        }
+    }
+    return allVisiblePlots;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,20 +331,16 @@ void RimWellLogPlot::updateZoom()
         }
     }
 
-    for ( RimPlotInterface* plot : plots() )
+    for ( RimPlot* plot : plots() )
     {
         static_cast<RimWellLogTrack*>( plot )->setVisibleYRange( m_minVisibleDepth(), m_maxVisibleDepth() );
+        plot->updateZoomInQwt();
     }
 
     if ( m_viewer )
     {
-        m_viewer->updateVerticalScrollBar( m_minVisibleDepth(),
-                                           m_maxVisibleDepth(),
-                                           m_minAvailableDepth,
-                                           m_maxAvailableDepth );
+        m_viewer->updateVerticalScrollBar( m_minVisibleDepth(), m_maxVisibleDepth(), m_minAvailableDepth, m_maxAvailableDepth );
     }
-
-    RimGridPlotWindow::updateZoom();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -222,7 +374,7 @@ void RimWellLogPlot::setDepthAxisRange( double minimumDepth, double maximumDepth
     m_minVisibleDepth.uiCapability()->updateConnectedEditors();
     m_maxVisibleDepth.uiCapability()->updateConnectedEditors();
 
-    setAutoScaleYEnabled( false );
+    setAutoScaleDepthEnabled( false );
     updateZoom();
 }
 
@@ -241,7 +393,7 @@ void RimWellLogPlot::calculateAvailableDepthRange()
         double minTrackDepth = HUGE_VAL;
         double maxTrackDepth = -HUGE_VAL;
 
-        if ( plots[tIdx]->isChecked() )
+        if ( plots[tIdx]->showWindow() )
         {
             static_cast<RimWellLogTrack*>( plots[tIdx] )->availableDepthRange( &minTrackDepth, &maxTrackDepth );
 
@@ -285,24 +437,7 @@ void RimWellLogPlot::visibleDepthRange( double* minimumDepth, double* maximumDep
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::setAutoScaleYEnabled( bool on )
-{
-    m_isAutoScaleDepthEnabled = on;
-    m_isAutoScaleDepthEnabled.uiCapability()->updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::enableAllAutoNameTags( bool enable )
-{
-    m_nameConfig->enableAllAutoNameTags( enable );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering )
+void RimWellLogPlot::uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     if ( m_availableDepthTypes.size() > 1u )
     {
@@ -322,13 +457,10 @@ void RimWellLogPlot::uiOrderingForDepthAxis( caf::PdmUiOrdering& uiOrdering )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::uiOrderingForPlotLayout( caf::PdmUiOrdering& uiOrdering )
+void RimWellLogPlot::uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_showTitleInPlot );
-    m_nameConfig->uiOrdering( "", uiOrdering );
-    uiOrdering.add( &m_showIndividualPlotTitles );
-    RimPlotWindow::uiOrderingForPlotLayout( uiOrdering );
-    uiOrdering.add( &m_columnCountEnum );
+    uiOrdering.add( &m_showPlotWindowTitle );
+    m_nameConfig->uiOrdering( uiConfigName, uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -420,6 +552,23 @@ RimWellLogPlotNameConfig* RimWellLogPlot::nameConfig() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QImage RimWellLogPlot::snapshotWindowContent()
+{
+    QImage image;
+
+    if ( m_viewer )
+    {
+        QPixmap pix( m_viewer->size() );
+        m_viewer->renderTo( &pix );
+        image = pix.toImage();
+    }
+
+    return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* RimWellLogPlot::createViewWidget( QWidget* mainWindowParent )
 {
     m_viewer = new RiuWellLogPlot( this, mainWindowParent );
@@ -430,10 +579,40 @@ QWidget* RimWellLogPlot::createViewWidget( QWidget* mainWindowParent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::deleteViewWidget()
+{
+    cleanupBeforeClose();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::performAutoNameUpdate()
 {
     updateCommonDataSource();
-    updatePlotTitle();
+    m_plotWindowTitle = createAutoName();
+    if ( m_viewer )
+    {
+        m_viewer->setTitleVisible( m_showPlotWindowTitle() );
+        m_viewer->setPlotTitle( m_plotWindowTitle );
+    }
+    updateMdiWindowTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::recreatePlotWidgets()
+{
+    CVF_ASSERT( m_viewer );
+
+    auto plotVector = plots();
+
+    for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
+    {
+        plotVector[tIdx]->createPlotWidget();
+        m_viewer->addPlot( plotVector[tIdx]->viewer() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -522,17 +701,75 @@ void RimWellLogPlot::setAvailableDepthTypes( const std::set<DepthTypeEnum>& dept
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::onPlotAdditionOrRemoval()
+QString RimWellLogPlot::asciiDataForPlotExport() const
 {
-    calculateAvailableDepthRange();
-    updateZoom();
-    RimGridPlotWindow::onPlotAdditionOrRemoval();
+    QString out = description() + "\n";
+
+    for ( RimPlot* plot : plots() )
+    {
+        if ( plot->showWindow() )
+        {
+            out += plot->asciiDataForPlotExport();
+        }
+    }
+
+    return out;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::updatePlotNames()
+void RimWellLogPlot::onPlotAdditionOrRemoval()
+{
+    calculateAvailableDepthRange();
+    updateZoom();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::doRenderWindowContent( QPaintDevice* paintDevice )
+{
+    if ( m_viewer )
+    {
+        m_viewer->renderTo( paintDevice );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::doUpdateLayout()
+{
+    if ( m_viewer )
+    {
+        m_viewer->scheduleUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::cleanupBeforeClose()
+{
+    auto plotVector = plots();
+    for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
+    {
+        plotVector[tIdx]->detachAllCurves();
+    }
+
+    if ( m_viewer )
+    {
+        m_viewer->setParent( nullptr );
+        delete m_viewer;
+        m_viewer = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updateSubPlotNames()
 {
     auto plotVector = plots();
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
@@ -552,19 +789,11 @@ void RimWellLogPlot::updatePlotNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellLogPlot::userDescriptionField()
-{
-    return m_nameConfig->nameField();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
-    RimGridPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
+    RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( changedField == &m_minVisibleDepth || changedField == &m_maxVisibleDepth )
     {
@@ -584,7 +813,15 @@ void RimWellLogPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_depthType )
     {
-        m_isAutoScaleDepthEnabled                   = true;
+        m_isAutoScaleDepthEnabled = true;
+
+        bool isTVDRKB = m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB;
+        m_nameConfig->setAutoNameTags( m_nameConfig->addCaseName(),
+                                       m_nameConfig->addWellName(),
+                                       m_nameConfig->addTimeStep(),
+                                       isTVDRKB,
+                                       m_nameConfig->addWaterDepth() );
+
         RimWellAllocationPlot* parentWellAllocation = nullptr;
         this->firstAncestorOrThisOfType( parentWellAllocation );
         if ( parentWellAllocation )
@@ -616,10 +853,13 @@ void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Depth Axis" );
-    uiOrderingForDepthAxis( *gridGroup );
+    uiOrderingForDepthAxis( uiConfigName, *gridGroup );
 
-    caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Plot Layout" );
-    uiOrderingForPlotLayout( *titleAndLegendsGroup );
+    caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup( "Plot Title" );
+    uiOrderingForAutoName( uiConfigName, *titleGroup );
+
+    caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
+    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -630,8 +870,7 @@ void RimWellLogPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                      bool*                      useOptionsOnly )
 {
-    QList<caf::PdmOptionItemInfo> options = RimGridPlotWindow::calculateValueOptions( fieldNeedingOptions,
-                                                                                      useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
     if ( fieldNeedingOptions == &m_depthType )
     {
@@ -664,18 +903,19 @@ QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions( const caf::
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::initAfterRead()
 {
-    RimGridPlotWindow::initAfterRead();
-
-    updateCommonDataSource();
-    if ( !m_description().isEmpty() )
-    {
-        m_nameConfig->setCustomName( m_description() );
-    }
+    RimPlotWindow::initAfterRead();
 
     if ( m_depthAxisGridVisibility() == AXIS_GRID_MINOR )
     {
         m_depthAxisGridVisibility = AXIS_GRID_MAJOR_AND_MINOR;
     }
+
+    if ( !m_plotWindowTitle().isEmpty() )
+    {
+        m_nameConfig->setCustomName( m_plotWindowTitle );
+    }
+
+    performAutoNameUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -685,12 +925,13 @@ void RimWellLogPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                             QString                    uiConfigName,
                                             caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_columnCountEnum )
+    if ( field == &m_minVisibleDepth || field == &m_maxVisibleDepth )
     {
-        auto comboAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-        if ( comboAttr )
+        auto doubleAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
+        if ( doubleAttr )
         {
-            comboAttr->iconSize = QSize( 24, 14 );
+            doubleAttr->m_decimals     = 2;
+            doubleAttr->m_numberFormat = caf::PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED;
         }
     }
 }
@@ -698,21 +939,35 @@ void RimWellLogPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimWellLogPlot::snapshotWindowContent()
+void RimWellLogPlot::onLoadDataAndUpdate()
 {
-    QImage image;
+    updateMdiWindowVisibility();
+    performAutoNameUpdate();
+    updatePlots();
+    updateLayout();
+}
 
-    if ( m_viewer )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::updatePlots()
+{
+    if ( m_showWindow )
     {
-        RiuWellLogPlot* wellLogViewer = dynamic_cast<RiuWellLogPlot*>( m_viewer.data() );
-        CAF_ASSERT( wellLogViewer );
-        bool isScrollbarVisible = wellLogViewer->isScrollbarVisible();
-        wellLogViewer->setScrollbarVisible( false );
-        image = RimGridPlotWindow::snapshotWindowContent();
-        wellLogViewer->setScrollbarVisible( isScrollbarVisible );
+        for ( RimPlot* plot : plots() )
+        {
+            plot->loadDataAndUpdate();
+        }
+        this->updateZoom();
     }
+}
 
-    return image;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellLogPlot::userDescriptionField()
+{
+    return &m_plotWindowTitle;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -763,6 +1018,10 @@ QString RimWellLogPlot::depthAxisTitle() const
         case RiaDefines::CONNECTION_NUMBER:
             depthTitle = "Connection";
             break;
+
+        case RiaDefines::TRUE_VERTICAL_DEPTH_RKB:
+            depthTitle = "TVDRKB";
+            break;
     }
 
     if ( m_depthType() == RiaDefines::CONNECTION_NUMBER ) return depthTitle;
@@ -797,6 +1056,36 @@ void RimWellLogPlot::enableDepthAxisGridLines( AxisGridVisibility gridVisibility
 RimWellLogPlot::AxisGridVisibility RimWellLogPlot::depthAxisGridLinesEnabled() const
 {
     return m_depthAxisGridVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setAutoScaleXEnabled( bool enabled )
+{
+    for ( RimPlot* plot : plots() )
+    {
+        plot->setAutoScaleXEnabled( enabled );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::setAutoScaleDepthEnabled( bool enabled )
+{
+    m_isAutoScaleDepthEnabled = enabled;
+    m_isAutoScaleDepthEnabled.uiCapability()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::zoomAll()
+{
+    setAutoScaleXEnabled( true );
+    setAutoScaleDepthEnabled( true );
+    updateZoom();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -37,7 +37,10 @@ public:
 
     void assignCaseAndEquilibriumRegion( RiaDefines::PorosityModelType porosityModel,
                                          RimEclipseResultCase*         eclipseResultCase,
-                                         int                           zeroBasedEquilRegionIndex );
+                                         int                           zeroBasedEquilRegionIndex,
+                                         int                           timeStep );
+
+    static void fixPointersAfterCopy( RimSaturationPressurePlot* source, RimSaturationPressurePlot* copy );
 
 protected:
     void    initAfterRead() override;

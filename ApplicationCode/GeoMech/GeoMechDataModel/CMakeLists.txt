@@ -2,6 +2,12 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (RigGeoMechDataModel)
 
+# Unity Build
+if (RESINSIGHT_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+  set(CMAKE_UNITY_BUILD true)
+endif()
+
 add_library( ${PROJECT_NAME}
 	RigFemPart.h
 	RigFemPart.cpp
@@ -26,10 +32,12 @@ add_library( ${PROJECT_NAME}
 	RigFemPartGrid.cpp
 	RigFemResultAddress.h
 	RigFemResultPosEnum.h
-        RimFemResultObserver.h
-        RimFemResultObserver.cpp
-        RimGeoMechGeometrySelectionItem.h
-        RimGeoMechGeometrySelectionItem.cpp
+	RimFemResultObserver.h
+	RimFemResultObserver.cpp
+	RigHexGradientTools.h
+	RigHexGradientTools.cpp
+	RimGeoMechGeometrySelectionItem.h
+	RimGeoMechGeometrySelectionItem.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

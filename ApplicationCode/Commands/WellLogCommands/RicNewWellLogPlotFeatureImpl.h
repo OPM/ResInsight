@@ -21,6 +21,7 @@
 
 #include <QString>
 
+class RimWbsParameters;
 class RimWellBoreStabilityPlot;
 class RimWellLogPlotCollection;
 class RimWellLogPlot;
@@ -33,7 +34,8 @@ class RicNewWellLogPlotFeatureImpl
 {
 public:
     static RimWellBoreStabilityPlot* createWellBoreStabilityPlot( bool           showAfterCreation = true,
-                                                                  const QString& plotDescription   = QString( "" ) );
+                                                                  const QString& plotDescription   = QString( "" ),
+                                                                  const RimWbsParameters* params   = nullptr );
     static RimWellLogPlot*           createWellLogPlot( bool           showAfterCreation = true,
                                                         const QString& plotDescription   = QString( "" ) );
     static RimWellLogTrack*          createWellLogPlotTrack( bool            updateAfterCreation = true,

@@ -445,8 +445,7 @@ double RimMultipleValveLocations::perforationEndMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double>
-    RimMultipleValveLocations::locationsFromStartSpacingAndCount( double start, double spacing, size_t count )
+std::vector<double> RimMultipleValveLocations::locationsFromStartSpacingAndCount( double start, double spacing, size_t count )
 {
     std::vector<double> measuredDepths;
 

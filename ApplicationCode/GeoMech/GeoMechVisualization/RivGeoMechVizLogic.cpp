@@ -53,7 +53,9 @@ RivGeoMechVizLogic::RivGeoMechVizLogic( RimGeoMechView* geomView )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivGeoMechVizLogic::~RivGeoMechVizLogic() {}
+RivGeoMechVizLogic::~RivGeoMechVizLogic()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -241,8 +243,7 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
 
         else if ( pMgrKey.geometryType() == ALL_CELLS )
         {
-            RivFemElmVisibilityCalculator::computeAllVisible( elmVisibility.p(),
-                                                              caseData->femParts()->part( femPartIdx ) );
+            RivFemElmVisibilityCalculator::computeAllVisible( elmVisibility.p(), caseData->femParts()->part( femPartIdx ) );
         }
         else
         {
@@ -277,12 +278,15 @@ void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility( cvf::UByteArray* t
     std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( timeStepIndex );
     for ( size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx )
     {
-        RivGeoMechPartMgr* partMgr = m_partMgrCache->partMgr( visiblePartMgrs[pmIdx] );
-
-        cvf::ref<cvf::UByteArray> visibility = partMgr->cellVisibility( 0 );
-        for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
+        RivGeoMechPartMgr* partMgr = getUpdatedPartMgr( visiblePartMgrs[pmIdx] );
+        CVF_ASSERT( partMgr );
+        if ( partMgr )
         {
-            ( *totalVisibility )[elmIdx] |= ( *visibility )[elmIdx];
+            cvf::ref<cvf::UByteArray> visibility = partMgr->cellVisibility( 0 );
+            for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
+            {
+                ( *totalVisibility )[elmIdx] |= ( *visibility )[elmIdx];
+            }
         }
     }
 }

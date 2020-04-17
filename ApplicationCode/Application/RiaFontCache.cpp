@@ -18,8 +18,13 @@
 
 #include "RiaFontCache.h"
 
+#include "RiaGuiApplication.h"
+
 #include "cafAppEnum.h"
 #include "cafFixedAtlasFont.h"
+
+#include <QDesktopWidget>
+#include <cmath>
 
 namespace caf
 {
@@ -83,28 +88,29 @@ cvf::ref<caf::FixedAtlasFont> RiaFontCache::getFont( FontSize size )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// In the 2019 releases the font size was stored as an enum value rather than actual size
+/// Use this method for legacy conversion
 //--------------------------------------------------------------------------------------------------
-int RiaFontCache::pointSizeFromFontSizeEnum( FontSize fontSize )
+RiaFontCache::FontSize RiaFontCache::legacyEnumToPointSize( int enumValue )
 {
-    switch ( fontSize )
+    switch ( enumValue )
     {
-        case RiaFontCache::FONT_SIZE_8:
-            return 8;
-        case RiaFontCache::FONT_SIZE_10:
-            return 10;
-        case RiaFontCache::FONT_SIZE_12:
-            return 12;
-        case RiaFontCache::FONT_SIZE_14:
-            return 14;
-        case RiaFontCache::FONT_SIZE_16:
-            return 16;
-        case RiaFontCache::FONT_SIZE_24:
-            return 24;
-        case RiaFontCache::FONT_SIZE_32:
-            return 32;
+        case 0:
+            return FONT_SIZE_8;
+        case 1:
+            return FONT_SIZE_10;
+        case 2:
+            return FONT_SIZE_12;
+        case 3:
+            return FONT_SIZE_14;
+        case 4:
+            return FONT_SIZE_16;
+        case 5:
+            return FONT_SIZE_24;
+        case 6:
+            return FONT_SIZE_32;
         default:
-            return 16;
+            return FONT_SIZE_8;
     }
 }
 
@@ -120,14 +126,44 @@ RiaFontCache::FontSize RiaFontCache::fontSizeEnumFromPointSize( int pointSize )
     int      closestDiff      = std::numeric_limits<int>::max();
     for ( FontSize enumValue : allValues )
     {
-        int diff = std::abs( pointSizeFromFontSizeEnum( enumValue ) - pointSize );
+        int diff = std::abs( (int)enumValue - pointSize );
         if ( diff < closestDiff )
         {
             closestEnumValue = enumValue;
-            closestDiff      = diff;
+            closestDiff;
         }
     }
     return closestEnumValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaFontCache::pointSizeToPixelSize( int pointSize )
+{
+    auto app = RiaGuiApplication::instance();
+    if ( app )
+    {
+        int    dpi    = app->desktop()->logicalDpiX();
+        double inches = pointSize / 72.0;
+        return static_cast<int>( std::ceil( inches * dpi ) );
+    }
+    return pointSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaFontCache::pixelSizeToPointSize( int pixelSize )
+{
+    auto app = RiaGuiApplication::instance();
+    if ( app )
+    {
+        int    dpi    = app->desktop()->logicalDpiX();
+        double inches = pixelSize / dpi;
+        return static_cast<int>( std::ceil( inches * 72.0 ) );
+    }
+    return pixelSize;
 }
 
 //--------------------------------------------------------------------------------------------------

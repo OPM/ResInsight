@@ -46,51 +46,18 @@ public:
         FAILED_MAX_ITERATIONS_REACHED
     };
 
-    bool isOk() const
-    {
-        return m_isCalculationOK;
-    }
-    CurveStatus curveStatus() const
-    {
-        return m_ctrlPpointCurveStatus;
-    }
-    SolveStatus solveStatus() const
-    {
-        return m_solveStatus;
-    }
+    bool        isOk() const { return m_isCalculationOK; }
+    CurveStatus curveStatus() const { return m_ctrlPpointCurveStatus; }
+    SolveStatus solveStatus() const { return m_solveStatus; }
 
-    cvf::Vec3d firstArcEndpoint() const
-    {
-        return m_firstArcEndpoint;
-    }
-    cvf::Vec3d secondArcStartpoint() const
-    {
-        return m_secondArcStartpoint;
-    }
-    cvf::Vec3d firstCenter() const
-    {
-        return m_c1;
-    }
-    cvf::Vec3d secondCenter() const
-    {
-        return m_c2;
-    }
-    cvf::Vec3d firstNormal() const
-    {
-        return m_n1;
-    }
-    cvf::Vec3d secondNormal() const
-    {
-        return m_n2;
-    }
-    double firstRadius() const
-    {
-        return m_r1;
-    }
-    double secondRadius() const
-    {
-        return m_r2;
-    }
+    cvf::Vec3d firstArcEndpoint() const { return m_firstArcEndpoint; }
+    cvf::Vec3d secondArcStartpoint() const { return m_secondArcStartpoint; }
+    cvf::Vec3d firstCenter() const { return m_c1; }
+    cvf::Vec3d secondCenter() const { return m_c2; }
+    cvf::Vec3d firstNormal() const { return m_n1; }
+    cvf::Vec3d secondNormal() const { return m_n2; }
+    double     firstRadius() const { return m_r1; }
+    double     secondRadius() const { return m_r2; }
 
     void dump() const;
 

@@ -123,9 +123,8 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray* 
         if ( resVarAddress.resultPosType == RIG_NODAL && resVarAddress.fieldName == "POR-Bar" )
             resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
 
-        const std::vector<float>& resVals = caseData->femPartResults()->resultValues( resVarAddress,
-                                                                                      grid->elementPartId(),
-                                                                                      timeStepIndex );
+        const std::vector<float>& resVals =
+            caseData->femPartResults()->resultValues( resVarAddress, grid->elementPartId(), timeStepIndex );
 
         if ( !propertyFilter->isActive() ) continue;
         if ( !propertyFilter->resultDefinition->hasResult() ) continue;
@@ -274,7 +273,8 @@ void RivFemElmVisibilityCalculator::computeOverriddenCellVisibility( cvf::UByteA
 
         for ( int mcIdx = 0; mcIdx < cellCount; ++mcIdx )
         {
-            ( *elmVisibilities )[elmIdx] |= ( *totCellVisibility )[cellIndicesInMasterCase[mcIdx]]; // If any is visible, show
+            ( *elmVisibilities )[elmIdx] |= ( *totCellVisibility )[cellIndicesInMasterCase[mcIdx]]; // If any is
+                                                                                                    // visible, show
         }
     }
 }

@@ -46,13 +46,7 @@ RimTofAccumulatedPhaseFractionsPlot::RimTofAccumulatedPhaseFractionsPlot()
 {
     CAF_PDM_InitObject( "Cumulative Saturation by Time of Flight", ":/TOFAccSatPlot16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_userName,
-                       "PlotDescription",
-                       QString( "Cumulative Saturation by Time of Flight" ),
-                       "Name",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "Cumulative Saturation by Time of Flight" ), "Name", "", "", "" );
     m_userName.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "" );
@@ -76,6 +70,14 @@ RimTofAccumulatedPhaseFractionsPlot::~RimTofAccumulatedPhaseFractionsPlot()
         delete m_tofAccumulatedPhaseFractionsPlotWidget;
         m_tofAccumulatedPhaseFractionsPlotWidget = nullptr;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// TODO: implement properly
+//--------------------------------------------------------------------------------------------------
+int RimTofAccumulatedPhaseFractionsPlot::id() const
+{
+    return -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,7 +146,9 @@ QWidget* RimTofAccumulatedPhaseFractionsPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTofAccumulatedPhaseFractionsPlot::zoomAll() {}
+void RimTofAccumulatedPhaseFractionsPlot::zoomAll()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -192,6 +196,13 @@ void RimTofAccumulatedPhaseFractionsPlot::setDescription( const QString& descrip
 QString RimTofAccumulatedPhaseFractionsPlot::description() const
 {
     return m_userName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// TODO: Implement properly
+//--------------------------------------------------------------------------------------------------
+void RimTofAccumulatedPhaseFractionsPlot::assignIdIfNecessary()
+{
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,9 +20,9 @@
 
 #include "RiaApplication.h"
 
+#include "RimBoxIntersection.h"
 #include "RimCase.h"
 #include "RimGridView.h"
-#include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
 
 #include "RiuMainWindow.h"
@@ -55,17 +55,17 @@ void RicIntersectionBoxAtPosFeature::onActionTriggered( bool isChecked )
     RimGridView* activeMainOrComparisonView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( activeMainOrComparisonView )
     {
-        RimIntersectionCollection* coll = activeMainOrComparisonView->crossSectionCollection();
+        RimIntersectionCollection* coll = activeMainOrComparisonView->intersectionCollection();
         CVF_ASSERT( coll );
 
-        RimIntersectionBox* intersectionBox = new RimIntersectionBox();
-        intersectionBox->name               = QString( "Intersection box" );
+        RimBoxIntersection* intersectionBox = new RimBoxIntersection();
+        intersectionBox->setName( "Intersection box" );
 
         coll->appendIntersectionBoxAndUpdate( intersectionBox );
 
         cvf::Vec3d domainCoord = activeView->viewer()->viewerCommands()->lastPickPositionInDomainCoords();
 
-        intersectionBox->setToDefaultSizeSlice( RimIntersectionBox::PLANE_STATE_NONE, domainCoord );
+        intersectionBox->setToDefaultSizeSlice( RimBoxIntersection::PLANE_STATE_NONE, domainCoord );
 
         coll->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem( intersectionBox, false );

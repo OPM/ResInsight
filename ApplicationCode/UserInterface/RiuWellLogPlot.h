@@ -17,23 +17,24 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiuGridPlotWindow.h"
+#include "RiuInterfaceToViewWindow.h"
+#include "RiuMultiPlotPage.h"
 
 class RiuQwtPlotWidget;
 class RimWellLogPlot;
 
-class RiuWellLogPlot : public RiuGridPlotWindow
+class RiuWellLogPlot : public RiuMultiPlotPage
 {
     Q_OBJECT
 public:
     RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent );
 
-    bool isScrollbarVisible() const;
-    void setScrollbarVisible( bool visible );
+    RimViewWindow* ownerViewWindow() const override;
+
     void updateVerticalScrollBar( double minVisible, double maxVisible, double minAvailable, double maxAvailable ) override;
+    void renderTo( QPaintDevice* paintDevice ) override;
 
 protected:
-    bool willAcceptDroppedPlot( const RiuQwtPlotWidget* plotWidget ) const override;
     bool showYAxis( int row, int column ) const override;
 
     void reinsertScrollbar();

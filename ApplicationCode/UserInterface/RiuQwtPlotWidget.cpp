@@ -19,13 +19,13 @@
 
 #include "RiuQwtPlotWidget.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTools.h"
+#include "RiaFontCache.h"
+#include "RiaGuiApplication.h"
 #include "RiaPlotWindowRedrawScheduler.h"
+#include "RimPlot.h"
 
-#include "RimPlotCurve.h"
-#include "RimPlotInterface.h"
-
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtLinearScaleEngine.h"
@@ -35,16 +35,20 @@
 #include "cafAssert.h"
 
 #include "qwt_legend.h"
+#include "qwt_plot_canvas.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
 #include "qwt_plot_marker.h"
 #include "qwt_plot_picker.h"
+#include "qwt_plot_renderer.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_widget.h"
 #include "qwt_symbol.h"
 #include "qwt_text.h"
+#include "qwt_text_label.h"
 
+#include <QDebug>
 #include <QDrag>
 #include <QFont>
 #include <QFontMetrics>
@@ -55,22 +59,24 @@
 #include <QScrollArea>
 #include <QWheelEvent>
 
+#include <algorithm>
 #include <cfloat>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlotInterface* plotTrackDefinition, QWidget* parent )
+RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     : QwtPlot( parent )
-    , m_draggable( false )
+    , m_plotDefinition( plotDefinition )
+    , m_overlayMargins( 5 )
 {
-    m_plotOwner = dynamic_cast<caf::PdmObject*>( plotTrackDefinition );
-    CAF_ASSERT( m_plotOwner );
-
+    CAF_ASSERT( m_plotDefinition );
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
 
     this->installEventFilter( this );
     this->canvas()->installEventFilter( this );
+
+    this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,10 +84,18 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlotInterface* plotTrackDefinition, QWidg
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotWidget::~RiuQwtPlotWidget()
 {
-    if ( plotDefinition() )
+    if ( m_plotDefinition )
     {
-        plotDefinition()->detachAllCurves();
+        m_plotDefinition->detachAllCurves();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlot* RiuQwtPlotWidget::plotDefinition()
+{
+    return m_plotDefinition;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,20 +103,35 @@ RiuQwtPlotWidget::~RiuQwtPlotWidget()
 //--------------------------------------------------------------------------------------------------
 bool RiuQwtPlotWidget::isChecked() const
 {
-    if ( plotDefinition() )
+    if ( m_plotDefinition )
     {
-        return plotDefinition()->isChecked();
+        return m_plotDefinition->showWindow();
     }
-
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setDraggable( bool draggable )
+int RiuQwtPlotWidget::colSpan() const
 {
-    m_draggable = draggable;
+    if ( m_plotDefinition )
+    {
+        return m_plotDefinition->colSpan();
+    }
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuQwtPlotWidget::rowSpan() const
+{
+    if ( m_plotDefinition )
+    {
+        return m_plotDefinition->rowSpan();
+    }
+    return 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,35 +169,20 @@ void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis     axis,
 {
     // Axis number font
     QFont axisFont = this->axisFont( axis );
-    axisFont.setPointSize( valueFontSize );
+    axisFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( valueFontSize ) );
     axisFont.setBold( false );
     this->setAxisFont( axis, axisFont );
 
     // Axis title font
     QwtText axisTitle     = this->axisTitle( axis );
     QFont   axisTitleFont = axisTitle.font();
-    axisTitleFont.setPointSize( titleFontSize );
+    axisTitleFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( titleFontSize ) );
     axisTitleFont.setBold( titleBold );
     axisTitle.setFont( axisTitleFont );
-    axisTitle.setRenderFlags( alignment );
+    axisTitle.setRenderFlags( alignment | Qt::TextWordWrap );
 
     setAxisTitle( axis, axisTitle );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimPlotInterface* RiuQwtPlotWidget::plotDefinition() const
-{
-    return dynamic_cast<RimPlotInterface*>( m_plotOwner.p() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmObject* RiuQwtPlotWidget::plotOwner() const
-{
-    return m_plotOwner.p();
+    applyAxisTitleToQwt( axis );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,6 +201,40 @@ void RiuQwtPlotWidget::setAxisTitleEnabled( QwtPlot::Axis axis, bool enable )
 {
     m_axisTitlesEnabled[axis] = enable;
     applyAxisTitleToQwt( axis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setPlotTitle( const QString& plotTitle )
+{
+    m_plotTitle = plotTitle;
+    applyPlotTitleToQwt();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RiuQwtPlotWidget::plotTitle() const
+{
+    return m_plotTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setPlotTitleEnabled( bool enabled )
+{
+    m_plotTitleEnabled = enabled;
+    applyPlotTitleToQwt();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuQwtPlotWidget::plotTitleEnabled() const
+{
+    return m_plotTitleEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,6 +276,7 @@ void RiuQwtPlotWidget::setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool en
 {
     this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Ticks, enable );
     this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Labels, enable );
+    recalculateAxisExtents( axis );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,10 +317,8 @@ void RiuQwtPlotWidget::setMajorAndMinorTickIntervals( QwtPlot::Axis axis,
     RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( this->axisScaleEngine( axis ) );
     if ( scaleEngine )
     {
-        QwtScaleDiv scaleDiv = scaleEngine->divideScaleWithExplicitIntervals( minValue,
-                                                                              maxValue,
-                                                                              majorTickInterval,
-                                                                              minorTickInterval );
+        QwtScaleDiv scaleDiv =
+            scaleEngine->divideScaleWithExplicitIntervals( minValue, maxValue, majorTickInterval, minorTickInterval );
 
         this->setAxisScaleDiv( axis, scaleDiv );
     }
@@ -320,10 +367,14 @@ double RiuQwtPlotWidget::minorTickInterval( QwtPlot::Axis axis ) const
 //--------------------------------------------------------------------------------------------------
 int RiuQwtPlotWidget::axisExtent( QwtPlot::Axis axis ) const
 {
-    int lineExtent = 5;
+    int lineExtent = 0;
 
-    lineExtent += this->axisScaleDraw( axis )->maxTickLength();
+    if ( this->axisScaleDraw( axis )->hasComponent( QwtAbstractScaleDraw::Ticks ) )
+    {
+        lineExtent += this->axisScaleDraw( axis )->maxTickLength();
+    }
 
+    if ( this->axisScaleDraw( axis )->hasComponent( QwtAbstractScaleDraw::Labels ) )
     {
         QFont tickLabelFont = axisFont( axis );
         // Make space for a fairly long value label
@@ -397,18 +448,6 @@ QPoint RiuQwtPlotWidget::dragStartPosition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuQwtPlotWidget::widthScaleFactor() const
-{
-    if ( plotOwner() )
-    {
-        return plotDefinition()->widthScaleFactor();
-    }
-    return 1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::scheduleReplot()
 {
     RiaPlotWindowRedrawScheduler::instance()->schedulePlotWidgetReplot( this );
@@ -417,19 +456,36 @@ void RiuQwtPlotWidget::scheduleReplot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setWidgetState( RiuWidgetStyleSheet::StateTag widgetState )
+void RiuQwtPlotWidget::stashWidgetStates()
 {
+    m_plotStyleSheet.stashWidgetStates();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::restoreWidgetStates()
+{
+    m_plotStyleSheet.restoreWidgetStates();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setWidgetState( const QString& widgetState )
+{
+    caf::UiStyleSheet::clearWidgetStates( this );
     m_plotStyleSheet.setWidgetState( this, widgetState );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Adds an overlay frame. The overlay frame becomes the responsibility of the plot widget
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::addOverlayFrame( QFrame* overlayFrame )
+void RiuQwtPlotWidget::addOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
 {
     if ( std::find( m_overlayFrames.begin(), m_overlayFrames.end(), overlayFrame ) == m_overlayFrames.end() )
     {
-        overlayFrame->setParent( this );
+        overlayFrame->setParent( this->canvas() );
         m_overlayFrames.push_back( overlayFrame );
         updateLayout();
     }
@@ -438,7 +494,7 @@ void RiuQwtPlotWidget::addOverlayFrame( QFrame* overlayFrame )
 //--------------------------------------------------------------------------------------------------
 /// Remove the overlay widget. The frame becomes the responsibility of the caller
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::removeOverlayFrame( QFrame* overlayFrame )
+void RiuQwtPlotWidget::removeOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
 {
     CAF_ASSERT( overlayFrame );
 
@@ -459,24 +515,17 @@ void RiuQwtPlotWidget::updateLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QSize RiuQwtPlotWidget::sizeHint() const
-{
-    return QSize( 0, 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QSize RiuQwtPlotWidget::minimumSizeHint() const
-{
-    return QSize( 0, 0 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 {
+    QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>( event );
+    if ( wheelEvent && watched == canvas() )
+    {
+        event->accept();
+
+        emit onWheelEvent( wheelEvent );
+        return true;
+    }
+
     QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>( event );
     if ( mouseEvent )
     {
@@ -484,48 +533,32 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 
         bool toggleItemInSelection = ( mouseEvent->modifiers() & Qt::ControlModifier ) != 0;
 
-        if ( m_draggable && mouseEvent->type() == QMouseEvent::MouseButtonPress && mouseEvent->button() == Qt::LeftButton )
+        if ( mouseEvent->type() == QMouseEvent::MouseButtonPress && mouseEvent->button() == Qt::LeftButton )
         {
             m_clickPosition = mouseEvent->pos();
         }
 
         if ( watched == this && !this->canvas()->geometry().contains( mouseEvent->pos() ) )
         {
-            if ( m_draggable && mouseEvent->type() == QMouseEvent::MouseMove &&
-                 ( mouseEvent->buttons() & Qt::LeftButton ) && !m_clickPosition.isNull() )
-            {
-                int dragLength = ( mouseEvent->pos() - m_clickPosition ).manhattanLength();
-                if ( dragLength >= QApplication::startDragDistance() )
-                {
-                    QPixmap    pixmap   = this->grab();
-                    QDrag*     drag     = new QDrag( this );
-                    QMimeData* mimeData = new QMimeData;
-                    mimeData->setImageData( pixmap );
-                    drag->setMimeData( mimeData );
-                    drag->setPixmap( pixmap );
-                    drag->setHotSpot( mouseEvent->pos() );
-                    drag->exec( Qt::MoveAction );
-                    return true;
-                }
-            }
-            else if ( mouseEvent->type() == QMouseEvent::MouseButtonRelease &&
-                      ( mouseEvent->button() == Qt::LeftButton ) && !m_clickPosition.isNull() )
+            if ( mouseEvent->type() == QMouseEvent::MouseButtonRelease && ( mouseEvent->button() == Qt::LeftButton ) &&
+                 !m_clickPosition.isNull() )
             {
                 QWidget* childClicked = this->childAt( m_clickPosition );
-
                 if ( childClicked )
                 {
                     QwtScaleWidget* scaleWidget = qobject_cast<QwtScaleWidget*>( childClicked );
                     if ( scaleWidget )
                     {
                         onAxisSelected( scaleWidget, toggleItemInSelection );
+                        m_clickPosition = QPoint();
                         return true;
                     }
                 }
                 else
                 {
-                    selectPlotOwner( toggleItemInSelection );
                     endZoomOperations();
+                    emit plotSelected( toggleItemInSelection );
+                    m_clickPosition = QPoint();
                     return true;
                 }
             }
@@ -535,8 +568,9 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
             if ( mouseEvent->type() == QMouseEvent::MouseButtonRelease && mouseEvent->button() == Qt::LeftButton &&
                  !m_clickPosition.isNull() )
             {
-                selectClosestCurve( mouseEvent->pos(), toggleItemInSelection );
                 endZoomOperations();
+                selectClosestCurve( mouseEvent->pos(), toggleItemInSelection );
+                m_clickPosition = QPoint();
                 return true;
             }
         }
@@ -570,6 +604,38 @@ void RiuQwtPlotWidget::showEvent( QShowEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::resizeEvent( QResizeEvent* event )
+{
+    QwtPlot::resizeEvent( event );
+    updateOverlayFrameLayout();
+    event->accept();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::keyPressEvent( QKeyEvent* event )
+{
+    emit onKeyPressEvent( event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::applyPlotTitleToQwt()
+{
+    QString plotTitleToApply = m_plotTitleEnabled ? m_plotTitle : QString( "" );
+    QwtText plotTitle        = this->title();
+    if ( plotTitleToApply != plotTitle.text() )
+    {
+        plotTitle.setText( plotTitleToApply );
+        setTitle( plotTitle );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::applyAxisTitleToQwt( QwtPlot::Axis axis )
 {
     QString titleToApply = m_axisTitlesEnabled[axis] ? m_axisTitles[axis] : QString( "" );
@@ -579,23 +645,39 @@ void RiuQwtPlotWidget::applyAxisTitleToQwt( QwtPlot::Axis axis )
         axisTitle.setText( titleToApply );
 
         setAxisTitle( axis, axisTitle );
-        if ( axis == QwtPlot::yLeft || axis == QwtPlot::yRight )
-        {
-            axisScaleDraw( axis )->setMinimumExtent( axisExtent( axis ) );
-            setMinimumWidth( defaultMinimumWidth() + axisExtent( axis ) );
-        }
     }
+    recalculateAxisExtents( axis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize RiuQwtPlotWidget::sizeHint() const
+{
+    return QSize( 0, 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize RiuQwtPlotWidget::minimumSizeHint() const
+{
+    return QSize( 0, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::selectPoint( QwtPlotCurve* curve, int pointNumber ) {}
+void RiuQwtPlotWidget::selectPoint( QwtPlotCurve* curve, int pointNumber )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::clearPointSelection() {}
+void RiuQwtPlotWidget::clearPointSelection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -608,7 +690,85 @@ bool RiuQwtPlotWidget::isZoomerActive() const
 //--------------------------------------------------------------------------------------------------
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::endZoomOperations() {}
+void RiuQwtPlotWidget::endZoomOperations()
+{
+}
+
+//--------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect, double scaling )
+{
+    static_cast<QwtPlotCanvas*>( this->canvas() )->setPaintAttribute( QwtPlotCanvas::BackingStore, false );
+
+    QPoint plotTopLeftInWindowCoords = targetRect.topLeft();
+
+    QRectF canvasRect = this->plotLayout()->canvasRect();
+    QPoint canvasTopLeftInPlotCoords( canvasRect.topLeft().x() * scaling, canvasRect.topLeft().y() * scaling );
+    QPoint canvasBottomRightInPlotCoords( canvasRect.bottomRight().x(), canvasRect.bottomRight().y() );
+
+    QPoint canvasTopLeftInWindowCoords     = canvasTopLeftInPlotCoords + plotTopLeftInWindowCoords;
+    QPoint canvasBottomRightInWindowCoords = canvasBottomRightInPlotCoords + plotTopLeftInWindowCoords;
+
+    QwtPlotRenderer renderer( this );
+    renderer.render( this, painter, targetRect );
+    static_cast<QwtPlotCanvas*>( this->canvas() )->setPaintAttribute( QwtPlotCanvas::BackingStore, true );
+
+    for ( RiuDraggableOverlayFrame* overlayFrame : m_overlayFrames )
+    {
+        if ( overlayFrame->isVisible() )
+        {
+            QPoint overlayTopLeftInCanvasCoords = overlayFrame->frameGeometry().topLeft();
+
+            QPoint overlayTopLeftInWindowCoords = overlayTopLeftInCanvasCoords + canvasTopLeftInWindowCoords;
+            {
+                QRect overlayRect = overlayFrame->frameGeometry();
+                QSize desiredSize = overlayRect.size();
+                QSize minimumSize = overlayFrame->minimumSizeHint();
+                QSize actualSize  = desiredSize.expandedTo( minimumSize );
+                overlayRect.moveTo( overlayTopLeftInWindowCoords );
+                overlayRect.setSize( actualSize );
+
+                QPoint overlayBottomRightInWindowCoords = overlayRect.bottomRight();
+                overlayBottomRightInWindowCoords.setX(
+                    std::min( overlayBottomRightInWindowCoords.x(),
+                              canvasBottomRightInWindowCoords.x() - (int)scaling * m_overlayMargins ) );
+                overlayBottomRightInWindowCoords.setY(
+                    std::min( overlayBottomRightInWindowCoords.y(),
+                              canvasBottomRightInWindowCoords.y() - (int)scaling * m_overlayMargins ) );
+                overlayRect.moveBottomRight( overlayBottomRightInWindowCoords );
+                overlayFrame->renderTo( painter, overlayRect );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::renderTo( QPaintDevice* paintDevice, const QRect& targetRect )
+{
+    int      resolution = paintDevice->logicalDpiX();
+    double   scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
+    QPainter painter( paintDevice );
+    renderTo( &painter, targetRect, scaling );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuQwtPlotWidget::overlayMargins() const
+{
+    return m_overlayMargins;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuQwtPlotWidget::ownerViewWindow() const
+{
+    return m_plotDefinition;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -623,48 +783,47 @@ void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInS
             axisId = i;
         }
     }
-    plotDefinition()->onAxisSelected( axisId, toggleItemInSelection );
+    emit axisSelected( axisId, toggleItemInSelection );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWidgetStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
+void RiuQwtPlotWidget::recalculateAxisExtents( QwtPlot::Axis axis )
+{
+    if ( axis == QwtPlot::yLeft || axis == QwtPlot::yRight )
+    {
+        int extent = axisExtent( axis );
+        axisScaleDraw( axis )->setMinimumExtent( extent );
+        setMinimumWidth( defaultMinimumWidth() + extent );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::UiStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
 {
     QColor backgroundColor       = QColor( "white" );
     QColor highlightColor        = QApplication::palette().highlight().color();
     QColor blendedHighlightColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 20 );
     QColor nearlyBackgroundColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 40 );
 
-    RiuWidgetStyleSheet styleSheet;
+    caf::UiStyleSheet styleSheet;
     styleSheet.set( "background-color", backgroundColor.name() );
     styleSheet.set( "border", "1 px solid transparent" );
 
-    styleSheet.state( RiuWidgetStyleSheet::SELECTED ).set( "border", QString( "1px solid %1" ).arg( highlightColor.name() ) );
+    styleSheet.property( "selected" ).set( "border", QString( "1px solid %1" ).arg( highlightColor.name() ) );
 
-    if ( m_draggable )
-    {
-        QString backgroundGradient = QString( QString( "qlineargradient( x1 : 1, y1 : 0, x2 : 1, y2 : 1,"
-                                                       "stop: 0 %1, stop: 0.02 %2, stop:1 %3 )" )
-                                                  .arg( blendedHighlightColor.name() )
-                                                  .arg( nearlyBackgroundColor.name() )
-                                                  .arg( backgroundColor.name() ) );
-
-        styleSheet.state( RiuWidgetStyleSheet::HOVER ).set( "background", backgroundGradient );
-        styleSheet.state( RiuWidgetStyleSheet::HOVER )
-            .set( "border", QString( "1px dashed %1" ).arg( blendedHighlightColor.name() ) );
-    }
-    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_BEFORE ).set( "border-left", "1px solid lime" );
-    styleSheet.state( RiuWidgetStyleSheet::DRAG_TARGET_AFTER ).set( "border-right", "1px solid lime" );
     return styleSheet;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWidgetStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
+caf::UiStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
 {
-    RiuWidgetStyleSheet styleSheet;
+    caf::UiStyleSheet styleSheet;
     styleSheet.set( "background-color", "#FAFAFA" );
     styleSheet.set( "border", "1px solid LightGray" );
     return styleSheet;
@@ -675,42 +834,50 @@ RiuWidgetStyleSheet RiuQwtPlotWidget::createCanvasStyleSheet() const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::updateOverlayFrameLayout()
 {
-    const int spacing      = 5;
-    int       startMarginX = this->canvas()->pos().x() + spacing;
-    int       startMarginY = this->canvas()->pos().y() + spacing;
+    const int spacing = 5;
 
-    int xpos           = startMarginX;
-    int ypos           = startMarginY;
-    int maxColumnWidth = 0;
-    for ( QPointer<QFrame> frame : m_overlayFrames )
+    int xpos                 = spacing;
+    int ypos                 = spacing;
+    int widthOfCurrentColumn = 0;
+
+    QSize canvasSize = this->canvas()->size();
+    QSize maxFrameSize( canvasSize.width() - 2 * m_overlayMargins, canvasSize.height() - 2 * m_overlayMargins );
+
+    for ( RiuDraggableOverlayFrame* frame : m_overlayFrames )
     {
-        if ( !frame.isNull() )
+        if ( frame )
         {
-            if ( ypos + frame->height() + spacing > this->canvas()->height() )
+            QSize minFrameSize     = frame->minimumSizeHint();
+            QSize desiredFrameSize = frame->sizeHint();
+
+            int width  = std::min( std::max( minFrameSize.width(), desiredFrameSize.width() ), maxFrameSize.width() );
+            int height = std::min( std::max( minFrameSize.height(), desiredFrameSize.height() ), maxFrameSize.height() );
+
+            frame->resize( width, height );
+
+            if ( frame->anchorCorner() == RiuDraggableOverlayFrame::AnchorCorner::TopLeft )
             {
-                xpos += spacing + maxColumnWidth;
-                ypos           = startMarginY;
-                maxColumnWidth = 0;
+                if ( ypos + frame->height() + spacing > this->canvas()->height() && widthOfCurrentColumn > 0 )
+                {
+                    xpos += spacing + widthOfCurrentColumn;
+                    ypos                 = spacing;
+                    widthOfCurrentColumn = 0;
+                }
+                frame->move( xpos, ypos );
+                ypos += frame->height() + spacing;
+                widthOfCurrentColumn = std::max( widthOfCurrentColumn, frame->width() );
             }
-            frame->move( xpos, ypos );
-            ypos += frame->height() + spacing;
-            maxColumnWidth = std::max( maxColumnWidth, frame->width() );
+            else if ( frame->anchorCorner() == RiuDraggableOverlayFrame::AnchorCorner::TopRight )
+            {
+                QRect  frameRect      = frame->frameGeometry();
+                QRect  canvasRect     = canvas()->rect();
+                QPoint canvasTopRight = canvasRect.topRight();
+                frameRect.moveTopRight( QPoint( canvasTopRight.x() - spacing, canvasTopRight.y() + spacing ) );
+                frame->move( frameRect.topLeft() );
+            }
             frame->show();
         }
     }
-}
-
-void RiuQwtPlotWidget::selectPlotOwner( bool toggleItemInSelection )
-{
-    if ( toggleItemInSelection )
-    {
-        RiuPlotMainWindowTools::toggleItemInSelection( plotOwner() );
-    }
-    else
-    {
-        RiuPlotMainWindowTools::selectAsCurrentItem( plotOwner() );
-    }
-    scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -743,24 +910,10 @@ void RiuQwtPlotWidget::selectClosestCurve( const QPoint& pos, bool toggleItemInS
     resetCurveHighlighting();
     if ( closestCurve && distMin < 20 )
     {
-        if ( plotDefinition() )
-        {
-            RimPlotCurve* selectedCurve = dynamic_cast<RimPlotCurve*>(
-                plotDefinition()->findPdmObjectFromQwtCurve( closestCurve ) );
-            if ( selectedCurve )
-            {
-                if ( toggleItemInSelection )
-                {
-                    RiuPlotMainWindowTools::toggleItemInSelection( selectedCurve );
-                }
-                else
-                {
-                    RiuPlotMainWindowTools::selectAsCurrentItem( selectedCurve );
-                }
-                // TODO: highlight all selected curves
-                highlightCurve( closestCurve );
-            }
-        }
+        // TODO: highlight all selected curves
+        highlightCurve( closestCurve );
+        emit curveSelected( closestCurve, toggleItemInSelection );
+
         if ( distMin < 10 )
         {
             selectPoint( closestCurve, closestCurvePoint );
@@ -773,7 +926,7 @@ void RiuQwtPlotWidget::selectClosestCurve( const QPoint& pos, bool toggleItemInS
     }
     else
     {
-        selectPlotOwner( toggleItemInSelection );
+        emit plotSelected( toggleItemInSelection );
     }
 }
 

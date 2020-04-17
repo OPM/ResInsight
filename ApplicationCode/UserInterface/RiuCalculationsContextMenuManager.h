@@ -28,7 +28,7 @@
 #include <memory>
 
 class RimSummaryCalculationVariable;
-class RicSummaryCurveCalculator;
+class RicSummaryCurveCalculatorUi;
 
 //==================================================================================================
 ///
@@ -47,7 +47,7 @@ public:
     {
     }
 
-    void attachWidget( QWidget* widget, RicSummaryCurveCalculator* curveCalc );
+    void attachWidget( QWidget* widget, RicSummaryCurveCalculatorUi* curveCalc );
 
 public slots:
     void slotMenuItems( QPoint point );
@@ -57,7 +57,7 @@ private slots:
 
 private:
     QPointer<QWidget>                           m_widget;
-    RicSummaryCurveCalculator*                  m_curveCalc;
+    RicSummaryCurveCalculatorUi*                m_curveCalc;
     int                                         m_textPosition;
     std::map<QString, std::unique_ptr<QAction>> m_actionCache;
 };

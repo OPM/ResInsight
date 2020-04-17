@@ -31,13 +31,13 @@
 #include "RiuPlotMainWindow.h"
 
 #include "RicfCommandFileExecutor.h"
-#include "RicfMessages.h"
 
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
 #include "RicImportSummaryCasesFeature.h"
 
+#include "cafPdmScriptIOMessages.h"
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
@@ -86,10 +86,7 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
                              "Use --summaryplot -help to show a more detailed help text.\n",
                              cvf::ProgramOptions::OPTIONAL_MULTI_VALUE );
 
-    progOpt->registerOption( "commandFile",
-                             "<commandfile>",
-                             "Execute the command file.",
-                             cvf::ProgramOptions::SINGLE_VALUE );
+    progOpt->registerOption( "commandFile", "<commandfile>", "Execute the command file.", cvf::ProgramOptions::SINGLE_VALUE );
     progOpt->registerOption( "commandFileReplaceCases",
                              "[<caseId>] <caseListFile>",
                              "Supply list of cases to replace in project, performing command file for each case.",
@@ -144,6 +141,7 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
 #ifdef USE_UNIT_TESTS
     progOpt->registerOption( "unittest", "", "System command" );
 #endif
+    progOpt->registerOption( "generate", "[<outputFile>]", "Generate code or documentation", cvf::ProgramOptions::SINGLE_VALUE );
     progOpt->registerOption( "ignoreArgs", "", "System command. Ignore all arguments. Mostly for testing purposes" );
 
     progOpt->setOptionPrefix( cvf::ProgramOptions::DOUBLE_DASH );

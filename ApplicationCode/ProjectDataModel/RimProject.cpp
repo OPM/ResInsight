@@ -27,6 +27,7 @@
 #include "RiaProjectFileVersionTools.h"
 #include "RiaVersionInfo.h"
 
+#include "RicfCommandObject.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 
@@ -50,24 +51,28 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGridCrossPlotCollection.h"
-#include "RimGridPlotWindowCollection.h"
 #include "RimGridSummaryCase.h"
 #include "RimGridView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimMeasurement.h"
+#include "RimMultiPlotCollection.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
 #include "RimOilField.h"
+#include "RimPlotWindow.h"
 #include "RimPltPlotCollection.h"
 #include "RimPolylinesFromFileAnnotation.h"
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
+#include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSurfaceCollection.h"
 #include "RimTools.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
 #include "RimValveTemplate.h"
@@ -79,6 +84,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+
 #include "SsiHubImportCommands/RimWellPathImport.h"
 
 #include "RiuMainWindow.h"
@@ -95,6 +101,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QMenu>
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 //--------------------------------------------------------------------------------------------------
@@ -104,11 +111,18 @@ RimProject::RimProject( void )
     : m_nextValidCaseId( 0 )
     , m_nextValidCaseGroupId( 0 )
     , m_nextValidViewId( 1 )
+    , m_nextValidPlotId( 1 )
+    , m_nextValidCalculationId( 1 )
+    , m_nextValidSummaryCaseId( 1 )
+    , m_nextValidEnsembleId( 1 )
 {
-    CAF_PDM_InitObject( "Project", "", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Project", "", "", "", "Project", "The ResInsight Project" );
 
-    CAF_PDM_InitFieldNoDefault( &m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "" );
+    CAF_PDM_InitField( &m_projectFileVersionString, "ProjectFileVersionString", QString( STRPRODUCTVER ), "", "", "", "" );
     m_projectFileVersionString.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_globalPathList, "ReferencedExternalFiles", "", "", "", "" );
+    m_globalPathList.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields", "", "", "" );
     oilFields.uiCapability()->setUiHidden( true );
@@ -140,12 +154,7 @@ RimProject::RimProject( void )
     CAF_PDM_InitFieldNoDefault( &commandObjects, "CommandObjects", "Command Objects", "", "", "" );
     // wellPathImport.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault( &multiSnapshotDefinitions,
-                                "MultiSnapshotDefinitions",
-                                "Multi Snapshot Definitions",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &multiSnapshotDefinitions, "MultiSnapshotDefinitions", "Multi Snapshot Definitions", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &mainWindowTreeViewState, "TreeViewState", "", "", "", "" );
     mainWindowTreeViewState.uiCapability()->setUiHidden( true );
@@ -203,7 +212,9 @@ RimProject::RimProject( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimProject::~RimProject( void ) {}
+RimProject::~RimProject( void )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -241,9 +252,13 @@ void RimProject::close()
     plotWindowCurrentModelIndexPath = "";
     plotWindowTreeViewState         = "";
 
-    m_nextValidCaseId      = 0;
-    m_nextValidCaseGroupId = 0;
-    m_nextValidViewId      = 0;
+    m_nextValidCaseId        = 0;
+    m_nextValidCaseGroupId   = 0;
+    m_nextValidViewId        = 1;
+    m_nextValidPlotId        = 1;
+    m_nextValidCalculationId = 1;
+    m_nextValidSummaryCaseId = 1;
+    m_nextValidEnsembleId    = 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,6 +266,8 @@ void RimProject::close()
 //--------------------------------------------------------------------------------------------------
 void RimProject::initAfterRead()
 {
+    this->distributePathsFromGlobalPathList();
+
     // Create an empty oil field in case the project did not contain one
     if ( oilFields.size() < 1 )
     {
@@ -324,6 +341,18 @@ void RimProject::setupBeforeSave()
     }
 
     m_projectFileVersionString = STRPRODUCTVER;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject::writeProjectFile()
+{
+    this->transferPathsToGlobalPathList();
+    bool couldOpenFile = this->writeFile();
+    this->distributePathsFromGlobalPathList();
+
+    return couldOpenFile;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -463,6 +492,40 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimProject::assignCaseIdToSummaryCase( RimSummaryCase* summaryCase )
+{
+    if ( summaryCase )
+    {
+        std::vector<RimSummaryCase*> summaryCases = allSummaryCases();
+        for ( RimSummaryCase* s : summaryCases )
+        {
+            m_nextValidSummaryCaseId = std::max( m_nextValidSummaryCaseId, s->caseId() + 1 );
+        }
+
+        summaryCase->setCaseId( m_nextValidSummaryCaseId++ );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollection )
+{
+    if ( summaryCaseCollection )
+    {
+        std::vector<RimSummaryCaseCollection*> summaryGroups = RimProject::summaryGroups();
+        for ( RimSummaryCaseCollection* s : summaryGroups )
+        {
+            m_nextValidEnsembleId = std::max( m_nextValidEnsembleId, s->ensembleId() + 1 );
+        }
+
+        summaryCaseCollection->setEnsembleId( m_nextValidEnsembleId );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProject::assignCaseIdToCase( RimCase* reservoirCase )
 {
     if ( reservoirCase )
@@ -501,19 +564,54 @@ void RimProject::assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::assignViewIdToView( RimViewWindow* view )
+void RimProject::assignViewIdToView( Rim3dView* view )
 {
     if ( view )
     {
-        std::vector<RimViewWindow*> viewWindows;
-        this->descendantsIncludingThisOfType( viewWindows );
+        std::vector<Rim3dView*> views;
+        this->descendantsIncludingThisOfType( views );
 
-        for ( RimViewWindow* existingView : viewWindows )
+        for ( Rim3dView* existingView : views )
         {
             m_nextValidViewId = std::max( m_nextValidViewId, existingView->id() + 1 );
         }
 
         view->setId( m_nextValidViewId++ );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
+{
+    if ( plotWindow )
+    {
+        std::vector<RimPlotWindow*> plotWindows;
+        this->descendantsIncludingThisOfType( plotWindows );
+
+        for ( RimPlotWindow* existingPlotWindow : plotWindows )
+        {
+            m_nextValidPlotId = std::max( m_nextValidPlotId, existingPlotWindow->id() + 1 );
+        }
+
+        plotWindow->setId( m_nextValidPlotId++ );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignCalculationIdToCalculation( RimSummaryCalculation* calculation )
+{
+    if ( calculation )
+    {
+        for ( RimSummaryCalculation* existingCalculation : calculationCollection->calculations() )
+        {
+            m_nextValidCalculationId = std::max( m_nextValidCalculationId, existingCalculation->id() + 1 );
+        }
+
+        calculation->setId( m_nextValidCalculationId++ );
     }
 }
 
@@ -1295,7 +1393,15 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             {
                 itemCollection->add( mainPlotCollection->saturationPressurePlotCollection() );
             }
+
+            if ( mainPlotCollection->multiPlotCollection() &&
+                 !mainPlotCollection->multiPlotCollection()->multiPlots().empty() )
+            {
+                itemCollection->add( mainPlotCollection->multiPlotCollection() );
+            }
         }
+
+        uiTreeOrdering.add( scriptCollection() );
     }
     else
     {
@@ -1311,6 +1417,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->analysisModels() ) uiTreeOrdering.add( oilField->analysisModels() );
             if ( oilField->geoMechModels() ) uiTreeOrdering.add( oilField->geoMechModels() );
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
+            if ( oilField->surfaceCollection() ) uiTreeOrdering.add( oilField->surfaceCollection() );
             if ( oilField->formationNamesCollection() ) uiTreeOrdering.add( oilField->formationNamesCollection() );
             if ( oilField->completionTemplateCollection() )
                 uiTreeOrdering.add( oilField->completionTemplateCollection() );
@@ -1321,4 +1428,206 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+#define PATHIDCHAR "$"
+
+class GlobalPathListMapper
+{
+    const QString pathIdBaseString = "PathId_";
+
+public:
+    GlobalPathListMapper( const QString& globalPathListTable )
+    {
+        m_maxUsedIdNumber     = 0;
+        QStringList pathPairs = globalPathListTable.split( ";", QString::SkipEmptyParts );
+
+        for ( const QString& pathIdPathPair : pathPairs )
+        {
+            QStringList pathIdPathComponents = pathIdPathPair.trimmed().split( PATHIDCHAR );
+
+            if ( pathIdPathComponents.size() == 3 && pathIdPathComponents[0].size() == 0 )
+            {
+                QString pathIdCore = pathIdPathComponents[1];
+                QString pathId     = PATHIDCHAR + pathIdCore + PATHIDCHAR;
+                QString path       = pathIdPathComponents[2].trimmed();
+
+                // Check if we have a standard id, and store the max number
+
+                if ( pathIdCore.startsWith( pathIdBaseString ) )
+                {
+                    bool    isOk       = false;
+                    QString numberText = pathIdCore.right( pathIdCore.size() - pathIdBaseString.size() );
+                    size_t  idNumber   = numberText.toUInt( &isOk );
+
+                    if ( isOk )
+                    {
+                        m_maxUsedIdNumber = std::max( m_maxUsedIdNumber, idNumber );
+                    }
+                }
+
+                // Check for unique pathId
+                {
+                    auto pathIdPathPairIt = m_oldPathIdToPathMap.find( pathId );
+
+                    if ( pathIdPathPairIt != m_oldPathIdToPathMap.end() )
+                    {
+                        // Error: pathID is already used
+                    }
+                }
+
+                // Check for multiple identical paths
+                {
+                    auto pathPathIdPairIt = m_oldPathToPathIdMap.find( path );
+
+                    if ( pathPathIdPairIt != m_oldPathToPathIdMap.end() )
+                    {
+                        // Warning: path has already been assigned a pathId
+                    }
+                }
+
+                m_oldPathIdToPathMap[pathId] = path;
+                m_oldPathToPathIdMap[path]   = pathId;
+            }
+            else
+            {
+                // Error: The text is ill formatted
+            }
+        }
+    }
+
+    QString addPathAndGetId( const QString& path )
+    {
+        // Want to re-use ids from last save to avoid unnecessary changes and make the behavior predictable
+        QString pathId;
+        QString trimmedPath = path.trimmed();
+
+        auto pathToIdIt = m_oldPathToPathIdMap.find( trimmedPath );
+        if ( pathToIdIt != m_oldPathToPathIdMap.end() )
+        {
+            pathId = pathToIdIt->second;
+        }
+        else
+        {
+            auto pathPathIdPairIt = m_newPathToPathIdMap.find( trimmedPath );
+            if ( pathPathIdPairIt != m_newPathToPathIdMap.end() )
+            {
+                pathId = pathPathIdPairIt->second;
+            }
+            else
+            {
+                pathId = createUnusedId();
+            }
+        }
+
+        m_newPathIdToPathMap[pathId]      = trimmedPath;
+        m_newPathToPathIdMap[trimmedPath] = pathId;
+
+        return pathId;
+    };
+
+    QString newGlobalPathListTable() const
+    {
+        QString pathList;
+        pathList += "\n";
+        for ( const auto& pathIdPathPairIt : m_newPathIdToPathMap )
+        {
+            pathList += "        " + pathIdPathPairIt.first + " " + pathIdPathPairIt.second + ";\n";
+        }
+
+        pathList += "    ";
+
+        return pathList;
+    }
+
+    QString pathFromPathId( const QString& pathId, bool* isFound ) const
+    {
+        auto it = m_oldPathIdToPathMap.find( pathId );
+        if ( it != m_oldPathIdToPathMap.end() )
+        {
+            ( *isFound ) = true;
+            return it->second;
+        }
+
+        ( *isFound ) = false;
+        return "";
+    }
+
+private:
+    QString createUnusedId()
+    {
+        m_maxUsedIdNumber++;
+
+        QString numberString   = QString( "%1" ).arg( (uint)m_maxUsedIdNumber, 3, 10, QChar( '0' ) );
+        QString pathIdentifier = PATHIDCHAR + pathIdBaseString + numberString + PATHIDCHAR;
+
+        return pathIdentifier;
+    }
+
+    size_t m_maxUsedIdNumber; // Set when parsing the globalPathListTable. Increment while creating new id's
+
+    std::map<QString, QString> m_newPathIdToPathMap;
+    std::map<QString, QString> m_newPathToPathIdMap;
+
+    std::map<QString, QString> m_oldPathIdToPathMap;
+    std::map<QString, QString> m_oldPathToPathIdMap;
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::transferPathsToGlobalPathList()
+{
+    GlobalPathListMapper pathListMapper( m_globalPathList() );
+
+    std::vector<caf::FilePath*> filePaths;
+    fieldContentsByType( this, filePaths );
+
+    for ( caf::FilePath* filePath : filePaths )
+    {
+        QString path = filePath->path();
+        if ( !path.isEmpty() )
+        {
+            QString pathId = pathListMapper.addPathAndGetId( path );
+            filePath->setPath( pathId );
+        }
+    }
+
+    m_globalPathList = pathListMapper.newGlobalPathListTable();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::distributePathsFromGlobalPathList()
+{
+    GlobalPathListMapper pathListMapper( m_globalPathList() );
+
+    std::vector<caf::FilePath*> filePaths;
+    fieldContentsByType( this, filePaths );
+
+    for ( caf::FilePath* filePath : filePaths )
+    {
+        QString     pathIdCandidate  = filePath->path().trimmed();
+        QStringList pathIdComponents = pathIdCandidate.split( PATHIDCHAR );
+
+        if ( pathIdComponents.size() == 3 && pathIdComponents[0].size() == 0 && pathIdComponents[1].size() > 0 &&
+             pathIdComponents[2].size() == 0 )
+        {
+            bool    isFound = false;
+            QString path    = pathListMapper.pathFromPathId( pathIdCandidate, &isFound );
+            if ( isFound )
+            {
+                filePath->setPath( path );
+            }
+            else
+            {
+                // The pathId can not be found in the path list
+            }
+        }
+        else
+        {
+            // The pathIdCandidate is probably a real path. Leave alone.
+        }
+    }
 }

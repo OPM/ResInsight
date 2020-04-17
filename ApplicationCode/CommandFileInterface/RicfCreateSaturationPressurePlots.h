@@ -34,7 +34,7 @@ class RicfCreateSaturationPressurePlots : public RicfCommandObject
 public:
     RicfCreateSaturationPressurePlots();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<std::vector<int>> m_caseIds;

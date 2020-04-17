@@ -34,6 +34,7 @@
 #include "RimEclipseView.h"
 #include "RimProject.h"
 
+#include "cafPdmFieldIOScriptability.h"
 #include "cafUtils.h"
 
 #include <limits>
@@ -47,16 +48,16 @@ CAF_PDM_SOURCE_INIT( RicfExportPropertyInViews, "exportPropertyInViews" );
 //--------------------------------------------------------------------------------------------------
 RicfExportPropertyInViews::RicfExportPropertyInViews()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_viewIds, "viewIds", std::vector<int>(), "View IDs", "", "", "" );
-    RICF_InitField( &m_viewNames, "viewNames", std::vector<QString>(), "View Names", "", "", "" );
-    RICF_InitField( &m_undefinedValue, "undefinedValue", 0.0, "Undefined Value", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewIds, "viewIds", std::vector<int>(), "View IDs", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewNames, "viewNames", std::vector<QString>(), "View Names", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_undefinedValue, "undefinedValue", 0.0, "Undefined Value", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportPropertyInViews::execute()
+caf::PdmScriptResponse RicfExportPropertyInViews::execute()
 {
     using TOOLS = RicfApplicationTools;
 
@@ -65,7 +66,7 @@ RicfCommandResponse RicfExportPropertyInViews::execute()
     {
         QString error( QString( "exportProperty: Could not find case with ID %1" ).arg( m_caseId() ) );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     std::vector<RimEclipseView*> viewsForExport;
@@ -110,7 +111,7 @@ RicfCommandResponse RicfExportPropertyInViews::execute()
         }
     }
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
 
     for ( const auto& view : viewsForExport )
     {
@@ -128,13 +129,13 @@ RicfCommandResponse RicfExportPropertyInViews::execute()
 
         if ( resultAccessor.isNull() )
         {
-            QString warning = QString(
-                                  "exportProperty: Could not find property. Case ID %1, time step %2, property '%3'" )
-                                  .arg( m_caseId )
-                                  .arg( view->currentTimeStep() )
-                                  .arg( propertyName );
+            QString warning =
+                QString( "exportProperty: Could not find property. Case ID %1, time step %2, property '%3'" )
+                    .arg( m_caseId )
+                    .arg( view->currentTimeStep() )
+                    .arg( propertyName );
             RiaLogging::warning( warning );
-            response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warning );
+            response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
             continue;
         }
 
@@ -160,7 +161,7 @@ RicfCommandResponse RicfExportPropertyInViews::execute()
                                                                              &errorMsg );
         if ( !worked )
         {
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, errorMsg );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errorMsg );
         }
     }
     return response;

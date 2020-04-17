@@ -35,6 +35,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifDataSourceForRftPltQMetaType.h
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseUserDataKeywordTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvUserData.h
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvUserDataParser.h
+${CMAKE_CURRENT_LIST_DIR}/RifWellMeasurementReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationsImporter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.h
@@ -49,6 +50,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifDerivedEnsembleReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.h
+${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader.h
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.h
@@ -88,6 +90,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifDataSourceForRftPlt.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseUserDataKeywordTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvUserData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvUserDataParser.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifWellMeasurementReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifWellPathFormationsImporter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.cpp
@@ -102,6 +105,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderEnsembleStatisticsRft.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader.cpp
+
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.cpp

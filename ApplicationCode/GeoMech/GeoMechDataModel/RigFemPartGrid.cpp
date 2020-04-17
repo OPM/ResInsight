@@ -20,6 +20,8 @@
 #include "RigFemPartGrid.h"
 
 #include "RigFemPart.h"
+
+#include <array>
 #include <cmath>
 #include <limits.h>
 
@@ -34,7 +36,9 @@ RigFemPartGrid::RigFemPartGrid()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemPartGrid::~RigFemPartGrid() {}
+RigFemPartGrid::~RigFemPartGrid()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -479,8 +483,15 @@ void RigFemPartGrid::cellCornerVertices( size_t cellIndex, cvf::Vec3d vertices[8
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigFemPartGrid::cellCentroid( size_t cellIndex ) const
 {
-    CVF_ASSERT( false );
-    return cvf::Vec3d::ZERO;
+    std::array<cvf::Vec3d, 8> cellVertices;
+    this->cellCornerVertices( cellIndex, cellVertices.data() );
+
+    cvf::Vec3d centroid( 0.0, 0.0, 0.0 );
+    for ( int i = 0; i < 8; ++i )
+    {
+        centroid += cellVertices[i];
+    }
+    return centroid / 8.0;
 }
 
 //--------------------------------------------------------------------------------------------------

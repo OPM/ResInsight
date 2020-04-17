@@ -19,19 +19,19 @@
 #include "RifcCommandFileReader.h"
 
 #include "RicfCommandObject.h"
-#include "RicfMessages.h"
-#include "RicfObjectCapability.h"
 
 #include "cafPdmObjectFactory.h"
+#include "cafPdmObjectScriptability.h"
+#include "cafPdmScriptIOMessages.h"
 
 #include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands( QTextStream&           inputStream,
-                                                                     caf::PdmObjectFactory* objectFactory,
-                                                                     RicfMessages*          errorMessageContainer )
+std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands( QTextStream&              inputStream,
+                                                                     caf::PdmObjectFactory*    objectFactory,
+                                                                     caf::PdmScriptIOMessages* errorMessageContainer )
 {
     std::vector<RicfCommandObject*> readCommands;
 
@@ -127,7 +127,7 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands( QTextStream
         else
         {
             readCommands.push_back( cObj );
-            auto rcfCap                           = cObj->capability<RicfObjectCapability>();
+            auto rcfCap                           = cObj->capability<caf::PdmObjectScriptability>();
             errorMessageContainer->currentCommand = commandName;
             rcfCap->readFields( inputStream, objectFactory, errorMessageContainer );
             errorMessageContainer->currentCommand = "";
@@ -140,12 +140,11 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands( QTextStream
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfCommandFileReader::writeCommands( QTextStream&                           outputStream,
-                                           const std::vector<RicfCommandObject*>& commandsToWrite )
+void RicfCommandFileReader::writeCommands( QTextStream& outputStream, const std::vector<RicfCommandObject*>& commandsToWrite )
 {
     for ( const auto& cmdObj : commandsToWrite )
     {
-        auto rcfCap = cmdObj->capability<RicfObjectCapability>();
+        auto rcfCap = cmdObj->capability<caf::PdmObjectScriptability>();
         if ( !rcfCap ) continue;
 
         outputStream << cmdObj->classKeyword();

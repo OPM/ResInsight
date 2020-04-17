@@ -18,7 +18,10 @@
 #pragma once
 
 #include "RicfCommandObject.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
+
+class RimWbsParameters;
 
 //==================================================================================================
 //
@@ -47,10 +50,11 @@ class RicfCreateWellBoreStabilityPlotFeature : public RicfCommandObject
 
 public:
     RicfCreateWellBoreStabilityPlotFeature();
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
-    caf::PdmField<int>     m_caseId;
-    caf::PdmField<QString> m_wellPath;
-    caf::PdmField<int>     m_timeStep;
+    caf::PdmField<int>                    m_caseId;
+    caf::PdmField<QString>                m_wellPath;
+    caf::PdmField<int>                    m_timeStep;
+    caf::PdmChildField<RimWbsParameters*> m_wbsParameters;
 };

@@ -36,8 +36,14 @@ class RimGeoMechCase;
 class RivSingleCellPartGenerator
 {
 public:
-    RivSingleCellPartGenerator( RigEclipseCaseData* rigCaseData, size_t gridIndex, size_t cellIndex );
-    RivSingleCellPartGenerator( RimGeoMechCase* rimGeoMechCase, size_t gridIndex, size_t cellIndex );
+    RivSingleCellPartGenerator( RigEclipseCaseData* rigCaseData,
+                                size_t              gridIndex,
+                                size_t              cellIndex,
+                                const cvf::Vec3d&   displayModelOffset );
+    RivSingleCellPartGenerator( RimGeoMechCase*   rimGeoMechCase,
+                                size_t            gridIndex,
+                                size_t            cellIndex,
+                                const cvf::Vec3d& displayModelOffset );
 
     cvf::ref<cvf::Part> createPart( const cvf::Color3f color );
 
@@ -49,4 +55,5 @@ private:
     RimGeoMechCase*     m_geoMechCase;
     size_t              m_gridIndex;
     size_t              m_cellIndex;
+    cvf::Vec3d          m_displayModelOffset;
 };

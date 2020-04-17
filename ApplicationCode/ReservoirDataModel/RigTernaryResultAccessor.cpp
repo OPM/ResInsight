@@ -26,7 +26,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigTernaryResultAccessor::RigTernaryResultAccessor() {}
+RigTernaryResultAccessor::RigTernaryResultAccessor()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 /// Requires at least two data objects present, asserts if more than one data accessor is nullptr

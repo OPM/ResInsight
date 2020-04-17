@@ -19,21 +19,13 @@
 #include "RicDuplicateSummaryCurveFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryTools.h"
 
 #include "RicPasteSummaryCurveFeature.h"
 
-#include "RiaSummaryTools.h"
-#include "RimMainPlotCollection.h"
-#include "RimOilField.h"
-#include "RimProject.h"
-#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
-
 #include "RiuPlotMainWindowTools.h"
-
-#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -57,9 +49,6 @@ bool RicDuplicateSummaryCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicDuplicateSummaryCurveFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT( project );
-
     RimSummaryCurve* curve = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCurve*>();
     if ( curve )
     {

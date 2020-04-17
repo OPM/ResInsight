@@ -21,8 +21,8 @@
 #include "RiaApplication.h"
 
 #include "RimCase.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
 #include "RimIntersectionCollection.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -43,7 +43,9 @@ CAF_CMD_SOURCE_INIT( RicNewAzimuthDipIntersectionFeature, "RicNewAzimuthDipInter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewAzimuthDipIntersectionFeature::RicNewAzimuthDipIntersectionFeature() {}
+RicNewAzimuthDipIntersectionFeature::RicNewAzimuthDipIntersectionFeature()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -61,8 +63,8 @@ void RicNewAzimuthDipIntersectionFeature::onActionTriggered( bool isChecked )
     RimGridView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !activeView ) return;
 
-    RicNewAzimuthDipIntersectionFeatureCmd* cmd = new RicNewAzimuthDipIntersectionFeatureCmd(
-        activeView->crossSectionCollection() );
+    RicNewAzimuthDipIntersectionFeatureCmd* cmd =
+        new RicNewAzimuthDipIntersectionFeatureCmd( activeView->intersectionCollection() );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
 }
 
@@ -78,8 +80,7 @@ void RicNewAzimuthDipIntersectionFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewAzimuthDipIntersectionFeatureCmd::RicNewAzimuthDipIntersectionFeatureCmd(
-    RimIntersectionCollection* intersectionCollection )
+RicNewAzimuthDipIntersectionFeatureCmd::RicNewAzimuthDipIntersectionFeatureCmd( RimIntersectionCollection* intersectionCollection )
     : CmdExecuteCommand( nullptr )
     , m_intersectionCollection( intersectionCollection )
 {
@@ -88,7 +89,9 @@ RicNewAzimuthDipIntersectionFeatureCmd::RicNewAzimuthDipIntersectionFeatureCmd(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewAzimuthDipIntersectionFeatureCmd::~RicNewAzimuthDipIntersectionFeatureCmd() {}
+RicNewAzimuthDipIntersectionFeatureCmd::~RicNewAzimuthDipIntersectionFeatureCmd()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -105,9 +108,9 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
 {
     CVF_ASSERT( m_intersectionCollection );
 
-    RimIntersection* intersection                        = new RimIntersection();
-    intersection->name                                   = "Azimuth and Dip";
-    intersection->type                                   = RimIntersection::CS_AZIMUTHLINE;
+    RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
+    intersection->setName( "Azimuth and Dip" );
+    intersection->type                                   = RimExtrudedCurveIntersection::CS_AZIMUTHLINE;
     intersection->inputTwoAzimuthPointsFromViewerEnabled = true;
 
     RimCase* rimCase;
@@ -128,4 +131,6 @@ void RicNewAzimuthDipIntersectionFeatureCmd::redo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewAzimuthDipIntersectionFeatureCmd::undo() {}
+void RicNewAzimuthDipIntersectionFeatureCmd::undo()
+{
+}

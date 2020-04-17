@@ -33,6 +33,7 @@ enum ResultCatType
     GENERATED,
     INPUT_PROPERTY,
     FORMATION_NAMES,
+    ALLEN_DIAGRAMS,
     FLOW_DIAGNOSTICS,
     INJECTION_FLOODING,
     REMOVED,
@@ -104,6 +105,10 @@ QString mobilePoreVolumeName();
 
 QString completionTypeResultName();
 
+// Fault results
+QString formationBinaryAllenResultName();
+QString formationAllenResultName();
+
 // Mock model text identifiers
 QString mockModelBasic();
 QString mockModelBasicWithResults();
@@ -114,20 +119,18 @@ QString mockModelBasicInputCase();
 QString activeFormationNamesResultName();
 
 // Well path derived results
-QString wbsAzimuthResultName();
-QString wbsInclinationResultName();
-QString wbsPPResultName();
-QString wbsSHResultName();
-QString wbsOBGResultName();
-QString wbsFGResultName();
-QString wbsSFGResultName();
-QString wbsPoissonParameterName();
-QString wbsUCSParameterName();
+QString wbsAzimuthResult();
+QString wbsInclinationResult();
+QString wbsPPResult();
+QString wbsSHResult();
+QString wbsSHMkResult();
+QString wbsOBGResult();
+QString wbsFGResult();
+QString wbsSFGResult();
 
 // List of well path derived results
-std::vector<QString> wellPathAngleResultNames();
-std::vector<QString> wellPathStabilityResultNames();
-std::vector<QString> wellPathStabilityParameterNames();
+std::vector<QString> wbsAngleResultNames();
+std::vector<QString> wbsDerivedResultNames();
 
 // Units and conversions
 enum DepthUnitType
@@ -143,7 +146,8 @@ enum DepthTypeEnum
     MEASURED_DEPTH,
     TRUE_VERTICAL_DEPTH,
     PSEUDO_LENGTH,
-    CONNECTION_NUMBER
+    CONNECTION_NUMBER,
+    TRUE_VERTICAL_DEPTH_RKB
 };
 
 // Defines relate to plotting
@@ -184,6 +188,7 @@ QString        defaultDirectoryLabel( ImportFileType fileTypes );
 
 enum CaseType
 {
+    UNDEFINED_CASE      = -1,
     ECLIPSE_RESULT_CASE = 1,
     ECLIPSE_INPUT_CASE  = 2,
     ECLIPSE_STAT_CASE   = 3,

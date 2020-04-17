@@ -42,6 +42,7 @@ public:
 
     std::pair<cvf::Vec3st, cvf::Vec3st> reservoirIJKBoundingBox() const;
     void                                cellCornerVertices( size_t cellIndex, cvf::Vec3d vertices[8] ) const override;
+    cvf::Vec3d                          cellCentroid( size_t cellIndex ) const override;
 
 private:
     void generateStructGridData();
@@ -59,8 +60,7 @@ private: // Unused, Not implemented
     cvf::Vec3d maxCoordinate() const override;
     bool       cellIJKNeighbor( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const override;
 
-    bool       cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const override;
-    cvf::Vec3d cellCentroid( size_t cellIndex ) const override;
+    bool cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const override;
     void cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate ) const override;
     size_t     gridPointIndexFromIJK( size_t i, size_t j, size_t k ) const override;
     cvf::Vec3d gridPointCoordinate( size_t i, size_t j, size_t k ) const override;
@@ -81,15 +81,9 @@ private: // Unused, Not implemented
             m_jCount = jCount;
         }
 
-        size_t& at( size_t i, size_t j, size_t k )
-        {
-            return data[i + j * m_iCount + k * m_iCount * m_jCount];
-        }
+        size_t& at( size_t i, size_t j, size_t k ) { return data[i + j * m_iCount + k * m_iCount * m_jCount]; }
 
-        size_t at( size_t i, size_t j, size_t k ) const
-        {
-            return data[i + j * m_iCount + k * m_iCount * m_jCount];
-        }
+        size_t at( size_t i, size_t j, size_t k ) const { return data[i + j * m_iCount + k * m_iCount * m_jCount]; }
 
     private:
         size_t m_iCount;

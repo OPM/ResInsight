@@ -20,7 +20,9 @@
 
 #include "RifEnsembleStatisticsReader.h"
 
+#include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
+
 #include "RigStatisticsMath.h"
 
 #include "RimEnsembleCurveSet.h"
@@ -122,9 +124,8 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     auto inputAddress = m_curveSet->summaryAddress();
     if ( m_statisticsReader && inputAddress.isValid() )
     {
-        const std::vector<RimSummaryCase*>& validCases = validSummaryCases( sumCases,
-                                                                            inputAddress,
-                                                                            includeIncompleteCurves );
+        const std::vector<RimSummaryCase*>& validCases =
+            validSummaryCases( sumCases, inputAddress, includeIncompleteCurves );
 
         calculate( validCases, inputAddress, includeIncompleteCurves );
     }
@@ -158,10 +159,10 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
 
             RiaTimeHistoryCurveResampler resampler;
             resampler.setCurveData( values, timeSteps );
-            if ( inputAddress.hasAccumulatedData() )
-                resampler.resampleAndComputePeriodEndValues( DateTimePeriod::DAY );
+            if ( RiaSummaryTools::hasAccumulatedData( inputAddress ) )
+                resampler.resampleAndComputePeriodEndValues( RiaQDateTimeTools::DateTimePeriod::DAY );
             else
-                resampler.resampleAndComputeWeightedMeanValues( DateTimePeriod::DAY );
+                resampler.resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod::DAY );
 
             if ( allTimeSteps.empty() ) allTimeSteps = resampler.resampledTimeSteps();
             caseAndTimeStepValues.push_back(

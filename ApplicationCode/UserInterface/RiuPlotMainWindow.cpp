@@ -25,6 +25,7 @@
 #include "RiaSummaryTools.h"
 
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimMultiPlot.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveCollection.h"
@@ -38,12 +39,13 @@
 #include "RimWellRftPlot.h"
 
 #include "SummaryPlotCommands/RicSummaryCurveCalculatorDialog.h"
-#include "SummaryPlotCommands/RicSummaryCurveCreatorDialog.h"
+#include "SummaryPlotCommands/RicSummaryPlotEditorDialog.h"
 
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
-#include "RiuGridPlotWindow.h"
 #include "RiuMdiSubWindow.h"
+#include "RiuMessagePanel.h"
+#include "RiuMultiPlotPage.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuWellAllocationPlot.h"
@@ -163,7 +165,7 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
 
     m_wellLogPlotToolBarEditor->clear();
     m_summaryPlotToolBarEditor->clear();
-    m_gridPlotWindowToolBarEditor->clear();
+    m_multiPlotToolBarEditor->clear();
 
     setWindowTitle( "Plots - ResInsight" );
 }
@@ -276,6 +278,7 @@ void RiuPlotMainWindow::createMenus()
 
     QMenu* exportMenu = fileMenu->addMenu( "&Export" );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToFileFeature" ) );
+    exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToPdfFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotAllPlotsToFileFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSaveEclipseInputActiveVisibleCellsFeature" ) );
 
@@ -298,6 +301,7 @@ void RiuPlotMainWindow::createMenus()
     QMenu* editMenu = menuBar()->addMenu( "&Edit" );
     editMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToClipboardFeature" ) );
     editMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToFileFeature" ) );
+    editMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToPdfFeature" ) );
     editMenu->addSeparator();
     editMenu->addAction( cmdFeatureMgr->action( "RicEditPreferencesFeature" ) );
 
@@ -316,6 +320,9 @@ void RiuPlotMainWindow::createMenus()
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpSummaryCommandLineFeature" ) );
     helpMenu->addSeparator();
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpOpenUsersGuideFeature" ) );
+    helpMenu->addAction( cmdFeatureMgr->action( "RicSearchHelpFeature" ) );
+
+    connect( helpMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshHelpActions() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,6 +352,7 @@ QStringList RiuPlotMainWindow::toolbarCommandIds( const QString& toolbarName )
     {
         commandIds << "RicSnapshotViewToClipboardFeature";
         commandIds << "RicSnapshotViewToFileFeature";
+        commandIds << "RicSnapshotViewToPdfFeature";
         commandIds << "RicSnapshotAllPlotsToFileFeature";
     }
 
@@ -388,8 +396,8 @@ void RiuPlotMainWindow::createToolBars()
     m_summaryPlotToolBarEditor = new caf::PdmUiToolBarEditor( "Summary Plot", this );
     m_summaryPlotToolBarEditor->hide();
 
-    m_gridPlotWindowToolBarEditor = new caf::PdmUiToolBarEditor( "Combination Plot", this );
-    m_gridPlotWindowToolBarEditor->hide();
+    m_multiPlotToolBarEditor = new caf::PdmUiToolBarEditor( "Multi Plot", this );
+    m_multiPlotToolBarEditor->hide();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -454,6 +462,15 @@ void RiuPlotMainWindow::createDockPanels()
         dockWidget->setWidget( m_pdmUiPropertyView );
 
         addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
+    }
+
+    {
+        QDockWidget* dockWidget = new QDockWidget( "Messages", this );
+        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowMessagesName() );
+        m_messagePanel = new RiuMessagePanel( dockWidget );
+        dockWidget->setWidget( m_messagePanel );
+        addDockWidget( Qt::BottomDockWidgetArea, dockWidget );
+        dockWidget->hide();
     }
 
     setCorner( Qt::BottomLeftCorner, Qt::LeftDockWidgetArea );
@@ -574,20 +591,20 @@ void RiuPlotMainWindow::updateWellLogPlotToolBar()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::updateGridPlotWindowToolBar()
+void RiuPlotMainWindow::updateMultiPlotToolBar()
 {
-    RimGridPlotWindow* plotWindow = dynamic_cast<RimGridPlotWindow*>( m_activePlotViewWindow.p() );
+    RimMultiPlot* plotWindow = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
     if ( plotWindow )
     {
         std::vector<caf::PdmFieldHandle*> toolBarFields = {plotWindow->columnCountField()};
-        m_gridPlotWindowToolBarEditor->setFields( toolBarFields );
-        m_gridPlotWindowToolBarEditor->updateUi();
-        m_gridPlotWindowToolBarEditor->show();
+        m_multiPlotToolBarEditor->setFields( toolBarFields );
+        m_multiPlotToolBarEditor->updateUi();
+        m_multiPlotToolBarEditor->show();
     }
     else
     {
-        m_gridPlotWindowToolBarEditor->clear();
-        m_gridPlotWindowToolBarEditor->hide();
+        m_multiPlotToolBarEditor->clear();
+        m_multiPlotToolBarEditor->hide();
     }
     refreshToolbars();
 }
@@ -597,9 +614,9 @@ void RiuPlotMainWindow::updateGridPlotWindowToolBar()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
 {
-    RimSummaryPlot*    summaryPlot    = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
-    RimGridPlotWindow* gridPlotWindow = dynamic_cast<RimGridPlotWindow*>( m_activePlotViewWindow.p() );
-    if ( gridPlotWindow )
+    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
+    RimMultiPlot*   multiPlot   = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
+    if ( multiPlot )
     {
         summaryPlot = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryPlot>();
     }
@@ -645,11 +662,11 @@ void RiuPlotMainWindow::setFocusToLineEditInSummaryToolBar()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorDialog* RiuPlotMainWindow::summaryCurveCreatorDialog()
+RicSummaryPlotEditorDialog* RiuPlotMainWindow::summaryCurveCreatorDialog()
 {
     if ( m_summaryCurveCreatorDialog.isNull() )
     {
-        m_summaryCurveCreatorDialog = new RicSummaryCurveCreatorDialog( this );
+        m_summaryCurveCreatorDialog = new RicSummaryPlotEditorDialog( this );
     }
 
     return m_summaryCurveCreatorDialog;
@@ -666,6 +683,14 @@ RicSummaryCurveCalculatorDialog* RiuPlotMainWindow::summaryCurveCalculatorDialog
     }
 
     return m_summaryCurveCalculatorDialog;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuMessagePanel* RiuPlotMainWindow::messagePanel()
+{
+    return m_messagePanel;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -748,6 +773,7 @@ void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 
     updateWellLogPlotToolBar();
     updateSummaryPlotToolBar();
+    updateMultiPlotToolBar();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -881,8 +907,9 @@ void RiuPlotMainWindow::restoreTreeViewState()
         QString currentIndexString = RiaApplication::instance()->project()->plotWindowCurrentModelIndexPath;
         if ( !currentIndexString.isEmpty() )
         {
-            QModelIndex mi = caf::QTreeViewStateSerializer::getModelIndexFromString( m_projectTreeView->treeView()->model(),
-                                                                                     currentIndexString );
+            QModelIndex mi =
+                caf::QTreeViewStateSerializer::getModelIndexFromString( m_projectTreeView->treeView()->model(),
+                                                                        currentIndexString );
             m_projectTreeView->treeView()->setCurrentIndex( mi );
         }
     }

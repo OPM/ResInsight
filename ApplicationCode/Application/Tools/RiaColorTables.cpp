@@ -487,6 +487,20 @@ const caf::ColorTable& RiaColorTables::wellPathsPaletteColors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const caf::ColorTable& RiaColorTables::waterAndRockPaletteColors()
+{
+    static std::vector<cvf::Color3ub> colors{
+        cvf::Color3ub( 127, 205, 255 ), // Sea Blue
+        cvf::Color3ub( 100, 100, 100 ) // Gray
+    };
+    static caf::ColorTable colorTable = caf::ColorTable( colors );
+
+    return colorTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RiaColorTables::undefinedCellColor()
 {
     return cvf::Color3::GRAY;
@@ -562,8 +576,7 @@ caf::ColorTable RiaColorTables::createBrightnessBasedColorTable( cvf::Color3ub b
         for ( int i = 0; i < brightnessLevelCount; ++i )
         {
             float brightness = static_cast<float>( i ) / static_cast<float>( brightnessLevelCount - 1 );
-            colors.push_back(
-                cvf::Color3ub( RiaColorTools::fromQColorTo3f( QColor::fromHslF( hueF, satF, brightness ) ) ) );
+            colors.push_back( cvf::Color3ub( RiaColorTools::fromQColorTo3f( QColor::fromHslF( hueF, satF, brightness ) ) ) );
         }
     }
     return caf::ColorTable( colors );

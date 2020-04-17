@@ -78,7 +78,8 @@ RimEnsembleCurveSet* RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSet( R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( std::vector<RimSummaryCaseCollection*> ensembles )
+RimSummaryPlot*
+    RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( std::vector<RimSummaryCaseCollection*> ensembles )
 {
     RiaGuiApplication* app  = RiaGuiApplication::instance();
     RimProject*        proj = app->project();
@@ -102,6 +103,7 @@ void RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( std:
         mainPlotWindow->selectAsCurrentItem( firstCurveSetCreated );
         mainPlotWindow->updateSummaryPlotToolBar();
     }
+    return plot;
 }
 
 //--------------------------------------------------------------------------------------------------

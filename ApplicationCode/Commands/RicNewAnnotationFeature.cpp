@@ -50,7 +50,9 @@ bool RicNewAnnotationFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewAnnotationFeature::onActionTriggered( bool isChecked ) {}
+void RicNewAnnotationFeature::onActionTriggered( bool isChecked )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -193,8 +193,8 @@ void RimEnsembleCurveFilterCollection::defineUiOrdering( QString uiConfigName, c
             }
         }
 
-        caf::PdmUiGroup* filterGroup = group->addNewGroupWithKeyword( groupTitle,
-                                                                      QString( "EnsembleFilter_" ) + filter->filterId() );
+        caf::PdmUiGroup* filterGroup =
+            group->addNewGroupWithKeyword( groupTitle, QString( "EnsembleFilter_" ) + filter->filterId() );
         filter->defineUiOrdering( uiConfigName, *filterGroup );
     }
 

@@ -18,7 +18,9 @@
 #include "RiaGrpcGridService.h"
 
 #include "RiaGrpcCallbacks.h"
+#include "RiaGrpcHelper.h"
 
+#include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
@@ -29,8 +31,111 @@ using namespace rips;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-grpc::Status
-    RiaGrpcGridService::GetDimensions( grpc::ServerContext* context, const GridRequest* request, GridDimensions* reply )
+RiaCellCenterStateHandler::RiaCellCenterStateHandler()
+    : m_request( nullptr )
+    , m_eclipseCase( nullptr )
+    , m_grid( nullptr )
+    , m_currentCellIdx( 0u )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaCellCenterStateHandler::init( const rips::GridRequest* request )
+{
+    CAF_ASSERT( request );
+    m_request = request;
+
+    RimCase* rimCase = RiaGrpcServiceInterface::findCase( m_request->case_request().id() );
+    m_eclipseCase    = dynamic_cast<RimEclipseCase*>( rimCase );
+
+    if ( !m_eclipseCase )
+    {
+        return grpc::Status( grpc::NOT_FOUND, "Eclipse Case not found" );
+    }
+
+    size_t gridIndex = (size_t)request->grid_index();
+    if ( gridIndex >= m_eclipseCase->mainGrid()->gridCount() )
+    {
+        return grpc::Status( grpc::NOT_FOUND, "Grid not found" );
+    }
+
+    m_grid = m_eclipseCase->mainGrid()->gridByIndex( gridIndex );
+
+    return grpc::Status::OK;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaCellCenterStateHandler::assignReply( rips::CellCenters* reply )
+{
+    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::Vec3d ) );
+    size_t       indexInPackage = 0u;
+    reply->mutable_centers()->Reserve( (int)packageSize );
+    for ( ; indexInPackage < packageSize && m_currentCellIdx < m_grid->cellCount(); ++indexInPackage )
+    {
+        cvf::Vec3d center = m_grid->cell( m_currentCellIdx ).center();
+
+        RiaGrpcHelper::convertVec3dToPositiveDepth( &center );
+
+        Vec3d* cellCenter = reply->add_centers();
+        cellCenter->set_x( center.x() );
+        cellCenter->set_y( center.y() );
+        cellCenter->set_z( center.z() );
+        m_currentCellIdx++;
+    }
+    if ( indexInPackage > 0u )
+    {
+        return Status::OK;
+    }
+    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaCellCenterStateHandler::assignCornersReply( rips::CellCornersArray* reply )
+{
+    const size_t packageSize    = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::CellCorners ) );
+    size_t       indexInPackage = 0u;
+    reply->mutable_cells()->Reserve( (int)packageSize );
+
+    cvf::Vec3d cornerVerts[8];
+    for ( ; indexInPackage < packageSize && m_currentCellIdx < m_grid->cellCount(); ++indexInPackage )
+    {
+        m_grid->cellCornerVertices( m_currentCellIdx, cornerVerts );
+        for ( cvf::Vec3d& corner : cornerVerts )
+        {
+            RiaGrpcHelper::convertVec3dToPositiveDepth( &corner );
+        }
+
+        rips::CellCorners* corners = reply->add_cells();
+        RiaGrpcHelper::setCornerValues( corners->mutable_c0(), cornerVerts[0] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c1(), cornerVerts[1] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c2(), cornerVerts[2] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c3(), cornerVerts[3] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c4(), cornerVerts[4] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c5(), cornerVerts[5] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c6(), cornerVerts[6] );
+        RiaGrpcHelper::setCornerValues( corners->mutable_c7(), cornerVerts[7] );
+
+        m_currentCellIdx++;
+    }
+    if ( indexInPackage > 0u )
+    {
+        return Status::OK;
+    }
+    return Status( grpc::OUT_OF_RANGE, "We've reached the end. This is not an error but means transmission is finished" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcGridService::GetDimensions( grpc::ServerContext*     context,
+                                                const rips::GridRequest* request,
+                                                rips::GridDimensions*    reply )
 {
     RimCase* rimCase = findCase( request->case_request().id() );
 
@@ -58,14 +163,46 @@ grpc::Status
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcGridService::GetCellCenters( grpc::ServerContext*       context,
+                                                 const rips::GridRequest*   request,
+                                                 rips::CellCenters*         reply,
+                                                 RiaCellCenterStateHandler* stateHandler )
+{
+    return stateHandler->assignReply( reply );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+grpc::Status RiaGrpcGridService::GetCellCorners( grpc::ServerContext*       context,
+                                                 const rips::GridRequest*   request,
+                                                 rips::CellCornersArray*    reply,
+                                                 RiaCellCenterStateHandler* stateHandler )
+{
+    return stateHandler->assignCornersReply( reply );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RiaGrpcCallbackInterface*> RiaGrpcGridService::createCallbacks()
 {
     typedef RiaGrpcGridService Self;
 
-    return {new RiaGrpcUnaryCallback<Self, GridRequest, GridDimensions>( this,
-                                                                         &Self::GetDimensions,
-                                                                         &Self::RequestGetDimensions )};
+    return {
+
+        new RiaGrpcServerToClientStreamCallback<Self, GridRequest, CellCenters, RiaCellCenterStateHandler>( this,
+                                                                                                            &Self::GetCellCenters,
+                                                                                                            &Self::RequestGetCellCenters,
+                                                                                                            new RiaCellCenterStateHandler ),
+
+        new RiaGrpcServerToClientStreamCallback<Self, GridRequest, CellCornersArray, RiaCellCenterStateHandler>( this,
+                                                                                                                 &Self::GetCellCorners,
+                                                                                                                 &Self::RequestGetCellCorners,
+                                                                                                                 new RiaCellCenterStateHandler ),
+
+        new RiaGrpcUnaryCallback<Self, GridRequest, GridDimensions>( this, &Self::GetDimensions, &Self::RequestGetDimensions )};
 }
 
-static bool RiaGrpcGridService_init = RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcGridService>(
-    typeid( RiaGrpcGridService ).hash_code() );
+static bool RiaGrpcGridService_init =
+    RiaGrpcServiceFactory::instance()->registerCreator<RiaGrpcGridService>( typeid( RiaGrpcGridService ).hash_code() );

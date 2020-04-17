@@ -41,6 +41,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryCaseMainCollection, "SummaryCaseCollection" );
 //--------------------------------------------------------------------------------------------------
 void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString modelFolderOrFile )
 {
+    std::shared_ptr<RigCaseRealizationParameters> parameters;
     QString parametersFile = RifCaseRealizationParametersFileLocator::locate( modelFolderOrFile );
     if ( !parametersFile.isEmpty() )
     {
@@ -51,13 +52,23 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
             try
             {
                 reader->parse();
-                sumCase.setCaseRealizationParameters( reader->parameters() );
+                parameters = reader->parameters();
             }
             catch ( ... )
             {
             }
         }
     }
+    else
+    {
+        parameters = std::shared_ptr<RigCaseRealizationParameters>( new RigCaseRealizationParameters() );
+    }
+
+    int realizationNumber = RifCaseRealizationParametersFileLocator::realizationNumber( modelFolderOrFile );
+    parameters->setRealizationNumber( realizationNumber );
+    parameters->addParameter( "RI:REALIZATION_NUM", realizationNumber );
+
+    sumCase.setCaseRealizationParameters( parameters );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,6 +259,12 @@ RimSummaryCaseCollection*
 {
     RimSummaryCaseCollection* summaryCaseCollection = allocator();
     if ( !collectionName.isEmpty() ) summaryCaseCollection->setName( collectionName );
+
+    if ( summaryCaseCollection->ensembleId() == -1 )
+    {
+        RimProject* project = RiaApplication::instance()->project();
+        project->assignIdToEnsemble( summaryCaseCollection );
+    }
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
@@ -494,16 +511,16 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
 
         for ( const RifSummaryCaseFileResultInfo& fileInfo : summaryHeaderFileInfos )
         {
-            RimEclipseCase* eclCase      = nullptr;
-            QString         gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile(
-                fileInfo.summaryFileName() );
+            RimEclipseCase* eclCase = nullptr;
+            QString         gridCaseFile =
+                RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( fileInfo.summaryFileName() );
             if ( !gridCaseFile.isEmpty() )
             {
                 eclCase = project->eclipseCaseFromGridFileName( gridCaseFile );
             }
 
-            RimGridSummaryCase* existingGridSummaryCase = dynamic_cast<RimGridSummaryCase*>(
-                findSummaryCaseFromFileName( fileInfo.summaryFileName() ) );
+            RimGridSummaryCase* existingGridSummaryCase =
+                dynamic_cast<RimGridSummaryCase*>( findSummaryCaseFromFileName( fileInfo.summaryFileName() ) );
 
             if ( eclCase && !existingGridSummaryCase )
             {
@@ -512,6 +529,7 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
                 newSumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
                 newSumCase->setAssociatedEclipseCase( eclCase );
                 newSumCase->updateOptionSensitivity();
+                project->assignCaseIdToSummaryCase( newSumCase );
                 sumCases.push_back( newSumCase );
             }
             else
@@ -521,6 +539,7 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
                 newSumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
                 newSumCase->setSummaryHeaderFileName( fileInfo.summaryFileName() );
                 newSumCase->updateOptionSensitivity();
+                project->assignCaseIdToSummaryCase( newSumCase );
                 sumCases.push_back( newSumCase );
             }
 
@@ -544,13 +563,13 @@ QString RimSummaryCaseMainCollection::uniqueShortNameForCase( RimSummaryCase* su
     {
         if ( sumCase && sumCase != summaryCase )
         {
-            allAutoShortNames.insert( sumCase->shortName() );
+            allAutoShortNames.insert( sumCase->displayCaseName() );
         }
     }
 
     bool foundUnique = false;
 
-    QString caseName = summaryCase->caseName();
+    QString caseName = summaryCase->nativeCaseName();
     QString shortName;
 
     if ( caseName.size() > 2 )

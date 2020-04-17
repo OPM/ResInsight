@@ -106,12 +106,9 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void onLoadDataAndUpdate() override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
 
-    void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
     void onCreateDisplayModel() override;
 
     RimPropertyFilterCollection* nativePropertyFilterCollection();

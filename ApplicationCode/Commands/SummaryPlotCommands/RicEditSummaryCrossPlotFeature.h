@@ -21,7 +21,7 @@
 #include "cafCmdFeature.h"
 
 class RimSummaryPlot;
-class RicSummaryCurveCreatorDialog;
+class RicSummaryPlotEditorDialog;
 
 //==================================================================================================
 ///
@@ -34,7 +34,7 @@ class RicEditSummaryCrossPlotFeature : public caf::CmdFeature
 public:
     void closeDialogAndResetTargetPlot();
 
-    static RicSummaryCurveCreatorDialog* curveCreatorDialog();
+    static RicSummaryPlotEditorDialog* curveCreatorDialog();
 
 protected:
     // Overrides

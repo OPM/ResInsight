@@ -19,7 +19,9 @@ RimGeoMechContourMapViewCollection::RimGeoMechContourMapViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechContourMapViewCollection::~RimGeoMechContourMapViewCollection() {}
+RimGeoMechContourMapViewCollection::~RimGeoMechContourMapViewCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

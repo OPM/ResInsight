@@ -22,7 +22,7 @@
 
 #include <set>
 
-class RimIntersection;
+class RimExtrudedCurveIntersection;
 
 //==================================================================================================
 ///
@@ -37,5 +37,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static std::set<RimIntersection*> selectedIntersections();
+    static std::set<RimExtrudedCurveIntersection*> selectedIntersections();
 };

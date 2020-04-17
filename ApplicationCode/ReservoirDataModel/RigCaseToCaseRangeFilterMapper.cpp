@@ -151,9 +151,8 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilter( const RimCellRangeFilte
 
     // Populate the dst range filter with new data
 
-    if ( dst.StartI != cvf::UNDEFINED_SIZE_T && dst.StartJ != cvf::UNDEFINED_SIZE_T &&
-         dst.StartK != cvf::UNDEFINED_SIZE_T && dst.EndI != cvf::UNDEFINED_SIZE_T &&
-         dst.EndJ != cvf::UNDEFINED_SIZE_T && dst.EndK != cvf::UNDEFINED_SIZE_T )
+    if ( dst.StartI != cvf::UNDEFINED_SIZE_T && dst.StartJ != cvf::UNDEFINED_SIZE_T && dst.StartK != cvf::UNDEFINED_SIZE_T &&
+         dst.EndI != cvf::UNDEFINED_SIZE_T && dst.EndJ != cvf::UNDEFINED_SIZE_T && dst.EndK != cvf::UNDEFINED_SIZE_T )
     {
         dstFilter->startIndexI = static_cast<int>( dst.StartI + 1 );
         dstFilter->startIndexJ = static_cast<int>( dst.StartJ + 1 );
@@ -260,8 +259,7 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints( const RigRange
                                                 &( rangeFilterMatches[diagIdx].ijk[2] ) );
             }
 
-            if ( rangeFilterMatches[cornerIdx].cellMatchType == EXACT &&
-                 rangeFilterMatches[diagIdx].cellMatchType == EXACT )
+            if ( rangeFilterMatches[cornerIdx].cellMatchType == EXACT && rangeFilterMatches[diagIdx].cellMatchType == EXACT )
             {
                 foundExactMatch = true;
                 break;
@@ -291,17 +289,15 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints( const RigRange
                                   cvf::UNDEFINED_SIZE_T};
             for ( int faceIdx = 0; faceIdx < 6; ++faceIdx )
             {
+                auto gridAxis = cvf::StructGridInterface::gridAxisFromFace( cvf::StructGridInterface::FaceType( faceIdx ) );
+
                 int ijOrk = 0;
-                if ( faceIdx == cvf::StructGridInterface::POS_I || faceIdx == cvf::StructGridInterface::NEG_I )
-                    ijOrk = 0;
-                if ( faceIdx == cvf::StructGridInterface::POS_J || faceIdx == cvf::StructGridInterface::NEG_J )
-                    ijOrk = 1;
-                if ( faceIdx == cvf::StructGridInterface::POS_K || faceIdx == cvf::StructGridInterface::NEG_K )
-                    ijOrk = 2;
+                if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_I ) ijOrk = 0;
+                if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_J ) ijOrk = 1;
+                if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_K ) ijOrk = 2;
 
                 cvf::ubyte surfCorners[4];
-                cvf::StructGridInterface::cellFaceVertexIndices( (cvf::StructGridInterface::FaceType)faceIdx,
-                                                                 surfCorners );
+                cvf::StructGridInterface::cellFaceVertexIndices( (cvf::StructGridInterface::FaceType)faceIdx, surfCorners );
                 bool foundAcceptedMatch = false;
                 for ( int cIdx = 0; cIdx < 4; ++cIdx )
                 {
@@ -480,7 +476,8 @@ RigCaseToCaseRangeFilterMapper::CellMatchType
 
     std::vector<size_t> closeCells;
     masterEclGrid->findIntersectingCells( elmBBox,
-                                          &closeCells ); // This might actually miss the exact one, but we have no other alternative yet.
+                                          &closeCells ); // This might actually miss the exact one, but we have no other
+                                                         // alternative yet.
 
     size_t     globCellIdxToBestMatch    = cvf::UNDEFINED_SIZE_T;
     double     sqDistToClosestCellCenter = HUGE_VAL;

@@ -20,6 +20,7 @@
 
 #include "RiaCurveDataTools.h"
 #include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
 
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -128,13 +129,7 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault( &m_curveInterpolation, "CurveInterpolation", "Interpolation", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_lineStyle, "LineStyle", "Line Style", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_pointSymbol, "PointSymbol", "Symbol", "", "", "" );
-    CAF_PDM_InitField( &m_symbolEdgeColor,
-                       "SymbolEdgeColor",
-                       cvf::Color3f( cvf::Color3::BLACK ),
-                       "Symbol Edge Color",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_symbolEdgeColor, "SymbolEdgeColor", cvf::Color3f( cvf::Color3::BLACK ), "Symbol Edge Color", "", "", "" );
 
     CAF_PDM_InitField( &m_symbolSkipPixelDistance,
                        "SymbolSkipPxDist",
@@ -186,9 +181,7 @@ RimPlotCurve::~RimPlotCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                     const QVariant&            oldValue,
-                                     const QVariant&            newValue )
+void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_showCurve )
     {
@@ -202,8 +195,7 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( &m_curveColor == changedField || &m_curveThickness == changedField || &m_pointSymbol == changedField ||
               &m_lineStyle == changedField || &m_symbolSkipPixelDistance == changedField ||
-              &m_curveInterpolation == changedField || &m_symbolSize == changedField ||
-              &m_symbolEdgeColor == changedField )
+              &m_curveInterpolation == changedField || &m_symbolSize == changedField || &m_symbolEdgeColor == changedField )
     {
         updateCurveAppearance();
 
@@ -429,13 +421,16 @@ void RimPlotCurve::updateCurveName()
         m_curveName = m_customCurveName;
     }
 
-    if ( !m_legendEntryText().isEmpty() )
+    if ( m_qwtPlotCurve )
     {
-        m_qwtPlotCurve->setTitle( m_legendEntryText );
-    }
-    else
-    {
-        m_qwtPlotCurve->setTitle( m_curveName );
+        if ( !m_legendEntryText().isEmpty() )
+        {
+            m_qwtPlotCurve->setTitle( m_legendEntryText );
+        }
+        else
+        {
+            m_qwtPlotCurve->setTitle( m_curveName );
+        }
     }
 }
 
@@ -561,11 +556,50 @@ void RimPlotCurve::setSamplesFromXYErrorValues(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSamplesFromXYValues( const std::vector<double>& xValues,
+                                           const std::vector<double>& yValues,
+                                           bool                       keepOnlyPositiveValues )
+{
+    if ( m_qwtPlotCurve )
+    {
+        m_qwtPlotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, keepOnlyPositiveValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
+                                                  const std::vector<double>&    yValues,
+                                                  bool                          keepOnlyPositiveValues )
+{
+    if ( m_qwtPlotCurve )
+    {
+        m_qwtPlotCurve->setSamplesFromDatesAndYValues( dateTimes, yValues, keepOnlyPositiveValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
+                                                  const std::vector<double>& yValues,
+                                                  bool                       keepOnlyPositiveValues )
+{
+    if ( m_qwtPlotCurve )
+    {
+        m_qwtPlotCurve->setSamplesFromTimeTAndYValues( dateTimes, yValues, keepOnlyPositiveValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_curveColor );
     uiOrdering.add( &m_pointSymbol );
-    if ( !RiuQwtSymbol::isFilledSymbol( m_pointSymbol() ) )
+    if ( RiuQwtSymbol::isFilledSymbol( m_pointSymbol() ) )
     {
         uiOrdering.add( &m_symbolEdgeColor );
     }
@@ -590,7 +624,7 @@ void RimPlotCurve::curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateUiIconFromPlotSymbol()
 {
-    if ( m_pointSymbol() != RiuQwtSymbol::NoSymbol )
+    if ( m_pointSymbol() != RiuQwtSymbol::NoSymbol && m_qwtPlotCurve )
     {
         CVF_ASSERT( RiaGuiApplication::isRunning() );
         QColor curveColor( m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte() );
@@ -650,15 +684,16 @@ void RimPlotCurve::attachCurveAndErrorBars()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveAppearance()
 {
-    CVF_ASSERT( m_qwtPlotCurve );
-
     QColor     curveColor( m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte() );
     QwtSymbol* symbol = nullptr;
 
     if ( m_pointSymbol() != RiuQwtSymbol::SYMBOL_NONE )
     {
         // QwtPlotCurve will take ownership of the symbol
-        symbol = new RiuQwtSymbol( m_pointSymbol(), m_symbolLabel(), m_symbolLabelPosition() );
+        symbol = new RiuQwtSymbol( m_pointSymbol(),
+                                   m_symbolLabel(),
+                                   m_symbolLabelPosition(),
+                                   RiaApplication::instance()->preferences()->defaultPlotFontSize() );
         symbol->setSize( m_symbolSize, m_symbolSize );
         symbol->setColor( curveColor );
 
@@ -677,33 +712,38 @@ void RimPlotCurve::updateCurveAppearance()
             symbol->setPen( curveColor );
         }
     }
-    m_qwtPlotCurve->setAppearance( m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor );
-    m_qwtPlotCurve->setSymbol( symbol );
-    m_qwtPlotCurve->setSymbolSkipPixelDistance( m_symbolSkipPixelDistance() );
 
+    if ( m_qwtCurveErrorBars )
     {
         QwtIntervalSymbol* newSymbol = new QwtIntervalSymbol( QwtIntervalSymbol::Bar );
         newSymbol->setPen( QPen( curveColor ) );
         m_qwtCurveErrorBars->setSymbol( newSymbol );
     }
 
-    // Make sure the legend lines are long enough to distinguish between line types.
-    // Standard width in Qwt is 8 which is too short.
-    // Use 10 and scale this by curve thickness + add space for displaying symbol.
-    if ( m_lineStyle() != RiuQwtPlotCurve::STYLE_NONE )
+    if ( m_qwtPlotCurve )
     {
-        QSize legendIconSize = m_qwtPlotCurve->legendIconSize();
+        m_qwtPlotCurve->setAppearance( m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor );
+        m_qwtPlotCurve->setSymbol( symbol );
+        m_qwtPlotCurve->setSymbolSkipPixelDistance( m_symbolSkipPixelDistance() );
 
-        int symbolWidth = 0;
-        if ( symbol )
+        // Make sure the legend lines are long enough to distinguish between line types.
+        // Standard width in Qwt is 8 which is too short.
+        // Use 10 and scale this by curve thickness + add space for displaying symbol.
+        if ( m_lineStyle() != RiuQwtPlotCurve::STYLE_NONE )
         {
-            symbolWidth = symbol->boundingRect().size().width() + 2;
+            QSize legendIconSize = m_qwtPlotCurve->legendIconSize();
+
+            int symbolWidth = 0;
+            if ( symbol )
+            {
+                symbolWidth = symbol->boundingRect().size().width() + 2;
+            }
+
+            int width = std::max( 10 * m_curveThickness, ( symbolWidth * 3 ) / 2 );
+
+            legendIconSize.setWidth( width );
+            m_qwtPlotCurve->setLegendIconSize( legendIconSize );
         }
-
-        int width = std::max( 10 * m_curveThickness, ( symbolWidth * 3 ) / 2 );
-
-        legendIconSize.setWidth( width );
-        m_qwtPlotCurve->setLegendIconSize( legendIconSize );
     }
 }
 
@@ -919,6 +959,8 @@ void RimPlotCurve::updateLegendEntryVisibilityAndPlotLegend()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
+    if ( !m_qwtPlotCurve ) return;
+
     RimEnsembleCurveSet* ensembleCurveSet = nullptr;
     this->firstAncestorOrThisOfType( ensembleCurveSet );
     if ( ensembleCurveSet )
@@ -926,13 +968,25 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
         return;
     }
 
+    bool showLegendInQwt = m_showLegend();
+
     RimSummaryPlot* summaryPlot = nullptr;
     this->firstAncestorOrThisOfType( summaryPlot );
-
-    bool showLegendInQwt = m_showLegend();
     if ( summaryPlot )
     {
-        if ( summaryPlot->ensembleCurveSetCollection()->curveSets().empty() && summaryPlot->curveCount() == 1 )
+        bool anyCalculated = false;
+        for ( const auto c : summaryPlot->summaryCurves() )
+        {
+            if ( c->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+            {
+                // Never hide the legend for calculated curves, as the curve legend is used to
+                // show some essential auto generated data
+                anyCalculated = true;
+            }
+        }
+
+        if ( !anyCalculated && summaryPlot->ensembleCurveSetCollection()->curveSets().empty() &&
+             summaryPlot->curveCount() == 1 )
         {
             // Disable display of legend if the summary plot has only one single curve
             showLegendInQwt = false;

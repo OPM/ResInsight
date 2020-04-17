@@ -19,10 +19,17 @@
 #include "RiuPickItemInfo.h"
 
 #include "cvfDrawableGeo.h"
+#include "cvfEffect.h"
 #include "cvfHitItem.h"
 #include "cvfHitItemCollection.h"
 #include "cvfPart.h"
+#include "cvfRenderState.h"
+#include "cvfRenderStatePolygonOffset.h"
 #include "cvfTransform.h"
+
+#include <cmath>
+
+double RiuPickItemInfo::sm_rayDistanceTolerance = 1e-5;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -33,6 +40,7 @@ RiuPickItemInfo RiuPickItemInfo::extractPickItemInfo( const cvf::HitItem* hitIte
 
     pickInfo.m_pickedPart        = hitItem->part();
     pickInfo.m_globalPickedPoint = hitItem->intersectionPoint();
+    pickInfo.m_distanceAlongRay  = hitItem->distanceAlongRay();
     if ( pickInfo.m_pickedPart ) pickInfo.m_sourceInfo = pickInfo.m_pickedPart->sourceInfo();
 
     const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>( hitItem->detail() );
@@ -52,13 +60,70 @@ RiuPickItemInfo RiuPickItemInfo::extractPickItemInfo( const cvf::HitItem* hitIte
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RiuPickItemInfo> RiuPickItemInfo::convertToPickItemInfos( const cvf::HitItemCollection& hitItems,
-                                                                      const cvf::Vec3d&             globalRayOrigin )
+                                                                      const cvf::Vec3d&             globalRayOrigin,
+                                                                      double coincidentRayDistanceTolerance )
 {
-    std::vector<RiuPickItemInfo> pickItemInfos;
-    pickItemInfos.reserve( hitItems.count() );
+    sm_rayDistanceTolerance = coincidentRayDistanceTolerance;
+
+    std::set<RiuPickItemInfo> pickItemInfosSorted;
     for ( size_t i = 0; i < hitItems.count(); i++ )
     {
-        pickItemInfos.emplace_back( RiuPickItemInfo( hitItems.item( i ), globalRayOrigin ) );
+        pickItemInfosSorted.insert( RiuPickItemInfo( hitItems.item( i ), globalRayOrigin ) );
     }
+
+    std::vector<RiuPickItemInfo> pickItemInfos;
+
+    pickItemInfos.insert( pickItemInfos.begin(), pickItemInfosSorted.begin(), pickItemInfosSorted.end() );
+
     return pickItemInfos;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+float RiuPickItemInfo::polygonOffsetUnit() const
+{
+    float polyOffsetUnit = 0;
+
+    if ( m_pickedPart )
+    {
+        cvf::Effect* eff = const_cast<cvf::Part*>( m_pickedPart )->effect();
+
+        if ( eff )
+        {
+            cvf::RenderState* rendState = eff->renderStateOfType( cvf::RenderState::POLYGON_OFFSET );
+            if ( rendState )
+            {
+                auto polyOffsetRenderState = static_cast<cvf::RenderStatePolygonOffset*>( rendState );
+
+                polyOffsetUnit = polyOffsetRenderState->units();
+            }
+        }
+    }
+    return polyOffsetUnit;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuPickItemInfo::operator<( const RiuPickItemInfo& other ) const
+{
+    if ( fabs( m_distanceAlongRay - other.distanceAlongRay() ) > sm_rayDistanceTolerance )
+    {
+        return m_distanceAlongRay < other.distanceAlongRay();
+    }
+    else if ( this->polygonOffsetUnit() != other.polygonOffsetUnit() )
+    {
+        return this->polygonOffsetUnit() < other.polygonOffsetUnit();
+    }
+    else if ( m_faceIdx != other.faceIdx() )
+    {
+        return m_faceIdx < other.faceIdx();
+    }
+    else if ( m_pickedPart != other.pickedPart() )
+    {
+        return m_pickedPart < other.pickedPart();
+    }
+
+    return false;
 }

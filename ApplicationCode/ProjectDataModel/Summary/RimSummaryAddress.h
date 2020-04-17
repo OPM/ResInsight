@@ -42,11 +42,12 @@ class RimSummaryAddress : public caf::PdmObject
 
 public:
     RimSummaryAddress();
-    ;
     ~RimSummaryAddress() override;
 
     void                     setAddress( const RifEclipseSummaryAddress& addr );
     RifEclipseSummaryAddress address();
+
+    void ensureIdIsAssigned();
 
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_category;
@@ -62,4 +63,5 @@ private:
     caf::PdmField<int>                                                        m_cellK;
     caf::PdmField<int>                                                        m_aquiferNumber;
     caf::PdmField<bool>                                                       m_isErrorResult;
+    caf::PdmField<int>                                                        m_calculationId;
 };

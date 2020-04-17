@@ -43,7 +43,9 @@ RivPipeGeometryGenerator::RivPipeGeometryGenerator()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivPipeGeometryGenerator::~RivPipeGeometryGenerator() {}
+RivPipeGeometryGenerator::~RivPipeGeometryGenerator()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -178,7 +180,8 @@ void RivPipeGeometryGenerator::computeCircle( double                   radius,
         double fLocalNormCoordZ = cvf::Math::sin( angle );
 
         // Compute normal (vector going from center to the point on the circle)
-        // Do it this way and we can use this normal directly as long as both input orientation vectors are normalized (which they should be)
+        // Do it this way and we can use this normal directly as long as both input orientation vectors are normalized
+        // (which they should be)
 
         normal = yDirection * fLocalNormCoordY + zDirection * fLocalNormCoordZ;
         normal.normalize();
@@ -723,7 +726,8 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
         }
     }
 
-    // Add the last point, as the above loop will not end the last none-zero segment, but wait for the start of the next valid one.
+    // Add the last point, as the above loop will not end the last none-zero segment, but wait for the start of the next
+    // valid one.
 
     m_filteredPipeCenterCoords.push_back( m_originalPipeCenterCoords->get( lastOriginalCoordIdx ) );
 

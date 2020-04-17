@@ -39,7 +39,9 @@ RicRangeFilterNewExec::RicRangeFilterNewExec( RimCellRangeFilterCollection* rang
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicRangeFilterNewExec::~RicRangeFilterNewExec() {}
+RicRangeFilterNewExec::~RicRangeFilterNewExec()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

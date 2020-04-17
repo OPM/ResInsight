@@ -29,9 +29,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-RigCompletionData::RigCompletionData( const QString&                   wellName,
-                                      const RigCompletionDataGridCell& cellIndex,
-                                      double                           orderingValue )
+RigCompletionData::RigCompletionData( const QString& wellName, const RigCompletionDataGridCell& cellIndex, double orderingValue )
     : m_wellName( wellName )
     , m_cellIndex( cellIndex )
     , m_saturation( std::numeric_limits<double>::infinity() )
@@ -54,7 +52,9 @@ RigCompletionData::RigCompletionData( const QString&                   wellName,
 //==================================================================================================
 ///
 //==================================================================================================
-RigCompletionData::~RigCompletionData() {}
+RigCompletionData::~RigCompletionData()
+{
+}
 
 //==================================================================================================
 ///

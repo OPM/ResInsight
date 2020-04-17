@@ -65,13 +65,7 @@ RimCellRangeFilter::RimCellRangeFilter()
     CAF_PDM_InitField( &cellCountK, "CellCountK", 1, "Cell Count K", "", "", "" );
     cellCountK.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_useIndividualCellIndices,
-                       "UseIndividualCellIndices",
-                       false,
-                       "Use Individual Cell Indices",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_useIndividualCellIndices, "UseIndividualCellIndices", false, "Use Individual Cell Indices", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_individualCellIndices,
                                 "IndividualCellIndices",
                                 "Cell Indices",
@@ -85,7 +79,9 @@ RimCellRangeFilter::RimCellRangeFilter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellRangeFilter::~RimCellRangeFilter() {}
+RimCellRangeFilter::~RimCellRangeFilter()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

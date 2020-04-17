@@ -99,11 +99,9 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
 
     CAF_PDM_InitFieldNoDefault( &m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "" );
     CAF_PDM_InitField( &m_titleFontSize, "FontSize", 10, "Font Size", "", "", "" );
-    m_titleFontSize = RiaFontCache::pointSizeFromFontSizeEnum(
-        RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    m_titleFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
     CAF_PDM_InitField( &m_valuesFontSize, "ValuesFontSize", 10, "Font Size", "", "", "" );
-    m_valuesFontSize = RiaFontCache::pointSizeFromFontSizeEnum(
-        RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    m_valuesFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
 
     CAF_PDM_InitField( &m_automaticDateComponents, "AutoDate", true, "Automatic Date/Time Labels", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_dateComponents, "DateComponents", "Set Date Label", "", "", "" );
@@ -116,6 +114,8 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     CAF_PDM_InitFieldNoDefault( &m_timeFormat, "TimeFormat", "Time Label Format", "", "", "" );
     m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_timeFormat = RiaApplication::instance()->preferences()->timeFormat();
+
+    CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_visibleDateTimeRangeMax_OBSOLETE, "VisibleRangeMax", "Max", "", "", "" );
     m_visibleDateTimeRangeMax_OBSOLETE.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
@@ -332,6 +332,22 @@ void RimSummaryTimeAxisProperties::setVisibleDateTimeMax( const QDateTime& dateT
 {
     m_visibleDateRangeMax = dateTime.date();
     m_visibleTimeRangeMax = dateTime.time();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryTimeAxisProperties::LegendTickmarkCount RimSummaryTimeAxisProperties::majorTickmarkCount() const
+{
+    return m_majorTickmarkCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::setMajorTickmarkCount( LegendTickmarkCount count )
+{
+    m_majorTickmarkCount = count;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -683,8 +699,8 @@ void RimSummaryTimeAxisProperties::defineEditorAttribute( const caf::PdmFieldHan
         auto dateAttrib = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute );
         if ( dateAttrib )
         {
-            dateAttrib->dateFormat = RiaQDateTimeTools::dateFormatString( m_dateFormat(),
-                                                                          RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+            dateAttrib->dateFormat =
+                RiaQDateTimeTools::dateFormatString( m_dateFormat(), RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
         }
     }
     else if ( field == &m_visibleTimeRangeMin || field == &m_visibleTimeRangeMax )

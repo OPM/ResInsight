@@ -51,6 +51,8 @@
 
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmFieldIOScriptabilityCvfColor3.h"
 
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
@@ -74,7 +76,7 @@ void caf::AppEnum<Rim3dView::SurfaceModeType>::setUp()
 
 } // End namespace caf
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "GenericView" ); // Do not use. Abstract class
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( Rim3dView, "View", "GenericView" ); // Do not use. Abstract class
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -85,6 +87,15 @@ Rim3dView::Rim3dView( void )
     RiaApplication* app         = RiaApplication::instance();
     RiaPreferences* preferences = app->preferences();
     CVF_ASSERT( preferences );
+
+    CAF_PDM_InitObject( "3d View", "", "", "" );
+
+    CAF_PDM_InitScriptableFieldWithIO( &m_id, "Id", -1, "View ID", "", "", "" );
+    m_id.registerKeywordAlias( "ViewId" );
+    m_id.uiCapability()->setUiReadOnly( true );
+    m_id.uiCapability()->setUiHidden( true );
+    m_id.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
+    m_id.xmlCapability()->setCopyable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
     m_nameConfig = new RimViewNameConfig();
@@ -98,42 +109,49 @@ Rim3dView::Rim3dView( void )
     CAF_PDM_InitField( &m_cameraPointOfInterest, "CameraPointOfInterest", cvf::Vec3d::ZERO, "", "", "", "" );
     m_cameraPointOfInterest.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection", "", "", "" );
 
-    double defaultScaleFactor = preferences->defaultScaleFactorZ;
-    CAF_PDM_InitField( &scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "" );
+    double defaultScaleFactor = preferences->defaultScaleFactorZ();
+    CAF_PDM_InitScriptableFieldWithIO( &scaleZ,
+                                       "GridZScale",
+                                       defaultScaleFactor,
+                                       "Z Scale",
+                                       "",
+                                       "Scales the scene in the Z direction",
+                                       "" );
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
-    RICF_InitField( &m_backgroundColor, "ViewBackgroundColor", defBackgColor, "Background", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_backgroundColor, "BackgroundColor", defBackgColor, "Background", "", "", "" );
+    m_backgroundColor.registerKeywordAlias( "ViewBackgroundColor" );
 
     CAF_PDM_InitField( &maximumFrameRate, "MaximumFrameRate", 10, "Maximum Frame Rate", "", "", "" );
     maximumFrameRate.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &hasUserRequestedAnimation, "AnimationMode", false, "Animation Mode", "", "", "" );
     hasUserRequestedAnimation.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_currentTimeStep, "CurrentTimeStep", 0, "Current Time Step", "", "", "" );
     m_currentTimeStep.uiCapability()->setUiHidden( true );
 
     caf::AppEnum<RiaDefines::MeshModeType> defaultMeshType = preferences->defaultMeshModeType();
     CAF_PDM_InitField( &meshMode, "MeshMode", defaultMeshType, "Grid Lines", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &surfaceMode, "SurfaceMode", "Grid Surface", "", "", "" );
 
-    RICF_InitField( &m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_showGridBox, "ShowGridBox", true, "Show Grid Box", "", "", "" );
 
-    CAF_PDM_InitField( &m_disableLighting,
-                       "DisableLighting",
-                       false,
-                       "Disable Results Lighting",
-                       "",
-                       "Disable light model for scalar result colors",
-                       "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_disableLighting,
+                                       "DisableLighting",
+                                       false,
+                                       "Disable Results Lighting",
+                                       "",
+                                       "Disable light model for scalar result colors",
+                                       "" );
 
-    CAF_PDM_InitField( &m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_showZScaleLabel, "ShowZScale", true, "Show Z Scale Label", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_comparisonView, "ComparisonView", "Comparison View", "", "", "" );
 
-    m_crossSectionVizModel = new cvf::ModelBasicList;
-    m_crossSectionVizModel->setName( "CrossSectionModel" );
+    m_intersectionVizModel = new cvf::ModelBasicList;
+    m_intersectionVizModel->setName( "CrossSectionModel" );
 
     m_highlightVizModel = new cvf::ModelBasicList;
     m_highlightVizModel->setName( "HighlightModel" );
@@ -166,6 +184,14 @@ Rim3dView::~Rim3dView( void )
 
     delete m_viewer;
     m_viewer = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int Rim3dView::id() const
+{
+    return m_id;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,6 +329,27 @@ void Rim3dView::initAfterRead()
         nameConfig()->setAddAggregationType( false );
         nameConfig()->setAddProperty( false );
         nameConfig()->setAddSampleSpacing( false );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::setId( int id )
+{
+    m_id                  = id;
+    QString viewIdTooltip = QString( "View id: %1" ).arg( m_id );
+    this->setUiToolTip( viewIdTooltip );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::assignIdIfNecessary()
+{
+    if ( m_id == -1 )
+    {
+        RiaApplication::instance()->project()->assignViewIdToView( this );
     }
 }
 
@@ -677,9 +724,9 @@ void Rim3dView::setupBeforeSave()
 {
     if ( m_viewer )
     {
-        hasUserRequestedAnimation =
-            m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The variable is updated as we go,
-                                           // and store the user intentions. But I guess that in practice...
+        hasUserRequestedAnimation = m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The
+                                                                   // variable is updated as we go, and store the user
+                                                                   // intentions. But I guess that in practice...
         m_cameraPosition        = m_viewer->mainCamera()->viewMatrix();
         m_cameraPointOfInterest = m_viewer->pointOfInterest();
     }
@@ -766,9 +813,7 @@ caf::PdmFieldHandle* Rim3dView::backgroundColorField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                  const QVariant&            oldValue,
-                                  const QVariant&            newValue )
+void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -847,8 +892,11 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_showZScaleLabel )
     {
-        m_viewer->showZScaleLabel( m_showZScaleLabel() );
-        m_viewer->update();
+        if ( m_viewer )
+        {
+            m_viewer->showZScaleLabel( m_showZScaleLabel() );
+            m_viewer->update();
+        }
     }
     else if ( changedField == &m_comparisonView )
     {

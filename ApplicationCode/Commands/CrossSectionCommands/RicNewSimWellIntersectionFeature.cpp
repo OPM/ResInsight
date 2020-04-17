@@ -20,7 +20,7 @@
 #include "RicNewSimWellIntersectionFeature.h"
 
 #include "RimEclipseView.h"
-#include "RimIntersection.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionCollection.h"
 #include "RimSimWellInView.h"
 
@@ -56,7 +56,7 @@ void RicNewSimWellIntersectionFeature::onActionTriggered( bool isChecked )
     simWell->firstAncestorOrThisOfType( eclView );
     CVF_ASSERT( eclView );
 
-    RicNewSimWellIntersectionCmd* cmd = new RicNewSimWellIntersectionCmd( eclView->crossSectionCollection(), simWell );
+    RicNewSimWellIntersectionCmd* cmd = new RicNewSimWellIntersectionCmd( eclView->intersectionCollection(), simWell );
     caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
 }
 
@@ -83,7 +83,9 @@ RicNewSimWellIntersectionCmd::RicNewSimWellIntersectionCmd( RimIntersectionColle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewSimWellIntersectionCmd::~RicNewSimWellIntersectionCmd() {}
+RicNewSimWellIntersectionCmd::~RicNewSimWellIntersectionCmd()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -101,10 +103,10 @@ void RicNewSimWellIntersectionCmd::redo()
     CVF_ASSERT( m_intersectionCollection );
     CVF_ASSERT( m_simWell );
 
-    RimIntersection* intersection = new RimIntersection();
-    intersection->name            = m_simWell->name;
-    intersection->type            = RimIntersection::CS_SIMULATION_WELL;
-    intersection->simulationWell  = m_simWell;
+    RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
+    intersection->setName( m_simWell->name );
+    intersection->type           = RimExtrudedCurveIntersection::CS_SIMULATION_WELL;
+    intersection->simulationWell = m_simWell;
 
     m_intersectionCollection->appendIntersectionAndUpdate( intersection, false );
 }
@@ -112,4 +114,6 @@ void RicNewSimWellIntersectionCmd::redo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSimWellIntersectionCmd::undo() {}
+void RicNewSimWellIntersectionCmd::undo()
+{
+}

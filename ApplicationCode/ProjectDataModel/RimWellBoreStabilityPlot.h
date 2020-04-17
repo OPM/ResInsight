@@ -20,57 +20,37 @@
 #include "RimWellLogPlot.h"
 
 #include "RigGeoMechWellLogExtractor.h"
+#include "RigWbsParameter.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
-#include <set>
-
 class RimGeoMechCase;
 class RimWellPath;
+class RimWbsParameters;
 
 class RimWellBoreStabilityPlot : public RimWellLogPlot
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    typedef caf::AppEnum<RigGeoMechWellLogExtractor::WbsParameterSource> ParameterSourceEnum;
-
-public:
     RimWellBoreStabilityPlot();
-
-    RigGeoMechWellLogExtractor::WbsParameterSource porePressureSource() const;
-    RigGeoMechWellLogExtractor::WbsParameterSource poissonRatioSource() const;
-    RigGeoMechWellLogExtractor::WbsParameterSource ucsSource() const;
-
-    double userDefinedPoissonRatio() const;
-    double userDefinedUcs() const;
+    void   applyWbsParametersToExtractor( RigGeoMechWellLogExtractor* extractor );
+    double userDefinedValue( const RigWbsParameter& parameter ) const;
+    void   copyWbsParameters( const RimWbsParameters* wbsParameters );
+    void   setCaseWellPathAndTimeStep( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly ) override;
-
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
-
     void onLoadDataAndUpdate() override;
-
-    bool hasLasFileWithChannel( const QString& channel ) const;
-    bool hasElementPropertyEntry( const RigFemResultAddress& resAddr ) const;
-
-    std::set<RigGeoMechWellLogExtractor::WbsParameterSource> supportedSourcesForPorePressure() const;
-    std::set<RigGeoMechWellLogExtractor::WbsParameterSource> supportedSourcesForPoisson() const;
-    std::set<RigGeoMechWellLogExtractor::WbsParameterSource> supportedSourcesForUcs() const;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void initAfterRead() override;
 
 private:
-    caf::PdmField<ParameterSourceEnum> m_porePressureSource;
-    caf::PdmField<ParameterSourceEnum> m_poissonRatioSource;
-    caf::PdmField<ParameterSourceEnum> m_ucsSource;
+    void applyDataSource();
 
-    caf::PdmField<double> m_userDefinedPoissionRatio;
-    caf::PdmField<double> m_userDefinedUcs;
+private:
+    caf::PdmChildField<RimWbsParameters*> m_wbsParameters;
 };

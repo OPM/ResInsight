@@ -45,19 +45,23 @@ void RicfCommandFileExecutor::ExportTypeEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandFileExecutor::RicfCommandFileExecutor() {}
+RicfCommandFileExecutor::RicfCommandFileExecutor()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandFileExecutor::~RicfCommandFileExecutor() {}
+RicfCommandFileExecutor::~RicfCommandFileExecutor()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RicfCommandFileExecutor::executeCommands( QTextStream& stream )
 {
-    RicfMessages                    messages;
+    caf::PdmScriptIOMessages        messages;
     std::vector<RicfCommandObject*> executableCommands;
     {
         clearCachedData();
@@ -66,7 +70,7 @@ void RicfCommandFileExecutor::executeCommands( QTextStream& stream )
             RicfCommandFileReader::readCommands( stream, caf::PdmDefaultObjectFactory::instance(), &messages );
         for ( auto message : messages.m_messages )
         {
-            if ( message.first == RicfMessages::MESSAGE_WARNING )
+            if ( message.first == caf::PdmScriptIOMessages::MESSAGE_WARNING )
             {
                 RiaLogging::warning( QString( "Command file parsing warning: %1" ).arg( message.second ) );
             }
@@ -165,7 +169,8 @@ std::vector<RicfCommandObject*>
     //
     // The reason for this is based on two requirements
     //   1. Ability to aggregate info from multiple replaceCase() statements in a command file
-    //   2. Improve performance, as a replace case is implemented by reading a project file from XML and replace file paths
+    //   2. Improve performance, as a replace case is implemented by reading a project file from XML and replace file
+    //   paths
     //      during project loading
 
     std::vector<RicfCommandObject*> executableCommands;

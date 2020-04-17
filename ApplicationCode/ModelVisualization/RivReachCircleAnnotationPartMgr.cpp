@@ -53,14 +53,14 @@ RivReachCircleAnnotationPartMgr::RivReachCircleAnnotationPartMgr( Rim3dView*    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivReachCircleAnnotationPartMgr::~RivReachCircleAnnotationPartMgr() {}
+RivReachCircleAnnotationPartMgr::~RivReachCircleAnnotationPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivReachCircleAnnotationPartMgr::buildParts( const caf::DisplayCoordTransform* displayXf,
-                                                  bool                              doFlatten,
-                                                  double                            xOffset )
+void RivReachCircleAnnotationPartMgr::buildParts( const caf::DisplayCoordTransform* displayXf, bool doFlatten, double xOffset )
 {
     auto rimAnnotation = m_rimAnnotationInView->sourceAnnotation();
     clearAllGeometry();
@@ -77,9 +77,9 @@ void RivReachCircleAnnotationPartMgr::buildParts( const caf::DisplayCoordTransfo
     auto* collection = annotationCollection();
     if ( collection )
     {
-        std::vector<Vec3d>      pointsInDomain = computeCirclePointsInDomain( collection->snapAnnotations(),
-                                                                         collection->annotationPlaneZ() );
-        std::vector<cvf::Vec3d> points         = displayXf->transformToDisplayCoords( pointsInDomain );
+        std::vector<Vec3d> pointsInDomain =
+            computeCirclePointsInDomain( collection->snapAnnotations(), collection->annotationPlaneZ() );
+        std::vector<cvf::Vec3d> points = displayXf->transformToDisplayCoords( pointsInDomain );
 
         cvf::ref<cvf::DrawableGeo> drawableGeo = RivPolylineGenerator::createLineAlongPolylineDrawable( points );
 

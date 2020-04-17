@@ -20,15 +20,20 @@
 
 #include "RimGeoMechResultDefinition.h"
 
+#include "RiaApplication.h"
+#include "RiaDefines.h"
+#include "RiaMedianCalculator.h"
+
 #include "RifGeoMechReaderInterface.h"
 
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
+#include "RigFormationNames.h"
 #include "RigGeoMechCaseData.h"
-
-#include "RiaDefines.h"
+#include "RigWbsParameter.h"
+#include "RigWellPath.h"
 
 #include "Rim3dWellLogCurve.h"
 #include "RimGeoMechCase.h"
@@ -37,9 +42,15 @@
 #include "RimGeoMechView.h"
 #include "RimIntersectionCollection.h"
 #include "RimPlotCurve.h"
+#include "RimProject.h"
+#include "RimRegularLegendConfig.h"
 #include "RimViewLinker.h"
+#include "RimWellPath.h"
 
+#include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiListEditor.h"
+
+#include <QDoubleValidator>
 
 namespace caf
 {
@@ -53,6 +64,7 @@ void caf::AppEnum<RigFemResultPosEnum>::setUp()
     addItem( RIG_FORMATION_NAMES, "FORMATION_NAMES", "Formation Names" );
     addItem( RIG_ELEMENT, "ELEMENT", "Element" );
     addItem( RIG_WELLPATH_DERIVED, "WELLPATH_DERIVED", "Well Path Derived" );
+    addItem( RIG_DIFFERENTIALS, "DIFFERENTIALS", "Differentials" );
     setDefault( RIG_NODAL );
 }
 } // namespace caf
@@ -95,12 +107,23 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
+    CAF_PDM_InitField( &m_normalizeByHydrostaticPressure,
+                       "NormalizeByHSP",
+                       false,
+                       "Normalize by Hydrostatic Pressure",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_normalizationAirGap, "NormalizationAirGap", 0.0, "Air Gap", "", "", "" );
+    m_normalizationAirGap.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
     CAF_PDM_InitField( &m_compactionRefLayerUiField,
                        "CompactionRefLayerUi",
                        RigFemResultAddress::noCompactionValue(),
                        "Compaction Ref Layer",
                        "",
-                       "The compaction is calculated with reference to this layer. Default layer is the topmost layer "
+                       "The compaction is calculated with reference to this layer. Default layer is the topmost "
+                       "layer "
                        "with POR",
                        "" );
     m_compactionRefLayerUiField.xmlCapability()->disableIO();
@@ -117,7 +140,9 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechResultDefinition::~RimGeoMechResultDefinition( void ) {}
+RimGeoMechResultDefinition::~RimGeoMechResultDefinition( void )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -133,6 +158,16 @@ void RimGeoMechResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
         valueLabel += QString( " (%1)" ).arg( diffResultUiName() );
     }
     m_resultVariableUiField.uiCapability()->setUiName( valueLabel );
+
+    if ( normalizableResultSelected() )
+    {
+        caf::PdmUiGroup* normalizationGroup = uiOrdering.addNewGroup( "Result Normalization" );
+        normalizationGroup->add( &m_normalizeByHydrostaticPressure );
+        if ( m_normalizeByHydrostaticPressure )
+        {
+            normalizationGroup->add( &m_normalizationAirGap );
+        }
+    }
 
     if ( m_resultPositionTypeUiField() != RIG_FORMATION_NAMES )
     {
@@ -174,8 +209,7 @@ void RimGeoMechResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimGeoMechResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                       bool*                      useOptionsOnly )
+    RimGeoMechResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
@@ -189,7 +223,8 @@ QList<caf::PdmOptionItemInfo>
                                                             RIG_INTEGRATION_POINT,
                                                             RIG_ELEMENT_NODAL_FACE,
                                                             RIG_FORMATION_NAMES,
-                                                            RIG_ELEMENT};
+                                                            RIG_ELEMENT,
+                                                            RIG_DIFFERENTIALS};
             if ( m_addWellPathDerivedResults )
             {
                 optionItems.push_back( RIG_WELLPATH_DERIVED );
@@ -225,10 +260,9 @@ QList<caf::PdmOptionItemInfo>
             options.push_back( caf::PdmOptionItemInfo( QString( "Disabled" ), RigFemResultAddress::noTimeLapseValue() ) );
             for ( size_t stepIdx = 0; stepIdx < stepNames.size(); ++stepIdx )
             {
-                options.push_back( caf::PdmOptionItemInfo( QString( "%1 (#%2)" )
-                                                               .arg( QString::fromStdString( stepNames[stepIdx] ) )
-                                                               .arg( stepIdx ),
-                                                           static_cast<int>( stepIdx ) ) );
+                options.push_back(
+                    caf::PdmOptionItemInfo( QString( "%1 (#%2)" ).arg( QString::fromStdString( stepNames[stepIdx] ) ).arg( stepIdx ),
+                                            static_cast<int>( stepIdx ) ) );
             }
         }
         else if ( &m_compactionRefLayerUiField == fieldNeedingOptions )
@@ -254,6 +288,14 @@ QList<caf::PdmOptionItemInfo>
 void RimGeoMechResultDefinition::setGeoMechCase( RimGeoMechCase* geomCase )
 {
     m_geomCase = geomCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGeoMechCase* RimGeoMechResultDefinition::geoMechCase() const
+{
+    return m_geomCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,6 +338,14 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
             m_resultVariableUiField = "";
         }
     }
+    if ( &m_normalizeByHydrostaticPressure == changedField && m_normalizationAirGap == 0.0 )
+    {
+        calculateNormalizationAirGapDefault();
+        if ( m_normalizeByHydrostaticPressure )
+        {
+            m_geomCase->geoMechData()->femPartResults()->setNormalizationAirGap( m_normalizationAirGap );
+        }
+    }
 
     // Get the possible property filter owner
     RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>( this->parentField()->ownerObject() );
@@ -307,7 +357,8 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
     this->firstAncestorOrThisOfType( rim3dWellLogCurve );
 
     if ( &m_resultVariableUiField == changedField || &m_compactionRefLayerUiField == changedField ||
-         &m_timeLapseBaseTimestep == changedField )
+         &m_timeLapseBaseTimestep == changedField || &m_normalizeByHydrostaticPressure == changedField ||
+         &m_normalizationAirGap == changedField )
     {
         QStringList fieldComponentNames = m_resultVariableUiField().split( QRegExp( "\\s+" ) );
         if ( fieldComponentNames.size() > 0 )
@@ -350,7 +401,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
             if ( view )
             {
                 view->scheduleCreateDisplayModelAndRedraw();
-                view->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
             }
 
             if ( dynamic_cast<RimGeoMechCellColors*>( this ) )
@@ -388,14 +439,41 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechResultDefinition::calculateNormalizationAirGapDefault()
+{
+    RiaMedianCalculator<double> airGapCalc;
+    for ( auto wellPath : RiaApplication::instance()->project()->allWellPaths() )
+    {
+        if ( wellPath->wellPathGeometry() )
+        {
+            double airGap = wellPath->wellPathGeometry()->rkbDiff();
+            if ( airGap > 0.0 )
+            {
+                airGapCalc.add( airGap );
+            }
+        }
+    }
+    if ( airGapCalc.valid() )
+    {
+        m_normalizationAirGap = airGapCalc.median();
+    }
+    else
+    {
+        m_normalizationAirGap = 0.0;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string>> RimGeoMechResultDefinition::getResultMetaDataForUIFieldSetting()
 {
     RimGeoMechCase*                                 gmCase = m_geomCase;
     std::map<std::string, std::vector<std::string>> fieldWithComponentNames;
     if ( gmCase && gmCase->geoMechData() )
     {
-        fieldWithComponentNames = gmCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames(
-            m_resultPositionTypeUiField() );
+        fieldWithComponentNames =
+            gmCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames( m_resultPositionTypeUiField() );
     }
 
     return fieldWithComponentNames;
@@ -466,12 +544,30 @@ void RimGeoMechResultDefinition::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechResultDefinition::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                        QString                    uiConfigName,
+                                                        caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_normalizationAirGap )
+    {
+        auto attr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
+        if ( attr )
+        {
+            attr->m_decimals  = 2;
+            attr->m_validator = new QDoubleValidator( 0.0, std::numeric_limits<double>::max(), 2 );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::loadResult()
 {
     if ( m_geomCase && m_geomCase->geoMechData() )
     {
-        if ( this->resultAddress().fieldName == RiaDefines::wbsFGResultName().toStdString() ||
-             this->resultAddress().fieldName == RiaDefines::wbsSFGResultName().toStdString() )
+        if ( this->resultAddress().fieldName == RiaDefines::wbsFGResult().toStdString() ||
+             this->resultAddress().fieldName == RiaDefines::wbsSFGResult().toStdString() )
         {
             RigFemResultAddress stressResAddr( RIG_ELEMENT_NODAL, std::string( "ST" ), "" );
             RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, std::string( "POR-Bar" ), "" );
@@ -498,13 +594,38 @@ void RimGeoMechResultDefinition::setAddWellPathDerivedResults( bool addWellPathD
 //--------------------------------------------------------------------------------------------------
 RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
 {
-    return RigFemResultAddress( resultPositionType(),
-                                resultFieldName().toStdString(),
-                                resultComponentName().toStdString(),
-                                m_timeLapseBaseTimestep(),
-                                resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION
-                                    ? m_compactionRefLayer()
-                                    : RigFemResultAddress::noCompactionValue() );
+    // Convert differentials to their underlying position type
+    if ( resultPositionType() == RIG_DIFFERENTIALS )
+    {
+        RigFemResultPosEnum resultPositionType = RIG_ELEMENT_NODAL;
+        if ( resultFieldName().toStdString() == "POR-Bar" )
+        {
+            resultPositionType = RIG_NODAL;
+        }
+
+        return RigFemResultAddress( resultPositionType,
+                                    resultFieldName().toStdString(),
+                                    resultComponentName().toStdString(),
+                                    m_timeLapseBaseTimestep(),
+                                    RigFemResultAddress::noCompactionValue() );
+    }
+    else
+    {
+        RigFemResultAddress address( resultPositionType(),
+                                     resultFieldName().toStdString(),
+                                     resultComponentName().toStdString(),
+                                     m_timeLapseBaseTimestep(),
+                                     resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION
+                                         ? m_compactionRefLayer()
+                                         : RigFemResultAddress::noCompactionValue(),
+                                     m_normalizeByHydrostaticPressure );
+        if ( !RigFemPartResultsCollection::isNormalizableResult( address ) )
+        {
+            address.normalizedByHydrostaticPressure = false;
+        }
+
+        return address;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -576,9 +697,9 @@ QString RimGeoMechResultDefinition::diffResultUiShortName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechCaseData* RimGeoMechResultDefinition::ownerCaseData()
+RigGeoMechCaseData* RimGeoMechResultDefinition::ownerCaseData() const
 {
-    return m_geomCase->geoMechData();
+    return m_geomCase ? m_geomCase->geoMechData() : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -601,7 +722,7 @@ bool RimGeoMechResultDefinition::hasResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGeoMechResultDefinition::resultFieldUiName()
+QString RimGeoMechResultDefinition::resultFieldUiName() const
 {
     return convertToUiResultFieldName( m_resultFieldName() );
 }
@@ -609,9 +730,101 @@ QString RimGeoMechResultDefinition::resultFieldUiName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGeoMechResultDefinition::resultComponentUiName()
+QString RimGeoMechResultDefinition::resultComponentUiName() const
 {
     return m_resultComponentName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::resultVariableUiName() const
+{
+    QString name        = resultFieldName();
+    QString resCompName = resultComponentName();
+
+    if ( !resCompName.isEmpty() )
+    {
+        name += "." + resCompName;
+    }
+    return name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::resultVariableName() const
+{
+    if ( m_resultPositionType == RIG_WELLPATH_DERIVED )
+    {
+        RigWbsParameter param;
+        if ( RigWbsParameter::findParameter( resultFieldName(), &param ) )
+        {
+            QString lasName = param.addressString( RigWbsParameter::LAS_FILE );
+            if ( !lasName.isEmpty() ) return lasName;
+        }
+    }
+    return resultVariableUiName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::currentResultUnits() const
+{
+    if ( this->resultFieldName() == "SE" || this->resultFieldName() == "ST" || this->resultFieldName() == "POR-Bar" ||
+         this->resultFieldName() == "SM" || this->resultFieldName() == "SEM" || this->resultFieldName() == "Q" )
+    {
+        return "Bar";
+    }
+    else if ( this->resultFieldName() == "MODULUS" )
+    {
+        return "GPa";
+    }
+    else
+    {
+        for ( auto resultName : RiaDefines::wbsDerivedResultNames() )
+        {
+            if ( resultName == this->resultFieldName() )
+            {
+                return RiaWellLogUnitTools<double>::sg_emwUnitString();
+            }
+        }
+    }
+
+    return RiaWellLogUnitTools<double>::noUnitString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechResultDefinition::defaultLasUnits() const
+{
+    if ( m_resultPositionType == RIG_WELLPATH_DERIVED )
+    {
+        RigWbsParameter param;
+        if ( RigWbsParameter::findParameter( resultFieldName(), &param ) )
+        {
+            return param.units( RigWbsParameter::LAS_FILE );
+        }
+    }
+    return currentResultUnits();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGeoMechResultDefinition::normalizationAirGap() const
+{
+    return m_normalizationAirGap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultDefinition::setNormalizationAirGap( double airGap )
+{
+    m_normalizationAirGap = airGap;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -635,15 +848,86 @@ QString RimGeoMechResultDefinition::convertToUiResultFieldName( QString resultFi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimGeoMechResultDefinition::normalizableResultSelected() const
+{
+    return RigFemPartResultsCollection::isNormalizableResult( this->resultAddress() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& resultAddress )
 {
-    m_resultPositionType    = resultAddress.resultPosType;
-    m_resultFieldName       = QString::fromStdString( resultAddress.fieldName );
-    m_resultComponentName   = QString::fromStdString( resultAddress.componentName );
-    m_timeLapseBaseTimestep = resultAddress.timeLapseBaseFrameIdx;
-    m_compactionRefLayer    = resultAddress.refKLayerIndex;
+    m_resultPositionType             = resultAddress.resultPosType;
+    m_resultFieldName                = QString::fromStdString( resultAddress.fieldName );
+    m_resultComponentName            = QString::fromStdString( resultAddress.componentName );
+    m_timeLapseBaseTimestep          = resultAddress.timeLapseBaseFrameIdx;
+    m_compactionRefLayer             = resultAddress.refKLayerIndex;
+    m_normalizeByHydrostaticPressure = resultAddress.normalizedByHydrostaticPressure;
 
     m_resultPositionTypeUiField = m_resultPositionType;
     m_resultVariableUiField     = composeFieldCompString( m_resultFieldName(), m_resultComponentName() );
     m_compactionRefLayerUiField = m_compactionRefLayer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConfig* legendConfigToUpdate,
+                                                            const QString&          legendHeading,
+                                                            int                     timeStepIndex )
+{
+    if ( !this->ownerCaseData() || !( this->resultAddress().isValid() ) )
+    {
+        return;
+    }
+
+    double localMin, localMax;
+    double localPosClosestToZero, localNegClosestToZero;
+    double globalMin, globalMax;
+    double globalPosClosestToZero, globalNegClosestToZero;
+
+    RigGeoMechCaseData* gmCase = this->ownerCaseData();
+    CVF_ASSERT( gmCase );
+
+    RigFemResultAddress resVarAddress = this->resultAddress();
+
+    gmCase->femPartResults()->minMaxScalarValues( resVarAddress, timeStepIndex, &localMin, &localMax );
+    gmCase->femPartResults()->posNegClosestToZero( resVarAddress, timeStepIndex, &localPosClosestToZero, &localNegClosestToZero );
+
+    gmCase->femPartResults()->minMaxScalarValues( resVarAddress, &globalMin, &globalMax );
+    gmCase->femPartResults()->posNegClosestToZero( resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero );
+
+    legendConfigToUpdate->setClosestToZeroValues( globalPosClosestToZero,
+                                                  globalNegClosestToZero,
+                                                  localPosClosestToZero,
+                                                  localNegClosestToZero );
+    legendConfigToUpdate->setAutomaticRanges( globalMin, globalMax, localMin, localMax );
+
+    if ( this->hasCategoryResult() )
+    {
+        std::vector<QString> fnVector = gmCase->femPartResults()->formationNames();
+        legendConfigToUpdate->setNamedCategoriesInverse( fnVector );
+    }
+
+    QString legendTitle = legendHeading + caf::AppEnum<RigFemResultPosEnum>( this->resultPositionType() ).uiText() +
+                          "\n" + this->resultFieldUiName();
+
+    if ( !this->resultComponentUiName().isEmpty() )
+    {
+        legendTitle += ", " + this->resultComponentUiName();
+    }
+
+    QString unitString = currentResultUnits();
+    if ( unitString != RiaWellLogUnitTools<double>::noUnitString() )
+    {
+        legendTitle += QString( " [%1]" ).arg( unitString );
+    }
+
+    if ( !this->diffResultUiShortName().isEmpty() )
+    {
+        legendTitle += QString( "\nTime Diff:\n%1" ).arg( this->diffResultUiShortName() );
+    }
+
+    legendConfigToUpdate->setTitle( legendTitle );
 }

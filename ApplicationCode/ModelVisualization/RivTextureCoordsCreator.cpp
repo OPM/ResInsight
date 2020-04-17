@@ -48,14 +48,11 @@ RivTextureCoordsCreator::RivTextureCoordsCreator( RimEclipseCellColors*         
     m_quadMapper = quadMapper;
     CVF_ASSERT( quadMapper && eclipseCase );
 
-    m_resultAccessor = RigResultAccessorFactory::createFromResultDefinition( eclipseCase,
-                                                                             gridIndex,
-                                                                             timeStepIndex,
-                                                                             cellResultColors );
+    m_resultAccessor =
+        RigResultAccessorFactory::createFromResultDefinition( eclipseCase, gridIndex, timeStepIndex, cellResultColors );
 
-    cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = createPipeInCellEvaluator( cellResultColors,
-                                                                                 timeStepIndex,
-                                                                                 gridIndex );
+    cvf::ref<RigPipeInCellEvaluator> pipeInCellEval =
+        createPipeInCellEvaluator( cellResultColors, timeStepIndex, gridIndex );
 
     const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 

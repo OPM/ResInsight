@@ -37,7 +37,7 @@ class RicfExportSimWellFractureCompletions : public RicfCommandObject
 public:
     RicfExportSimWellFractureCompletions();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
     caf::PdmField<int>                  m_caseId;

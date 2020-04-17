@@ -34,12 +34,14 @@ RigWellLogExtractor::RigWellLogExtractor( const RigWellPath* wellpath, const std
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogExtractor::~RigWellLogExtractor() {}
+RigWellLogExtractor::~RigWellLogExtractor()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigWellLogExtractor::cellIntersectionMDs()
+const std::vector<double>& RigWellLogExtractor::cellIntersectionMDs() const
 {
     return m_intersectionMeasuredDepths;
 }
@@ -47,7 +49,7 @@ const std::vector<double>& RigWellLogExtractor::cellIntersectionMDs()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigWellLogExtractor::cellIntersectionTVDs()
+const std::vector<double>& RigWellLogExtractor::cellIntersectionTVDs() const
 {
     return m_intersectionTVDs;
 }
@@ -75,9 +77,8 @@ std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::cellIntersectionI
         cellInfo.intersectedCellFaceIn  = m_intersectedCellFaces[i];
         cellInfo.intersectedCellFaceOut = m_intersectedCellFaces[i + 1];
 
-        cellInfo.intersectionLengthsInCellCS = this->calculateLengthInCell( cellInfo.globCellIndex,
-                                                                            cellInfo.startPoint,
-                                                                            cellInfo.endPoint );
+        cellInfo.intersectionLengthsInCellCS =
+            this->calculateLengthInCell( cellInfo.globCellIndex, cellInfo.startPoint, cellInfo.endPoint );
 
         infoVector.push_back( cellInfo );
     }
@@ -88,7 +89,7 @@ std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::cellIntersectionI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigWellLogExtractor::intersectedCellsGlobIdx()
+const std::vector<size_t>& RigWellLogExtractor::intersectedCellsGlobIdx() const
 {
     return m_intersectedCellsGlobIdx;
 }
@@ -96,7 +97,7 @@ const std::vector<size_t>& RigWellLogExtractor::intersectedCellsGlobIdx()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigWellPath* RigWellLogExtractor::wellPathData()
+const RigWellPath* RigWellLogExtractor::wellPathData() const
 {
     return m_wellPath.p();
 }
@@ -104,13 +105,12 @@ const RigWellPath* RigWellLogExtractor::wellPathData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellLogExtractor::insertIntersectionsInMap(
-    const std::vector<HexIntersectionInfo>&                   intersections,
-    cvf::Vec3d                                                p1,
-    double                                                    md1,
-    cvf::Vec3d                                                p2,
-    double                                                    md2,
-    std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>* uniqueIntersections )
+void RigWellLogExtractor::insertIntersectionsInMap( const std::vector<HexIntersectionInfo>& intersections,
+                                                    cvf::Vec3d                              p1,
+                                                    double                                  md1,
+                                                    cvf::Vec3d                              p2,
+                                                    double                                  md2,
+                                                    std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>* uniqueIntersections )
 {
     for ( size_t intIdx = 0; intIdx < intersections.size(); ++intIdx )
     {
@@ -195,8 +195,9 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
     {
         // Add an intersection for the well startpoint that is inside the first cell
         std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator it = sortedUniqueIntersections.begin();
-        if ( it != sortedUniqueIntersections.end() &&
-             !it->first.isEnteringCell ) // Leaving a cell as first intersection. Well starts inside a cell.
+        if ( it != sortedUniqueIntersections.end() && !it->first.isEnteringCell ) // Leaving a cell as first
+                                                                                  // intersection. Well starts inside a
+                                                                                  // cell.
         {
             // Needs wellpath start point in front
             HexIntersectionInfo firstLeavingPoint      = it->second;
@@ -211,9 +212,11 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
         }
 
         // Add an intersection for the well endpoint possibly inside the last cell.
-        std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::reverse_iterator rit = sortedUniqueIntersections.rbegin();
-        if ( rit != sortedUniqueIntersections.rend() &&
-             rit->first.isEnteringCell ) // Entering a cell as last intersection. Well ends inside a cell.
+        std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::reverse_iterator rit =
+            sortedUniqueIntersections.rbegin();
+        if ( rit != sortedUniqueIntersections.rend() && rit->first.isEnteringCell ) // Entering a cell as last
+                                                                                    // intersection. Well ends inside a
+                                                                                    // cell.
         {
             // Needs wellpath end point at end
             HexIntersectionInfo lastEnterPoint      = rit->second;
@@ -222,9 +225,7 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
             lastEnterPoint.m_face                   = cvf::StructGridInterface::NO_FACE;
 
             sortedUniqueIntersections.insert(
-                std::make_pair( RigMDEnterLeaveCellIdxKey( m_wellPath->m_measuredDepths.back(),
-                                                           false,
-                                                           lastEnterPoint.m_hexIndex ),
+                std::make_pair( RigMDEnterLeaveCellIdxKey( m_wellPath->m_measuredDepths.back(), false, lastEnterPoint.m_hexIndex ),
                                 lastEnterPoint ) );
         }
     }

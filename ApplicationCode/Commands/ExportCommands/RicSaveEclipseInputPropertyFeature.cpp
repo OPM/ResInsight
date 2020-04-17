@@ -83,8 +83,8 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
     // Find input reservoir for this property
     RimEclipseCase* eclipseCase = nullptr;
     {
-        RimEclipseInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimEclipseInputPropertyCollection*>(
-            inputProperty->parentField()->ownerObject() );
+        RimEclipseInputPropertyCollection* inputPropertyCollection =
+            dynamic_cast<RimEclipseInputPropertyCollection*>( inputProperty->parentField()->ownerObject() );
         if ( !inputPropertyCollection ) return;
 
         eclipseCase = dynamic_cast<RimEclipseCase*>( inputPropertyCollection->parentField()->ownerObject() );
@@ -125,7 +125,7 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
                                                                              &errorMsg );
         if ( isOk )
         {
-            inputProperty->fileName       = exportSettings.fileName;
+            inputProperty->fileName       = exportSettings.fileName();
             inputProperty->eclipseKeyword = exportSettings.eclipseKeyword;
             inputProperty->resolvedState  = RimEclipseInputProperty::RESOLVED;
 

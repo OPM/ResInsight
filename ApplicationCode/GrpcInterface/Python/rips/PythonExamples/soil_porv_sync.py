@@ -7,7 +7,7 @@ import time
 
 resinsight = rips.Instance.find()
 start = time.time()
-case       = resinsight.project.case(case_id=0)
+case       = resinsight.project.cases()[0]
 
 # Read the full porv result
 porv_results = case.active_cell_property('STATIC_NATIVE', 'PORV', 0)

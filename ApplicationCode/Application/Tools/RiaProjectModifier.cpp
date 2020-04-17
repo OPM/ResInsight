@@ -34,7 +34,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaProjectModifier::RiaProjectModifier() {}
+RiaProjectModifier::RiaProjectModifier()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -66,8 +68,7 @@ void RiaProjectModifier::setReplaceSourceCasesFirstOccurrence( const std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaProjectModifier::setReplaceSourceCasesById( int                         caseGroupIdToReplace,
-                                                    const std::vector<QString>& newGridFileNames )
+void RiaProjectModifier::setReplaceSourceCasesById( int caseGroupIdToReplace, const std::vector<QString>& newGridFileNames )
 {
     if ( caseGroupIdToReplace >= 0 )
     {
@@ -191,7 +192,7 @@ void RiaProjectModifier::replaceCase( RimProject* project )
                     }
                     else if ( geomechCase )
                     {
-                        geomechCase->setFileName( replaceFileName );
+                        geomechCase->setGridFileName( replaceFileName );
                         geomechCase->caseUserDescription = caseNameFromGridFileName( replaceFileName );
                     }
                 }

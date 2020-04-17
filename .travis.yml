@@ -18,20 +18,8 @@ addons:
       - qtbase5-dev 
       - qtscript5-dev
       
-before_script:
-    - git clone https://github.com/OPM/ResInsight.git
-
 script:
-    ############################################################################
-    # Build main and tests
-    ############################################################################
      - mkdir -p build
      - cd build
-     
      - cmake -DRESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true -DRESINSIGHT_ENABLE_COTIRE=true .. 
-     
-     # Build the default target
-     #- make -j8
-     
-     # Build the target produced by Cotire
      - make -j8 ResInsight_unity

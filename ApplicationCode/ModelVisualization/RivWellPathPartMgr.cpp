@@ -20,6 +20,7 @@
 
 #include "RivWellPathPartMgr.h"
 
+#include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 
 #include "RigEclipseCaseData.h"
@@ -36,14 +37,20 @@
 #include "RimFishbonesMultipleSubs.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimRegularLegendConfig.h"
+#include "RimTools.h"
+#include "RimWellMeasurement.h"
+#include "RimWellMeasurementCollection.h"
+#include "RimWellMeasurementFilter.h"
+#include "RimWellMeasurementInView.h"
+#include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
 #include "RimWellPathCollection.h"
-#include "RimWellPathValve.h"
-
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimWellPathValve.h"
 
 #include "Riv3dWellLogPlanePartMgr.h"
 #include "RivFishbonesSubsPartMgr.h"
@@ -66,7 +73,7 @@
 #include "cvfFont.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
-#include "cvfScalarMapperDiscreteLinear.h"
+#include "cvfScalarMapperContinuousLinear.h"
 #include "cvfTransform.h"
 #include "cvfqtUtils.h"
 
@@ -252,6 +259,93 @@ void RivWellPathPartMgr::appendWellPathAttributesToModel( cvf::ModelBasicList*  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*              model,
+                                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                                        double                            characteristicCellSize )
+{
+    if ( !m_rimWellPath ) return;
+
+    RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
+    if ( !gridView ) return;
+
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+    if ( !wellPathCollection ) return;
+
+    RimWellMeasurementCollection* wellMeasurementCollection = wellPathCollection->measurementCollection();
+    if ( !wellMeasurementCollection ) return;
+
+    if ( !gridView->measurementCollection()->isChecked() ) return;
+
+    for ( RimWellMeasurementInView* wellMeasurementInView : gridView->measurementCollection()->measurements() )
+    {
+        if ( wellMeasurementInView->isChecked() && wellMeasurementInView->isWellChecked( m_rimWellPath->name() ) )
+        {
+            std::vector<QString> measurementKinds;
+            measurementKinds.push_back( wellMeasurementInView->measurementKind() );
+
+            double lowerBound = 0.0;
+            double upperBound = 0.0;
+            wellMeasurementInView->rangeValues( &lowerBound, &upperBound );
+            std::vector<int> qualityFilter = wellMeasurementInView->qualityFilter();
+
+            std::vector<RimWellMeasurement*> wellMeasurements =
+                RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
+                                                              *wellPathCollection,
+                                                              *m_rimWellPath,
+                                                              measurementKinds,
+                                                              lowerBound,
+                                                              upperBound,
+                                                              qualityFilter );
+
+            RivPipeGeometryGenerator geoGenerator;
+            for ( RimWellMeasurement* wellMeasurement : wellMeasurements )
+            {
+                double wellPathRadius = this->wellPathRadius( characteristicCellSize, this->wellPathCollection() );
+                double startMD        = wellMeasurement->MD() - wellPathRadius * 0.5;
+                double endMD          = wellMeasurement->MD() + wellPathRadius * 0.5;
+
+                double wellMeasurementRadius = this->wellMeasurementRadius( characteristicCellSize,
+                                                                            this->wellPathCollection(),
+                                                                            wellMeasurementInView );
+
+                std::vector<cvf::Vec3d> displayCoords;
+                displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
+                    m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( startMD ) ) );
+                displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
+                    m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( startMD ) ) );
+                displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
+                    m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( endMD ) ) );
+                displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
+                    m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( endMD ) ) );
+
+                std::vector<double> radii;
+                radii.push_back( std::min( wellPathRadius, wellMeasurementRadius ) );
+                radii.push_back( wellMeasurementRadius );
+                radii.push_back( wellMeasurementRadius );
+                radii.push_back( std::min( wellPathRadius, wellMeasurementRadius ) );
+
+                cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( wellMeasurement );
+
+                cvf::Collection<cvf::Part> parts;
+
+                // Use the view legend config to find color, if only one type of measurement is selected.
+                cvf::Color3f color = cvf::Color3f(
+                    wellMeasurementInView->legendConfig()->scalarMapper()->mapToColor( wellMeasurement->value() ) );
+
+                geoGenerator.tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, color );
+                for ( auto part : parts )
+                {
+                    part->setSourceInfo( objectSourceInfo.p() );
+                    model->addPart( part.p() );
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendImportedFishbonesToModel( cvf::ModelBasicList*              model,
                                                          const caf::DisplayCoordTransform* displayCoordTransform,
                                                          double                            characteristicCellSize )
@@ -265,8 +359,8 @@ void RivWellPathPartMgr::appendImportedFishbonesToModel( cvf::ModelBasicList*   
     {
         if ( !fbWellPath->isChecked() ) continue;
 
-        std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords(
-            fbWellPath->coordinates() );
+        std::vector<cvf::Vec3d> displayCoords =
+            displayCoordTransform->transformToDisplayCoords( fbWellPath->coordinates() );
 
         cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( fbWellPath );
 
@@ -375,10 +469,7 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
             cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( perforation );
 
             cvf::Collection<cvf::Part> parts;
-            geoGenerator.cylinderWithCenterLineParts( &parts,
-                                                      perfIntervalCLDiplayCS,
-                                                      cvf::Color3f::GREEN,
-                                                      perforationRadius );
+            geoGenerator.cylinderWithCenterLineParts( &parts, perfIntervalCLDiplayCS, cvf::Color3f::GREEN, perforationRadius );
             for ( auto part : parts )
             {
                 part->setSourceInfo( objectSourceInfo.p() );
@@ -516,11 +607,12 @@ void RivWellPathPartMgr::appendVirtualTransmissibilitiesToModel( cvf::ModelBasic
     eclView->firstAncestorOrThisOfType( eclipseCase );
     if ( !eclipseCase ) return;
 
-    const RigVirtualPerforationTransmissibilities* trans = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
+    const RigVirtualPerforationTransmissibilities* trans =
+        eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
     if ( trans )
     {
-        m_wellConnectionFactorPartMgr = new RivWellConnectionFactorPartMgr( m_rimWellPath,
-                                                                            eclView->virtualPerforationResult() );
+        m_wellConnectionFactorPartMgr =
+            new RivWellConnectionFactorPartMgr( m_rimWellPath, eclView->virtualPerforationResult() );
 
         m_wellConnectionFactorPartMgr->appendDynamicGeometryPartsToModel( model, timeStepIndex );
     }
@@ -638,8 +730,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
     cvf::Vec3d textPosition = cvfCoords->get( 0 );
     textPosition.z() += 2.2 * characteristicCellSize;
 
-    if ( wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() &&
-         !m_rimWellPath->name().isEmpty() )
+    if ( wellPathCollection->showWellPathLabel() && m_rimWellPath->showWellPathLabel() && !m_rimWellPath->name().isEmpty() )
     {
         cvf::Font* font = RiaGuiApplication::instance()->defaultWellLabelFont();
 
@@ -763,27 +854,34 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
 
     if ( m_rimWellPath.isNull() ) return;
 
-    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return;
-
-    if ( wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON &&
-         m_rimWellPath->showWellPath() == false )
-    {
-        return;
-    }
+    bool showWellPath = ( wellPathCollection->isActive() &&
+                          ( ( wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_OFF ) ||
+                            ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_ON &&
+                              m_rimWellPath->showWellPath() ) ) );
 
     if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return;
 
-    appendPerforationsToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize, false );
-    appendVirtualTransmissibilitiesToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize );
-
-    RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
-    if ( !gridView ) return;
-
-    if ( m_3dWellLogPlanePartMgr.isNull() )
+    if ( showWellPath )
     {
-        m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr( m_rimWellPath, gridView );
+        // Only show perforations and virtual transmissibilities when well path is shown
+        appendPerforationsToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize, false );
+        appendVirtualTransmissibilitiesToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize );
     }
-    m_3dWellLogPlanePartMgr->appendPlaneToModel( model, displayCoordTransform, wellPathClipBoundingBox, false );
+
+    // Well measurements visibility is independent of well path visibility
+    appendWellMeasurementsToModel( model, displayCoordTransform, characteristicCellSize );
+
+    if ( showWellPath )
+    {
+        RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
+        if ( !gridView ) return;
+
+        if ( m_3dWellLogPlanePartMgr.isNull() )
+        {
+            m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr( m_rimWellPath, gridView );
+        }
+        m_3dWellLogPlanePartMgr->appendPlaneToModel( model, displayCoordTransform, wellPathClipBoundingBox, false );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -839,5 +937,16 @@ RimWellPathCollection* RivWellPathPartMgr::wellPathCollection() const
 double RivWellPathPartMgr::wellPathRadius( double characteristicCellSize, RimWellPathCollection* wellPathCollection )
 {
     return wellPathCollection->wellPathRadiusScaleFactor() * m_rimWellPath->wellPathRadiusScaleFactor() *
+           characteristicCellSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RivWellPathPartMgr::wellMeasurementRadius( double                          characteristicCellSize,
+                                                  const RimWellPathCollection*    wellPathCollection,
+                                                  const RimWellMeasurementInView* wellMeasurementInView )
+{
+    return wellPathCollection->wellPathRadiusScaleFactor() * wellMeasurementInView->radiusScaleFactor() *
            characteristicCellSize;
 }

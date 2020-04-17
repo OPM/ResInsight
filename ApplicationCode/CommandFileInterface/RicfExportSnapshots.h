@@ -34,6 +34,14 @@ class RicfExportSnapshots : public RicfCommandObject
 
 public:
     // Values are exposed in gRPC .proto. Do not change without also changing .proto
+
+    enum class PlotOutputFormat
+    {
+        PNG,
+        PDF
+    };
+    typedef caf::AppEnum<PlotOutputFormat> PreferredOutputFormatEnum;
+
     enum SnapshotsType
     {
         VIEWS,
@@ -45,12 +53,13 @@ public:
 public:
     RicfExportSnapshots();
 
-    RicfCommandResponse execute() override;
+    caf::PdmScriptResponse execute() override;
 
 private:
-    caf::PdmField<SnapshotsTypeEnum> m_type;
-    caf::PdmField<QString>           m_prefix;
-    caf::PdmField<int>               m_caseId;
-    caf::PdmField<int>               m_viewId;
-    caf::PdmField<QString>           m_exportFolder;
+    caf::PdmField<SnapshotsTypeEnum>         m_type;
+    caf::PdmField<QString>                   m_prefix;
+    caf::PdmField<int>                       m_caseId;
+    caf::PdmField<int>                       m_viewId;
+    caf::PdmField<QString>                   m_exportFolder;
+    caf::PdmField<PreferredOutputFormatEnum> m_plotOutputFormat;
 };

@@ -23,6 +23,7 @@
 #include "RigTimeHistoryResultAccessor.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 
 #include "Riu3dSelectionManager.h"
@@ -50,7 +51,9 @@ RimEclipseGeometrySelectionItem::RimEclipseGeometrySelectionItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseGeometrySelectionItem::~RimEclipseGeometrySelectionItem() {}
+RimEclipseGeometrySelectionItem::~RimEclipseGeometrySelectionItem()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -61,7 +64,7 @@ void RimEclipseGeometrySelectionItem::setFromSelectionItem( const RiuEclipseSele
     m_cellIndex                       = selectionItem->m_gridLocalCellIndex;
     m_localIntersectionPointInDisplay = selectionItem->m_localIntersectionPointInDisplay;
 
-    m_eclipseCase = selectionItem->m_view->eclipseCase();
+    m_eclipseCase = selectionItem->m_resultDefinition->eclipseCase();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,9 +103,8 @@ QString RimEclipseGeometrySelectionItem::geometrySelectionText() const
     text += ", ";
     text += QString( "Grid index %1" ).arg( m_gridIndex );
     text += ", ";
-    text += RigTimeHistoryResultAccessor::geometrySelectionText( m_eclipseCase->eclipseCaseData(),
-                                                                 m_gridIndex,
-                                                                 m_cellIndex );
+    text +=
+        RigTimeHistoryResultAccessor::geometrySelectionText( m_eclipseCase->eclipseCaseData(), m_gridIndex, m_cellIndex );
 
     return text;
 }

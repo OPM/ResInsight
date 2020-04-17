@@ -30,6 +30,8 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
+#include <algorithm>
+
 CAF_PDM_SOURCE_INIT( RimPlotCellPropertyFilter, "RimPlotCellPropertyFilter" );
 
 //--------------------------------------------------------------------------------------------------
@@ -70,6 +72,19 @@ void RimPlotCellPropertyFilter::setValueRange( double lowerBound, double upperBo
 {
     m_lowerBound = lowerBound;
     m_upperBound = upperBound;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCellPropertyFilter::updatePointerAfterCopy( RimPlotCellPropertyFilter* other )
+{
+    if ( eclipseResultDefinition() && eclipseResultDefinition()->eclipseCase() )
+    {
+        auto eclipseCase = eclipseResultDefinition()->eclipseCase();
+
+        other->eclipseResultDefinition()->setEclipseCase( eclipseCase );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,10 +157,12 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter( size_t timeStepI
         RigCaseCellResultsData* cellResultsData = resDef->currentGridCellResults();
         if ( !cellResultsData ) return;
 
-        if ( !resDef->currentGridCellResults()->hasResultEntry( resDef->eclipseResultAddress() ) ) return;
+        RigEclipseResultAddress rigEclipseAddress = resDef->eclipseResultAddress();
 
-        const std::vector<double>& cellResultValues = cellResultsData->cellScalarResults( resDef->eclipseResultAddress(),
-                                                                                          timeStepIndex );
+        if ( !resDef->currentGridCellResults()->hasResultEntry( rigEclipseAddress ) ) return;
+
+        size_t clampedIndex = std::min( timeStepIndex, cellResultsData->timeStepCount( rigEclipseAddress ) - 1 );
+        const std::vector<double>& cellResultValues = cellResultsData->cellScalarResults( rigEclipseAddress, clampedIndex );
         if ( cellResultValues.empty() ) return;
 
         const RigActiveCellInfo* actCellInfo             = cellResultsData->activeCellInfo();
@@ -162,12 +179,12 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter( size_t timeStepI
             return;
         }
 
-        bool   isUsingGlobalActiveIndex  = cellResultsData->isUsingGlobalActiveIndex( resDef->eclipseResultAddress() );
-        double lowerBound                = m_lowerBound;
-        double upperBound                = m_upperBound;
-        size_t cellResultIndex           = 0;
-        double scalarValue               = 0.0;
-        FilterModeType currentFilterMode = filterMode();
+        bool           isUsingGlobalActiveIndex = cellResultsData->isUsingGlobalActiveIndex( rigEclipseAddress );
+        double         lowerBound               = m_lowerBound;
+        double         upperBound               = m_upperBound;
+        size_t         cellResultIndex          = 0;
+        double         scalarValue              = 0.0;
+        FilterModeType currentFilterMode        = filterMode();
 
         for ( size_t reservoirCellIndex = 0; reservoirCellIndex < totalReservoirCellCount; ++reservoirCellIndex )
         {

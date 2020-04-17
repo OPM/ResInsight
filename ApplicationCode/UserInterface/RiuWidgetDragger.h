@@ -28,14 +28,13 @@ class RiuWidgetDragger : public QObject
 {
     Q_OBJECT
 public:
-    RiuWidgetDragger( QWidget* widgetToMove, QWidget* widgetToSnapTo = nullptr, int snapMargins = 5 );
+    RiuWidgetDragger( QWidget* widgetToMove, int snapMargins = 5 );
 
     void addWidget( QWidget* widget );
     bool eventFilter( QObject* watched, QEvent* event ) override;
 
 private:
     QPointer<QWidget> m_widgetToMove;
-    QPointer<QWidget> m_widgetToSnapTo;
     int               m_snapMargins;
     QPoint            m_startPos;
 };

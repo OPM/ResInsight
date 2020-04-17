@@ -12,26 +12,31 @@ TEST( RiaSummaryCurveAnalyzer, WellCompletions )
     // Well A
     std::string wellNameA = "well_name_a";
     {
-        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::wellCompletionAddress( "quantity_name", wellNameA, 1, 2, 3 );
+        RifEclipseSummaryAddress adr =
+            RifEclipseSummaryAddress::wellCompletionAddress( "quantity_name", wellNameA, 1, 2, 3 );
         addresses.push_back( adr );
     }
     {
-        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::wellCompletionAddress( "quantity_name", wellNameA, 1, 2, 3 );
+        RifEclipseSummaryAddress adr =
+            RifEclipseSummaryAddress::wellCompletionAddress( "quantity_name", wellNameA, 1, 2, 3 );
         addresses.push_back( adr );
     }
     {
-        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::wellCompletionAddress( "quantity_name", wellNameA, 5, 2, 3 );
+        RifEclipseSummaryAddress adr =
+            RifEclipseSummaryAddress::wellCompletionAddress( "quantity_name", wellNameA, 5, 2, 3 );
         addresses.push_back( adr );
     }
 
     // Well B
     std::string wellNameB = "well_name_b";
     {
-        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::wellCompletionAddress( "quantity_name", wellNameB, 5, 2, 3 );
+        RifEclipseSummaryAddress adr =
+            RifEclipseSummaryAddress::wellCompletionAddress( "quantity_name", wellNameB, 5, 2, 3 );
         addresses.push_back( adr );
     }
     {
-        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::wellCompletionAddress( "quantity_name", wellNameB, 5, 4, 3 );
+        RifEclipseSummaryAddress adr =
+            RifEclipseSummaryAddress::wellCompletionAddress( "quantity_name", wellNameB, 5, 4, 3 );
         addresses.push_back( adr );
     }
     {

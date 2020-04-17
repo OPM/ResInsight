@@ -34,7 +34,7 @@ class RimGridView;
 class RimFormationNames;
 class RimTimeStepFilter;
 class Rim2dIntersectionView;
-class RimIntersection;
+class RimExtrudedCurveIntersection;
 class Rim2dIntersectionViewCollection;
 
 namespace cvf
@@ -53,7 +53,8 @@ public:
     caf::PdmField<int>     caseId;
     caf::PdmField<QString> caseUserDescription;
 
-    caf::PdmPtrField<RimFormationNames*> activeFormationNames;
+    void    setGridFileName( const QString& fileName );
+    QString gridFileName() const;
 
     std::vector<Rim3dView*>   views() const;
     std::vector<RimGridView*> gridViews() const;
@@ -64,13 +65,15 @@ public:
     virtual QStringList            timeStepStrings() const            = 0;
     virtual QString                timeStepName( int frameIdx ) const = 0;
 
+    virtual cvf::BoundingBox reservoirBoundingBox()         = 0;
     virtual cvf::BoundingBox activeCellsBoundingBox() const = 0;
     virtual cvf::BoundingBox allCellsBoundingBox() const    = 0;
 
     virtual cvf::Vec3d displayModelOffset() const;
 
-    virtual void updateFormationNamesData() = 0;
-    virtual void setFormationNames( RimFormationNames* formationNames );
+    void               setFormationNames( RimFormationNames* formationNames );
+    RimFormationNames* activeFormationNames() const;
+    virtual void       updateFormationNamesData() = 0;
 
     virtual double characteristicCellSize() const = 0;
 
@@ -85,14 +88,13 @@ protected:
     void                            initAfterRead() override;
 
 private:
-    caf::PdmFieldHandle* userDescriptionField() override
-    {
-        return &caseUserDescription;
-    }
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 protected:
+    caf::PdmField<caf::FilePath>                         m_caseFileName;
     caf::PdmChildField<RimTimeStepFilter*>               m_timeStepFilter;
     caf::PdmChildField<Rim2dIntersectionViewCollection*> m_2dIntersectionViewCollection;
+    caf::PdmPtrField<RimFormationNames*>                 m_activeFormationNames;
 
 private:
     bool m_isInActiveDestruction;

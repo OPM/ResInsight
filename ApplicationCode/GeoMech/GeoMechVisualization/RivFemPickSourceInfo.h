@@ -29,14 +29,8 @@ public:
     RivFemPickSourceInfo( int partIndex, RivFemPartTriangleToElmMapper* triangleToElmMapper );
     ~RivFemPickSourceInfo() override;
 
-    int femPartIndex() const
-    {
-        return m_fempartIndex;
-    }
-    const RivFemPartTriangleToElmMapper* triangleToElmMapper() const
-    {
-        return m_triangleToElmMapper.p();
-    }
+    int                                  femPartIndex() const { return m_fempartIndex; }
+    const RivFemPartTriangleToElmMapper* triangleToElmMapper() const { return m_triangleToElmMapper.p(); }
 
 private:
     int                                      m_fempartIndex;

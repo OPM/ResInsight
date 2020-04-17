@@ -59,9 +59,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormatEnum::setUp()
     addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_MMDDYYYY_SLASH_SEPARATED,
              "MM/dd/yyyy",
              "Month/Day/Year (MM/dd/yyyy)" );
-    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_MMDDYY_SLASH_SEPARATED,
-             "MM/dd/yy",
-             "Month/Day/Year (MM/dd/yy)" );
+    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_MMDDYY_SLASH_SEPARATED, "MM/dd/yy", "Month/Day/Year (MM/dd/yy)" );
 
     setDefault( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_DOT_SEPARATED );
 }
@@ -303,9 +301,8 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
         }
         if ( m_timeFormat() == TimeFormat::TIME_NONE )
         {
-            parseOptions.fallbackDateTimeFormat = parseOptions.dateFormat + " " +
-                                                  RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::text(
-                                                      TIME_HHMM );
+            parseOptions.fallbackDateTimeFormat =
+                parseOptions.dateFormat + " " + RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::text( TIME_HHMM );
         }
     }
 

@@ -62,7 +62,9 @@ RivWellHeadPartMgr::RivWellHeadPartMgr( RimSimWellInView* well )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellHeadPartMgr::~RivWellHeadPartMgr() {}
+RivWellHeadPartMgr::~RivWellHeadPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -176,8 +178,8 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t                            f
         }
     }
 
-    double arrowLength = characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() *
-                         m_rimWell->wellHeadScaleFactor();
+    double arrowLength =
+        characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
 
     if ( wellResultFrame.m_isOpen )
     {
@@ -287,7 +289,9 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t                            f
         m_wellHeadArrowPart = part;
     }
 
-    if ( well->showWellLabel() && !well->name().isEmpty() )
+    // Show labels for well heads only when well disks are disabled:
+    // well disk labels are prefered since they have more info.
+    if ( well->showWellLabel() && !well->name().isEmpty() && !well->showWellDisks() )
     {
         cvf::Font* font = RiaGuiApplication::instance()->defaultWellLabelFont();
 

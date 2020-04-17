@@ -50,7 +50,8 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
                                                 const caf::ColorTable&                        colorTable,
                                                 int                                           shadingAlphaByte,
                                                 bool                                          showNames /*= true */,
-                                                TrackSpan trackSpan /*= FULL_WIDTH*/ )
+                                                TrackSpan                          trackSpan /*= FULL_WIDTH*/,
+                                                const std::vector<Qt::BrushStyle>& brushStyles /* = {}*/ )
 {
     if ( names.size() != yPositions.size() ) return;
     m_plot = plot;
@@ -66,12 +67,10 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
 
     for ( size_t i = 0; i < names.size(); i++ )
     {
-        if ( names[i].isEmpty() ) continue;
-
         QwtPlotMarker* line( new QwtPlotMarker() );
 
         QString name;
-        if ( showNames )
+        if ( showNames && !names[i].isEmpty() )
         {
             name = names[i];
             if ( ( regionDisplay & COLOR_SHADING ) == 0 && names[i].toLower().indexOf( "top" ) == -1 )
@@ -88,7 +87,12 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
             shading->setOrientation( Qt::Horizontal );
             shading->setInterval( yPositions[i].first, yPositions[i].second );
             shading->setPen( shadingColor, 0.0, Qt::NoPen );
-            shading->setBrush( QBrush( shadingColor ) );
+            QBrush brush( shadingColor );
+            if ( i < brushStyles.size() )
+            {
+                brush.setStyle( brushStyles[i] );
+            }
+            shading->setBrush( brush );
             shading->attach( m_plot );
             shading->setZ( -100.0 );
             shading->setXAxis( QwtPlot::xTop );
@@ -97,21 +101,27 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
 
         QColor lineColor( 0, 0, 0, 0 );
         QColor textColor( 0, 0, 0, 255 );
-        if ( regionDisplay & DARK_LINES || regionDisplay & COLORED_LINES )
+        if ( regionDisplay & DARK_LINES || regionDisplay & COLORED_LINES || regionDisplay & LIGHT_LINES )
         {
             cvf::Color3ub cvfColor = catMapper.mapToColor( static_cast<double>( i ) );
             QColor        cycledColor( cvfColor.r(), cvfColor.g(), cvfColor.b() );
 
-            lineColor = regionDisplay & DARK_LINES ? QColor( 0, 0, 100 ) : cycledColor;
+            if ( regionDisplay & DARK_LINES )
+            {
+                lineColor = QColor( 50, 50, 100 );
+            }
+            else if ( regionDisplay & LIGHT_LINES )
+            {
+                lineColor = QColor( 200, 200, 200 );
+            }
+            else
+            {
+                lineColor = cycledColor;
+            }
             textColor = lineColor;
         }
         Qt::Alignment horizontalAlignment = trackTextAlignment( trackSpan );
-        RiuPlotAnnotationTool::horizontalDashedLine( line,
-                                                     name,
-                                                     yPositions[i].first,
-                                                     lineColor,
-                                                     textColor,
-                                                     horizontalAlignment );
+        RiuPlotAnnotationTool::horizontalDashedLine( line, name, yPositions[i].first, lineColor, textColor, horizontalAlignment );
         line->attach( m_plot );
         m_markers.push_back( std::move( line ) );
 

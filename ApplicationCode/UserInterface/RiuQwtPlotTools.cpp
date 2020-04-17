@@ -27,7 +27,6 @@
 #include "qwt_plot_layout.h"
 #include "qwt_scale_widget.h"
 
-#include <QGraphicsDropShadowEffect>
 #include <QRegExp>
 #include <vector>
 
@@ -44,30 +43,22 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
 
     plot->setAutoFillBackground( true );
     plot->setCanvasBackground( Qt::white );
+    plot->plotLayout()->setCanvasMargin( 0, -1 );
 
-    plot->canvas()->setContentsMargins( 1, 1, 1, 1 );
     QFrame* canvasFrame = dynamic_cast<QFrame*>( plot->canvas() );
     canvasFrame->setFrameShape( QFrame::Box );
 
-    QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( plot->canvas() );
-    dropShadowEffect->setOffset( 1.0, 1.0 );
-    dropShadowEffect->setBlurRadius( 3.0 );
-    dropShadowEffect->setColor( QColor( 60, 60, 60, 60 ) );
-    plot->canvas()->setGraphicsEffect( dropShadowEffect );
-
     // Grid
-
     QwtPlotGrid* grid = new QwtPlotGrid;
     grid->attach( plot );
     QPen gridPen( Qt::SolidLine );
     gridPen.setColor( Qt::lightGray );
     grid->setPen( gridPen );
 
-    int fontSize = RiaFontCache::pointSizeFromFontSizeEnum(
-        RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    int fontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
     // Axis number font
     QFont axisFont = plot->axisFont( QwtPlot::xBottom );
-    axisFont.setPointSize( fontSize );
+    axisFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( fontSize ) );
 
     plot->setAxisFont( QwtPlot::xBottom, axisFont );
     plot->setAxisFont( QwtPlot::xTop, axisFont );
@@ -81,7 +72,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     {
         QwtText axisTitle     = plot->axisTitle( axis );
         QFont   axisTitleFont = axisTitle.font();
-        axisTitleFont.setPointSize( fontSize );
+        axisTitleFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( fontSize ) );
         axisTitleFont.setBold( false );
         axisTitle.setFont( axisTitleFont );
         axisTitle.setRenderFlags( Qt::AlignRight );
@@ -99,7 +90,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     plot->canvas()->setMouseTracking( true );
     plot->plotLayout()->setAlignCanvasToScales( true );
 
-    plot->setContentsMargins( 2, 2, 2, 2 );
+    plot->setContentsMargins( 1, 1, 1, 1 );
 
     // Store the pointer address as an object name. This way each plot can be identified uniquely for CSS-stylesheets
     QString objectName = QString( "%1" ).arg( reinterpret_cast<uint64_t>( plot ) );
@@ -119,10 +110,10 @@ void RiuQwtPlotTools::setDefaultAxes( QwtPlot* plot )
     plot->enableAxis( QwtPlot::xTop, false );
     plot->enableAxis( QwtPlot::yRight, false );
 
-    plot->axisScaleDraw( QwtPlot::xBottom )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
-    plot->axisScaleDraw( QwtPlot::yLeft )->enableComponent( QwtAbstractScaleDraw::Backbone, false );
     plot->axisWidget( QwtPlot::xBottom )->setMargin( 0 );
     plot->axisWidget( QwtPlot::yLeft )->setMargin( 0 );
+    plot->axisWidget( QwtPlot::xTop )->setMargin( 0 );
+    plot->axisWidget( QwtPlot::yRight )->setMargin( 0 );
 
     plot->setAxisMaxMinor( QwtPlot::xBottom, 2 );
     plot->setAxisMaxMinor( QwtPlot::yLeft, 3 );
@@ -151,11 +142,7 @@ void RiuQwtPlotTools::enableDateBasedBottomXAxis( QwtPlot*                      
     for ( QwtDate::IntervalType interval : intervals )
     {
         scaleDraw->setDateFormat( interval,
-                                  dateTimeFormatForInterval( interval,
-                                                             dateFormat,
-                                                             timeFormat,
-                                                             dateComponents,
-                                                             timeComponents ) );
+                                  dateTimeFormatForInterval( interval, dateFormat, timeFormat, dateComponents, timeComponents ) );
     }
 
     QwtDateScaleEngine* scaleEngine = new QwtDateScaleEngine( Qt::UTC );
@@ -186,28 +173,26 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
                 return RiaQDateTimeTools::timeFormatString( timeFormat,
                                                             RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND );
             case QwtDate::Second:
-                return RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                            RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND );
+                return RiaQDateTimeTools::timeFormatString( timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND );
             case QwtDate::Minute:
             {
-                QString fullFormat = RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                                          RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE );
+                QString fullFormat =
+                    RiaQDateTimeTools::timeFormatString( timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE );
                 fullFormat += "\n";
-                fullFormat += RiaQDateTimeTools::dateFormatString( dateFormat,
-                                                                   RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                fullFormat +=
+                    RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
                 return fullFormat;
             }
             case QwtDate::Hour:
             {
-                QString fullFormat = RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                                          RiaQDateTimeTools::TIME_FORMAT_HOUR );
+                QString fullFormat = RiaQDateTimeTools::timeFormatString( timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR );
                 if ( !fullFormat.endsWith( "AP" ) )
                 {
                     fullFormat += ":00";
                 }
                 fullFormat += "\n";
-                fullFormat += RiaQDateTimeTools::dateFormatString( dateFormat,
-                                                                   RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                fullFormat +=
+                    RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
                 return fullFormat;
             }
             case QwtDate::Day:

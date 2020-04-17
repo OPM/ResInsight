@@ -2,6 +2,17 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (ApplicationCode)
 
+
+# set packaging dir
+if(NOT CPACK_PACKAGE_DIRECTORY)
+    set(CPACK_PACKAGE_DIRECTORY ${CMAKE_BINARY_DIR}/packages)
+endif()
+
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+    message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+    set(CMAKE_UNITY_BUILD true)
+endif()
+
 if (CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations")
 endif()
@@ -57,6 +68,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
+    ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Surfaces
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface/Core
@@ -68,6 +80,8 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/GridCrossPlots
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Measurement
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Surfaces
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModelCommands
     
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
@@ -134,12 +148,14 @@ list( APPEND REFERENCED_CMAKE_FILES
     ProjectDataModel/Completions/CMakeLists_files.cmake
     ProjectDataModel/Measurement/CMakeLists_files.cmake
     ProjectDataModel/PlotTemplates/CMakeLists_files.cmake
-    
+    ProjectDataModel/Surfaces/CMakeLists_files.cmake
+    ProjectDataModelCommands/CMakeLists_files.cmake
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
     ModelVisualization/CMakeLists_files.cmake
     ModelVisualization/GridBox/CMakeLists_files.cmake
     ModelVisualization/Intersections/CMakeLists_files.cmake
+	ModelVisualization/Surfaces/CMakeLists_files.cmake
     ModelVisualization/WindowEdgeAxesOverlayItem/CMakeLists_files.cmake
     
     UserInterface/CMakeLists_files.cmake
@@ -163,6 +179,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
     Commands/SummaryPlotCommands/CMakeLists_files.cmake
     Commands/SsiHubImportCommands/CMakeLists_files.cmake
+    Commands/SurfaceCommands/CMakeLists_files.cmake
     Commands/ToggleCommands/CMakeLists_files.cmake
     Commands/ViewLink/CMakeLists_files.cmake
     Commands/WellLogCommands/CMakeLists_files.cmake
@@ -270,7 +287,7 @@ set ( QT_MOC_HEADERS
     ${QT_MOC_HEADERS}
     
     ProjectDataModel/RimMimeData.h
-    ProjectDataModel/RimIntersectionBox.h
+    ProjectDataModel/RimBoxIntersection.h
     
     SocketInterface/RiaSocketServer.h
 )
@@ -376,6 +393,16 @@ endif(RESINSIGHT_ENABLE_GRPC)
 
 add_executable( ResInsight ${EXE_FILES})
 
+option(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS "Use Precompiled Headers" OFF)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
+if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
+    message("Precompiled Headers is enabled on : ${PROJECT_NAME}")
+    target_precompile_headers(ResInsight PRIVATE pch.h)
+
+    set_source_files_properties(${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+endif()
+
+
 if (MSVC) 
     # The following warnings are supposed to be used in ResInsight, but temporarily disabled to avoid too much noise
     #  warning C4245: 'return': conversion from 'int' to 'size_t', signed/unsigned mismatch
@@ -433,6 +460,7 @@ if (RESINSIGHT_ENABLE_GRPC)
 		foreach(GRPC_LIBRARY ${GRPC_LIBRARIES})
 			list(APPEND LINK_LIBRARIES "${GRPC_LIBRARY_DIRS}/lib${GRPC_LIBRARY}.a")
 		endforeach()
+		list(APPEND LINK_LIBRARIES ${GRPC_PACKAGE_LIBRARIES})
 	else()		
 		list(APPEND LINK_LIBRARIES ${GRPC_LIBRARIES})
 		set_target_properties(ResInsight PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/NODEFAULTLIB:MSVCRTD.lib")
@@ -450,40 +478,41 @@ target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
 
 #############################################################################
-# cotire
+# cotire and unity builds
 #############################################################################
+
+set( UNITY_EXCLUDE_FILES
+    # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
+    ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
+    
+    # multiple QRC files are not supported
+    qrc_cafAnimControl.cxx
+    qrc_ResInsight.cxx
+
+    # mix of cvf and Qt namespaces
+    ModelVisualization/GridBox/RivGridBoxGenerator.cpp
+    ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp
+
+    # exclude file using Eigen
+    ReservoirDataModel/RigCellGeometryTools.cpp
+    ReservoirDataModel/Completions/RigTransmissibilityCondenser.cpp
+    ReservoirDataModel/Completions/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
+    ReservoirDataModel/Completions/RigEclipseToStimPlanCalculator.cpp
+
+    # exclude file using SolveSpace
+    Application/Tools/WellPathTools/RiaSCurveCalculator.cpp
+
+    # QT 5
+    qrc_cafAnimControl.cpp
+    qrc_ResInsight.cpp
+    qrc_cafCommandFeatures.cpp
+    ProjectDataModel/RimContourMapView.cpp
+    Commands/CompletionExportCommands/RicExportFractureCompletionsImpl.cpp
+)
+
 if(RESINSIGHT_ENABLE_COTIRE)
 
-    set( COTIRE_EXCLUDE_FILES
-        # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
-        ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
-    
-        # multiple QRC files are not supported
-        qrc_cafAnimControl.cxx
-        qrc_ResInsight.cxx
-
-        # mix of cvf and Qt namespaces
-        ModelVisualization/GridBox/RivGridBoxGenerator.cpp
-        ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp
-
-        # exclude file using Eigen
-        ReservoirDataModel/RigCellGeometryTools.cpp
-        ReservoirDataModel/Completions/RigTransmissibilityCondenser.cpp
-        ReservoirDataModel/Completions/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
-        ReservoirDataModel/Completions/RigEclipseToStimPlanCalculator.cpp
-
-        # exclude file using SolveSpace
-        Application/Tools/WellPathTools/RiaSCurveCalculator.cpp
-
-        # QT 5
-        qrc_cafAnimControl.cpp
-        qrc_ResInsight.cpp
-        qrc_cafCommandFeatures.cpp
-        ProjectDataModel/RimContourMapView.cpp
-        Commands/CompletionExportCommands/RicExportFractureCompletionsImpl.cpp
-    )
-
-    foreach (fileToExclude ${COTIRE_EXCLUDE_FILES})
+    foreach (fileToExclude ${UNITY_EXCLUDE_FILES})
         set_source_files_properties (${fileToExclude} PROPERTIES COTIRE_EXCLUDED TRUE)
     endforeach(fileToExclude)
 
@@ -503,13 +532,15 @@ if(RESINSIGHT_ENABLE_COTIRE)
 
 endif()
 
-
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+    foreach (fileToExclude ${UNITY_EXCLUDE_FILES})
+        set_source_files_properties (${fileToExclude} PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
+    endforeach(fileToExclude)
+endif()
 
 #############################################################################
 # Copy Dlls on MSVC
 #############################################################################
-
-
 if (MSVC)
 
     # Qt DLLs
@@ -576,16 +607,18 @@ foreach (FILE_TO_COPY ${RI_DLL_FILENAMES})
     endif()
 endforeach()
 
-# Make sure we perform the Python code generation by having a target which ResInsight depends on
+# Generate Python code in a target that is part of ALL_BUILD and depends on ResInsight
 if (RESINSIGHT_ENABLE_GRPC)	
     set(RESINSIGHT_GRPC_PYTHON_EXECUTABLE "" CACHE FILEPATH "gRPC : Path to Python 3 executable, required to build the Python client library")
     if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
-		if (EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
-			add_custom_target(GeneratedPythonSources DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
-			add_dependencies(ResInsight GeneratedPythonSources)
-		else()
-			message(STATUS "Error installing python code: RESINSIGHT_GRPC_PYTHON_EXECUTABLE set but ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE} not found")
-		endif(EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+        add_custom_command(OUTPUT ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py
+				    COMMAND ResInsight ARGS --console --generate ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py
+                    DEPENDS ResInsight
+                    COMMENT "Generating ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py"
+	    )   
+        list(APPEND GRPC_GENERATED_PYTHON_SOURCES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py)
+		add_custom_target(GeneratedPythonSources ALL DEPENDS ${GRPC_GENERATED_PYTHON_SOURCES})
+		add_dependencies(GeneratedPythonSources ResInsight)
 	else()
 		message(STATUS "RESINSIGHT_GRPC_PYTHON_EXECUTABLE not specified. Will not install GRPC Python code.")
 	endif(RESINSIGHT_GRPC_PYTHON_EXECUTABLE)	
@@ -733,7 +766,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     # install gRPC Python files
     if (RESINSIGHT_ENABLE_GRPC)
 		message(STATUS "GRPC enabled")
-		if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE AND EXISTS ${RESINSIGHT_GRPC_PYTHON_EXECUTABLE})
+		if (RESINSIGHT_GRPC_PYTHON_EXECUTABLE)
 			message(STATUS "Python found")
 			if (RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE)	
 				message(STATUS "Bundling Python GRPC modules")
@@ -744,6 +777,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 				)
 			endif()
 			install(DIRECTORY ${GRPC_PYTHON_SOURCE_PATH}/ DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python)
+            install(FILES ${GRPC_PYTHON_SOURCE_PATH}/rips/generated/pdm_objects.py DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/Python/rips/generated)
 		endif()
 	endif()
 

@@ -48,10 +48,12 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewer.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewerToViewInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.h
+${CMAKE_CURRENT_LIST_DIR}/RiuCellAndNncPickEventHandler.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPickItemInfo.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
-${CMAKE_CURRENT_LIST_DIR}/RiuGridPlotWindow.h
+${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
+${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.h
@@ -66,9 +68,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuMessagePanel.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotObjectPicker.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuContextMenuLauncher.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryCurveDefinitionKeywords.h
-${CMAKE_CURRENT_LIST_DIR}/RiuSummaryCurveDefSelection.h
-${CMAKE_CURRENT_LIST_DIR}/RiuSummaryCurveDefSelectionDialog.h
-${CMAKE_CURRENT_LIST_DIR}/RiuSummaryCurveDefSelectionEditor.h
+${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionUi.h
+${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionDialog.h
+${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionWidgetCreator.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQuantityNameInfoProvider.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuExpressionContextMenuManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuCalculationsContextMenuManager.h
@@ -86,7 +88,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuDraggableOverlayFrame.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiMaximizeWindowGuard.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuComparisonViewMover.h
-${CMAKE_CURRENT_LIST_DIR}/RiuWidgetStyleSheet.h
+${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -136,10 +141,12 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuToolTipMenu.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewer.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuCellAndNncPickEventHandler.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPickItemInfo.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuGridPlotWindow.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAnnotationTool.cpp
@@ -153,9 +160,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuNightchartsWidget.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMessagePanel.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuPlotObjectPicker.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuContextMenuLauncher.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuSummaryCurveDefSelection.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuSummaryCurveDefSelectionDialog.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuSummaryCurveDefSelectionEditor.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionUi.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionDialog.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuSummaryVectorSelectionWidgetCreator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQuantityNameInfoProvider.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuExpressionContextMenuManager.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuCalculationsContextMenuManager.cpp
@@ -172,7 +179,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuDraggableOverlayFrame.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMdiMaximizeWindowGuard.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuMainWindowTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiuComparisonViewMover.cpp
-${CMAKE_CURRENT_LIST_DIR}/RiuWidgetStyleSheet.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -201,7 +211,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuViewerCommands.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
-${CMAKE_CURRENT_LIST_DIR}/RiuGridPlotWindow.h
+${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
+${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotLegend.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuRecentFileActionProvider.h
@@ -223,6 +234,10 @@ ${CMAKE_CURRENT_LIST_DIR}/RiuExpressionContextMenuManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuCalculationsContextMenuManager.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuMohrsCirclePlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RiuDraggableOverlayFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuAbstractOverlayContentFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuAbstractLegendFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuCategoryLegendFrame.h
+${CMAKE_CURRENT_LIST_DIR}/RiuScalarMapperLegendFrame.h
 )
 
 list(APPEND QT_UI_FILES

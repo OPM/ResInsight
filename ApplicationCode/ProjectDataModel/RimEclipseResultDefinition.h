@@ -41,6 +41,8 @@ class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseView;
 class RimReservoirCellResultsStorage;
+class RimRegularLegendConfig;
+class RimTernaryLegendConfig;
 
 //==================================================================================================
 ///
@@ -75,26 +77,17 @@ public:
     void simpleCopy( const RimEclipseResultDefinition* other );
 
     void            setEclipseCase( RimEclipseCase* eclipseCase );
-    RimEclipseCase* eclipseCase();
+    RimEclipseCase* eclipseCase() const;
 
-    RiaDefines::ResultCatType resultType() const
-    {
-        return m_resultType();
-    }
+    RiaDefines::ResultCatType     resultType() const { return m_resultType(); }
     void                          setResultType( RiaDefines::ResultCatType val );
-    RiaDefines::PorosityModelType porosityModel() const
-    {
-        return m_porosityModel();
-    }
-    void    setPorosityModel( RiaDefines::PorosityModelType val );
-    QString resultVariable() const
-    {
-        return m_resultVariable();
-    }
-    virtual void setResultVariable( const QString& val );
+    RiaDefines::PorosityModelType porosityModel() const { return m_porosityModel(); }
+    void                          setPorosityModel( RiaDefines::PorosityModelType val );
+    QString                       resultVariable() const { return m_resultVariable(); }
+    virtual void                  setResultVariable( const QString& val );
 
     void                     setFlowSolution( RimFlowDiagSolution* flowSol );
-    RimFlowDiagSolution*     flowDiagSolution();
+    RimFlowDiagSolution*     flowDiagSolution() const;
     RigFlowDiagResultAddress flowDiagResAddress() const;
 
     void setFlowDiagTracerSelectionType( FlowTracerSelectionType selectionType );
@@ -145,14 +138,17 @@ public:
 
     void setTernaryEnabled( bool enabled );
 
+    void updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfig,
+                                         RimTernaryLegendConfig* ternaryLegendConfig,
+                                         int                     currentTimeStep );
+    void updateLegendTitle( RimRegularLegendConfig* legendConfig, const QString& legendHeading );
+
 protected:
     virtual void updateLegendCategorySettings(){};
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void initAfterRead() override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -166,6 +162,7 @@ protected:
     caf::PdmField<caf::AppEnum<RiaDefines::PorosityModelType>> m_porosityModel;
     caf::PdmField<QString>                                     m_resultVariable;
     caf::PdmField<int>                                         m_timeLapseBaseTimestep;
+    caf::PdmField<QString>                                     m_inputPropertyFileName;
 
     caf::PdmPtrField<RimEclipseCase*> m_differenceCase;
 
@@ -244,6 +241,8 @@ private:
 
     void ensureProcessingOfObsoleteFields();
     bool isTernaryEnabled() const;
+
+    QString getInputPropertyFileName( const QString& resultName ) const;
 
 private:
     bool                             m_diffResultOptionsEnabled;

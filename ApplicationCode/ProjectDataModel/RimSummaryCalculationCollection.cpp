@@ -18,7 +18,10 @@
 
 #include "RimSummaryCalculationCollection.h"
 
+#include "RiaApplication.h"
+
 #include "RimCalculatedSummaryCase.h"
+#include "RimProject.h"
 #include "RimSummaryCalculation.h"
 
 #include "cafPdmUiGroup.h"
@@ -46,8 +49,9 @@ RimSummaryCalculationCollection::RimSummaryCalculationCollection()
 RimSummaryCalculation* RimSummaryCalculationCollection::addCalculation()
 {
     RimSummaryCalculation* calculation = new RimSummaryCalculation;
+    RiaApplication::instance()->project()->assignCalculationIdToCalculation( calculation );
 
-    QString varName = QString( "Calculation_%1" ).arg( m_calcuations.size() + 1 );
+    QString varName = QString( "Calculation_%1" ).arg( calculation->id() );
     calculation->setDescription( varName );
     calculation->setExpression( varName + " := x + y" );
     calculation->parseExpression();
@@ -118,6 +122,22 @@ std::vector<RimSummaryCalculation*> RimSummaryCalculationCollection::calculation
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryCalculation* RimSummaryCalculationCollection::findCalculationById( int id ) const
+{
+    for ( RimSummaryCalculation* calc : m_calcuations )
+    {
+        if ( calc->id() == id )
+        {
+            return calc;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimSummaryCalculationCollection::calculationSummaryCase()
 {
     return m_calcuationSummaryCase();
@@ -138,6 +158,14 @@ void RimSummaryCalculationCollection::deleteAllContainedObjects()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationCollection::rebuildCaseMetaData()
 {
+    for ( RimSummaryCalculation* calculation : m_calcuations )
+    {
+        if ( calculation->id() == -1 )
+        {
+            RiaApplication::instance()->project()->assignCalculationIdToCalculation( calculation );
+        }
+    }
+
     m_calcuationSummaryCase->buildMetaData();
 }
 

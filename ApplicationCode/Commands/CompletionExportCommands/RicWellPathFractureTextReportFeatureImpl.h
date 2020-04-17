@@ -54,8 +54,7 @@ private:
     QString createFracturePressureDepletionSummaryText(
         const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
 
-    QString createConnectionsPerWellText(
-        const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
+    QString createConnectionsPerWellText( const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
 
     void configureFormatter( RifTextDataTableFormatter* formatter ) const;
 };

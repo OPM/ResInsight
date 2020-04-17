@@ -51,7 +51,7 @@ class RigEclipseCaseData;
 class RiaRftPltCurveDefinition;
 class RifDataSourceForRftPlt;
 class RifEclipseRftAddress;
-class RiuCvfOverlayItemWidget;
+class RiuDraggableOverlayFrame;
 
 namespace cvf
 {
@@ -93,9 +93,7 @@ public:
     void onLegendDefinitionChanged();
 
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -156,8 +154,8 @@ private:
 
     caf::PdmPtrField<RimWellPathCollection*> m_wellPathCollection;
 
-    caf::PdmChildArrayField<RimWellRftEnsembleCurveSet*>                     m_ensembleCurveSets;
-    std::map<RimWellRftEnsembleCurveSet*, QPointer<RiuCvfOverlayItemWidget>> m_ensembleLegendFrames;
+    caf::PdmChildArrayField<RimWellRftEnsembleCurveSet*>                      m_ensembleCurveSets;
+    std::map<RimWellRftEnsembleCurveSet*, QPointer<RiuDraggableOverlayFrame>> m_ensembleLegendFrames;
 
     std::map<RifDataSourceForRftPlt, cvf::Color3f>     m_dataSourceColors;
     std::map<QDateTime, RiuQwtSymbol::PointSymbolEnum> m_timeStepSymbols;

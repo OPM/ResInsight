@@ -20,7 +20,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 
-#include "RimDerivedEnsembleCase.h"
+#include "RimDerivedSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
 #include "cafPdmChildArrayField.h"
@@ -41,25 +41,21 @@ class RimDerivedEnsembleCaseCollection : public RimSummaryCaseCollection
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class FixedTimeStepMode
+    {
+        FIXED_TIME_STEP_NONE,
+        FIXED_TIME_STEP_CASE_1,
+        FIXED_TIME_STEP_CASE_2
+    };
+
+public:
     RimDerivedEnsembleCaseCollection();
     ~RimDerivedEnsembleCaseCollection() override;
 
-    RimSummaryCaseCollection* ensemble1() const
-    {
-        return m_ensemble1;
-    }
-    RimSummaryCaseCollection* ensemble2() const
-    {
-        return m_ensemble2;
-    }
-    DerivedEnsembleOperator op() const
-    {
-        return m_operator();
-    }
-    bool isValid() const
-    {
-        return m_ensemble1 != nullptr && m_ensemble2 != nullptr;
-    }
+    RimSummaryCaseCollection* ensemble1() const { return m_ensemble1; }
+    RimSummaryCaseCollection* ensemble2() const { return m_ensemble2; }
+    DerivedSummaryOperator    op() const { return m_operator(); }
+    bool                      isValid() const { return m_ensemble1 != nullptr && m_ensemble2 != nullptr; }
 
     void setEnsemble1( RimSummaryCaseCollection* ensemble );
     void setEnsemble2( RimSummaryCaseCollection* ensemble );
@@ -75,28 +71,33 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
-    void                                 setAllCasesNotInUse();
-    void                                 deleteCasesNoInUse();
-    RimDerivedEnsembleCase*              firstCaseNotInUse();
-    std::vector<RimDerivedEnsembleCase*> allDerivedCases( bool activeOnly ) const;
-    void                                 updateAutoName();
+    void                                setAllCasesNotInUse();
+    void                                deleteCasesNoInUse();
+    RimDerivedSummaryCase*              firstCaseNotInUse();
+    std::vector<RimDerivedSummaryCase*> allDerivedCases( bool activeOnly ) const;
+    void                                updateAutoName();
+
     RimSummaryCase* findCaseByParametersHash( const std::vector<RimSummaryCase*>& cases, size_t hash ) const;
+    RimSummaryCase* findCaseByRealizationNumber( const std::vector<RimSummaryCase*>& cases, int realizationNumber ) const;
+
     std::vector<RimDerivedEnsembleCaseCollection*> findReferringEnsembles() const;
 
 private:
     std::vector<RimSummaryCaseCollection*> allEnsembles() const;
 
 private:
-    caf::PdmPtrField<RimSummaryCaseCollection*>          m_ensemble1;
-    caf::PdmPtrField<RimSummaryCaseCollection*>          m_ensemble2;
-    caf::PdmField<caf::AppEnum<DerivedEnsembleOperator>> m_operator;
-    caf::PdmField<bool>                                  m_swapEnsemblesButton;
-    caf::PdmField<QString>                               m_caseCount;
+    caf::PdmPtrField<RimSummaryCaseCollection*>         m_ensemble1;
+    caf::PdmPtrField<RimSummaryCaseCollection*>         m_ensemble2;
+    caf::PdmField<caf::AppEnum<DerivedSummaryOperator>> m_operator;
+    caf::PdmField<bool>                                 m_swapEnsemblesButton;
+    caf::PdmField<QString>                              m_caseCount;
+    caf::PdmField<bool>                                 m_matchOnParameters;
+
+    caf::PdmField<caf::AppEnum<FixedTimeStepMode>> m_useFixedTimeStep;
+    caf::PdmField<int>                             m_fixedTimeStepIndex;
 };

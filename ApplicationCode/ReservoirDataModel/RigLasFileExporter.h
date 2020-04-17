@@ -38,13 +38,18 @@ public:
     void wellPathsAndRkbDiff( std::vector<QString>* wellNames, std::vector<double>* rkbDiffs );
     void setRkbDiffs( const std::vector<QString>& wellNames, const std::vector<double>& rkbDiffs );
 
-    std::vector<QString>
-        writeToFolder( const QString& exportFolder, const QString& filePrefix = "", bool capitalizeFileName = false );
+    std::vector<QString> writeToFolder( const QString& exportFolder,
+                                        const QString& filePrefix         = "",
+                                        bool           capitalizeFileName = false,
+                                        bool           alwaysOverwrite    = false,
+                                        bool           convertCurveUnits  = false );
 
 private:
-    std::vector<SingleLasFileMetaData> createLasFileDescriptions( const std::vector<RimWellLogCurve*>& curves );
+    std::vector<SingleLasFileMetaData> createLasFileDescriptions( const std::vector<RimWellLogCurve*>& curves,
+                                                                  bool convertCurveUnits );
     void                               appendLasFileDescriptions( const std::vector<RimWellLogCurve*>& curves,
-                                                                  std::vector<SingleLasFileMetaData>*  lasFileDescriptions );
+                                                                  std::vector<SingleLasFileMetaData>*  lasFileDescriptions,
+                                                                  bool                                 convertCurveUnits );
     QString                            caseNameFromCurve( RimWellLogCurve* curve );
     double                             rkbDiff( RimWellLogCurve* curve );
 

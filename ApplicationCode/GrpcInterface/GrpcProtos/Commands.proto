@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "Case.proto";
 import "Definitions.proto";
+import "PdmObject.proto";
 
 package rips;
 
@@ -44,6 +45,12 @@ message ExportMultiCaseRequest
 	string gridListFile = 1;
 }
 
+enum PlotOutputFormat
+{
+	PNG = 0;
+	PDF = 1;
+}
+
 enum SnapshotType
 {
 	VIEWS = 0;
@@ -53,11 +60,12 @@ enum SnapshotType
 
 message ExportSnapshotsRequest
 {
-	SnapshotType type   = 1;
-	string       prefix = 2;
-	int32        caseId = 3;
-	int32        viewId = 4;
-	string exportFolder = 5;
+	SnapshotType type                 = 1;
+	string                     prefix = 2;
+	int32                      caseId = 3;
+	int32                      viewId = 4;
+	string               exportFolder = 5;
+	PlotOutputFormat plotOutputFormat = 6;
 }
 
 message ExportPropertyRequest
@@ -274,9 +282,10 @@ message CloneViewRequest
 
 message CreateWbsPlotRequest
 {
-	int32 caseId    = 1;
-	string wellPath = 2;
-	int32 timeStep  = 3;
+	int32 caseId            = 1;
+	string wellPath         = 2;
+	int32 timeStep          = 3;
+	PdmObject wbsParameters = 4;
 }
 
 message ImportWellPathsRequest
@@ -312,6 +321,7 @@ message ExportWellLogPlotDataRequest
 	bool exportTvdRkb         = 5;
 	bool capitalizeFileNames  = 6;
 	double resampleInterval   = 7;
+	bool convertCurveUnits    = 8;
 }
 
 message ExportContourMapToTextRequest
@@ -321,6 +331,11 @@ message ExportContourMapToTextRequest
         string undefinedValueLabel  = 3;
         bool excludeUndefinedValues = 4;
         int32 viewId                = 5;
+}
+
+message SaveProjectRequest
+{
+        string filePath       = 1;
 }
 
 /* CommandParams handles both command name and parameters in one.
@@ -372,6 +387,7 @@ message CommandParams
 		ExportWellLogPlotDataRequest  exportWellLogPlotData            = 36;
 		SetWindowSizeParams           setPlotWindowSize                = 37;
 		ExportContourMapToTextRequest exportContourMapToText           = 38;
+		SaveProjectRequest 			  saveProject           		   = 39;
 	}
 }
 

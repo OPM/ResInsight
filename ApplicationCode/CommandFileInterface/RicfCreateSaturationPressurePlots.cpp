@@ -29,6 +29,8 @@
 #include "RimProject.h"
 #include "RimSaturationPressurePlotCollection.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfCreateSaturationPressurePlots, "createSaturationPressurePlots" );
 
 //--------------------------------------------------------------------------------------------------
@@ -36,13 +38,13 @@ CAF_PDM_SOURCE_INIT( RicfCreateSaturationPressurePlots, "createSaturationPressur
 //--------------------------------------------------------------------------------------------------
 RicfCreateSaturationPressurePlots::RicfCreateSaturationPressurePlots()
 {
-    RICF_InitField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfCreateSaturationPressurePlots::execute()
+caf::PdmScriptResponse RicfCreateSaturationPressurePlots::execute()
 {
     std::vector<int> caseIds = m_caseIds();
     if ( caseIds.empty() )
@@ -62,7 +64,7 @@ RicfCommandResponse RicfCreateSaturationPressurePlots::execute()
     {
         QString error( "createSaturationPressurePlots: No cases found" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     RimProject* project = RiaApplication::instance()->project();
@@ -70,7 +72,7 @@ RicfCommandResponse RicfCreateSaturationPressurePlots::execute()
     {
         QString error( "No project loaded" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     auto eclipeCases = project->eclipseCases();
@@ -83,7 +85,8 @@ RicfCommandResponse RicfCreateSaturationPressurePlots::execute()
         {
             if ( c->caseId == caseId )
             {
-                RicCreateSaturationPressurePlotsFeature::createPlots( eclipseResultCase );
+                int timeStep = 0;
+                RicCreateSaturationPressurePlotsFeature::createPlots( eclipseResultCase, timeStep );
             }
         }
     }
@@ -92,5 +95,5 @@ RicfCommandResponse RicfCreateSaturationPressurePlots::execute()
     collection->updateAllRequiredEditors();
     RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

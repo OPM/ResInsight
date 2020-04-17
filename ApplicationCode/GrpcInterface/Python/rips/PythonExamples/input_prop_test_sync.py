@@ -9,7 +9,7 @@ import grpc
 
 resinsight     = rips.Instance.find()
 start = time.time()
-case = resinsight.project.case(case_id=0)
+case = resinsight.project.cases()[0]
 
 # Read poro result into list
 poro_results = case.active_cell_property('STATIC_NATIVE', 'PORO', 0)

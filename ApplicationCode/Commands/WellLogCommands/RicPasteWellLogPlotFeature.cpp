@@ -38,8 +38,8 @@ CAF_CMD_SOURCE_INIT( RicPasteWellLogPlotFeature, "RicPasteWellLogPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicPasteWellLogPlotFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
     RimWellLogPlotCollection* wellLogPlotCollection = nullptr;
@@ -57,8 +57,8 @@ bool RicPasteWellLogPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(
-        caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject =
+        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return;
 
     RimWellLogPlotCollection* wellLogPlotCollection = nullptr;
@@ -85,8 +85,8 @@ void RicPasteWellLogPlotFeature::onActionTriggered( bool isChecked )
             newObject->resolveReferencesRecursively();
             newObject->initAfterReadRecursively();
 
-            QString description = "Copy of " + newObject->description();
-            newObject->setDescription( description );
+            QString customName = "Copy of " + newObject->nameConfig()->customName();
+            newObject->nameConfig()->setCustomName( customName );
 
             newObject->loadDataAndUpdate();
 

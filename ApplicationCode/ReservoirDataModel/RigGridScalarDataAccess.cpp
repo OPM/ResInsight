@@ -133,11 +133,8 @@ private:
 class StructGridScalarDataAccessHugeVal : public cvf::StructGridScalarDataAccess
 {
 public:
-    virtual double cellScalar( size_t cellIndex ) const
-    {
-        return HUGE_VAL;
-    }
-    virtual void setCellScalar( size_t cellIndex, double value ) {}
+    virtual double cellScalar( size_t cellIndex ) const { return HUGE_VAL; }
+    virtual void   setCellScalar( size_t cellIndex, double value ) {}
 };
 
 //--------------------------------------------------------------------------------------------------

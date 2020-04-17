@@ -21,9 +21,12 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
+#include "RimFileWellPath.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellPathImport.h"
+
 #include "RiuMainWindow.h"
 #include "RiuWellImportWizard.h"
 
@@ -58,9 +61,9 @@ void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
             QMessageBox msgBox( guiApp->mainWindow() );
             msgBox.setIcon( QMessageBox::Question );
 
-            QString questionText = QString(
-                "Import of well paths will be stored as a part of a ResInsight project file. Please "
-                "save the project to file before importing well paths." );
+            QString questionText =
+                QString( "Import of well paths will be stored as a part of a ResInsight project file. Please "
+                         "save the project to file before importing well paths." );
 
             msgBox.setText( questionText );
             msgBox.setInformativeText( "Do you want to save the project?" );
@@ -82,8 +85,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
     // Update the UTM bounding box from the reservoir
     app->project()->computeUtmAreaOfInterest();
 
-    QString wellPathsFolderPath = RimTools::getCacheRootDirectoryPathFromProject();
-    wellPathsFolderPath += "_wellpaths";
+    QString wellPathsFolderPath = RimFileWellPath::getCacheDirectoryPath();
     QDir::root().mkpath( wellPathsFolderPath );
 
     if ( !app->project()->wellPathImport() ) return;

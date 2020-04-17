@@ -141,7 +141,9 @@ RifReaderMockModel::RifReaderMockModel()
     */
 }
 
-RifReaderMockModel::~RifReaderMockModel() {}
+RifReaderMockModel::~RifReaderMockModel()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -30,12 +30,16 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuRmsNavigation::RiuRmsNavigation() {}
+RiuRmsNavigation::RiuRmsNavigation()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuRmsNavigation::~RiuRmsNavigation() {}
+RiuRmsNavigation::~RiuRmsNavigation()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -66,9 +70,7 @@ bool RiuRmsNavigation::handleInputEvent( QInputEvent* inputEvent )
             {
                 if ( me->modifiers() == Qt::NoModifier )
                 {
-                    m_trackball->startNavigation( cvf::ManipulatorTrackball::PAN,
-                                                  translatedMousePosX,
-                                                  translatedMousePosY );
+                    m_trackball->startNavigation( cvf::ManipulatorTrackball::PAN, translatedMousePosX, translatedMousePosY );
                     m_isNavigating                  = true;
                     m_hasMovedMouseDuringNavigation = false;
                     isEventHandled                  = true;

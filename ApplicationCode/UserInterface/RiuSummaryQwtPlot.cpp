@@ -23,7 +23,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
-#include "RimPlotInterface.h"
+#include "RimPlot.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
@@ -84,7 +84,7 @@ public:
             sumCurve = dynamic_cast<RimSummaryCurve*>( riuCurve->ownerRimCurve() );
         }
 
-        return sumCurve && sumCurve->summaryCaseY() ? sumCurve->summaryCaseY()->caseName() : "";
+        return sumCurve && sumCurve->summaryCaseY() ? sumCurve->summaryCaseY()->displayCaseName() : "";
     }
 };
 static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
@@ -92,8 +92,8 @@ static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimPlotInterface* plotDefinition, QWidget* parent /*= nullptr*/ )
-    : RiuQwtPlotWidget( plotDefinition, parent )
+RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= nullptr*/ )
+    : RiuQwtPlotWidget( plot, parent )
 {
     // LeftButton for the zooming
     m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
@@ -125,10 +125,14 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimPlotInterface* plotDefinition, QWidget*
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
     RiuQwtPlotTools::setDefaultAxes( this );
 
-    this->installEventFilter( this );
-    this->canvas()->installEventFilter( this );
-
     setLegendVisible( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuSummaryQwtPlot::~RiuSummaryQwtPlot()
+{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,20 +158,12 @@ void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewWindow* RiuSummaryQwtPlot::ownerViewWindow() const
-{
-    return dynamic_cast<RimViewWindow*>( plotDefinition() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::setLegendFontSize( int fontSize )
 {
     if ( legend() )
     {
         QFont font = legend()->font();
-        font.setPointSize( fontSize );
+        font.setPixelSize( RiaFontCache::pointSizeToPixelSize( fontSize ) );
         legend()->setFont( font );
         // Set font size for all existing labels
         QList<QwtLegendLabel*> labels = legend()->findChildren<QwtLegendLabel*>();
@@ -205,25 +201,12 @@ void RiuSummaryQwtPlot::setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::keyPressEvent( QKeyEvent* keyEvent )
-{
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( plotDefinition() );
-
-    if ( summaryPlot )
-    {
-        summaryPlot->handleKeyPressEvent( keyEvent );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 {
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
-    caf::SelectionManager::instance()->setSelectedItem( plotOwner() );
+    emit plotSelected( false );
 
     menuBuilder << "RicShowPlotDataFeature";
     menuBuilder << "RicSavePlotTemplateFeature";
@@ -269,7 +252,5 @@ void RiuSummaryQwtPlot::endZoomOperations()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::onZoomedSlot()
 {
-    plotDefinition()->setAutoScaleXEnabled( false );
-    plotDefinition()->setAutoScaleYEnabled( false );
-    plotDefinition()->updateZoomFromQwt();
+    emit plotZoomed();
 }

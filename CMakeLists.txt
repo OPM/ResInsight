@@ -59,10 +59,18 @@ include (ResInsightVersion.cmake)
 find_package(Octave)
 
 ################################################################################
-# cotire 
+# cotire and CMake Unity Build
 # Fully automated CMake module for build speedup
 # https://github.com/sakra/cotire
 ################################################################################
+
+# CMAKE_UNITY_BUILD was introduced in CMake 3.16.2
+option(RESINSIGHT_ENABLE_UNITY_BUILD "Experimental speedup of compilation using CMake Unity Build" OFF)
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_UNITY_BUILD)
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+  set(CAF_ENABLE_UNITY_BUILD true)
+  set(CVF_ENABLE_UNITY_BUILD true)
+endif()
 
 option(RESINSIGHT_ENABLE_COTIRE "Experimental speedup of compilation using cotire" OFF)
 mark_as_advanced(FORCE RESINSIGHT_ENABLE_COTIRE)
@@ -374,13 +382,17 @@ add_subdirectory(Fwk/AppFwk/cafUserInterface)
 add_subdirectory(Fwk/AppFwk/cafPdmCvf)
 add_subdirectory(Fwk/AppFwk/CommonCode)
 add_subdirectory(Fwk/AppFwk/cafVizExtensions)
+add_subdirectory(Fwk/AppFwk/cafPdmScripting)
+set_property(TARGET cafPdmScripting PROPERTY FOLDER "AppFwk")
 
 add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
 set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
 
+
 #add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
+add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
 
 list(APPEND APP_FWK_LIBRARIES
     cafPdmCore
@@ -394,13 +406,15 @@ list(APPEND APP_FWK_LIBRARIES
     cafCommand
     cafPdmCvf
 
-	cafTensor
+    cafTensor
     CommonCode
     cafVizExtensions
+    cafPdmScripting
 )
 
 set_property(TARGET  
     ${APP_FWK_LIBRARIES}
+	cafHexInterpolator
 	PROPERTY FOLDER "AppFwk"
 )
 
@@ -417,6 +431,9 @@ if (RESINSIGHT_INCLUDE_APPFWK_TESTS)
 
     add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
     set_property(TARGET cafPdmXml_UnitTests PROPERTY FOLDER "AppFwkTests")
+
+    add_subdirectory(Fwk/AppFwk/cafPdmScripting/cafPdmScripting_UnitTests)
+    set_property(TARGET cafPdmScripting_UnitTests PROPERTY FOLDER "AppFwkTests")
 
     # Executables
     add_subdirectory(Fwk/AppFwk/cafTests/cafTestApplication)

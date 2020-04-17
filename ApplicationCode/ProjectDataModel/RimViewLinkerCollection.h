@@ -41,13 +41,8 @@ public:
     caf::PdmChildField<RimViewLinker*> viewLinker;
 
 protected:
-    caf::PdmFieldHandle* objectToggleField() override
-    {
-        return &isActive;
-    }
+    caf::PdmFieldHandle* objectToggleField() override { return &isActive; }
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void initAfterRead() override;
 };

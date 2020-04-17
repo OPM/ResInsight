@@ -69,7 +69,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_stimPlanFileName,          "StimPlanFileName", QString(""), "File Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_stimPlanFileName, "StimPlanFileName", "File Name", "", "", "");
     m_stimPlanFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_wellPathDepthAtFracture,   "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth", "", "", "");
@@ -93,7 +93,9 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanFractureTemplate::~RimStimPlanFractureTemplate() {}
+RimStimPlanFractureTemplate::~RimStimPlanFractureTemplate()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -171,9 +173,9 @@ void RimStimPlanFractureTemplate::setFileName( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RimStimPlanFractureTemplate::fileName()
+QString RimStimPlanFractureTemplate::fileName()
 {
-    return m_stimPlanFileName();
+    return m_stimPlanFileName().path();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,7 +184,8 @@ const QString& RimStimPlanFractureTemplate::fileName()
 void RimStimPlanFractureTemplate::updateFilePathsFromProjectPath( const QString& newProjectPath,
                                                                   const QString& oldProjectPath )
 {
-    m_stimPlanFileName = RimTools::relocateFile( m_stimPlanFileName(), newProjectPath, oldProjectPath, nullptr, nullptr );
+    // m_stimPlanFileName = RimTools::relocateFile( m_stimPlanFileName(), newProjectPath, oldProjectPath, nullptr,
+    // nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,7 +256,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     if ( m_readError ) return;
 
-    m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName(),
+    m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName().path(),
                                                                                   m_conductivityScaleFactor(),
                                                                                   m_halfLengthScaleFactor(),
                                                                                   m_heightScaleFactor(),
@@ -303,8 +306,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimStimPlanFractureTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly )
+    RimStimPlanFractureTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -423,9 +425,8 @@ std::vector<double>
                                                                    size_t                          timeStepIndex,
                                                                    RiaEclipseUnitTools::UnitSystem requiredUnitSystem ) const
 {
-    auto resultValues = m_stimPlanFractureDefinitionData->fractureGridResults( resultName,
-                                                                               unitName,
-                                                                               m_activeTimeStepIndex );
+    auto resultValues =
+        m_stimPlanFractureDefinitionData->fractureGridResults( resultName, unitName, m_activeTimeStepIndex );
 
     if ( fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC )
     {
@@ -588,9 +589,9 @@ WellFractureIntersectionData
 
                     if ( widthInRequiredUnit != HUGE_VAL && fabs( widthInRequiredUnit ) > 1e-20 )
                     {
-                        values.m_width        = widthInRequiredUnit;
-                        values.m_permeability = RigTransmissibilityEquations::permeability( conductivity,
-                                                                                            widthInRequiredUnit );
+                        values.m_width = widthInRequiredUnit;
+                        values.m_permeability =
+                            RigTransmissibilityEquations::permeability( conductivity, widthInRequiredUnit );
                     }
                 }
             }
@@ -1089,8 +1090,8 @@ void RimStimPlanFractureTemplate::defineEditorAttribute( const caf::PdmFieldHand
     {
         if ( !m_stimPlanFractureDefinitionData.isNull() && ( m_stimPlanFractureDefinitionData->yCount() > 0 ) )
         {
-            caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(
-                attribute );
+            caf::PdmUiDoubleSliderEditorAttribute* myAttr =
+                dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
             if ( myAttr )
             {
                 myAttr->m_minimum = m_stimPlanFractureDefinitionData->minDepth();

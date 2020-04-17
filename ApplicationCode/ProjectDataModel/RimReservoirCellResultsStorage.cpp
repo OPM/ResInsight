@@ -272,7 +272,8 @@ void RimReservoirCellResultsStorage::setCellResults( RigCaseCellResultsData* cel
         RigEclipseResultAddress resAddr( resInfo->m_resultType(), resInfo->m_resultName );
         m_cellResults->createResultEntry( resAddr, true );
 
-        std::vector<int> reportNumbers; // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
+        std::vector<int> reportNumbers; // Hack: Using no report step numbers. Not really used except for Flow
+                                        // Diagnostics...
         reportNumbers.resize( resInfo->m_timeStepDates().size() );
         std::vector<RigEclipseTimeStepInfo> timeStepInfos =
             RigEclipseTimeStepInfo::createTimeStepInfos( resInfo->m_timeStepDates(),
@@ -327,16 +328,13 @@ RimReservoirCellResultsStorageEntryInfo::RimReservoirCellResultsStorageEntryInfo
                        "" );
     CAF_PDM_InitField( &m_resultName, "ResultName", QString(), "ResultName", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_timeStepDates, "TimeSteps", "TimeSteps", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_daysSinceSimulationStart,
-                                "DaysSinceSimulationStart",
-                                "DaysSinceSimulationStart",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_daysSinceSimulationStart, "DaysSinceSimulationStart", "DaysSinceSimulationStart", "", "", "" );
     CAF_PDM_InitField( &m_filePosition, "FilePositionDataStart", qint64( -1 ), "FilePositionDataStart", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsStorageEntryInfo::~RimReservoirCellResultsStorageEntryInfo() {}
+RimReservoirCellResultsStorageEntryInfo::~RimReservoirCellResultsStorageEntryInfo()
+{
+}

@@ -8,7 +8,8 @@
 #include <QString>
 #include <numeric>
 
-static const QString CASE_REAL_TEST_DATA_DIRECTORY = QString( "%1/RifCaseRealizationParametersReader/" ).arg( TEST_DATA_DIR );
+static const QString CASE_REAL_TEST_DATA_DIRECTORY =
+    QString( "%1/RifCaseRealizationParametersReader/" ).arg( TEST_DATA_DIR );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -65,45 +66,12 @@ TEST( RifCaseRealizationParametersReaderTest, SuccessfulParsing )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RifCaseRealizationParametersReaderTest, ParseFailed_InvalidFormat )
+TEST( RifCaseRealizationParametersReaderTest, FindRealizationNumber )
 {
-    RifCaseRealizationParametersReader reader( CASE_REAL_TEST_DATA_DIRECTORY + "parameters_invalid_format.txt" );
+    QString filePath = "d:/gitroot-ceesol/ResInsight-regression-test/ModelData/ensemble_reek_with_params/realization-"
+                       "7/iter-0/eclipse/model/3_R001_REEK-7.SMSPEC";
 
-    try
-    {
-        reader.parse();
+    int realisationNumber = RifCaseRealizationParametersFileLocator::realizationNumber( filePath );
 
-        EXPECT_TRUE( false );
-    }
-    catch ( FileParseException e )
-    {
-        EXPECT_TRUE( e.message.contains( "Invalid file format in line 10" ) );
-    }
-    catch ( ... )
-    {
-        EXPECT_TRUE( false );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-TEST( RifCaseRealizationParametersReaderTest, ParseFailed_InvalidNumberFormat )
-{
-    RifCaseRealizationParametersReader reader( CASE_REAL_TEST_DATA_DIRECTORY + "parameters_invalid_number_format.txt" );
-
-    try
-    {
-        reader.parse();
-
-        EXPECT_TRUE( false );
-    }
-    catch ( FileParseException e )
-    {
-        EXPECT_TRUE( e.message.contains( "Invalid number format in line 10" ) );
-    }
-    catch ( ... )
-    {
-        EXPECT_TRUE( false );
-    }
+    EXPECT_EQ( 7, realisationNumber );
 }

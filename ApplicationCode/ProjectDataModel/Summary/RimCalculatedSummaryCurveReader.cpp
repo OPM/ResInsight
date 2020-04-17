@@ -48,8 +48,7 @@ const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps( const Rif
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCalculatedSummaryCurveReader::values( const RifEclipseSummaryAddress& resultAddress,
-                                              std::vector<double>*            values ) const
+bool RifCalculatedSummaryCurveReader::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
     RimSummaryCalculation* calc = findCalculationByName( resultAddress );
     if ( calc )
@@ -85,7 +84,8 @@ void RifCalculatedSummaryCurveReader::buildMetaData()
 
     for ( RimSummaryCalculation* calc : m_calculationCollection->calculations() )
     {
-        m_allResultAddresses.insert( RifEclipseSummaryAddress::calculatedAddress( calc->description().toStdString() ) );
+        m_allResultAddresses.insert(
+            RifEclipseSummaryAddress::calculatedAddress( calc->description().toStdString(), calc->id() ) );
     }
 }
 
@@ -97,15 +97,7 @@ RimSummaryCalculation*
 {
     if ( m_calculationCollection && resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
     {
-        QString calculatedName = QString::fromStdString( resultAddress.quantityName() );
-
-        for ( RimSummaryCalculation* calc : m_calculationCollection->calculations() )
-        {
-            if ( calc->description() == calculatedName )
-            {
-                return calc;
-            }
-        }
+        return m_calculationCollection->findCalculationById( resultAddress.id() );
     }
 
     return nullptr;

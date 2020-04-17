@@ -51,7 +51,9 @@ RimVirtualPerforationResults::RimVirtualPerforationResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimVirtualPerforationResults::~RimVirtualPerforationResults() {}
+RimVirtualPerforationResults::~RimVirtualPerforationResults()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

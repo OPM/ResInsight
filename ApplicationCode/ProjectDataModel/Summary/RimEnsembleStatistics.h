@@ -38,53 +38,24 @@ class RimEnsembleStatistics : public caf::PdmObject
 public:
     RimEnsembleStatistics();
 
-    bool isActive() const;
-    bool hideEnsembleCurves() const
-    {
-        return m_hideEnsembleCurves;
-    }
-    bool basedOnFilteredCases() const
-    {
-        return m_basedOnFilteredCases;
-    }
-    bool showP10Curve() const
-    {
-        return m_showP10Curve;
-    }
-    bool showP50Curve() const
-    {
-        return m_showP50Curve;
-    }
-    bool showP90Curve() const
-    {
-        return m_showP90Curve;
-    }
-    bool showMeanCurve() const
-    {
-        return m_showMeanCurve;
-    }
-    bool showCurveLabels() const
-    {
-        return m_showCurveLabels;
-    }
-    cvf::Color3f color() const
-    {
-        return m_color;
-    }
+    bool         isActive() const;
+    bool         hideEnsembleCurves() const { return m_hideEnsembleCurves; }
+    bool         basedOnFilteredCases() const { return m_basedOnFilteredCases; }
+    bool         showP10Curve() const { return m_showP10Curve; }
+    bool         showP50Curve() const { return m_showP50Curve; }
+    bool         showP90Curve() const { return m_showP90Curve; }
+    bool         showMeanCurve() const { return m_showMeanCurve; }
+    bool         showCurveLabels() const { return m_showCurveLabels; }
+    cvf::Color3f color() const { return m_color; }
 
-    bool includeIncompleteCurves() const
-    {
-        return m_includeIncompleteCurves;
-    }
+    bool includeIncompleteCurves() const { return m_includeIncompleteCurves; }
 
     void disableP10Curve( bool disable );
     void disableP50Curve( bool disable );
     void disableP90Curve( bool disable );
     void disableMeanCurve( bool disable );
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:

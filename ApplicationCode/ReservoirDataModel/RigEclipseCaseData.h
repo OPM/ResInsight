@@ -47,6 +47,7 @@ class RigWellPath;
 class RimEclipseCase;
 class RigVirtualPerforationTransmissibilities;
 class RigEquil;
+class RigAllenDiagramData;
 
 struct RigWellResultPoint;
 
@@ -59,10 +60,7 @@ public:
     explicit RigEclipseCaseData( RimEclipseCase* ownerCase );
     ~RigEclipseCaseData() override;
 
-    RimEclipseCase* ownerCase() const
-    {
-        return m_ownerCase;
-    }
+    RimEclipseCase* ownerCase() const { return m_ownerCase; }
 
     RigMainGrid*       mainGrid();
     const RigMainGrid* mainGrid() const;
@@ -88,17 +86,15 @@ public:
 
     bool hasFractureResults() const;
 
-    void               setActiveFormationNames( RigFormationNames* activeFormationNames );
-    void               setActiveFormationNamesAndUpdatePlots( RigFormationNames* activeFormationNames );
-    RigFormationNames* activeFormationNames();
+    void                       setActiveFormationNames( RigFormationNames* activeFormationNames );
+    const RigFormationNames*   activeFormationNames() const;
+    const std::vector<QString> formationNames() const;
+    RigAllenDiagramData*       allenDiagramData();
 
     void                                   setSimWellData( const cvf::Collection<RigSimWellData>& data );
-    const cvf::Collection<RigSimWellData>& wellResults() const
-    {
-        return m_simWellData;
-    }
-    std::set<QString>     findSortedWellNames() const;
-    const RigSimWellData* findSimWellData( QString wellName ) const;
+    const cvf::Collection<RigSimWellData>& wellResults() const { return m_simWellData; }
+    std::set<QString>                      findSortedWellNames() const;
+    const RigSimWellData*                  findSimWellData( QString wellName ) const;
 
     const cvf::UByteArray* wellCellsInGrid( size_t gridIndex );
     const cvf::UIntArray*  gridCellToResultWellIndex( size_t gridIndex );
@@ -110,14 +106,8 @@ public:
 
     void computeActiveCellBoundingBoxes();
 
-    RiaEclipseUnitTools::UnitSystem unitsType() const
-    {
-        return m_unitsType;
-    }
-    void setUnitsType( RiaEclipseUnitTools::UnitSystem unitsType )
-    {
-        m_unitsType = unitsType;
-    }
+    RiaEclipseUnitTools::UnitSystem unitsType() const { return m_unitsType; }
+    void setUnitsType( RiaEclipseUnitTools::UnitSystem unitsType ) { m_unitsType = unitsType; }
 
     std::vector<QString> simulationWellNames() const;
     bool                 hasSimulationWell( const QString& simWellName ) const;
@@ -126,14 +116,10 @@ public:
                                                             bool           includeAllCellCenters,
                                                             bool           useAutoDetectionOfBranches ) const;
 
-    void setVirtualPerforationTransmissibilities(
-        RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities );
+    void                                           setVirtualPerforationTransmissibilities( RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities );
     const RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities() const;
 
-    void clearWellCellsInGridCache()
-    {
-        m_wellCellsInGrid.clear();
-    }
+    void clearWellCellsInGridCache() { m_wellCellsInGrid.clear(); }
 
     void ensureDeckIsParsedForEquilData( const QString& dataDeckFile, const QString& includeFileAbsolutePathPrefix );
     std::vector<RigEquil> equilData() const;
@@ -156,11 +142,11 @@ private:
 
     cvf::ref<RigVirtualPerforationTransmissibilities> m_virtualPerforationTransmissibilities;
 
-    cvf::Collection<RigSimWellData> m_simWellData; //< A WellResults object for each well in the reservoir
-    cvf::Collection<cvf::UByteArray>
-        m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling whether the cell is a well cell or not
-    cvf::Collection<cvf::UIntArray>
-        m_gridCellToResultWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
+    cvf::Collection<RigSimWellData>  m_simWellData; //< A WellResults object for each well in the reservoir
+    cvf::Collection<cvf::UByteArray> m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling whether
+                                                        // the cell is a well cell or not
+    cvf::Collection<cvf::UIntArray> m_gridCellToResultWellIndex; //< Array pr grid with index to well pr cell telling
+                                                                 // which well a cell is in
 
     RiaEclipseUnitTools::UnitSystem m_unitsType;
 

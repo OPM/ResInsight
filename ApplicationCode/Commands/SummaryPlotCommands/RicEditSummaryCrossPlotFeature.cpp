@@ -21,8 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-#include "RicSummaryCurveCreator.h"
-#include "RicSummaryCurveCreatorDialog.h"
+#include "RicSummaryPlotEditorDialog.h"
+#include "RicSummaryPlotEditorUi.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
@@ -36,7 +36,9 @@ CAF_CMD_SOURCE_INIT( RicEditSummaryCrossPlotFeature, "RicEditSummaryCrossPlotFea
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicEditSummaryCrossPlotFeature::RicEditSummaryCrossPlotFeature() {}
+RicEditSummaryCrossPlotFeature::RicEditSummaryCrossPlotFeature()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -56,9 +58,9 @@ void RicEditSummaryCrossPlotFeature::closeDialogAndResetTargetPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorDialog* RicEditSummaryCrossPlotFeature::curveCreatorDialog()
+RicSummaryPlotEditorDialog* RicEditSummaryCrossPlotFeature::curveCreatorDialog()
 {
-    static RicSummaryCurveCreatorDialog* singletonDialog = new RicSummaryCurveCreatorDialog( nullptr );
+    static RicSummaryPlotEditorDialog* singletonDialog = new RicSummaryPlotEditorDialog( nullptr );
 
     return singletonDialog;
 }

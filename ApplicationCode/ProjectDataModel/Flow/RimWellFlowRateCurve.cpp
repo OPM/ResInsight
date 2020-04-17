@@ -54,7 +54,9 @@ RimWellFlowRateCurve::RimWellFlowRateCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellFlowRateCurve::~RimWellFlowRateCurve() {}
+RimWellFlowRateCurve::~RimWellFlowRateCurve()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -107,9 +109,17 @@ QString RimWellFlowRateCurve::wellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellFlowRateCurve::wellLogChannelName() const
+QString RimWellFlowRateCurve::wellLogChannelUiName() const
 {
     return "AccumulatedFlowRate";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellFlowRateCurve::wellLogChannelUnits() const
+{
+    return RiaWellLogUnitTools<double>::noUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -184,14 +194,13 @@ void RimWellFlowRateCurve::updateCurveAppearance()
         m_qwtPlotCurve->setStyle( QwtPlotCurve::Steps );
     }
 
-    if ( m_doFillCurve ||
-         isLastCurveInGroup ) // Fill the last curve in group with a transparent color to "tie" the group together
+    if ( m_doFillCurve || isLastCurveInGroup ) // Fill the last curve in group with a transparent color to "tie" the
+                                               // group together
     {
-        QColor curveQColor = QColor( m_curveColor.value().rByte(),
-                                     m_curveColor.value().gByte(),
-                                     m_curveColor.value().bByte() );
-        QColor fillColor   = curveQColor;
-        QColor lineColor   = curveQColor.darker();
+        QColor curveQColor =
+            QColor( m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte() );
+        QColor fillColor = curveQColor;
+        QColor lineColor = curveQColor.darker();
 
         if ( !m_doFillCurve && isLastCurveInGroup )
         {
@@ -257,7 +266,8 @@ void RimWellFlowRateCurve::updateStackedPlotData()
     // Z-position of curve, to draw them in correct order
     double zPos = -10000.0 + 100.0 * static_cast<double>( groupId() );
 
-    // Starting way behind the grid (z == 0) at -10000 giving room for 100 groups with 100 curves each before getting above the grid
+    // Starting way behind the grid (z == 0) at -10000 giving room for 100 groups with 100 curves each before getting
+    // above the grid
     {
         std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
 
@@ -290,7 +300,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
         }
 
         RigWellLogCurveData tempCurveData;
-        tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, displayUnit, false );
+        tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, 0.0, displayUnit, false );
 
         depthValues              = tempCurveData.depthPlotValues( depthType, displayUnit );
         stackedValues            = tempCurveData.xPlotValues();
@@ -340,7 +350,7 @@ void RimWellFlowRateCurve::setFlowValuesPrDepthValue( const QString&            
                                                       const std::vector<double>& depthValues,
                                                       const std::vector<double>& flowRates )
 {
-    this->setValuesAndDepths( flowRates, depthValues, depthType, RiaDefines::UNIT_NONE, false );
+    this->setValuesAndDepths( flowRates, depthValues, depthType, 0.0, RiaDefines::UNIT_NONE, false );
 
     m_curveAutoName = curveName;
 }

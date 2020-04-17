@@ -20,6 +20,7 @@
 
 #include "RiaGuiApplication.h"
 
+#include "cafAssert.h"
 #include "cafTitledOverlayFrame.h"
 #include "cafViewer.h"
 
@@ -30,45 +31,54 @@
 #include "cvfRendering.h"
 #include "cvfqtUtils.h"
 
-#include <QApplication>
-#include <QBoxLayout>
-#include <QFrame>
 #include <QLabel>
+#include <QPainter>
 #include <QPixmap>
 #include <QPushButton>
 #include <QResizeEvent>
 
 #include "glew/GL/glew.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuCvfOverlayItemWidget::RiuCvfOverlayItemWidget( QWidget* parent /*=0*/, QWidget* widgetToSnapTo )
-    : RiuDraggableOverlayFrame( parent, widgetToSnapTo )
+RiuCvfOverlayItemWidget::RiuCvfOverlayItemWidget( caf::TitledOverlayFrame* overlayItem,
+                                                  QWidget*                 parent,
+                                                  const int                snapMargins,
+                                                  const QColor& backgroundColor /*= QColor( 255, 255, 255, 100 ) */ )
+    : RiuDraggableOverlayFrame( parent, snapMargins, backgroundColor )
+    , m_overlayItem( overlayItem )
 {
-    this->layout()->setMargin( 0 );
-    this->layout()->setSpacing( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuCvfOverlayItemWidget::~RiuCvfOverlayItemWidget() {}
+RiuCvfOverlayItemWidget::~RiuCvfOverlayItemWidget()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuCvfOverlayItemWidget::updateFromOverlayItem( caf::TitledOverlayFrame* item )
+QSize RiuCvfOverlayItemWidget::sizeHint() const
 {
-    item->setRenderSize( item->preferredSize() );
+    auto preferredSize = const_cast<caf::TitledOverlayFrame*>( m_overlayItem.p() )->preferredSize();
+    return QSize( preferredSize.x(), preferredSize.y() );
+}
 
-    unsigned int width  = item->renderSize().x();
-    unsigned int height = item->renderSize().y();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuCvfOverlayItemWidget::renderTo( QPainter* painter, const QRect& paintRect, double scaleX, double scaleY )
+{
+    unsigned int width  = static_cast<unsigned int>( paintRect.width() );
+    unsigned int height = static_cast<unsigned int>( paintRect.height() );
+
+    m_overlayItem->setRenderSize( cvf::Vec2ui( width, height ) );
 
     QGLFormat glFormat;
     glFormat.setDirectRendering( RiaGuiApplication::instance()->useShaders() );
-
-    // Enforce no border to avoid
-    item->setBackgroundFrameColor( cvf::Color4f( 0, 0, 0, 0 ) );
 
     caf::Viewer*        viewer        = new caf::Viewer( glFormat, nullptr );
     cvf::OpenGLContext* cvfOglContext = viewer->cvfOpenGLContext();
@@ -77,8 +87,8 @@ void RiuCvfOverlayItemWidget::updateFromOverlayItem( caf::TitledOverlayFrame* it
     // Create a rendering
 
     cvf::ref<cvf::Rendering> rendering = new cvf::Rendering;
-    item->setLayoutFixedPosition( {0, 0} );
-    rendering->addOverlayItem( item );
+    m_overlayItem->setLayoutFixedPosition( {0, 0} );
+    rendering->addOverlayItem( m_overlayItem.p() );
 
     rendering->camera()->setViewport( 0, 0, width, height );
     rendering->camera()->viewport()->setClearColor( {1, 1, 1, 0} );
@@ -92,9 +102,8 @@ void RiuCvfOverlayItemWidget::updateFromOverlayItem( caf::TitledOverlayFrame* it
 
         cvf::ref<cvf::FramebufferObject> fbo = new cvf::FramebufferObject;
 
-        cvf::ref<cvf::RenderbufferObject> rboColor = new cvf::RenderbufferObject( cvf::RenderbufferObject::RGBA,
-                                                                                  width,
-                                                                                  height );
+        cvf::ref<cvf::RenderbufferObject> rboColor =
+            new cvf::RenderbufferObject( cvf::RenderbufferObject::RGBA, width, height );
         cvf::ref<cvf::RenderbufferObject> rboDepth =
             new cvf::RenderbufferObject( cvf::RenderbufferObject::DEPTH_COMPONENT24, width, height );
 
@@ -108,7 +117,7 @@ void RiuCvfOverlayItemWidget::updateFromOverlayItem( caf::TitledOverlayFrame* it
 
     renderingSequence->render( cvfOglContext );
 
-    // Read data from framebuffer
+    // Read data from frame buffer
 
     cvf::UByteArray arr( 4 * width * height );
     glReadPixels( 0, 0, static_cast<GLsizei>( width ), static_cast<GLsizei>( height ), GL_RGBA, GL_UNSIGNED_BYTE, arr.ptr() );
@@ -125,7 +134,17 @@ void RiuCvfOverlayItemWidget::updateFromOverlayItem( caf::TitledOverlayFrame* it
 
     delete viewer;
 
-    m_overlayItemLabel->setPixmap( pixmap );
-    this->setMinimumSize( QSize( width, height ) );
-    this->resize( QSize( width, height ) );
+    painter->save();
+    painter->drawPixmap( paintRect.topLeft(), pixmap );
+    painter->restore();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuCvfOverlayItemWidget::paintEvent( QPaintEvent* e )
+{
+    QRect    paintRect = e->rect();
+    QPainter painter( this );
+    renderTo( &painter, paintRect, 1.0, 1.0 );
 }

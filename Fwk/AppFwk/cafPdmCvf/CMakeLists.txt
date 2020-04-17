@@ -2,6 +2,12 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (cafPdmCvf)
 
+# Unity Build
+if (CAF_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
+  set(CMAKE_UNITY_BUILD true)
+endif()
+
 # Qt
 if (CEE_USE_QT5)
 	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
@@ -22,6 +28,8 @@ add_library( ${PROJECT_NAME}
     cafPdmXmlColor3f.cpp
     cafPdmXmlColor3f.h
     cafPdmFieldCvfColor.h
+	cafPdmFieldIOScriptabilityCvfColor3.h
+	cafPdmFieldIOScriptabilityCvfColor3.cpp
 
     cafPdmCoreVec3d.h
     cafPdmUiCoreVec3d.cpp
@@ -56,6 +64,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries ( ${PROJECT_NAME}
     cafUserInterface
     LibCore
+	cafPdmScripting
     ${QT_LIBRARIES}
 )
 

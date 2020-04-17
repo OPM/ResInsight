@@ -27,6 +27,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 CAF_PDM_SOURCE_INIT( RicfSetTimeStep, "setTimeStep" );
 
 //--------------------------------------------------------------------------------------------------
@@ -34,9 +36,9 @@ CAF_PDM_SOURCE_INIT( RicfSetTimeStep, "setTimeStep" );
 //--------------------------------------------------------------------------------------------------
 RicfSetTimeStep::RicfSetTimeStep()
 {
-    RICF_InitField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "View ID", "", "", "" );
-    RICF_InitField( &m_timeStepIndex, "timeStep", -1, "Time Step Index", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_timeStepIndex, "timeStep", -1, "Time Step Index", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,18 +68,21 @@ void RicfSetTimeStep::setTimeStepIndex( int timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfSetTimeStep::execute()
+caf::PdmScriptResponse RicfSetTimeStep::execute()
 {
-    RimEclipseCase* eclipseCase = nullptr;
+    RimCase*              rimCase = nullptr;
+    std::vector<RimCase*> allCases;
 
     {
+        RiaApplication::instance()->project()->allCases( allCases );
+
         bool foundCase = false;
-        for ( RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels()->cases )
+        for ( RimCase* c : allCases )
         {
             if ( c->caseId == m_caseId )
             {
-                eclipseCase = c;
-                foundCase   = true;
+                rimCase   = c;
+                foundCase = true;
                 break;
             }
         }
@@ -85,11 +90,11 @@ RicfCommandResponse RicfSetTimeStep::execute()
         {
             QString error = QString( "setTimeStep: Could not find case with ID %1" ).arg( m_caseId() );
             RiaLogging::error( error );
-            return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+            return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
     }
 
-    int maxTimeStep = eclipseCase->timeStepStrings().size() - 1;
+    int maxTimeStep = rimCase->timeStepStrings().size() - 1;
     if ( m_timeStepIndex() > maxTimeStep )
     {
         QString error = QString( "setTimeStep: Step %1 is larger than the maximum of %2 for case %3" )
@@ -97,10 +102,10 @@ RicfCommandResponse RicfSetTimeStep::execute()
                             .arg( maxTimeStep )
                             .arg( m_caseId() );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
-    for ( Rim3dView* view : eclipseCase->views() )
+    for ( Rim3dView* view : rimCase->views() )
     {
         if ( m_viewId() == -1 || view->id() == m_viewId() )
         {
@@ -109,5 +114,5 @@ RicfCommandResponse RicfSetTimeStep::execute()
         }
     }
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

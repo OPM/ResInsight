@@ -44,7 +44,8 @@ public:
         DARK_LINES              = 0x01,
         COLORED_LINES           = 0x02,
         COLOR_SHADING           = 0x04,
-        COLOR_SHADING_AND_LINES = 0x05
+        COLOR_SHADING_AND_LINES = 0x05,
+        LIGHT_LINES             = 0x08,
     };
     enum TrackSpan
     {
@@ -65,8 +66,9 @@ public:
                              RegionDisplay                                 regionDisplay,
                              const caf::ColorTable&                        colorTable,
                              int                                           shadingAlphaByte,
-                             bool                                          showNames = true,
-                             TrackSpan                                     trackSpan = FULL_WIDTH );
+                             bool                                          showNames   = true,
+                             TrackSpan                                     trackSpan   = FULL_WIDTH,
+                             const std::vector<Qt::BrushStyle>&            brushStyles = {} );
     void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double>& yPositions );
 
     void attachAnnotationLine( QwtPlot* plot, const QColor& color, const QString& annotationText, const double yPosition );

@@ -49,13 +49,7 @@ RimWellRftEnsembleCurveSet::RimWellRftEnsembleCurveSet()
     m_ensembleName.uiCapability()->setUiHidden( true );
     m_ensembleName.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_ensembleColorMode,
-                       "ColorMode",
-                       ColorModeEnum( ColorMode::SINGLE_COLOR ),
-                       "Coloring Mode",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_ensembleColorMode, "ColorMode", ColorModeEnum( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
@@ -68,7 +62,9 @@ RimWellRftEnsembleCurveSet::RimWellRftEnsembleCurveSet()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellRftEnsembleCurveSet::~RimWellRftEnsembleCurveSet() {}
+RimWellRftEnsembleCurveSet::~RimWellRftEnsembleCurveSet()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -105,7 +101,7 @@ void RimWellRftEnsembleCurveSet::setColorMode( ColorMode mode )
 void RimWellRftEnsembleCurveSet::initializeLegend()
 {
     auto ensembleParam = m_ensemble->ensembleParameter( m_ensembleParameter );
-    m_ensembleLegendConfig->setTitle( m_ensemble->name() + ":\n" + m_ensembleParameter );
+    m_ensembleLegendConfig->setTitle( m_ensemble->name() + "\n" + m_ensembleParameter );
     RimEnsembleCurveSetColorManager::initializeLegendConfig( m_ensembleLegendConfig, ensembleParam );
 }
 
@@ -203,8 +199,7 @@ void RimWellRftEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* ch
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimWellRftEnsembleCurveSet::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                       bool*                      useOptionsOnly )
+    RimWellRftEnsembleCurveSet::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_ensembleParameter )

@@ -216,16 +216,15 @@ void RigReservoirBuilderMock::populateReservoir( RigEclipseCaseData* eclipseCase
         localGrid->setParentGrid( eclipseCase->mainGrid() );
 
         localGrid->setIndexToStartOfCells( mainGridNodes.size() / 8 );
-        cvf::Vec3st
-            gridPointDimensions( lgr.m_singleCellRefinementFactors.x() *
-                                         ( lgr.m_mainGridMaxCellPosition.x() - lgr.m_mainGridMinCellPosition.x() + 1 ) +
-                                     1,
-                                 lgr.m_singleCellRefinementFactors.y() *
-                                         ( lgr.m_mainGridMaxCellPosition.y() - lgr.m_mainGridMinCellPosition.y() + 1 ) +
-                                     1,
-                                 lgr.m_singleCellRefinementFactors.z() *
-                                         ( lgr.m_mainGridMaxCellPosition.z() - lgr.m_mainGridMinCellPosition.z() + 1 ) +
-                                     1 );
+        cvf::Vec3st gridPointDimensions( lgr.m_singleCellRefinementFactors.x() * ( lgr.m_mainGridMaxCellPosition.x() -
+                                                                                   lgr.m_mainGridMinCellPosition.x() + 1 ) +
+                                             1,
+                                         lgr.m_singleCellRefinementFactors.y() * ( lgr.m_mainGridMaxCellPosition.y() -
+                                                                                   lgr.m_mainGridMinCellPosition.y() + 1 ) +
+                                             1,
+                                         lgr.m_singleCellRefinementFactors.z() * ( lgr.m_mainGridMaxCellPosition.z() -
+                                                                                   lgr.m_mainGridMinCellPosition.z() + 1 ) +
+                                             1 );
         localGrid->setGridPointDimensions( gridPointDimensions );
 
         cvf::BoundingBox bb;
@@ -326,9 +325,7 @@ bool RigReservoirBuilderMock::inputProperty( RigEclipseCaseData*  eclipseCase,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::staticResult( RigEclipseCaseData*  eclipseCase,
-                                            const QString&       result,
-                                            std::vector<double>* values )
+bool RigReservoirBuilderMock::staticResult( RigEclipseCaseData* eclipseCase, const QString& result, std::vector<double>* values )
 {
     values->resize( eclipseCase->mainGrid()->globalCellArray().size() );
 
@@ -536,7 +533,7 @@ void RigReservoirBuilderMock::addFaults( RigEclipseCaseData* eclipseCase )
     grid->setFaults( faults );
 
     // NNCs
-    std::vector<RigConnection>& nncConnections = grid->nncData()->connections();
+    std::vector<RigConnection> nncConnections;
     {
         size_t i1 = 2;
         size_t j1 = 2;
@@ -561,8 +558,10 @@ void RigReservoirBuilderMock::addFaults( RigEclipseCaseData* eclipseCase )
         addNnc( grid, i1, j1, k1, i2, j2, k2, nncConnections );
     }
 
-    std::vector<double>& tranVals = grid->nncData()->makeStaticConnectionScalarResult(
-        RigNNCData::propertyNameCombTrans() );
+    grid->nncData()->setConnections( nncConnections );
+
+    std::vector<double>& tranVals =
+        grid->nncData()->makeStaticConnectionScalarResult( RiaDefines::propertyNameCombTrans() );
     for ( size_t cIdx = 0; cIdx < tranVals.size(); ++cIdx )
     {
         tranVals[cIdx] = 0.2;

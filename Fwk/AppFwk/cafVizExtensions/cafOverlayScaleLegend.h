@@ -112,6 +112,17 @@ protected:
 
         LayoutInfo(const Vec2ui& setSize)
         {
+            charWidth = 0.0f;
+            charHeight = 0.0f;
+            lineSpacing = 0.0f;
+            margins = cvf::Vec2f::ZERO;
+            tickTextLeadSpace = 0.0f;
+            
+            axisStartPt = cvf::Vec2f::ZERO;
+            axisLength = 0.0f;
+            majorTickSize = 0.0f;
+            minorTickSize = 0.0f;
+
             overallLegendSize = setSize;
         }
 

@@ -29,12 +29,22 @@
 
 #include "RiuMainWindow.h"
 
+#include "cafPdmFieldIOScriptability.h"
+
 #include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT( RicfExportSnapshots, "exportSnapshots" );
 
 namespace caf
 {
+template <>
+void RicfExportSnapshots::PreferredOutputFormatEnum::setUp()
+{
+    addItem( RicfExportSnapshots::PlotOutputFormat::PNG, "PNG", "PNG" );
+    addItem( RicfExportSnapshots::PlotOutputFormat::PDF, "PDF", "PDF" );
+    setDefault( RicfExportSnapshots::PlotOutputFormat::PNG );
+}
+
 template <>
 void RicfExportSnapshots::SnapshotsTypeEnum::setUp()
 {
@@ -50,23 +60,24 @@ void RicfExportSnapshots::SnapshotsTypeEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 RicfExportSnapshots::RicfExportSnapshots()
 {
-    RICF_InitField( &m_type, "type", RicfExportSnapshots::SnapshotsTypeEnum(), "Type", "", "", "" );
-    RICF_InitField( &m_prefix, "prefix", QString(), "Prefix", "", "", "" );
-    RICF_InitField( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
-    RICF_InitField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
-    RICF_InitField( &m_exportFolder, "exportFolder", QString(), "Export Folder", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_type, "type", RicfExportSnapshots::SnapshotsTypeEnum(), "Type", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_prefix, "prefix", QString(), "Prefix", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_exportFolder, "exportFolder", QString(), "Export Folder", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_plotOutputFormat, "plotOutputFormat", "Output Format", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandResponse RicfExportSnapshots::execute()
+caf::PdmScriptResponse RicfExportSnapshots::execute()
 {
     if ( !RiaGuiApplication::isRunning() )
     {
         QString error( "RicfExportSnapshot: Command cannot run without a GUI" );
         RiaLogging::error( error );
-        return RicfCommandResponse( RicfCommandResponse::COMMAND_ERROR, error );
+        return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
@@ -74,8 +85,8 @@ RicfCommandResponse RicfExportSnapshots::execute()
     mainWnd->hideAllDockWidgets();
     RiaGuiApplication::instance()->processEvents();
 
-    QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath(
-        RicfCommandFileExecutor::SNAPSHOTS );
+    QString absolutePathToSnapshotDir =
+        RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::SNAPSHOTS );
 
     if ( !m_exportFolder().isEmpty() )
     {
@@ -83,8 +94,8 @@ RicfCommandResponse RicfExportSnapshots::execute()
     }
     if ( absolutePathToSnapshotDir.isNull() )
     {
-        absolutePathToSnapshotDir = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath(
-            "snapshots" );
+        absolutePathToSnapshotDir =
+            RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "snapshots" );
     }
     if ( m_type == RicfExportSnapshots::VIEWS || m_type == RicfExportSnapshots::ALL )
     {
@@ -109,13 +120,16 @@ RicfCommandResponse RicfExportSnapshots::execute()
             QApplication::processEvents();
         }
 
+        QString fileSuffix = ".png";
+        if ( m_plotOutputFormat == PlotOutputFormat::PDF ) fileSuffix = ".pdf";
         RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( absolutePathToSnapshotDir,
                                                                            m_prefix,
-                                                                           m_viewId() );
+                                                                           m_viewId(),
+                                                                           fileSuffix );
     }
 
     mainWnd->loadWinGeoAndDockToolBarLayout();
     RiaGuiApplication::instance()->processEvents();
 
-    return RicfCommandResponse();
+    return caf::PdmScriptResponse();
 }

@@ -69,7 +69,9 @@ RivTextAnnotationPartMgr::RivTextAnnotationPartMgr( Rim3dView* view, RimTextAnno
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivTextAnnotationPartMgr::~RivTextAnnotationPartMgr() {}
+RivTextAnnotationPartMgr::~RivTextAnnotationPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -81,10 +83,10 @@ void RivTextAnnotationPartMgr::buildParts( const caf::DisplayCoordTransform* dis
     auto collection = annotationCollection();
     if ( !collection ) return;
 
-    cvf::Vec3d anchorPositionInDomain = getAnchorPointInDomain( collection->snapAnnotations(),
-                                                                collection->annotationPlaneZ() );
-    cvf::Vec3d labelPositionInDomain  = getLabelPointInDomain( collection->snapAnnotations(),
-                                                              collection->annotationPlaneZ() );
+    cvf::Vec3d anchorPositionInDomain =
+        getAnchorPointInDomain( collection->snapAnnotations(), collection->annotationPlaneZ() );
+    cvf::Vec3d labelPositionInDomain =
+        getLabelPointInDomain( collection->snapAnnotations(), collection->annotationPlaneZ() );
 
     cvf::Vec3d anchorPosition = displayXf->transformToDisplayCoord( anchorPositionInDomain );
     cvf::Vec3d labelPosition  = displayXf->transformToDisplayCoord( labelPositionInDomain );

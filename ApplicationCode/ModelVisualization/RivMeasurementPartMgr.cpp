@@ -65,7 +65,9 @@ RivMeasurementPartMgr::RivMeasurementPartMgr( Rim3dView* view )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivMeasurementPartMgr::~RivMeasurementPartMgr() {}
+RivMeasurementPartMgr::~RivMeasurementPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -149,8 +151,8 @@ void RivMeasurementPartMgr::buildPolyLineParts( const cvf::Camera*              
     }
 
     // Measurement points
-    cvf::ref<cvf::DrawableGeo> polylinePointsGeo = RivPolylineGenerator::createPointsFromPolylineDrawable(
-        pointsInDisplay );
+    cvf::ref<cvf::DrawableGeo> polylinePointsGeo =
+        RivPolylineGenerator::createPointsFromPolylineDrawable( pointsInDisplay );
     if ( polylinePointsGeo.notNull() )
     {
         cvf::ref<cvf::Part> part = new cvf::Part;

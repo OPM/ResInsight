@@ -19,6 +19,8 @@
 #include "RiuViewer.h"
 #include "RivContourMapProjectionPartMgr.h"
 
+#include "RicfCommandObject.h"
+
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
@@ -49,7 +51,12 @@ const cvf::Mat4d RimGeoMechContourMapView::sm_defaultViewMatrix =
 RimGeoMechContourMapView::RimGeoMechContourMapView()
     : m_cameraPositionLastUpdate( cvf::Vec3d::UNDEFINED )
 {
-    CAF_PDM_InitObject( "GeoMech Contour Map View", ":/2DMap16x16.png", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "GeoMech Contour Map View",
+                                                    ":/2DMap16x16.png",
+                                                    "",
+                                                    "",
+                                                    "GeoMechContourMap",
+                                                    "A contour map for GeoMech cases" );
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapProjection, "ContourMapProjection", "Contour Map Projection", "", "", "" );
     m_contourMapProjection = new RimGeoMechContourMapProjection();
@@ -295,8 +302,7 @@ void RimGeoMechContourMapView::appendContourMapProjectionToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendProjectionToModel( contourMapProjectionModelBasicList.p(),
-                                                                    transForm.p() );
+            m_contourMapProjectionPartMgr->appendProjectionToModel( contourMapProjectionModelBasicList.p(), transForm.p() );
             contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel( contourMapProjectionModelBasicList.p() );
         }

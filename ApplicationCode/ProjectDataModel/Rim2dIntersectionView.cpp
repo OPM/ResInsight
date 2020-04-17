@@ -20,12 +20,14 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimExtrudedCurveIntersection.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
-#include "RimIntersection.h"
+#include "RimIntersectionResultDefinition.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimTernaryLegendConfig.h"
@@ -35,7 +37,7 @@
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
-#include "RivIntersectionPartMgr.h"
+#include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivSimWellPipesPartMgr.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellHeadPartMgr.h"
@@ -108,7 +110,9 @@ Rim2dIntersectionView::Rim2dIntersectionView( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionView::~Rim2dIntersectionView( void ) {}
+Rim2dIntersectionView::~Rim2dIntersectionView( void )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -121,7 +125,7 @@ void Rim2dIntersectionView::setVisible( bool isVisible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::setIntersection( RimIntersection* intersection )
+void Rim2dIntersectionView::setIntersection( RimExtrudedCurveIntersection* intersection )
 {
     CAF_ASSERT( intersection );
 
@@ -133,7 +137,7 @@ void Rim2dIntersectionView::setIntersection( RimIntersection* intersection )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimIntersection* Rim2dIntersectionView::intersection() const
+RimExtrudedCurveIntersection* Rim2dIntersectionView::intersection() const
 {
     return m_intersection();
 }
@@ -162,7 +166,16 @@ void Rim2dIntersectionView::scheduleGeometryRegen( RivCellSetEnum geometryType )
 RimCase* Rim2dIntersectionView::ownerCase() const
 {
     RimCase* rimCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( rimCase );
+    if ( RimIntersectionResultDefinition* sepInterResultDef = m_intersection->activeSeparateResultDefinition() )
+    {
+        rimCase = sepInterResultDef->activeCase();
+    }
+
+    if ( !rimCase )
+    {
+        this->firstAncestorOrThisOfTypeAsserted( rimCase );
+    }
+
     return rimCase;
 }
 
@@ -173,9 +186,18 @@ bool Rim2dIntersectionView::isTimeStepDependentDataVisible() const
 {
     if ( m_intersection() )
     {
-        RimGridView* gridView = nullptr;
-        m_intersection->firstAncestorOrThisOfTypeAsserted( gridView );
-        return gridView->isTimeStepDependentDataVisibleInThisOrComparisonView();
+        if ( RimIntersectionResultDefinition* sepInterResultDef = m_intersection->activeSeparateResultDefinition() )
+        {
+            return sepInterResultDef->isEclipseResultDefinition()
+                       ? sepInterResultDef->eclipseResultDefinition()->hasDynamicResult()
+                       : sepInterResultDef->geoMechResultDefinition()->hasResult();
+        }
+        else
+        {
+            RimGridView* gridView = nullptr;
+            m_intersection->firstAncestorOrThisOfTypeAsserted( gridView );
+            return gridView->isTimeStepDependentDataVisibleInThisOrComparisonView();
+        }
     }
 
     return false;
@@ -190,9 +212,29 @@ void Rim2dIntersectionView::update3dInfo()
 
     QString overlayInfoText;
 
-    RimEclipseView* eclView = nullptr;
-    m_intersection->firstAncestorOrThisOfType( eclView );
-    if ( eclView && !eclView->overlayInfoConfig()->isActive() )
+    Rim3dOverlayInfoConfig*     overlayInfoConfig = nullptr;
+    RimGeoMechResultDefinition* geomResDef        = nullptr;
+    RimEclipseResultDefinition* eclResDef         = nullptr;
+
+    {
+        RimEclipseView* originEclView = nullptr;
+        m_intersection->firstAncestorOrThisOfType( originEclView );
+        RimGeoMechView* originGeoView = nullptr;
+        m_intersection->firstAncestorOrThisOfType( originGeoView );
+
+        if ( originEclView )
+        {
+            overlayInfoConfig = originEclView->overlayInfoConfig();
+            eclResDef         = originEclView->cellResult();
+        }
+        else if ( originGeoView )
+        {
+            overlayInfoConfig = originGeoView->overlayInfoConfig();
+            geomResDef        = originGeoView->cellResultResultDefinition();
+        }
+    }
+
+    if ( !overlayInfoConfig->isActive() )
     {
         nativeOrOverrideViewer()->showInfoText( false );
         nativeOrOverrideViewer()->showHistogram( false );
@@ -202,20 +244,27 @@ void Rim2dIntersectionView::update3dInfo()
         nativeOrOverrideViewer()->update();
         return;
     }
-    if ( eclView && eclView->overlayInfoConfig()->showCaseInfo() )
+
+    if ( RimIntersectionResultDefinition* sepInterResultDef = m_intersection->activeSeparateResultDefinition() )
     {
-        overlayInfoText += "<b>--" + ownerCase()->caseUserDescription() + "--</b>";
+        if ( sepInterResultDef->isEclipseResultDefinition() )
+        {
+            eclResDef  = sepInterResultDef->eclipseResultDefinition();
+            geomResDef = nullptr;
+        }
+        else
+        {
+            geomResDef = sepInterResultDef->geoMechResultDefinition();
+            eclResDef  = nullptr;
+        }
     }
 
-    RimGeoMechView* geoView = nullptr;
-    m_intersection->firstAncestorOrThisOfType( geoView );
-    if ( geoView && geoView->overlayInfoConfig()->showCaseInfo() )
+    if ( overlayInfoConfig->showCaseInfo() )
     {
         overlayInfoText += "<b>--" + ownerCase()->caseUserDescription() + "--</b>";
     }
 
     overlayInfoText += "<p>";
-
     overlayInfoText += "<b>Z-scale:</b> " + QString::number( scaleZ() ) + "<br> ";
 
     if ( m_intersection->simulationWell() )
@@ -231,41 +280,28 @@ void Rim2dIntersectionView::update3dInfo()
         overlayInfoText += "<b>Intersection:</b> " + m_intersection->name() + "<br>";
     }
 
-    if ( eclView )
+    if ( overlayInfoConfig->showAnimProgress() )
     {
-        if ( eclView->overlayInfoConfig()->showAnimProgress() )
-        {
-            nativeOrOverrideViewer()->showAnimationProgress( true );
-        }
-        else
-        {
-            nativeOrOverrideViewer()->showAnimationProgress( false );
-        }
-
-        if ( eclView->overlayInfoConfig()->showResultInfo() )
-        {
-            overlayInfoText += "<b>Cell Result:</b> " + eclView->cellResult()->resultVariableUiShortName() + "<br>";
-        }
+        nativeOrOverrideViewer()->showAnimationProgress( true );
+    }
+    else
+    {
+        nativeOrOverrideViewer()->showAnimationProgress( false );
     }
 
-    if ( geoView )
+    if ( overlayInfoConfig->showResultInfo() )
     {
-        if ( geoView->overlayInfoConfig()->showAnimProgress() )
+        if ( eclResDef )
         {
-            nativeOrOverrideViewer()->showAnimationProgress( true );
+            overlayInfoText += "<b>Cell Result:</b> " + eclResDef->resultVariableUiShortName() + "<br>";
         }
-        else
-        {
-            nativeOrOverrideViewer()->showAnimationProgress( false );
-        }
-
-        if ( geoView->overlayInfoConfig()->showResultInfo() )
+        else if ( geomResDef )
         {
             QString resultPos;
-            QString fieldName = geoView->cellResultResultDefinition()->resultFieldUiName();
-            QString compName  = geoView->cellResultResultDefinition()->resultComponentUiName();
+            QString fieldName = geomResDef->resultFieldUiName();
+            QString compName  = geomResDef->resultComponentUiName();
 
-            switch ( geoView->cellResultResultDefinition()->resultPositionType() )
+            switch ( geomResDef->resultPositionType() )
             {
                 case RIG_NODAL:
                     resultPos = "Nodal";
@@ -285,6 +321,7 @@ void Rim2dIntersectionView::update3dInfo()
                 default:
                     break;
             }
+
             if ( compName == "" )
             {
                 overlayInfoText += QString( "<b>Cell result:</b> %1, %2<br>" ).arg( resultPos ).arg( fieldName );
@@ -319,9 +356,9 @@ void Rim2dIntersectionView::updateName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RivIntersectionPartMgr> Rim2dIntersectionView::flatIntersectionPartMgr() const
+const RivExtrudedCurveIntersectionPartMgr* Rim2dIntersectionView::flatIntersectionPartMgr() const
 {
-    return m_flatIntersectionPartMgr;
+    return m_flatIntersectionPartMgr.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,9 +374,14 @@ bool Rim2dIntersectionView::isGridVisualizationMode() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d Rim2dIntersectionView::transformToUtm( const cvf::Vec3d& unscaledPointInFlatDomain ) const
 {
-    cvf::Mat4d unflatXf = this->flatIntersectionPartMgr()->unflattenTransformMatrix( unscaledPointInFlatDomain );
+    if ( m_flatIntersectionPartMgr.notNull() )
+    {
+        cvf::Mat4d unflatXf = flatIntersectionPartMgr()->unflattenTransformMatrix( unscaledPointInFlatDomain );
 
-    return unscaledPointInFlatDomain.getTransformedPoint( unflatXf );
+        return unscaledPointInFlatDomain.getTransformedPoint( unflatXf );
+    }
+
+    return unscaledPointInFlatDomain;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -404,6 +446,20 @@ QList<caf::PdmOptionItemInfo>
 bool Rim2dIntersectionView::hasResults()
 {
     if ( !m_intersection() ) return false;
+
+    if ( RimIntersectionResultDefinition* sepInterResultDef = m_intersection->activeSeparateResultDefinition() )
+    {
+        if ( sepInterResultDef->isEclipseResultDefinition() )
+        {
+            RimEclipseResultDefinition* eclResDef = sepInterResultDef->eclipseResultDefinition();
+            return eclResDef->hasResult() || eclResDef->isTernarySaturationSelected();
+        }
+        else
+        {
+            RimGeoMechResultDefinition* geomResDef = sepInterResultDef->geoMechResultDefinition();
+            return geomResDef->hasResult();
+        }
+    }
 
     RimEclipseView* eclView = nullptr;
     m_intersection->firstAncestorOrThisOfType( eclView );
@@ -470,7 +526,9 @@ bool Rim2dIntersectionView::isWindowVisible() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) {}
+void Rim2dIntersectionView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -491,11 +549,11 @@ void Rim2dIntersectionView::onCreateDisplayModel()
         nativeOrOverrideViewer()->addFrame( new cvf::Scene(), isUsingOverrideViewer() );
     }
 
-    m_flatIntersectionPartMgr = new RivIntersectionPartMgr( m_intersection(), true );
+    m_flatIntersectionPartMgr = new RivExtrudedCurveIntersectionPartMgr( m_intersection(), true );
 
     m_intersectionVizModel->removeAllParts();
 
-    m_flatIntersectionPartMgr->appendNativeCrossSectionFacesToModel( m_intersectionVizModel.p(), scaleTransform() );
+    m_flatIntersectionPartMgr->appendIntersectionFacesToModel( m_intersectionVizModel.p(), scaleTransform() );
     m_flatIntersectionPartMgr->appendMeshLinePartsToModel( m_intersectionVizModel.p(), scaleTransform() );
     m_flatIntersectionPartMgr->appendPolylinePartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
 
@@ -504,12 +562,12 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     m_flatSimWellPipePartMgr = nullptr;
     m_flatWellHeadPartMgr    = nullptr;
 
-    if ( m_intersection->type() == RimIntersection::CS_SIMULATION_WELL && m_intersection->simulationWell() )
+    if ( m_intersection->type() == RimExtrudedCurveIntersection::CS_SIMULATION_WELL && m_intersection->simulationWell() )
     {
         RimEclipseView* eclipseView = nullptr;
         m_intersection->firstAncestorOrThisOfType( eclipseView );
 
-        if ( eclipseView )
+        // if ( eclipseView ) Do we need this ?
         {
             m_flatSimWellPipePartMgr = new RivSimWellPipesPartMgr( m_intersection->simulationWell() );
             m_flatWellHeadPartMgr    = new RivWellHeadPartMgr( m_intersection->simulationWell() );
@@ -517,7 +575,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     }
 
     m_flatWellpathPartMgr = nullptr;
-    if ( m_intersection->type() == RimIntersection::CS_WELL_PATH && m_intersection->wellPath() )
+    if ( m_intersection->type() == RimExtrudedCurveIntersection::CS_WELL_PATH && m_intersection->wellPath() )
     {
         Rim3dView* settingsView = nullptr;
         m_intersection->firstAncestorOrThisOfType( settingsView );
@@ -634,47 +692,80 @@ void Rim2dIntersectionView::onUpdateLegends()
 
     if ( !hasResults() ) return;
 
-    RimEclipseView* eclView = nullptr;
-    m_intersection->firstAncestorOrThisOfType( eclView );
+    RimGeoMechResultDefinition* geomResDef          = nullptr;
+    RimEclipseResultDefinition* eclResDef           = nullptr;
+    RimRegularLegendConfig*     regularLegendConfig = nullptr;
+    RimTernaryLegendConfig*     ternaryLegendConfig = nullptr;
 
-    RimGeoMechView* geoView = nullptr;
-    m_intersection->firstAncestorOrThisOfType( geoView );
+    {
+        RimEclipseView* originEclView = nullptr;
+        m_intersection->firstAncestorOrThisOfType( originEclView );
+        RimGeoMechView* originGeoView = nullptr;
+        m_intersection->firstAncestorOrThisOfType( originGeoView );
+
+        if ( originEclView )
+        {
+            eclResDef           = originEclView->cellResult();
+            regularLegendConfig = originEclView->cellResult()->legendConfig();
+            ternaryLegendConfig = originEclView->cellResult()->ternaryLegendConfig();
+        }
+        else if ( originGeoView )
+        {
+            geomResDef          = originGeoView->cellResultResultDefinition();
+            regularLegendConfig = originGeoView->cellResult()->legendConfig();
+        }
+    }
+
+    if ( RimIntersectionResultDefinition* sepInterResultDef = m_intersection->activeSeparateResultDefinition() )
+    {
+        if ( sepInterResultDef->isEclipseResultDefinition() )
+        {
+            eclResDef           = sepInterResultDef->eclipseResultDefinition();
+            regularLegendConfig = sepInterResultDef->regularLegendConfig();
+            ternaryLegendConfig = sepInterResultDef->ternaryLegendConfig();
+            geomResDef          = nullptr;
+        }
+        else
+        {
+            geomResDef          = sepInterResultDef->geoMechResultDefinition();
+            regularLegendConfig = sepInterResultDef->regularLegendConfig();
+            eclResDef           = nullptr;
+        }
+    }
 
     caf::TitledOverlayFrame* legend = nullptr;
 
-    if ( eclView )
-    {
-        m_legendConfig()->setUiValuesFromLegendConfig( eclView->cellResult()->legendConfig() );
-        m_ternaryLegendConfig()->setUiValuesFromLegendConfig( eclView->cellResult()->ternaryLegendConfig() );
-        eclView->cellResult()->updateLegendData( eclView->eclipseCase(),
-                                                 m_currentTimeStep(),
-                                                 m_legendConfig(),
-                                                 m_ternaryLegendConfig() );
+    // Copy the legend settings from the real view
 
-        if ( eclView->cellResult()->isTernarySaturationSelected() )
+    m_legendConfig()->setUiValuesFromLegendConfig( regularLegendConfig );
+    if ( ternaryLegendConfig ) m_ternaryLegendConfig()->setUiValuesFromLegendConfig( ternaryLegendConfig );
+
+    if ( eclResDef )
+    {
+        eclResDef->updateRangesForExplicitLegends( m_legendConfig(), m_ternaryLegendConfig(), m_currentTimeStep() );
+
+        if ( eclResDef->isTernarySaturationSelected() )
         {
             m_ternaryLegendConfig()->setTitle( "Cell Result:\n" );
             legend = m_ternaryLegendConfig()->titledOverlayFrame();
 
-            m_legendObjectToSelect = eclView->cellResult()->ternaryLegendConfig();
+            m_legendObjectToSelect = ternaryLegendConfig;
         }
         else
         {
-            m_legendConfig()->setTitle( "Cell Result:\n" + eclView->cellResult()->resultVariableUiShortName() );
+            eclResDef->updateLegendTitle( m_legendConfig, "Cell Result:\n" );
             legend = m_legendConfig()->titledOverlayFrame();
 
-            m_legendObjectToSelect = eclView->cellResult()->legendConfig();
+            m_legendObjectToSelect = regularLegendConfig;
         }
     }
 
-    if ( geoView )
+    if ( geomResDef )
     {
-        m_legendConfig()->setUiValuesFromLegendConfig( geoView->cellResult()->legendConfig() );
-
-        geoView->updateLegendTextAndRanges( m_legendConfig(), m_currentTimeStep() );
+        geomResDef->updateLegendTextAndRanges( m_legendConfig(), "Cell Result:\n", m_currentTimeStep() );
         legend = m_legendConfig()->titledOverlayFrame();
 
-        m_legendObjectToSelect = geoView->cellResult()->legendConfig();
+        m_legendObjectToSelect = regularLegendConfig;
     }
 
     if ( legend )
@@ -705,17 +796,23 @@ void Rim2dIntersectionView::onResetLegendsInViewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) {}
+void Rim2dIntersectionView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::onClampCurrentTimestep() {}
+void Rim2dIntersectionView::onClampCurrentTimestep()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::onUpdateStaticCellColors() {}
+void Rim2dIntersectionView::onUpdateStaticCellColors()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

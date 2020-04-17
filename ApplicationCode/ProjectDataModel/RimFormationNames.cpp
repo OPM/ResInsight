@@ -42,7 +42,7 @@ RimFormationNames::RimFormationNames()
 {
     CAF_PDM_InitObject( "Formation Names", ":/Formations16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_formationNamesFileName, "FormationNamesFileName", QString( "" ), "File Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_formationNamesFileName, "FormationNamesFileName", "File Name", "", "", "" );
 
     m_formationNamesFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 }
@@ -50,7 +50,9 @@ RimFormationNames::RimFormationNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFormationNames::~RimFormationNames() {}
+RimFormationNames::~RimFormationNames()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -68,13 +70,14 @@ void RimFormationNames::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         {
             QMessageBox::warning( nullptr, "Formation Names", errorMessage );
         }
+        updateConnectedViews();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFormationNames::initAfterRead()
+void RimFormationNames::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     updateUiTreeName();
 }
@@ -92,9 +95,9 @@ void RimFormationNames::setFileName( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RimFormationNames::fileName()
+QString RimFormationNames::fileName()
 {
-    return m_formationNamesFileName();
+    return m_formationNamesFileName().path();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +105,7 @@ const QString& RimFormationNames::fileName()
 //--------------------------------------------------------------------------------------------------
 QString RimFormationNames::fileNameWoPath()
 {
-    QFileInfo fnameFileInfo( m_formationNamesFileName() );
+    QFileInfo fnameFileInfo( m_formationNamesFileName().path() );
     return fnameFileInfo.fileName();
 }
 
@@ -142,18 +145,19 @@ void RimFormationNames::updateConnectedViews()
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::readFormationNamesFile( QString* errorMessage )
 {
-    QFile dataFile( m_formationNamesFileName() );
+    QFile dataFile( m_formationNamesFileName().path() );
 
     if ( !dataFile.open( QFile::ReadOnly ) )
     {
-        if ( errorMessage ) ( *errorMessage ) += "Could not open the File: " + ( m_formationNamesFileName() ) + "\n";
+        if ( errorMessage )
+            ( *errorMessage ) += "Could not open the File: " + ( m_formationNamesFileName().path() ) + "\n";
         return;
     }
 
     m_formationNamesData = new RigFormationNames;
     QTextStream stream( &dataFile );
 
-    QFileInfo fileInfo( m_formationNamesFileName() );
+    QFileInfo fileInfo( m_formationNamesFileName().path() );
 
     if ( fileInfo.fileName() == RimFormationNames::layerZoneTableFileName() )
     {
@@ -170,8 +174,8 @@ void RimFormationNames::readFormationNamesFile( QString* errorMessage )
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    m_formationNamesFileName =
-        RimTools::relocateFile( m_formationNamesFileName(), newProjectPath, oldProjectPath, nullptr, nullptr );
+    // m_formationNamesFileName =
+    //     RimTools::relocateFile( m_formationNamesFileName(), newProjectPath, oldProjectPath, nullptr, nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -298,7 +302,7 @@ void RimFormationNames::readFmuFormationNameFile( QTextStream& stream, QString* 
             if ( lineStream.status() != QTextStream::Ok )
             {
                 *errorMessage =
-                    QString( "Failed to parse line %1 of '%2'" ).arg( lineNumber ).arg( m_formationNamesFileName() );
+                    QString( "Failed to parse line %1 of '%2'" ).arg( lineNumber ).arg( m_formationNamesFileName().path() );
                 return;
             }
 

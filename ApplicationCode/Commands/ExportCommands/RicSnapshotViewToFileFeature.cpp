@@ -20,8 +20,11 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPlotWindowRedrawScheduler.h"
 
 #include "RimMainPlotCollection.h"
+#include "RimMultiPlot.h"
+#include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
 #include "RiuPlotMainWindow.h"
@@ -33,9 +36,12 @@
 #include <QAction>
 #include <QClipboard>
 #include <QDebug>
+#include <QDesktopWidget>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMdiSubWindow>
+#include <QPageLayout>
+#include <QPdfWriter>
 
 CAF_CMD_SOURCE_INIT( RicSnapshotViewToFileFeature, "RicSnapshotViewToFileFeature" );
 
@@ -44,7 +50,12 @@ CAF_CMD_SOURCE_INIT( RicSnapshotViewToFileFeature, "RicSnapshotViewToFileFeature
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow )
 {
-    if ( viewWindow )
+    RimPlotWindow* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
+    if ( plotWindow && fileName.endsWith( ".pdf" ) )
+    {
+        savePlotPdfReportAs( fileName, plotWindow );
+    }
+    else if ( viewWindow )
     {
         QImage image = viewWindow->snapshotWindowContent();
         saveSnapshotAs( fileName, image );
@@ -72,7 +83,96 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotViewToFileFeature::saveToFile( const QImage& image, const QString& defaultFileBaseName )
+void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName, RimPlotWindow* plot )
+{
+    RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
+    QCoreApplication::processEvents();
+    QFile pdfFile( fileName );
+    if ( pdfFile.open( QIODevice::WriteOnly ) )
+    {
+        int resolution  = RiaGuiApplication::applicationResolution();
+        int pageWidth   = plot->pageLayout().fullRectPixels( resolution ).width();
+        int widgetWidth = plot->viewWidget()->width();
+        int deltaWidth  = widgetWidth - pageWidth;
+
+        while ( std::abs( deltaWidth ) > 1 )
+        {
+            int newResolution = resolution + deltaWidth / std::abs( deltaWidth );
+            pageWidth         = plot->pageLayout().fullRectPixels( resolution ).width();
+            int newDeltaWidth = widgetWidth - pageWidth;
+            if ( std::abs( newDeltaWidth ) > std::abs( deltaWidth ) ) break;
+
+            resolution = newResolution;
+            deltaWidth = newDeltaWidth;
+        }
+        QPdfWriter pdfPrinter( fileName );
+        pdfPrinter.setPageLayout( plot->pageLayout() );
+        pdfPrinter.setCreator( QCoreApplication::applicationName() );
+        pdfPrinter.setResolution( resolution );
+        QRect widgetRect = plot->viewWidget()->contentsRect();
+
+        RimMultiPlot* multiPlot = dynamic_cast<RimMultiPlot*>( plot );
+        if ( multiPlot && multiPlot->previewModeEnabled() )
+        {
+            QRect pageRect = pdfPrinter.pageLayout().fullRectPixels( resolution );
+            plot->viewWidget()->resize( pageRect.size() );
+            plot->renderWindowContent( &pdfPrinter );
+            plot->viewWidget()->resize( widgetRect.size() );
+        }
+        else
+        {
+            QRect pageRect = pdfPrinter.pageLayout().paintRectPixels( resolution );
+            plot->viewWidget()->resize( pageRect.size() );
+            plot->renderWindowContent( &pdfPrinter );
+            plot->viewWidget()->resize( widgetRect.size() );
+        }
+    }
+    else
+    {
+        RiaLogging::error( QString( "Could not write PDF to %1" ).arg( fileName ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSnapshotViewToFileFeature::saveViewWindowToFile( RimViewWindow* viewWindow,
+                                                         const QString& defaultFileBaseName /*= "image" */ )
+{
+    RimPlotWindow* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
+
+    QString fileName = generateSaveFileName( defaultFileBaseName, plotWindow != nullptr );
+    if ( !fileName.isEmpty() )
+    {
+        if ( plotWindow && fileName.endsWith( "PDF", Qt::CaseInsensitive ) )
+        {
+            savePlotPdfReportAs( fileName, plotWindow );
+        }
+        else
+        {
+            RicSnapshotViewToFileFeature::saveSnapshotAs( fileName, viewWindow->snapshotWindowContent() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSnapshotViewToFileFeature::saveImageToFile( const QImage& image, const QString& defaultFileBaseName )
+{
+    QString fileName = generateSaveFileName( defaultFileBaseName, false );
+    if ( !fileName.isEmpty() )
+    {
+        RicSnapshotViewToFileFeature::saveSnapshotAs( fileName, image );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defaultFileBaseName,
+                                                            bool           supportPDF,
+                                                            const QString& defaultExtension )
 {
     RiaApplication* app  = RiaApplication::instance();
     RimProject*     proj = app->project();
@@ -88,17 +188,39 @@ void RicSnapshotViewToFileFeature::saveToFile( const QImage& image, const QStrin
         startPath = app->lastUsedDialogDirectory( "IMAGE_SNAPSHOT" );
     }
 
-    QString defaultAbsFileName = caf::Utils::constructFullFileName( startPath, defaultFileBaseName, ".png" );
-    QString fileName           = QFileDialog::getSaveFileName( nullptr, tr( "Export to File" ), defaultAbsFileName );
-    if ( fileName.isEmpty() )
+    QStringList imageFileExtensions;
+    imageFileExtensions << "*.png"
+                        << "*.jpg"
+                        << "*.bmp"
+                        << "*.pbm"
+                        << "*.pgm";
+    QString fileExtensionFilter = QString( "Images (%1)" ).arg( imageFileExtensions.join( " " ) );
+
+    QString pdfFilter = "PDF report( *.pdf )";
+    if ( supportPDF )
     {
-        return;
+        fileExtensionFilter += QString( ";;%1" ).arg( pdfFilter );
     }
 
-    // Remember the directory to next time
-    app->setLastUsedDialogDirectory( "IMAGE_SNAPSHOT", QFileInfo( fileName ).absolutePath() );
+    QString defaultAbsFileName =
+        caf::Utils::constructFullFileName( startPath, defaultFileBaseName, "." + defaultExtension );
 
-    RicSnapshotViewToFileFeature::saveSnapshotAs( fileName, image );
+    QString selectedExtension;
+    if ( supportPDF )
+    {
+        selectedExtension = pdfFilter;
+    }
+    QString fileName = QFileDialog::getSaveFileName( nullptr,
+                                                     tr( "Export to File" ),
+                                                     defaultAbsFileName,
+                                                     fileExtensionFilter,
+                                                     &selectedExtension );
+    if ( !fileName.isEmpty() )
+    {
+        // Remember the directory to next time
+        app->setLastUsedDialogDirectory( "IMAGE_SNAPSHOT", QFileInfo( fileName ).absolutePath() );
+    }
+    return fileName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,8 +264,7 @@ void RicSnapshotViewToFileFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    QImage image = viewWindow->snapshotWindowContent();
-    saveToFile( image, RicSnapshotFilenameGenerator::generateSnapshotFileName( viewWindow ) );
+    saveViewWindowToFile( viewWindow, RicSnapshotFilenameGenerator::generateSnapshotFileName( viewWindow ) );
 }
 
 //--------------------------------------------------------------------------------------------------

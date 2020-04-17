@@ -36,91 +36,37 @@ public:
     RigCell();
     ~RigCell(); // Not virtual, to save space. Do not inherit from this class
 
-    std::array<size_t, 8>& cornerIndices()
-    {
-        return m_cornerIndices;
-    }
-    const std::array<size_t, 8>& cornerIndices() const
-    {
-        return m_cornerIndices;
-    }
+    std::array<size_t, 8>&       cornerIndices() { return m_cornerIndices; }
+    const std::array<size_t, 8>& cornerIndices() const { return m_cornerIndices; }
 
     void faceIndices( cvf::StructGridInterface::FaceType face, std::array<size_t, 4>* faceIndices ) const;
 
-    bool isInvalid() const
-    {
-        return m_isInvalid;
-    }
-    void setInvalid( bool val )
-    {
-        m_isInvalid = val;
-    }
+    bool isInvalid() const { return m_isInvalid; }
+    void setInvalid( bool val ) { m_isInvalid = val; }
 
-    size_t gridLocalCellIndex() const
-    {
-        return m_gridLocalCellIndex;
-    }
-    void setGridLocalCellIndex( size_t val )
-    {
-        m_gridLocalCellIndex = val;
-    }
+    size_t gridLocalCellIndex() const { return m_gridLocalCellIndex; }
+    void   setGridLocalCellIndex( size_t val ) { m_gridLocalCellIndex = val; }
 
-    RigLocalGrid* subGrid() const
-    {
-        return m_subGrid;
-    }
-    void setSubGrid( RigLocalGrid* subGrid )
-    {
-        m_subGrid = subGrid;
-    }
-    void removeSubGrid( RigLocalGrid* subGrid )
-    {
-        m_subGrid = nullptr;
-    }
+    RigLocalGrid* subGrid() const { return m_subGrid; }
+    void          setSubGrid( RigLocalGrid* subGrid ) { m_subGrid = subGrid; }
+    void          removeSubGrid( RigLocalGrid* subGrid ) { m_subGrid = nullptr; }
 
-    RigGridBase* hostGrid() const
-    {
-        return m_hostGrid;
-    }
-    void setHostGrid( RigGridBase* hostGrid )
-    {
-        m_hostGrid = hostGrid;
-    }
+    RigGridBase* hostGrid() const { return m_hostGrid; }
+    void         setHostGrid( RigGridBase* hostGrid ) { m_hostGrid = hostGrid; }
 
-    size_t parentCellIndex() const
-    {
-        return m_parentCellIndex;
-    }
-    void setParentCellIndex( size_t parentCellIndex )
-    {
-        m_parentCellIndex = parentCellIndex;
-    }
-    size_t mainGridCellIndex() const
-    {
-        return m_mainGridCellIndex;
-    }
-    void setMainGridCellIndex( size_t mainGridCellContainingThisCell )
+    size_t parentCellIndex() const { return m_parentCellIndex; }
+    void   setParentCellIndex( size_t parentCellIndex ) { m_parentCellIndex = parentCellIndex; }
+    size_t mainGridCellIndex() const { return m_mainGridCellIndex; }
+    void   setMainGridCellIndex( size_t mainGridCellContainingThisCell )
     {
         m_mainGridCellIndex = mainGridCellContainingThisCell;
     }
 
-    size_t coarseningBoxIndex() const
-    {
-        return m_coarseningBoxIndex;
-    }
-    void setCoarseningBoxIndex( size_t coarseningBoxIndex )
-    {
-        m_coarseningBoxIndex = coarseningBoxIndex;
-    }
+    size_t coarseningBoxIndex() const { return m_coarseningBoxIndex; }
+    void   setCoarseningBoxIndex( size_t coarseningBoxIndex ) { m_coarseningBoxIndex = coarseningBoxIndex; }
 
-    void setCellFaceFault( cvf::StructGridInterface::FaceType face )
-    {
-        m_cellFaceFaults[face] = true;
-    }
-    bool isCellFaceFault( cvf::StructGridInterface::FaceType face ) const
-    {
-        return m_cellFaceFaults[face];
-    }
+    void setCellFaceFault( cvf::StructGridInterface::FaceType face ) { m_cellFaceFaults[face] = true; }
+    bool isCellFaceFault( cvf::StructGridInterface::FaceType face ) const { return m_cellFaceFaults[face]; }
 
     cvf::Vec3d center() const;
     cvf::Vec3d faceCenter( cvf::StructGridInterface::FaceType face ) const;

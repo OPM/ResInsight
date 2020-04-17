@@ -34,7 +34,8 @@ bool PdmXmlFieldHandle::assertValid() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmXmlFieldHandle::PdmXmlFieldHandle(PdmFieldHandle* owner, bool giveOwnership) : m_isIOReadable(true), m_isIOWritable(true)
+PdmXmlFieldHandle::PdmXmlFieldHandle(PdmFieldHandle* owner, bool giveOwnership)
+    : m_isIOReadable(true), m_isIOWritable(true), m_isCopyable(true)
 {
     m_owner = owner; 
     owner->addCapability(this, giveOwnership);
@@ -47,16 +48,19 @@ void PdmXmlFieldHandle::disableIO()
 {
     setIOReadable(false);
     setIOWritable(false);
+    setCopyable(false);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Returns the classKeyword of the child class type, if this field is supposed to contain pointers 
-/// to PdmObjectHandle derived onbjects. 
-/// Returns empty string if the field is not containig some PdmObjectHandle type
+/// to PdmObjectHandle derived objects. 
+/// Returns typeid(DataType).name() if the field is not containing some PdmObjectHandle type.
+/// Warning: typeid(DataType).name() is compiler implementation specific and thus you should not
+/// Compare this with a predefined literal, like "double" or "float". Instead compare with typeid(double).name().
 //--------------------------------------------------------------------------------------------------
-QString PdmXmlFieldHandle::childClassKeyword()
+QString PdmXmlFieldHandle::dataTypeName() const
 {
-    return m_childClassKeyword;
+    return m_dataTypeName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,5 +73,6 @@ PdmXmlFieldHandle* PdmFieldHandle::xmlCapability()
 
     return xmlField;
 }
+
 
 } // End of namespace caf

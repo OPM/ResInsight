@@ -35,7 +35,9 @@ CAF_CMD_SOURCE_INIT( RicImportObservedFmuDataInMenuFeature, "RicImportObservedFm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicImportObservedFmuDataInMenuFeature::RicImportObservedFmuDataInMenuFeature() {}
+RicImportObservedFmuDataInMenuFeature::RicImportObservedFmuDataInMenuFeature()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

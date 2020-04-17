@@ -39,7 +39,9 @@ RimSummaryCrossPlotCollection::RimSummaryCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCrossPlotCollection::~RimSummaryCrossPlotCollection() {}
+RimSummaryCrossPlotCollection::~RimSummaryCrossPlotCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

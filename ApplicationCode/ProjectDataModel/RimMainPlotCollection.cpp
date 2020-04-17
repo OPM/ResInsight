@@ -23,11 +23,13 @@
 #include "RimFlowPlotCollection.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCollection.h"
-#include "RimGridPlotWindowCollection.h"
+#include "RimMultiPlot.h"
+#include "RimMultiPlotCollection.h"
 #include "RimPltPlotCollection.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
+#include "RimSummaryAddress.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimViewWindow.h"
@@ -63,12 +65,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_summaryPlotCollection, "SummaryPlotCollection", "Summary Plots", "", "", "" );
     m_summaryPlotCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection,
-                                "SummaryCrossPlotCollection",
-                                "Summary Cross Plots",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection, "SummaryCrossPlotCollection", "Summary Cross Plots", "", "", "" );
     m_summaryCrossPlotCollection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowPlotCollection, "FlowPlotCollection", "Flow Diagnostics Plots", "", "", "" );
@@ -85,6 +82,9 @@ RimMainPlotCollection::RimMainPlotCollection()
                                 "" );
     m_saturationPressurePlotCollection.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimMultiPlotCollection", "Multi Plots", "", "", "" );
+    m_multiPlotCollection.uiCapability()->setUiHidden( true );
+
     m_wellLogPlotCollection            = new RimWellLogPlotCollection();
     m_rftPlotCollection                = new RimRftPlotCollection();
     m_pltPlotCollection                = new RimPltPlotCollection();
@@ -93,12 +93,15 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_flowPlotCollection               = new RimFlowPlotCollection();
     m_gridCrossPlotCollection          = new RimGridCrossPlotCollection;
     m_saturationPressurePlotCollection = new RimSaturationPressurePlotCollection;
+    m_multiPlotCollection              = new RimMultiPlotCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMainPlotCollection::~RimMainPlotCollection() {}
+RimMainPlotCollection::~RimMainPlotCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -184,6 +187,14 @@ RimSaturationPressurePlotCollection* RimMainPlotCollection::saturationPressurePl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimMultiPlotCollection* RimMainPlotCollection::multiPlotCollection()
+{
+    return m_multiPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::deleteAllContainedObjects()
 {
     m_wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
@@ -194,6 +205,7 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_gridCrossPlotCollection->deleteAllChildObjects();
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
     m_saturationPressurePlotCollection()->deleteAllChildObjects();
+    m_multiPlotCollection()->deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,6 +257,14 @@ void RimMainPlotCollection::updatePlotsWithFormations()
             crossPlot->loadDataAndUpdate();
         }
     }
+
+    if ( m_multiPlotCollection )
+    {
+        for ( RimMultiPlot* plotWindow : m_multiPlotCollection->multiPlots() )
+        {
+            plotWindow->loadDataAndUpdate();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,6 +277,14 @@ void RimMainPlotCollection::updatePlotsWithCompletions()
         for ( RimWellLogPlot* wellLogPlot : m_wellLogPlotCollection->wellLogPlots() )
         {
             wellLogPlot->loadDataAndUpdate();
+        }
+    }
+
+    if ( m_multiPlotCollection )
+    {
+        for ( RimMultiPlot* plotWindow : m_multiPlotCollection->multiPlots() )
+        {
+            plotWindow->loadDataAndUpdate();
         }
     }
 }
@@ -277,4 +305,18 @@ void RimMainPlotCollection::deleteAllCachedData()
 void RimMainPlotCollection::ensureDefaultFlowPlotsAreCreated()
 {
     m_flowPlotCollection()->ensureDefaultFlowPlotsAreCreated();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::ensureCalculationIdsAreAssigned()
+{
+    std::vector<RimSummaryAddress*> allAddresses;
+    this->descendantsIncludingThisOfType( allAddresses );
+
+    for ( RimSummaryAddress* adr : allAddresses )
+    {
+        adr->ensureIdIsAssigned();
+    }
 }

@@ -50,6 +50,7 @@
 
 #include "RiuMainWindow.h"
 
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
 
@@ -73,16 +74,21 @@ const char RimWellPath::SIM_WELL_NONE_UI_TEXT[] = "None";
 //--------------------------------------------------------------------------------------------------
 RimWellPath::RimWellPath()
 {
-    CAF_PDM_InitObject( "WellPath", ":/Well.png", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "WellPath", ":/Well.png", "", "", "WellPath", "The Base class for Well Paths" );
 
-    RICF_InitFieldNoDefault( &m_name, "WellPathName", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_name, "Name", "Name", "", "", "" );
+    m_name.registerKeywordAlias( "WellPathName" );
     m_name.uiCapability()->setUiReadOnly( true );
     m_name.uiCapability()->setUiHidden( true );
     m_name.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_airGap, "AirGap", "Air Gap", "", "", "" );
+    m_airGap.registerGetMethod( this, &RimWellPath::airGap );
+    m_airGap.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_datumElevation, "DatumElevation", "Datum Elevation", "", "", "" );
+    m_datumElevation.registerGetMethod( this, &RimWellPath::datumElevation );
     m_datumElevation.uiCapability()->setUiReadOnly( true );
-    m_datumElevation.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_unitSystem, "UnitSystem", "Unit System", "", "", "" );
     m_unitSystem.uiCapability()->setUiReadOnly( true );
@@ -96,13 +102,7 @@ RimWellPath::RimWellPath()
     m_showWellPath.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_wellPathRadiusScaleFactor, "WellPathRadiusScale", 1.0, "Well Path Radius Scale", "", "", "" );
-    CAF_PDM_InitField( &m_wellPathColor,
-                       "WellPathColor",
-                       cvf::Color3f( 0.999f, 0.333f, 0.999f ),
-                       "Well Path Color",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_wellPathColor, "WellPathColor", cvf::Color3f( 0.999f, 0.333f, 0.999f ), "Well Path Color", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_completions, "Completions", "Completions", "", "", "" );
     m_completions = new RimWellPathCompletions;
@@ -118,7 +118,7 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitField( &m_formationKeyInFile, "WellPathFormationKeyInFile", QString( "" ), "Key in File", "", "", "" );
     m_formationKeyInFile.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_wellPathFormationFilePath, "WellPathFormationFilePath", QString( "" ), "File Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathFormationFilePath, "WellPathFormationFilePath", "File Path", "", "", "" );
     m_wellPathFormationFilePath.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogFile_OBSOLETE, "WellLogFile", "Well Log File", "", "", "" );
@@ -345,9 +345,7 @@ const RigWellPath* RimWellPath::wellPathGeometry() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                    const QVariant&            oldValue,
-                                    const QVariant&            newValue )
+void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted( proj );
@@ -565,18 +563,16 @@ void RimWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
 
     caf::PdmUiGroup* ssihubGroup = uiOrdering.addNewGroup( "Well Info" );
 
-    ssihubGroup->add( &m_datumElevation );
-    ssihubGroup->add( &m_unitSystem );
+    if ( m_wellPath.notNull() && m_wellPath->rkbDiff() > 0.0 )
+    {
+        ssihubGroup->add( &m_airGap );
+    }
 
     if ( m_wellPath.notNull() && m_wellPath->hasDatumElevation() )
     {
-        m_datumElevation = m_wellPath->datumElevation();
-        m_datumElevation.uiCapability()->setUiHidden( false );
+        ssihubGroup->add( &m_datumElevation );
     }
-    else
-    {
-        m_datumElevation.uiCapability()->setUiHidden( true );
-    }
+    ssihubGroup->add( &m_unitSystem );
 
     caf::PdmUiGroup* formationFileInfoGroup = uiOrdering.addNewGroup( "Well Picks" );
     formationFileInfoGroup->add( &m_wellPathFormationFilePath );
@@ -627,20 +623,20 @@ size_t RimWellPath::simulationWellBranchCount( const QString& simWellName )
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    {
-        bool                 foundFile = false;
-        std::vector<QString> searchedPaths;
-
-        QString fileNameCandidate = RimTools::relocateFile( m_wellPathFormationFilePath,
-                                                            newProjectPath,
-                                                            oldProjectPath,
-                                                            &foundFile,
-                                                            &searchedPaths );
-        if ( foundFile )
-        {
-            m_wellPathFormationFilePath = fileNameCandidate;
-        }
-    }
+    //{
+    //    bool                 foundFile = false;
+    //    std::vector<QString> searchedPaths;
+    //
+    //    QString fileNameCandidate = RimTools::relocateFile( m_wellPathFormationFilePath,
+    //                                                        newProjectPath,
+    //                                                        oldProjectPath,
+    //                                                        &foundFile,
+    //                                                        &searchedPaths );
+    //    if ( foundFile )
+    //    {
+    //        m_wellPathFormationFilePath = fileNameCandidate;
+    //    }
+    //}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -670,6 +666,30 @@ void RimWellPath::setUnitSystem( RiaEclipseUnitTools::UnitSystem unitSystem )
 RiaEclipseUnitTools::UnitSystem RimWellPath::unitSystem() const
 {
     return m_unitSystem();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::airGap() const
+{
+    if ( m_wellPath.notNull() && m_wellPath->rkbDiff() > 0.0 )
+    {
+        return m_wellPath->rkbDiff();
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::datumElevation() const
+{
+    if ( m_wellPath.notNull() && m_wellPath->hasDatumElevation() )
+    {
+        return m_wellPath->datumElevation();
+    }
+    return 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -738,14 +758,14 @@ void RimWellPath::setFormationsGeometry( cvf::ref<RigWellPathFormations> wellPat
 bool RimWellPath::readWellPathFormationsFile( QString*                       errorMessage,
                                               RifWellPathFormationsImporter* wellPathFormationsImporter )
 {
-    if ( m_wellPathFormationFilePath().isEmpty() )
+    if ( m_wellPathFormationFilePath().path().isEmpty() )
     {
         return true;
     }
 
-    if ( caf::Utils::fileExists( m_wellPathFormationFilePath() ) )
+    if ( caf::Utils::fileExists( m_wellPathFormationFilePath().path() ) )
     {
-        m_wellPathFormations = wellPathFormationsImporter->readWellPathFormations( m_wellPathFormationFilePath(),
+        m_wellPathFormations = wellPathFormationsImporter->readWellPathFormations( m_wellPathFormationFilePath().path(),
                                                                                    m_formationKeyInFile() );
         if ( m_name().isEmpty() )
         {
@@ -755,7 +775,8 @@ bool RimWellPath::readWellPathFormationsFile( QString*                       err
     }
     else
     {
-        if ( errorMessage ) ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath();
+        if ( errorMessage )
+            ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
         return false;
     }
 }
@@ -766,20 +787,21 @@ bool RimWellPath::readWellPathFormationsFile( QString*                       err
 bool RimWellPath::reloadWellPathFormationsFile( QString*                       errorMessage,
                                                 RifWellPathFormationsImporter* wellPathFormationsImporter )
 {
-    if ( m_wellPathFormationFilePath().isEmpty() )
+    if ( m_wellPathFormationFilePath().path().isEmpty() )
     {
         return true;
     }
 
-    if ( caf::Utils::fileExists( m_wellPathFormationFilePath() ) )
+    if ( caf::Utils::fileExists( m_wellPathFormationFilePath().path() ) )
     {
-        m_wellPathFormations = wellPathFormationsImporter->reloadWellPathFormations( m_wellPathFormationFilePath(),
+        m_wellPathFormations = wellPathFormationsImporter->reloadWellPathFormations( m_wellPathFormationFilePath().path(),
                                                                                      m_formationKeyInFile() );
         return true;
     }
     else
     {
-        if ( errorMessage ) ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath();
+        if ( errorMessage )
+            ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
         return false;
     }
 }

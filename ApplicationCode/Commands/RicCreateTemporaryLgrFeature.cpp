@@ -191,10 +191,10 @@ void RicCreateTemporaryLgrFeature::onActionTriggered( bool isChecked )
 
         if ( !wellsIntersectingOtherLgrs.empty() )
         {
-            QMessageBox::
-                warning( nullptr,
-                         "LGR cells intersected",
-                         "At least one completion intersects with an LGR. No LGR(s) for those cells are produced" );
+            QMessageBox::warning( nullptr,
+                                  "LGR cells intersected",
+                                  "At least one completion intersects with an LGR. No LGR(s) for those cells are "
+                                  "produced" );
         }
     }
 }
@@ -224,8 +224,7 @@ void RicCreateTemporaryLgrFeature::createLgr( const LgrInfo& lgrInfo, RigMainGri
     localGrid->setGridId( lgrId );
     localGrid->setIndexToStartOfCells( totalCellCount );
     localGrid->setGridName( lgrInfo.name.toStdString() );
-    localGrid->setGridPointDimensions(
-        cvf::Vec3st( lgrInfo.sizes.i() + 1, lgrInfo.sizes.j() + 1, lgrInfo.sizes.k() + 1 ) );
+    localGrid->setGridPointDimensions( cvf::Vec3st( lgrInfo.sizes.i() + 1, lgrInfo.sizes.j() + 1, lgrInfo.sizes.k() + 1 ) );
     mainGrid->addLocalGrid( localGrid );
 
     size_t cellStartIndex = mainGrid->globalCellArray().size();

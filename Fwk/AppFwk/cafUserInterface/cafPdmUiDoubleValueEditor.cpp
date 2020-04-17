@@ -78,6 +78,12 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi(const QString& uiConfigName)
     if (uiObject)
     {
         uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
+        if (m_attributes.m_validator)
+        {
+            m_lineEdit->setValidator(m_attributes.m_validator);
+        }
+
+
     }
 
     bool    valueOk = false;
@@ -85,7 +91,12 @@ void PdmUiDoubleValueEditor::configureAndUpdateUi(const QString& uiConfigName)
     QString textValue;
     if (valueOk)
     {
-        textValue = QString::number(value, 'g', m_attributes.m_decimals);
+        if (m_attributes.m_numberFormat == PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED)
+            textValue = QString::number(value, 'f', m_attributes.m_decimals);
+        else if (m_attributes.m_numberFormat == PdmUiDoubleValueEditorAttribute::NumberFormat::SCIENTIFIC)
+            textValue = QString::number(value, 'e', m_attributes.m_decimals);
+        else
+            textValue = QString::number(value, 'g', m_attributes.m_decimals);        
     }
     else
     {

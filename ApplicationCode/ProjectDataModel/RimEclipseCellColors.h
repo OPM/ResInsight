@@ -45,10 +45,7 @@ public:
     void            setReservoirView( RimEclipseView* ownerReservoirView );
     RimEclipseView* reservoirView();
 
-    void                    updateLegendData( RimEclipseCase*         rimEclipseCase,
-                                              int                     timestep,
-                                              RimRegularLegendConfig* legendConfig        = nullptr,
-                                              RimTernaryLegendConfig* ternaryLegendConfig = nullptr );
+    void                    updateRangesForEmbeddedLegends( int timestep );
     RimRegularLegendConfig* legendConfig();
     RimTernaryLegendConfig* ternaryLegendConfig();
 
@@ -61,9 +58,7 @@ public:
 
 protected:
     // Overridden methods
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     friend class RimEclipseFaultColors;

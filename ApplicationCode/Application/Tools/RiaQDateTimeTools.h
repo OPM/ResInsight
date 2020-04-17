@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
+
 #include <qglobal.h>
 #include <qnamespace.h>
 
@@ -35,19 +37,9 @@ class QDate;
 class QTime;
 class DateTimeSpan;
 
-//==================================================================================================
-//
-//==================================================================================================
-enum class DateTimePeriod
+namespace caf
 {
-    NONE = -1,
-    DAY,
-    WEEK,
-    MONTH,
-    QUARTER,
-    HALFYEAR,
-    YEAR,
-    DECADE
+class PdmOptionItemInfo;
 };
 
 //==================================================================================================
@@ -85,13 +77,18 @@ public:
         TIME_FORMAT_SIZE
     };
 
-    static const QString TIMESPAN_DAY_NAME;
-    static const QString TIMESPAN_WEEK_NAME;
-    static const QString TIMESPAN_MONTH_NAME;
-    static const QString TIMESPAN_QUARTER_NAME;
-    static const QString TIMESPAN_HALFYEAR_NAME;
-    static const QString TIMESPAN_YEAR_NAME;
-    static const QString TIMESPAN_DECADE_NAME;
+    enum class DateTimePeriod
+    {
+        NONE = -1,
+        DAY,
+        WEEK,
+        MONTH,
+        QUARTER,
+        HALFYEAR,
+        YEAR,
+        DECADE
+    };
+    using DateTimePeriodEnum = caf::AppEnum<DateTimePeriod>;
 
     static Qt::TimeSpec currentTimeSpec();
 
@@ -104,8 +101,8 @@ public:
     static QDateTime addYears( const QDateTime& dt, double years );
     static QDateTime addSpan( const QDateTime& dt, DateTimeSpan span );
     static QDateTime subtractSpan( const QDateTime& dt, DateTimeSpan span );
-    static QDateTime addPeriod( const QDateTime& dt, DateTimePeriod period );
-    static QDateTime subtractPeriod( const QDateTime& dt, DateTimePeriod period );
+    static QDateTime addPeriod( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period );
+    static QDateTime subtractPeriod( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period );
 
     static QDateTime epoch();
 
@@ -116,11 +113,11 @@ public:
 
     static bool lessThan( const QDateTime& dt1, const QDateTime& dt2 );
 
-    static const DateTimeSpan timeSpan( DateTimePeriod period );
-    static QDateTime          truncateTime( const QDateTime& dt, DateTimePeriod period );
+    static const DateTimeSpan timeSpan( RiaQDateTimeTools::DateTimePeriod period );
+    static QDateTime          truncateTime( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period );
 
-    static std::vector<DateTimePeriod> dateTimePeriods();
-    static QString                     dateTimePeriodName( DateTimePeriod period );
+    static std::vector<RiaQDateTimeTools::DateTimePeriod> dateTimePeriods();
+    static QString                     dateTimePeriodName( RiaQDateTimeTools::DateTimePeriod period );
 
     // This function uses C locale to make sure the text representation of a date is stable, independent of the locale
     // settings on local machine. Required for stable regression testing.
@@ -134,6 +131,8 @@ public:
 
     static QString dateFormatString( const QString& fullDateFormat, DateFormatComponents dateComponents );
     static QString timeFormatString( const QString& fullTimeFormat, TimeFormatComponents timeComponents );
+
+    static QList<caf::PdmOptionItemInfo> createOptionItems( const std::vector<time_t>& timeSteps );
 
 private:
     static quint64 secondsInDay();
@@ -159,23 +158,11 @@ public:
     {
     }
 
-    int years() const
-    {
-        return m_years;
-    }
-    int months() const
-    {
-        return m_months;
-    }
-    int days() const
-    {
-        return m_days;
-    }
+    int years() const { return m_years; }
+    int months() const { return m_months; }
+    int days() const { return m_days; }
 
-    bool isEmpty()
-    {
-        return m_years == 0 && m_months == 0 && m_days;
-    }
+    bool isEmpty() { return m_years == 0 && m_months == 0 && m_days; }
 
 private:
     int m_years;

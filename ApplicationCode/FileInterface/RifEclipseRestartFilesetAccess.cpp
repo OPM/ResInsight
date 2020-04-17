@@ -84,7 +84,8 @@ void RifEclipseRestartFilesetAccess::setRestartFiles( const QStringList& fileSet
     m_ecl_files.clear();
 
     m_fileNames = fileSet;
-    m_fileNames.sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual time stored on file.
+    m_fileNames.sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual
+                        // time stored on file.
 
     for ( int i = 0; i < m_fileNames.size(); i++ )
     {
@@ -97,7 +98,9 @@ void RifEclipseRestartFilesetAccess::setRestartFiles( const QStringList& fileSet
 //--------------------------------------------------------------------------------------------------
 /// Close files
 //--------------------------------------------------------------------------------------------------
-void RifEclipseRestartFilesetAccess::close() {}
+void RifEclipseRestartFilesetAccess::close()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -133,7 +136,8 @@ void RifEclipseRestartFilesetAccess::timeSteps( std::vector<QDateTime>* timeStep
 
             openTimeStep( i );
 
-            RifEclipseOutputFileTools::timeSteps( m_ecl_files[i], &stepTime, &stepDays );
+            size_t perTimeStepEmptyKeywords = 0;
+            RifEclipseOutputFileTools::timeSteps( m_ecl_files[i], &stepTime, &stepDays, &perTimeStepEmptyKeywords );
 
             if ( stepTime.size() == 1 )
             {
@@ -193,13 +197,16 @@ bool RifEclipseRestartFilesetAccess::results( const QString&       resultName,
     if ( fileGridCount == 0 ) return true;
 
     // Result handling depends on presents of result values for all grids
-    if ( gridCount != fileGridCount )
+    if ( fileGridCount < gridCount )
     {
         return false;
     }
 
-    size_t i;
-    for ( i = 0; i < fileGridCount; i++ )
+    // NB : 6X simulator can report multiple keywords for one time step. The additional keywords do not contain and
+    // data imported by ResInsight. We read all blocks of data, also empty to simplify the logic.
+    // See https://github.com/OPM/ResInsight/issues/5763
+
+    for ( size_t i = 0; i < fileGridCount; i++ )
     {
         std::vector<double> gridValues;
 
@@ -273,9 +280,9 @@ void RifEclipseRestartFilesetAccess::openTimeStep( size_t timeStep )
 
     if ( m_ecl_files[timeStep] == nullptr )
     {
-        int            index    = static_cast<int>( timeStep );
-        ecl_file_type* ecl_file = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( m_fileNames[index] ).data(),
-                                                 ECL_FILE_CLOSE_STREAM );
+        int            index = static_cast<int>( timeStep );
+        ecl_file_type* ecl_file =
+            ecl_file_open( RiaStringEncodingTools::toNativeEncoded( m_fileNames[index] ).data(), ECL_FILE_CLOSE_STREAM );
 
         m_ecl_files[timeStep] = ecl_file;
 

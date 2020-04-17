@@ -30,6 +30,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiTreeView.h"
 
+#include "cafCmdFeatureManager.h"
 #include <QDockWidget>
 #include <QMdiArea>
 #include <QMdiSubWindow>
@@ -348,11 +349,10 @@ void RiuMainWindowBase::addViewerToMdiArea( QMdiArea*     mdiArea,
                                             const QPoint& subWindowPos,
                                             const QSize&  subWindowSize )
 {
-    RiuMdiSubWindow* subWin = new RiuMdiSubWindow( nullptr,
-                                                   Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint |
-                                                       Qt::WindowMaximizeButtonHint );
-    subWin->setAttribute(
-        Qt::WA_DeleteOnClose ); // Make sure the contained widget is destroyed when the MDI window is closed
+    RiuMdiSubWindow* subWin =
+        new RiuMdiSubWindow( nullptr, Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowMaximizeButtonHint );
+    subWin->setAttribute( Qt::WA_DeleteOnClose ); // Make sure the contained widget is destroyed when the MDI window is
+                                                  // closed
     subWin->setWidget( viewer );
 
     bool initialStateTiled     = subWindowsAreTiled();
@@ -389,4 +389,12 @@ void RiuMainWindowBase::addViewerToMdiArea( QMdiArea*     mdiArea,
             tileSubWindows();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::slotRefreshHelpActions()
+{
+    caf::CmdFeatureManager::instance()->action( "RicSearchHelpFeature" );
 }

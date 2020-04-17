@@ -19,7 +19,10 @@
 
 #include "WellLogCommands/RicWellLogsImportFileFeature.h"
 
+#include "RiaApplication.h"
 #include "RimWellLogFile.h"
+
+#include "cafPdmFieldIOScriptability.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -43,24 +46,33 @@ CAF_PDM_SOURCE_INIT( RicfImportWellLogFiles, "importWellLogFiles" );
 //--------------------------------------------------------------------------------------------------
 RicfImportWellLogFiles::RicfImportWellLogFiles()
 {
-    RICF_InitFieldNoDefault( &m_wellLogFileFolder, "wellLogFolder", "", "", "", "" );
-    RICF_InitFieldNoDefault( &m_wellLogFilePaths, "wellLogFiles", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_wellLogFileFolder, "wellLogFolder", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_wellLogFilePaths, "wellLogFiles", "", "", "", "" );
 }
 
-RicfCommandResponse RicfImportWellLogFiles::execute()
+caf::PdmScriptResponse RicfImportWellLogFiles::execute()
 {
     QStringList errorMessages, warningMessages;
     QStringList wellLogFilePaths;
 
-    QDir wellPathFolder( m_wellLogFileFolder );
-    if ( wellPathFolder.exists() )
+    QDir wellLogDir;
+    if ( m_wellLogFileFolder().isEmpty() )
+    {
+        wellLogDir = QDir( RiaApplication::instance()->startDir() );
+    }
+    else
+    {
+        wellLogDir = QDir( m_wellLogFileFolder );
+    }
+
+    if ( !m_wellLogFileFolder().isEmpty() )
     {
         QStringList nameFilters;
         nameFilters << RicWellLogsImportFileFeature::wellLogFileNameFilters();
-        QStringList relativePaths = wellPathFolder.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
+        QStringList relativePaths = wellLogDir.entryList( nameFilters, QDir::Files | QDir::NoDotAndDotDot );
         for ( QString relativePath : relativePaths )
         {
-            wellLogFilePaths.push_back( wellPathFolder.absoluteFilePath( relativePath ) );
+            wellLogFilePaths.push_back( wellLogDir.absoluteFilePath( relativePath ) );
         }
     }
     else
@@ -74,13 +86,17 @@ RicfCommandResponse RicfImportWellLogFiles::execute()
         {
             wellLogFilePaths.push_back( wellLogFilePath );
         }
+        else if ( QFileInfo::exists( wellLogDir.absoluteFilePath( wellLogFilePath ) ) )
+        {
+            wellLogFilePaths.push_back( wellLogDir.absoluteFilePath( wellLogFilePath ) );
+        }
         else
         {
             errorMessages << ( wellLogFilePath + " doesn't exist" );
         }
     }
 
-    RicfCommandResponse response;
+    caf::PdmScriptResponse response;
 
     if ( !wellLogFilePaths.empty() )
     {
@@ -103,12 +119,12 @@ RicfCommandResponse RicfImportWellLogFiles::execute()
 
     for ( QString warningMessage : warningMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_WARNING, warningMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warningMessage );
     }
 
     for ( QString errorMessage : errorMessages )
     {
-        response.updateStatus( RicfCommandResponse::COMMAND_ERROR, errorMessage );
+        response.updateStatus( caf::PdmScriptResponse::COMMAND_ERROR, errorMessage );
     }
 
     return response;

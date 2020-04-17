@@ -25,8 +25,8 @@
 #include "RiaPreferences.h"
 #include "RigStatisticsCalculator.h"
 
+#include "RimPlot.h"
 #include "RimPlotAxisAnnotation.h"
-#include "RimPlotInterface.h"
 
 #include "cafPdmUiSliderEditor.h"
 
@@ -89,9 +89,9 @@ RimPlotAxisProperties::RimPlotAxisProperties()
 
     CAF_PDM_InitFieldNoDefault(&m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
     CAF_PDM_InitField(&m_titleFontSize, "FontSize", 10, "Font Size", "", "", "");
-    m_titleFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
+    m_titleFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
     CAF_PDM_InitField(&m_valuesFontSize, "ValuesFontSize", 10, "Font Size", "", "", "");
-    m_valuesFontSize = RiaFontCache::pointSizeFromFontSizeEnum(RiaApplication::instance()->preferences()->defaultPlotFontSize());
+    m_valuesFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
 
     CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "", "", "", "");
 
@@ -416,7 +416,7 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
         m_isAutoZoom = false;
     }
 
-    RimPlotInterface* parentPlot = nullptr;
+    RimPlot* parentPlot = nullptr;
     this->firstAncestorOrThisOfType( parentPlot );
     if ( parentPlot )
     {

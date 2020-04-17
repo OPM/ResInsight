@@ -25,7 +25,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QChar RiaFilePathTools::SEPARATOR = '/';
+const QChar RiaFilePathTools::separator()
+{
+    return '/';
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -42,7 +45,7 @@ QString RiaFilePathTools::toInternalSeparator( const QString& path )
 
     // On other systems (i.e. Windows) -> Convert to internal separator (/)
     QString output = path;
-    return output.replace( QString( "\\" ), SEPARATOR );
+    return output.replace( QString( "\\" ), separator() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,9 +53,9 @@ QString RiaFilePathTools::toInternalSeparator( const QString& path )
 //--------------------------------------------------------------------------------------------------
 QString& RiaFilePathTools::appendSeparatorIfNo( QString& path )
 {
-    if ( !path.endsWith( SEPARATOR ) )
+    if ( !path.endsWith( separator() ) )
     {
-        path.append( SEPARATOR );
+        path.append( separator() );
     }
     return path;
 }
@@ -67,7 +70,7 @@ QString RiaFilePathTools::relativePath( const QString& rootDir, const QString& d
         QString relPath = dir;
         relPath.remove( 0, rootDir.size() );
 
-        if ( relPath.startsWith( SEPARATOR ) ) relPath.remove( 0, 1 );
+        if ( relPath.startsWith( separator() ) ) relPath.remove( 0, 1 );
         return appendSeparatorIfNo( relPath );
     }
     else
@@ -102,7 +105,7 @@ QString RiaFilePathTools::canonicalPath( const QString& path )
 std::pair<QString, QString> RiaFilePathTools::toFolderAndFileName( const QString& absFileName )
 {
     auto absFN   = toInternalSeparator( absFileName );
-    int  lastSep = absFN.lastIndexOf( SEPARATOR );
+    int  lastSep = absFN.lastIndexOf( separator() );
     if ( lastSep > 0 )
     {
         return std::make_pair( absFN.left( lastSep ), absFN.mid( lastSep + 1 ) );
@@ -123,7 +126,7 @@ QString RiaFilePathTools::removeDuplicatePathSeparators( const QString& path )
     do
     {
         len = correctedPath.size();
-        correctedPath.replace( QString( "%1%1" ).arg( SEPARATOR ), SEPARATOR );
+        correctedPath.replace( QString( "%1%1" ).arg( separator() ), separator() );
     } while ( correctedPath.size() != len );
 
     return correctedPath;
@@ -134,7 +137,7 @@ QString RiaFilePathTools::removeDuplicatePathSeparators( const QString& path )
 //--------------------------------------------------------------------------------------------------
 QString RiaFilePathTools::rootSearchPathFromSearchFilter( const QString& searchFilter )
 {
-    QStringList pathPartList = searchFilter.split( SEPARATOR );
+    QStringList pathPartList = searchFilter.split( separator() );
 
     QStringList::iterator pathPartIt = pathPartList.begin();
 
@@ -156,5 +159,5 @@ QString RiaFilePathTools::rootSearchPathFromSearchFilter( const QString& searchF
 
     pathPartList.erase( pathPartIt, pathPartList.end() );
 
-    return pathPartList.join( SEPARATOR );
+    return pathPartList.join( separator() );
 }

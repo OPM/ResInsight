@@ -54,9 +54,7 @@ protected:
     void updateViewWidgetAfterCreation() override;
     void updateViewFollowingRangeFilterUpdates() override;
     void onLoadDataAndUpdate() override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     caf::PdmFieldHandle* userDescriptionField() override;
 

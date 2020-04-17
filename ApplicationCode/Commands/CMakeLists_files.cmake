@@ -60,6 +60,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExecData.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSubItemsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSummaryCaseCollectionFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellMeasurementFilePathFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicReloadWellMeasurementsFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicWellMeasurementImportTools.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseSourSimDataFeature.h
 
@@ -85,7 +88,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextUi.h
-${CMAKE_CURRENT_LIST_DIR}/RicNewGridPlotWindowFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPlotFeature.h
 )
 
 
@@ -147,6 +150,9 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemFeature.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSubItemsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSummaryCaseCollectionFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellMeasurementFilePathFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicReloadWellMeasurementsFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicWellMeasurementImportTools.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseSourSimDataFeature.cpp
 
@@ -169,7 +175,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicCreateTemporaryLgrFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextUi.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicNewGridPlotWindowFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPlotFeature.cpp
 )
 
 

@@ -103,9 +103,9 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 
     progress.incrementProgress();
 
-    // TODO: oil or gas flowrate
+    // TODO: oil or gas flow rate
     std::vector<const std::vector<double>*> flowrateNNCatAllTimeSteps;
-    QString                                 nncConnectionProperty = mainGrid->nncData()->propertyNameFluxWat();
+    QString                                 nncConnectionProperty = RiaDefines::propertyNameFluxWat();
 
     progress.incrementProgress();
 
@@ -119,24 +119,24 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         const std::vector<double>* flowrateI = nullptr;
         if ( hasFlowrateI )
         {
-            flowrateI = &(
-                eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->cellScalarResults( flrWatIAddr, timeStep ) );
+            flowrateI =
+                &( eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->cellScalarResults( flrWatIAddr, timeStep ) );
         }
         flowrateIatAllTimeSteps.push_back( flowrateI );
 
         const std::vector<double>* flowrateJ = nullptr;
         if ( hasFlowrateJ )
         {
-            flowrateJ = &(
-                eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->cellScalarResults( flrWatJAddr, timeStep ) );
+            flowrateJ =
+                &( eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->cellScalarResults( flrWatJAddr, timeStep ) );
         }
         flowrateJatAllTimeSteps.push_back( flowrateJ );
 
         const std::vector<double>* flowrateK = nullptr;
         if ( hasFlowrateK )
         {
-            flowrateK = &(
-                eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->cellScalarResults( flrWatKAddr, timeStep ) );
+            flowrateK =
+                &( eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->cellScalarResults( flrWatKAddr, timeStep ) );
         }
         flowrateKatAllTimeSteps.push_back( flowrateK );
 
@@ -149,8 +149,8 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         std::vector<double> summedTracerValues( resultCellCount );
         for ( const RigEclipseResultAddress& tracerResAddr : tracerResAddrs )
         {
-            const std::vector<double>* tracerResult = &(
-                eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->cellScalarResults( tracerResAddr, timeStep ) );
+            const std::vector<double>* tracerResult =
+                &( eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->cellScalarResults( tracerResAddr, timeStep ) );
 
             for ( size_t i = 0; i < summedTracerValues.size(); i++ )
             {
@@ -213,8 +213,8 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate( RigMainGrid*           
 
     for ( size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++ )
     {
-        std::vector<double> totoalFlowrateIntoCell(
-            resultCellCount ); // brukt result celle index / active  antall i stedet
+        std::vector<double> totoalFlowrateIntoCell( resultCellCount ); // brukt result celle index / active  antall i
+                                                                       // stedet
 
         if ( flowrateIatAllTimeSteps[timeStep - 1] != nullptr && flowrateJatAllTimeSteps[timeStep - 1] != nullptr &&
              flowrateKatAllTimeSteps[timeStep - 1] != nullptr )
@@ -298,7 +298,10 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNNCflow( const std::vect
 {
     RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
 
-    for ( size_t connectionIndex = 0; connectionIndex < connections.size(); connectionIndex++ )
+    // Find max count for connections with result. Allen results introduce connections without results
+    size_t connectionsWithResultCount = std::min( flowrateNNC->size(), connections.size() );
+
+    for ( size_t connectionIndex = 0; connectionIndex < connectionsWithResultCount; connectionIndex++ )
     {
         RigConnection connection      = connections[connectionIndex];
         double        connectionValue = flowrateNNC->at( connectionIndex );
@@ -365,14 +368,14 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
             if ( flrWatResultI->at( cellResultIndex ) > 0 )
             {
                 // Flow out of cell globalCellIndex, into cell i+1
-                totalFlowrateIntoCell[cellResultIndexPosINeighbour] += flrWatResultI->at( cellResultIndex ) *
-                                                                       summedTracerValues[cellResultIndex];
+                totalFlowrateIntoCell[cellResultIndexPosINeighbour] +=
+                    flrWatResultI->at( cellResultIndex ) * summedTracerValues[cellResultIndex];
             }
             else if ( flrWatResultI->at( cellResultIndex ) < 0 )
             {
                 // Flow into cell globelCellIndex, from cell i+1
-                totalFlowrateIntoCell[cellResultIndex] += ( -1.0 ) * flrWatResultI->at( cellResultIndex ) *
-                                                          summedTracerValues[cellResultIndexPosINeighbour];
+                totalFlowrateIntoCell[cellResultIndex] +=
+                    ( -1.0 ) * flrWatResultI->at( cellResultIndex ) * summedTracerValues[cellResultIndexPosINeighbour];
             }
         }
 
@@ -393,14 +396,14 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
             if ( flrWatResultJ->at( cellResultIndex ) > 0 )
             {
                 // Flow out of cell globalCellIndex, into cell i+1
-                totalFlowrateIntoCell[cellResultIndexPosJNeighbour] += flrWatResultJ->at( cellResultIndex ) *
-                                                                       summedTracerValues[cellResultIndex];
+                totalFlowrateIntoCell[cellResultIndexPosJNeighbour] +=
+                    flrWatResultJ->at( cellResultIndex ) * summedTracerValues[cellResultIndex];
             }
             else if ( flrWatResultJ->at( cellResultIndex ) < 0 )
             {
                 // Flow into cell globelCellIndex, from cell i+1
-                totalFlowrateIntoCell[cellResultIndex] += ( -1.0 ) * flrWatResultJ->at( cellResultIndex ) *
-                                                          summedTracerValues[cellResultIndexPosJNeighbour];
+                totalFlowrateIntoCell[cellResultIndex] +=
+                    ( -1.0 ) * flrWatResultJ->at( cellResultIndex ) * summedTracerValues[cellResultIndexPosJNeighbour];
             }
         }
 
@@ -421,14 +424,14 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow( RigMa
             if ( flrWatResultK->at( cellResultIndex ) > 0 )
             {
                 // Flow out of cell globalCellIndex, into cell i+1
-                totalFlowrateIntoCell[cellResultIndexPosKNeighbour] += flrWatResultK->at( cellResultIndex ) *
-                                                                       summedTracerValues[cellResultIndex];
+                totalFlowrateIntoCell[cellResultIndexPosKNeighbour] +=
+                    flrWatResultK->at( cellResultIndex ) * summedTracerValues[cellResultIndex];
             }
             else if ( flrWatResultK->at( cellResultIndex ) < 0 )
             {
                 // Flow into cell globelCellIndex, from cell i+1
-                totalFlowrateIntoCell[cellResultIndex] += ( -1.0 ) * flrWatResultK->at( cellResultIndex ) *
-                                                          summedTracerValues[cellResultIndexPosKNeighbour];
+                totalFlowrateIntoCell[cellResultIndex] +=
+                    ( -1.0 ) * flrWatResultK->at( cellResultIndex ) * summedTracerValues[cellResultIndexPosKNeighbour];
             }
         }
     }

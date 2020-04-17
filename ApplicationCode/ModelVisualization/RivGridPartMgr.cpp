@@ -71,10 +71,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivGridPartMgr::RivGridPartMgr( RivCellSetEnum     cellSetType,
-                                RimEclipseCase*    eclipseCase,
-                                const RigGridBase* grid,
-                                size_t             gridIdx )
+RivGridPartMgr::RivGridPartMgr( RivCellSetEnum cellSetType, RimEclipseCase* eclipseCase, const RigGridBase* grid, size_t gridIdx )
     : m_surfaceGenerator( grid, RiaRegressionTestRunner::instance()->useOpenMPForGeometryCreation() )
     , m_gridIdx( gridIdx )
     , m_grid( grid )
@@ -254,6 +251,7 @@ void RivGridPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCell
         {
             RivTernaryTextureCoordsCreator texturer( cellResultColors,
                                                      cellResultColors->ternaryLegendConfig(),
+                                                     cellResultColors->reservoirView()->wellCollection(),
                                                      timeStepIndex,
                                                      m_grid->gridIndex(),
                                                      m_surfaceGenerator.quadToCellFaceMapper() );

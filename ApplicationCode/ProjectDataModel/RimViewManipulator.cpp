@@ -115,9 +115,7 @@ void RimViewManipulator::applySourceViewCameraOnDestinationViews( RimGridView*  
 
             if ( isBoundingBoxesOverlappingOrClose( sourceSceneBB, destSceneBB ) )
             {
-                destinationViewer->mainCamera()->setFromLookAt( destinationCamEye,
-                                                                destinationCamViewRefPoint,
-                                                                sourceCamUp );
+                destinationViewer->mainCamera()->setFromLookAt( destinationCamEye, destinationCamViewRefPoint, sourceCamUp );
             }
             else
             {
@@ -166,8 +164,7 @@ cvf::Vec3d RimViewManipulator::calculateEquivalentCamPosOffset( Rim3dView* sourc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimViewManipulator::isBoundingBoxesOverlappingOrClose( const cvf::BoundingBox& sourceBB,
-                                                            const cvf::BoundingBox& destBB )
+bool RimViewManipulator::isBoundingBoxesOverlappingOrClose( const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB )
 {
     if ( !sourceBB.isValid() || !destBB.isValid() ) return false;
 

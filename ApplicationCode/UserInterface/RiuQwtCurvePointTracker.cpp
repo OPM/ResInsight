@@ -100,12 +100,8 @@ QwtText RiuQwtCurvePointTracker::trackerText( const QPoint& pos ) const
         QString curveInfoText;
         QString mainAxisValueString;
         QString valueAxisValueString;
-        QPointF closestPoint = closestCurvePoint( pos,
-                                                  &curveInfoText,
-                                                  &valueAxisValueString,
-                                                  &mainAxisValueString,
-                                                  &relatedXAxis,
-                                                  &relatedYAxis );
+        QPointF closestPoint =
+            closestCurvePoint( pos, &curveInfoText, &valueAxisValueString, &mainAxisValueString, &relatedXAxis, &relatedYAxis );
         if ( !closestPoint.isNull() )
         {
             QString str = !curveInfoText.isEmpty() ? QString( "%1: %2" ).arg( curveInfoText ).arg( valueAxisValueString )

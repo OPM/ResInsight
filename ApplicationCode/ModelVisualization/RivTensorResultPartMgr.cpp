@@ -63,7 +63,9 @@ RivTensorResultPartMgr::RivTensorResultPartMgr( RimGeoMechView* reservoirView )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivTensorResultPartMgr::~RivTensorResultPartMgr() {}
+RivTensorResultPartMgr::~RivTensorResultPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -103,13 +105,13 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
 
         calculatePrincipalsAndDirections( elmTensors, &elmPrincipals, &elmPrincipalDirections );
 
-        std::vector<RivGeoMechPartMgrCache::Key> partKeys = m_rimReservoirView->vizLogic()->keysToVisiblePartMgrs(
-            (int)frameIndex );
+        std::vector<RivGeoMechPartMgrCache::Key> partKeys =
+            m_rimReservoirView->vizLogic()->keysToVisiblePartMgrs( (int)frameIndex );
 
         RigFemPartNodes nodes = part->nodes();
 
-        float arrowConstantScaling = 0.5 * m_rimReservoirView->tensorResults()->sizeScale() *
-                                     part->characteristicElementSize();
+        float arrowConstantScaling =
+            0.5 * m_rimReservoirView->tensorResults()->sizeScale() * part->characteristicElementSize();
 
         double min, max;
         m_rimReservoirView->tensorResults()->mappingRange( &min, &max );
@@ -139,8 +141,8 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
                     cvf::Vec3f center = nodes.coordinates.at( quadVerticesToNodeIdxMapping[quadVertex] ) +
                                         nodes.coordinates.at( quadVerticesToNodeIdxMapping[quadVertex + 2] );
 
-                    cvf::Vec3d displayCoord = m_rimReservoirView->displayCoordTransform()->transformToDisplayCoord(
-                        cvf::Vec3d( center / 2 ) );
+                    cvf::Vec3d displayCoord =
+                        m_rimReservoirView->displayCoordTransform()->transformToDisplayCoord( cvf::Vec3d( center / 2 ) );
 
                     cvf::Vec3f faceNormal = calculateFaceNormal( nodes, quadVerticesToNodeIdxMapping, quadVertex );
 
@@ -412,10 +414,9 @@ void RivTensorResultPartMgr::createOneColorPerPrincipalScalarMapper( const RimTe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTensorResultPartMgr::createOneColorPerPrincipalTextureCoords(
-    cvf::Vec2fArray*                        textureCoords,
-    const std::vector<TensorVisualization>& tensorVisualizations,
-    const cvf::ScalarMapper*                mapper )
+void RivTensorResultPartMgr::createOneColorPerPrincipalTextureCoords( cvf::Vec2fArray* textureCoords,
+                                                                      const std::vector<TensorVisualization>& tensorVisualizations,
+                                                                      const cvf::ScalarMapper*                mapper )
 {
     CVF_ASSERT( textureCoords );
     CVF_ASSERT( mapper );

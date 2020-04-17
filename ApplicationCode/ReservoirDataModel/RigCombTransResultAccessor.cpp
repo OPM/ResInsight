@@ -91,8 +91,7 @@ double RigCombTransResultAccessor::neighborCellTran( size_t                     
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigCombTransResultAccessor::cellFaceScalar( size_t                             gridLocalCellIndex,
-                                                   cvf::StructGridInterface::FaceType faceId ) const
+double RigCombTransResultAccessor::cellFaceScalar( size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
     switch ( faceId )
     {

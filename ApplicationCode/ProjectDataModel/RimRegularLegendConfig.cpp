@@ -35,8 +35,11 @@
 #include "RimIntersectionCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimViewLinker.h"
+#include "RimWellMeasurementInView.h"
 #include "RimWellRftEnsembleCurveSet.h"
 #include "RimWellRftPlot.h"
+#include "RiuCategoryLegendFrame.h"
+#include "RiuScalarMapperLegendFrame.h"
 
 #include "cafCategoryLegend.h"
 #include "cafCategoryMapper.h"
@@ -133,13 +136,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     CAF_PDM_InitObject( "Color Legend", ":/Legend.png", "", "" );
     CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Show Legend", "", "", "" );
     m_showLegend.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitField( &m_numLevels,
-                       "NumberOfLevels",
-                       8,
-                       "Number of Levels",
-                       "",
-                       "A hint on how many tick marks you whish.",
-                       "" );
+    CAF_PDM_InitField( &m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.", "" );
     CAF_PDM_InitField( &m_precision,
                        "Precision",
                        4,
@@ -147,6 +144,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
                        "",
                        "The number of significant digits displayed in the legend numbers",
                        "" );
+    m_significantDigitsInData = m_precision;
     CAF_PDM_InitField( &m_tickNumberFormat,
                        "TickNumberFormat",
                        caf::AppEnum<RimRegularLegendConfig::NumberFormatType>( FIXED ),
@@ -195,7 +193,9 @@ RimRegularLegendConfig::RimRegularLegendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig::~RimRegularLegendConfig() {}
+RimRegularLegendConfig::~RimRegularLegendConfig()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -271,7 +271,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
 
         view->updateDisplayModelForCurrentTimeStepAndRedraw();
 
-        view->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        view->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
     // Update stim plan templates if relevant
@@ -304,6 +304,8 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         rftPlot->onLegendDefinitionChanged();
     }
+
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -311,6 +313,8 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::updateLegend()
 {
+    m_significantDigitsInData = m_precision;
+
     double adjustedMin = cvf::UNDEFINED_DOUBLE;
     double adjustedMax = cvf::UNDEFINED_DOUBLE;
 
@@ -460,7 +464,9 @@ void RimRegularLegendConfig::updateLegend()
     {
         numDecimalDigits -= static_cast<int>( decadesInRange );
     }
-    m_scalarMapperLegend->setTickPrecision( cvf::Math::clamp( numDecimalDigits, 0, 20 ) );
+    numDecimalDigits          = cvf::Math::clamp( numDecimalDigits, 0, 20 );
+    m_significantDigitsInData = numDecimalDigits;
+    m_scalarMapperLegend->setTickPrecision( numDecimalDigits );
 
     RiaApplication* app         = RiaApplication::instance();
     RiaPreferences* preferences = app->preferences();
@@ -536,8 +542,13 @@ void RimRegularLegendConfig::setAutomaticRanges( double globalMin, double global
 void RimRegularLegendConfig::initAfterRead()
 {
     updateFieldVisibility();
+
+    this->updateUiIconFromToggleField();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimRegularLegendConfig::objectToggleField()
 {
     return &m_showLegend;
@@ -761,7 +772,9 @@ double RimRegularLegendConfig::categoryValueFromCategoryName( const QString& cat
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setTitle( const QString& title )
 {
-    auto cvfTitle = cvfqt::Utils::toString( title );
+    m_title = title;
+
+    auto cvfTitle = cvfqt::Utils::toString( m_title );
     m_scalarMapperLegend->setTitle( cvfTitle );
     m_categoryLegend->setTitle( cvfTitle );
 }
@@ -801,6 +814,24 @@ const caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame() cons
     else
     {
         return m_scalarMapperLegend.p();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuAbstractLegendFrame* RimRegularLegendConfig::makeLegendFrame()
+{
+    if ( m_currentScalarMapper == m_categoryMapper )
+    {
+        return new RiuCategoryLegendFrame( nullptr, m_title, m_categoryMapper.p() );
+    }
+    else
+    {
+        auto legend = new RiuScalarMapperLegendFrame( nullptr, m_title, m_currentScalarMapper.p() );
+        legend->setTickFormat( m_tickNumberFormat() );
+        legend->setTickPrecision( m_significantDigitsInData );
+        return legend;
     }
 }
 
@@ -930,6 +961,7 @@ QList<caf::PdmOptionItemInfo>
     if ( rftCurveSet ) hasRftPlotParent = true;
 
     bool isCategoryResult = false;
+    bool isAllenDiagram   = false;
     {
         RimEclipseCellColors* eclCellColors = nullptr;
         this->firstAncestorOrThisOfType( eclCellColors );
@@ -937,15 +969,23 @@ QList<caf::PdmOptionItemInfo>
         this->firstAncestorOrThisOfType( gmCellColors );
         RimCellEdgeColors* eclCellEdgColors = nullptr;
         this->firstAncestorOrThisOfType( eclCellEdgColors );
+        RimWellMeasurementInView* wellMeasurementInView = nullptr;
+        this->firstAncestorOrThisOfType( wellMeasurementInView );
 
         if ( ( eclCellColors && eclCellColors->hasCategoryResult() ) ||
              ( gmCellColors && gmCellColors->hasCategoryResult() ) ||
              ( eclCellEdgColors && eclCellEdgColors->hasCategoryResult() ) ||
              ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT ) ||
              ( rftCurveSet && rftCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT ) ||
-             ( crossPlotCurveSet && crossPlotCurveSet->groupingByCategoryResult() ) )
+             ( crossPlotCurveSet && crossPlotCurveSet->groupingByCategoryResult() ) ||
+             ( wellMeasurementInView && wellMeasurementInView->hasCategoryResult() ) )
         {
             isCategoryResult = true;
+        }
+
+        if ( eclCellColors && eclCellColors->resultType() == RiaDefines::ALLEN_DIAGRAMS )
+        {
+            isAllenDiagram = true;
         }
     }
 
@@ -953,16 +993,20 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_mappingMode )
     {
-        // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
+        // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of
+        // this type
         std::vector<MappingType> mappingTypes;
-        mappingTypes.push_back( LINEAR_DISCRETE );
-
-        if ( !crossPlotCurveSet )
+        if ( !isAllenDiagram )
         {
-            mappingTypes.push_back( LINEAR_CONTINUOUS );
-            mappingTypes.push_back( LOG10_CONTINUOUS );
+            mappingTypes.push_back( LINEAR_DISCRETE );
+
+            if ( !crossPlotCurveSet )
+            {
+                mappingTypes.push_back( LINEAR_CONTINUOUS );
+                mappingTypes.push_back( LOG10_CONTINUOUS );
+            }
+            mappingTypes.push_back( LOG10_DISCRETE );
         }
-        mappingTypes.push_back( LOG10_DISCRETE );
 
         if ( isCategoryResult )
         {
@@ -976,29 +1020,33 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_colorRangeMode )
     {
-        // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of this type
+        // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of
+        // this type
         std::vector<ColorRangesType> rangeTypes;
-        if ( !hasEnsembleCurveSetParent && !hasRftPlotParent )
+        if ( !isAllenDiagram )
         {
-            rangeTypes.push_back( NORMAL );
-            rangeTypes.push_back( OPPOSITE_NORMAL );
-            rangeTypes.push_back( WHITE_PINK );
-            rangeTypes.push_back( PINK_WHITE );
-            rangeTypes.push_back( BLUE_WHITE_RED );
-            rangeTypes.push_back( RED_WHITE_BLUE );
-            rangeTypes.push_back( WHITE_BLACK );
-            rangeTypes.push_back( BLACK_WHITE );
-            rangeTypes.push_back( ANGULAR );
-        }
-        else
-        {
-            for ( const auto& col : ColorManager::EnsembleColorRanges() )
+            if ( !hasEnsembleCurveSetParent && !hasRftPlotParent )
             {
-                rangeTypes.push_back( col.first );
+                rangeTypes.push_back( NORMAL );
+                rangeTypes.push_back( OPPOSITE_NORMAL );
+                rangeTypes.push_back( WHITE_PINK );
+                rangeTypes.push_back( PINK_WHITE );
+                rangeTypes.push_back( BLUE_WHITE_RED );
+                rangeTypes.push_back( RED_WHITE_BLUE );
+                rangeTypes.push_back( WHITE_BLACK );
+                rangeTypes.push_back( BLACK_WHITE );
+                rangeTypes.push_back( ANGULAR );
             }
-        }
+            else
+            {
+                for ( const auto& col : ColorManager::EnsembleColorRanges() )
+                {
+                    rangeTypes.push_back( col.first );
+                }
+            }
 
-        if ( hasStimPlanParent ) rangeTypes.push_back( STIMPLAN );
+            if ( hasStimPlanParent ) rangeTypes.push_back( STIMPLAN );
+        }
 
         if ( isCategoryResult )
         {

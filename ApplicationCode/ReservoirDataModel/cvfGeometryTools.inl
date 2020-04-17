@@ -100,9 +100,8 @@ bool GeometryTools::insertVertexInPolygon( std::vector<IndexType>*              
         insertBefore = it2;
         if ( it2 == listPolygon.end() ) it2 = listPolygon.begin();
 
-        double sqDistToLine = GeometryTools::linePointSquareDist( nodeCoords[*it],
-                                                                  nodeCoords[*it2],
-                                                                  nodeCoords[vertexIndex] );
+        double sqDistToLine =
+            GeometryTools::linePointSquareDist( nodeCoords[*it], nodeCoords[*it2], nodeCoords[vertexIndex] );
         if ( fabs( sqDistToLine ) < tolerance * tolerance )
         {
             it               = listPolygon.insert( insertBefore, vertexIndex );
@@ -195,7 +194,8 @@ bool GeometryTools::isPointTouchingIndexedPolygon( const cvf::Vec3d&            
     crossings = 0;
     for ( j = 0; j < numIndices; j++ )
     {
-        // cleverness:  bobble between filling endpoints of edges, so that the previous edge's shared endpoint is maintained.
+        // cleverness:  bobble between filling endpoints of edges, so that the previous edge's shared endpoint is
+        // maintained.
         if ( j & 0x1 )
         {
             vtx0      = vertices[indices[j]].ptr();
@@ -343,17 +343,17 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*  
     // Algorithm outline as follows:
 
     // Loop over edges in the face of Cv1. Intersect each one with all the edges of the Cv2 face.
-    // Add first point of the cv1 edge to polygon if it really touches Cv2 ( touch of edge is considered as not touching)
-    // Add each intersection point along the Cv1 edge if present
-    // and finally: if the cv1 edge is going out of cv2, the add the cv2 vertexes from that intersection as long as they touch cv1.
+    // Add first point of the cv1 edge to polygon if it really touches Cv2 ( touch of edge is considered as not
+    // touching) Add each intersection point along the Cv1 edge if present and finally: if the cv1 edge is going out of
+    // cv2, the add the cv2 vertexes from that intersection as long as they touch cv1.
 
     int nextCv1Idx = 1;
     for ( cv1Idx = 0; cv1Idx < 4; ++cv1Idx, ++nextCv1Idx )
     {
         if ( nextCv1Idx > 3 ) nextCv1Idx = 0;
 
-        if ( cv1VxTouchCv2[cv1Idx] &&
-             cv1VxTouchCv2Edge[cv1Idx] == -1 ) // Start of cv1 edge is touching inside the cv2 polygon (not on an cv2 edge)
+        if ( cv1VxTouchCv2[cv1Idx] && cv1VxTouchCv2Edge[cv1Idx] == -1 ) // Start of cv1 edge is touching inside the cv2
+                                                                        // polygon (not on an cv2 edge)
         {
             if ( polygon->empty() || polygon->back() != cv1CubeFaceIndices[cv1Idx] )
             {
@@ -553,9 +553,10 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*  
                 // Continue the polygon along the Cv2 edges as long as they touch cv1.
                 // Depending on the faces having opposite winding, which is guaranteed as long as
                 // no intersecting CVs share a connection
-                while (
-                    cv2VxTouchCv1[cv2Idx] && count < 4 &&
-                    ( cv2VxTouchCv1Edge[cv2Idx] == -1 ) ) // Touch of edge is regarded as being outside, so we must stop
+                while ( cv2VxTouchCv1[cv2Idx] && count < 4 && ( cv2VxTouchCv1Edge[cv2Idx] == -1 ) ) // Touch of edge is
+                                                                                                    // regarded as being
+                                                                                                    // outside, so we
+                                                                                                    // must stop
                 {
                     if ( polygon->empty() || polygon->back() != cv2CubeFaceIndices[cv2Idx] )
                     {
@@ -719,8 +720,7 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(
             if ( isConnectionPolygonMerged[opIdx] ) continue; // Already merged
 
             // Find position of pIt vertex index in the current connection polygon
-            typename VxIdxToPolygonPositionMap::iterator vxIndexPositionInPolygonIt = polygonSearchMaps[opIdx].find(
-                *pIt );
+            typename VxIdxToPolygonPositionMap::iterator vxIndexPositionInPolygonIt = polygonSearchMaps[opIdx].find( *pIt );
 
             if ( vxIndexPositionInPolygonIt != polygonSearchMaps[opIdx].end() )
             {

@@ -25,7 +25,6 @@
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
 #include "RiaGuiApplication.h"
-#include "RiaQDateTimeTools.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -35,6 +34,8 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"
 
+#include <QPageLayout>
+#include <QPageSize>
 #include <QStringList>
 
 #include <map>
@@ -66,6 +67,12 @@ public:
     };
     typedef caf::AppEnum<SummaryHistoryCurveStyleMode> SummaryHistoryCurveStyleModeType;
 
+    typedef caf::AppEnum<QPageSize::PageSizeId>    PageSizeEnum;
+    typedef caf::AppEnum<QPageLayout::Orientation> PageOrientationEnum;
+
+    bool enableFaultsByDefault() const;
+
+public:
     RiaPreferences( void );
     ~RiaPreferences( void ) override;
 
@@ -94,14 +101,22 @@ public:
     void        setDefaultPlotTemplatePath( const QString& templatePath );
     bool        showSummaryTimeAsLongString() const;
     bool        useMultipleThreadsWhenReadingSummaryData() const;
+    bool        showProgressBar() const;
+    bool        openExportedPdfInViewer() const;
 
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> defaultFontSizes() const;
 
-    void writePreferencesToApplicationStore();
+    void        writePreferencesToApplicationStore();
+    QPageLayout defaultPageLayout() const;
+    QMarginsF   margins() const;
+
+    // 3D view
+    RiaDefines::MeshModeType              defaultMeshModeType() const;
+    RiaGuiApplication::RINavigationPolicy navigationPolicy() const;
+    int                                   defaultScaleFactorZ() const;
+    bool                                  showLegendBackground() const;
 
 public: // Pdm Fields
-    caf::PdmField<caf::AppEnum<RiaGuiApplication::RINavigationPolicy>> navigationPolicy;
-
     caf::PdmField<bool> enableGrpcServer;
     caf::PdmField<int>  defaultGrpcPortNumber;
 
@@ -116,9 +131,6 @@ public: // Pdm Fields
 
     caf::PdmField<QString> ssihubAddress;
 
-    caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>> defaultMeshModeType;
-
-    caf::PdmField<int>          defaultScaleFactorZ;
     caf::PdmField<cvf::Color3f> defaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultFaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultViewerBackgroundColor;
@@ -129,8 +141,6 @@ public: // Pdm Fields
     caf::PdmField<FontSizeType> defaultWellLabelFontSize;
     caf::PdmField<FontSizeType> defaultAnnotationFontSize;
     caf::PdmField<FontSizeType> defaultPlotFontSize;
-
-    caf::PdmField<bool> showLegendBackground;
 
     caf::PdmField<QString> lastUsedProjectFileName;
 
@@ -156,6 +166,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
     void                          initAfterRead() override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     static QString tabNameGeneral();
@@ -164,6 +175,8 @@ private:
     static QString tabNameScripting();
     static QString tabNameExport();
     static QString tabNameSystem();
+
+    static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 
 private:
     caf::PdmChildField<RifReaderSettings*> m_readerSettings;
@@ -183,10 +196,31 @@ private:
     caf::PdmField<QString> m_timeFormat;
     caf::PdmField<bool>    m_showSummaryTimeAsLongString;
     caf::PdmField<bool>    m_useMultipleThreadsWhenLoadingSummaryData;
+    caf::PdmField<bool>    m_showProgressBar;
+
+    caf::PdmField<PageSizeEnum>        m_pageSize;
+    caf::PdmField<PageOrientationEnum> m_pageOrientation;
+    caf::PdmField<double>              m_pageLeftMargin;
+    caf::PdmField<double>              m_pageRightMargin;
+    caf::PdmField<double>              m_pageTopMargin;
+    caf::PdmField<double>              m_pageBottomMargin;
+    caf::PdmField<bool>                m_openExportedPdfInViewer;
 
     caf::PdmField<QString>       m_plotTemplateFolders;
     caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;
     caf::PdmField<caf::FilePath> m_defaultPlotTemplate;
 
+    // 3d view
+    caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>              m_defaultMeshModeType;
+    caf::PdmField<caf::AppEnum<RiaGuiApplication::RINavigationPolicy>> m_navigationPolicy;
+    caf::PdmField<int>                                                 m_defaultScaleFactorZ;
+    caf::PdmField<bool>                                                m_showLegendBackground;
+    caf::PdmField<bool>                                                m_enableFaultsByDefault;
+
     QStringList m_tabNames;
+
+    caf::PdmField<FontSizeType> m_defaultSceneFontSize_OBSOLETE;
+    caf::PdmField<FontSizeType> m_defaultWellLabelFontSize_OBSOLETE;
+    caf::PdmField<FontSizeType> m_defaultAnnotationFontSize_OBSOLETE;
+    caf::PdmField<FontSizeType> m_defaultPlotFontSize_OBSOLETE;
 };

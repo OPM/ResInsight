@@ -41,18 +41,9 @@ public:
     {
     }
 
-    std::string keyword() const
-    {
-        return m_keyword;
-    }
-    size_t itemCount() const
-    {
-        return m_itemCount;
-    }
-    int indexWithinReportStep() const
-    {
-        return m_indexWithinReportStep;
-    }
+    std::string keyword() const { return m_keyword; }
+    size_t      itemCount() const { return m_itemCount; }
+    int         indexWithinReportStep() const { return m_indexWithinReportStep; }
 
 private:
     std::string m_keyword;
@@ -119,4 +110,6 @@ public:
     virtual int  readUnitsType()                                                       = 0;
 
     virtual std::set<RiaDefines::PhaseType> availablePhases() const = 0;
+
+    virtual void updateFromGridCount( size_t gridCount ){};
 };

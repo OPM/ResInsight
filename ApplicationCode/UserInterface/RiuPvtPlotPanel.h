@@ -83,8 +83,8 @@ private:
     QPointer<RiuDockedQwtPlot> m_qwtPlot;
 
     std::vector<RigFlowDiagSolverInterface::PvtCurve> m_pvtCurveArr; // Array of source Pvt curves currently being plotted
-    std::vector<const QwtPlotCurve*>
-        m_qwtCurveArr; // Array of corresponding qwt curves used for mapping to Pvt curve when doing tracking
+    std::vector<const QwtPlotCurve*> m_qwtCurveArr; // Array of corresponding qwt curves used for mapping to Pvt curve
+                                                    // when doing tracking
 
     QPointer<RiuPvtQwtPicker> m_qwtPicker;
     QString                   m_trackerLabel;

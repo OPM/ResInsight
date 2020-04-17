@@ -24,6 +24,8 @@
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "RicfCommandObject.h"
+
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultsCollection.h"
@@ -32,16 +34,23 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
+#include "RimIntersectionResultDefinition.h"
+#include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSurfaceInViewCollection.h"
 #include "RimTensorResults.h"
+#include "RimTernaryLegendConfig.h"
 #include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
+#include "RimWellMeasurementInView.h"
+#include "RimWellMeasurementInViewCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "Riu3dSelectionManager.h"
@@ -76,11 +85,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechView, "GeoMechView" );
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView::RimGeoMechView( void )
 {
-    RiaApplication* app         = RiaApplication::instance();
-    RiaPreferences* preferences = app->preferences();
-    CVF_ASSERT( preferences );
-
-    CAF_PDM_InitObject( "Geomechanical View", ":/3DViewGeoMech16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Geomechanical View", ":/3DViewGeoMech16x16.png", "", "The Geomechanical 3d View" );
 
     CAF_PDM_InitFieldNoDefault( &cellResult, "GridCellResult", "Color Result", ":/CellResult.png", "", "" );
     cellResult = new RimGeoMechCellColors();
@@ -124,7 +129,10 @@ void RimGeoMechView::onLoadDataAndUpdate()
 {
     caf::ProgressInfo progress( 7, "" );
     progress.setNextProgressIncrement( 5 );
+
     onUpdateScaleTransform();
+
+    this->updateSurfacesInViewTreeItems();
 
     if ( m_geomechCase )
     {
@@ -140,7 +148,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
             if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
             {
                 QString displayMessage = errorMessage.empty()
-                                             ? "Could not open the Odb file: \n" + m_geomechCase->caseFileName()
+                                             ? "Could not open the Odb file: \n" + m_geomechCase->gridFileName()
                                              : QString::fromStdString( errorMessage );
 
                 if ( RiaGuiApplication::isRunning() )
@@ -161,6 +169,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
     CVF_ASSERT( this->cellResult() != nullptr );
     if ( this->hasUserRequestedAnimation() )
     {
+        m_geomechCase->geoMechData()->femPartResults()->setNormalizationAirGap( this->cellResult()->normalizationAirGap() );
         m_geomechCase->geoMechData()->femPartResults()->assertResultsLoaded( this->cellResult()->resultAddress() );
     }
     progress.incrementProgress();
@@ -169,6 +178,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
 
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
+    m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
 
     this->scheduleCreateDisplayModelAndRedraw();
 
@@ -285,9 +295,19 @@ void RimGeoMechView::onCreateDisplayModel()
 
     // Cross sections
 
-    m_crossSectionVizModel->removeAllParts();
-    m_crossSectionCollection->appendPartsToModel( *this, m_crossSectionVizModel.p(), scaleTransform() );
-    nativeOrOverrideViewer()->addStaticModelOnce( m_crossSectionVizModel.p(), isUsingOverrideViewer() );
+    m_intersectionVizModel->removeAllParts();
+    m_intersectionCollection->rebuildGeometry();
+    m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+
+    // Surfaces
+
+    m_surfaceVizModel->removeAllParts();
+    if ( m_surfaceCollection )
+    {
+        m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), scaleTransform() );
+        nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
+    }
 
     // If the animation was active before recreating everything, make viewer view current frame
 
@@ -299,7 +319,11 @@ void RimGeoMechView::onCreateDisplayModel()
     {
         onUpdateLegends();
         m_vizLogic->updateStaticCellColors( -1 );
-        m_crossSectionCollection->applySingleColorEffect();
+        m_intersectionCollection->applySingleColorEffect();
+        if ( m_surfaceCollection )
+        {
+            m_surfaceCollection->applySingleColorEffect();
+        }
 
         m_overlayInfoConfig()->update3DInfo();
     }
@@ -377,21 +401,20 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
         else
             m_vizLogic->updateStaticCellColors( m_currentTimeStep() );
 
-        if ( this->cellResult()->hasResult() )
+        bool hasGeneralCellResult = this->cellResult()->hasResult();
+
+        m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
+        if ( m_surfaceCollection )
         {
-            m_crossSectionCollection->updateCellResultColor( m_currentTimeStep,
-                                                             this->cellResult()->legendConfig()->scalarMapper(),
-                                                             nullptr );
-        }
-        else
-        {
-            m_crossSectionCollection->applySingleColorEffect();
+            m_surfaceCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
         }
     }
     else
     {
         m_vizLogic->updateStaticCellColors( -1 );
-        m_crossSectionCollection->applySingleColorEffect();
+
+        m_intersectionCollection->updateCellResultColor( false, m_currentTimeStep );
+        if ( m_surfaceCollection ) m_surfaceCollection->updateCellResultColor( false, m_currentTimeStep );
 
         nativeOrOverrideViewer()->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
@@ -422,6 +445,25 @@ void RimGeoMechView::setGeoMechCase( RimGeoMechCase* gmCase )
 void RimGeoMechView::onResetLegendsInViewer()
 {
     this->cellResult()->legendConfig->recreateLegend();
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->regularLegendConfig()->recreateLegend();
+        sepInterResDef->ternaryLegendConfig()->recreateLegend();
+    }
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
+    {
+        sepInterResDef->regularLegendConfig()->recreateLegend();
+        sepInterResDef->ternaryLegendConfig()->recreateLegend();
+    }
+
+    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+    {
+        wellMeasurement->legendConfig()->recreateLegend();
+    }
 
     nativeOrOverrideViewer()->removeAllColorLegends();
 }
@@ -455,6 +497,22 @@ void RimGeoMechView::onUpdateLegends()
                                                                         isUsingOverrideViewer() );
         }
 
+        for ( RimIntersectionResultDefinition* sepInterResDef :
+              this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+        {
+            sepInterResDef->updateLegendRangesTextAndVisibility( "Intersection Results:\n",
+                                                                 nativeOrOverrideViewer(),
+                                                                 isUsingOverrideViewer() );
+        }
+
+        for ( RimIntersectionResultDefinition* sepInterResDef :
+              this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
+        {
+            sepInterResDef->updateLegendRangesTextAndVisibility( "Surface Results:\n",
+                                                                 nativeOrOverrideViewer(),
+                                                                 isUsingOverrideViewer() );
+        }
+
         if ( tensorResults()->showTensors() )
         {
             updateTensorLegendTextAndRanges( m_tensorResults->arrowColorLegendConfig(), m_currentTimeStep() );
@@ -465,6 +523,18 @@ void RimGeoMechView::onUpdateLegends()
                 nativeOrOverrideViewer()
                     ->addColorLegendToBottomLeftCorner( m_tensorResults->arrowColorLegendConfig->titledOverlayFrame(),
                                                         isUsingOverrideViewer() );
+            }
+        }
+
+        if ( m_wellMeasurementCollection->isChecked() )
+        {
+            for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+            {
+                if ( wellMeasurement->isChecked() && wellMeasurement->legendConfig()->showLegend() )
+                {
+                    wellMeasurement->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(),
+                                                                          isUsingOverrideViewer() );
+                }
             }
         }
     }
@@ -490,10 +560,7 @@ void RimGeoMechView::updateTensorLegendTextAndRanges( RimRegularLegendConfig* le
 
     RigFemResultAddress resVarAddress( resPos, resFieldName.toStdString(), "" );
 
-    gmCase->femPartResults()->minMaxScalarValuesOverAllTensorComponents( resVarAddress,
-                                                                         timeStepIndex,
-                                                                         &localMin,
-                                                                         &localMax );
+    gmCase->femPartResults()->minMaxScalarValuesOverAllTensorComponents( resVarAddress, timeStepIndex, &localMin, &localMax );
     gmCase->femPartResults()->posNegClosestToZeroOverAllTensorComponents( resVarAddress,
                                                                           timeStepIndex,
                                                                           &localPosClosestToZero,
@@ -520,74 +587,12 @@ void RimGeoMechView::updateTensorLegendTextAndRanges( RimRegularLegendConfig* le
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int timeStepIndex )
 {
-    if ( !m_geomechCase || !m_geomechCase->geoMechData() || !this->isTimeStepDependentDataVisible() ||
-         !( cellResult()->resultAddress().isValid() ) )
+    if ( !this->isTimeStepDependentDataVisible() )
     {
         return;
     }
 
-    double localMin, localMax;
-    double localPosClosestToZero, localNegClosestToZero;
-    double globalMin, globalMax;
-    double globalPosClosestToZero, globalNegClosestToZero;
-
-    RigGeoMechCaseData* gmCase = m_geomechCase->geoMechData();
-    CVF_ASSERT( gmCase );
-
-    RigFemResultAddress resVarAddress = cellResult()->resultAddress();
-
-    gmCase->femPartResults()->minMaxScalarValues( resVarAddress, timeStepIndex, &localMin, &localMax );
-    gmCase->femPartResults()->posNegClosestToZero( resVarAddress,
-                                                   timeStepIndex,
-                                                   &localPosClosestToZero,
-                                                   &localNegClosestToZero );
-
-    gmCase->femPartResults()->minMaxScalarValues( resVarAddress, &globalMin, &globalMax );
-    gmCase->femPartResults()->posNegClosestToZero( resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero );
-
-    legendConfig->setClosestToZeroValues( globalPosClosestToZero,
-                                          globalNegClosestToZero,
-                                          localPosClosestToZero,
-                                          localNegClosestToZero );
-    legendConfig->setAutomaticRanges( globalMin, globalMax, localMin, localMax );
-
-    if ( cellResult()->hasCategoryResult() )
-    {
-        std::vector<QString> fnVector;
-        if ( gmCase->femPartResults()->activeFormationNames() )
-        {
-            fnVector = gmCase->femPartResults()->activeFormationNames()->formationNames();
-        }
-        legendConfig->setNamedCategoriesInverse( fnVector );
-    }
-
-    QString legendTitle = "Cell Results:\n" +
-                          caf::AppEnum<RigFemResultPosEnum>( cellResult->resultPositionType() ).uiText() + "\n" +
-                          cellResult->resultFieldUiName();
-
-    if ( !cellResult->resultComponentUiName().isEmpty() )
-    {
-        legendTitle += ", " + cellResult->resultComponentUiName();
-    }
-
-    if ( cellResult->resultFieldName() == "SE" || cellResult->resultFieldName() == "ST" ||
-         cellResult->resultFieldName() == "POR-Bar" || cellResult->resultFieldName() == "SM" ||
-         cellResult->resultFieldName() == "SEM" || cellResult->resultFieldName() == "Q" )
-    {
-        legendTitle += " [Bar]";
-    }
-
-    if ( cellResult->resultFieldName() == "MODULUS" )
-    {
-        legendTitle += " [GPa]";
-    }
-
-    if ( !cellResult->diffResultUiShortName().isEmpty() )
-    {
-        legendTitle += QString( "\nTime Diff:\n%1" ).arg( cellResult->diffResultUiShortName() );
-    }
-
-    legendConfig->setTitle( legendTitle );
+    cellResult()->updateLegendTextAndRanges( legendConfig, "Cell Result:\n", timeStepIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -623,6 +628,23 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
 
     absLegendConfigs.push_back( cellResult()->legendConfig() );
     absLegendConfigs.push_back( tensorResults()->arrowColorLegendConfig() );
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    {
+        absLegendConfigs.push_back( sepInterResDef->regularLegendConfig() );
+    }
+
+    for ( RimIntersectionResultDefinition* sepInterResDef :
+          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
+    {
+        absLegendConfigs.push_back( sepInterResDef->regularLegendConfig() );
+    }
+
+    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
+    {
+        absLegendConfigs.push_back( wellMeasurement->legendConfig() );
+    }
 
     return absLegendConfigs;
 }
@@ -748,10 +770,27 @@ bool RimGeoMechView::isTimeStepDependentDataVisible() const
     {
         return true;
     }
+
     if ( this->hasVisibleTimeStepDependent3dWellLogCurves() )
     {
         return true;
     }
+
+    if ( this->intersectionCollection()->hasAnyActiveSeparateResults() )
+    {
+        return true;
+    }
+
+    if ( this->surfaceInViewCollection() && this->surfaceInViewCollection()->hasAnyActiveSeparateResults() )
+    {
+        return true;
+    }
+
+    if ( m_wellMeasurementCollection->isChecked() )
+    {
+        return true;
+    }
+
     return false;
 }
 
@@ -866,33 +905,6 @@ void RimGeoMechView::calculateCurrentTotalCellVisibility( cvf::UByteArray* total
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )
-{
-    Riu3dSelectionManager*         riuSelManager = Riu3dSelectionManager::instance();
-    std::vector<RiuSelectionItem*> items;
-    riuSelManager->selectedItems( items );
-    for ( size_t i = 0; i < items.size(); i++ )
-    {
-        if ( items[i]->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT )
-        {
-            RiuGeoMechSelectionItem* geomSelItem = static_cast<RiuGeoMechSelectionItem*>( items[i] );
-            if ( geomSelItem && geomSelItem->m_view == this && geomSelItem->m_view->geoMechCase() )
-            {
-                RivSingleCellPartGenerator partGen( geomSelItem->m_view->geoMechCase(),
-                                                    geomSelItem->m_gridIndex,
-                                                    geomSelItem->m_cellIndex );
-                cvf::ref<cvf::Part>        part = partGen.createPart( geomSelItem->m_color );
-                part->setTransform( this->scaleTransform() );
-
-                parts->push_back( part.p() );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateIconStateForFilterCollections()
 {
     m_rangeFilterCollection()->updateIconState();
@@ -946,8 +958,12 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( m_tensorResults() );
+    uiTreeOrdering.add( &m_intersectionResultDefCollection );
+    uiTreeOrdering.add( &m_surfaceResultDefCollection );
+    uiTreeOrdering.add( &m_wellMeasurementCollection );
 
-    uiTreeOrdering.add( m_crossSectionCollection() );
+    uiTreeOrdering.add( m_intersectionCollection() );
+    if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
 
     uiTreeOrdering.add( m_rangeFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );

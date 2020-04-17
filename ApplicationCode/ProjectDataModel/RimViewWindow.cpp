@@ -43,16 +43,16 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. 
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::RimViewWindow( void )
 {
-    CAF_PDM_InitObject( "View window", "", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "View window",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    "ViewWindow",
+                                                    "The Base Class for all Views and Plots in ResInsight" );
 
     CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "", "", "", "" );
     m_windowController.uiCapability()->setUiHidden( true );
     m_windowController.uiCapability()->setUiTreeChildrenHidden( true );
-
-    RICF_InitField( &m_viewId, "ViewId", -1, "View ID", "", "", "" );
-    m_viewId.uiCapability()->setUiReadOnly( true );
-    m_viewId.uiCapability()->setUiHidden( true );
-    m_viewId.capability<RicfFieldHandle>()->setIOWriteable( false );
 
     CAF_PDM_InitField( &m_showWindow, "ShowWindow", true, "Show Window", "", "", "" );
     m_showWindow.uiCapability()->setUiHidden( true );
@@ -60,10 +60,6 @@ RimViewWindow::RimViewWindow( void )
     // Obsolete field
     CAF_PDM_InitFieldNoDefault( &obsoleteField_windowGeometry, "WindowGeometry", "", "", "", "" );
     RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_windowGeometry );
-
-    RiaApplication::instance()->project()->assignViewIdToView( this );
-    QString viewIdTooltip = QString( "View id: %1" ).arg( m_viewId );
-    this->setUiToolTip( viewIdTooltip );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,17 +73,17 @@ RimViewWindow::~RimViewWindow( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimViewWindow::id() const
+bool RimViewWindow::showWindow() const
 {
-    return m_viewId;
+    return m_showWindow;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::setId( int id )
+void RimViewWindow::setShowWindow( bool showWindow )
 {
-    m_viewId = id;
+    m_showWindow = showWindow;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,6 +91,7 @@ void RimViewWindow::setId( int id )
 //--------------------------------------------------------------------------------------------------
 void RimViewWindow::loadDataAndUpdate()
 {
+    assignIdIfNecessary();
     onLoadDataAndUpdate();
 }
 
@@ -161,6 +158,22 @@ void RimViewWindow::updateMdiWindowVisibility()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimViewWindow::setAs3DViewMdiWindow()
+{
+    setAsMdiWindow( 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewWindow::setAsPlotMdiWindow()
+{
+    setAsMdiWindow( 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimViewWindow::revokeMdiWindowStatus()
 {
     if ( m_windowController() )
@@ -219,7 +232,9 @@ void RimViewWindow::viewNavigationChanged()
 //--------------------------------------------------------------------------------------------------
 /// Default implementation of virtual method to trigger updates on view navigation (zoom, camera move, etc)
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::onViewNavigationChanged() {}
+void RimViewWindow::onViewNavigationChanged()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -318,10 +333,10 @@ void RimViewWindow::initAfterRead()
 void RimViewWindow::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiTreeViewItemAttribute* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
-    if ( treeItemAttribute && RiaApplication::instance()->preferences()->showViewIdInProjectTree() )
+    if ( treeItemAttribute && RiaApplication::instance()->preferences()->showViewIdInProjectTree() && id() >= 0 )
     {
-        treeItemAttribute->tag     = QString( "%1" ).arg( m_viewId );
-        cvf::Color3f viewColor     = RiaColorTables::contrastCategoryPaletteColors().cycledColor3f( (size_t)m_viewId );
+        treeItemAttribute->tag     = QString( "%1" ).arg( id() );
+        cvf::Color3f viewColor     = RiaColorTables::contrastCategoryPaletteColors().cycledColor3f( (size_t)id() );
         cvf::Color3f viewTextColor = RiaColorTools::contrastColor( viewColor );
         treeItemAttribute->bgColor = QColor( RiaColorTools::toQColor( viewColor ) );
         treeItemAttribute->fgColor = QColor( RiaColorTools::toQColor( viewTextColor ) );

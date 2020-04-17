@@ -27,10 +27,10 @@
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
-#include "RimGridPlotWindow.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
-#include "RimPlotInterface.h"
+#include "RimMultiPlot.h"
+#include "RimPlot.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -57,10 +57,7 @@ template <typename T>
 class RiuTypedPdmObjects
 {
 public:
-    explicit RiuTypedPdmObjects( const caf::PdmObjectGroup& objectGroup )
-    {
-        objectGroup.objectsByType( &m_objects );
-    }
+    explicit RiuTypedPdmObjects( const caf::PdmObjectGroup& objectGroup ) { objectGroup.objectsByType( &m_objects ); }
 
     explicit RiuTypedPdmObjects( const std::vector<caf::PdmPointer<caf::PdmObjectHandle>>& objectHandles )
     {
@@ -120,7 +117,9 @@ RiuDragDrop::RiuDragDrop()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuDragDrop::~RiuDragDrop() {}
+RiuDragDrop::~RiuDragDrop()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -163,7 +162,7 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
         }
 
         if ( dynamic_cast<RimEclipseCase*>( uiItem ) || dynamic_cast<RimWellLogCurve*>( uiItem ) ||
-             dynamic_cast<RimWellLogFileChannel*>( uiItem ) || dynamic_cast<RimPlotInterface*>( uiItem ) ||
+             dynamic_cast<RimWellLogFileChannel*>( uiItem ) || dynamic_cast<RimPlot*>( uiItem ) ||
              dynamic_cast<RimSummaryCase*>( uiItem ) )
         {
             // TODO: Remember to handle reservoir holding the main grid
@@ -186,16 +185,16 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
             }
-            else if ( dynamic_cast<RimGridPlotWindow*>( uiItem ) )
+            else if ( dynamic_cast<RimMultiPlot*>( uiItem ) )
             {
-                if ( RiuTypedPdmObjects<RimPlotInterface>::containsTypedObjects( m_dragItems ) )
+                if ( RiuTypedPdmObjects<RimPlot>::containsTypedObjects( m_dragItems ) )
                 {
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
             }
-            else if ( dynamic_cast<RimPlotInterface*>( uiItem ) )
+            else if ( dynamic_cast<RimPlot*>( uiItem ) )
             {
-                if ( RiuTypedPdmObjects<RimPlotInterface>::containsTypedObjects( m_dragItems ) )
+                if ( RiuTypedPdmObjects<RimPlot>::containsTypedObjects( m_dragItems ) )
                 {
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
@@ -297,18 +296,11 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
             return handleWellLogPlotCurveDrop( action, draggedObjects, wellLogPlotCurve );
         }
 
-        RimWellLogTrack* wellLogPlotTrack;
-        dropTarget->firstAncestorOrThisOfType( wellLogPlotTrack );
-        if ( wellLogPlotTrack )
+        RimMultiPlot* multiPlot;
+        dropTarget->firstAncestorOrThisOfType( multiPlot );
+        if ( multiPlot )
         {
-            return handleWellLogPlotTrackDrop( action, draggedObjects, wellLogPlotTrack, row );
-        }
-
-        RimGridPlotWindow* gridPlotWindow;
-        dropTarget->firstAncestorOrThisOfType( gridPlotWindow );
-        if ( gridPlotWindow )
-        {
-            return handleGridPlotWindowDrop( action, draggedObjects, gridPlotWindow, row );
+            return handleMultiPlotDrop( action, draggedObjects, multiPlot, row );
         }
 
         RimSummaryCaseCollection* summaryCaseCollection;
@@ -363,8 +355,8 @@ void RiuDragDrop::onDragCanceled()
 //--------------------------------------------------------------------------------------------------
 void RiuDragDrop::moveCasesToGridGroup( caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup )
 {
-    std::vector<RimEclipseCase*> casesToBeDeleted = RiuTypedPdmObjects<RimEclipseCase>::typedObjectsFromGroup(
-        objectGroup );
+    std::vector<RimEclipseCase*> casesToBeDeleted =
+        RiuTypedPdmObjects<RimEclipseCase>::typedObjectsFromGroup( objectGroup );
 
     if ( RicCloseCaseFeature::userConfirmedGridCaseGroupChange( casesToBeDeleted ) )
     {
@@ -399,82 +391,27 @@ bool RiuDragDrop::handleGridCaseGroupDrop( Qt::DropAction             action,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleWellLogPlotTrackDrop( Qt::DropAction       action,
-                                              caf::PdmObjectGroup& draggedObjects,
-                                              RimWellLogTrack*     trackTarget,
-                                              int                  insertAtPosition )
+bool RiuDragDrop::handleMultiPlotDrop( Qt::DropAction       action,
+                                       caf::PdmObjectGroup& draggedObjects,
+                                       RimMultiPlot*        multiPlot,
+                                       int                  insertAtPosition )
 {
-    std::vector<RimWellLogFileChannel*> wellLogFileChannels =
-        RiuTypedPdmObjects<RimWellLogFileChannel>::typedObjectsFromGroup( draggedObjects );
-    if ( wellLogFileChannels.size() > 0 )
-    {
-        if ( action == Qt::CopyAction )
-        {
-            RicWellLogTools::addWellLogChannelsToPlotTrack( trackTarget, wellLogFileChannels );
-            return true;
-        }
-    }
-
-    std::vector<RimWellLogCurve*> wellLogPlotCurves = RiuTypedPdmObjects<RimWellLogCurve>::typedObjectsFromGroup(
-        draggedObjects );
-    if ( wellLogPlotCurves.size() > 0 )
-    {
-        if ( action == Qt::MoveAction )
-        {
-            RimWellLogCurve* insertAfter = nullptr;
-            if ( insertAtPosition > 0 )
-            {
-                auto visibleCurves = trackTarget->visibleCurves();
-                if ( !visibleCurves.empty() )
-                {
-                    int insertAfterPosition = std::min( insertAtPosition - 1, (int)visibleCurves.size() - 1 );
-                    insertAfter             = visibleCurves[insertAfterPosition];
-                }
-            }
-            RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( trackTarget, wellLogPlotCurves, insertAfter );
-            return true;
-        }
-    }
-
-    std::vector<RimWellLogTrack*> wellLogPlotTracks = RiuTypedPdmObjects<RimWellLogTrack>::typedObjectsFromGroup(
-        draggedObjects );
-    if ( wellLogPlotTracks.size() > 0 )
-    {
-        if ( action == Qt::MoveAction )
-        {
-            RimWellLogPlot* wellLogPlot;
-            trackTarget->firstAncestorOrThisOfType( wellLogPlot );
-            return handleGridPlotWindowDrop( action, draggedObjects, wellLogPlot, insertAtPosition );
-        }
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuDragDrop::handleGridPlotWindowDrop( Qt::DropAction       action,
-                                            caf::PdmObjectGroup& draggedObjects,
-                                            RimGridPlotWindow*   gridPlotWindow,
-                                            int                  insertAtPosition )
-{
-    std::vector<RimPlotInterface*> plots = RiuTypedPdmObjects<RimPlotInterface>::typedObjectsFromGroup( draggedObjects );
+    std::vector<RimPlot*> plots = RiuTypedPdmObjects<RimPlot>::typedObjectsFromGroup( draggedObjects );
     if ( plots.size() > 0 )
     {
         if ( action == Qt::MoveAction )
         {
-            RimPlotInterface* insertAfter = nullptr;
+            RimPlot* insertAfter = nullptr;
             if ( insertAtPosition > 0 )
             {
-                auto visibleTracks = gridPlotWindow->visiblePlots();
+                auto visibleTracks = multiPlot->visiblePlots();
                 if ( !visibleTracks.empty() )
                 {
                     int insertAfterPosition = std::min( insertAtPosition - 1, (int)visibleTracks.size() - 1 );
-                    insertAfter             = dynamic_cast<RimPlotInterface*>( visibleTracks[insertAfterPosition] );
+                    insertAfter             = dynamic_cast<RimPlot*>( visibleTracks[insertAfterPosition] );
                 }
             }
-            gridPlotWindow->movePlotsToThis( plots, insertAfter );
+            multiPlot->movePlotsToThis( plots, insertAfter );
             return true;
         }
     }
@@ -489,8 +426,8 @@ bool RiuDragDrop::handleWellLogPlotCurveDrop( Qt::DropAction       action,
                                               caf::PdmObjectGroup& draggedObjects,
                                               RimWellLogCurve*     curveDropTarget )
 {
-    std::vector<RimWellLogCurve*> wellLogPlotCurves = RiuTypedPdmObjects<RimWellLogCurve>::typedObjectsFromGroup(
-        draggedObjects );
+    std::vector<RimWellLogCurve*> wellLogPlotCurves =
+        RiuTypedPdmObjects<RimWellLogCurve>::typedObjectsFromGroup( draggedObjects );
     if ( wellLogPlotCurves.size() > 0 )
     {
         if ( action == Qt::MoveAction )
@@ -515,8 +452,7 @@ bool RiuDragDrop::handleSummaryCaseCollectionDrop( Qt::DropAction            act
                                                    caf::PdmObjectGroup&      draggedObjects,
                                                    RimSummaryCaseCollection* summaryCaseDropTarget )
 {
-    std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup(
-        draggedObjects );
+    std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup( draggedObjects );
 
     if ( action != Qt::MoveAction || summaryCases.size() == 0 ) return false;
 
@@ -553,8 +489,7 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop( Qt::DropAction           
                                                        caf::PdmObjectGroup&          draggedObjects,
                                                        RimSummaryCaseMainCollection* summaryCaseDropTarget )
 {
-    std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup(
-        draggedObjects );
+    std::vector<RimSummaryCase*> summaryCases = RiuTypedPdmObjects<RimSummaryCase>::typedObjectsFromGroup( draggedObjects );
 
     if ( action != Qt::MoveAction || summaryCases.size() == 0 ) return false;
 

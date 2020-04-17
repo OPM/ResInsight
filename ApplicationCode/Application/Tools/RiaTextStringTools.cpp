@@ -18,6 +18,7 @@
 
 #include "RiaTextStringTools.h"
 
+#include <QRegularExpression>
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------

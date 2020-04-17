@@ -10,7 +10,7 @@ resInsight = rips.Instance.find()
 tmpdir = pathlib.Path(tempfile.gettempdir())
 
 # Find all eclipse contour maps of the project
-contour_maps = resInsight.project.contour_maps(rips.ContourMapType.ECLIPSE)
+contour_maps = resInsight.project.descendants(rips.EclipseContourMap)
 print("Number of eclipse contour maps:", len(contour_maps))
 
 # Export the contour maps to a text file
@@ -23,7 +23,7 @@ for (index, contour_map) in enumerate(contour_maps):
 # The contour maps is also available for a Case
 cases = resInsight.project.cases()
 for case in cases:
-    contour_maps = case.contour_maps(rips.ContourMapType.GEO_MECH)
+    contour_maps = case.descendants(rips.GeoMechContourMap)
     # Export the contour maps to a text file
     for (index, contour_map) in enumerate(contour_maps):
         filename = "geomech_contour_map" + str(index) + ".txt"

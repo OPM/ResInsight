@@ -25,6 +25,7 @@
 
 class RiaActiveCellResultsStateHandler;
 class RiaGridCellResultsStateHandler;
+class RiaSelectedCellResultsStateHandler;
 
 //==================================================================================================
 //
@@ -41,6 +42,10 @@ public:
                                         const rips::PropertyRequest*      request,
                                         rips::PropertyChunk*              reply,
                                         RiaActiveCellResultsStateHandler* stateHandler );
+    grpc::Status GetSelectedCellProperty( grpc::ServerContext*                context,
+                                          const rips::PropertyRequest*        request,
+                                          rips::PropertyChunk*                reply,
+                                          RiaSelectedCellResultsStateHandler* stateHandler );
     grpc::Status GetGridProperty( grpc::ServerContext*            context,
                                   const rips::PropertyRequest*    request,
                                   rips::PropertyChunk*            reply,

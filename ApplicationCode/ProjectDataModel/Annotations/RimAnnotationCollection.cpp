@@ -52,12 +52,7 @@ RimAnnotationCollection::RimAnnotationCollection()
                                 "",
                                 "",
                                 "" );
-    CAF_PDM_InitFieldNoDefault( &m_polylineFromFileAnnotations,
-                                "PolylineFromFileAnnotations",
-                                "Polylines From File",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_polylineFromFileAnnotations, "PolylineFromFileAnnotations", "Polylines From File", "", "", "" );
 
     m_reachCircleAnnotations.uiCapability()->setUiHidden( true );
     m_userDefinedPolylineAnnotations.uiCapability()->setUiHidden( true );
@@ -81,7 +76,9 @@ RimAnnotationCollection::RimAnnotationCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAnnotationCollection::~RimAnnotationCollection() {}
+RimAnnotationCollection::~RimAnnotationCollection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -261,8 +258,7 @@ std::vector<caf::PdmObject*> RimAnnotationCollection::allPdmAnnotations() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationCollection::reloadPolylinesFromFile(
-    const std::vector<RimPolylinesFromFileAnnotation*>& polyLinesObjsToReload )
+void RimAnnotationCollection::reloadPolylinesFromFile( const std::vector<RimPolylinesFromFileAnnotation*>& polyLinesObjsToReload )
 {
     QString totalErrorMessage;
 

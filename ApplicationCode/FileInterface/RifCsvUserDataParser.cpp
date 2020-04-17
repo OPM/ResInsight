@@ -76,7 +76,9 @@ RifCsvUserDataParser::RifCsvUserDataParser( QString* errorText )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCsvUserDataParser::~RifCsvUserDataParser() {}
+RifCsvUserDataParser::~RifCsvUserDataParser()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -565,8 +567,8 @@ bool RifCsvUserDataParser::parseLineBasedData()
             // VALUE
             {
                 bool   parseOk = true;
-                double value   = QLocale::c().toDouble( dataItems[colIndexes[(size_t)CsvLineBasedColumnType::VALUE]],
-                                                      &parseOk );
+                double value =
+                    QLocale::c().toDouble( dataItems[colIndexes[(size_t)CsvLineBasedColumnType::VALUE]], &parseOk );
 
                 if ( !parseOk )
                 {

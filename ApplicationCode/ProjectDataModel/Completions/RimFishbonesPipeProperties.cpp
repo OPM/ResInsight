@@ -38,7 +38,9 @@ RimFishbonesPipeProperties::RimFishbonesPipeProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFishbonesPipeProperties::~RimFishbonesPipeProperties() {}
+RimFishbonesPipeProperties::~RimFishbonesPipeProperties()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

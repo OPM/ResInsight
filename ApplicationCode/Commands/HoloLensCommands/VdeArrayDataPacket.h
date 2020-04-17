@@ -57,8 +57,7 @@ public:
     size_t      fullPacketSize() const;
     const char* fullPacketRawPtr() const;
 
-    static std::unique_ptr<VdeArrayDataPacket>
-        fromFloat32Arr( int arrayId, const float* srcArr, size_t srcArrElementCount );
+    static std::unique_ptr<VdeArrayDataPacket> fromFloat32Arr( int arrayId, const float* srcArr, size_t srcArrElementCount );
     static std::unique_ptr<VdeArrayDataPacket>
                                                fromUint32Arr( int arrayId, const unsigned int* srcArr, size_t srcArrElementCount );
     static std::unique_ptr<VdeArrayDataPacket> fromUint8ImageRGBArr( int                  arrayId,

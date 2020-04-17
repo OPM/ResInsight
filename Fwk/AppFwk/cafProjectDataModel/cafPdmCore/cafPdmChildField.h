@@ -16,8 +16,15 @@ template< typename T> class PdmFieldXmlCap;
 /// This is supposed to be renamed to PdmChildField
 //==================================================================================================
 
+class PdmChildFieldHandle : public PdmFieldHandle
+{
+public:
+    virtual void childObjects(std::vector<PdmObjectHandle*>* objects) = 0;
+    virtual void setChildObject(PdmObjectHandle* object) = 0;
+};
+
 template<typename DataType>
-class PdmChildField : public PdmFieldHandle
+class PdmChildField : public PdmChildFieldHandle
 {
 public:
     PdmChildField()
@@ -27,7 +34,7 @@ public:
 };
 
 template<typename DataType >
-class PdmChildField <DataType*> : public PdmFieldHandle
+class PdmChildField <DataType*> : public PdmChildFieldHandle
 {
     typedef DataType* DataTypePtr;
 public:
@@ -52,9 +59,9 @@ public:
     const PdmPointer<DataType>& operator()() const                          { return m_fieldValue; }
     const PdmPointer<DataType>& v() const                                   { return m_fieldValue; }
 
-    // Child objects
-
+    // Child objects    
     virtual void                childObjects(std::vector<PdmObjectHandle*>* objects);
+    void                        setChildObject(PdmObjectHandle* object) override;
     virtual void                removeChildObject(PdmObjectHandle* object);
 
 private:

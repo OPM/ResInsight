@@ -80,7 +80,9 @@ RivWindowEdgeAxesOverlayItem::RivWindowEdgeAxesOverlayItem( Font* font )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWindowEdgeAxesOverlayItem::~RivWindowEdgeAxesOverlayItem() {}
+RivWindowEdgeAxesOverlayItem::~RivWindowEdgeAxesOverlayItem()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -520,8 +522,7 @@ void RivWindowEdgeAxesOverlayItem::renderSoftwareFrameAndTickLines( OpenGLContex
 //--------------------------------------------------------------------------------------------------
 /// Draw the frame using shader programs
 //--------------------------------------------------------------------------------------------------
-void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*     oglContext,
-                                                                  const MatrixState& matrixState )
+void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext* oglContext, const MatrixState& matrixState )
 {
     CVF_CALLSITE_OPENGL( oglContext );
 

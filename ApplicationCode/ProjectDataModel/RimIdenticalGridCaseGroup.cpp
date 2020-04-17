@@ -23,8 +23,6 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
-#include "RicfCommandObject.h"
-
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -43,6 +41,8 @@
 
 #include "Riu3DMainWindowTools.h"
 
+#include "cafPdmFieldIOScriptability.h"
+#include "cafPdmObjectScriptability.h"
 #include "cafProgressInfo.h"
 
 #include <QDir>
@@ -55,13 +55,18 @@ CAF_PDM_SOURCE_INIT( RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup" );
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 {
-    CAF_PDM_InitObject( "Grid Case Group", ":/GridCaseGroup16x16.png", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Grid Case Group",
+                                                    ":/GridCaseGroup16x16.png",
+                                                    "",
+                                                    "",
+                                                    "GridCaseGroup",
+                                                    "A statistics case group" );
 
-    RICF_InitField( &name, "UserDescription", QString( "Grid Case Group" ), "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &name, "UserDescription", QString( "Grid Case Group" ), "Name", "", "", "" );
 
-    RICF_InitField( &groupId, "GroupId", -1, "Case Group ID", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &groupId, "GroupId", -1, "Case Group ID", "", "", "" );
     groupId.uiCapability()->setUiReadOnly( true );
-    groupId.capability<RicfFieldHandle>()->setIOWriteable( false );
+    groupId.capability<caf::PdmFieldScriptability>()->setIOWriteable( false );
 
     CAF_PDM_InitFieldNoDefault( &statisticsCaseCollection,
                                 "StatisticsCaseCollection",
@@ -188,9 +193,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
         if ( RiaGuiApplication::isRunning() )
         {
-            QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(),
-                                  "Error when opening project file",
-                                  errorMessage );
+            QMessageBox::warning( Riu3DMainWindowTools::mainWindowWidget(), "Error when opening project file", errorMessage );
         }
         RiaLogging::error( errorMessage );
         return;

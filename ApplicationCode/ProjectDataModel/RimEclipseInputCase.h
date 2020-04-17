@@ -47,7 +47,6 @@ public:
     // File open methods
     bool openDataFileSet( const QStringList& fileNames );
     bool importAsciiInputProperties( const QStringList& fileNames ) override;
-    void loadAndSyncronizeInputProperties();
 
     // RimCase overrides
     bool openEclipseGridFile() override;
@@ -55,17 +54,10 @@ public:
 
     // Overrides from RimCase
     QString locationOnDisc() const override;
-    QString gridFileName() const override
-    {
-        return m_gridFileName();
-    }
 
     void updateFilePathsFromProjectPath( const QString& projectPath, const QString& oldProjectPath ) override;
 
     void updateAdditionalFileFolder( const QString& newFolder );
-
-private:
-    std::vector<QString> additionalFiles() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -75,7 +67,6 @@ private:
 
 private:
     // Fields
-    caf::PdmField<QString>                        m_gridFileName;
     caf::PdmProxyValueField<std::vector<QString>> m_additionalFiles;
 
     // Obsolete fields

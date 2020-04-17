@@ -24,6 +24,7 @@
 
 #include "RimEclipseCase.h"
 
+#include "cafFilePath.h"
 #include <cafPdmProxyValueField.h>
 
 class RifReaderEclipseRft;
@@ -47,7 +48,6 @@ public:
     RimEclipseResultCase();
     ~RimEclipseResultCase() override;
 
-    void setGridFileName( const QString& fileName );
     void setCaseInfo( const QString& userDescription, const QString& fileName );
     void setSourSimFileName( const QString& fileName );
     bool hasSourSimFile();
@@ -63,11 +63,7 @@ public:
 
     // Overrides from RimCase
     QString locationOnDisc() const override;
-    QString gridFileName() const override
-    {
-        return caseFileName();
-    }
-    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
+    void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
     RimFlowDiagSolution*              defaultFlowDiagSolution();
     std::vector<RimFlowDiagSolution*> flowDiagSolutions();
@@ -76,9 +72,7 @@ public:
     RifReaderEclipseRft* rftReader();
 
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
@@ -98,10 +92,9 @@ private:
     cvf::ref<RifReaderEclipseRft> m_readerEclipseRft;
 
     // Fields:
-    caf::PdmField<QString>                                       caseFileName;
     caf::PdmProxyValueField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
     caf::PdmChildArrayField<RimFlowDiagSolution*>                m_flowDiagSolutions;
-    caf::PdmField<QString>                                       m_sourSimFileName;
+    caf::PdmField<caf::FilePath>                                 m_sourSimFileName;
 
     // Obsolete field
     caf::PdmField<QString> caseDirectory;

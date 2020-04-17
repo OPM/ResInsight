@@ -89,11 +89,8 @@ public:
     void recreateLegend();
 
     void            setColorRange( ColorRangesType colorMode );
-    ColorRangesType colorRange()
-    {
-        return m_colorRangeMode();
-    }
-    void disableAllTimeStepsRange( bool doDisable );
+    ColorRangesType colorRange() { return m_colorRangeMode(); }
+    void            disableAllTimeStepsRange( bool doDisable );
 
     void setAutomaticRanges( double globalMin, double globalMax, double localMin, double localMax );
 
@@ -113,9 +110,7 @@ public:
     RangeModeType rangeMode() const;
 
 private:
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 initAfterRead() override;
     caf::PdmFieldHandle* objectToggleField() override;
 

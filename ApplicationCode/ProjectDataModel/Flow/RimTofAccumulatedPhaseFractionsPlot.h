@@ -55,6 +55,8 @@ public:
     RimTofAccumulatedPhaseFractionsPlot();
     ~RimTofAccumulatedPhaseFractionsPlot() override;
 
+    int id() const final;
+
     void    setDescription( const QString& description );
     QString description() const;
 
@@ -73,18 +75,13 @@ public:
 
 protected:
     // RimViewWindow overrides
-
+    void   assignIdIfNecessary() final;
     void   onLoadDataAndUpdate() override;
     QImage snapshotWindowContent() override;
 
     // Overridden PDM methods
-    caf::PdmFieldHandle* userDescriptionField() override
-    {
-        return &m_userName;
-    }
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    caf::PdmFieldHandle* userDescriptionField() override { return &m_userName; }
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     caf::PdmField<bool>    m_showPlotTitle;

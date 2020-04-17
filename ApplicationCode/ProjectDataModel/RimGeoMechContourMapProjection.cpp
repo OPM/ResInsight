@@ -78,14 +78,17 @@ RimGeoMechContourMapProjection::RimGeoMechContourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechContourMapProjection::~RimGeoMechContourMapProjection() {}
+RimGeoMechContourMapProjection::~RimGeoMechContourMapProjection()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechContourMapProjection::resultDescriptionText() const
 {
-    QString resultText = QString( "%1, %2" ).arg( resultAggregationText() ).arg( view()->cellResult()->resultFieldUiName() );
+    QString resultText =
+        QString( "%1, %2" ).arg( resultAggregationText() ).arg( view()->cellResult()->resultFieldUiName() );
     return resultText;
 }
 

@@ -79,7 +79,7 @@ void RicNewEditableWellPathFeature::onActionTriggered( bool isChecked )
 
             size_t modelledWellpathCount = wellPathCollection->modelledWellPathCount();
 
-            newWellPaths.back()->setName( "UWell-" + QString::number( modelledWellpathCount + 1 ) );
+            newWellPaths.back()->setName( "Well-" + QString::number( modelledWellpathCount + 1 ) );
             newModeledWellPath->setWellPathColor(
                 RiaColorTables::editableWellPathsPaletteColors().cycledColor3f( modelledWellpathCount ) );
 

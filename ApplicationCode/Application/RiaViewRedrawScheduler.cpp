@@ -91,8 +91,7 @@ void RiaViewRedrawScheduler::updateAndRedrawScheduledViews()
         }
     }
 
-    for ( std::set<Rim3dView*>::iterator it = dependent3DViewsToUpdate.begin(); it != dependent3DViewsToUpdate.end();
-          ++it )
+    for ( std::set<Rim3dView*>::iterator it = dependent3DViewsToUpdate.begin(); it != dependent3DViewsToUpdate.end(); ++it )
     {
         if ( *it )
         {

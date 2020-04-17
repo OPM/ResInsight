@@ -82,7 +82,8 @@ RifReaderEclipseSummary); eclSummary->open(headerFile, dataFiles);
 
             RifEclipseSummaryTools::dumpMetaData(eclSummary.get());
 
-            // Create a vector of summary addresses based on type, item name and variable name, and compare the resulting
+            // Create a vector of summary addresses based on type, item name and variable name, and compare the
+resulting
             // resultAddressString to the original string
 
             std::vector<RifEclipseSummaryAddress> addresses = eclSummary->allResultAddresses();
@@ -199,7 +200,8 @@ RifReaderEclipseSummary); eclSummary->open(headerFile, dataFiles);
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, BasicReadKeywordTest)
 {
-    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
+    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary);
 
 
 
@@ -232,7 +234,8 @@ TEST(RifEclipseSummaryTest, BasicReadKeywordTest)
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, DISABLE_BasicReadKeywordTest)
 {
-    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
+    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary);
 
 
 
@@ -286,7 +289,8 @@ TEST(RifEclipseSummaryTest, DISABLE_BasicReadKeywordTest)
 //--------------------------------------------------------------------------------------------------
 TEST(RifEclipseSummaryTest, BasicReadDataTest)
 {
-    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
+    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary);
 
 
 
@@ -692,7 +696,8 @@ YEARS
 TEST(RifEclipseSummaryTest, DISABLED_BasicTestSetCurrentFolder)
 {
 / *
-    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
+    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary);
 
 
 
@@ -723,7 +728,8 @@ TEST(RifEclipseSummaryTest, DISABLED_BasicTestSetCurrentFolder)
 TEST(RifEclipseSummaryTest, DISABLED_BasicTest)
 {
 / *
-    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new RifReaderEclipseSummary);
+    std::unique_ptr<RifReaderEclipseSummary> eclSummary = std::unique_ptr<RifReaderEclipseSummary>(new
+RifReaderEclipseSummary);
 
 
 

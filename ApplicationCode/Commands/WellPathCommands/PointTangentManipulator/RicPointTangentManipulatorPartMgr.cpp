@@ -55,7 +55,9 @@ RicPointTangentManipulatorPartMgr::RicPointTangentManipulatorPartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicPointTangentManipulatorPartMgr::~RicPointTangentManipulatorPartMgr() {}
+RicPointTangentManipulatorPartMgr::~RicPointTangentManipulatorPartMgr()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -413,8 +415,7 @@ cvf::ref<cvf::DrawableGeo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo>
-    RicPointTangentManipulatorPartMgr::createTriangelDrawableGeo( cvf::Vec3fArray* triangleVertexArray )
+cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createTriangelDrawableGeo( cvf::Vec3fArray* triangleVertexArray )
 {
     using namespace cvf;
     ref<DrawableGeo> geo = new DrawableGeo;

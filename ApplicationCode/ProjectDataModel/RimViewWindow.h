@@ -39,10 +39,7 @@ struct RimMdiWindowGeometry
         , isMaximized( false )
     {
     }
-    bool isValid() const
-    {
-        return ( mainWindowID >= 0 && width >= 0 && height >= 0 );
-    }
+    bool isValid() const { return ( mainWindowID >= 0 && width >= 0 && height >= 0 ); }
 
     int mainWindowID;
 
@@ -61,21 +58,17 @@ public:
     RimViewWindow( void );
     ~RimViewWindow( void ) override;
 
-    int  id() const;
-    void setId( int id );
+    virtual int id() const = 0;
+
+    bool showWindow() const;
+    void setShowWindow( bool showWindow );
 
     void loadDataAndUpdate();
     void handleMdiWindowClosed();
     void updateMdiWindowVisibility();
 
-    void setAs3DViewMdiWindow()
-    {
-        setAsMdiWindow( 0 );
-    }
-    void setAsPlotMdiWindow()
-    {
-        setAsMdiWindow( 1 );
-    }
+    void setAs3DViewMdiWindow();
+    void setAsPlotMdiWindow();
     void revokeMdiWindowStatus();
 
     bool isMdiWindow() const;
@@ -94,10 +87,8 @@ public:
     {
         return false;
     }
-    virtual bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                int                         oldFontSize,
-                                int                         fontSize,
-                                bool                        forceChange = false )
+    virtual bool
+        applyFontSize( RiaDefines::FontSettingType fontSettingType, int oldFontSize, int fontSize, bool forceChange = false )
     {
         return false;
     }
@@ -109,7 +100,7 @@ protected:
     friend class RimMdiWindowController;
 
     QString          windowTitle();
-    virtual QWidget* createViewWidget( QWidget* mainWindowParent ) = 0;
+    virtual QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) = 0;
     virtual void     updateViewWidgetAfterCreation(){};
     virtual void     updateMdiWindowTitle(); // Has real default implementation
     virtual void     deleteViewWidget()    = 0;
@@ -122,22 +113,22 @@ protected:
     // as the objectToggleField for this class. This way the visibility of a widget being part of a composite widget
     // can be controlled from the project tree using check box toggles
     caf::PdmFieldHandle* objectToggleField() final;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 initAfterRead() override;
 
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    void setAsMdiWindow( int mainWindowID );
+    friend class RimProject;
+
+    void         setAsMdiWindow( int mainWindowID );
+    virtual void assignIdIfNecessary() = 0;
 
 protected:
     caf::PdmField<bool> m_showWindow;
 
 private:
     caf::PdmChildField<RimMdiWindowController*> m_windowController;
-    caf::PdmField<int>                          m_viewId;
 
     // Obsoleted field
     caf::PdmField<std::vector<int>> obsoleteField_windowGeometry;

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "cafUiStyleSheet.h"
+
 #include <QMainWindow>
 
 class QMdiArea;
@@ -60,11 +62,8 @@ public:
 
     void hideAllDockWidgets();
 
-    caf::PdmUiTreeView* projectTreeView()
-    {
-        return m_projectTreeView;
-    }
-    void setExpanded( const caf::PdmUiItem* uiItem, bool expanded = true );
+    caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView; }
+    void                setExpanded( const caf::PdmUiItem* uiItem, bool expanded = true );
 
     void selectAsCurrentItem( const caf::PdmObject* object, bool allowActiveViewChange = true );
     void toggleItemInSelection( const caf::PdmObject* object, bool allowActiveViewChange = true );
@@ -88,6 +87,7 @@ protected:
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
     void addViewerToMdiArea( QMdiArea* mdiArea, QWidget* viewer, const QPoint& subWindowPos, const QSize& subWindowSize );
+    void slotRefreshHelpActions();
 
 protected:
     caf::PdmUiTreeView* m_projectTreeView;

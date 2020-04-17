@@ -48,6 +48,7 @@ class OverlayScalarMapperLegend;
 
 class Rim3dView;
 class RimEnsembleCurveSet;
+class RiuAbstractLegendFrame;
 
 //==================================================================================================
 ///
@@ -105,16 +106,10 @@ public:
     void                              recreateLegend();
 
     void            setColorRange( ColorRangesType colorMode );
-    ColorRangesType colorRange()
-    {
-        return m_colorRangeMode();
-    }
-    void        setMappingMode( MappingType mappingType );
-    MappingType mappingMode()
-    {
-        return m_mappingMode();
-    }
-    void setTickNumberFormat( NumberFormatType numberFormat );
+    ColorRangesType colorRange() { return m_colorRangeMode(); }
+    void            setMappingMode( MappingType mappingType );
+    MappingType     mappingMode() { return m_mappingMode(); }
+    void            setTickNumberFormat( NumberFormatType numberFormat );
 
     void disableAllTimeStepsRange( bool doDisable );
 
@@ -135,28 +130,21 @@ public:
 
     void setUiValuesFromLegendConfig( const RimRegularLegendConfig* otherLegendConfig );
 
-    cvf::ScalarMapper* scalarMapper()
-    {
-        return m_currentScalarMapper.p();
-    }
-    const cvf::ScalarMapper* scalarMapper() const
-    {
-        return m_currentScalarMapper.p();
-    }
+    cvf::ScalarMapper*       scalarMapper() { return m_currentScalarMapper.p(); }
+    const cvf::ScalarMapper* scalarMapper() const { return m_currentScalarMapper.p(); }
 
     bool showLegend() const;
 
     const caf::TitledOverlayFrame* titledOverlayFrame() const override;
     caf::TitledOverlayFrame*       titledOverlayFrame() override;
+    RiuAbstractLegendFrame*        makeLegendFrame();
 
     RangeModeType             rangeMode() const;
     static cvf::Color3ubArray colorArrayFromColorType( ColorRangesType colorType );
 
 private:
     void                 setNamedCategories( const std::vector<QString>& categoryNames, bool inverse );
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 initAfterRead() override;
     caf::PdmFieldHandle* objectToggleField() override;
 
@@ -169,9 +157,6 @@ private:
     double roundToNumSignificantDigits( double value, double precision );
 
     friend class RimViewLinker;
-
-    caf::OverlayScalarMapperLegend* getOrCreateScalarMapperLegend();
-    caf::CategoryLegend*            getOrCreateCategoryLegend();
 
 private:
     cvf::ref<cvf::ScalarMapperDiscreteLinear>   m_linDiscreteScalarMapper;
@@ -211,4 +196,7 @@ private:
     caf::PdmField<double>                         m_userDefinedMinValue;
     caf::PdmField<caf::AppEnum<ColorRangesType>>  m_colorRangeMode;
     caf::PdmField<caf::AppEnum<MappingType>>      m_mappingMode;
+
+    QString m_title;
+    int     m_significantDigitsInData;
 };

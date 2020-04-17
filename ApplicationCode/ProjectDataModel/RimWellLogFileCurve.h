@@ -49,7 +49,8 @@ public:
 
     // Overrides from RimWellLogPlotCurve
     QString wellName() const override;
-    QString wellLogChannelName() const override;
+    QString wellLogChannelUiName() const override;
+    QString wellLogChannelUnits() const override;
 
     RimWellLogFile* wellLogFile() const;
 
@@ -59,9 +60,7 @@ protected:
     void    onLoadDataAndUpdate( bool updateParentPlot ) override;
 
     // Pdm overrrides
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -73,6 +72,6 @@ protected:
 protected:
     caf::PdmPtrField<RimWellPath*>    m_wellPath;
     caf::PdmPtrField<RimWellLogFile*> m_wellLogFile;
-    caf::PdmField<QString>            m_wellLogChannnelName;
+    caf::PdmField<QString>            m_wellLogChannelName;
     caf::PdmField<QString>            m_wellLogChannnelUnit;
 };

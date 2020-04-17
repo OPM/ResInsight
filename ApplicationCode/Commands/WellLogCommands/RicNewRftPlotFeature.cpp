@@ -81,7 +81,7 @@ void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
         wellName         = rftPlot->simWellOrWellPathName(); // We may have been given a default well name
         QString plotName = QString( RimWellRftPlot::plotNameFormatString() ).arg( wellName );
 
-        rftPlot->setDescription( plotName );
+        rftPlot->nameConfig()->setCustomName( plotName );
 
         rftPlot->loadDataAndUpdate();
         rftPlotColl->updateConnectedEditors();

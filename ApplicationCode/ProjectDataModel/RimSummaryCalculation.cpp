@@ -64,6 +64,8 @@ RimSummaryCalculation::RimSummaryCalculation()
     CAF_PDM_InitFieldNoDefault( &m_calculatedValues, "CalculatedValues", "Calculated Values", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_timesteps, "TimeSteps", "Time Steps", "", "", "" );
+    CAF_PDM_InitField( &m_id, "Id", -1, "Id", "", "", "" );
+    m_id.uiCapability()->setUiHidden( true );
 
     m_exprContextMenuMgr = std::unique_ptr<RiuExpressionContextMenuManager>( new RiuExpressionContextMenuManager() );
 
@@ -84,6 +86,22 @@ void RimSummaryCalculation::setDescription( const QString& description )
 QString RimSummaryCalculation::description() const
 {
     return m_description;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculation::setId( int id )
+{
+    m_id = id;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryCalculation::id() const
+{
+    return m_id;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -301,8 +319,7 @@ bool RimSummaryCalculation::calculate()
             size_t firstValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllXValues().front().first;
             size_t lastValidTimeStep  = timeHistoryCurveMerger.validIntervalsForAllXValues().back().second + 1;
 
-            if ( lastValidTimeStep > firstValidTimeStep &&
-                 lastValidTimeStep <= timeHistoryCurveMerger.allXValues().size() )
+            if ( lastValidTimeStep > firstValidTimeStep && lastValidTimeStep <= timeHistoryCurveMerger.allXValues().size() )
             {
                 std::vector<time_t> validTimeSteps( timeHistoryCurveMerger.allXValues().begin() + firstValidTimeStep,
                                                     timeHistoryCurveMerger.allXValues().begin() + lastValidTimeStep );
@@ -477,4 +494,16 @@ void RimSummaryCalculation::updateDependentCurvesAndPlots()
             sumPlot->loadDataAndUpdate();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCalculationVariable*> RimSummaryCalculation::allVariables() const
+{
+    std::vector<RimSummaryCalculationVariable*> outVariables;
+    for ( RimSummaryCalculationVariable* v : m_variables )
+        outVariables.push_back( v );
+
+    return outVariables;
 }

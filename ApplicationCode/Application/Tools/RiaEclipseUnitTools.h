@@ -34,43 +34,16 @@ public:
 
     typedef caf::AppEnum<RiaEclipseUnitTools::UnitSystem> UnitSystemType;
 
-    static double feetPerMeter()
-    {
-        return 3.2808399;
-    }
-    static double meterPerFeet()
-    {
-        return 0.3048000;
-    }
+    static double feetPerMeter() { return 3.2808399; }
+    static double meterPerFeet() { return 0.3048000; }
 
-    static double meterToFeet( double meter )
-    {
-        return meter * feetPerMeter();
-    }
-    static double feetToMeter( double feet )
-    {
-        return feet * meterPerFeet();
-    }
-    static double meterToInch( double meter )
-    {
-        return meter * feetPerMeter() * 12.0;
-    }
-    static double inchToMeter( double inch )
-    {
-        return ( inch / 12.0 ) * meterPerFeet();
-    }
-    static double inchToFeet( double inch )
-    {
-        return ( inch / 12.0 );
-    }
-    static double mmToMeter( double mm )
-    {
-        return mm / 1000.0;
-    }
-    static double meterToMm( double meter )
-    {
-        return 1000.0 * meter;
-    }
+    static double meterToFeet( double meter ) { return meter * feetPerMeter(); }
+    static double feetToMeter( double feet ) { return feet * meterPerFeet(); }
+    static double meterToInch( double meter ) { return meter * feetPerMeter() * 12.0; }
+    static double inchToMeter( double inch ) { return ( inch / 12.0 ) * meterPerFeet(); }
+    static double inchToFeet( double inch ) { return ( inch / 12.0 ); }
+    static double mmToMeter( double mm ) { return mm / 1000.0; }
+    static double meterToMm( double meter ) { return 1000.0 * meter; }
 
     static double darcysConstant( UnitSystem unitSystem );
 

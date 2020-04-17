@@ -22,11 +22,13 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RicfCommandObject::RicfCommandObject()
-    : RicfObjectCapability( this, false )
+    : PdmObjectScriptability( this, false )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCommandObject::~RicfCommandObject() {}
+RicfCommandObject::~RicfCommandObject()
+{
+}

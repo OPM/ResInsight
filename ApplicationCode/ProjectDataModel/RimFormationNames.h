@@ -36,15 +36,12 @@ public:
     RimFormationNames();
     ~RimFormationNames() override;
 
-    void           setFileName( const QString& fileName );
-    const QString& fileName();
-    QString        fileNameWoPath();
+    void    setFileName( const QString& fileName );
+    QString fileName();
+    QString fileNameWoPath();
 
-    RigFormationNames* formationNamesData()
-    {
-        return m_formationNamesData.p();
-    }
-    void updateConnectedViews();
+    RigFormationNames* formationNamesData() { return m_formationNamesData.p(); }
+    void               updateConnectedViews();
 
     void readFormationNamesFile( QString* errorMessage );
     void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
@@ -52,10 +49,9 @@ public:
     static QString layerZoneTableFileName();
 
 protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
-    void initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    virtual void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
 private:
     void updateUiTreeName();
@@ -63,7 +59,7 @@ private:
     void readFmuFormationNameFile( QTextStream& stream, QString* errorMessage );
 
 private:
-    caf::PdmField<QString> m_formationNamesFileName;
+    caf::PdmField<caf::FilePath> m_formationNamesFileName;
 
     cvf::ref<RigFormationNames> m_formationNamesData;
 };

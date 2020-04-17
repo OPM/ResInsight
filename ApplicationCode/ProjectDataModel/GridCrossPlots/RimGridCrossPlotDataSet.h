@@ -36,6 +36,7 @@
 #include <cvfArray.h>
 
 #include <QList>
+#include <QPointer>
 #include <map>
 
 class RifTextDataTableFormatter;
@@ -47,11 +48,12 @@ class RimEclipseResultCase;
 class RimEclipseCellColors;
 class RimEclipseResultDefinition;
 class RimRegularLegendConfig;
+class RimPlotCellFilterCollection;
+class RimPlotCellFilter;
+class RiuDraggableOverlayFrame;
 class QwtPlot;
 class QwtPlotCurve;
 class QString;
-class RimPlotCellFilterCollection;
-class RimPlotCellFilter;
 
 class RimGridCrossPlotDataSetNameConfig : public RimNameConfig
 {
@@ -93,7 +95,7 @@ public:
 
 public:
     RimGridCrossPlotDataSet();
-    ~RimGridCrossPlotDataSet() = default;
+    ~RimGridCrossPlotDataSet();
 
     void    setCellFilterView( RimGridView* cellFilterView );
     void    loadDataAndUpdate( bool updateParentPlot );
@@ -130,7 +132,9 @@ public:
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;
 
-    void configureForPressureSaturationCurves( RimEclipseResultCase* eclipseResultCase, const QString& dynamicResultName );
+    void configureForPressureSaturationCurves( RimEclipseResultCase* eclipseResultCase,
+                                               const QString&        dynamicResultName,
+                                               int                   timeStep );
     void addCellFilter( RimPlotCellFilter* cellFilter );
     void setCustomColor( const cvf::Color3f color );
     void destroyCurves();
@@ -150,9 +154,7 @@ protected:
     std::map<int, cvf::UByteArray> calculateCellVisibility( RimEclipseCase* eclipseCase ) const;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                           const QVariant&            oldValue,
-                           const QVariant&            newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -188,5 +190,6 @@ private:
     caf::PdmField<bool>                              m_useCustomColor;
     caf::PdmField<cvf::Color3f>                      m_customColor;
     caf::PdmChildField<RimPlotCellFilterCollection*> m_plotCellFilterCollection;
-    ;
+
+    QPointer<RiuDraggableOverlayFrame> m_legendOverlayFrame;
 };

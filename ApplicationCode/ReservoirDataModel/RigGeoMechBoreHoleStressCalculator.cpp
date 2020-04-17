@@ -129,7 +129,7 @@ double RigGeoMechBoreHoleStressCalculator::solveSecant( MemberFunc fn, double* t
     double f_x0 = ( this->*fn )( x_0, &theta );
     double x_1  = m_porePressure;
     double f_x1 = ( this->*fn )( x_1, &theta );
-    double x    = 0.0;
+    double x    = m_porePressure;
     double f_x  = 0.0;
     int    i    = 0;
     for ( ; i <= N && std::abs( f_x1 - f_x0 ) > epsilon; ++i )
@@ -145,7 +145,7 @@ double RigGeoMechBoreHoleStressCalculator::solveSecant( MemberFunc fn, double* t
         f_x1 = f_x;
     }
 
-    if ( i == N || std::abs( f_x ) > epsilon * m_porePressure )
+    if ( i == 0 || i == N || std::abs( f_x ) > epsilon * m_porePressure )
     {
         // Fallback to bisection if secant doesn't converge or converged to a wrong solution.
         return solveBisection( 0.0, m_porePressure * 2.0, fn, thetaOut );
@@ -171,9 +171,9 @@ double RigGeoMechBoreHoleStressCalculator::sigmaTMinOfMin( double wellPressure, 
         double        sigma_theta = stressComponentsForAngle[1] - wellPressure;
         const double& sigma_z     = stressComponentsForAngle[2];
         double        tauSqrx4    = std::pow( stressComponentsForAngle[3], 2 ) * 4.0;
-        double        sigma_t_min = 0.5 * ( ( sigma_z + sigma_theta ) -
-                                     std::sqrt( std::pow( sigma_z - sigma_theta, 2 ) + tauSqrx4 ) ) -
-                             m_porePressure;
+        double        sigma_t_min =
+            0.5 * ( ( sigma_z + sigma_theta ) - std::sqrt( std::pow( sigma_z - sigma_theta, 2 ) + tauSqrx4 ) ) -
+            m_porePressure;
         if ( sigma_t_min < sigma_t_min_min )
         {
             sigma_t_min_min = sigma_t_min;
@@ -197,11 +197,9 @@ double RigGeoMechBoreHoleStressCalculator::stassiDalia( double wellPressure, dou
         double        tauSqrx4    = std::pow( stressComponentsForAngle[3], 2 ) * 4.0;
 
         double sigma_1 = wellPressure - m_porePressure;
-        double sigma_2 = 0.5 * ( ( sigma_z + sigma_theta ) +
-                                 std::sqrt( std::pow( sigma_z - sigma_theta, 2 ) + tauSqrx4 ) ) -
+        double sigma_2 = 0.5 * ( ( sigma_z + sigma_theta ) + std::sqrt( std::pow( sigma_z - sigma_theta, 2 ) + tauSqrx4 ) ) -
                          m_porePressure;
-        double sigma_3 = 0.5 * ( ( sigma_z + sigma_theta ) -
-                                 std::sqrt( std::pow( sigma_z - sigma_theta, 2 ) + tauSqrx4 ) ) -
+        double sigma_3 = 0.5 * ( ( sigma_z + sigma_theta ) - std::sqrt( std::pow( sigma_z - sigma_theta, 2 ) + tauSqrx4 ) ) -
                          m_porePressure;
 
         double stassiDalia = std::pow( sigma_1 - sigma_2, 2 ) + std::pow( sigma_2 - sigma_3, 2 ) +

@@ -42,23 +42,16 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
                                                                                       size_t                timestep )
 {
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
+    if ( !eclipseCaseData ) return;
 
-    const std::vector<double>* swatResults = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
-                                                                            RiaDefines::DYNAMIC_NATIVE,
-                                                                            "SWAT",
-                                                                            timestep );
-    const std::vector<double>* soilResults = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
-                                                                            RiaDefines::DYNAMIC_NATIVE,
-                                                                            "SOIL",
-                                                                            timestep );
-    const std::vector<double>* sgasResults = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
-                                                                            RiaDefines::DYNAMIC_NATIVE,
-                                                                            "SGAS",
-                                                                            timestep );
-    const std::vector<double>* porvResults = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
-                                                                            RiaDefines::STATIC_NATIVE,
-                                                                            "PORV",
-                                                                            0 );
+    const std::vector<double>* swatResults =
+        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SWAT", timestep );
+    const std::vector<double>* soilResults =
+        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SOIL", timestep );
+    const std::vector<double>* sgasResults =
+        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SGAS", timestep );
+    const std::vector<double>* porvResults =
+        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::STATIC_NATIVE, "PORV", 0 );
 
     RimFlowDiagSolution* flowDiagSolution = caseToApply->defaultFlowDiagSolution();
 
@@ -132,7 +125,7 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
     double fractionPorvPhaseSumSoil = 0.0;
     double fractionPorvPhaseSumSgas = 0.0;
 
-    for ( auto element : tofAndIndexMap )
+    for ( const auto& element : tofAndIndexMap )
     {
         double tofValue = element.first;
         for ( int index : element.second )
@@ -140,18 +133,15 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
             fractionPorvSum += fractionData->at( index ) * porvResults->at( index );
             if ( swatResults != nullptr )
             {
-                fractionPorvPhaseSumSwat += fractionData->at( index ) * porvResults->at( index ) *
-                                            swatResults->at( index );
+                fractionPorvPhaseSumSwat += fractionData->at( index ) * porvResults->at( index ) * swatResults->at( index );
             }
             if ( soilResults != nullptr )
             {
-                fractionPorvPhaseSumSoil += fractionData->at( index ) * porvResults->at( index ) *
-                                            soilResults->at( index );
+                fractionPorvPhaseSumSoil += fractionData->at( index ) * porvResults->at( index ) * soilResults->at( index );
             }
             if ( sgasResults != nullptr )
             {
-                fractionPorvPhaseSumSgas += fractionData->at( index ) * porvResults->at( index ) *
-                                            sgasResults->at( index );
+                fractionPorvPhaseSumSgas += fractionData->at( index ) * porvResults->at( index ) * sgasResults->at( index );
             }
         }
 

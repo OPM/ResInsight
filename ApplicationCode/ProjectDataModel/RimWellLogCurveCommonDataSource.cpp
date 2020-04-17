@@ -33,6 +33,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
 #include "RimWellLogWbsCurve.h"
+#include "RimWellMeasurementCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -68,6 +69,7 @@ bool RimWellLogCurveCommonDataSource::DoubleComparator::operator()( const double
 ///
 //--------------------------------------------------------------------------------------------------
 RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
+    : m_caseType( RiaDefines::UNDEFINED_CASE )
 {
     CAF_PDM_InitObject( "Change Data Source", "", "", "" );
 
@@ -97,6 +99,14 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
 
     m_case     = nullptr;
     m_wellPath = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::setCaseType( RiaDefines::CaseType caseType )
+{
+    m_caseType = caseType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -436,17 +446,18 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<R
         {
             continue;
         }
-        RimWellLogFileCurve*       fileCurve       = dynamic_cast<RimWellLogFileCurve*>( curve );
-        RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
+        RimWellLogFileCurve*       fileCurve        = dynamic_cast<RimWellLogFileCurve*>( curve );
+        RimWellLogExtractionCurve* extractionCurve  = dynamic_cast<RimWellLogExtractionCurve*>( curve );
+        RimWellMeasurementCurve*   measurementCurve = dynamic_cast<RimWellMeasurementCurve*>( curve );
         if ( fileCurve )
         {
             if ( wellPathToApply() != nullptr )
             {
                 fileCurve->setWellPath( wellPathToApply() );
-                if ( !fileCurve->wellLogChannelName().isEmpty() )
+                if ( !fileCurve->wellLogChannelUiName().isEmpty() )
                 {
-                    RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName(
-                        fileCurve->wellLogChannelName() );
+                    RimWellLogFile* logFile =
+                        wellPathToApply()->firstWellLogFileMatchingChannelName( fileCurve->wellLogChannelUiName() );
                     fileCurve->setWellLogFile( logFile );
                     RimWellLogPlot* parentPlot = nullptr;
                     fileCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
@@ -523,6 +534,13 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<R
                 extractionCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
                 plots.insert( parentPlot );
                 curve->updateConnectedEditors();
+            }
+        }
+        else if ( measurementCurve )
+        {
+            if ( wellPathToApply() != nullptr )
+            {
+                measurementCurve->setWellPath( wellPathToApply() );
             }
         }
     }
@@ -740,7 +758,19 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_case )
     {
-        RimTools::caseOptionItems( &options );
+        if ( m_caseType == RiaDefines::GEOMECH_ODB_CASE )
+        {
+            RimTools::geoMechCaseOptionItems( &options );
+        }
+        else if ( m_caseType == RiaDefines::ECLIPSE_RESULT_CASE || m_caseType == RiaDefines::ECLIPSE_INPUT_CASE ||
+                  m_caseType == RiaDefines::ECLIPSE_SOURCE_CASE || m_caseType == RiaDefines::ECLIPSE_STAT_CASE )
+        {
+            RimTools::eclipseCaseOptionItems( &options );
+        }
+        else
+        {
+            RimTools::caseOptionItems( &options );
+        }
 
         if ( caseToApply() == nullptr )
         {
@@ -767,8 +797,8 @@ QList<caf::PdmOptionItemInfo>
                 options.push_back( caf::PdmOptionItemInfo( "No Trajectory Types", -1 ) );
             }
         }
-        std::vector<RimWellLogExtractionCurve::TrajectoryType> trajectoryTypes =
-            {RimWellLogExtractionCurve::WELL_PATH, RimWellLogExtractionCurve::SIMULATION_WELL};
+        std::vector<RimWellLogExtractionCurve::TrajectoryType> trajectoryTypes = {RimWellLogExtractionCurve::WELL_PATH,
+                                                                                  RimWellLogExtractionCurve::SIMULATION_WELL};
         for ( RimWellLogExtractionCurve::TrajectoryType trajectoryType : trajectoryTypes )
         {
             caf::PdmOptionItemInfo item( caf::AppEnum<RimWellLogExtractionCurve::TrajectoryType>::uiText( trajectoryType ),
@@ -793,17 +823,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
-        QStringList timeStepNames;
-
-        if ( m_case )
-        {
-            timeStepNames = m_case->timeStepStrings();
-        }
-
-        for ( int i = 0; i < timeStepNames.size(); i++ )
-        {
-            options.push_back( caf::PdmOptionItemInfo( timeStepNames[i], i ) );
-        }
+        RimTools::timeStepsForCase( m_case, &options );
 
         if ( timeStepToApply() == -1 )
         {
@@ -967,8 +987,8 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
 
         if ( m_uniqueWbsSmoothingThreshold.size() > 1u )
         {
-            auto minmax_it = std::minmax_element( m_uniqueWbsSmoothingThreshold.begin(),
-                                                  m_uniqueWbsSmoothingThreshold.end() );
+            auto minmax_it =
+                std::minmax_element( m_uniqueWbsSmoothingThreshold.begin(), m_uniqueWbsSmoothingThreshold.end() );
             displayString += QString( " [%1, %2]" ).arg( *( minmax_it.first ) ).arg( *( minmax_it.second ) );
         }
 

@@ -46,7 +46,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindow.h"
-#include "RiuSummaryCurveDefSelection.h"
+#include "RiuSummaryVectorSelectionUi.h"
 
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
@@ -106,7 +106,9 @@ RimSummaryPlotFilterTextCurveSetEditor::RimSummaryPlotFilterTextCurveSetEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotFilterTextCurveSetEditor::~RimSummaryPlotFilterTextCurveSetEditor() {}
+RimSummaryPlotFilterTextCurveSetEditor::~RimSummaryPlotFilterTextCurveSetEditor()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -179,8 +181,8 @@ void RimSummaryPlotFilterTextCurveSetEditor::updateTextFilter()
     // Check if existing filter text matches all the curves
     // Todo: possibly check grid time history curves also
 
-    QStringList allCurveAddressFilters = curveFilterTextWithoutOutdatedLabel().split( QRegExp( "\\s+" ),
-                                                                                      QString::SkipEmptyParts );
+    QStringList allCurveAddressFilters =
+        curveFilterTextWithoutOutdatedLabel().split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
 
     std::vector<bool>                  usedFilters;
     std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
@@ -222,8 +224,8 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
 
         std::set<RiaSummaryCurveDefinition> curveDefinitions;
 
-        QStringList       allCurveAddressFilters = curveFilterTextWithoutOutdatedLabel().split( QRegExp( "\\s+" ),
-                                                                                          QString::SkipEmptyParts );
+        QStringList allCurveAddressFilters =
+            curveFilterTextWithoutOutdatedLabel().split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
         std::vector<bool> accumulatedUsedFilters( allCurveAddressFilters.size(), false );
 
         for ( SummarySource* currSource : selectedSummarySources() )
@@ -342,8 +344,8 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
                 {
                     for ( RimEclipseCase* eclCase : gridCasesToPlotFrom )
                     {
-                        RigCaseCellResultsData* gridCellResults = eclCase->eclipseCaseData()->results(
-                            RiaDefines::MATRIX_MODEL );
+                        RigCaseCellResultsData* gridCellResults =
+                            eclCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL );
                         if ( !( gridCellResults && gridCellResults->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                         {
                             RiaLogging::warning( "Could not find a restart result property with name: \"" +
@@ -372,6 +374,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
 
         parentPlot->applyDefaultCurveAppearances();
         parentPlot->loadDataAndUpdate();
+        parentPlot->zoomAll();
 
         m_isFieldRecentlyChangedFromGui = true;
 
@@ -427,6 +430,9 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineUiOrdering( QString uiConfigN
 void RimSummaryPlotFilterTextCurveSetEditor::setupBeforeSave()
 {
     m_curveFilterText = curveFilterTextWithoutOutdatedLabel();
+
+    // If a source case has been deleted, make sure null pointers are removed
+    m_selectedSources.removePtr( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -501,7 +507,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::appendOptionItemsForSources( QList<
                 // Top level cases
                 for ( const auto& sumCase : sumCaseMainColl->topLevelSummaryCases() )
                 {
-                    options.push_back( caf::PdmOptionItemInfo( sumCase->caseName(), sumCase ) );
+                    options.push_back( caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase ) );
                 }
             }
 
@@ -536,7 +542,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::appendOptionItemsForSources( QList<
 
                     for ( const auto& sumCase : sumCaseColl->allSummaryCases() )
                     {
-                        auto optionItem = caf::PdmOptionItemInfo( sumCase->caseName(), sumCase );
+                        auto optionItem = caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase );
                         optionItem.setLevel( 1 );
                         options.push_back( optionItem );
                     }

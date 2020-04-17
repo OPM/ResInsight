@@ -21,17 +21,20 @@
 #include "RimEclipseResultDefinition.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RicfCommandObject.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigAllenDiagramData.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
 #include "RigFlowDiagResultAddress.h"
 #include "RigFlowDiagResults.h"
+#include "RigFormationNames.h"
 
 #include "Rim3dView.h"
 #include "Rim3dWellLogCurve.h"
@@ -42,6 +45,8 @@
 #include "RimEclipseContourMapProjection.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
@@ -50,12 +55,18 @@
 #include "RimGridCrossPlotDataSet.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimIntersectionCollection.h"
+#include "RimIntersectionResultDefinition.h"
 #include "RimPlotCurve.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
+#include "RimTernaryLegendConfig.h"
 #include "RimViewLinker.h"
 #include "RimWellLogExtractionCurve.h"
 
+#include "cafCategoryMapper.h"
+#include "cafPdmFieldIOScriptability.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -85,15 +96,21 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     , m_labelPosition( labelPosition )
     , m_ternaryEnabled( true )
 {
-    CAF_PDM_InitObject( "Result Definition", "", "", "" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Result Definition", "", "", "", "EclipseResult", "An eclipse result definition" );
 
-    RICF_InitFieldNoDefault( &m_resultType, "ResultType", "Type", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_resultType, "ResultType", "Type", "", "", "" );
     m_resultType.uiCapability()->setUiHidden( true );
 
-    RICF_InitFieldNoDefault( &m_porosityModel, "PorosityModelType", "Porosity", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_porosityModel, "PorosityModelType", "Porosity", "", "", "" );
     m_porosityModel.uiCapability()->setUiHidden( true );
 
-    RICF_InitField( &m_resultVariable, "ResultVariable", RiaDefines::undefinedResultName(), "Variable", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIO( &m_resultVariable,
+                                       "ResultVariable",
+                                       RiaDefines::undefinedResultName(),
+                                       "Variable",
+                                       "",
+                                       "",
+                                       "" );
     m_resultVariable.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowSolution, "FlowDiagSolution", "Solution", "", "", "" );
@@ -114,17 +131,27 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitFieldNoDefault( &m_selectedTracers_OBSOLETE, "SelectedTracers", "Tracers", "", "", "" );
     m_selectedTracers_OBSOLETE.uiCapability()->setUiHidden( true );
 
-    RICF_InitFieldNoDefault( &m_selectedInjectorTracers, "SelectedInjectorTracers", "Injector Tracers", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedInjectorTracers,
+                                                "SelectedInjectorTracers",
+                                                "Injector Tracers",
+                                                "",
+                                                "",
+                                                "" );
     m_selectedInjectorTracers.uiCapability()->setUiHidden( true );
 
-    RICF_InitFieldNoDefault( &m_selectedProducerTracers, "SelectedProducerTracers", "Producer Tracers", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedProducerTracers,
+                                                "SelectedProducerTracers",
+                                                "Producer Tracers",
+                                                "",
+                                                "",
+                                                "" );
     m_selectedProducerTracers.uiCapability()->setUiHidden( true );
 
-    RICF_InitFieldNoDefault( &m_selectedSouringTracers, "SelectedSouringTracers", "Tracers", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_selectedSouringTracers, "SelectedSouringTracers", "Tracers", "", "", "" );
     m_selectedSouringTracers.uiCapability()->setUiHidden( true );
 
-    RICF_InitFieldNoDefault( &m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "" );
-    RICF_InitFieldNoDefault( &m_phaseSelection, "PhaseSelection", "Phases", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_phaseSelection, "PhaseSelection", "Phases", "", "", "" );
     m_phaseSelection.uiCapability()->setUiLabelPosition( m_labelPosition );
     // Ui only fields
 
@@ -147,35 +174,27 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( m_labelPosition );
 
+    CAF_PDM_InitFieldNoDefault( &m_inputPropertyFileName, "InputPropertyFileName", "File Name", "", "", "" );
+    m_inputPropertyFileName.xmlCapability()->disableIO();
+    m_inputPropertyFileName.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_flowSolutionUiField, "MFlowDiagSolution", "Solution", "", "", "" );
     m_flowSolutionUiField.xmlCapability()->disableIO();
     m_flowSolutionUiField.uiCapability()->setUiHidden( true ); // For now since there are only one to choose from
 
     CAF_PDM_InitField( &m_syncInjectorToProducerSelection, "MSyncSelectedInjProd", false, "Add Communicators ->", "", "", "" );
-    m_syncInjectorToProducerSelection.uiCapability()->setUiEditorTypeName(
-        caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_syncInjectorToProducerSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_syncProducerToInjectorSelection, "MSyncSelectedProdInj", false, "<- Add Communicators", "", "", "" );
-    m_syncProducerToInjectorSelection.uiCapability()->setUiEditorTypeName(
-        caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_syncProducerToInjectorSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedInjectorTracersUiField,
-                                "MSelectedInjectorTracers",
-                                "Injector Tracers",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedInjectorTracersUiField, "MSelectedInjectorTracers", "Injector Tracers", "", "", "" );
     m_selectedInjectorTracersUiField.xmlCapability()->disableIO();
     m_selectedInjectorTracersUiField.uiCapability()->setUiEditorTypeName(
         caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedInjectorTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedProducerTracersUiField,
-                                "MSelectedProducerTracers",
-                                "Producer Tracers",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedProducerTracersUiField, "MSelectedProducerTracers", "Producer Tracers", "", "", "" );
     m_selectedProducerTracersUiField.xmlCapability()->disableIO();
     m_selectedProducerTracersUiField.uiCapability()->setUiEditorTypeName(
         caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -190,7 +209,9 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultDefinition::~RimEclipseResultDefinition() {}
+RimEclipseResultDefinition::~RimEclipseResultDefinition()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -224,7 +245,7 @@ void RimEclipseResultDefinition::setEclipseCase( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimEclipseResultDefinition::eclipseCase()
+RimEclipseCase* RimEclipseResultDefinition::eclipseCase() const
 {
     return m_eclipseCase;
 }
@@ -298,6 +319,10 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
         else if ( m_resultTypeUiField() == RiaDefines::INJECTION_FLOODING )
         {
             m_selectedSouringTracers = m_selectedSouringTracersUiField();
+        }
+        else if ( m_resultTypeUiField() == RiaDefines::INPUT_PROPERTY )
+        {
+            m_inputPropertyFileName = getInputPropertyFileName( newValue.toString() );
         }
         loadDataAndUpdate();
     }
@@ -442,6 +467,13 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
         cellColors->updateConnectedEditors();
     }
 
+    RimIntersectionResultDefinition* intersectResDef = nullptr;
+    this->firstAncestorOrThisOfType( intersectResDef );
+    if ( intersectResDef )
+    {
+        intersectResDef->updateConnectedEditors();
+    }
+
     RimGridCrossPlotDataSet* crossPlotCurveSet = nullptr;
     this->firstAncestorOrThisOfType( crossPlotCurveSet );
     if ( crossPlotCurveSet )
@@ -541,8 +573,17 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
                 viewLinker->updateCellResult();
             }
             RimGridView* eclView = dynamic_cast<RimGridView*>( view );
-            if ( eclView ) eclView->crossSectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+            if ( eclView ) eclView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
         }
+    }
+
+    RimIntersectionResultDefinition* sepIntersectionResDef = nullptr;
+    this->firstAncestorOrThisOfType( sepIntersectionResDef );
+    if ( sepIntersectionResDef && sepIntersectionResDef->isInAction() )
+    {
+        if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+        RimGridView* gridView = dynamic_cast<RimGridView*>( view );
+        if ( gridView ) gridView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
     RimCellEdgeColors* cellEdgeColors = nullptr;
@@ -585,8 +626,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimEclipseResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                       bool*                      useOptionsOnly )
+    RimEclipseResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -612,7 +652,7 @@ QList<caf::PdmOptionItemInfo>
         {
             RigCaseCellResultsData* cellResultsData = m_eclipseCase->results( this->porosityModel() );
 
-            if ( cellResultsData->hasFlowDiagUsableFluxes() )
+            if ( cellResultsData && cellResultsData->hasFlowDiagUsableFluxes() )
             {
                 enableSouring = true;
             }
@@ -622,32 +662,44 @@ QList<caf::PdmOptionItemInfo>
         RimGridTimeHistoryCurve* timeHistoryCurve;
         this->firstAncestorOrThisOfType( timeHistoryCurve );
 
-        // Do not include flow diagnostics results if it is a time history curve
-        // Do not include SourSimRL if no SourSim file is loaded
-        if ( timeHistoryCurve != nullptr || !hasSourSimRLFile || !enableSouring )
+        bool isSeparateFaultResult = false;
         {
-            using ResCatEnum = caf::AppEnum<RiaDefines::ResultCatType>;
-            for ( size_t i = 0; i < ResCatEnum::size(); ++i )
+            RimEclipseFaultColors* sepFaultResult;
+            this->firstAncestorOrThisOfType( sepFaultResult );
+            if ( sepFaultResult ) isSeparateFaultResult = true;
+        }
+
+        using ResCatEnum = caf::AppEnum<RiaDefines::ResultCatType>;
+        for ( size_t i = 0; i < ResCatEnum::size(); ++i )
+        {
+            RiaDefines::ResultCatType resType = ResCatEnum::fromIndex( i );
+
+            // Do not include flow diagnostics results if it is a time history curve
+
+            if ( resType == RiaDefines::FLOW_DIAGNOSTICS && ( timeHistoryCurve ) )
             {
-                RiaDefines::ResultCatType resType = ResCatEnum::fromIndex( i );
-                if ( resType == RiaDefines::FLOW_DIAGNOSTICS && ( timeHistoryCurve ) )
-                {
-                    continue;
-                }
-
-                if ( resType == RiaDefines::SOURSIMRL && ( !hasSourSimRLFile ) )
-                {
-                    continue;
-                }
-
-                if ( resType == RiaDefines::INJECTION_FLOODING && !enableSouring )
-                {
-                    continue;
-                }
-
-                QString uiString = ResCatEnum::uiTextFromIndex( i );
-                options.push_back( caf::PdmOptionItemInfo( uiString, resType ) );
+                continue;
             }
+
+            // Do not include SourSimRL if no SourSim file is loaded
+
+            if ( resType == RiaDefines::SOURSIMRL && ( !hasSourSimRLFile ) )
+            {
+                continue;
+            }
+
+            if ( resType == RiaDefines::INJECTION_FLOODING && !enableSouring )
+            {
+                continue;
+            }
+
+            if ( resType == RiaDefines::ALLEN_DIAGRAMS && !isSeparateFaultResult )
+            {
+                continue;
+            }
+
+            QString uiString = ResCatEnum::uiTextFromIndex( i );
+            options.push_back( caf::PdmOptionItemInfo( uiString, resType ) );
         }
     }
 
@@ -894,8 +946,8 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
                 {
                     for ( const QString& tracerName : tracerNames )
                     {
-                        RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusInTimeStep( tracerName,
-                                                                                                        timeStep );
+                        RimFlowDiagSolution::TracerStatusType status =
+                            flowSol->tracerStatusInTimeStep( tracerName, timeStep );
                         if ( status == RimFlowDiagSolution::INJECTOR )
                         {
                             selTracerNames.insert( tracerName.toStdString() );
@@ -907,8 +959,8 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
                 {
                     for ( const QString& tracerName : tracerNames )
                     {
-                        RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusInTimeStep( tracerName,
-                                                                                                        timeStep );
+                        RimFlowDiagSolution::TracerStatusType status =
+                            flowSol->tracerStatusInTimeStep( tracerName, timeStep );
                         if ( status == RimFlowDiagSolution::PRODUCER )
                         {
                             selTracerNames.insert( tracerName.toStdString() );
@@ -980,9 +1032,9 @@ QString RimEclipseResultDefinition::diffResultUiName() const
         if ( gridCellResults )
         {
             stepDates = gridCellResults->timeStepDates();
-            diffResult += QString( "<b>Base Time Step</b>: %1" )
-                              .arg( stepDates[m_timeLapseBaseTimestep()].toString(
-                                  RiaQDateTimeTools::dateFormatString() ) );
+            diffResult +=
+                QString( "<b>Base Time Step</b>: %1" )
+                    .arg( stepDates[m_timeLapseBaseTimestep()].toString( RiaQDateTimeTools::dateFormatString() ) );
         }
     }
     if ( isCaseDiffResult() )
@@ -1222,7 +1274,7 @@ void RimEclipseResultDefinition::setResultVariable( const QString& val )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution* RimEclipseResultDefinition::flowDiagSolution()
+RimFlowDiagSolution* RimEclipseResultDefinition::flowDiagSolution() const
 {
     return m_flowSolution();
 }
@@ -1335,8 +1387,7 @@ bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isCompletionTypeSelected() const
 {
-    return ( m_resultType() == RiaDefines::DYNAMIC_NATIVE &&
-             m_resultVariable() == RiaDefines::completionTypeResultName() );
+    return ( m_resultType() == RiaDefines::DYNAMIC_NATIVE && m_resultVariable() == RiaDefines::completionTypeResultName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1354,6 +1405,12 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
 
     if ( this->m_resultType() == RiaDefines::FLOW_DIAGNOSTICS && m_resultVariable() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
         return true;
+
+    if ( this->resultVariable() == RiaDefines::formationAllenResultName() ||
+         this->resultVariable() == RiaDefines::formationBinaryAllenResultName() )
+    {
+        return true;
+    }
 
     if ( !this->hasStaticResult() ) return false;
 
@@ -1418,13 +1475,10 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
         uiOrdering.add( &m_selectedSouringTracersUiField );
     }
 
-    if ( m_resultTypeUiField() == RiaDefines::FLOW_DIAGNOSTICS )
+    uiOrdering.add( &m_resultVariableUiField );
+    if ( m_resultTypeUiField() == RiaDefines::INPUT_PROPERTY )
     {
-        uiOrdering.add( &m_resultVariableUiField );
-    }
-    else
-    {
-        uiOrdering.add( &m_resultVariableUiField );
+        uiOrdering.add( &m_inputPropertyFileName );
     }
 
     if ( isCaseDiffResultAvailable() || isTimeDiffResultAvailable() )
@@ -1468,8 +1522,8 @@ void RimEclipseResultDefinition::defineEditorAttribute( const caf::PdmFieldHandl
         }
         else if ( field == &m_syncInjectorToProducerSelection || field == &m_syncProducerToInjectorSelection )
         {
-            caf::PdmUiToolButtonEditorAttribute* toolButtonAttr = dynamic_cast<caf::PdmUiToolButtonEditorAttribute*>(
-                attribute );
+            caf::PdmUiToolButtonEditorAttribute* toolButtonAttr =
+                dynamic_cast<caf::PdmUiToolButtonEditorAttribute*>( attribute );
             if ( toolButtonAttr )
             {
                 toolButtonAttr->m_sizePolicy.setHorizontalPolicy( QSizePolicy::MinimumExpanding );
@@ -1666,6 +1720,368 @@ QList<caf::PdmOptionItemInfo>
 void RimEclipseResultDefinition::setTernaryEnabled( bool enabled )
 {
     m_ternaryEnabled = enabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool operator<( const cvf::Color3ub first, const cvf::Color3ub second )
+{
+    if ( first.r() != second.r() ) return first.r() < second.r();
+    if ( first.g() != second.g() ) return first.g() < second.g();
+    if ( first.b() != second.b() ) return first.b() < second.b();
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class TupleCompare
+{
+public:
+    bool operator()( const std::tuple<QString, int, cvf::Color3ub>& t1,
+                     const std::tuple<QString, int, cvf::Color3ub>& t2 ) const
+    {
+        using namespace std;
+        if ( get<0>( t1 ) != get<0>( t2 ) ) return get<0>( t1 ) < get<0>( t2 );
+        if ( get<1>( t1 ) != get<1>( t2 ) ) return get<1>( t1 ) < get<1>( t2 );
+        if ( get<2>( t1 ) != get<2>( t2 ) ) return get<2>( t1 ) < get<2>( t2 );
+
+        return false;
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfigToUpdate,
+                                                                 RimTernaryLegendConfig* ternaryLegendConfigToUpdate,
+                                                                 int                     currentTimeStep )
+
+{
+    RimEclipseCase* rimEclipseCase = this->eclipseCase();
+
+    if ( this->hasResult() )
+    {
+        if ( this->isFlowDiagOrInjectionFlooding() )
+        {
+            CVF_ASSERT( currentTimeStep >= 0 );
+
+            double                   globalMin, globalMax;
+            double                   globalPosClosestToZero, globalNegClosestToZero;
+            RigFlowDiagResults*      flowResultsData = this->flowDiagSolution()->flowDiagResults();
+            RigFlowDiagResultAddress resAddr         = this->flowDiagResAddress();
+
+            flowResultsData->minMaxScalarValues( resAddr, currentTimeStep, &globalMin, &globalMax );
+            flowResultsData->posNegClosestToZero( resAddr, currentTimeStep, &globalPosClosestToZero, &globalNegClosestToZero );
+
+            double localMin, localMax;
+            double localPosClosestToZero, localNegClosestToZero;
+            if ( this->hasDynamicResult() )
+            {
+                flowResultsData->minMaxScalarValues( resAddr, currentTimeStep, &localMin, &localMax );
+                flowResultsData->posNegClosestToZero( resAddr, currentTimeStep, &localPosClosestToZero, &localNegClosestToZero );
+            }
+            else
+            {
+                localMin = globalMin;
+                localMax = globalMax;
+
+                localPosClosestToZero = globalPosClosestToZero;
+                localNegClosestToZero = globalNegClosestToZero;
+            }
+
+            CVF_ASSERT( legendConfigToUpdate );
+
+            legendConfigToUpdate->disableAllTimeStepsRange( true );
+            legendConfigToUpdate->setClosestToZeroValues( globalPosClosestToZero,
+                                                          globalNegClosestToZero,
+                                                          localPosClosestToZero,
+                                                          localNegClosestToZero );
+            legendConfigToUpdate->setAutomaticRanges( globalMin, globalMax, localMin, localMax );
+
+            if ( this->hasCategoryResult() )
+            {
+                RimEclipseView* eclView = nullptr;
+                this->firstAncestorOrThisOfType( eclView );
+
+                if ( eclView )
+                {
+                    std::set<std::tuple<QString, int, cvf::Color3ub>, TupleCompare> categories;
+
+                    std::vector<QString> tracerNames = this->flowDiagSolution()->tracerNames();
+                    int                  tracerIndex = 0;
+
+                    for ( const auto& tracerName : tracerNames )
+                    {
+                        cvf::Color3ub color( cvf::Color3::GRAY );
+
+                        RimSimWellInView* well = eclView->wellCollection()->findWell(
+                            RimFlowDiagSolution::removeCrossFlowEnding( tracerName ) );
+
+                        if ( well ) color = cvf::Color3ub( well->wellPipeColor() );
+
+                        categories.insert( std::make_tuple( tracerName, tracerIndex, color ) );
+                        ++tracerIndex;
+                    }
+
+                    std::vector<std::tuple<QString, int, cvf::Color3ub>> reverseCategories;
+                    for ( auto tupIt = categories.rbegin(); tupIt != categories.rend(); ++tupIt )
+                    {
+                        reverseCategories.push_back( *tupIt );
+                    }
+
+                    legendConfigToUpdate->setCategoryItems( reverseCategories );
+                }
+            }
+        }
+        else
+        {
+            CVF_ASSERT( rimEclipseCase );
+            if ( !rimEclipseCase ) return;
+
+            RigEclipseCaseData* eclipseCaseData = rimEclipseCase->eclipseCaseData();
+            CVF_ASSERT( eclipseCaseData );
+            if ( !eclipseCaseData ) return;
+
+            RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( this->porosityModel() );
+            CVF_ASSERT( cellResultsData );
+
+            double globalMin, globalMax;
+            double globalPosClosestToZero, globalNegClosestToZero;
+
+            cellResultsData->minMaxCellScalarValues( this->eclipseResultAddress(), globalMin, globalMax );
+            cellResultsData->posNegClosestToZero( this->eclipseResultAddress(),
+                                                  globalPosClosestToZero,
+                                                  globalNegClosestToZero );
+
+            double localMin, localMax;
+            double localPosClosestToZero, localNegClosestToZero;
+            if ( this->hasDynamicResult() && currentTimeStep >= 0 )
+            {
+                cellResultsData->minMaxCellScalarValues( this->eclipseResultAddress(), currentTimeStep, localMin, localMax );
+                cellResultsData->posNegClosestToZero( this->eclipseResultAddress(),
+                                                      currentTimeStep,
+                                                      localPosClosestToZero,
+                                                      localNegClosestToZero );
+            }
+            else
+            {
+                localMin = globalMin;
+                localMax = globalMax;
+
+                localPosClosestToZero = globalPosClosestToZero;
+                localNegClosestToZero = globalNegClosestToZero;
+            }
+
+            CVF_ASSERT( legendConfigToUpdate );
+
+            legendConfigToUpdate->disableAllTimeStepsRange( false );
+            legendConfigToUpdate->setClosestToZeroValues( globalPosClosestToZero,
+                                                          globalNegClosestToZero,
+                                                          localPosClosestToZero,
+                                                          localNegClosestToZero );
+            legendConfigToUpdate->setAutomaticRanges( globalMin, globalMax, localMin, localMax );
+
+            if ( this->hasCategoryResult() )
+            {
+                if ( this->resultType() == RiaDefines::FORMATION_NAMES )
+                {
+                    std::vector<QString> fnVector = eclipseCaseData->formationNames();
+                    legendConfigToUpdate->setNamedCategoriesInverse( fnVector );
+                }
+                else if ( this->resultType() == RiaDefines::ALLEN_DIAGRAMS )
+                {
+                    if ( this->resultVariable() == RiaDefines::formationAllenResultName() )
+                    {
+                        const std::vector<QString> fnVector = eclipseCaseData->formationNames();
+                        std::vector<int>           fnameIdxes;
+                        for ( int i = static_cast<int>( fnVector.size() ); i > 0; --i )
+                            fnameIdxes.push_back( i - 1 );
+
+                        cvf::Color3ubArray legendBaseColors = RiaColorTables::categoryPaletteColors().color3ubArray();
+
+                        cvf::ref<caf::CategoryMapper> formationColorMapper = new caf::CategoryMapper;
+                        formationColorMapper->setCategories( fnameIdxes );
+                        formationColorMapper->setInterpolateColors( legendBaseColors );
+
+                        const std::map<std::pair<int, int>, int>& formationCombToCathegory =
+                            eclipseCaseData->allenDiagramData()->formationCombinationToCategory();
+
+                        std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
+                        for ( int frmNameIdx : fnameIdxes )
+                        {
+                            cvf::Color3ub formationColor = formationColorMapper->mapToColor( frmNameIdx );
+                            categories.emplace_back( std::make_tuple( fnVector[frmNameIdx], frmNameIdx, formationColor ) );
+                        }
+
+                        for ( auto it = formationCombToCathegory.rbegin(); it != formationCombToCathegory.rend(); ++it )
+                        {
+                            int frmIdx1   = it->first.first;
+                            int frmIdx2   = it->first.second;
+                            int combIndex = it->second;
+
+                            QString frmName1 = fnVector[frmIdx1];
+                            QString frmName2 = fnVector[frmIdx2];
+
+                            cvf::Color3f formationColor1 = cvf::Color3f( formationColorMapper->mapToColor( frmIdx1 ) );
+                            cvf::Color3f formationColor2 = cvf::Color3f( formationColorMapper->mapToColor( frmIdx2 ) );
+
+                            cvf::Color3ub blendColor =
+                                cvf::Color3ub( cvf::Color3f( 0.5f * ( formationColor1.r() + formationColor2.r() ),
+                                                             0.5f * ( formationColor1.g() + formationColor2.g() ),
+                                                             0.5f * ( formationColor1.b() + formationColor2.b() ) ) );
+                            categories.emplace_back( std::make_tuple( frmName1 + "-" + frmName2, combIndex, blendColor ) );
+                        }
+
+                        legendConfigToUpdate->setCategoryItems( categories );
+                    }
+                    else if ( this->resultVariable() == RiaDefines::formationBinaryAllenResultName() )
+                    {
+                        std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
+                        categories.emplace_back( std::make_tuple( "Same formation", 0, cvf::Color3ub::BROWN ) );
+                        categories.emplace_back( std::make_tuple( "Different formation", 1, cvf::Color3ub::ORANGE ) );
+
+                        legendConfigToUpdate->setCategoryItems( categories );
+                    }
+                }
+                else if ( this->resultType() == RiaDefines::DYNAMIC_NATIVE &&
+                          this->resultVariable() == RiaDefines::completionTypeResultName() )
+                {
+                    const std::vector<int>& visibleCategories =
+                        cellResultsData->uniqueCellScalarValues( this->eclipseResultAddress() );
+
+                    std::vector<RiaDefines::WellPathComponentType> supportedCompletionTypes = {RiaDefines::WELL_PATH,
+                                                                                               RiaDefines::FISHBONES,
+                                                                                               RiaDefines::PERFORATION_INTERVAL,
+                                                                                               RiaDefines::FRACTURE};
+
+                    RiaColorTables::WellPathComponentColors colors = RiaColorTables::wellPathComponentColors();
+
+                    std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
+                    for ( auto completionType : supportedCompletionTypes )
+                    {
+                        if ( std::find( visibleCategories.begin(), visibleCategories.end(), completionType ) !=
+                             visibleCategories.end() )
+                        {
+                            QString categoryText =
+                                caf::AppEnum<RiaDefines::WellPathComponentType>::uiText( completionType );
+                            categories.push_back( std::make_tuple( categoryText, completionType, colors[completionType] ) );
+                        }
+                    }
+
+                    legendConfigToUpdate->setCategoryItems( categories );
+                }
+                else
+                {
+                    legendConfigToUpdate->setIntegerCategories(
+                        cellResultsData->uniqueCellScalarValues( this->eclipseResultAddress() ) );
+                }
+            }
+        }
+    }
+
+    // Ternary legend update
+    {
+        CVF_ASSERT( rimEclipseCase );
+        if ( !rimEclipseCase ) return;
+
+        RigEclipseCaseData* eclipseCase = rimEclipseCase->eclipseCaseData();
+        CVF_ASSERT( eclipseCase );
+        if ( !eclipseCase ) return;
+
+        RigCaseCellResultsData* cellResultsData = eclipseCase->results( this->porosityModel() );
+
+        size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
+        if ( this->isTernarySaturationSelected() && maxTimeStepCount > 1 )
+        {
+            RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
+            {
+                RigEclipseResultAddress resAddr( RiaDefines::DYNAMIC_NATIVE, "SOIL" );
+
+                if ( gridCellResults->ensureKnownResultLoaded( resAddr ) )
+                {
+                    double globalMin = 0.0;
+                    double globalMax = 1.0;
+                    double localMin  = 0.0;
+                    double localMax  = 1.0;
+
+                    cellResultsData->minMaxCellScalarValues( resAddr, globalMin, globalMax );
+                    cellResultsData->minMaxCellScalarValues( resAddr, currentTimeStep, localMin, localMax );
+
+                    ternaryLegendConfigToUpdate->setAutomaticRanges( RimTernaryLegendConfig::TERNARY_SOIL_IDX,
+                                                                     globalMin,
+                                                                     globalMax,
+                                                                     localMin,
+                                                                     localMax );
+                }
+            }
+
+            {
+                RigEclipseResultAddress resAddr( RiaDefines::DYNAMIC_NATIVE, "SGAS" );
+
+                if ( gridCellResults->ensureKnownResultLoaded( resAddr ) )
+                {
+                    double globalMin = 0.0;
+                    double globalMax = 1.0;
+                    double localMin  = 0.0;
+                    double localMax  = 1.0;
+
+                    cellResultsData->minMaxCellScalarValues( resAddr, globalMin, globalMax );
+                    cellResultsData->minMaxCellScalarValues( resAddr, currentTimeStep, localMin, localMax );
+
+                    ternaryLegendConfigToUpdate->setAutomaticRanges( RimTernaryLegendConfig::TERNARY_SGAS_IDX,
+                                                                     globalMin,
+                                                                     globalMax,
+                                                                     localMin,
+                                                                     localMax );
+                }
+            }
+
+            {
+                RigEclipseResultAddress resAddr( RiaDefines::DYNAMIC_NATIVE, "SWAT" );
+
+                if ( gridCellResults->ensureKnownResultLoaded( resAddr ) )
+                {
+                    double globalMin = 0.0;
+                    double globalMax = 1.0;
+                    double localMin  = 0.0;
+                    double localMax  = 1.0;
+
+                    cellResultsData->minMaxCellScalarValues( resAddr, globalMin, globalMax );
+                    cellResultsData->minMaxCellScalarValues( resAddr, currentTimeStep, localMin, localMax );
+
+                    ternaryLegendConfigToUpdate->setAutomaticRanges( RimTernaryLegendConfig::TERNARY_SWAT_IDX,
+                                                                     globalMin,
+                                                                     globalMax,
+                                                                     localMin,
+                                                                     localMax );
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::updateLegendTitle( RimRegularLegendConfig* legendConfig, const QString& legendHeading )
+{
+    QString title = legendHeading + this->resultVariableUiName();
+    if ( !this->diffResultUiShortName().isEmpty() )
+    {
+        title += QString( "\n%1" ).arg( this->diffResultUiShortName() );
+    }
+
+    if ( this->hasDualPorFractureResult() )
+    {
+        QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText( this->porosityModel() );
+
+        title += QString( "\nDual Por : %1" ).arg( porosityModelText );
+    }
+
+    legendConfig->setTitle( title );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2148,4 +2564,28 @@ void RimEclipseResultDefinition::ensureProcessingOfObsoleteFields()
             setSelectedProducerTracers( selectedProducerTracers );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseResultDefinition::getInputPropertyFileName( const QString& resultName ) const
+{
+    RimEclipseCase* eclipseCase;
+    this->firstAncestorOrThisOfType( eclipseCase );
+
+    if ( eclipseCase )
+    {
+        RimEclipseInputPropertyCollection* inputPropertyCollection = eclipseCase->inputPropertyCollection();
+        if ( inputPropertyCollection )
+        {
+            RimEclipseInputProperty* inputProperty = inputPropertyCollection->findInputProperty( resultName );
+            if ( inputProperty )
+            {
+                return inputProperty->fileName.v().path();
+            }
+        }
+    }
+
+    return "";
 }

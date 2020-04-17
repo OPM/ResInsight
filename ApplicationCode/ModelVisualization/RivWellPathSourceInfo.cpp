@@ -44,7 +44,9 @@ RivWellPathSourceInfo::RivWellPathSourceInfo( RimWellPath* wellPath, RivPipeGeom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellPathSourceInfo::~RivWellPathSourceInfo() {}
+RivWellPathSourceInfo::~RivWellPathSourceInfo()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -101,12 +103,10 @@ void RivWellPathSourceInfo::normalizedIntersection( size_t            triangleIn
     cvf::Vec3d segmentStart = rigWellPath->m_wellPathPoints[segIndex];
     cvf::Vec3d segmentEnd   = rigWellPath->m_wellPathPoints[segIndex + 1];
 
-    double     norm        = 0.0;
-    cvf::Vec3d pointOnLine = cvf::GeometryTools::projectPointOnLine( segmentStart,
-                                                                     segmentEnd,
-                                                                     globalIntersectionInDomain,
-                                                                     &norm );
-    norm                   = cvf::Math::clamp( norm, 0.0, 1.0 );
+    double     norm = 0.0;
+    cvf::Vec3d pointOnLine =
+        cvf::GeometryTools::projectPointOnLine( segmentStart, segmentEnd, globalIntersectionInDomain, &norm );
+    norm = cvf::Math::clamp( norm, 0.0, 1.0 );
 
     *firstSegmentIndex             = segIndex;
     *normalizedSegmentIntersection = norm;

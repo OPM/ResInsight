@@ -161,9 +161,8 @@ bool RifEclipseUserDataKeywordTools::isYearX( const std::string& identifier )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress
-    RifEclipseUserDataKeywordTools::makeAndFillAddress( const std::string               quantityName,
-                                                        const std::vector<std::string>& columnHeaderText )
+RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( const std::string quantityName,
+                                                                             const std::vector<std::string>& columnHeaderText )
 {
     RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::identifyCategory( quantityName );
 
@@ -183,6 +182,7 @@ RifEclipseSummaryAddress
     int         cellK             = -1;
     int         aquiferNumber     = -1;
     bool        isErrorResult     = false;
+    int         id                = -1;
 
     switch ( category )
     {
@@ -292,7 +292,8 @@ RifEclipseSummaryAddress
                                      cellJ,
                                      cellK,
                                      aquiferNumber,
-                                     isErrorResult );
+                                     isErrorResult,
+                                     id );
 }
 
 //--------------------------------------------------------------------------------------------------

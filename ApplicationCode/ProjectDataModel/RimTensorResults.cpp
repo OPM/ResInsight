@@ -98,7 +98,9 @@ RimTensorResults::RimTensorResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimTensorResults::~RimTensorResults() {}
+RimTensorResults::~RimTensorResults()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -219,10 +221,9 @@ void RimTensorResults::mappingRange( double* min, double* max ) const
 std::vector<RigFemResultAddress> RimTensorResults::observedResults() const
 {
     RigFemResultAddress              mainResult       = selectedTensorResult();
-    std::vector<RigFemResultAddress> tensorComponents = RigFemPartResultsCollection::tensorComponentAddresses(
-        mainResult );
-    std::vector<RigFemResultAddress> principleComponents = RigFemPartResultsCollection::tensorPrincipalComponentAdresses(
-        mainResult );
+    std::vector<RigFemResultAddress> tensorComponents = RigFemPartResultsCollection::tensorComponentAddresses( mainResult );
+    std::vector<RigFemResultAddress> principleComponents =
+        RigFemPartResultsCollection::tensorPrincipalComponentAdresses( mainResult );
     tensorComponents.insert( tensorComponents.end(), principleComponents.begin(), principleComponents.end() );
     return tensorComponents;
 }
