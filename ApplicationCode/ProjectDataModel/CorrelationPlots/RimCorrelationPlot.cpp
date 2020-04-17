@@ -401,7 +401,14 @@ void RimCorrelationPlot::updateAxes()
     m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
     m_plotWidget->setAxisTitle( QwtPlot::xBottom, "Pearson Correlation Coefficient" );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisRange( QwtPlot::xBottom, -1.0, 1.0 );
+    if ( m_showAbsoluteValues )
+    {
+        m_plotWidget->setAxisRange( QwtPlot::xBottom, 0.0, 1.0 );
+    }
+    else
+    {
+        m_plotWidget->setAxisRange( QwtPlot::xBottom, -1.0, 1.0 );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
