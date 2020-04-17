@@ -19,32 +19,18 @@
 #pragma once
 
 #include "RimAbstractCorrelationPlot.h"
-#include "cafAppEnum.h"
-
-#include <QDateTime>
-
-class RimSummaryAddress;
-class RiuGroupedBarChartBuilder;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimCorrelationPlot : public RimAbstractCorrelationPlot
+class RimParameterResultCrossPlot : public RimAbstractCorrelationPlot
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class CorrelationFactor
-    {
-        PEARSON,
-        SPEARMAN
-    };
-    using CorrelationFactorEnum = caf::AppEnum<CorrelationFactor>;
-
-public:
-    RimCorrelationPlot();
-    ~RimCorrelationPlot() override;
+    RimParameterResultCrossPlot();
+    ~RimParameterResultCrossPlot() override;
 
 private:
     // Overridden PDM methods
@@ -60,11 +46,9 @@ private:
     void updateAxes() override;
 
     // Private methods
-    void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
     void updatePlotTitle() override;
+    void createPoints();
 
 private:
-    caf::PdmField<CorrelationFactorEnum> m_correlationFactor;
-    caf::PdmField<bool>                  m_showAbsoluteValues;
-    caf::PdmField<bool>                  m_sortByAbsoluteValues;
+    caf::PdmField<QString> m_ensembleParameter;
 };

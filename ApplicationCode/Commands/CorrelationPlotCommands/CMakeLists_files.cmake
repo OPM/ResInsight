@@ -1,10 +1,12 @@
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicNewCorrelationPlotFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicNewParameterResultCrossPlotFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicNewCorrelationPlotFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicNewParameterResultCrossPlotFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

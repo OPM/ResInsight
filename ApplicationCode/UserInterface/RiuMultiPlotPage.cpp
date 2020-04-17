@@ -173,23 +173,27 @@ void RiuMultiPlotPage::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
     subTitle->setVisible( false );
     m_subTitles.insert( static_cast<int>( index ), subTitle );
 
-    RiuQwtPlotLegend* legend        = new RiuQwtPlotLegend( this );
-    int               legendColumns = 1;
-    if ( m_plotDefinition->legendsHorizontal() )
+    RiuQwtPlotLegend* legend = nullptr;
+    if ( plotWidget->legend() )
     {
-        legendColumns = 0; // unlimited
-    }
-    legend->setMaxColumns( legendColumns );
-    legend->horizontalScrollBar()->setVisible( false );
-    legend->verticalScrollBar()->setVisible( false );
-    legend->connect( plotWidget,
-                     SIGNAL( legendDataChanged( const QVariant&, const QList<QwtLegendData>& ) ),
-                     SLOT( updateLegend( const QVariant&, const QList<QwtLegendData>& ) ) );
-    QObject::connect( legend, SIGNAL( legendUpdated() ), this, SLOT( onLegendUpdated() ) );
+        legend            = new RiuQwtPlotLegend( this );
+        int legendColumns = 1;
+        if ( m_plotDefinition->legendsHorizontal() )
+        {
+            legendColumns = 0; // unlimited
+        }
+        legend->setMaxColumns( legendColumns );
+        legend->horizontalScrollBar()->setVisible( false );
+        legend->verticalScrollBar()->setVisible( false );
+        legend->connect( plotWidget,
+                         SIGNAL( legendDataChanged( const QVariant&, const QList<QwtLegendData>& ) ),
+                         SLOT( updateLegend( const QVariant&, const QList<QwtLegendData>& ) ) );
+        QObject::connect( legend, SIGNAL( legendUpdated() ), this, SLOT( onLegendUpdated() ) );
 
-    legend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
-    legend->setVisible( false );
-    plotWidget->updateLegend();
+        legend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
+        legend->setVisible( false );
+        plotWidget->updateLegend();
+    }
     m_legends.insert( static_cast<int>( index ), legend );
 
     scheduleUpdate();
@@ -209,9 +213,12 @@ void RiuMultiPlotPage::removePlot( RiuQwtPlotWidget* plotWidget )
     plotWidget->setParent( nullptr );
 
     RiuQwtPlotLegend* legend = m_legends[plotWidgetIdx];
-    legend->setParent( nullptr );
-    m_legends.removeAt( plotWidgetIdx );
-    delete legend;
+    if ( legend )
+    {
+        legend->setParent( nullptr );
+        m_legends.removeAt( plotWidgetIdx );
+        delete legend;
+    }
 
     QLabel* subTitle = m_subTitles[plotWidgetIdx];
     subTitle->setParent( nullptr );
@@ -367,8 +374,11 @@ void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 
     for ( auto legend : legendsForVisiblePlots() )
     {
-        QPoint renderOffset = m_plotWidgetFrame->mapToParent( legend->frameGeometry().topLeft() ) - marginOffset;
-        legend->render( painter, renderOffset );
+        if ( legend )
+        {
+            QPoint renderOffset = m_plotWidgetFrame->mapToParent( legend->frameGeometry().topLeft() ) - marginOffset;
+            legend->render( painter, renderOffset );
+        }
     }
 
     for ( auto plotWidget : visiblePlotWidgets() )
@@ -604,7 +614,10 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             std::tie( row, column ) = findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
 
             m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, column, 1, colSpan );
-            m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
+            if ( legends[visibleIndex] )
+            {
+                m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
+            }
             m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, column, 1 + ( rowSpan - 1 ) * 3, colSpan );
 
             subTitles[visibleIndex]->setVisible( m_showSubTitles );
@@ -614,24 +627,26 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
 
             plotWidgets[visibleIndex]->show();
 
-            if ( m_plotDefinition->legendsVisible() )
+            if ( legends[visibleIndex] )
             {
-                int legendColumns = 1;
-                if ( m_plotDefinition->legendsHorizontal() )
+                if ( m_plotDefinition->legendsVisible() )
                 {
-                    legendColumns = 0; // unlimited
+                    int legendColumns = 1;
+                    if ( m_plotDefinition->legendsHorizontal() )
+                    {
+                        legendColumns = 0; // unlimited
+                    }
+                    legends[visibleIndex]->setMaxColumns( legendColumns );
+                    QFont legendFont = legends[visibleIndex]->font();
+                    legendFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( m_plotDefinition->legendFontSize() ) );
+                    legends[visibleIndex]->setFont( legendFont );
+                    legends[visibleIndex]->show();
                 }
-                legends[visibleIndex]->setMaxColumns( legendColumns );
-                QFont legendFont = legends[visibleIndex]->font();
-                legendFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( m_plotDefinition->legendFontSize() ) );
-                legends[visibleIndex]->setFont( legendFont );
-                legends[visibleIndex]->show();
+                else
+                {
+                    legends[visibleIndex]->hide();
+                }
             }
-            else
-            {
-                legends[visibleIndex]->hide();
-            }
-
             // Set basic row and column stretches
             for ( int r = row; r < row + rowSpan; ++r )
             {
@@ -677,7 +692,10 @@ int RiuMultiPlotPage::alignCanvasTops()
     {
         int row = visibleIndex / rowAndColumnCount.second;
         plotWidgets[visibleIndex]->axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( maxExtents[row] );
-        legends[visibleIndex]->adjustSize();
+        if ( legends[visibleIndex] )
+        {
+            legends[visibleIndex]->adjustSize();
+        }
     }
     return maxExtents[0];
 }
@@ -692,7 +710,10 @@ void RiuMultiPlotPage::clearGridLayout()
         for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
         {
             m_gridLayout->removeWidget( m_subTitles[tIdx] );
-            m_gridLayout->removeWidget( m_legends[tIdx] );
+            if ( m_legends[tIdx] )
+            {
+                m_gridLayout->removeWidget( m_legends[tIdx] );
+            }
             m_gridLayout->removeWidget( m_plotWidgets[tIdx] );
         }
 

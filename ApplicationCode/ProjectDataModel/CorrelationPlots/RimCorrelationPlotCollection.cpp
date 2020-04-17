@@ -19,6 +19,7 @@
 #include "RimCorrelationPlotCollection.h"
 
 #include "RimCorrelationPlot.h"
+#include "RimParameterResultCrossPlot.h"
 
 CAF_PDM_SOURCE_INIT( RimCorrelationPlotCollection, "CorrelationPlotCollection" );
 
@@ -57,26 +58,26 @@ RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlotCollection::updateSummaryNameHasChanged()
+RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResultCrossPlot()
 {
-    for ( RimCorrelationPlot* plot : m_correlationPlots )
-    {
-        plot->loadDataAndUpdate();
-    }
+    RimParameterResultCrossPlot* plot = new RimParameterResultCrossPlot;
+    plot->setAsPlotMdiWindow();
+    m_correlationPlots.push_back( plot );
+    return plot;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlotCollection::removeSummaryPlot( RimCorrelationPlot* CorrelationPlot )
+void RimCorrelationPlotCollection::removePlot( RimAbstractCorrelationPlot* correlationPlot )
 {
-    m_correlationPlots.removeChildObject( CorrelationPlot );
+    m_correlationPlots.removeChildObject( correlationPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimCorrelationPlot*> RimCorrelationPlotCollection::plots()
+std::vector<RimAbstractCorrelationPlot*> RimCorrelationPlotCollection::plots()
 {
     return m_correlationPlots.childObjects();
 }

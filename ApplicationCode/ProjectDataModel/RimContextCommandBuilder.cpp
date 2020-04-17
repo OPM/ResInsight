@@ -87,6 +87,7 @@
 #include "RimMultiPlot.h"
 #include "RimMultiPlotCollection.h"
 #include "RimObservedSummaryData.h"
+#include "RimParameterResultCrossPlot.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimPlotDataFilterCollection.h"
@@ -529,10 +530,15 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimCorrelationPlotCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewCorrelationPlotFeature";
+            menuBuilder << "RicNewParameterResultCrossPlotFeature";
         }
         else if ( dynamic_cast<RimCorrelationPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicNewCorrelationPlotFeature";
+        }
+        else if ( dynamic_cast<RimParameterResultCrossPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewParameterResultCrossPlotFeature";
         }
         else if ( dynamic_cast<RimPlotDataFilterCollection*>( firstUiItem ) )
         {

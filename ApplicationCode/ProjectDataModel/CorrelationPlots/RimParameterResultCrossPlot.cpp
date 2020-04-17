@@ -16,14 +16,15 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCorrelationPlot.h"
+#include "RimParameterResultCrossPlot.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaPreferences.h"
 #include "RiaStatisticsTools.h"
-#include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
-#include "RiuQwtPlotWidget.h"
+#include "RiuSummaryQwtPlot.h"
+#include "RiuSummaryVectorSelectionDialog.h"
 
 #include "RifSummaryReaderInterface.h"
 
@@ -32,64 +33,55 @@
 #include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotDataFilterCollection.h"
+#include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlotAxisFormatter.h"
 
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiLineEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
+
+#include "qwt_legend.h"
+#include "qwt_plot_curve.h"
 
 #include <limits>
 #include <map>
 #include <set>
 
-namespace caf
-{
-template <>
-void caf::AppEnum<RimCorrelationPlot::CorrelationFactor>::setUp()
-{
-    addItem( RimCorrelationPlot::CorrelationFactor::PEARSON, "PEARSON", "Pearson Correlation Coefficient" );
-    addItem( RimCorrelationPlot::CorrelationFactor::SPEARMAN, "SPEARMAN", "Spearman's Rank Correlation Coefficient" );
-    setDefault( RimCorrelationPlot::CorrelationFactor::PEARSON );
-}
-} // namespace caf
-
-CAF_PDM_SOURCE_INIT( RimCorrelationPlot, "CorrelationPlot" );
+CAF_PDM_SOURCE_INIT( RimParameterResultCrossPlot, "ParameterResultCrossPlot" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCorrelationPlot::RimCorrelationPlot()
+RimParameterResultCrossPlot::RimParameterResultCrossPlot()
     : RimAbstractCorrelationPlot()
 {
-    CAF_PDM_InitObject( "Correlation Plot", ":/CorrelationPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "ParameterResultCross Plot", ":/ParameterResultCrossPlot16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_correlationFactor, "CorrelationFactor", "Correlation Factor", "", "", "" );
-    m_correlationFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", true, "Show Absolute Values", "", "", "" );
-    CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
+    CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
+    m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCorrelationPlot::~RimCorrelationPlot()
+RimParameterResultCrossPlot::~RimParameterResultCrossPlot()
 {
     removeMdiWindowFromMdiArea();
-
     cleanupBeforeClose();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
+void RimParameterResultCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue )
 {
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
-    if ( changedField == &m_correlationFactor || changedField == &m_showAbsoluteValues ||
-         changedField == &m_sortByAbsoluteValues )
+    if ( changedField == &m_ensembleParameter )
     {
         this->loadDataAndUpdate();
         this->updateConnectedEditors();
@@ -99,21 +91,16 @@ void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* correlationGroup = uiOrdering.addNewGroup( "Correlation Factor Settings" );
-    correlationGroup->add( &m_correlationFactor );
-    correlationGroup->add( &m_showAbsoluteValues );
-    if ( !m_showAbsoluteValues() )
-    {
-        correlationGroup->add( &m_sortByAbsoluteValues );
-    }
-
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
     curveDataGroup->add( &m_ensemble );
     curveDataGroup->add( &m_summaryAddressUiField );
     curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
     curveDataGroup->add( &m_timeStep );
+
+    caf::PdmUiGroup* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameters" );
+    crossPlotGroup->add( &m_ensembleParameter );
 
     caf::PdmUiGroup* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->add( &m_showPlotTitle );
@@ -126,19 +113,28 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCorrelationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                         bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo>
+    RimParameterResultCrossPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
     QList<caf::PdmOptionItemInfo> options =
         RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
-
+    if ( fieldNeedingOptions == &m_ensembleParameter )
+    {
+        if ( m_ensemble )
+        {
+            for ( const auto& param : m_ensemble->variationSortedEnsembleParameters() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
+            }
+        }
+    }
     return options;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::onLoadDataAndUpdate()
+void RimParameterResultCrossPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
@@ -146,18 +142,10 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
 
     if ( m_plotWidget )
     {
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotBarChart );
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotScale );
-
-        RiuGroupedBarChartBuilder chartBuilder;
-
-        // buildTestPlot( chartBuilder );
-        addDataToChartBuilder( chartBuilder );
-
-        chartBuilder.addBarChartToPlot( m_plotWidget, Qt::Horizontal );
-
         m_plotWidget->insertLegend( nullptr );
         m_plotWidget->updateLegend();
+
+        createPoints();
 
         this->updateAxes();
         this->updatePlotTitle();
@@ -168,31 +156,25 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::updateAxes()
+void RimParameterResultCrossPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Parameter" );
+    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, QString::fromStdString( m_summaryAddressUiField().uiText() ) );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
+    m_plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
     m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, 11, 11, false, Qt::AlignCenter );
 
-    m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient" );
+    m_plotWidget->setAxisTitleText( QwtPlot::xBottom, m_ensembleParameter );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
+    m_plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
     m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, 11, 11, false, Qt::AlignCenter );
-    if ( m_showAbsoluteValues )
-    {
-        m_plotWidget->setAxisRange( QwtPlot::xBottom, 0.0, 1.0 );
-    }
-    else
-    {
-        m_plotWidget->setAxisRange( QwtPlot::xBottom, -1.0, 1.0 );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder )
+void RimParameterResultCrossPlot::createPoints()
 {
     time_t selectedTimestep = m_timeStep().toTime_t();
 
@@ -200,13 +182,14 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
 
     if ( !m_summaryAddress ) return;
 
-    std::vector<EnsembleParameter> ensembleParameters = m_ensemble->variationSortedEnsembleParameters();
-
-    std::vector<double>                    caseValuesAtTimestep;
-    std::map<QString, std::vector<double>> parameterValues;
+    EnsembleParameter ensembleParameter = m_ensemble->ensembleParameter( m_ensembleParameter );
+    if ( !( ensembleParameter.isNumeric() && ensembleParameter.isValid() ) ) return;
 
     for ( size_t caseIdx = 0u; caseIdx < m_ensemble->allSummaryCases().size(); ++caseIdx )
     {
+        std::vector<double> caseValuesAtTimestep;
+        std::vector<double> parameterValues;
+
         auto summaryCase = m_ensemble->allSummaryCases()[caseIdx];
 
         RifSummaryReaderInterface* reader = summaryCase->summaryReader();
@@ -233,54 +216,33 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
         if ( closestValue != std::numeric_limits<double>::infinity() )
         {
             caseValuesAtTimestep.push_back( closestValue );
+            double paramValue = ensembleParameter.values[caseIdx].toDouble();
+            parameterValues.push_back( paramValue );
 
-            for ( auto parameter : ensembleParameters )
-            {
-                if ( parameter.isNumeric() && parameter.isValid() )
-                {
-                    double paramValue = parameter.values[caseIdx].toDouble();
-                    parameterValues[parameter.name].push_back( paramValue );
-                }
-            }
+            RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve;
+            plotCurve->setSamplesFromXValuesAndYValues( parameterValues, caseValuesAtTimestep, false );
+            plotCurve->setAppearance( RiuQwtPlotCurve::STYLE_NONE,
+                                      RiuQwtPlotCurve::INTERPOLATION_POINT_TO_POINT,
+                                      0,
+                                      QColor( Qt::red ) );
+            RiuQwtSymbol* symbol = new RiuQwtSymbol( RiuQwtSymbol::SYMBOL_ELLIPSE, "" );
+            symbol->setSize( 12, 12 );
+            symbol->setColor( QColor( Qt::red ) );
+            plotCurve->setSymbol( symbol );
+            plotCurve->attach( m_plotWidget );
         }
-    }
-
-    std::vector<std::pair<QString, double>> correlationResults;
-    for ( auto parameterValuesPair : parameterValues )
-    {
-        double correlation = 0.0;
-        if ( m_correlationFactor == CorrelationFactor::PEARSON )
-        {
-            correlation = RiaStatisticsTools::pearsonCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
-        }
-        else
-        {
-            correlation = RiaStatisticsTools::spearmanCorrelation( parameterValuesPair.second, caseValuesAtTimestep );
-        }
-        correlationResults.push_back( std::make_pair( parameterValuesPair.first, correlation ) );
-    }
-
-    QString timestepString = m_timeStep().toString( Qt::ISODate );
-
-    for ( auto parameterCorrPair : correlationResults )
-    {
-        double  value     = m_showAbsoluteValues() ? std::abs( parameterCorrPair.second ) : parameterCorrPair.second;
-        double  sortValue = m_sortByAbsoluteValues() ? std::abs( value ) : value;
-        QString barText   = parameterCorrPair.first;
-        QString majorText = "", medText = "", minText = "", legendText = barText;
-        chartBuilder.addBarEntry( majorText, medText, minText, sortValue, legendText, barText, value );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::updatePlotTitle()
+void RimParameterResultCrossPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "%1 for %2" )
-                            .arg( m_correlationFactor().uiText() )
+        m_description = QString( "Cross Plot %1 x %2" )
+                            .arg( m_ensembleParameter )
                             .arg( QString::fromStdString( m_summaryAddressUiField().uiText() ) );
     }
     m_plotWidget->setPlotTitle( m_description );

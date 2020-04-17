@@ -276,7 +276,7 @@ void RiuQwtPlotWidget::setLegendVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtInterval RiuQwtPlotWidget::axisRange( QwtPlot::Axis axis )
+QwtInterval RiuQwtPlotWidget::axisRange( QwtPlot::Axis axis ) const
 {
     return axisScaleDiv( axis ).interval();
 }
@@ -403,6 +403,8 @@ double RiuQwtPlotWidget::minorTickInterval( QwtPlot::Axis axis ) const
 //--------------------------------------------------------------------------------------------------
 int RiuQwtPlotWidget::axisExtent( QwtPlot::Axis axis ) const
 {
+    if ( std::abs( axisRange( axis ).maxValue() - axisRange( axis ).minValue() ) < 1.0e-14 ) return 0;
+
     int lineExtent = 0;
 
     if ( this->axisScaleDraw( axis )->hasComponent( QwtAbstractScaleDraw::Ticks ) )
@@ -1027,7 +1029,7 @@ void RiuQwtPlotWidget::highlightCurve( const QwtPlotCurve* closestCurve )
                     symbol->setPen( blendedSymbolLineColor, symbol->pen().width(), symbol->pen().style() );
                 }
             }
-            CurveColors curveColors = {curveColor, symbolColor, symbolLineColor};
+            CurveColors curveColors = { curveColor, symbolColor, symbolLineColor };
             m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
             m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
             m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );

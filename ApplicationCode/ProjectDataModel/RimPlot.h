@@ -103,7 +103,7 @@ private:
 
 private slots:
     void         onPlotSelected( bool toggle );
-    virtual void onAxisSelected( int axis, bool toggle ) = 0;
+    virtual void onAxisSelected( int axis, bool toggle ) {}
     void         onCurveSelected( QwtPlotCurve* curve, bool toggle );
     void         onViewerDestroyed();
     void         onKeyPressEvent( QKeyEvent* event );

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-  Equinor ASA
+//  Copyright (C) 2020-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,33 +18,18 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
-
-class RimAbstractCorrelationPlot;
-class RimCorrelationPlot;
-class RimParameterResultCrossPlot;
+#include "cafCmdFeature.h"
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimCorrelationPlotCollection : public caf::PdmObject
+class RicNewParameterResultCrossPlotFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimCorrelationPlotCollection();
-    ~RimCorrelationPlotCollection() override;
-
-    RimCorrelationPlot*          createCorrelationPlot();
-    RimParameterResultCrossPlot* createParameterResultCrossPlot();
-    void                         removePlot( RimAbstractCorrelationPlot* CorrelationPlot );
-
-    std::vector<RimAbstractCorrelationPlot*> plots();
-
-    void deleteAllChildObjects();
-
-private:
-    caf::PdmChildArrayField<RimAbstractCorrelationPlot*> m_correlationPlots;
+protected:
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };
