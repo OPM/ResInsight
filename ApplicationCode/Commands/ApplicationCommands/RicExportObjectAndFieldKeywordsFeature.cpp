@@ -24,6 +24,7 @@
 
 #include "cafClassTypeName.h"
 #include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmXmlFieldHandle.h"
 
 #include <QAction>
 #include <QApplication>
@@ -122,7 +123,14 @@ void RicExportObjectAndFieldKeywordsFeature::exportObjectAndFieldKeywords( const
 
         for ( auto f : fields )
         {
+            if ( !f->xmlCapability()->isIOReadable() ) continue;
+
             stream << "  " << f->keyword() << "\n";
+
+            for ( auto alias : f->keywordAliases() )
+            {
+                stream << "    (A)" << alias << "\n";
+            }
         }
 
         stream << "\n";

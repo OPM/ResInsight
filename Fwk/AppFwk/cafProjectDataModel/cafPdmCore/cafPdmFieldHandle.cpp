@@ -124,6 +124,14 @@ bool PdmFieldHandle::matchesKeywordAlias(const QString& keyword) const
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> PdmFieldHandle::keywordAliases() const
+{
+    return m_keywordAliases;
+}
+
 // These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml
 /*
 PdmUiFieldHandle* PdmFieldHandle::uiCapability()
