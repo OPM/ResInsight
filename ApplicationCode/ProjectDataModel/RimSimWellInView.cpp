@@ -649,6 +649,7 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
     const RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType( reservoirView );
     if ( !reservoirView ) return false;
+    if ( !reservoirView->eclipseCase() ) return false;
 
     size_t                 timeStep      = static_cast<size_t>( reservoirView->currentTimeStep() );
     std::vector<QDateTime> caseTimeSteps = reservoirView->eclipseCase()->timeStepDates();
