@@ -304,6 +304,8 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         rftPlot->onLegendDefinitionChanged();
     }
+
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -540,8 +542,13 @@ void RimRegularLegendConfig::setAutomaticRanges( double globalMin, double global
 void RimRegularLegendConfig::initAfterRead()
 {
     updateFieldVisibility();
+
+    this->updateUiIconFromToggleField();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimRegularLegendConfig::objectToggleField()
 {
     return &m_showLegend;
