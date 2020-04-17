@@ -5,7 +5,7 @@ The ResInsight Python API allows you to interact with a running ResInsight insta
 This enables you to:
 
 * start ResInsight from Python
-* communicate with an a running ResInsight instance
+* communicate with a running ResInsight instance
 * load a ResInsight project file
 * load data files such as Eclipse EGRID files and summary files
 * extract data to Python for further processing and automation
