@@ -28,6 +28,7 @@
 #include <map>
 #include <algorithm>
 #include <memory>
+#include <stdexcept>
 
 #include <ert/util/hash.hpp>
 #include <ert/util/util.h>
