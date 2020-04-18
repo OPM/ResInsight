@@ -97,7 +97,7 @@ QString RimEclipseGeometrySelectionItem::geometrySelectionText() const
     }
     else
     {
-        text = "No case";
+        return "No case";
     }
 
     text += ", ";
