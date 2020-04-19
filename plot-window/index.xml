@@ -40,7 +40,7 @@ The toolbar allows use of vector filters in addition to source stepping:</descri
       <guid>https://resinsight.org/plot-window/summaryploteditor/</guid>
       <description>The plot editor is a separate ResInsight dialog window where the user can select which vectors to display in a summary plot. It is also possible to edit an existing plot in this editor.
 The upper part of the editor contains editors for selecting which vectors/summaries to display in the plot. The number of fields vary from 3 to 6 depending on the Summary Type currently highlighted.
-In this context highlightedmeans the marked item with a different background color, while selectedmeans an item or items that have a ticked check box.</description>
+In this context highlighted means the marked item with a different background color, while selected means an item or items that have a ticked check box.</description>
     </item>
     
     <item>
@@ -50,7 +50,7 @@ In this context highlightedmeans the marked item with a different background col
       
       <guid>https://resinsight.org/plot-window/summarycrossplots/</guid>
       <description>A Summary Cross Plot is a window displaying a graph in the main area of the Plot Main Window. It is very similar to an ordinary Summary Plot, but there are some differences:
- Summary Cross Plot displays one vector against another vector, not one vector against time. Not possible to paste Excel/CSV data to a summary cross plot. Summary cross plots have no Plot Editor.  The only way to create a new Summary Cross Plot, is to select the context command New Summary Cross Plot on the Plot Main Window -&amp;gt; Project Tree -&amp;gt; Summary Cross Plots item.</description>
+ Summary Cross Plot displays one vector against another vector, not one vector against time. Not possible to paste Excel/CSV data to a summary cross plot. Summary cross plots have no Plot Editor.  The only way to create a new Summary Cross Plot, is to select the right-click command New Summary Cross Plot on the Plot Main Window -&amp;gt; Project Tree -&amp;gt; Summary Cross Plots item.</description>
     </item>
     
     <item>
@@ -60,7 +60,18 @@ In this context highlightedmeans the marked item with a different background col
       
       <guid>https://resinsight.org/plot-window/summaryplottemplate/</guid>
       <description>Template creation A summary plot template is defined by a number of curves with preset appearance and vector names. The parameters that are selected or varied by the user are:
- case(s) item(s), i.e. well(s), group(s), region(s)  Having tailored a plot setup, the user can save the setup as a template via the context command Save As Plot Template, c.f. figure above. It is also possible to select a summary plot in the Plot Project Tree and use the context menu to save a template.</description>
+ case(s) item(s), i.e. well(s), group(s), region(s)  Having tailored a plot setup, the user can save the setup as a template via the right-click command Save As Plot Template, c.f. figure above. It is also possible to select a summary plot in the Plot Project Tree and use the right-click menu to save a template.</description>
+    </item>
+    
+    <item>
+      <title>Multi Plots</title>
+      <link>https://resinsight.org/plot-window/multiplots/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/multiplots/</guid>
+      <description>A Multi Plot allows the user to combine multiple plots in a grid layout. Plots from different types can be combined. This plot type is tailored for export to PDF.
+Multi Plot Usage A new Multi Plot can be created by selecting a set of plots and from the right-click menu select Create Multi Plot from Selected Plots
+Properties The main page layout is controlled from Preferences The property editor of a multi plot allows further customization</description>
     </item>
     
     <item>
@@ -104,8 +115,8 @@ A new plot with a single Track and Curve is created matching active case and sel
       
       <guid>https://resinsight.org/plot-window/wellborestabilityplots/</guid>
       <description>ResInsight can create Well Bore Stability plots for Geomechanical cases. These plots are specialized Well Log Plots to visualize Formations, Well Path Attributes as well as a set of well path derived curves in different tracks.
-In the figure above, the first track contains Formations while the second track contains well attributes of Casing Design. The third track shows the following stability gradients (all normalized by mud weight):
- FG: Fracture Gradient for sands based on Kirsch.</description>
+In the figure above, the first track contains Formations and an indication of sea level.
+   Sea Level Formations          The second track contains a visualisation of the well, with well attributes of Casing Design as well Completions</description>
     </item>
     
     <item>

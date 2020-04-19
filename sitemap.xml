@@ -59,7 +59,19 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/import/lasfile/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/misc/projectfile/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/scripting/pythoninterface/</loc>
   </url>
   
   <url>
@@ -100,6 +112,10 @@
   
   <url>
     <loc>https://resinsight.org/getting-started/download-and-install/windows-installation/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/getting-started/helpmenuanddocumentation/</loc>
   </url>
   
   <url>
@@ -171,10 +187,6 @@
   </url>
   
   <url>
-    <loc>https://resinsight.org/scripting/pythonexamples/</loc>
-  </url>
-  
-  <url>
     <loc>https://resinsight.org/misc/regressiontestsystem/</loc>
   </url>
   
@@ -191,15 +203,11 @@
   </url>
   
   <url>
-    <loc>https://resinsight.org/scripting/pythonrips/</loc>
-  </url>
-  
-  <url>
-    <loc>https://resinsight.org/scripting/pythonconfiguration/</loc>
-  </url>
-  
-  <url>
     <loc>https://resinsight.org/plot-window/summaryplottemplate/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/plot-window/multiplots/</loc>
   </url>
   
   <url>
@@ -267,6 +275,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/wells-and-completions/wellmeasurements/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/3d-main-window/intersections/</loc>
   </url>
   
@@ -276,6 +288,14 @@
   
   <url>
     <loc>https://resinsight.org/plot-window/wellborestabilityplots/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/3d-main-window/surfaces/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/3d-main-window/allendiagrams/</loc>
   </url>
   
   <url>

@@ -17,7 +17,7 @@
       
       <guid>https://resinsight.org/wells-and-completions/simulationwells/</guid>
       <description>This section describes how wells defined in the simulation are displayed, and how to control the different aspects of their visualization.
-Commands Several commands are available as context commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.
+Commands Several commands are available as right-click commands on a simulation well. These commands are available either by right-clicking the well in the 3D View or in the Project Tree.
  New Well Log Extraction Curve &amp;ndash; Creates a new Well Log curve based on the selected simulation well, the current time step and cell property.</description>
     </item>
     
@@ -73,6 +73,18 @@ Completions can be modeled by adding new perforation intervals, fishbones subs o
 Create Temporary LGRs To create temporary LGR(s), first select one or more well paths in the project tree, right click and select &amp;lsquo;Create Temporary LGR&amp;rsquo;. This command brings up the following dialog.
 The dialog contains several input fields
  Source Case &amp;ndash; The source case/grid Time Step &amp;ndash; The time step to use Fractures, Fishbones, Perforations &amp;ndash; Check boxes to control which completion types to create LGRs for Split Type &amp;ndash; Three options controlling how the LGRs will be created  LGR Per Cell &amp;ndash; One LGR is created for each main grid cell intersected by completions of the selected type LGR Per Completion &amp;ndash; One LGR is created for each completion of the selected types.</description>
+    </item>
+    
+    <item>
+      <title>Well Measurements</title>
+      <link>https://resinsight.org/wells-and-completions/wellmeasurements/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/wells-and-completions/wellmeasurements/</guid>
+      <description>ResInsight can import well measurements from a comma-separated values file.
+Importing Well Measurements The command File -&amp;gt; Import -&amp;gt; Well Data -&amp;gt; Import Measurements will read well measurements from the selected files, and create one entry for each file under the Wells -&amp;gt; Well Measurements item in the Project Tree.
+File Format The format is comma-separated values with one measurement per line. The following requirements have to be met:
+ Each data line must contain seven values: Well Name, MD, Date, Measurement Kind, Value, Quality, and Comment.</description>
     </item>
     
   </channel>

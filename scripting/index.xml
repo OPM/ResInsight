@@ -11,6 +11,16 @@
     
     
     <item>
+      <title>Python interface</title>
+      <link>https://resinsight.org/scripting/pythoninterface/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/scripting/pythoninterface/</guid>
+      <description>ResInsight offers a powerful programming interface which allows you to interact with a running ResInsight instance from Python 3. This enables you to:
+ start ResInsight from Python communicate with an a running ResInsight instance load a ResInsight project file load data files such as Eclipse EGRID files and summary files extract data to Python for further processing and automation export snapshots of graphics  Please refer to the ResInsight Python API for configuration and details.</description>
+    </item>
+    
+    <item>
       <title>Command Line Interface</title>
       <link>https://resinsight.org/scripting/commandlineinterface/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -29,45 +39,8 @@ Command line options General    Parameter Description     --help, --?</descripti
       
       <guid>https://resinsight.org/scripting/commandfile/</guid>
       <description>The command file interface allows a sequence of specified commands to be run in order from the command line. The interface is used by supplying the command file as a command line parameter. Once the command file is finished executing, ResInsight will exit.
-It is possible to use these commands directly from a Python script. For further details see Python Documentation
+It is possible to use these commands directly from a Python script. For further details, please see the ResInsight Python API.
 Command List Case Control Commands  openProject closeProject setStartDir loadCase createGridCaseGroup createStatisticsCase replaceCase replaceSourceCases  Export Commands  setExportFolder exportMultiCaseSnapshots exportSnapshots exportProperty exportPropertyInViews exportWellPathCompletions exportSimWellFractureCompletions exportMsw exportWellPaths exportVisibleCells exportFlowCharacteristics  Other Commands  runOctaveScript setMainWindowSize computeCaseGroupStatistics setTimeStep scaleFractureTemplate setFractureContainment createMultipleFractures createLgrForCompletions createSaturationPressurePlots  Syntax The command file is comprised of a set of commands to be executed in order.</description>
-    </item>
-    
-    <item>
-      <title>Python Examples</title>
-      <link>https://resinsight.org/scripting/pythonexamples/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/scripting/pythonexamples/</guid>
-      <description>This pages is created based on the content in the PythonExamples folder located inside the rips module, made available online for convenience.
-AllCases #################################################################################### This example will connect to ResInsight, retrieve a list of cases and print info# #################################################################################### Import the ResInsight Processing Server Moduleimport rips# Connect to ResInsightresinsight = rips.Instance.find()if resinsight is not None:# Get a list of all casescases = resinsight.</description>
-    </item>
-    
-    <item>
-      <title>Python API - rips</title>
-      <link>https://resinsight.org/scripting/pythonrips/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/scripting/pythonrips/</guid>
-      <description>Instance Module class rips.instance.Instance(port=50051, launched=False) The ResInsight Instance class. Use to launch or find existing ResInsight instances
-launched() Tells us whether the application was launched as a new process. If the application was launched we may need to close it when exiting the script.
-  Type
-bool
-  commands() Command executor. Set when creating an instance.
-  Type
-Commands
-  project() Current project in ResInsight. Set when creating an instance and updated when opening/closing projects.</description>
-    </item>
-    
-    <item>
-      <title>Python Configuration</title>
-      <link>https://resinsight.org/scripting/pythonconfiguration/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/scripting/pythonconfiguration/</guid>
-      <description>ResInsight has a gRPC Remote Procedure Call interface with a Python Client interface. This interface allows you to interact with a running ResInsight instance from a Python script. The Python client package is compatible with Python 3.
-The Python client package is available for install via the Python PIP package system with pip install rips as admin user, or pip install --user rips as a regular user.
-On some systems the pip command may have to be replaced by python -m pip.</description>
     </item>
     
     <item>
@@ -78,7 +51,7 @@ On some systems the pip command may have to be replaced by python -m pip.</descr
       <guid>https://resinsight.org/scripting/octaveinterface/</guid>
       <description>ResInsight provides a flexible interface to Octave including:
  Octave functions that communicates with a running ResInsight session Features to simplify management and editing of Octave scripts from ResInsight Commands to execute scripts using Octave.  The Octave functions are documented in Octave Interface Reference.
-Note:The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.
+Note: The Octave interface does not support Flow diagnostics and Injection flooding results in addition to Geomechanical cases.
 Octave Script Management Octave scripts are available in the Scripts folder in the Project Tree.</description>
     </item>
     
@@ -89,7 +62,7 @@ Note:The Octave interface does not support Flow diagnostics and Injection floodi
       
       <guid>https://resinsight.org/scripting/octaveinterfacereference/</guid>
       <description>Introduction To identify a ResInsight case uniquely in the Octave script, an integer Id (CaseId) is used. This Id can be retrieved in several ways, but there are two main modes of operation regarding this for a particular octave script: Either the script is designed to work on a single case (the &amp;ldquo;Current Case&amp;rdquo;), or the script is designed to access the selection and traverse the cases by itself.
-Note:The Octave interface does not support Geomechanical cases and flow diagnostic results.</description>
+Note: The Octave interface does not support Geomechanical cases and flow diagnostic results.</description>
     </item>
     
   </channel>

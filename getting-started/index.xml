@@ -66,6 +66,17 @@ Multiple completions in same cell In previous releases, no connection factor has
     </item>
     
     <item>
+      <title>What&#39;s New in 2020.04</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04/</guid>
+      <description>ResInsight 2020.04 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.04 is a major update bringing a range of significant new and enhanced features.
+Surfaces ResInsight supports import of 3D Surfaces , and allows mapping properties and simulation results onto these surfaces.
+Allen Diagrams Allen Diagrams displays the overlap of formations and layers across fault faces.</description>
+    </item>
+    
+    <item>
       <title>What&#39;s New in 2018.11</title>
       <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -75,6 +86,16 @@ Multiple completions in same cell In previous releases, no connection factor has
 Local Grid Refinement (LGR) Local Grid Refinement (LGR) can be created based on Eclipse simulations. The refined grids can also be visualised in 3D.
 See Completions LGR
 Well Path Creation ResInsight lets the user create new/custom well paths by clicking in the 3D view.</description>
+    </item>
+    
+    <item>
+      <title>Help Menu and Documentation</title>
+      <link>https://resinsight.org/getting-started/helpmenuanddocumentation/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/helpmenuanddocumentation/</guid>
+      <description>ResInsight Help Menu ResInsight Help menu options are:
+ About &amp;ndash; Opens a dialog with information on ResInsight version, enabled features, and technical information of subsystems. Command Line Help &amp;ndash; Provides an overview of ResInsight Command line parameters and their syntax. Summary Command Line Help &amp;ndash; Provides an overview of ResInsight Summary command line parameters and their syntax. Users Guide &amp;ndash; Opens the ResInsight documentation in your default browser Search Help &amp;ndash; Searches the ResInsight documentation for help on the selected item in Project Tree.</description>
     </item>
     
     <item>
