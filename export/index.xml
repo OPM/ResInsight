@@ -58,7 +58,7 @@ You can do this by using the command Export Visible Cells as FLUXNUM/MULTNUM fou
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/export/exportwellpaths/</guid>
-      <description>In order to export well paths to dev files, select the menu item File -&amp;gt; Export -&amp;gt; Export Visible Well Paths or select one or more well paths and then select one of the items in the context sub menu Export Well Paths.
+      <description>In order to export well paths to dev files, select the menu item File -&amp;gt; Export -&amp;gt; Export Visible Well Paths or select one or more well paths and then select one of the items in the sub menu Export Well Paths.
 A dialog appears after selecting an export well path command.
  Export Folder - Folder for the exported well path file(s). The folder will be created when performing the export and the names of the exported file(s) will be on the format &amp;lt;well name&amp;gt;.</description>
     </item>

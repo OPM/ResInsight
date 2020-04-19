@@ -72,7 +72,7 @@ A couple of property names are recognized and treated specially:
       <guid>https://resinsight.org/import/observeddata/</guid>
       <description>Observed Time History Data, is data measured in time. On import of observed time history data, ResInsight translates the data to make it similar to summary data. Observed time history data can be plotted along with summary data in Summary Plots.
 Import Observed Time History Data Importing observed time history data to ResInsight may be performed in two different ways:
- By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Observed Time History Data By using the context command Import Observed Time History Data on the Observed Time History Data item in the Plot Main Window Project Tree  The following file types are supported:</description>
+ By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Observed Time History Data By using the right-click command Import Observed Time History Data on the Observed Time History Data item in the Plot Main Window Project Tree  The following file types are supported:</description>
     </item>
     
     <item>
