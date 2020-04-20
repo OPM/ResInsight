@@ -181,10 +181,12 @@ void RimCorrelationPlot::updateAxes()
     m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, 11, 11, false, Qt::AlignCenter );
     if ( m_showAbsoluteValues )
     {
+        m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient ABS" );
         m_plotWidget->setAxisRange( QwtPlot::xBottom, 0.0, 1.0 );
     }
     else
     {
+        m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient" );
         m_plotWidget->setAxisRange( QwtPlot::xBottom, -1.0, 1.0 );
     }
 }
