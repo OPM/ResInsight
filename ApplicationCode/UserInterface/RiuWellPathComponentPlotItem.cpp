@@ -33,6 +33,7 @@
 #include "RimWellPathValve.h"
 
 #include "RigWellPath.h"
+#include "RiuQwtPlotTools.h"
 
 #include "qwt_plot.h"
 #include "qwt_plot_marker.h"
@@ -410,63 +411,43 @@ void RiuWellPathComponentPlotItem::addColumnFeature( double         startX,
                                                      cvf::Color4f   baseColor,
                                                      Qt::BrushStyle brushStyle /*= Qt::SolidPattern*/ )
 {
+    QColor baseQColor = RiaColorTools::toQColor( baseColor );
     if ( brushStyle != Qt::SolidPattern )
     {
         // If we're doing a special pattern, draw the background in white first over the existing pattern
-        cvf::Color4f semiTransparentWhite( cvf::Color3f( cvf::Color3::WHITE ), 0.9f );
+        QColor semiTransparentWhite( Qt::white );
+        semiTransparentWhite.setAlphaF( 0.9f );
         QwtPlotItem* backgroundShape =
-            createColumnShape( startX, endX, startDepth, endDepth, semiTransparentWhite, Qt::SolidPattern );
+            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startDepth, endDepth, semiTransparentWhite, Qt::SolidPattern );
         m_combinedComponentGroup.addPlotItem( backgroundShape );
 
-        QwtPlotItem* patternShape = createColumnShape( startX, endX, startDepth, endDepth, baseColor, brushStyle );
+        QwtPlotItem* patternShape =
+            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startDepth, endDepth, baseQColor, brushStyle );
         m_combinedComponentGroup.addPlotItem( patternShape );
         if ( endX >= 0.0 )
         {
-            QwtPlotItem* legendBGShape = createColumnShape( 0.0, 16.0, 0.0, 16.0, semiTransparentWhite, Qt::SolidPattern );
+            QwtPlotItem* legendBGShape =
+                RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, semiTransparentWhite, Qt::SolidPattern );
             m_combinedComponentGroup.addLegendItem( legendBGShape );
 
-            QwtPlotItem* legendShape = createColumnShape( 0.0, 16.0, 0.0, 16.0, baseColor, brushStyle );
+            QwtPlotItem* legendShape =
+                RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, baseQColor, brushStyle );
             m_combinedComponentGroup.addLegendItem( legendShape );
         }
     }
     else
     {
-        QwtPlotItem* backgroundShape = createColumnShape( startX, endX, startDepth, endDepth, baseColor, Qt::SolidPattern );
+        QwtPlotItem* backgroundShape =
+            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startDepth, endDepth, baseQColor, Qt::SolidPattern );
         m_combinedComponentGroup.addPlotItem( backgroundShape );
 
         if ( endX >= 0.0 )
         {
-            QwtPlotItem* legendShape = createColumnShape( 0.0, 16.0, 0.0, 16.0, baseColor, Qt::SolidPattern );
+            QwtPlotItem* legendShape =
+                RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, baseQColor, Qt::SolidPattern );
             m_combinedComponentGroup.addLegendItem( legendShape );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QwtPlotItem* RiuWellPathComponentPlotItem::createColumnShape( double         startX,
-                                                              double         endX,
-                                                              double         startDepth,
-                                                              double         endDepth,
-                                                              cvf::Color4f   baseColor,
-                                                              Qt::BrushStyle brushStyle )
-{
-    QwtPlotShapeItem* columnShape = new QwtPlotShapeItem( label() );
-    QPolygonF         polygon;
-    QColor            color = RiaColorTools::toQColor( baseColor );
-
-    polygon.push_back( QPointF( startX, startDepth ) );
-    polygon.push_back( QPointF( endX, startDepth ) );
-    polygon.push_back( QPointF( endX, endDepth ) );
-    polygon.push_back( QPointF( startX, endDepth ) );
-    polygon.push_back( QPointF( startX, startDepth ) );
-    columnShape->setPolygon( polygon );
-    columnShape->setXAxis( QwtPlot::xBottom );
-    columnShape->setBrush( QBrush( color, brushStyle ) );
-    columnShape->setLegendMode( QwtPlotShapeItem::LegendShape );
-    columnShape->setLegendIconSize( QSize( 16, 16 ) );
-    return columnShape;
 }
 
 //--------------------------------------------------------------------------------------------------

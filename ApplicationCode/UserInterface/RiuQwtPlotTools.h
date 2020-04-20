@@ -21,6 +21,7 @@
 #include <qwt_date.h>
 
 class QwtPlot;
+class QwtPlotItem;
 
 class RiuQwtPlotTools
 {
@@ -39,4 +40,12 @@ public:
                                               const QString&                          timeFormat,
                                               RiaQDateTimeTools::DateFormatComponents dateComponents,
                                               RiaQDateTimeTools::TimeFormatComponents timeComponents );
+
+    static QwtPlotItem* createBoxShape( const QString& label,
+                                        double         startX,
+                                        double         endX,
+                                        double         startY,
+                                        double         endY,
+                                        QColor         color,
+                                        Qt::BrushStyle brushStyle = Qt::SolidPattern );
 };
