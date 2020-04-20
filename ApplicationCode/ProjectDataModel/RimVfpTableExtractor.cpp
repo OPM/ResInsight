@@ -65,3 +65,29 @@ std::vector<Opm::VFPInjTable> RimVfpTableExtractor::extractVfpInjectionTables( c
 
     return tables;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<Opm::VFPProdTable> RimVfpTableExtractor::extractVfpProductionTables( const std::string& filename )
+{
+    std::vector<Opm::VFPProdTable> tables;
+
+    Opm::Parser parser;
+    auto        deck = parser.parseFile( filename );
+
+    std::string myKeyword   = "VFPPROD";
+    auto        keywordList = deck.getKeywordList( myKeyword );
+
+    Opm::UnitSystem unitSystem;
+
+    for ( auto kw : keywordList )
+    {
+        auto name = kw->name();
+
+        Opm::VFPProdTable table( *kw, unitSystem );
+        tables.push_back( table );
+    }
+
+    return tables;
+}
