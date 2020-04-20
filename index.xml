@@ -149,7 +149,7 @@ Multiple completions in same cell In previous releases, no connection factor has
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04/</guid>
       <description>ResInsight 2020.04 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.04 is a major update bringing a range of significant new and enhanced features.
 Surfaces ResInsight supports import of 3D Surfaces , and allows mapping properties and simulation results onto these surfaces.
-Allen Diagrams Allen Diagrams displays the overlap of formations and layers across fault faces.</description>
+Allan Diagrams Allan Diagrams displays the overlap of formations and layers across fault faces.</description>
     </item>
     
     <item>
@@ -708,14 +708,14 @@ Surface Results Per default, ResInsight maps current Cell Result on a given surf
     </item>
     
     <item>
-      <title>Allen Diagram</title>
-      <link>https://resinsight.org/3d-main-window/allendiagrams/</link>
+      <title>Allan Diagram</title>
+      <link>https://resinsight.org/3d-main-window/allandiagrams/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://resinsight.org/3d-main-window/allendiagrams/</guid>
-      <description>Allen Diagrams displays the overlap of formations and layers across fault faces.
-Separate Fault Result The Allen Diagram is dispayed by selecting the Separate Fault Result in the project tree. See Faults  for more details.
-Property Editor Settings  Binary Formation Allen One color for all NNC areas with same formation on across fault, and one color for NNC with different formations across fault Formation Allen Formation colors are used, and a mix of the two formation colors are displayed if we have different formations across fault  Mouse interaction When clicking on an NNC area multiple times, the highlighted cell switched from the cell in front of the formation and behind the fault.</description>
+      <guid>https://resinsight.org/3d-main-window/allandiagrams/</guid>
+      <description>Allan Diagrams displays the overlap of formations and layers across fault faces.
+Separate Fault Result The Allan Diagram is dispayed by selecting the Separate Fault Result in the project tree. See Faults  for more details.
+Property Editor Settings  Binary Formation Allan One color for all NNC areas with same formation on across fault, and one color for NNC with different formations across fault Formation Allan Formation colors are used, and a mix of the two formation colors are displayed if we have different formations across fault  Mouse interaction When clicking on an NNC area multiple times, the highlighted cell switched from the cell in front of the formation and behind the fault.</description>
     </item>
     
     <item>
@@ -726,7 +726,7 @@ Property Editor Settings  Binary Formation Allen One color for all NNC areas wit
       <guid>https://resinsight.org/3d-main-window/faults/</guid>
       <description>This section describes how Faults are detected and visualized. NNC&amp;rsquo;s are a part of the Faults visualization and are thus also mentioned in this section.
 Related pages :
-Allen Diagrams
+Allan Diagrams
 Derived Results
 Fault Detection ResInsight always scans the grids for geometrical faults when they are loaded. When two opposite cell faces of I, J, K neighbor cells does not match geometrically, they are tagged.
 All the tagged cell faces are then compared to the faults possibly imported from the *.</description>
