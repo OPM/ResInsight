@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp"
+#include "opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -29,5 +30,6 @@
 class RimVfpTableExtractor
 {
 public:
-    static std::vector<Opm::VFPInjTable> extractVfpInjectionTables( const std::string& filename );
+    static std::vector<Opm::VFPInjTable>  extractVfpInjectionTables( const std::string& filename );
+    static std::vector<Opm::VFPProdTable> extractVfpProductionTables( const std::string& filename );
 };

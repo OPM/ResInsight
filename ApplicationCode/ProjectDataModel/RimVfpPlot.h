@@ -25,6 +25,7 @@
 #include <QPointer>
 
 #include "opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp"
+#include "opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp"
 
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
@@ -39,6 +40,20 @@ class RimVfpPlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class TableType
+    {
+        INJECTION,
+        PRODUCTION
+    };
+
+    enum class ProductionTableType
+    {
+        LIQUID_FLOW_RATE,
+        ARTIFICIAL_LIFT_QUANTITY,
+        WATER_CUT,
+        GAS_LIQUID_RATIO
+    };
+
     RimVfpPlot();
     ~RimVfpPlot() override;
 
@@ -82,6 +97,9 @@ private:
 
     void        fixupDependentFieldsAfterCaseChange();
     static void populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const std::vector<Opm::VFPInjTable>& tables );
+    static void populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                     plotWidget,
+                                                 const std::vector<Opm::VFPProdTable>& tables,
+                                                 RimVfpPlot::ProductionTableType       productionTableType );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -92,6 +110,9 @@ private:
 private:
     caf::PdmPtrField<RimEclipseResultCase*> m_case;
     caf::PdmField<QString>                  m_wellName;
+
+    caf::PdmField<caf::AppEnum<RimVfpPlot::TableType>>           m_tableType;
+    caf::PdmField<caf::AppEnum<RimVfpPlot::ProductionTableType>> m_productionTableType;
 
     QPointer<RiuQwtPlotWidget> m_plotWidget;
 };
