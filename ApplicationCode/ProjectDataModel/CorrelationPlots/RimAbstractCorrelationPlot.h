@@ -25,6 +25,11 @@
 
 #include "cafPdmPtrField.h"
 
+#include <QString>
+
+class RiaSummaryCurveDefinition;
+class RiaSummaryCurveDefinitionAnalyser;
+class RimAnalysisPlotDataEntry;
 class RimSummaryAddress;
 
 class RimAbstractCorrelationPlot : public RimPlot
@@ -47,7 +52,14 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    std::set<time_t> allAvailableTimeSteps();
+    std::set<time_t>                       allAvailableTimeSteps();
+    std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
+    RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
+
+    std::set<RifEclipseSummaryAddress>  addresses();
+    std::set<RimSummaryCaseCollection*> ensembles();
+    std::set<EnsembleParameter>         ensembleParameters();
+    EnsembleParameter                   ensembleParameter( const QString& ensembleParameterName );
 
     // RimViewWindow overrides
     QWidget* viewWidget() override;
@@ -84,15 +96,20 @@ protected:
 
     static time_t timeDiff( time_t lhs, time_t rhs );
 
+    QString selectedVarsText() const;
+
 protected:
-    QPointer<RiuQwtPlotWidget> m_plotWidget;
+    std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
+    QPointer<RiuQwtPlotWidget>                         m_plotWidget;
+
+    bool m_selectMultipleVectors;
 
     // Fields
-    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
-    caf::PdmChildField<RimSummaryAddress*>      m_summaryAddress;
-    caf::PdmField<RifEclipseSummaryAddress>     m_summaryAddressUiField;
-    caf::PdmField<bool>                         m_pushButtonSelectSummaryAddress;
-    caf::PdmField<QDateTime>                    m_timeStep;
+    caf::PdmChildArrayField<RimAnalysisPlotDataEntry*> m_analysisPlotDataSelection;
+
+    caf::PdmField<QString>   m_selectedVarsUiField;
+    caf::PdmField<bool>      m_pushButtonSelectSummaryAddress;
+    caf::PdmField<QDateTime> m_timeStep;
 
     caf::PdmField<bool>    m_showPlotTitle;
     caf::PdmField<bool>    m_useAutoPlotTitle;

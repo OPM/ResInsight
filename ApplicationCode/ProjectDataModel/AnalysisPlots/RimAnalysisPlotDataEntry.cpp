@@ -39,6 +39,10 @@ RimAnalysisPlotDataEntry::RimAnalysisPlotDataEntry()
     m_summaryCase.uiCapability()->setUiTreeChildrenHidden( true );
     m_summaryCase.uiCapability()->setAutoAddingOptionFromValue( false );
 
+    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble", "", "", "" );
+    m_ensemble.uiCapability()->setUiTreeChildrenHidden( true );
+    m_ensemble.uiCapability()->setAutoAddingOptionFromValue( false );
+
     CAF_PDM_InitFieldNoDefault( &m_summaryAddress, "SummaryAddress", "Summary Address", "", "", "" );
     m_summaryAddress.uiCapability()->setUiHidden( true );
     m_summaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
@@ -58,9 +62,14 @@ RimAnalysisPlotDataEntry::~RimAnalysisPlotDataEntry()
 void RimAnalysisPlotDataEntry::setFromCurveDefinition( const RiaSummaryCurveDefinition& curveDef )
 {
     m_summaryAddress->setAddress( curveDef.summaryAddress() );
-    CVF_ASSERT( !curveDef.ensemble() ); // We will not support definitions of ensemble curves. Only single cases that
-                                        // might be part of an ensemble
-    m_summaryCase = curveDef.summaryCase();
+    if ( curveDef.ensemble() )
+    {
+        m_ensemble = curveDef.ensemble();
+    }
+    else
+    {
+        m_summaryCase = curveDef.summaryCase();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,6 +77,10 @@ void RimAnalysisPlotDataEntry::setFromCurveDefinition( const RiaSummaryCurveDefi
 //--------------------------------------------------------------------------------------------------
 RiaSummaryCurveDefinition RimAnalysisPlotDataEntry::curveDefinition() const
 {
+    if ( m_ensemble )
+    {
+        return RiaSummaryCurveDefinition( nullptr, m_summaryAddress->address(), m_ensemble() );
+    }
     return RiaSummaryCurveDefinition( m_summaryCase(), m_summaryAddress->address(), nullptr );
 }
 
@@ -77,6 +90,14 @@ RiaSummaryCurveDefinition RimAnalysisPlotDataEntry::curveDefinition() const
 RimSummaryCase* RimAnalysisPlotDataEntry::summaryCase() const
 {
     return m_summaryCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCaseCollection* RimAnalysisPlotDataEntry::ensemble() const
+{
+    return m_ensemble;
 }
 
 //--------------------------------------------------------------------------------------------------

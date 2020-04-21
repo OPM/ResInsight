@@ -52,40 +52,6 @@
 #include <limits>
 #include <map>
 
-class RimCurveDefinitionAnalyser
-{
-public:
-    RimCurveDefinitionAnalyser( std::vector<RiaSummaryCurveDefinition> curveDefs )
-    {
-        for ( const auto& curveDef : curveDefs )
-        {
-            CVF_ASSERT( !curveDef.isEnsembleCurve() );
-            if ( curveDef.summaryCase() )
-            {
-                m_singleSummaryCases.insert( curveDef.summaryCase() );
-
-                if ( curveDef.summaryCase()->ensemble() )
-                {
-                    m_ensembles.insert( curveDef.summaryCase()->ensemble() );
-                }
-
-                RifEclipseSummaryAddress address = curveDef.summaryAddress();
-
-                m_quantityNames.insert( address.quantityName() );
-
-                address.setQuantityName( "" );
-                if ( !address.itemUiText().empty() ) m_summaryItems.insert( address );
-            }
-        }
-    }
-
-    std::set<RimSummaryCase*>           m_singleSummaryCases; // All summary cases used
-    std::set<RimSummaryCaseCollection*> m_ensembles; // All the ensembles referenced by the summary cases
-
-    std::set<RifEclipseSummaryAddress> m_summaryItems; // Quantity name set to "", stores only the identifiers
-    std::set<std::string>              m_quantityNames; // Quantity names from the addresses
-};
-
 namespace caf
 {
 template <>
@@ -233,7 +199,7 @@ std::set<RifEclipseSummaryAddress> RimAnalysisPlot::unfilteredAddresses()
 {
     std::set<RifEclipseSummaryAddress> addresses;
 
-    RimCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
 
     for ( RimSummaryCase* sumCase : analyserOfSelectedCurveDefs->m_singleSummaryCases )
     {
@@ -251,7 +217,7 @@ std::set<EnsembleParameter> RimAnalysisPlot::ensembleParameters()
 {
     std::set<EnsembleParameter> ensembleParms;
 
-    RimCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
 
     std::set<RimSummaryCaseCollection*> ensembles;
 
@@ -584,8 +550,8 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
 
     if ( !m_analyserOfSelectedCurveDefs )
     {
-        m_analyserOfSelectedCurveDefs = std::unique_ptr<RimCurveDefinitionAnalyser>(
-            new RimCurveDefinitionAnalyser( this->curveDefinitionsWithoutEnsembleReference() ) );
+        m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>(
+            new RiaSummaryCurveDefinitionAnalyser( this->curveDefinitionsWithoutEnsembleReference() ) );
     }
 
     if ( fieldNeedingOptions == &m_addTimestepUiField )
@@ -703,8 +669,8 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    m_analyserOfSelectedCurveDefs = std::unique_ptr<RimCurveDefinitionAnalyser>(
-        new RimCurveDefinitionAnalyser( this->curveDefinitionsWithoutEnsembleReference() ) );
+    m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>(
+        new RiaSummaryCurveDefinitionAnalyser( this->curveDefinitionsWithoutEnsembleReference() ) );
 
     if ( m_plotWidget )
     {
@@ -1607,12 +1573,12 @@ void RimAnalysisPlot::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCurveDefinitionAnalyser* RimAnalysisPlot::getOrCreateSelectedCurveDefAnalyser()
+RiaSummaryCurveDefinitionAnalyser* RimAnalysisPlot::getOrCreateSelectedCurveDefAnalyser()
 {
     if ( !m_analyserOfSelectedCurveDefs )
     {
-        m_analyserOfSelectedCurveDefs = std::unique_ptr<RimCurveDefinitionAnalyser>(
-            new RimCurveDefinitionAnalyser( this->curveDefinitionsWithoutEnsembleReference() ) );
+        m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>(
+            new RiaSummaryCurveDefinitionAnalyser( this->curveDefinitionsWithoutEnsembleReference() ) );
     }
 
     return m_analyserOfSelectedCurveDefs.get();

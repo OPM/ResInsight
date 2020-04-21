@@ -93,9 +93,10 @@ void RimParameterResultCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    m_selectedVarsUiField = selectedVarsText();
+
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
-    curveDataGroup->add( &m_ensemble );
-    curveDataGroup->add( &m_summaryAddressUiField );
+    curveDataGroup->add( &m_selectedVarsUiField );
     curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
     curveDataGroup->add( &m_timeStep );
 
@@ -106,6 +107,8 @@ void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::P
     plotGroup->add( &m_showPlotTitle );
     plotGroup->add( &m_useAutoPlotTitle );
     plotGroup->add( &m_description );
+    RimPlot::defineUiOrdering( uiConfigName, *plotGroup );
+
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
     uiOrdering.skipRemainingFields( true );
 }
@@ -120,12 +123,9 @@ QList<caf::PdmOptionItemInfo>
         RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
     if ( fieldNeedingOptions == &m_ensembleParameter )
     {
-        if ( m_ensemble )
+        for ( const auto& param : ensembleParameters() )
         {
-            for ( const auto& param : m_ensemble->variationSortedEnsembleParameters() )
-            {
-                options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( param.uiName(), param.name ) );
         }
     }
     return options;
@@ -138,9 +138,12 @@ void RimParameterResultCrossPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    m_summaryAddressUiField = m_summaryAddress->address();
+    m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>(
+        new RiaSummaryCurveDefinitionAnalyser( this->curveDefinitions() ) );
 
-    if ( m_plotWidget )
+    m_selectedVarsUiField = selectedVarsText();
+
+    if ( m_plotWidget && m_analyserOfSelectedCurveDefs )
     {
         m_plotWidget->insertLegend( nullptr );
         m_plotWidget->updateLegend();
@@ -160,7 +163,7 @@ void RimParameterResultCrossPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, QString::fromStdString( m_summaryAddressUiField().uiText() ) );
+    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, m_selectedVarsUiField );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
     m_plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
     m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, 11, 11, false, Qt::AlignCenter );
@@ -178,19 +181,22 @@ void RimParameterResultCrossPlot::createPoints()
 {
     time_t selectedTimestep = m_timeStep().toTime_t();
 
-    if ( !m_ensemble ) return;
+    caf::ColorTable colorTable = RiaColorTables::categoryPaletteColors();
 
-    if ( !m_summaryAddress ) return;
+    if ( ensembles().empty() ) return;
+    if ( addresses().empty() ) return;
 
-    EnsembleParameter ensembleParameter = m_ensemble->ensembleParameter( m_ensembleParameter );
-    if ( !( ensembleParameter.isNumeric() && ensembleParameter.isValid() ) ) return;
+    auto              ensemble  = *ensembles().begin();
+    auto              address   = *addresses().begin();
+    EnsembleParameter parameter = ensembleParameter( m_ensembleParameter );
+    if ( !( parameter.isNumeric() && parameter.isValid() ) ) return;
 
-    for ( size_t caseIdx = 0u; caseIdx < m_ensemble->allSummaryCases().size(); ++caseIdx )
+    for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
     {
         std::vector<double> caseValuesAtTimestep;
         std::vector<double> parameterValues;
 
-        auto summaryCase = m_ensemble->allSummaryCases()[caseIdx];
+        auto summaryCase = ensemble->allSummaryCases()[caseIdx];
 
         RifSummaryReaderInterface* reader = summaryCase->summaryReader();
         if ( !reader ) continue;
@@ -201,9 +207,9 @@ void RimParameterResultCrossPlot::createPoints()
 
         double closestValue    = std::numeric_limits<double>::infinity();
         time_t closestTimeStep = 0;
-        if ( reader->values( m_summaryAddress->address(), &values ) )
+        if ( reader->values( address, &values ) )
         {
-            const std::vector<time_t>& timeSteps = reader->timeSteps( m_summaryAddress->address() );
+            const std::vector<time_t>& timeSteps = reader->timeSteps( address );
             for ( size_t i = 0; i < timeSteps.size(); ++i )
             {
                 if ( timeDiff( timeSteps[i], selectedTimestep ) < timeDiff( selectedTimestep, closestTimeStep ) )
@@ -216,18 +222,15 @@ void RimParameterResultCrossPlot::createPoints()
         if ( closestValue != std::numeric_limits<double>::infinity() )
         {
             caseValuesAtTimestep.push_back( closestValue );
-            double paramValue = ensembleParameter.values[caseIdx].toDouble();
+            double paramValue = parameter.values[caseIdx].toDouble();
             parameterValues.push_back( paramValue );
 
-            RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve;
-            plotCurve->setSamplesFromXValuesAndYValues( parameterValues, caseValuesAtTimestep, false );
-            plotCurve->setAppearance( RiuQwtPlotCurve::STYLE_NONE,
-                                      RiuQwtPlotCurve::INTERPOLATION_POINT_TO_POINT,
-                                      0,
-                                      QColor( Qt::red ) );
-            RiuQwtSymbol* symbol = new RiuQwtSymbol( RiuQwtSymbol::SYMBOL_ELLIPSE, "" );
+            QwtPlotCurve* plotCurve = new QwtPlotCurve;
+            plotCurve->setSamples( parameterValues.data(), caseValuesAtTimestep.data(), (int)parameterValues.size() );
+            plotCurve->setStyle( QwtPlotCurve::NoCurve );
+            RiuQwtSymbol* symbol = new RiuQwtSymbol( RiuQwtSymbol::SYMBOL_DIAMOND, "" );
             symbol->setSize( 12, 12 );
-            symbol->setColor( QColor( Qt::red ) );
+            symbol->setColor( colorTable.cycledQColor( caseIdx ) );
             plotCurve->setSymbol( symbol );
             plotCurve->attach( m_plotWidget );
         }
@@ -241,9 +244,7 @@ void RimParameterResultCrossPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "Cross Plot %1 x %2" )
-                            .arg( m_ensembleParameter )
-                            .arg( QString::fromStdString( m_summaryAddressUiField().uiText() ) );
+        m_description = QString( "Cross Plot %1 x %2" ).arg( m_ensembleParameter ).arg( m_selectedVarsUiField() );
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );

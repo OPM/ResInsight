@@ -2,9 +2,11 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
 
+#include "RimAnalysisPlotDataEntry.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
@@ -24,25 +26,22 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimAbstractCorrelationPlot, "AbstractCorrelationPl
 ///
 //--------------------------------------------------------------------------------------------------
 RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
+    : m_selectMultipleVectors( false )
 {
     CAF_PDM_InitObject( "Abstract Correlation Plot", ":/CorrelationPlot16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "SelectedVariableDisplayVar", "Vector", "", "", "" );
+    m_selectedVarsUiField.xmlCapability()->disableIO();
+    m_selectedVarsUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryAddressUiField, "SelectedVariableDisplayVar", "Vector", "", "", "" );
-    m_summaryAddressUiField.xmlCapability()->disableIO();
-    m_summaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitFieldNoDefault( &m_summaryAddress, "SummaryAddress", "Summary Address", "", "", "" );
-    m_summaryAddress.uiCapability()->setUiHidden( true );
-    m_summaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_analysisPlotDataSelection, "AnalysisPlotData", "", "", "", "" );
+    m_analysisPlotDataSelection.uiCapability()->setUiTreeChildrenHidden( true );
+    m_analysisPlotDataSelection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_pushButtonSelectSummaryAddress );
     m_pushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_pushButtonSelectSummaryAddress = false;
-
-    m_summaryAddress = new RimSummaryAddress;
 
     CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step", "", "", "" );
     m_timeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -70,19 +69,28 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
     if ( changedField == &m_pushButtonSelectSummaryAddress )
     {
         RiuSummaryVectorSelectionDialog dlg( nullptr );
-        RimSummaryCaseCollection*       candidateEnsemble = m_ensemble;
-        RifEclipseSummaryAddress        candicateAddress  = m_summaryAddress->address();
 
-        dlg.hideSummaryCases();
-        dlg.setEnsembleAndAddress( candidateEnsemble, candicateAddress );
+        if ( m_selectMultipleVectors )
+        {
+            dlg.enableMultiSelect( true );
+        }
+
+        dlg.setCaseAndAddress( nullptr, RifEclipseSummaryAddress() );
+        dlg.setCurveSelection( curveDefinitions() );
 
         if ( dlg.exec() == QDialog::Accepted )
         {
             auto curveSelection = dlg.curveSelection();
             if ( !curveSelection.empty() )
             {
-                m_summaryAddress->setAddress( curveSelection[0].summaryAddress() );
-
+                std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
+                m_analysisPlotDataSelection.deleteAllChildObjects();
+                for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
+                {
+                    auto plotEntry = new RimAnalysisPlotDataEntry();
+                    plotEntry->setFromCurveDefinition( vectorDef );
+                    m_analysisPlotDataSelection.push_back( plotEntry );
+                }
                 this->loadDataAndUpdate();
                 this->updateConnectedEditors();
             }
@@ -91,11 +99,6 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
         m_pushButtonSelectSummaryAddress = false;
     }
     else if ( changedField == &m_timeStep )
-    {
-        this->loadDataAndUpdate();
-        this->updateConnectedEditors();
-    }
-    else if ( changedField == &m_ensemble )
     {
         this->loadDataAndUpdate();
         this->updateConnectedEditors();
@@ -136,38 +139,14 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
 
-    if ( fieldNeedingOptions == &m_ensemble )
+    if ( fieldNeedingOptions == &m_timeStep )
     {
-        RimProject*                            project = RiaApplication::instance()->project();
-        std::vector<RimSummaryCaseCollection*> summaryCaseCollections;
-        project->descendantsIncludingThisOfType( summaryCaseCollections );
-        for ( auto summaryCaseCollection : summaryCaseCollections )
+        std::set<time_t> allTimeSteps = allAvailableTimeSteps();
+        for ( time_t timeStep : allTimeSteps )
         {
-            if ( summaryCaseCollection->isEnsemble() )
-            {
-                options.push_back( caf::PdmOptionItemInfo( summaryCaseCollection->name(), summaryCaseCollection ) );
-            }
-        }
-    }
-    else if ( fieldNeedingOptions == &m_summaryAddressUiField )
-    {
-        if ( m_ensemble )
-        {
-            RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses( &options, m_ensemble );
-        }
-    }
-    else if ( fieldNeedingOptions == &m_timeStep )
-    {
-        QString dateTimeFormat = RiaApplication::instance()->preferences()->dateTimeFormat();
-        if ( m_ensemble )
-        {
-            std::set<time_t> allTimeSteps = allAvailableTimeSteps();
-            for ( time_t timeStep : allTimeSteps )
-            {
-                QDateTime dateTime       = QDateTime::fromTime_t( timeStep );
-                QString   timestepString = dateTime.toString( Qt::ISODate );
-                options.push_back( caf::PdmOptionItemInfo( timestepString, dateTime ) );
-            }
+            QDateTime dateTime       = QDateTime::fromTime_t( timeStep );
+            QString   timestepString = dateTime.toString( Qt::ISODate );
+            options.push_back( caf::PdmOptionItemInfo( timestepString, dateTime ) );
         }
     }
     return options;
@@ -180,17 +159,100 @@ std::set<time_t> RimAbstractCorrelationPlot::allAvailableTimeSteps()
 {
     std::set<time_t> timeStepUnion;
 
-    for ( RimSummaryCase* sumCase : m_ensemble->allSummaryCases() )
+    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+    for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
     {
-        const std::vector<time_t>& timeSteps = sumCase->summaryReader()->timeSteps( m_summaryAddress->address() );
-
-        for ( time_t t : timeSteps )
-        {
-            timeStepUnion.insert( t );
-        }
+        const std::set<time_t>& timeSteps = ensemble->ensembleTimeSteps();
+        timeStepUnion.insert( timeSteps.begin(), timeSteps.end() );
     }
 
     return timeStepUnion;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RiaSummaryCurveDefinition> RimAbstractCorrelationPlot::curveDefinitions() const
+{
+    std::vector<RiaSummaryCurveDefinition> curveDefs;
+    for ( auto dataEntry : m_analysisPlotDataSelection )
+    {
+        curveDefs.push_back( dataEntry->curveDefinition() );
+    }
+
+    return curveDefs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSummaryCurveDefinitionAnalyser* RimAbstractCorrelationPlot::getOrCreateSelectedCurveDefAnalyser()
+{
+    if ( !m_analyserOfSelectedCurveDefs )
+    {
+        m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>(
+            new RiaSummaryCurveDefinitionAnalyser( this->curveDefinitions() ) );
+    }
+
+    return m_analyserOfSelectedCurveDefs.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseSummaryAddress> RimAbstractCorrelationPlot::addresses()
+{
+    std::set<RifEclipseSummaryAddress> addresses;
+
+    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+
+    for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
+    {
+        const std::set<RifEclipseSummaryAddress>& caseAddrs = ensemble->ensembleSummaryAddresses();
+        addresses.insert( caseAddrs.begin(), caseAddrs.end() );
+    }
+
+    return addresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RimSummaryCaseCollection*> RimAbstractCorrelationPlot::ensembles()
+{
+    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+    return analyserOfSelectedCurveDefs->m_ensembles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<EnsembleParameter> RimAbstractCorrelationPlot::ensembleParameters()
+{
+    std::set<EnsembleParameter> ensembleParms;
+
+    RiaSummaryCurveDefinitionAnalyser* analyserOfSelectedCurveDefs = getOrCreateSelectedCurveDefAnalyser();
+
+    for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
+    {
+        std::vector<EnsembleParameter> parameters = ensemble->alphabeticEnsembleParameters();
+        ensembleParms.insert( parameters.begin(), parameters.end() );
+    }
+    return ensembleParms;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+EnsembleParameter RimAbstractCorrelationPlot::ensembleParameter( const QString& ensembleParameterName )
+{
+    std::set<EnsembleParameter> ensembleParms = ensembleParameters();
+    for ( const EnsembleParameter& eParam : ensembleParms )
+    {
+        if ( eParam.name == ensembleParameterName ) return eParam;
+    }
+
+    return EnsembleParameter();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -312,4 +374,26 @@ time_t RimAbstractCorrelationPlot::timeDiff( time_t lhs, time_t rhs )
         return lhs - rhs;
     }
     return rhs - lhs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimAbstractCorrelationPlot::selectedVarsText() const
+{
+    QString vectorNames;
+    if ( m_analyserOfSelectedCurveDefs )
+    {
+        for ( const std::string& quantityName : m_analyserOfSelectedCurveDefs->m_quantityNames )
+        {
+            vectorNames += QString::fromStdString( quantityName ) + ", ";
+        }
+
+        if ( !vectorNames.isEmpty() )
+        {
+            vectorNames.chop( 2 );
+        }
+    }
+
+    return vectorNames;
 }

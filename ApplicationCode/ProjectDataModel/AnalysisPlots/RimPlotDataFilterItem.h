@@ -36,7 +36,7 @@ class RiuSummaryQwtPlot;
 class RiuGroupedBarChartBuilder;
 
 class RimAnalysisPlotDataEntry;
-class RimCurveDefinitionAnalyser;
+class RiaSummaryCurveDefinitionAnalyser;
 class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
 

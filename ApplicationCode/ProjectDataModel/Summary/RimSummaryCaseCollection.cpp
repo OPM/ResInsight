@@ -249,7 +249,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase, bool update
 
     if ( m_isEnsemble )
     {
-        validateEnsembleCases( {summaryCase} );
+        validateEnsembleCases( { summaryCase } );
         calculateEnsembleParametersIntersectionHash();
     }
 
@@ -342,6 +342,42 @@ std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::ensembleSummaryAddr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<time_t> RimSummaryCaseCollection::ensembleTimeSteps() const
+{
+    std::set<time_t> allTimeSteps;
+    size_t           maxAddrCount = 0;
+    int              maxAddrIndex = -1;
+
+    for ( int i = 0; i < (int)m_cases.size(); i++ )
+    {
+        RimSummaryCase* currCase = m_cases[i];
+        if ( !currCase ) continue;
+
+        RifSummaryReaderInterface* reader = currCase->summaryReader();
+        if ( !reader ) continue;
+
+        size_t addrCount = reader->allResultAddresses().size();
+        if ( addrCount > maxAddrCount )
+        {
+            maxAddrCount = addrCount;
+            maxAddrIndex = (int)i;
+        }
+    }
+
+    if ( maxAddrIndex >= 0 && m_cases[maxAddrIndex]->summaryReader() )
+    {
+        const std::set<RifEclipseSummaryAddress>& addrs = m_cases[maxAddrIndex]->summaryReader()->allResultAddresses();
+        for ( RifEclipseSummaryAddress addr : addrs )
+        {
+            std::vector<time_t> timeSteps = m_cases[maxAddrIndex]->summaryReader()->timeSteps( addr );
+            allTimeSteps.insert( timeSteps.begin(), timeSteps.end() );
+        }
+    }
+    return allTimeSteps;
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<QString> RimSummaryCaseCollection::wellsWithRftData() const
 {
     std::set<QString> allWellNames;
@@ -411,6 +447,33 @@ const std::vector<EnsembleParameter>& RimSummaryCaseCollection::variationSortedE
     RimSummaryCaseCollection::sortByBinnedVariation( m_cachedSortedEnsembleParameters );
 
     return m_cachedSortedEnsembleParameters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<EnsembleParameter> RimSummaryCaseCollection::alphabeticEnsembleParameters() const
+{
+    std::set<QString> paramSet;
+    for ( RimSummaryCase* rimCase : this->allSummaryCases() )
+    {
+        if ( rimCase->caseRealizationParameters() != nullptr )
+        {
+            auto ps = rimCase->caseRealizationParameters()->parameters();
+            for ( auto p : ps )
+            {
+                paramSet.insert( p.first );
+            }
+        }
+    }
+
+    std::vector<EnsembleParameter> sortedEnsembleParameters;
+    sortedEnsembleParameters.reserve( paramSet.size() );
+    for ( const QString& parameterName : paramSet )
+    {
+        sortedEnsembleParameters.push_back( this->createEnsembleParameter( parameterName ) );
+    }
+    return sortedEnsembleParameters;
 }
 
 //--------------------------------------------------------------------------------------------------

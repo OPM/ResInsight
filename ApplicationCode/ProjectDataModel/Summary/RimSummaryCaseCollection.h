@@ -102,6 +102,7 @@ public:
     bool                                       isEnsemble() const;
     void                                       setAsEnsemble( bool isEnsemble );
     virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const;
+    virtual std::set<time_t>                   ensembleTimeSteps() const;
     std::set<QString>                          wellsWithRftData() const;
     std::set<QDateTime>                        rftTimeStepsForWell( const QString& wellName ) const;
     RifReaderRftInterface*                     rftStatisticsReader();
@@ -109,6 +110,7 @@ public:
     int                                        ensembleId() const;
 
     const std::vector<EnsembleParameter>& variationSortedEnsembleParameters() const;
+    std::vector<EnsembleParameter>        alphabeticEnsembleParameters() const;
 
     EnsembleParameter ensembleParameter( const QString& paramName ) const;
     void              calculateEnsembleParametersIntersectionHash();

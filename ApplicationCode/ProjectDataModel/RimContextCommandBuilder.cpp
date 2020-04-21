@@ -39,6 +39,7 @@
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationPlotCollection.h"
 #include "RimEclipseCase.h"
@@ -530,11 +531,16 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimCorrelationPlotCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewCorrelationPlotFeature";
+            menuBuilder << "RicNewCorrelationMatrixPlotFeature";
             menuBuilder << "RicNewParameterResultCrossPlotFeature";
         }
         else if ( dynamic_cast<RimCorrelationPlot*>( firstUiItem ) )
         {
             menuBuilder << "RicNewCorrelationPlotFeature";
+        }
+        else if ( dynamic_cast<RimCorrelationMatrixPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewCorrelationMatrixPlotFeature";
         }
         else if ( dynamic_cast<RimParameterResultCrossPlot*>( firstUiItem ) )
         {

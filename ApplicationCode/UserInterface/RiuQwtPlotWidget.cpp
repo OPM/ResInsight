@@ -162,11 +162,11 @@ int RiuQwtPlotWidget::axisValueFontSize( QwtPlot::Axis axis ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis     axis,
-                                                 int               titleFontSize,
-                                                 int               valueFontSize,
-                                                 bool              titleBold,
-                                                 Qt::AlignmentFlag alignment )
+void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis axis,
+                                                 int           titleFontSize,
+                                                 int           valueFontSize,
+                                                 bool          titleBold,
+                                                 int           alignment )
 {
     // Axis number font
     QFont axisFont = this->axisFont( axis );
@@ -308,10 +308,10 @@ void RiuQwtPlotWidget::setAxisInverted( QwtPlot::Axis axis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool enable )
+void RiuQwtPlotWidget::setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool enableLabels, bool enableTicks )
 {
-    this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Ticks, enable );
-    this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Labels, enable );
+    this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Ticks, enableTicks );
+    this->axisScaleDraw( axis )->enableComponent( QwtAbstractScaleDraw::Labels, enableLabels );
     recalculateAxisExtents( axis );
 }
 
@@ -355,6 +355,31 @@ void RiuQwtPlotWidget::setMajorAndMinorTickIntervals( QwtPlot::Axis axis,
     {
         QwtScaleDiv scaleDiv =
             scaleEngine->divideScaleWithExplicitIntervals( minValue, maxValue, majorTickInterval, minorTickInterval );
+
+        this->setAxisScaleDiv( axis, scaleDiv );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setMajorAndMinorTickIntervalsAndRange( QwtPlot::Axis axis,
+                                                              double        majorTickInterval,
+                                                              double        minorTickInterval,
+                                                              double        minTickValue,
+                                                              double        maxTickValue,
+                                                              double        rangeMin,
+                                                              double        rangeMax )
+{
+    RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( this->axisScaleEngine( axis ) );
+    if ( scaleEngine )
+    {
+        QwtScaleDiv scaleDiv = scaleEngine->divideScaleWithExplicitIntervalsAndRange( minTickValue,
+                                                                                      maxTickValue,
+                                                                                      majorTickInterval,
+                                                                                      minorTickInterval,
+                                                                                      rangeMin,
+                                                                                      rangeMax );
 
         this->setAxisScaleDiv( axis, scaleDiv );
     }

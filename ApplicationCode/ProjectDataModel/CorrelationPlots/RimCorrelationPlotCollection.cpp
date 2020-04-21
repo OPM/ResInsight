@@ -18,6 +18,7 @@
 
 #include "RimCorrelationPlotCollection.h"
 
+#include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimParameterResultCrossPlot.h"
 
@@ -49,7 +50,19 @@ RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot()
     RimCorrelationPlot* plot = new RimCorrelationPlot();
     plot->setAsPlotMdiWindow();
 
-    // plot->enableAutoPlotTitle( true );
+    m_correlationPlots.push_back( plot );
+
+    return plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixPlot()
+{
+    RimCorrelationMatrixPlot* plot = new RimCorrelationMatrixPlot();
+    plot->setAsPlotMdiWindow();
+
     m_correlationPlots.push_back( plot );
 
     return plot;

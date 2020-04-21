@@ -622,7 +622,9 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
 
             subTitles[visibleIndex]->setVisible( m_showSubTitles );
 
-            plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
+            plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft,
+                                                                     showYAxis( row, column ),
+                                                                     showYAxis( row, column ) );
             plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
 
             plotWidgets[visibleIndex]->show();

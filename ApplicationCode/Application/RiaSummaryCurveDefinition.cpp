@@ -22,6 +22,8 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 
+#include "cafAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -193,4 +195,39 @@ bool RiaSummaryCurveDefinition::operator<( const RiaSummaryCurveDefinition& othe
     }
 
     return ( m_summaryAddress < other.summaryAddress() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSummaryCurveDefinitionAnalyser::RiaSummaryCurveDefinitionAnalyser( std::vector<RiaSummaryCurveDefinition> curveDefs )
+{
+    for ( const auto& curveDef : curveDefs )
+    {
+        bool valid = false;
+        if ( curveDef.summaryCase() )
+        {
+            m_singleSummaryCases.insert( curveDef.summaryCase() );
+
+            if ( curveDef.summaryCase()->ensemble() )
+            {
+                m_ensembles.insert( curveDef.summaryCase()->ensemble() );
+                valid = true;
+            }
+        }
+        else if ( curveDef.ensemble() )
+        {
+            m_ensembles.insert( curveDef.ensemble() );
+            valid = true;
+        }
+        if ( valid )
+        {
+            RifEclipseSummaryAddress address = curveDef.summaryAddress();
+
+            m_quantityNames.insert( address.quantityName() );
+
+            address.setQuantityName( "" );
+            if ( !address.itemUiText().empty() ) m_summaryItems.insert( address );
+        }
+    }
 }

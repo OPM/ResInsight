@@ -110,8 +110,8 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     }
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
-    curveDataGroup->add( &m_ensemble );
-    curveDataGroup->add( &m_summaryAddressUiField );
+
+    curveDataGroup->add( &m_selectedVarsUiField );
     curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
     curveDataGroup->add( &m_timeStep );
 
@@ -119,6 +119,8 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     plotGroup->add( &m_showPlotTitle );
     plotGroup->add( &m_useAutoPlotTitle );
     plotGroup->add( &m_description );
+    RimPlot::defineUiOrdering( uiConfigName, *plotGroup );
+
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
     uiOrdering.skipRemainingFields( true );
 }
@@ -142,9 +144,12 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    m_summaryAddressUiField = m_summaryAddress->address();
+    m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>(
+        new RiaSummaryCurveDefinitionAnalyser( this->curveDefinitions() ) );
 
-    if ( m_plotWidget )
+    m_selectedVarsUiField = selectedVarsText();
+
+    if ( m_plotWidget && m_analyserOfSelectedCurveDefs )
     {
         m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotBarChart );
         m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotScale );
@@ -198,18 +203,18 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
 {
     time_t selectedTimestep = m_timeStep().toTime_t();
 
-    if ( !m_ensemble ) return;
-
-    if ( !m_summaryAddress ) return;
-
-    std::vector<EnsembleParameter> ensembleParameters = m_ensemble->variationSortedEnsembleParameters();
+    if ( ensembles().empty() ) return;
+    if ( addresses().empty() ) return;
 
     std::vector<double>                    caseValuesAtTimestep;
     std::map<QString, std::vector<double>> parameterValues;
 
-    for ( size_t caseIdx = 0u; caseIdx < m_ensemble->allSummaryCases().size(); ++caseIdx )
+    auto ensemble = *ensembles().begin();
+    auto address  = *addresses().begin();
+
+    for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
     {
-        auto summaryCase = m_ensemble->allSummaryCases()[caseIdx];
+        auto summaryCase = ensemble->allSummaryCases()[caseIdx];
 
         RifSummaryReaderInterface* reader = summaryCase->summaryReader();
         if ( !reader ) continue;
@@ -220,9 +225,9 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
 
         double closestValue    = std::numeric_limits<double>::infinity();
         time_t closestTimeStep = 0;
-        if ( reader->values( m_summaryAddress->address(), &values ) )
+        if ( reader->values( address, &values ) )
         {
-            const std::vector<time_t>& timeSteps = reader->timeSteps( m_summaryAddress->address() );
+            const std::vector<time_t>& timeSteps = reader->timeSteps( address );
             for ( size_t i = 0; i < timeSteps.size(); ++i )
             {
                 if ( timeDiff( timeSteps[i], selectedTimestep ) < timeDiff( selectedTimestep, closestTimeStep ) )
@@ -236,7 +241,7 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
         {
             caseValuesAtTimestep.push_back( closestValue );
 
-            for ( auto parameter : ensembleParameters )
+            for ( auto parameter : ensembleParameters() )
             {
                 if ( parameter.isNumeric() && parameter.isValid() )
                 {
@@ -281,9 +286,7 @@ void RimCorrelationPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "%1 for %2" )
-                            .arg( m_correlationFactor().uiText() )
-                            .arg( QString::fromStdString( m_summaryAddressUiField().uiText() ) );
+        m_description = QString( "%1 for %2" ).arg( m_correlationFactor().uiText() ).arg( m_selectedVarsUiField );
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );

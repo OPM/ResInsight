@@ -71,10 +71,10 @@ public:
     int  axisTitleFontSize( QwtPlot::Axis axis ) const;
     int  axisValueFontSize( QwtPlot::Axis axis ) const;
     void setAxisFontsAndAlignment( QwtPlot::Axis,
-                                   int               titleFontSize,
-                                   int               valueFontSize,
-                                   bool              titleBold = false,
-                                   Qt::AlignmentFlag alignment = Qt::AlignRight );
+                                   int  titleFontSize,
+                                   int  valueFontSize,
+                                   bool titleBold = false,
+                                   int  alignment = (int)Qt::AlignRight );
 
     void setAxisTitleText( QwtPlot::Axis axis, const QString& title );
     void setAxisTitleEnabled( QwtPlot::Axis axis, bool enable );
@@ -91,7 +91,7 @@ public:
     void        setAxisRange( QwtPlot::Axis axis, double min, double max );
 
     void setAxisInverted( QwtPlot::Axis axis );
-    void setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool enable );
+    void setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool enableLabels, bool enableTicks );
 
     void enableGridLines( QwtPlot::Axis axis, bool majorGridLines, bool minorGridLines );
 
@@ -100,6 +100,13 @@ public:
                                         double        minorTickInterval,
                                         double        minValue,
                                         double        maxValue );
+    void setMajorAndMinorTickIntervalsAndRange( QwtPlot::Axis axis,
+                                                double        majorTickInterval,
+                                                double        minorTickInterval,
+                                                double        minTickValue,
+                                                double        maxTickValue,
+                                                double        rangeMin,
+                                                double        rangeMax );
     void setAutoTickIntervalCounts( QwtPlot::Axis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount );
     double majorTickInterval( QwtPlot::Axis axis ) const;
     double minorTickInterval( QwtPlot::Axis axis ) const;

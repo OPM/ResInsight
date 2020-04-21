@@ -32,7 +32,7 @@ class RiuSummaryQwtPlot;
 class RiuGroupedBarChartBuilder;
 
 class RimAnalysisPlotDataEntry;
-class RimCurveDefinitionAnalyser;
+class RiaSummaryCurveDefinitionAnalyser;
 class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
 class RimPlotDataFilterCollection;
@@ -151,7 +151,7 @@ private:
     void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
     void updatePlotTitle();
 
-    RimCurveDefinitionAnalyser*            getOrCreateSelectedCurveDefAnalyser();
+    RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
     std::vector<RiaSummaryCurveDefinition> curveDefinitionsWithoutEnsembleReference() const;
     std::vector<RiaSummaryCurveDefinition> curveDefinitionsWithEmbeddedEnsembleReference();
     std::vector<RiaSummaryCurveDefinition> filteredCurveDefs();
@@ -167,7 +167,7 @@ private:
     void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
 
 private:
-    std::unique_ptr<RimCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
+    std::unique_ptr<RiaSummaryCurveDefinitionAnalyser> m_analyserOfSelectedCurveDefs;
 
     QPointer<RiuQwtPlotWidget> m_plotWidget;
 
