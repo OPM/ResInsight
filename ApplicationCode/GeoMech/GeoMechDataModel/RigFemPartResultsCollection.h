@@ -61,10 +61,13 @@ public:
 
     void                             addElementPropertyFiles( const std::vector<QString>& filenames );
     std::vector<RigFemResultAddress> removeElementPropertyFiles( const std::vector<QString>& filenames );
+    std::map<std::string, QString>   addressesInElementPropertyFiles( const std::vector<QString>& filenames );
 
     void   setCalculationParameters( double cohesion, double frictionAngleRad );
     double parameterCohesion() const { return m_cohesion; }
     double parameterFrictionAngleRad() const { return m_frictionAngleRad; }
+
+    void setBiotCoefficientParameters( double fixedFactor, const QString& biotResultAddress );
 
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
     std::vector<std::string>                        filteredStepNames() const;
@@ -150,7 +153,8 @@ private:
     RigFemScalarResultFrames* calculatePrincipalStrainValues( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateCompactionValues( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateNE( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateSE( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* calculateSE_11_22_33( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* calculateSE_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateST_11_22_33( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateST_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateGamma( int partIndex, const RigFemResultAddress& resVarAddr );
@@ -160,6 +164,8 @@ private:
     RigFemScalarResultFrames* calculateNormalizedResult( int partIndex, const RigFemResultAddress& resVarAddr );
 
     const RigFormationNames* activeFormationNames() const;
+
+    bool isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const;
 
 private:
     cvf::Collection<RigFemPartResults>  m_femPartResults;
@@ -172,12 +178,15 @@ private:
     double m_frictionAngleRad;
     double m_normalizationAirGap;
 
+    double  m_biotFixedFactor;
+    QString m_biotResultAddress;
+
     RigStatisticsDataCache*          statistics( const RigFemResultAddress& resVarAddr );
     std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache>> m_resultStatistics;
 
-    static std::vector<std::string> getStressComponentNames();
-    static std::vector<std::string> getStressGradientComponentNames();
+    static std::vector<std::string> getStressComponentNames( bool includeShear = true );
+    static std::vector<std::string> getStressGradientComponentNames( bool includeShear = true );
 };
 
 class RigFemPart;

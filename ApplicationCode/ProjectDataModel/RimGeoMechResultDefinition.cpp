@@ -931,3 +931,11 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
 
     legendConfigToUpdate->setTitle( legendTitle );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGeoMechResultDefinition::isBiotCoefficientDependent() const
+{
+    return ( this->resultFieldName() == "SE" || this->resultFieldName() == "ST" );
+}
