@@ -284,7 +284,7 @@ void eraseInvalidEntries( std::vector<CorrelationMatrixRowOrColumn>& matrix )
 {
     matrix.erase( std::remove_if( matrix.begin(),
                                   matrix.end(),
-                                  []( auto entry ) {
+                                  []( const CorrelationMatrixRowOrColumn& entry ) {
                                       return !RiaCurveDataTools::isValidValue( entry.m_correlationSum, false );
                                   } ),
                   matrix.end() );
