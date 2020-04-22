@@ -57,7 +57,9 @@ const QString RiaStatisticsTools::replacePercentileByPValueText( const QString& 
 //--------------------------------------------------------------------------------------------------
 double RiaStatisticsTools::pearsonCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
-#ifdef OWN_IMPLEMENTATION
+#ifdef USE_GSL
+    return gsl_stats_correlation( xValues.data(), 1, yValues.data(), 1, xValues.size() );
+#else
     const double eps = 1.0e-8;
     if ( xValues.size() != yValues.size() ) return 0.0;
     if ( xValues.empty() ) return 0.0;
@@ -88,8 +90,6 @@ double RiaStatisticsTools::pearsonCorrelation( const std::vector<double>& xValue
     if ( sumxDiffSquared < eps || sumyDiffSquared < eps ) return 0.0;
 
     return sumNumerator / ( std::sqrt( sumxDiffSquared ) * std::sqrt( sumyDiffSquared ) );
-#else
-    return gsl_stats_correlation( xValues.data(), 1, yValues.data(), 1, xValues.size() );
 #endif
 }
 
@@ -98,6 +98,10 @@ double RiaStatisticsTools::pearsonCorrelation( const std::vector<double>& xValue
 //--------------------------------------------------------------------------------------------------
 double RiaStatisticsTools::spearmanCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
+#ifdef USE_GSL
     std::vector<double> work( 2 * xValues.size() );
     return gsl_stats_spearman( xValues.data(), 1, yValues.data(), 1, xValues.size(), work.data() );
+#else
+    return 0.0;
+#endif
 }

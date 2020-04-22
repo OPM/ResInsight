@@ -327,15 +327,17 @@ list(APPEND THIRD_PARTY_LIBRARIES
 # GNU GSL
 ################################################################################
 
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/ThirdParty/gsl/CMakeLists.txt")
-    message(FATAL_ERROR "The GSL submodule was not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+option(GSL_ENABLE "Enable the GNU Scientific Library for Statistics" ON)
+if(GSL_ENABLE)
+	if (NOT EXISTS "${PROJECT_SOURCE_DIR}/ThirdParty/gsl/CMakeLists.txt")
+		message(FATAL_ERROR "The GSL submodule was not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+	endif()
+	option(GSL_DISABLE_TESTS "Disable the GSL tests" ON)
+	add_subdirectory(ThirdParty/gsl)
+	add_definitions(-DUSE_GSL)
+	list(APPEND THIRD_PARTY_LIBRARIES gsl)
 endif()
 
-add_subdirectory(ThirdParty/gsl)
-
-list(APPEND THIRD_PARTY_LIBRARIES
-    gsl
-)
 
 ################################################################################
 # Thirdparty libraries are put in ThirdParty solution folder

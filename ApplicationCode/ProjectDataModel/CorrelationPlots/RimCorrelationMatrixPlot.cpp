@@ -243,13 +243,13 @@ void RimCorrelationMatrixPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
+    m_plotWidget->setAxisScaleDraw( QwtPlot::yLeft, new TextScaleDraw( m_resultLabels ) );
     m_plotWidget->setAxisScaleEngine( QwtPlot::yLeft, new RiuQwtLinearScaleEngine );
     m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Result Vector" );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
     m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, 11, 7, false, Qt::AlignCenter );
     m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, true, false );
     m_plotWidget->setAxisRange( QwtPlot::yLeft, 0.0, (double)m_resultLabels.size() + 1 );
-    m_plotWidget->setAxisScaleDraw( QwtPlot::yLeft, new TextScaleDraw( m_resultLabels ) );
     m_plotWidget->setMajorAndMinorTickIntervalsAndRange( QwtPlot::yLeft,
                                                          1.0,
                                                          0.0,

@@ -49,7 +49,9 @@ template <>
 void caf::AppEnum<RimCorrelationPlot::CorrelationFactor>::setUp()
 {
     addItem( RimCorrelationPlot::CorrelationFactor::PEARSON, "PEARSON", "Pearson Correlation Coefficient" );
+#ifdef USE_GSL
     addItem( RimCorrelationPlot::CorrelationFactor::SPEARMAN, "SPEARMAN", "Spearman's Rank Correlation Coefficient" );
+#endif
     setDefault( RimCorrelationPlot::CorrelationFactor::PEARSON );
 }
 } // namespace caf
@@ -66,7 +68,7 @@ RimCorrelationPlot::RimCorrelationPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_correlationFactor, "CorrelationFactor", "Correlation Factor", "", "", "" );
     m_correlationFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", true, "Show Absolute Values", "", "", "" );
+    CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
 }
 
