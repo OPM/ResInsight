@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.6.2)
 
 project(Qwt)
 
@@ -274,15 +274,9 @@ qwt_thermo.h
 qwt_wheel.h
 )
 
-if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Concurrent Core Gui OpenGL PrintSupport Widgets)
-	set(QT_LIBRARIES Qt5::Concurrent Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::PrintSupport Qt5::Widgets)
-	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})	
-else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
-    include(${QT_USE_FILE})
-	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
-endif(RESINSIGHT_BUILD_WITH_QT5)
+find_package(Qt5 COMPONENTS REQUIRED Concurrent Core Gui OpenGL PrintSupport Widgets)
+set(QT_LIBRARIES Qt5::Concurrent Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::PrintSupport Qt5::Widgets)
+qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})	
 
 add_library(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${MOC_SOURCE_FILES})
 

@@ -3,4 +3,4 @@
 	url = https://github.com/microsoft/vcpkg
 [submodule "ThirdParty/gsl"]
 	path = ThirdParty/gsl
-	url = https://github.com/lindkvis/gsl/
+	url = https://github.com/ampl/gsl/
