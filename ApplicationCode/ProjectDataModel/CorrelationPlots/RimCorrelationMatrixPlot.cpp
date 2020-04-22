@@ -268,7 +268,6 @@ void RimCorrelationMatrixPlot::updateAxes()
     m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, 11, 6, false, Qt::AlignCenter | Qt::AlignTop );
     m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xBottom, true, false );
     m_plotWidget->setAxisRange( QwtPlot::xBottom, 0.0, (double)m_paramLabels.size() + 1 );
-    // m_plotWidget->setAutoTickIntervalCounts( QwtPlot::xBottom, m_paramLabels.size(), m_paramLabels.size() );
     m_plotWidget->setMajorAndMinorTickIntervalsAndRange( QwtPlot::xBottom,
                                                          1.0,
                                                          0.0,
