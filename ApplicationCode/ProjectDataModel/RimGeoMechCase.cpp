@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
+#include "RicImportElementPropertyFeature.h"
 #include "RicfCommandObject.h"
 #include "RifOdbReader.h"
 
@@ -49,8 +50,11 @@
 #include "RimTools.h"
 #include "RimWellLogPlotCollection.h"
 
+#include "cafCmdFeatureManager.h"
 #include "cafPdmFieldIOScriptability.h"
 #include "cafPdmObjectScriptability.h"
+#include "cafPdmUiDoubleValueEditor.h"
+#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -58,12 +62,26 @@
 
 #include "cvfVector3.h"
 
-#include <QFile>
-#include <QIcon>
+#include <QFileInfo>
 
 #include <array>
 
 CAF_PDM_SOURCE_INIT( RimGeoMechCase, "ResInsightGeoMechCase" );
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimGeoMechCase::BiotCoefficientType>::setUp()
+{
+    addItem( RimGeoMechCase::BiotCoefficientType::BIOT_NONE, "BIOT_NONE", "None" );
+    addItem( RimGeoMechCase::BiotCoefficientType::BIOT_FIXED, "BIOT_FIXED", "Fixed biot coefficient" );
+    addItem( RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT,
+             "BIOT_PER_ELEMENT",
+             "Biot coefficient from element properties" );
+    setDefault( RimGeoMechCase::BiotCoefficientType::BIOT_NONE );
+}
+
+} // End namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -106,11 +124,22 @@ RimGeoMechCase::RimGeoMechCase( void )
                                 "" );
     m_elementPropertyFileNameIndexUiSelection.xmlCapability()->disableIO();
 
+    CAF_PDM_InitField( &m_importElementPropertyFileCommand, "importElementPropertyFileCommad", false, "", "", "", "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_importElementPropertyFileCommand );
+
     CAF_PDM_InitField( &m_closeElementPropertyFileCommand, "closeElementPropertyFileCommad", false, "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_closeElementPropertyFileCommand );
 
     CAF_PDM_InitField( &m_reloadElementPropertyFileCommand, "reloadElementPropertyFileCommand", false, "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_reloadElementPropertyFileCommand );
+
+    caf::AppEnum<BiotCoefficientType> defaultBiotCoefficientType = RimGeoMechCase::BiotCoefficientType::BIOT_NONE;
+    CAF_PDM_InitField( &m_biotCoefficientType, "BiotCoefficientType", defaultBiotCoefficientType, "Biot Coefficient", "", "", "" );
+    CAF_PDM_InitField( &m_biotFixedCoefficient, "BiotFixedCoefficient", 1.0, "Fixed coefficient", "", "", "" );
+    m_biotFixedCoefficient.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_biotResultAddress, "BiotResultAddress", QString( "" ), "Value", "", "", "" );
+    m_biotResultAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "" );
     m_contourMapCollection = new RimGeoMechContourMapViewCollection;
@@ -567,6 +596,30 @@ double RimGeoMechCase::frictionAngleDeg() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimGeoMechCase::BiotCoefficientType RimGeoMechCase::biotCoefficientType() const
+{
+    return m_biotCoefficientType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGeoMechCase::biotFixedCoefficient() const
+{
+    return m_biotFixedCoefficient;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechCase::biotResultAddress() const
+{
+    return m_biotResultAddress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::setApplyTimeFilter( bool applyTimeFilter )
 {
     m_applyTimeFilter = applyTimeFilter;
@@ -636,14 +689,56 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                                      cvf::Math::toRadians( m_frictionAngleDeg() ) );
         }
 
-        std::vector<Rim3dView*> views = this->views();
-        for ( Rim3dView* view : views )
+        updateConnectedViews();
+    }
+    else if ( changedField == &m_biotFixedCoefficient || changedField == &m_biotCoefficientType ||
+              changedField == &m_biotResultAddress )
+    {
+        RigGeoMechCaseData* rigCaseData = geoMechData();
+        if ( rigCaseData && rigCaseData->femPartResults() )
         {
-            if ( view ) // Todo: only those using the variable actively
+            if ( m_biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_NONE )
             {
-                view->scheduleCreateDisplayModelAndRedraw();
+                rigCaseData->femPartResults()->setBiotCoefficientParameters( 1.0, "" );
+            }
+            else if ( m_biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_FIXED )
+            {
+                rigCaseData->femPartResults()->setBiotCoefficientParameters( m_biotFixedCoefficient(), "" );
+            }
+            else if ( m_biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT )
+            {
+                if ( changedField == &m_biotCoefficientType )
+                {
+                    // Show info message to user when selecting "from file" option before
+                    // an element property has been imported
+                    std::vector<std::string> elementProperties = possibleElementPropertyFieldNames();
+                    if ( elementProperties.empty() )
+                    {
+                        QString importMessage =
+                            QString( "Please import biot coefficients from file (typically called alpha.inp) by "
+                                     "selecting 'Import Element Property Table' on the Geomechanical Model." );
+                        RiaLogging::info( importMessage );
+                        // Set back to default value
+                        m_biotCoefficientType = RimGeoMechCase::BiotCoefficientType::BIOT_NONE;
+                        return;
+                    }
+                }
+
+                if ( biotResultAddress().isEmpty() )
+                {
+                    // Automatically select the first available property element if empty
+                    std::vector<std::string> elementProperties = possibleElementPropertyFieldNames();
+                    if ( !elementProperties.empty() )
+                    {
+                        m_biotResultAddress = QString::fromStdString( elementProperties[0] );
+                    }
+                }
+
+                rigCaseData->femPartResults()->setBiotCoefficientParameters( 1.0, biotResultAddress() );
             }
         }
+
+        updateConnectedViews();
     }
     else if ( changedField == &m_reloadElementPropertyFileCommand )
     {
@@ -655,6 +750,12 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         m_closeElementPropertyFileCommand = false;
         closeSelectedElementPropertyFiles();
+        updateConnectedEditors();
+    }
+    else if ( changedField == &m_importElementPropertyFileCommand )
+    {
+        m_importElementPropertyFileCommand = false;
+        importElementPropertyFile();
         updateConnectedEditors();
     }
 }
@@ -795,6 +896,12 @@ void RimGeoMechCase::closeSelectedElementPropertyFiles()
                 view->cellResult()->setResultAddress( RigFemResultAddress() );
             }
 
+            if ( address.fieldName == biotResultAddress().toStdString() )
+            {
+                // If the used biot value is being removed we need to change the biot type back to default
+                m_biotCoefficientType = RimGeoMechCase::BiotCoefficientType::BIOT_NONE;
+            }
+
             for ( RimGeoMechPropertyFilter* propertyFilter : view->geoMechPropertyFilterCollection()->propertyFilters() )
             {
                 if ( address == propertyFilter->resultDefinition->resultAddress() )
@@ -837,6 +944,14 @@ void RimGeoMechCase::reloadSelectedElementPropertyFiles()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::importElementPropertyFile()
+{
+    RicImportElementPropertyFeature::importElementProperties();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &caseUserDescription );
@@ -850,8 +965,18 @@ void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* elmPropGroup = uiOrdering.addNewGroup( "Element Properties" );
     elmPropGroup->add( &m_elementPropertyFileNameIndexUiSelection );
+    elmPropGroup->add( &m_importElementPropertyFileCommand );
     elmPropGroup->add( &m_reloadElementPropertyFileCommand );
     elmPropGroup->add( &m_closeElementPropertyFileCommand );
+
+    caf::PdmUiGroup* biotGroup = uiOrdering.addNewGroup( "Biot Coefficient" );
+    biotGroup->add( &m_biotCoefficientType );
+    biotGroup->add( &m_biotFixedCoefficient );
+    biotGroup->add( &m_biotResultAddress );
+    m_biotFixedCoefficient.uiCapability()->setUiHidden( m_biotCoefficientType !=
+                                                        RimGeoMechCase::BiotCoefficientType::BIOT_FIXED );
+    m_biotResultAddress.uiCapability()->setUiHidden( m_biotCoefficientType !=
+                                                     RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT );
 
     caf::PdmUiGroup* timeStepFilterGroup = uiOrdering.addNewGroup( "Time Step Filter" );
     timeStepFilterGroup->setCollapsedByDefault( true );
@@ -865,13 +990,27 @@ void RimGeoMechCase::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                             QString                    uiConfigName,
                                             caf::PdmUiEditorAttribute* attribute )
 {
+    if ( field == &m_importElementPropertyFileCommand )
+    {
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Import Element Property";
+    }
     if ( field == &m_reloadElementPropertyFileCommand )
     {
-        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Reload Case(s)";
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Reload Element Property";
     }
     if ( field == &m_closeElementPropertyFileCommand )
     {
-        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Close Case(s)";
+        dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute )->m_buttonText = "Close Element Property";
+    }
+
+    if ( field == &m_biotFixedCoefficient )
+    {
+        auto uiDoubleValueEditorAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
+        if ( uiDoubleValueEditorAttr )
+        {
+            uiDoubleValueEditorAttr->m_decimals  = 2;
+            uiDoubleValueEditorAttr->m_validator = new QDoubleValidator( 0.0, 1.0, 2 );
+        }
     }
 }
 
@@ -892,6 +1031,80 @@ QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions( const caf::
             options.push_back( caf::PdmOptionItemInfo( m_elementPropertyFileNames.v().at( i ).path(), (int)i, true ) );
         }
     }
+    else if ( fieldNeedingOptions == &m_biotResultAddress )
+    {
+        std::vector<std::string> elementProperties = possibleElementPropertyFieldNames();
+
+        std::vector<QString> paths;
+        for ( auto path : m_elementPropertyFileNames.v() )
+        {
+            paths.push_back( path.path() );
+        }
+
+        std::map<std::string, QString> addressesInFile =
+            geoMechData()->femPartResults()->addressesInElementPropertyFiles( paths );
+
+        for ( const std::string elementProperty : elementProperties )
+        {
+            QString result   = QString::fromStdString( elementProperty );
+            QString filename = findFileNameForElementProperty( elementProperty, addressesInFile );
+            options.push_back( caf::PdmOptionItemInfo( result + " (" + filename + ")", result ) );
+        }
+    }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechCase::findFileNameForElementProperty( const std::string&                   elementProperty,
+                                                        const std::map<std::string, QString> addressesInFiles ) const
+{
+    auto it = addressesInFiles.find( elementProperty );
+    if ( it != addressesInFiles.end() )
+    {
+        QFileInfo fileInfo( it->second );
+        return fileInfo.fileName();
+    }
+    else
+    {
+        return QString( "Unknown file" );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::updateConnectedViews()
+{
+    std::vector<Rim3dView*> views = this->views();
+    for ( Rim3dView* view : views )
+    {
+        if ( view )
+        {
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RimGeoMechCase::possibleElementPropertyFieldNames()
+{
+    std::vector<std::string> fieldNames;
+
+    if ( geoMechData() )
+    {
+        std::map<std::string, std::vector<std::string>> fieldWithComponentNames =
+            geoMechData()->femPartResults()->scalarFieldAndComponentNames( RIG_ELEMENT );
+
+        std::map<std::string, std::vector<std::string>>::const_iterator fieldIt;
+        for ( fieldIt = fieldWithComponentNames.begin(); fieldIt != fieldWithComponentNames.end(); ++fieldIt )
+        {
+            fieldNames.push_back( fieldIt->first );
+        }
+    }
+    return fieldNames;
 }

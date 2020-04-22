@@ -27,8 +27,9 @@ public:
     PdmObjectHandle* ownerObject();
     QString          ownerClass() const;
 
-    void registerKeywordAlias(const QString& alias);
-    bool matchesKeywordAlias(const QString& keyword) const;
+    void                 registerKeywordAlias(const QString& alias);
+    bool                 matchesKeywordAlias(const QString& keyword) const;
+    std::vector<QString> keywordAliases() const;
 
     // Child objects
     bool             hasChildObjects();

@@ -80,6 +80,8 @@ public:
                                     const QString&          legendHeading,
                                     int                     timeStepIndex );
 
+    bool isBiotCoefficientDependent() const;
+
 protected:
     virtual void updateLegendCategorySettings(){};
     void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

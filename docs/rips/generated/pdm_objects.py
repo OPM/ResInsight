@@ -1,16 +1,17 @@
 class PdmObject:
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         if PdmObject.__custom_init__ is not None:
             PdmObject.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
 
 class DataContainerFloat(PdmObject):
     """
     Attributes:
         values (List of float): Float Values
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.values = []
@@ -18,12 +19,13 @@ class DataContainerFloat(PdmObject):
         if DataContainerFloat.__custom_init__ is not None:
             DataContainerFloat.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class DataContainerString(PdmObject):
     """
     Attributes:
         values (List of str): String Values
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.values = []
@@ -31,18 +33,20 @@ class DataContainerString(PdmObject):
         if DataContainerString.__custom_init__ is not None:
             DataContainerString.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class DataContainerTime(PdmObject):
     """
     Attributes:
         values (List of time): Time Values
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.values = []
         PdmObject.__init__(self, pb2_object, channel)
         if DataContainerTime.__custom_init__ is not None:
             DataContainerTime.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
 
 class Case(PdmObject):
     """
@@ -53,7 +57,7 @@ class Case(PdmObject):
         id (int): Case ID
         name (str): Case Name
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.file_path = ""
@@ -63,12 +67,13 @@ class Case(PdmObject):
         if Case.__custom_init__ is not None:
             Case.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class Reservoir(Case):
     """
     Abtract base class for Eclipse Cases
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         Case.__init__(self, pb2_object, channel)
@@ -88,12 +93,13 @@ class EclipseCase(Reservoir):
     The Regular Eclipse Results Case
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         Reservoir.__init__(self, pb2_object, channel)
         if EclipseCase.__custom_init__ is not None:
             EclipseCase.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
 
 class SummaryCase(PdmObject):
     """
@@ -105,7 +111,7 @@ class SummaryCase(PdmObject):
         short_name (str): Display Name
         summary_header_filename (str): Summary Header File
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.auto_shorty_name = False
@@ -118,29 +124,27 @@ class SummaryCase(PdmObject):
 
     def available_addresses(self, ):
         """
-        
+
         Arguments:
-            
+
         Returns:
             DataContainerString
         """
         return self._call_pdm_method("availableAddresses")
 
-
     def available_time_steps(self, ):
         """
-        
+
         Arguments:
-            
+
         Returns:
             DataContainerTime
         """
         return self._call_pdm_method("availableTimeSteps")
 
-
     def resample_values(self, address=None, resampling_period=None):
         """
-        
+
         Arguments:
             address (str): Formatted address specifying the summary vector
             resampling_period (str): Resampling Period
@@ -148,7 +152,6 @@ class SummaryCase(PdmObject):
             ResampleData
         """
         return self._call_pdm_method("resampleValues", address=address, resampling_period=resampling_period)
-
 
     def summary_vector_values(self, address=None):
         """
@@ -161,6 +164,9 @@ class SummaryCase(PdmObject):
         return self._call_pdm_method("summaryVectorValues", address=address)
 
 
+        return self._call_pdm_method("summaryVectorValues", address=address)
+
+
 class FileSummaryCase(SummaryCase):
     """
     A Summary Case based on SMSPEC files
@@ -168,7 +174,7 @@ class FileSummaryCase(SummaryCase):
     Attributes:
         include_restart_files (str): Include Restart Files
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.include_restart_files = False
@@ -176,17 +182,19 @@ class FileSummaryCase(SummaryCase):
         if FileSummaryCase.__custom_init__ is not None:
             FileSummaryCase.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class ViewWindow(PdmObject):
     """
     The Base Class for all Views and Plots in ResInsight
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         PdmObject.__init__(self, pb2_object, channel)
         if ViewWindow.__custom_init__ is not None:
             ViewWindow.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
 
 class View(ViewWindow):
     """
@@ -200,7 +208,7 @@ class View(ViewWindow):
         show_grid_box (str): Show Grid Box
         show_z_scale (str): Show Z Scale Label
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.background_color = "#b0c4de"
@@ -215,29 +223,32 @@ class View(ViewWindow):
         if View.__custom_init__ is not None:
             View.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class GeoMechView(View):
     """
     The Geomechanical 3d View
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         View.__init__(self, pb2_object, channel)
         if GeoMechView.__custom_init__ is not None:
             GeoMechView.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class GridSummaryCase(SummaryCase):
     """
     A Summary Case based on extracting grid data.
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         SummaryCase.__init__(self, pb2_object, channel)
         if GridSummaryCase.__custom_init__ is not None:
             GridSummaryCase.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
 
 class WellPath(PdmObject):
     """
@@ -246,7 +257,7 @@ class WellPath(PdmObject):
     Attributes:
         name (str): Name
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.name = ""
@@ -254,24 +265,26 @@ class WellPath(PdmObject):
         if WellPath.__custom_init__ is not None:
             WellPath.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class ModeledWellPath(WellPath):
     """
     A Well Path created interactively in ResInsight
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         WellPath.__init__(self, pb2_object, channel)
         if ModeledWellPath.__custom_init__ is not None:
             ModeledWellPath.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class GeoMechCase(Case):
     """
     The Abaqus Based GeoMech Case
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         Case.__init__(self, pb2_object, channel)
@@ -291,7 +304,7 @@ class Project(PdmObject):
     The ResInsight Project
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         PdmObject.__init__(self, pb2_object, channel)
@@ -307,7 +320,6 @@ class Project(PdmObject):
             FileSummaryCase
         """
         return self._call_pdm_method("importSummaryCase", file_name=file_name)
-
 
     def summary_case(self, case_id=None):
         """
@@ -326,7 +338,7 @@ class ResampleData(PdmObject):
         time_steps (List of time): Time Steps
         values (List of float): Values
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.time_steps = []
@@ -335,12 +347,13 @@ class ResampleData(PdmObject):
         if ResampleData.__custom_init__ is not None:
             ResampleData.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class EclipseView(View):
     """
     The Eclipse 3d Reservoir View
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         View.__init__(self, pb2_object, channel)
@@ -355,14 +368,12 @@ class EclipseView(View):
         children = self.children("CellResult", CellColors)
         return children[0] if len(children) > 0 else None
 
-
     def cell_result_data(self):
         """Current Eclipse Cell Result
         Returns:
              str
         """
         return self._call_get_method("CellResultData")
-
 
     def set_cell_result_data(self, values):
         """Set Current Eclipse Cell Result
@@ -386,7 +397,7 @@ class EclipseResult(PdmObject):
         selected_producer_tracers (List of str): Producer Tracers
         selected_souring_tracers (List of str): Tracers
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.flow_tracer_selection_mode = "FLOW_TR_INJ_AND_PROD"
@@ -401,41 +412,45 @@ class EclipseResult(PdmObject):
         if EclipseResult.__custom_init__ is not None:
             EclipseResult.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class CellColors(EclipseResult):
     """
     Eclipse Cell Colors class
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         EclipseResult.__init__(self, pb2_object, channel)
         if CellColors.__custom_init__ is not None:
             CellColors.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class EclipseContourMap(EclipseView):
     """
     A contour map for Eclipse cases
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         EclipseView.__init__(self, pb2_object, channel)
         if EclipseContourMap.__custom_init__ is not None:
             EclipseContourMap.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class GeoMechContourMap(GeoMechView):
     """
     A contour map for GeoMech cases
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         GeoMechView.__init__(self, pb2_object, channel)
         if GeoMechContourMap.__custom_init__ is not None:
             GeoMechContourMap.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
 
 class GridCaseGroup(PdmObject):
     """
@@ -445,7 +460,7 @@ class GridCaseGroup(PdmObject):
         group_id (int): Case Group ID
         user_description (str): Name
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.group_id = -1
@@ -453,6 +468,7 @@ class GridCaseGroup(PdmObject):
         PdmObject.__init__(self, pb2_object, channel)
         if GridCaseGroup.__custom_init__ is not None:
             GridCaseGroup.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
 
 class SummaryCaseSubCollection(PdmObject):
     """
@@ -462,7 +478,7 @@ class SummaryCaseSubCollection(PdmObject):
         name_count (str): Name
         summary_collection_name (str): Name
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.id = -1
@@ -473,6 +489,7 @@ class SummaryCaseSubCollection(PdmObject):
         if SummaryCaseSubCollection.__custom_init__ is not None:
             SummaryCaseSubCollection.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class PlotWindow(ViewWindow):
     """
     The Abstract base class for all MDI Windows in the Plot Window
@@ -480,7 +497,7 @@ class PlotWindow(ViewWindow):
     Attributes:
         id (int): View ID
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.id = -1
@@ -488,17 +505,19 @@ class PlotWindow(ViewWindow):
         if PlotWindow.__custom_init__ is not None:
             PlotWindow.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class Plot(PlotWindow):
     """
     The Abstract Base Class for all Plot Objects
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         PlotWindow.__init__(self, pb2_object, channel)
         if Plot.__custom_init__ is not None:
             Plot.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
 
 class SummaryPlot(Plot):
     """
@@ -510,7 +529,7 @@ class SummaryPlot(Plot):
         plot_description (str): Name
         show_plot_title (str): Plot Title
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.is_using_auto_name = True
@@ -521,8 +540,9 @@ class SummaryPlot(Plot):
         if SummaryPlot.__custom_init__ is not None:
             SummaryPlot.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class SummaryPlotCollection(PdmObject):
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         PdmObject.__init__(self, pb2_object, channel)
@@ -563,7 +583,7 @@ class WbsParameters(PdmObject):
         user_ucs (float): User Defined UCS [bar]
         water_density (float): Density of Sea Water [g/cm^3]
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.df_source = "LAS_FILE"
@@ -587,6 +607,7 @@ class WbsParameters(PdmObject):
         if WbsParameters.__custom_init__ is not None:
             WbsParameters.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class SimulationWell(PdmObject):
     """
     An Eclipse Simulation Well
@@ -594,13 +615,14 @@ class SimulationWell(PdmObject):
     Attributes:
         name (str): Name
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.name = ""
         PdmObject.__init__(self, pb2_object, channel)
         if SimulationWell.__custom_init__ is not None:
             SimulationWell.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
 
 class WellLogPlot(PlotWindow):
     """
@@ -615,7 +637,7 @@ class WellLogPlot(PlotWindow):
         show_depth_grid_lines (str): Show Grid Lines
         show_title_in_plot (str): Show Title
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         self.auto_scale_depth_enabled = True
@@ -629,12 +651,13 @@ class WellLogPlot(PlotWindow):
         if WellLogPlot.__custom_init__ is not None:
             WellLogPlot.__custom_init__(self, pb2_object=pb2_object, channel=channel)
 
+
 class WellBoreStabilityPlot(WellLogPlot):
     """
     A GeoMechanical Well Bore Stabilit Plot
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         WellLogPlot.__init__(self, pb2_object, channel)
@@ -655,12 +678,13 @@ class FileWellPath(WellPath):
     Well Paths Loaded From File
 
     """
-    __custom_init__ = None #: Assign a custom init routine to be run at __init__
+    __custom_init__ = None  # : Assign a custom init routine to be run at __init__
 
     def __init__(self, pb2_object=None, channel=None):
         WellPath.__init__(self, pb2_object, channel)
         if FileWellPath.__custom_init__ is not None:
             FileWellPath.__custom_init__(self, pb2_object=pb2_object, channel=channel)
+
 
 def class_dict():
     classes = {}
@@ -699,6 +723,7 @@ def class_dict():
     classes['WellLogPlot'] = WellLogPlot
     classes['WellPath'] = WellPath
     return classes
+
 
 def class_from_keyword(class_keyword):
     all_classes = class_dict()

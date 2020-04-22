@@ -652,7 +652,7 @@ QList<caf::PdmOptionItemInfo>
         {
             RigCaseCellResultsData* cellResultsData = m_eclipseCase->results( this->porosityModel() );
 
-            if ( cellResultsData->hasFlowDiagUsableFluxes() )
+            if ( cellResultsData && cellResultsData->hasFlowDiagUsableFluxes() )
             {
                 enableSouring = true;
             }

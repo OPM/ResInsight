@@ -225,13 +225,16 @@ std::vector<double> RimGridTimeHistoryCurve::yValues() const
 
         RigCaseCellResultsData* cellResultsData = m_eclipseResultDefinition->currentGridCellResults();
 
-        std::vector<QDateTime> timeStepDates = cellResultsData->timeStepDates();
+        if ( cellResultsData )
+        {
+            std::vector<QDateTime> timeStepDates = cellResultsData->timeStepDates();
 
-        values = RigTimeHistoryResultAccessor::timeHistoryValues( eclTopItem->eclipseCase()->eclipseCaseData(),
-                                                                  m_eclipseResultDefinition(),
-                                                                  gridIndex,
-                                                                  cellIndex,
-                                                                  timeStepDates.size() );
+            values = RigTimeHistoryResultAccessor::timeHistoryValues( eclTopItem->eclipseCase()->eclipseCaseData(),
+                                                                      m_eclipseResultDefinition(),
+                                                                      gridIndex,
+                                                                      cellIndex,
+                                                                      timeStepDates.size() );
+        }
     }
 
     if ( geoMechGeomSelectionItem() && geoMechGeomSelectionItem()->geoMechCase() )
@@ -464,11 +467,14 @@ std::vector<time_t> RimGridTimeHistoryCurve::timeStepValues() const
     {
         RigCaseCellResultsData* cellResultsData = m_eclipseResultDefinition->currentGridCellResults();
 
-        std::vector<QDateTime> timeStepDates = cellResultsData->timeStepDates();
-
-        for ( QDateTime dt : timeStepDates )
+        if ( cellResultsData )
         {
-            dateTimes.push_back( dt.toTime_t() );
+            std::vector<QDateTime> timeStepDates = cellResultsData->timeStepDates();
+
+            for ( QDateTime dt : timeStepDates )
+            {
+                dateTimes.push_back( dt.toTime_t() );
+            }
         }
     }
 
@@ -512,7 +518,10 @@ std::vector<double> RimGridTimeHistoryCurve::daysSinceSimulationStart() const
     {
         RigCaseCellResultsData* cellResultsData = m_eclipseResultDefinition->currentGridCellResults();
 
-        daysSinceSimulationStart = cellResultsData->daysSinceSimulationStart();
+        if ( cellResultsData )
+        {
+            daysSinceSimulationStart = cellResultsData->daysSinceSimulationStart();
+        }
     }
 
     RimGeoMechGeometrySelectionItem* geoMechTopItem = geoMechGeomSelectionItem();

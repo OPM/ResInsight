@@ -6,6 +6,7 @@ import rips
 
 import dataroot
 
+
 def test_10k(rips_instance, initialize_test):
     case_path = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=case_path)
@@ -28,7 +29,7 @@ def test_10k(rips_instance, initialize_test):
 
     # On time step 3 all wells are producing
     for sim_well in sim_wells:
-        status  = sim_well.status(3)
+        status = sim_well.status(3)
         assert(status.well_type == "Producer")
 
     # On time step 0 all simulation wells have no cells
@@ -45,5 +46,6 @@ def test_10k(rips_instance, initialize_test):
         for (tidx, timestep) in enumerate(timesteps):
             if (tidx > 0):
                 cells = sim_well.cells(tidx)
-                print("well: " + sim_well.name + " timestep: " + str(tidx) + " cells:" + str(len(cells)))
+                print("well: " + sim_well.name + " timestep: " +
+                      str(tidx) + " cells:" + str(len(cells)))
                 assert(len(cells) == expected_cell_count[sim_well.name])
