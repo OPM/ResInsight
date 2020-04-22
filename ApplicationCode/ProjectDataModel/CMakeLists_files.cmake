@@ -152,6 +152,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilter.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellDiskConfig.h
+${CMAKE_CURRENT_LIST_DIR}/RimElementVectorResult.h
 )
 
 
@@ -308,6 +309,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementFilter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellMeasurementInView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellDiskConfig.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimElementVectorResult.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
