@@ -90,6 +90,7 @@ class RimProject : public caf::PdmDocument
 public:
     RimProject( void );
     ~RimProject( void ) override;
+    static RimProject* current();
 
     caf::PdmChildArrayField<RimOilField*>                oilFields;
     caf::PdmChildField<RimScriptCollection*>             scriptCollection;
