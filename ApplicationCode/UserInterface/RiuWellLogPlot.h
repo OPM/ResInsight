@@ -21,13 +21,13 @@
 #include "RiuMultiPlotPage.h"
 
 class RiuQwtPlotWidget;
-class RimWellLogPlot;
+class RimDepthTrackPlot;
 
 class RiuWellLogPlot : public RiuMultiPlotPage
 {
     Q_OBJECT
 public:
-    RiuWellLogPlot( RimWellLogPlot* plotDefinition, QWidget* parent );
+    RiuWellLogPlot( RimDepthTrackPlot* plotDefinition, QWidget* parent );
 
     RimViewWindow* ownerViewWindow() const override;
 
@@ -41,7 +41,7 @@ protected:
     void alignScrollbar( int offset );
 
 private:
-    RimWellLogPlot* wellLogPlotDefinition();
+    RimDepthTrackPlot* wellLogPlotDefinition();
 
 private slots:
     void slotSetMinDepth( int value );

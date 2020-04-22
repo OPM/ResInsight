@@ -80,6 +80,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.h
 ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimDepthTrackPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.h
@@ -235,6 +236,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotWindow.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogPlot.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimDepthTrackPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellBoreStabilityPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWbsParameters.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimWellLogTrack.cpp
