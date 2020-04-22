@@ -31,6 +31,7 @@ class RimParameterResultCrossPlot : public RimAbstractCorrelationPlot
 public:
     RimParameterResultCrossPlot();
     ~RimParameterResultCrossPlot() override;
+    void setEnsembleParameter( const QString& ensembleParameter );
 
 private:
     // Overridden PDM methods

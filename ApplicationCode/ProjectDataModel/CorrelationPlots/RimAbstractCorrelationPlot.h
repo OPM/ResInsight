@@ -40,6 +40,10 @@ public:
     RimAbstractCorrelationPlot();
     ~RimAbstractCorrelationPlot() override;
 
+public:
+    void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
+    std::set<RimSummaryCaseCollection*> ensembles();
+
 protected:
     // Overridden PDM methods
 
@@ -56,10 +60,9 @@ protected:
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
     RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
 
-    std::set<RifEclipseSummaryAddress>  addresses();
-    std::set<RimSummaryCaseCollection*> ensembles();
-    std::set<EnsembleParameter>         ensembleParameters();
-    EnsembleParameter                   ensembleParameter( const QString& ensembleParameterName );
+    std::set<RifEclipseSummaryAddress> addresses();
+    std::set<EnsembleParameter>        ensembleParameters();
+    EnsembleParameter                  ensembleParameter( const QString& ensembleParameterName );
 
     // RimViewWindow overrides
     QWidget* viewWidget() override;

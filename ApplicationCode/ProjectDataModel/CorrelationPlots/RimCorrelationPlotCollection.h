@@ -38,14 +38,17 @@ public:
     RimCorrelationPlotCollection();
     ~RimCorrelationPlotCollection() override;
 
-    RimCorrelationPlot*          createCorrelationPlot();
-    RimCorrelationMatrixPlot*    createCorrelationMatrixPlot();
-    RimParameterResultCrossPlot* createParameterResultCrossPlot();
+    RimCorrelationPlot*          createCorrelationPlot( bool defaultToFirstEnsembleFopt = true );
+    RimCorrelationMatrixPlot*    createCorrelationMatrixPlot( bool defaultToFirstEnsembleField = true );
+    RimParameterResultCrossPlot* createParameterResultCrossPlot( bool defaultToFirstEnsembleFopt = true );
     void                         removePlot( RimAbstractCorrelationPlot* CorrelationPlot );
 
     std::vector<RimAbstractCorrelationPlot*> plots();
 
     void deleteAllChildObjects();
+
+private:
+    void applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot, const std::string& quantityName = "" );
 
 private:
     caf::PdmChildArrayField<RimAbstractCorrelationPlot*> m_correlationPlots;

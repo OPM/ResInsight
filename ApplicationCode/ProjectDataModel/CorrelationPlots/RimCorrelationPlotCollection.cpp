@@ -18,9 +18,11 @@
 
 #include "RimCorrelationPlotCollection.h"
 
+#include "RiaSummaryCurveDefinition.h"
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimParameterResultCrossPlot.h"
+#include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT( RimCorrelationPlotCollection, "CorrelationPlotCollection" );
 
@@ -45,11 +47,13 @@ RimCorrelationPlotCollection::~RimCorrelationPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot()
+RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot( bool defaultToFirstEnsembleFopt )
 {
     RimCorrelationPlot* plot = new RimCorrelationPlot();
     plot->setAsPlotMdiWindow();
 
+    if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToPlot( plot, "FOPT" );
+
     m_correlationPlots.push_back( plot );
 
     return plot;
@@ -58,10 +62,11 @@ RimCorrelationPlot* RimCorrelationPlotCollection::createCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixPlot()
+RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixPlot( bool defaultToFirstEnsembleField )
 {
     RimCorrelationMatrixPlot* plot = new RimCorrelationMatrixPlot();
     plot->setAsPlotMdiWindow();
+    if ( defaultToFirstEnsembleField ) applyFirstEnsembleFieldAddressesToPlot( plot );
 
     m_correlationPlots.push_back( plot );
 
@@ -71,10 +76,12 @@ RimCorrelationMatrixPlot* RimCorrelationPlotCollection::createCorrelationMatrixP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResultCrossPlot()
+RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResultCrossPlot( bool defaultToFirstEnsembleFopt )
 {
     RimParameterResultCrossPlot* plot = new RimParameterResultCrossPlot;
     plot->setAsPlotMdiWindow();
+    if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToPlot( plot, "FOPT" );
+
     m_correlationPlots.push_back( plot );
     return plot;
 }
@@ -101,4 +108,36 @@ std::vector<RimAbstractCorrelationPlot*> RimCorrelationPlotCollection::plots()
 void RimCorrelationPlotCollection::deleteAllChildObjects()
 {
     m_correlationPlots.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot,
+                                                                           const std::string& quantityName /*= "FOPT" */ )
+{
+    std::vector<RimSummaryCaseCollection*> ensembles;
+    RimProject::current()->descendantsIncludingThisOfType( ensembles );
+    if ( !ensembles.empty() )
+    {
+        std::set<RifEclipseSummaryAddress>     allAddresses = ensembles.front()->ensembleSummaryAddresses();
+        std::vector<RiaSummaryCurveDefinition> curveDefs;
+        for ( auto address : allAddresses )
+        {
+            if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
+            {
+                if ( quantityName.empty() || quantityName == address.quantityName() )
+                {
+                    curveDefs.push_back( RiaSummaryCurveDefinition( nullptr, address, ensembles.front() ) );
+                }
+            }
+        }
+        plot->setCurveDefinitions( curveDefs );
+
+        auto crossPlot = dynamic_cast<RimParameterResultCrossPlot*>( plot );
+        if ( crossPlot )
+        {
+            crossPlot->setEnsembleParameter( ensembles.front()->alphabeticEnsembleParameters().front().name );
+        }
+    }
 }

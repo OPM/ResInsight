@@ -61,6 +61,25 @@ RimAbstractCorrelationPlot::~RimAbstractCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
+{
+    m_analysisPlotDataSelection.deleteAllChildObjects();
+    for ( auto curveDef : curveDefinitions )
+    {
+        auto dataEntry = new RimAnalysisPlotDataEntry();
+        dataEntry->setFromCurveDefinition( curveDef );
+        m_analysisPlotDataSelection.push_back( dataEntry );
+    }
+    auto timeSteps = allAvailableTimeSteps();
+    if ( !timeSteps.empty() )
+    {
+        m_timeStep = QDateTime::fromTime_t( *timeSteps.rbegin() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                    const QVariant&            oldValue,
                                                    const QVariant&            newValue )

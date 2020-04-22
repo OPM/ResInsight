@@ -76,6 +76,14 @@ RimParameterResultCrossPlot::~RimParameterResultCrossPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimParameterResultCrossPlot::setEnsembleParameter( const QString& ensembleParameter )
+{
+    m_ensembleParameter = ensembleParameter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimParameterResultCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                     const QVariant&            oldValue,
                                                     const QVariant&            newValue )
