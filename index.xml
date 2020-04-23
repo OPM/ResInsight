@@ -690,7 +690,7 @@ There are two main types of intersections. The first one which simply is called 
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/plot-window/wellborestabilityplots/</guid>
-      <description>ResInsight can create Well Bore Stability plots for Geomechanical cases. These plots are specialized Well Log Plots to visualize Formations, Well Path Attributes as well as a set of well path derived curves in different tracks.
+      <description>ResInsight can create Well Bore Stability plots for Geomechanical cases. These plots are specialized Well Log Plots to visualize Formations, Well Measurements, Well Path Attributes as well as a set of well path derived curves in different tracks.
 In the figure above, the first track contains Formations and an indication of sea level.
    Sea Level Formations          The second track contains a visualisation of the well, with well attributes of Casing Design as well Completions</description>
     </item>

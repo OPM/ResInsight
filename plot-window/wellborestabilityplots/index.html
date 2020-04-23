@@ -12,18 +12,18 @@
     <title>Well Bore Stability Plots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1587373753" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1587373753" rel="stylesheet">
-    <link href="/css/hybrid.css?1587373753" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1587373753" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1587373753" rel="stylesheet">
-    <link href="/css/auto-complete.css?1587373753" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1587373753" rel="stylesheet">
-    <link href="/css/theme.css?1587373753" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1587373753" rel="stylesheet">
+    <link href="/css/nucleus.css?1587641919" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1587641919" rel="stylesheet">
+    <link href="/css/hybrid.css?1587641919" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1587641919" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1587641919" rel="stylesheet">
+    <link href="/css/auto-complete.css?1587641919" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1587641919" rel="stylesheet">
+    <link href="/css/theme.css?1587641919" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1587641919" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1587373753"></script>
+    <script src="/js/jquery-3.3.1.min.js?1587641919"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -1985,7 +1985,7 @@ if (!doNotTrack) {
 
 
 <p><img src="/images/plot-window/WellBoreStability.png" alt=""></p>
-<p>ResInsight can create <strong>Well Bore Stability</strong> plots for Geomechanical cases. These plots are specialized <a href="/plot-window/welllogsandplots/">Well Log Plots</a> to visualize <a href="/3d-main-window/formations/">Formations</a>, <a href="/wells-and-completions/wellpaths/#well-path-attributes">Well Path Attributes</a> as well as a set of well path derived curves in different tracks.</p>
+<p>ResInsight can create <strong>Well Bore Stability</strong> plots for Geomechanical cases. These plots are specialized <a href="/plot-window/welllogsandplots/">Well Log Plots</a> to visualize <a href="/3d-main-window/formations/">Formations</a>, <a href="/wells-and-completions/wellmeasurements/">Well Measurements</a>, <a href="/wells-and-completions/wellpaths/#well-path-attributes">Well Path Attributes</a> as well as a set of well path derived curves in different tracks.</p>
 <p>In the figure above, the first track contains <a href="/3d-main-window/formations/">Formations</a> and an indication of sea level.</p>
 <table>
 <thead>
@@ -2013,6 +2013,7 @@ if (!doNotTrack) {
 <li><strong>SH_MK</strong>: Minimum horizontal stress from Matthews &amp; Kelly.</li>
 </ul>
 <p>The fifth track contains curves showing the angular orientation of the well path as azimuth (deviation from vertical) and inclination (deviation from x-axis) in degrees.</p>
+<p>If any <a href="/wells-and-completions/wellmeasurements/">Well Measurements</a> are present, they will be visible as symbols in the track <strong>Stability Curves</strong>.</p>
 <h2 id="create-well-bore-stability-plots">Create Well Bore Stability plots</h2>
 <p>Well Bore Stability plots can be created from the right-click menu for a well path in <strong>Project Tree</strong> or from the the right-click menu of the Well Log Plots entry in <strong>Plot Project Tree</strong>. In the former case, the well bore stability plot will be created for the selected <strong>Well Path</strong>. In the latter case, it will be created for the first well path in the well path list and the well path for the entire plot can be changed with the <a href="/plot-window/welllogsandplots/#change-data-source-for-plots-and-curves">Change Data Source Feature</a>.</p>
 <p><img src="/images/plot-window/WellBoreStabilityCreation.png" alt=""> 
@@ -2092,8 +2093,8 @@ if (!doNotTrack) {
 </tr>
 <tr>
 <td>K0_SH</td>
-<td>0.65 x Hydrostatic PP</td>
-<td>1. LAS-file (Variable: &ldquo;K0_SH_INP&rdquo;, Units: SG_EMW), 2. Element Property Table(&ldquo;Variable: &ldquo;K0_SH_INP&rdquo;, Units: SG_EMW), 3. User Defined</td>
+<td>0.65</td>
+<td>1. LAS-file (Variable: &ldquo;K0_SH_INP&rdquo;, No Units ), 2. Element Property Table(&ldquo;Variable: &ldquo;K0_SH_INP&rdquo;, No Units), 3. User Defined</td>
 </tr>
 <tr>
 <td>FG Shale</td>
@@ -2102,8 +2103,8 @@ if (!doNotTrack) {
 </tr>
 <tr>
 <td>K0_FG</td>
-<td>0.75 x Hydrostatic PP</td>
-<td>1. LAS-file (Variable: &ldquo;K0_FG_INP&rdquo;, Units: SG_EMW), 2. Element Property Table(&ldquo;Variable: &ldquo;K0_FG_INP&rdquo;, Units: SG_EMW), 3. User Defined</td>
+<td>0.75</td>
+<td>1. LAS-file (Variable: &ldquo;K0_FG_INP&rdquo;, No Units ), 2. Element Property Table(&ldquo;Variable: &ldquo;K0_FG_INP&rdquo;, No Units), 3. User Defined</td>
 </tr>
 </tbody>
 </table>
@@ -3582,19 +3583,19 @@ under <em>Python Examples</em>.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1587373753"></script>
-    <script src="/js/perfect-scrollbar.min.js?1587373753"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1587373753"></script>
-    <script src="/js/jquery.sticky.js?1587373753"></script>
-    <script src="/js/featherlight.min.js?1587373753"></script>
-    <script src="/js/highlight.pack.js?1587373753"></script>
+    <script src="/js/clipboard.min.js?1587641919"></script>
+    <script src="/js/perfect-scrollbar.min.js?1587641919"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1587641919"></script>
+    <script src="/js/jquery.sticky.js?1587641919"></script>
+    <script src="/js/featherlight.min.js?1587641919"></script>
+    <script src="/js/highlight.pack.js?1587641919"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1587373753"></script>
-    <script src="/js/learn.js?1587373753"></script>
-    <script src="/js/hugo-learn.js?1587373753"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1587641919"></script>
+    <script src="/js/learn.js?1587641919"></script>
+    <script src="/js/hugo-learn.js?1587641919"></script>
 
-    <link href="/mermaid/mermaid.css?1587373753" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1587373753"></script>
+    <link href="/mermaid/mermaid.css?1587641919" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1587641919"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
