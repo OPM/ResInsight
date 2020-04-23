@@ -62,7 +62,7 @@ public:
     struct ResSpec
     {
         ResSpec()
-            : m_resType( RiaDefines::DYNAMIC_NATIVE )
+            : m_resType( RiaDefines::ResultCatType::DYNAMIC_NATIVE )
             , m_poroModel( RiaDefines::MATRIX_MODEL )
         {
         }

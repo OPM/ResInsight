@@ -192,7 +192,7 @@ std::vector<RigCompletionData>
     if ( pdParams.performScaling )
     {
         RigCaseCellResultsData* results = caseToApply->results( RiaDefines::MATRIX_MODEL );
-        results->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ) );
+        results->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
     }
 
     return generateCompdatValuesConst( caseToApply,
@@ -266,8 +266,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     const std::vector<double>*              currentMatrixPressures = nullptr;
     if ( performPressureDepletionScaling )
     {
-        pressureResultVector =
-            &results->cellScalarResults( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ) );
+        pressureResultVector = &results->cellScalarResults(
+            RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
         CVF_ASSERT( !pressureResultVector->empty() );
 
         if ( pdParams.pressureScalingTimeStep < static_cast<int>( pressureResultVector->size() ) )
@@ -832,9 +832,9 @@ void RicExportFractureCompletionsImpl::outputIntermediateResultsText( QTextStrea
 bool RicExportFractureCompletionsImpl::loadResultsByName( RigCaseCellResultsData*     cellResultsData,
                                                           const std::vector<QString>& resultNames )
 {
-    const std::vector<RiaDefines::ResultCatType> resultCategorySearchOrder = {RiaDefines::STATIC_NATIVE,
-                                                                              RiaDefines::INPUT_PROPERTY,
-                                                                              RiaDefines::GENERATED};
+    const std::vector<RiaDefines::ResultCatType> resultCategorySearchOrder = {RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                              RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                                              RiaDefines::ResultCatType::GENERATED};
 
     bool foundDataForAllResults = true;
 

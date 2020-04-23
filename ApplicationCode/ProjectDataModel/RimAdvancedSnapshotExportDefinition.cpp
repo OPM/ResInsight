@@ -121,11 +121,11 @@ QList<caf::PdmOptionItemInfo>
     else if ( fieldNeedingOptions == &eclipseResultType )
     {
         options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::DYNAMIC_NATIVE ).uiText(),
-                                    RiaDefines::DYNAMIC_NATIVE ) );
+            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::ResultCatType::DYNAMIC_NATIVE ).uiText(),
+                                    RiaDefines::ResultCatType::DYNAMIC_NATIVE ) );
         options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::STATIC_NATIVE ).uiText(),
-                                    RiaDefines::STATIC_NATIVE ) );
+            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::ResultCatType::STATIC_NATIVE ).uiText(),
+                                    RiaDefines::ResultCatType::STATIC_NATIVE ) );
     }
     else if ( fieldNeedingOptions == &selectedEclipseResults )
     {

@@ -27,16 +27,16 @@ namespace caf
 template <>
 void caf::AppEnum<RiaDefines::ResultCatType>::setUp()
 {
-    addItem( RiaDefines::DYNAMIC_NATIVE, "DYNAMIC_NATIVE", "Dynamic" );
-    addItem( RiaDefines::STATIC_NATIVE, "STATIC_NATIVE", "Static" );
-    addItem( RiaDefines::SOURSIMRL, "SOURSIMRL", "SourSimRL" );
-    addItem( RiaDefines::GENERATED, "GENERATED", "Generated" );
-    addItem( RiaDefines::INPUT_PROPERTY, "INPUT_PROPERTY", "Input Property" );
-    addItem( RiaDefines::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names" );
-    addItem( RiaDefines::ALLEN_DIAGRAMS, "ALLEN_DIAGRAMS", "Allen Diagrams" );
-    addItem( RiaDefines::FLOW_DIAGNOSTICS, "FLOW_DIAGNOSTICS", "Flow Diagnostics" );
-    addItem( RiaDefines::INJECTION_FLOODING, "INJECTION_FLOODING", "Injection Flooding" );
-    setDefault( RiaDefines::DYNAMIC_NATIVE );
+    addItem( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "DYNAMIC_NATIVE", "Dynamic" );
+    addItem( RiaDefines::ResultCatType::STATIC_NATIVE, "STATIC_NATIVE", "Static" );
+    addItem( RiaDefines::ResultCatType::SOURSIMRL, "SOURSIMRL", "SourSimRL" );
+    addItem( RiaDefines::ResultCatType::GENERATED, "GENERATED", "Generated" );
+    addItem( RiaDefines::ResultCatType::INPUT_PROPERTY, "INPUT_PROPERTY", "Input Property" );
+    addItem( RiaDefines::ResultCatType::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names" );
+    addItem( RiaDefines::ResultCatType::ALLEN_DIAGRAMS, "ALLEN_DIAGRAMS", "Allen Diagrams" );
+    addItem( RiaDefines::ResultCatType::FLOW_DIAGNOSTICS, "FLOW_DIAGNOSTICS", "Flow Diagnostics" );
+    addItem( RiaDefines::ResultCatType::INJECTION_FLOODING, "INJECTION_FLOODING", "Injection Flooding" );
+    setDefault( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
 }
 
 template <>

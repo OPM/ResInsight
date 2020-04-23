@@ -254,7 +254,7 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf
 
                         const RigEclipseResultInfo* resInfo = caseData->resultInfo( resultAddr );
 
-                        QString posText = caf::AppEnum<RiaDefines::ResultCatType>::uiTextFromIndex( resInfo->resultType() );
+                        QString posText     = caf::AppEnum<RiaDefines::ResultCatType>::uiText( resInfo->resultType() );
                         QString resultsText = QString( "%1, %2" ).arg( posText ).arg( resInfo->resultName() );
                         if ( inUse )
                         {

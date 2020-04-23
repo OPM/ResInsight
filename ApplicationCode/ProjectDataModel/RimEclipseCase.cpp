@@ -303,7 +303,7 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 
     // Set default values
     {
-        rimEclipseView->cellResult()->setResultType( RiaDefines::DYNAMIC_NATIVE );
+        rimEclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
 
         auto prefs = RiaApplication::instance()->preferences();
         if ( prefs->loadAndShowSoil )
@@ -528,7 +528,7 @@ void RimEclipseCase::updateFormationNamesData()
             {
                 if ( !activeFormationNames() )
                 {
-                    if ( eclView->cellResult()->resultType() == RiaDefines::FORMATION_NAMES )
+                    if ( eclView->cellResult()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                     {
                         eclView->cellResult()->setResultVariable( RiaDefines::undefinedResultName() );
                         eclView->cellResult()->updateConnectedEditors();
@@ -537,7 +537,7 @@ void RimEclipseCase::updateFormationNamesData()
                     RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
                     for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
                     {
-                        if ( propFilter->resultDefinition()->resultType() == RiaDefines::FORMATION_NAMES )
+                        if ( propFilter->resultDefinition()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                         {
                             propFilter->resultDefinition()->setResultVariable( RiaDefines::undefinedResultName() );
                         }
@@ -547,7 +547,7 @@ void RimEclipseCase::updateFormationNamesData()
                 RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
                 for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
                 {
-                    if ( propFilter->resultDefinition()->resultType() == RiaDefines::FORMATION_NAMES )
+                    if ( propFilter->resultDefinition()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                     {
                         propFilter->setToDefaultValues();
                         propFilter->updateConnectedEditors();
@@ -892,7 +892,7 @@ bool RimEclipseCase::openReserviorCase()
                 // After the placeholder result for combined transmissibility is created,
                 // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
 
-                RigEclipseResultAddress combinedTransmissibilityResAddr( RiaDefines::STATIC_NATIVE,
+                RigEclipseResultAddress combinedTransmissibilityResAddr( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                          RiaDefines::combinedTransmissibilityResultName() );
                 if ( results->hasResultEntry( combinedTransmissibilityResAddr ) )
                 {
@@ -900,7 +900,7 @@ bool RimEclipseCase::openReserviorCase()
                                                                                    combinedTransmissibilityResAddr );
                 }
 
-                RigEclipseResultAddress combinedWaterFluxResAddr( RiaDefines::DYNAMIC_NATIVE,
+                RigEclipseResultAddress combinedWaterFluxResAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                   RiaDefines::combinedWaterFluxResultName() );
                 if ( results->hasResultEntry( combinedWaterFluxResAddr ) )
                 {
@@ -908,14 +908,14 @@ bool RimEclipseCase::openReserviorCase()
                                                                                    combinedWaterFluxResAddr );
                 }
 
-                RigEclipseResultAddress combinedOilFluxResAddr( RiaDefines::DYNAMIC_NATIVE,
+                RigEclipseResultAddress combinedOilFluxResAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                 RiaDefines::combinedOilFluxResultName() );
                 if ( results->hasResultEntry( combinedOilFluxResAddr ) )
                 {
                     eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxOil(),
                                                                                    combinedOilFluxResAddr );
                 }
-                RigEclipseResultAddress combinedGasFluxResAddr( RiaDefines::DYNAMIC_NATIVE,
+                RigEclipseResultAddress combinedGasFluxResAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                 RiaDefines::combinedGasFluxResultName() );
 
                 if ( results->hasResultEntry( combinedGasFluxResAddr ) )

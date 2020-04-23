@@ -25,7 +25,7 @@
 
 namespace RiaDefines
 {
-enum ResultCatType
+enum class ResultCatType
 {
     DYNAMIC_NATIVE,
     STATIC_NATIVE,

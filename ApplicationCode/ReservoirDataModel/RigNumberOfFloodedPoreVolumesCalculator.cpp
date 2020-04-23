@@ -73,7 +73,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     std::vector<RigEclipseResultAddress> tracerResAddrs;
     for ( QString tracerName : tracerNames )
     {
-        RigEclipseResultAddress tracerResAddr( RiaDefines::DYNAMIC_NATIVE, tracerName );
+        RigEclipseResultAddress tracerResAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, tracerName );
         if ( gridCellResults->ensureKnownResultLoaded( tracerResAddr ) )
         {
             tracerResAddrs.push_back( tracerResAddr );
@@ -83,9 +83,9 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     std::vector<std::vector<double>> summedTracersAtAllTimesteps;
 
     // TODO: Option for Oil and Gas instead of water
-    RigEclipseResultAddress flrWatIAddr( RiaDefines::DYNAMIC_NATIVE, "FLRWATI+" );
-    RigEclipseResultAddress flrWatJAddr( RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+" );
-    RigEclipseResultAddress flrWatKAddr( RiaDefines::DYNAMIC_NATIVE, "FLRWATK+" );
+    RigEclipseResultAddress flrWatIAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATI+" );
+    RigEclipseResultAddress flrWatJAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATJ+" );
+    RigEclipseResultAddress flrWatKAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATK+" );
 
     bool hasFlowrateI = gridCellResults->ensureKnownResultLoaded( flrWatIAddr );
     progress.incrementProgress();

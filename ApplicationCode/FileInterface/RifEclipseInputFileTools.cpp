@@ -462,7 +462,7 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
     {
         std::vector<double> resultValues;
 
-        RigEclipseResultAddress resAddr( RiaDefines::STATIC_NATIVE, keyword );
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE, keyword );
         if ( !cellResultsData->hasResultEntry( resAddr ) ) continue;
 
         cellResultsData->ensureKnownResultLoaded( resAddr );
@@ -910,7 +910,7 @@ bool RifEclipseInputFileTools::readDataFromKeyword( ecl_kw_type*        eclipseK
         }
     }
 
-    RigEclipseResultAddress resAddr( RiaDefines::INPUT_PROPERTY, resultName );
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
     caseData->results( RiaDefines::MATRIX_MODEL )->createResultEntry( resAddr, false );
 
     auto newPropertyData = caseData->results( RiaDefines::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );

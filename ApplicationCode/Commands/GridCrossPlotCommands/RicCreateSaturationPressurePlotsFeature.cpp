@@ -79,19 +79,20 @@ std::vector<RimSaturationPressurePlot*>
         {
             RigCaseCellResultsData* resultData = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
 
-            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PRESSURE" ) ) )
+            if ( !resultData->hasResultEntry(
+                     RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) ) )
             {
                 RiaLogging::error( "CreateSaturationPressurePlots : PRESSURE is not available " );
                 return plots;
             }
 
-            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PDEW" ) ) )
+            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PDEW" ) ) )
             {
                 RiaLogging::error( "CreateSaturationPressurePlots : PDEW is not available " );
                 return plots;
             }
 
-            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "PBUB" ) ) )
+            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PBUB" ) ) )
             {
                 RiaLogging::error( "CreateSaturationPressurePlots : PBUB is not available " );
                 return plots;

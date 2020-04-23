@@ -427,7 +427,7 @@ public:
 
         if ( rimCase && rimCase->results( m_porosityModelEnum ) )
         {
-            RigEclipseResultAddress eclResAddr( RiaDefines::GENERATED, propertyName );
+            RigEclipseResultAddress eclResAddr( RiaDefines::ResultCatType::GENERATED, propertyName );
 
             if ( !rimCase->results( m_porosityModelEnum )->ensureKnownResultLoaded( eclResAddr ) )
             {
@@ -844,7 +844,7 @@ public:
 
         if ( rimCase && rimCase->results( m_porosityModelEnum ) )
         {
-            RigEclipseResultAddress resAddr( RiaDefines::GENERATED, propertyName );
+            RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, propertyName );
 
             if ( !rimCase->results( m_porosityModelEnum )->ensureKnownResultLoaded( resAddr ) )
             {
@@ -1179,18 +1179,18 @@ public:
 
         std::vector<RiaDefines::ResultCatType> resTypes;
         std::vector<QString>                   resTypeNames;
-        resTypes.push_back( RiaDefines::DYNAMIC_NATIVE );
+        resTypes.push_back( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
         resTypeNames.push_back( "DynamicNative" );
-        resTypes.push_back( RiaDefines::SOURSIMRL );
+        resTypes.push_back( RiaDefines::ResultCatType::SOURSIMRL );
         resTypeNames.push_back( "SourSimRL" );
-        resTypes.push_back( RiaDefines::STATIC_NATIVE );
+        resTypes.push_back( RiaDefines::ResultCatType::STATIC_NATIVE );
         resTypeNames.push_back( "StaticNative" );
-        resTypes.push_back( RiaDefines::GENERATED );
+        resTypes.push_back( RiaDefines::ResultCatType::GENERATED );
         resTypeNames.push_back( "Generated" );
-        resTypes.push_back( RiaDefines::INPUT_PROPERTY );
+        resTypes.push_back( RiaDefines::ResultCatType::INPUT_PROPERTY );
         resTypeNames.push_back( "Input" );
 #ifdef ENABLE_SOURING
-        resTypes.push_back( RiaDefines::INJECTION_FLOODING );
+        resTypes.push_back( RiaDefines::ResultCatType::INJECTION_FLOODING );
         resTypeNames.push_back( "Injection Flooding" );
 #endif /* ENABLE_SOURING */
 

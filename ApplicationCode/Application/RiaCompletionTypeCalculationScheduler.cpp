@@ -86,7 +86,7 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
         {
             eclipseCase->eclipseCaseData()
                 ->results( RiaDefines::MATRIX_MODEL )
-                ->clearScalarResult( RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName() );
+                ->clearScalarResult( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName() );
 
             // Delete virtual perforation transmissibilities, as these are the basis for the computation of completion type
             eclipseCase->eclipseCaseData()->setVirtualPerforationTransmissibilities( nullptr );

@@ -1346,7 +1346,8 @@ void RimEclipseView::onUpdateLegends()
 
                 if ( this->cellEdgeResult()->hasCategoryResult() )
                 {
-                    if ( cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RiaDefines::FORMATION_NAMES )
+                    if ( cellEdgeResult()->singleVarEdgeResultColors()->resultType() !=
+                         RiaDefines::ResultCatType::FORMATION_NAMES )
                     {
                         cellEdgeResult()->legendConfig()->setIntegerCategories( results->uniqueCellScalarValues(
                             cellEdgeResult()->singleVarEdgeResultColors()->eclipseResultAddress() ) );
@@ -2249,9 +2250,10 @@ void RimEclipseView::defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel,
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseView::isUsingFormationNames() const
 {
-    if ( cellResult()->resultType() == RiaDefines::FORMATION_NAMES ) return true;
+    if ( cellResult()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES ) return true;
 
-    if ( faultResultSettings()->customFaultResult()->resultType() == RiaDefines::ALLEN_DIAGRAMS ) return true;
+    if ( faultResultSettings()->customFaultResult()->resultType() == RiaDefines::ResultCatType::ALLEN_DIAGRAMS )
+        return true;
 
     return eclipsePropertyFilterCollection()->isUsingFormationNames();
 }

@@ -161,9 +161,12 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
 
             // Make sure we load the results that we'll query below
             RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
-            cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SWAT" ) );
-            cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SGAS" ) );
-            cellResultsData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "SATNUM" ) );
+            cellResultsData->ensureKnownResultLoaded(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" ) );
+            cellResultsData->ensureKnownResultLoaded(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) );
+            cellResultsData->ensureKnownResultLoaded(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "SATNUM" ) );
 
             // Fetch SWAT and SGAS cell values for the selected cell
             cvf::ref<RigResultAccessor> swatAccessor =
@@ -171,21 +174,21 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
                                                                    gridIndex,
                                                                    RiaDefines::MATRIX_MODEL,
                                                                    timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                             "SWAT" ) );
             cvf::ref<RigResultAccessor> sgasAccessor =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                    gridIndex,
                                                                    RiaDefines::MATRIX_MODEL,
                                                                    timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                             "SGAS" ) );
             cvf::ref<RigResultAccessor> satnumAccessor =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                    gridIndex,
                                                                    RiaDefines::MATRIX_MODEL,
                                                                    timeStepIndex,
-                                                                   RigEclipseResultAddress( RiaDefines::STATIC_NATIVE,
+                                                                   RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                             "SATNUM" ) );
             const double cellSWAT = swatAccessor.notNull() ? swatAccessor->cellScalar( gridLocalCellIndex ) : HUGE_VAL;
             const double cellSGAS = sgasAccessor.notNull() ? sgasAccessor->cellScalar( gridLocalCellIndex ) : HUGE_VAL;

@@ -184,18 +184,21 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
             if ( isColumnResult() )
             {
                 m_currentResultName = "";
-                resultData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "PORO" ) );
-                resultData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "NTG" ) );
-                resultData->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "DZ" ) );
+                resultData->ensureKnownResultLoaded(
+                    RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
+                resultData->ensureKnownResultLoaded(
+                    RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
+                resultData->ensureKnownResultLoaded(
+                    RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
                 if ( m_resultAggregation == RESULTS_OIL_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN )
                 {
-                    resultData->ensureKnownResultLoadedForTimeStep( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                    resultData->ensureKnownResultLoadedForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                              "SOIL" ),
                                                                     timeStep );
                 }
                 if ( m_resultAggregation == RESULTS_GAS_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN )
                 {
-                    resultData->ensureKnownResultLoadedForTimeStep( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE,
+                    resultData->ensureKnownResultLoadedForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                              "SGAS" ),
                                                                     timeStep );
                 }
@@ -258,9 +261,12 @@ void RimEclipseContourMapProjection::clearResultVariable()
 std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( ResultAggregation resultAggregation ) const
 {
     const RigCaseCellResultsData* resultData = eclipseCase()->results( RiaDefines::MATRIX_MODEL );
-    bool hasPoroResult = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "PORO" ) );
-    bool hasNtgResult  = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "NTG" ) );
-    bool hasDzResult   = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "DZ" ) );
+    bool                          hasPoroResult =
+        resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
+    bool hasNtgResult =
+        resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
+    bool hasDzResult =
+        resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
 
     if ( !( hasPoroResult && hasNtgResult && hasDzResult ) )
     {
@@ -268,11 +274,11 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
     }
 
     const std::vector<double>& poroResults =
-        resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "PORO" ), 0 );
+        resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ), 0 );
     const std::vector<double>& ntgResults =
-        resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "NTG" ), 0 );
+        resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ), 0 );
     const std::vector<double>& dzResults =
-        resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::STATIC_NATIVE, "DZ" ), 0 );
+        resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ), 0 );
 
     CVF_ASSERT( poroResults.size() == ntgResults.size() && ntgResults.size() == dzResults.size() );
 
@@ -283,7 +289,8 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
     if ( resultAggregation == RESULTS_OIL_COLUMN || resultAggregation == RESULTS_HC_COLUMN )
     {
         const std::vector<double>& soilResults =
-            resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SOIL" ), timeStep );
+            resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ),
+                                           timeStep );
         for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
         {
             resultValues[cellResultIdx] = soilResults[cellResultIdx];
@@ -292,11 +299,13 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
 
     if ( resultAggregation == RESULTS_GAS_COLUMN || resultAggregation == RESULTS_HC_COLUMN )
     {
-        bool hasGasResult = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SGAS" ) );
+        bool hasGasResult =
+            resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) );
         if ( hasGasResult )
         {
             const std::vector<double>& sgasResults =
-                resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "SGAS" ), timeStep );
+                resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ),
+                                               timeStep );
             for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
             {
                 resultValues[cellResultIdx] += sgasResults[cellResultIdx];
