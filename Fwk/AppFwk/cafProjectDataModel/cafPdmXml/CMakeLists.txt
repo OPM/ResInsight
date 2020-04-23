@@ -9,13 +9,8 @@ if (CAF_ENABLE_UNITY_BUILD)
 endif()
 
 # Qt
-if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core Xml)
-	set(QT_LIBRARIES Qt5::Core Qt5::Xml)
-else()
-    find_package(Qt4 COMPONENTS QtCore QtXml REQUIRED)
-    include(${QT_USE_FILE})
-endif(CEE_USE_QT5)
+find_package(Qt5 COMPONENTS REQUIRED Core Xml)
+set(QT_LIBRARIES Qt5::Core Qt5::Xml)
 
 include_directories (
 	..
