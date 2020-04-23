@@ -71,7 +71,7 @@ In this context highlighted means the marked item with a different background co
       <guid>https://resinsight.org/plot-window/multiplots/</guid>
       <description>A Multi Plot allows the user to combine multiple plots in a grid layout. Plots from different types can be combined. This plot type is tailored for export to PDF.
 Multi Plot Usage A new Multi Plot can be created by selecting a set of plots and from the right-click menu select Create Multi Plot from Selected Plots
-Properties The main page layout is controlled from Preferences The property editor of a multi plot allows further customization</description>
+The currenly supported types of plots to be part of a Multi Plot are:</description>
     </item>
     
     <item>
