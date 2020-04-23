@@ -87,13 +87,13 @@ class ProgramOptions;
 class RiaApplication
 {
 public:
-    enum ProjectLoadAction
+    enum class ProjectLoadAction
     {
         PLA_NONE                 = 0,
         PLA_CALCULATE_STATISTICS = 1
     };
 
-    enum ApplicationStatus
+    enum class ApplicationStatus
     {
         KEEP_GOING = 0,
         EXIT_COMPLETED,

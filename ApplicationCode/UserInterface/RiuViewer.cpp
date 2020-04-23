@@ -930,19 +930,19 @@ void RiuViewer::updateNavigationPolicy()
 {
     switch ( RiaGuiApplication::instance()->navigationPolicy() )
     {
-        case RiaGuiApplication::NAVIGATION_POLICY_CAD:
+        case RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_CAD:
             setNavigationPolicy( new RiuCadNavigation );
             break;
 
-        case RiaGuiApplication::NAVIGATION_POLICY_CEETRON:
+        case RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_CEETRON:
             setNavigationPolicy( new caf::CeetronPlusNavigation );
             break;
 
-        case RiaGuiApplication::NAVIGATION_POLICY_GEOQUEST:
+        case RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_GEOQUEST:
             setNavigationPolicy( new RiuGeoQuestNavigation );
             break;
 
-        case RiaGuiApplication::NAVIGATION_POLICY_RMS:
+        case RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_RMS:
             setNavigationPolicy( new RiuRmsNavigation );
             break;
 

@@ -71,7 +71,7 @@ caf::PdmScriptResponse RicfReplaceSourceCases::execute()
     }
 
     if ( !RiaApplication::instance()->loadProject( lastProjectPath,
-                                                   RiaApplication::PLA_CALCULATE_STATISTICS,
+                                                   RiaApplication::ProjectLoadAction::PLA_CALCULATE_STATISTICS,
                                                    projectModifier.p() ) )
     {
         QString error( "Could not reload project" );

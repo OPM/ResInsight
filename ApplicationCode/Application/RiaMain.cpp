@@ -94,15 +94,15 @@ int main( int argc, char* argv[] )
 
     RiaApplication::ApplicationStatus status = app->handleArguments( &progOpt );
 
-    if ( status == RiaApplication::EXIT_COMPLETED )
+    if ( status == RiaApplication::ApplicationStatus::EXIT_COMPLETED )
     {
         return 0;
     }
-    else if ( status == RiaApplication::EXIT_WITH_ERROR )
+    else if ( status == RiaApplication::ApplicationStatus::EXIT_WITH_ERROR )
     {
         return 2;
     }
-    else if ( status == RiaApplication::KEEP_GOING )
+    else if ( status == RiaApplication::ApplicationStatus::KEEP_GOING )
     {
         int exitCode = 0;
         try

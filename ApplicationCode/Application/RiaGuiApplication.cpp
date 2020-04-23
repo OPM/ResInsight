@@ -144,11 +144,11 @@ namespace caf
 template <>
 void AppEnum<RiaGuiApplication::RINavigationPolicy>::setUp()
 {
-    addItem( RiaGuiApplication::NAVIGATION_POLICY_CEETRON, "NAVIGATION_POLICY_CEETRON", "Ceetron" );
-    addItem( RiaGuiApplication::NAVIGATION_POLICY_CAD, "NAVIGATION_POLICY_CAD", "CAD" );
-    addItem( RiaGuiApplication::NAVIGATION_POLICY_GEOQUEST, "NAVIGATION_POLICY_GEOQUEST", "GEOQUEST" );
-    addItem( RiaGuiApplication::NAVIGATION_POLICY_RMS, "NAVIGATION_POLICY_RMS", "RMS" );
-    setDefault( RiaGuiApplication::NAVIGATION_POLICY_RMS );
+    addItem( RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_CEETRON, "NAVIGATION_POLICY_CEETRON", "Ceetron" );
+    addItem( RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_CAD, "NAVIGATION_POLICY_CAD", "CAD" );
+    addItem( RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_GEOQUEST, "NAVIGATION_POLICY_GEOQUEST", "GEOQUEST" );
+    addItem( RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_RMS, "NAVIGATION_POLICY_RMS", "RMS" );
+    setDefault( RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_RMS );
 }
 } // namespace caf
 
@@ -445,14 +445,14 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
     // --------------------------------------------------------
     if ( cvf::Option o = progOpt->option( "ignoreArgs" ) )
     {
-        return KEEP_GOING;
+        return ApplicationStatus::KEEP_GOING;
     }
 
     if ( progOpt->option( "help" ) || progOpt->option( "?" ) )
     {
         this->showFormattedTextInMessageBoxOrConsole( "The current command line options in ResInsight are:\n" +
                                                       this->commandLineParameterHelp() );
-        return RiaApplication::EXIT_COMPLETED;
+        return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
     // Code generation
@@ -466,10 +466,10 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
         if ( !RiaApplication::generateCode( outputFile, &errMsg ) )
         {
             RiaLogging::error( QString( "Error: %1" ).arg( errMsg ) );
-            return RiaApplication::EXIT_WITH_ERROR;
+            return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
         }
 
-        return RiaApplication::EXIT_COMPLETED;
+        return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
     }
 
     // Unit testing
@@ -479,12 +479,12 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
         int testReturnValue = launchUnitTestsWithConsole();
         if ( testReturnValue == 0 )
         {
-            return RiaApplication::EXIT_COMPLETED;
+            return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
         }
         else
         {
             RiaLogging::error( "Error running unit tests" );
-            return RiaApplication::EXIT_WITH_ERROR;
+            return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
         }
     }
 
@@ -502,7 +502,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
         RiaLogging::setLoggerInstance( stdLogger );
 
         RiaRegressionTestRunner::instance()->executeRegressionTests( regressionTestPath, QStringList() );
-        return EXIT_COMPLETED;
+        return ApplicationStatus::EXIT_COMPLETED;
     }
 
     if ( cvf::Option o = progOpt->option( "updateregressiontestbase" ) )
@@ -510,7 +510,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
         CVF_ASSERT( o.valueCount() == 1 );
         QString regressionTestPath = cvfqt::Utils::toQString( o.value( 0 ) );
         RiaRegressionTestRunner::instance()->updateRegressionTest( regressionTestPath );
-        return EXIT_COMPLETED;
+        return ApplicationStatus::EXIT_COMPLETED;
     }
 
     if ( cvf::Option o = progOpt->option( "startdir" ) )
@@ -587,14 +587,14 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
             std::vector<QString> gridFiles    = readFileListFromTextFile( gridListFile );
             runMultiCaseSnapshots( projectFileName, gridFiles, "multiCaseSnapshots" );
 
-            return EXIT_COMPLETED;
+            return ApplicationStatus::EXIT_COMPLETED;
         }
     }
 
     if ( !projectFileName.isEmpty() )
     {
         cvf::ref<RiaProjectModifier>      projectModifier;
-        RiaApplication::ProjectLoadAction projectLoadAction = RiaApplication::PLA_NONE;
+        RiaApplication::ProjectLoadAction projectLoadAction = RiaApplication::ProjectLoadAction::PLA_NONE;
 
         if ( cvf::Option o = progOpt->option( "replaceCase" ) )
         {
@@ -651,7 +651,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
                 }
             }
 
-            projectLoadAction = RiaApplication::PLA_CALCULATE_STATISTICS;
+            projectLoadAction = RiaApplication::ProjectLoadAction::PLA_CALCULATE_STATISTICS;
         }
 
         if ( cvf::Option o = progOpt->option( "replacePropertiesFolder" ) )
@@ -780,7 +780,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
 
         closeProject();
 
-        return EXIT_COMPLETED;
+        return ApplicationStatus::EXIT_COMPLETED;
     }
 
     if ( cvf::Option o = progOpt->option( "commandFile" ) )
@@ -831,7 +831,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
                 {
                     RiaProjectModifier projectModifier;
                     projectModifier.setReplaceCaseFirstOccurrence( caseFile );
-                    loadProject( projectFileName, RiaApplication::PLA_NONE, &projectModifier );
+                    loadProject( projectFileName, RiaApplication::ProjectLoadAction::PLA_NONE, &projectModifier );
                     executeCommandFile( commandFile );
                 }
             }
@@ -860,7 +860,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
                         }
                     }
 
-                    loadProject( projectFileName, RiaApplication::PLA_NONE, &projectModifier );
+                    loadProject( projectFileName, RiaApplication::ProjectLoadAction::PLA_NONE, &projectModifier );
                     executeCommandFile( commandFile );
                 }
             }
@@ -869,10 +869,10 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
         {
             executeCommandFile( commandFile );
         }
-        return EXIT_COMPLETED;
+        return ApplicationStatus::EXIT_COMPLETED;
     }
 
-    return KEEP_GOING;
+    return ApplicationStatus::KEEP_GOING;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1762,7 +1762,7 @@ void RiaGuiApplication::runMultiCaseSnapshots( const QString&       templateProj
         RiaProjectModifier modifier;
         modifier.setReplaceCaseFirstOccurrence( gridFn );
 
-        bool loadOk = loadProject( templateProjectFileName, PLA_NONE, &modifier );
+        bool loadOk = loadProject( templateProjectFileName, ProjectLoadAction::PLA_NONE, &modifier );
         if ( loadOk )
         {
             RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( snapshotFolderName );

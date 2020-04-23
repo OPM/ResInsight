@@ -92,7 +92,8 @@ RiaPreferences::RiaPreferences( void )
 {
     CAF_PDM_InitField( &m_navigationPolicy,
                        "navigationPolicy",
-                       caf::AppEnum<RiaGuiApplication::RINavigationPolicy>( RiaGuiApplication::NAVIGATION_POLICY_RMS ),
+                       caf::AppEnum<RiaGuiApplication::RINavigationPolicy>(
+                           RiaGuiApplication::RINavigationPolicy::NAVIGATION_POLICY_RMS ),
                        "Navigation Mode",
                        "",
                        "",

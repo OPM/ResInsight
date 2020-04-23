@@ -76,7 +76,7 @@ class RiaGuiApplication : public QApplication, public RiaApplication
     Q_OBJECT
 
 public:
-    enum RINavigationPolicy
+    enum class RINavigationPolicy
     {
         NAVIGATION_POLICY_CEETRON,
         NAVIGATION_POLICY_CAD,
