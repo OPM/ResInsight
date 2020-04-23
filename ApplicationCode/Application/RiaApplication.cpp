@@ -333,7 +333,7 @@ bool RiaApplication::openFile( const QString& fileName )
     }
     else if ( fileType & RiaDefines::ANY_ECLIPSE_FILE )
     {
-        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, true );
+        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{fileName}, true );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
     }
 
@@ -567,7 +567,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
     // If load action is specified to recalculate statistics, do it now.
     // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will
     // be clamped
-    if ( loadAction & PLA_CALCULATE_STATISTICS )
+    if ( loadAction & int( ProjectLoadAction::PLA_CALCULATE_STATISTICS ) )
     {
         for ( size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++ )
         {
@@ -696,7 +696,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::loadProject( const QString& projectFileName )
 {
-    return loadProject( projectFileName, PLA_NONE, nullptr );
+    return loadProject( projectFileName, ProjectLoadAction::PLA_NONE, nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1824,7 +1824,7 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 
             std::vector<std::shared_ptr<const caf::PdmObject>> commandObjects;
 
-            QStringList excludedClassNames{ "TestCommand1", "TC2" }; // See RifCommandCore-Text.cpp
+            QStringList excludedClassNames{"TestCommand1", "TC2"}; // See RifCommandCore-Text.cpp
 
             auto allObjects = caf::PdmMarkdownBuilder::createAllObjects( caf::PdmDefaultObjectFactory::instance() );
             for ( auto classObject : allObjects )
