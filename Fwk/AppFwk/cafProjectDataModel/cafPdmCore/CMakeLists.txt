@@ -8,16 +8,8 @@ if (CAF_ENABLE_UNITY_BUILD)
   set(CMAKE_UNITY_BUILD true)
 endif()
 
-# Qt
-option(CEE_USE_QT5 "Use Qt 5 instead of Qt 4" true) 
-
-if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core)
-	set(QT_LIBRARIES Qt5::Core)
-else()
-    find_package(Qt4 COMPONENTS QtCore REQUIRED)
-    include(${QT_USE_FILE})
-endif(CEE_USE_QT5)
+find_package(Qt5 COMPONENTS REQUIRED Core)
+set(QT_LIBRARIES Qt5::Core)
 
 set( PROJECT_FILES
 

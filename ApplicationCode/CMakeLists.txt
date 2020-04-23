@@ -23,17 +23,11 @@ find_package( OpenGL )
 option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
 option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE "Bundle the gRPC python modules into the install folder" OFF)
 
-if (RESINSIGHT_BUILD_WITH_QT5)
-    find_package(Qt5 COMPONENTS Core QUIET)
-endif(RESINSIGHT_BUILD_WITH_QT5)
+find_package(Qt5 COMPONENTS Core QUIET)
 
 if (Qt5Core_FOUND)
     find_package(Qt5 CONFIG REQUIRED Core Gui OpenGL Network Script Widgets Xml Concurrent PrintSupport)
     set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Network Qt5::OpenGL Qt5::Script Qt5::Widgets Qt5::Xml Qt5::Concurrent Qt5::PrintSupport)
-else()
-    set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript)
-    find_package(Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED} REQUIRED)
-    include(${QT_USE_FILE})
 endif(Qt5Core_FOUND)
 
 # NB: The generated file is written to Cmake binary folder to avoid source tree pollution
@@ -300,13 +294,8 @@ set ( QT_MOC_HEADERS
     SocketInterface/RiaSocketServer.h
 )
 
-if (RESINSIGHT_BUILD_WITH_QT5)
-    qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
-    qt5_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
-else()
-    qt4_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
-    qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
-endif(RESINSIGHT_BUILD_WITH_QT5)
+qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS} )
+qt5_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
 
 
 # NOTE! Resources in subfolders must append to QRC_FILES using the following statement
@@ -322,15 +311,9 @@ set( QRC_FILES
 )
 
 # Runs RCC on specified files
-if (RESINSIGHT_BUILD_WITH_QT5)
-    qt5_add_resources( QRC_FILES_CPP
-        ${QRC_FILES}
-    )
-else()
-    qt4_add_resources( QRC_FILES_CPP
-        ${QRC_FILES}
-    )
-endif(RESINSIGHT_BUILD_WITH_QT5)
+qt5_add_resources( QRC_FILES_CPP
+    ${QRC_FILES}
+)
 
 # Adding resource (RC) files for Windows
 if ( MSVC )
@@ -552,29 +535,22 @@ endif()
 if (MSVC)
 
     # Qt DLLs
-    if (RESINSIGHT_BUILD_WITH_QT5)	
-        message(STATUS "Creating post build step for copying Qt DLLs")
+    message(STATUS "Creating post build step for copying Qt DLLs")
 		
+	foreach (qtlib ${QT_LIBRARIES})
+		add_custom_command(TARGET ResInsight POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:ResInsight>
+		)
+	endforeach(qtlib)
+			
+	if (_unityTargetName)
 		foreach (qtlib ${QT_LIBRARIES})
-			add_custom_command(TARGET ResInsight POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:ResInsight>
+			add_custom_command(TARGET ${_unityTargetName} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${_unityTargetName}>
 			)
 		endforeach(qtlib)
-			
-		if (_unityTargetName)
-			foreach (qtlib ${QT_LIBRARIES})
-				add_custom_command(TARGET ${_unityTargetName} POST_BUILD
-					COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${_unityTargetName}>
-				)
-			endforeach(qtlib)
-		endif(_unityTargetName)
+	endif(_unityTargetName)
 
-    else()
-        set (QTLIBLIST QtCore QtGui QtGui QtOpenGl QtNetwork QtScript QtScriptTools)
-        foreach (qtlib ${QTLIBLIST})		  
-            list(APPEND RI_DLL_FILENAMES ${QT_BINARY_DIR}/$<IF:$<CONFIG:Debug>,${qtlib}d4.dll,${qtlib}4.dll>)
-        endforeach( qtlib )
-    endif(RESINSIGHT_BUILD_WITH_QT5)
     # Odb Dlls
     if (RESINSIGHT_USE_ODB_API)
         # Find all the dlls
@@ -688,7 +664,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
         set (RESINSIGHT_FILES ${RI_DLL_FILENAMES})
 
-        if(RESINSIGHT_BUILD_WITH_QT5 AND WIN32 AND TARGET Qt5::qmake AND NOT TARGET Qt5::windeployqt)
+        if(WIN32 AND TARGET Qt5::qmake AND NOT TARGET Qt5::windeployqt)
           get_target_property(_qt5_qmake_location Qt5::qmake IMPORTED_LOCATION)
 
           execute_process(

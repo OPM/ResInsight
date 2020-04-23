@@ -14,15 +14,9 @@ set (MOC_HEADER_FILES
 )
 
 # Qt
-if (CEE_USE_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
-	set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
-	qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtMain REQUIRED)
-    include(${QT_USE_FILE})
-	qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-endif(CEE_USE_QT5)
+find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
+set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
 
 set( PROJECT_FILES
 

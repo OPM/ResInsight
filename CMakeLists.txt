@@ -270,14 +270,7 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 # Qt
 ################################################################################
-option(RESINSIGHT_BUILD_WITH_QT5 "Use Qt5" ON)
-mark_as_advanced(FORCE RESINSIGHT_BUILD_WITH_QT5)
-
-if (RESINSIGHT_BUILD_WITH_QT5)
-	find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Network Script ScriptTools Widgets)
-else()
-    find_package(Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools REQUIRED)
-endif(RESINSIGHT_BUILD_WITH_QT5)
+find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Network Script ScriptTools Widgets)
 
 # Open GL
 find_package( OpenGL )
@@ -346,13 +339,6 @@ set_property(TARGET
     ${THIRD_PARTY_LIBRARIES}
 	PROPERTY FOLDER "Thirdparty"
 )
-
-
-################################################################################
-# App and Viz Framework Qt5 setting, propagate settings in RESINSIGHT_BUILD_WITH_QT5
-################################################################################
-set(CEE_USE_QT5 ${RESINSIGHT_BUILD_WITH_QT5} CACHE BOOL "Flag used to enable Qt5 in AppFwk and VizFwk" FORCE)
-
 
 ################################################################################
 # Vizualization Framework
