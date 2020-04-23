@@ -63,6 +63,7 @@ class RivReservoirViewPartMgr;
 class RimRegularLegendConfig;
 class RimTernaryLegendConfig;
 class RimEclipseResultDefinition;
+class RimElementVectorResult;
 
 namespace cvf
 {
@@ -86,6 +87,7 @@ public:
 
     RimEclipseCellColors*         cellResult() const;
     RimCellEdgeColors*            cellEdgeResult() const;
+    RimElementVectorResult*       elementVectorResult() const;
     RimEclipseFaultColors*        faultResultSettings() const;
     RimStimPlanColors*            fractureColors() const;
     RimSimWellInViewCollection*   wellCollection() const;
@@ -162,6 +164,7 @@ protected:
     void onUpdateDisplayModelForCurrentTimeStep() override;
     void updateVisibleGeometriesAndCellColors();
     void appendWellsAndFracturesToModel();
+    void appendElementVectorResultToModel();
 
     void                             onCreateDisplayModel() override;
     RimPropertyFilterCollection*     nativePropertyFilterCollection();
@@ -206,6 +209,7 @@ private:
 
     caf::PdmChildField<RimEclipseCellColors*>         m_cellResult;
     caf::PdmChildField<RimCellEdgeColors*>            m_cellEdgeResult;
+    caf::PdmChildField<RimElementVectorResult*>       m_elementVectorResult;
     caf::PdmChildField<RimEclipseFaultColors*>        m_faultResultSettings;
     caf::PdmChildField<RimStimPlanColors*>            m_fractureColors;
     caf::PdmChildField<RimVirtualPerforationResults*> m_virtualPerforationResult;

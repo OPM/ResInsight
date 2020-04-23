@@ -51,6 +51,7 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
+#include "RimElementVectorResult.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
@@ -145,6 +146,15 @@ RimEclipseView::RimEclipseView()
     m_cellEdgeResult = new RimCellEdgeColors();
     m_cellEdgeResult.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_elementVectorResult,
+                                "ElementVectorResult",
+                                "Element Vector Result",
+                                ":/CellResult.png",
+                                "",
+                                "" );
+    m_elementVectorResult = new RimElementVectorResult;
+    m_elementVectorResult.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_faultResultSettings, "FaultResultSettings", "Separate Fault Result", "", "", "" );
     m_faultResultSettings = new RimEclipseFaultColors();
     m_faultResultSettings.uiCapability()->setUiHidden( true );
@@ -210,6 +220,7 @@ RimEclipseView::~RimEclipseView()
     delete this->faultResultSettings();
     delete this->cellResult();
     delete this->cellEdgeResult();
+    delete this->elementVectorResult();
 
     delete m_propertyFilterCollection;
     delete wellCollection();
@@ -235,6 +246,14 @@ RimEclipseCellColors* RimEclipseView::cellResult() const
 RimCellEdgeColors* RimEclipseView::cellEdgeResult() const
 {
     return m_cellEdgeResult;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimElementVectorResult* RimEclipseView::elementVectorResult() const
+{
+    return m_elementVectorResult;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -656,6 +675,8 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     appendWellsAndFracturesToModel();
 
+    appendElementVectorResultToModel();
+
     m_overlayInfoConfig()->update3DInfo();
 
     // Invisible Wells are marked as read only when "show wells intersecting visible cells" is enabled
@@ -905,6 +926,37 @@ void RimEclipseView::appendWellsAndFracturesToModel()
                 simWellFracturesModelBasicList->updateBoundingBoxesRecursive();
                 frameScene->addModel( simWellFracturesModelBasicList.p() );
             }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseView::appendElementVectorResultToModel()
+{
+    if ( nativeOrOverrideViewer() )
+    {
+        cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
+        if ( frameScene )
+        {
+            // Element Vector Results
+            cvf::String name = "ElementVectorModelMod";
+            this->removeModelByName( frameScene, name );
+
+            cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
+            frameParts->setName( name );
+
+            m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
+                                                                                              PROPERTY_FILTERED,
+                                                                                              m_currentTimeStep );
+
+            // TODO: should this be ACTIVE?
+            m_reservoirGridPartManager->appendElementVectorResultDynamicGeometryPartsToModel( frameParts.p(),
+                                                                                              PROPERTY_FILTERED_WELL_CELLS,
+                                                                                              m_currentTimeStep );
+
+            frameScene->addModel( frameParts.p() );
         }
     }
 }
@@ -1321,6 +1373,12 @@ void RimEclipseView::onUpdateLegends()
                                                                         cvf::UNDEFINED_DOUBLE,
                                                                         cvf::UNDEFINED_DOUBLE );
         }
+    }
+
+    if ( this->elementVectorResult()->showResult() )
+    {
+        this->elementVectorResult()->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(),
+                                                                          isUsingOverrideViewer() );
     }
 
     {
@@ -1775,6 +1833,7 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
+    uiTreeOrdering.add( elementVectorResult() );
     uiTreeOrdering.add( faultResultSettings() );
     uiTreeOrdering.add( &m_intersectionResultDefCollection );
     uiTreeOrdering.add( &m_surfaceResultDefCollection );
