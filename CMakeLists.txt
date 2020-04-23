@@ -27,7 +27,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -std=c++11")
     set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
-endif() 
+endif()
 
 
 ################################################################################
@@ -80,7 +80,7 @@ if(RESINSIGHT_ENABLE_COTIRE)
     message(STATUS "cotire: Setting default number of includes to 5")
     set(COTIRE_MAXIMUM_NUMBER_OF_UNITY_INCLUDES 5)
   endif()
-  
+
   include(cotire)
 endif()
 
@@ -111,7 +111,7 @@ if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
   list(APPEND ERT_LIBRARIES
 	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so
   )
-  
+
 else()
 
     # Disable install of ERT libs and headers, as Ert code is compiled and linked directly
@@ -120,14 +120,14 @@ else()
 
     # Remember original state
     set(ORIGINAL_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-    
+
     if (MSVC)
       # Force static linking on Windows
       set(BUILD_SHARED_LIBS OFF)
       set(ERT_HAVE_UNISTD OFF) #If anyone has mingw installed
     else ()
       set(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT "" CACHE STRING "Path to ERT CMakeList.txt (source path)")
-       
+
       # Force dynamic linking on other platforms
       # Copy of libraries into install folder of ResInsight is done a bit further down in this file
       set(BUILD_SHARED_LIBS ON)
@@ -140,7 +140,7 @@ else()
     endif ()
 
     if (MSVC)
-         # libecl : Disable some warnings  
+         # libecl : Disable some warnings
          set_target_properties(ecl PROPERTIES COMPILE_FLAGS "/wd4244 /wd4267 /wd4013 /wd4190 /wd4018 /wd4477 /wd4098 /wd4293 /wd4305 /wd4020 /wd4028 /wd4715")
     else()
         set_target_properties(ecl PROPERTIES COMPILE_FLAGS "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered")
@@ -150,14 +150,14 @@ else()
         ecl
     )
 
-    set_property(TARGET  
+    set_property(TARGET
       catch2
 	  PROPERTY FOLDER "Thirdparty"
     )
-    
+
     # Restore original state
     set(BUILD_SHARED_LIBS ${ORIGINAL_BUILD_SHARED_LIBS})
-    
+
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
 ###############################################
@@ -187,7 +187,7 @@ if(MSVC)
 endif()
 
 option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING "Enable prototype feature Souring (requires third party library HDF5)" ON)
-mark_as_advanced(FORCE RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING) 
+mark_as_advanced(FORCE RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     if(MSVC)
@@ -213,7 +213,7 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
 	        message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
 
 			option (RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
-			mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES) 
+			mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 	        if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 		        message( STATUS "Bundling of HDF5 libraries is enabled" )
 	        endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
@@ -225,16 +225,16 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
 endif() # RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING
 
 
-################################################################################ 
-# Subset of Boost, used by NRLib and flow diagnostics application 
-################################################################################ 
- 
+################################################################################
+# Subset of Boost, used by NRLib and flow diagnostics application
+################################################################################
+
 if(MSVC)
     # stop MSVC from trying to auto-link libs
-    add_definitions("-DBOOST_ALL_NO_LIB") 
-endif() 
- 
-add_subdirectory(ThirdParty/boost-Subset) 
+    add_definitions("-DBOOST_ALL_NO_LIB")
+endif()
+
+add_subdirectory(ThirdParty/boost-Subset)
 
 list(APPEND THIRD_PARTY_LIBRARIES
     boost-Subset
@@ -252,7 +252,7 @@ list(APPEND OPM_LIBRARIES
     custom-opm-flowdiag-app
 )
 
-set_property(TARGET  
+set_property(TARGET
     ${OPM_LIBRARIES}
 	PROPERTY FOLDER "Thirdparty/OPM"
 )
@@ -286,10 +286,10 @@ find_package( OpenGL )
 # Qwt
 ################################################################################
 
-add_subdirectory(ThirdParty/Qwt/src)
+add_subdirectory(ThirdParty/qwt)
 
 list(APPEND THIRD_PARTY_LIBRARIES
-    Qwt
+    qwt
 )
 
 
@@ -304,7 +304,7 @@ list(APPEND THIRD_PARTY_LIBRARIES
 )
 
 ################################################################################
-# C++ Mathematical Expression Parsing And Evaluation Library 
+# C++ Mathematical Expression Parsing And Evaluation Library
 ################################################################################
 
 add_subdirectory(ThirdParty/expressionparser)
@@ -342,7 +342,7 @@ endif()
 ################################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 ################################################################################
-set_property(TARGET  
+set_property(TARGET
     ${THIRD_PARTY_LIBRARIES}
 	PROPERTY FOLDER "Thirdparty"
 )
@@ -360,7 +360,7 @@ set(CEE_USE_QT5 ${RESINSIGHT_BUILD_WITH_QT5} CACHE BOOL "Flag used to enable Qt5
 
 # Allow use of non-threadsafe reference counter in cvf::Object on systems with no atomics support
 if (CMAKE_COMPILER_IS_GNUCC)
- 
+
     if (NOT DEFINED HAVE_GCC_SYNC_FUNCTIONS)
         check_c_source_compiles("int main(int argc, char **argv) {
             int a;
@@ -369,14 +369,14 @@ if (CMAKE_COMPILER_IS_GNUCC)
             __sync_sub_and_fetch(&a, 1);
             __sync_fetch_and_sub(&a, 1); }" HAVE_GCC_SYNC_FUNCTIONS)
     endif()
- 
+
     if (HAVE_GCC_SYNC_FUNCTIONS)
         message(STATUS "GCC synchronization functions detected")
     else()
         message(STATUS "GCC synchronization functions NOT detected, fallback to non threadsafe reference counting")
         add_definitions(-DCVF_USE_NON_THREADSAFE_REFERENCE_COUNT)
     endif()
- 
+
 endif()
 
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibCore)
@@ -393,7 +393,7 @@ list(APPEND VIZ_FWK_LIBRARIES
     LibCore
 )
 
-set_property(TARGET  
+set_property(TARGET
     ${VIZ_FWK_LIBRARIES}
 	PROPERTY FOLDER "VizFwk"
 )
@@ -433,7 +433,7 @@ list(APPEND APP_FWK_LIBRARIES
     cafPdmUiCore
     cafPdmXml
     cafProjectDataModel
-    
+
     cafUserInterface
     cafViewer
     cafAnimControl
@@ -446,7 +446,7 @@ list(APPEND APP_FWK_LIBRARIES
     cafPdmScripting
 )
 
-set_property(TARGET  
+set_property(TARGET
     ${APP_FWK_LIBRARIES}
 	cafHexInterpolator
 	PROPERTY FOLDER "AppFwk"
@@ -488,30 +488,30 @@ mark_as_advanced(FORCE RESINSIGHT_PRIVATE_INSTALL)
 
 if (RESINSIGHT_PRIVATE_INSTALL)
     set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
-    
+
     ################################################################################
     # ERT shared library files
     # Install procedure will copy so-files from ERT into same install folder as ResInsight
     ################################################################################
-    
+
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         set(ERT_SHARED_LIB_FILES
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.4
         )
-      
+
       install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
     endif()
-    
+
 endif (RESINSIGHT_PRIVATE_INSTALL)
 
 if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	  foreach (FILE_TO_COPY ${HDF5_LIBRARIES})
-        
+
         # find all files containing the string "hdf"
-	    STRING( FIND ${FILE_TO_COPY} "hdf5" POS_IN_STRING ) 
+	    STRING( FIND ${FILE_TO_COPY} "hdf5" POS_IN_STRING )
 	    if(${POS_IN_STRING} GREATER -1)
             get_filename_component(ABS_DIR ${FILE_TO_COPY} REALPATH)
   		    message (STATUS "HDF5 bundle file - ${ABS_DIR}")
@@ -520,24 +520,24 @@ if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
             get_filename_component(FILE_NAME_WE ${FILE_TO_COPY} NAME_WE)
             set(FILE_NAME_FOR_INSTALL "${FILE_NAME_WE}.so.6")
   		    message (STATUS "HDF5 file FILE_NAME_FOR_INSTALL  - ${FILE_NAME_FOR_INSTALL}")
-      
+
             install(FILES ${ABS_DIR} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} RENAME ${FILE_NAME_FOR_INSTALL} )
 		endif()
 	  endforeach()
-      
+
     endif()
-    
+
 endif (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 
 
 ################################################################################
-# Application 
+# Application
 ################################################################################
 add_subdirectory(ApplicationCode)
 
 if (OCTAVE_MKOCTFILE)
   message (STATUS "Adding OctavePlugin library")
-  
+
   add_subdirectory(OctavePlugin)
 else (OCTAVE_MKOCTFILE)
   message (STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library")
@@ -550,17 +550,16 @@ option(RESINSIGHT_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API 
 if(RESINSIGHT_BUILD_DOCUMENTATION)
   FIND_PACKAGE(Doxygen)
   if (NOT DOXYGEN_FOUND)
-    message(FATAL_ERROR 
+    message(FATAL_ERROR
       "Doxygen is needed to build the documentation. Please install it correctly")
   endif()
   #-- Configure the Template Doxyfile for our specific project
-  configure_file(Doxyfile.in 
+  configure_file(Doxyfile.in
                  ${PROJECT_BINARY_DIR}/Doxyfile  @ONLY IMMEDIATE)
   #-- Add a custom target to run Doxygen when ever the project is built
-  add_custom_target (Docs 
+  add_custom_target (Docs
   					COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
   					SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
   # IF you do NOT want the documentation to be generated EVERY time you build the project
   # then leave out the 'ALL' keyword from the above command.
 endif(RESINSIGHT_BUILD_DOCUMENTATION)
-
