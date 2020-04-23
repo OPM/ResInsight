@@ -546,7 +546,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
                 if ( view != nullptr )
                 {
                     view->faultCollection()->showFaultCollection = false;
-                    view->cellResult()->setResultType( RiaDefines::FLOW_DIAGNOSTICS );
+                    view->cellResult()->setResultType( RiaDefines::ResultCatType::FLOW_DIAGNOSTICS );
                     view->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FLOW_TR_BY_SELECTION );
                     view->cellResult()->setSelectedTracers( m_selectedTracerNames );
 

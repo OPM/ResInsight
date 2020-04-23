@@ -400,7 +400,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
                 if ( m_resultDefinition->hasCategoryResult() )
                 {
-                    if ( m_resultDefinition->resultType() == RiaDefines::FORMATION_NAMES )
+                    if ( m_resultDefinition->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                     {
                         CVF_ASSERT( parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData() );
 

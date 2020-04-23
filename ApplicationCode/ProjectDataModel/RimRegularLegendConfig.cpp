@@ -983,7 +983,7 @@ QList<caf::PdmOptionItemInfo>
             isCategoryResult = true;
         }
 
-        if ( eclCellColors && eclCellColors->resultType() == RiaDefines::ALLEN_DIAGRAMS )
+        if ( eclCellColors && eclCellColors->resultType() == RiaDefines::ResultCatType::ALLEN_DIAGRAMS )
         {
             isAllenDiagram = true;
         }

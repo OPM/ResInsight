@@ -116,9 +116,10 @@ std::pair<RigEclipseResultAddress, QString>
         for ( const auto& pressureDataName : PRESSURE_DATA_NAMES )
         {
             if ( eclipseCaseData->results( RiaDefines::MATRIX_MODEL )
-                     ->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, pressureDataName ) ) )
+                     ->hasResultEntry(
+                         RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, pressureDataName ) ) )
             {
-                return std::make_pair( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, pressureDataName ),
+                return std::make_pair( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, pressureDataName ),
                                        pressureDataName );
             }
         }
@@ -233,7 +234,7 @@ bool RimWellPlotTools::hasFlowData( RimEclipseResultCase* gridCase )
     for ( const QString& channelName : FLOW_DATA_NAMES )
     {
         if ( eclipseCaseData->results( RiaDefines::MATRIX_MODEL )
-                 ->hasResultEntry( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, channelName ) ) )
+                 ->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, channelName ) ) )
         {
             return true;
         }

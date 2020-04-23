@@ -269,7 +269,7 @@ grpc::Status RiaGrpcNNCPropertiesService::GetAvailableNNCProperties( grpc::Serve
 //--------------------------------------------------------------------------------------------------
 static bool scalarResultExistsOrCreate( RigCaseCellResultsData* results, QString propertyName )
 {
-    RigEclipseResultAddress resAddr( RiaDefines::GENERATED, propertyName );
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, propertyName );
 
     if ( !results->ensureKnownResultLoaded( resAddr ) )
     {

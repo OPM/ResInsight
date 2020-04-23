@@ -322,7 +322,8 @@ QString Rim3dWellLogExtractionCurve::createAutoName() const
 
         if ( eclipseCase )
         {
-            addTimeStep = addTimeStep && m_eclipseResultDefinition->resultType() != RiaDefines::STATIC_NATIVE;
+            addTimeStep = addTimeStep &&
+                          m_eclipseResultDefinition->resultType() != RiaDefines::ResultCatType::STATIC_NATIVE;
             RigEclipseCaseData* data = eclipseCase->eclipseCaseData();
             if ( data )
             {
@@ -533,7 +534,7 @@ QString Rim3dWellLogExtractionCurve::wellDate() const
 
     if ( eclipseCase )
     {
-        if ( m_eclipseResultDefinition->resultType() == RiaDefines::STATIC_NATIVE )
+        if ( m_eclipseResultDefinition->resultType() == RiaDefines::ResultCatType::STATIC_NATIVE )
         {
             return QString();
         }

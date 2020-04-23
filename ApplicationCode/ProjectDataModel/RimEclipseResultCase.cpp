@@ -330,9 +330,9 @@ void RimEclipseResultCase::loadAndUpdateSourSimData()
             RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( view );
             if ( eclipseView != nullptr )
             {
-                if ( eclipseView->cellResult()->resultType() == RiaDefines::SOURSIMRL )
+                if ( eclipseView->cellResult()->resultType() == RiaDefines::ResultCatType::SOURSIMRL )
                 {
-                    eclipseView->cellResult()->setResultType( RiaDefines::DYNAMIC_NATIVE );
+                    eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
                     eclipseView->cellResult()->setResultVariable( "SOIL" );
                     eclipseView->loadDataAndUpdate();
                 }

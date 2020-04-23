@@ -25,14 +25,14 @@ class RigEclipseResultAddress
 {
 public:
     RigEclipseResultAddress()
-        : m_resultCatType( RiaDefines::UNDEFINED )
+        : m_resultCatType( RiaDefines::ResultCatType::UNDEFINED )
         , m_timeLapseBaseFrameIdx( NO_TIME_LAPSE )
         , m_differenceCaseId( NO_CASE_DIFF )
     {
     }
 
     explicit RigEclipseResultAddress( const QString& resultName )
-        : m_resultCatType( RiaDefines::UNDEFINED )
+        : m_resultCatType( RiaDefines::ResultCatType::UNDEFINED )
         , m_resultName( resultName )
         , m_timeLapseBaseFrameIdx( NO_TIME_LAPSE )
         , m_differenceCaseId( NO_CASE_DIFF )

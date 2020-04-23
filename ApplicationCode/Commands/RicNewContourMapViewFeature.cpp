@@ -235,7 +235,7 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
 
     // Set default values
     {
-        contourMap->cellResult()->setResultType( RiaDefines::DYNAMIC_NATIVE );
+        contourMap->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
 
         if ( RiaApplication::instance()->preferences()->loadAndShowSoil )
         {

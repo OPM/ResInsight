@@ -567,7 +567,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
     // If load action is specified to recalculate statistics, do it now.
     // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will
     // be clamped
-    if ( loadAction & int( ProjectLoadAction::PLA_CALCULATE_STATISTICS ) )
+    if ( loadAction == ProjectLoadAction::PLA_CALCULATE_STATISTICS )
     {
         for ( size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++ )
         {

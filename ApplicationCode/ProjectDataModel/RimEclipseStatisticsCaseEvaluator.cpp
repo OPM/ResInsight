@@ -172,7 +172,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                 size_t dataAccessTimeStepIndex = timeStepIdx;
 
                 // Always evaluate statistics once, and always use time step index zero
-                if ( resultType == RiaDefines::STATIC_NATIVE )
+                if ( resultType == RiaDefines::ResultCatType::STATIC_NATIVE )
                 {
                     if ( timeIndicesIdx > 0 ) continue;
 

@@ -562,16 +562,22 @@ void RigFlowDiagSolverInterface::assignPhaseCorrecedPORV( RigFlowDiagResultAddre
     switch ( phaseSelection )
     {
         case RigFlowDiagResultAddress::PHASE_OIL:
-            phaseSaturation =
-                eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SOIL", timeStepIdx );
+            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
+                                                             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                             "SOIL",
+                                                             timeStepIdx );
             break;
         case RigFlowDiagResultAddress::PHASE_GAS:
-            phaseSaturation =
-                eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SGAS", timeStepIdx );
+            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
+                                                             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                             "SGAS",
+                                                             timeStepIdx );
             break;
         case RigFlowDiagResultAddress::PHASE_WAT:
-            phaseSaturation =
-                eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, "SWAT", timeStepIdx );
+            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
+                                                             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                             "SWAT",
+                                                             timeStepIdx );
             break;
         default:
             m_opmFlowDiagStaticData->m_fldToolbox->assignPoreVolume( m_opmFlowDiagStaticData->m_poreVolume );

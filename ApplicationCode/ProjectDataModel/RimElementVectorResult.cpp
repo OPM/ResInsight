@@ -355,15 +355,18 @@ RigEclipseResultAddress RimElementVectorResult::resultAddressCombined() const
 {
     if ( resultName() == "Oil" )
     {
-        return RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName() );
+        return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                        RiaDefines::combinedOilFluxResultName() );
     }
     else if ( resultName() == "Gas" )
     {
-        return RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName() );
+        return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                        RiaDefines::combinedGasFluxResultName() );
     }
     else if ( resultName() == "Water" )
     {
-        return RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName() );
+        return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                        RiaDefines::combinedWaterFluxResultName() );
     }
 
     return RigEclipseResultAddress();
@@ -379,23 +382,23 @@ bool RimElementVectorResult::resultAddressIJK( std::vector<RigEclipseResultAddre
     // TODO: use enum??
     if ( resultName() == "Oil" )
     {
-        addresses.push_back( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLROILI+" ) );
-        addresses.push_back( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLROILJ+" ) );
-        addresses.push_back( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLROILK+" ) );
+        addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILI+" ) );
+        addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILJ+" ) );
+        addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLROILK+" ) );
         return true;
     }
     else if ( resultName() == "Gas" )
     {
-        addresses.push_back( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRGASI+" ) );
-        addresses.push_back( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRGASJ+" ) );
-        addresses.push_back( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRGASK+" ) );
+        addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASI+" ) );
+        addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASJ+" ) );
+        addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRGASK+" ) );
         return true;
     }
     else if ( resultName() == "Water" )
     {
-        addresses.push_back( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRWATI+" ) );
-        addresses.push_back( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+" ) );
-        addresses.push_back( RigEclipseResultAddress( RiaDefines::DYNAMIC_NATIVE, "FLRWATK+" ) );
+        addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATI+" ) );
+        addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATJ+" ) );
+        addresses.push_back( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATK+" ) );
         return true;
     }
 

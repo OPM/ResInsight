@@ -61,7 +61,7 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
     CVF_ASSERT( flowDiagResults );
 
     const std::vector<double>* porvResults =
-        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::STATIC_NATIVE, "PORV", 0 );
+        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::ResultCatType::STATIC_NATIVE, "PORV", 0 );
     if ( !porvResults )
     {
         return;
@@ -74,8 +74,10 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
         phaseResultName = "SOIL";
     else if ( phase == RiaDefines::GAS_PHASE )
         phaseResultName = "SGAS";
-    const std::vector<double>* phaseResults =
-        eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE, phaseResultName, timeStepIndex );
+    const std::vector<double>* phaseResults = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
+                                                                             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                             phaseResultName,
+                                                                             timeStepIndex );
     if ( !phaseResults )
     {
         return;

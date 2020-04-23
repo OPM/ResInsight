@@ -164,7 +164,7 @@ void RimGridCrossPlotDataSet::setCellFilterView( RimGridView* cellFilterView )
         {
             m_xAxisProperty->setResultType( resAddr.m_resultCatType );
             m_xAxisProperty->setResultVariable( resAddr.m_resultName );
-            m_yAxisProperty->setResultType( RiaDefines::STATIC_NATIVE );
+            m_yAxisProperty->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_yAxisProperty->setResultVariable( "DEPTH" );
             m_timeStep = eclipseView->currentTimeStep();
             m_grouping = NO_GROUPING;
@@ -1183,11 +1183,11 @@ void RimGridCrossPlotDataSet::configureForPressureSaturationCurves( RimEclipseRe
     m_case = eclipseCase;
 
     m_xAxisProperty->setEclipseCase( eclipseCase );
-    m_xAxisProperty->setResultType( RiaDefines::DYNAMIC_NATIVE );
+    m_xAxisProperty->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
     m_xAxisProperty->setResultVariable( dynamicResultName );
 
     m_yAxisProperty->setEclipseCase( eclipseCase );
-    m_yAxisProperty->setResultType( RiaDefines::STATIC_NATIVE );
+    m_yAxisProperty->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
     m_yAxisProperty->setResultVariable( "DEPTH" );
 
     m_grouping = NO_GROUPING;
@@ -1298,10 +1298,10 @@ void RimGridCrossPlotDataSet::setDefaults()
             m_yAxisProperty->setEclipseCase( eclipseCase );
             m_groupingProperty->setEclipseCase( eclipseCase );
 
-            m_xAxisProperty->setResultType( RiaDefines::STATIC_NATIVE );
+            m_xAxisProperty->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_xAxisProperty->setResultVariable( "PORO" );
 
-            m_yAxisProperty->setResultType( RiaDefines::STATIC_NATIVE );
+            m_yAxisProperty->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_yAxisProperty->setResultVariable( "PERMX" );
 
             m_grouping = NO_GROUPING;

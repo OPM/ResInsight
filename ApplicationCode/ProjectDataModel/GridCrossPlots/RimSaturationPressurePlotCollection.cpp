@@ -67,7 +67,7 @@ std::vector<RimSaturationPressurePlot*>
 
     std::set<int> eqlnumRegionIdsFound;
     {
-        RigEclipseResultAddress resAdr( RiaDefines::STATIC_NATIVE, RiaDefines::eqlnumResultName() );
+        RigEclipseResultAddress resAdr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::eqlnumResultName() );
         if ( results->hasResultEntry( resAdr ) )
         {
             results->ensureKnownResultLoaded( resAdr );

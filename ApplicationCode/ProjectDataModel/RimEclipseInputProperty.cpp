@@ -94,7 +94,7 @@ void RimEclipseInputProperty::fieldChangedByUi( const caf::PdmFieldHandle* chang
             RigCaseCellResultsData* matrixResults = rimCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL );
             if ( matrixResults )
             {
-                if ( matrixResults->updateResultName( RiaDefines::INPUT_PROPERTY, oldName, newName ) )
+                if ( matrixResults->updateResultName( RiaDefines::ResultCatType::INPUT_PROPERTY, oldName, newName ) )
                 {
                     anyNameUpdated = true;
                 }
@@ -103,7 +103,7 @@ void RimEclipseInputProperty::fieldChangedByUi( const caf::PdmFieldHandle* chang
             RigCaseCellResultsData* fracResults = rimCase->eclipseCaseData()->results( RiaDefines::FRACTURE_MODEL );
             if ( fracResults )
             {
-                if ( fracResults->updateResultName( RiaDefines::INPUT_PROPERTY, oldName, newName ) )
+                if ( fracResults->updateResultName( RiaDefines::ResultCatType::INPUT_PROPERTY, oldName, newName ) )
                 {
                     anyNameUpdated = true;
                 }
