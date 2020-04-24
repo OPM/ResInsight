@@ -98,7 +98,8 @@ caf::PdmScriptResponse RicfExportProperty::execute()
     QString filePath = m_exportFileName;
     if ( filePath.isNull() )
     {
-        QDir propertiesDir( RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::PROPERTIES ) );
+        QDir propertiesDir(
+            RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::PROPERTIES ) );
         QString fileName = QString( "%1-%2" ).arg( eclipseCase->caseUserDescription() ).arg( m_propertyName );
         fileName         = caf::Utils::makeValidFileBasename( fileName );
         filePath         = propertiesDir.filePath( fileName );

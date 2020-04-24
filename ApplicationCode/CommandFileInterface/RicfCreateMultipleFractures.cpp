@@ -47,10 +47,10 @@ namespace caf
 template <>
 void AppEnum<MultipleFractures::Action>::setUp()
 {
-    addItem( MultipleFractures::APPEND_FRACTURES, "APPEND_FRACTURES", "Append Fractures" );
-    addItem( MultipleFractures::REPLACE_FRACTURES, "REPLACE_FRACTURES", "Replace Fractures" );
+    addItem( MultipleFractures::Action::APPEND_FRACTURES, "APPEND_FRACTURES", "Append Fractures" );
+    addItem( MultipleFractures::Action::REPLACE_FRACTURES, "REPLACE_FRACTURES", "Replace Fractures" );
 
-    setDefault( MultipleFractures::NONE );
+    setDefault( MultipleFractures::Action::NONE );
 }
 } // namespace caf
 
@@ -69,7 +69,7 @@ RicfCreateMultipleFractures::RicfCreateMultipleFractures()
     CAF_PDM_InitScriptableFieldWithIO( &m_spacing, "spacing", 300.0, "Spacing", "", "", "" );
     CAF_PDM_InitScriptableFieldWithIO( &m_action,
                                        "action",
-                                       caf::AppEnum<MultipleFractures::Action>( MultipleFractures::APPEND_FRACTURES ),
+                                       caf::AppEnum<MultipleFractures::Action>( MultipleFractures::Action::APPEND_FRACTURES ),
                                        "Action",
                                        "",
                                        "",
@@ -161,8 +161,8 @@ caf::PdmScriptResponse RicfCreateMultipleFractures::execute()
 
     if ( feature )
     {
-        if ( m_action == MultipleFractures::APPEND_FRACTURES ) feature->appendFractures();
-        if ( m_action == MultipleFractures::REPLACE_FRACTURES ) feature->replaceFractures();
+        if ( m_action == MultipleFractures::Action::APPEND_FRACTURES ) feature->appendFractures();
+        if ( m_action == MultipleFractures::Action::REPLACE_FRACTURES ) feature->replaceFractures();
     }
     return caf::PdmScriptResponse();
 }

@@ -48,10 +48,10 @@ void RicfExportSnapshots::PreferredOutputFormatEnum::setUp()
 template <>
 void RicfExportSnapshots::SnapshotsTypeEnum::setUp()
 {
-    addItem( RicfExportSnapshots::ALL, "ALL", "All" );
-    addItem( RicfExportSnapshots::VIEWS, "VIEWS", "Views" );
-    addItem( RicfExportSnapshots::PLOTS, "PLOTS", "Plots" );
-    setDefault( RicfExportSnapshots::ALL );
+    addItem( RicfExportSnapshots::SnapshotsType::ALL, "ALL", "All" );
+    addItem( RicfExportSnapshots::SnapshotsType::VIEWS, "VIEWS", "Views" );
+    addItem( RicfExportSnapshots::SnapshotsType::PLOTS, "PLOTS", "Plots" );
+    setDefault( RicfExportSnapshots::SnapshotsType::ALL );
 }
 } // namespace caf
 
@@ -86,7 +86,7 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
     RiaGuiApplication::instance()->processEvents();
 
     QString absolutePathToSnapshotDir =
-        RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::SNAPSHOTS );
+        RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::SNAPSHOTS );
 
     if ( !m_exportFolder().isEmpty() )
     {
@@ -97,7 +97,7 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
         absolutePathToSnapshotDir =
             RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "snapshots" );
     }
-    if ( m_type == RicfExportSnapshots::VIEWS || m_type == RicfExportSnapshots::ALL )
+    if ( m_type == RicfExportSnapshots::SnapshotsType::VIEWS || m_type == RicfExportSnapshots::SnapshotsType::ALL )
     {
         if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
         {
@@ -111,7 +111,7 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
                                                                            m_caseId(),
                                                                            m_viewId() );
     }
-    if ( m_type == RicfExportSnapshots::PLOTS || m_type == RicfExportSnapshots::ALL )
+    if ( m_type == RicfExportSnapshots::SnapshotsType::PLOTS || m_type == RicfExportSnapshots::SnapshotsType::ALL )
     {
         if ( RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
         {

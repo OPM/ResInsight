@@ -42,7 +42,7 @@ public:
     };
     typedef caf::AppEnum<PlotOutputFormat> PreferredOutputFormatEnum;
 
-    enum SnapshotsType
+    enum class SnapshotsType
     {
         VIEWS,
         PLOTS,
