@@ -75,9 +75,9 @@ std::vector<RimSaturationPressurePlot*>
             return plots;
         }
 
-        if ( eclipseCaseData && eclipseCaseData->results( RiaDefines::MATRIX_MODEL ) )
+        if ( eclipseCaseData && eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
         {
-            RigCaseCellResultsData* resultData = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
+            RigCaseCellResultsData* resultData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
             if ( !resultData->hasResultEntry(
                      RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) ) )

@@ -160,7 +160,8 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
                 eclipseResultCase->flowDiagSolverInterface()->calculateRelPermCurves( activeCellIndex );
 
             // Make sure we load the results that we'll query below
-            RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
+            RigCaseCellResultsData* cellResultsData =
+                eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
             cellResultsData->ensureKnownResultLoaded(
                 RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" ) );
             cellResultsData->ensureKnownResultLoaded(
@@ -172,21 +173,21 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
             cvf::ref<RigResultAccessor> swatAccessor =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                    gridIndex,
-                                                                   RiaDefines::MATRIX_MODEL,
+                                                                   RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                    timeStepIndex,
                                                                    RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                             "SWAT" ) );
             cvf::ref<RigResultAccessor> sgasAccessor =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                    gridIndex,
-                                                                   RiaDefines::MATRIX_MODEL,
+                                                                   RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                    timeStepIndex,
                                                                    RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                                             "SGAS" ) );
             cvf::ref<RigResultAccessor> satnumAccessor =
                 RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                    gridIndex,
-                                                                   RiaDefines::MATRIX_MODEL,
+                                                                   RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                    timeStepIndex,
                                                                    RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                             "SATNUM" ) );
@@ -312,7 +313,8 @@ size_t CellLookupHelper::mapToActiveCellIndex( const RigEclipseCaseData* eclipse
     {
         // Note!!
         // Which type of porosity model to choose? Currently hard-code to MATRIX_MODEL
-        const RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::MATRIX_MODEL );
+        const RigActiveCellInfo* activeCellInfo =
+            eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
         CVF_ASSERT( activeCellInfo );
 

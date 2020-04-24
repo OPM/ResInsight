@@ -179,7 +179,7 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
     {
         if ( !cellColors->isTernarySaturationSelected() )
         {
-            RigCaseCellResultsData* resultData = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+            RigCaseCellResultsData* resultData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
             std::vector<double>     gridResultValues;
             if ( isColumnResult() )
             {
@@ -260,7 +260,7 @@ void RimEclipseContourMapProjection::clearResultVariable()
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( ResultAggregation resultAggregation ) const
 {
-    const RigCaseCellResultsData* resultData = eclipseCase()->results( RiaDefines::MATRIX_MODEL );
+    const RigCaseCellResultsData* resultData = eclipseCase()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     bool                          hasPoroResult =
         resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
     bool hasNtgResult =
@@ -476,7 +476,8 @@ double RimEclipseContourMapProjection::getParameterWeightForCell( size_t        
 //--------------------------------------------------------------------------------------------------
 size_t RimEclipseContourMapProjection::gridResultIndex( size_t globalCellIdx ) const
 {
-    const RigActiveCellInfo* activeCellInfo = eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
+    const RigActiveCellInfo* activeCellInfo =
+        eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     return activeCellInfo->cellResultIndex( globalCellIdx );
 }
 

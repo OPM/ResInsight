@@ -48,7 +48,7 @@ bool RicEclipseCellResultToFileImpl::writePropertyToTextFile( const QString&    
     cvf::ref<RigResultAccessor> resultAccessor =
         RigResultAccessorFactory::createFromResultAddress( eclipseCase,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            timeStep,
                                                            RigEclipseResultAddress( resultName ) );
     if ( resultAccessor.isNull() )

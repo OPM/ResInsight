@@ -202,7 +202,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RigEclipseCaseData* rigCaseData = mainCase->eclipseCaseData();
     CVF_ASSERT( rigCaseData );
 
-    RiaDefines::PorosityModelType poroModel = RiaDefines::MATRIX_MODEL;
+    RiaDefines::PorosityModelType poroModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
     mainCase->results( poroModel )->createPlaceholderResultEntries();
 
     // Action A : Read active cell info
@@ -234,8 +234,8 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         RimEclipseCase* rimReservoir = statisticsCaseCollection()->reservoirs[i];
 
         // Check if any results are stored in cache
-        if ( rimReservoir->resultsStorage( RiaDefines::MATRIX_MODEL )->storedResultsCount() > 0 ||
-             rimReservoir->resultsStorage( RiaDefines::FRACTURE_MODEL )->storedResultsCount() > 0 )
+        if ( rimReservoir->resultsStorage( RiaDefines::PorosityModelType::MATRIX_MODEL )->storedResultsCount() > 0 ||
+             rimReservoir->resultsStorage( RiaDefines::PorosityModelType::FRACTURE_MODEL )->storedResultsCount() > 0 )
         {
             foundResultsInCache = true;
             break;
@@ -308,7 +308,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
                 {
                     if ( caseCollection->reservoirs[caseIdx]
                              ->eclipseCaseData()
-                             ->activeCellInfo( RiaDefines::MATRIX_MODEL )
+                             ->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )
                              ->isActive( reservoirCellIndex ) )
                     {
                         activeM[gridLocalCellIndex] = 1;
@@ -319,7 +319,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
                 {
                     if ( caseCollection->reservoirs[caseIdx]
                              ->eclipseCaseData()
-                             ->activeCellInfo( RiaDefines::FRACTURE_MODEL )
+                             ->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )
                              ->isActive( reservoirCellIndex ) )
                     {
                         activeF[gridLocalCellIndex] = 1;
@@ -405,13 +405,13 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
         if ( !rimStaticsCase ) continue;
 
-        if ( rimStaticsCase->results( RiaDefines::MATRIX_MODEL ) )
+        if ( rimStaticsCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
         {
-            rimStaticsCase->results( RiaDefines::MATRIX_MODEL )->clearAllResults();
+            rimStaticsCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->clearAllResults();
         }
-        if ( rimStaticsCase->results( RiaDefines::FRACTURE_MODEL ) )
+        if ( rimStaticsCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL ) )
         {
-            rimStaticsCase->results( RiaDefines::FRACTURE_MODEL )->clearAllResults();
+            rimStaticsCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->clearAllResults();
         }
 
         for ( size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++ )
@@ -457,7 +457,7 @@ bool RimIdenticalGridCaseGroup::contains( RimEclipseCase* reservoir ) const
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells( RiaDefines::PorosityModelType porosityType )
 {
-    if ( porosityType == RiaDefines::MATRIX_MODEL )
+    if ( porosityType == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
         return m_unionOfMatrixActiveCells.p();
     }

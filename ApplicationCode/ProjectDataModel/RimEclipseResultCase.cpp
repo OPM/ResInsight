@@ -190,8 +190,8 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         readerInterface = readerEclipseOutput;
     }
 
-    results( RiaDefines::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
-    results( RiaDefines::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
+    results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
+    results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
 
     progInfo.incrementProgress();
 
@@ -231,11 +231,11 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
     RiaApplication* app = RiaApplication::instance();
     if ( app->preferences()->autocomputeDepthRelatedProperties )
     {
-        results( RiaDefines::MATRIX_MODEL )->computeDepthRelatedResults();
-        results( RiaDefines::FRACTURE_MODEL )->computeDepthRelatedResults();
+        results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeDepthRelatedResults();
+        results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDepthRelatedResults();
     }
 
-    results( RiaDefines::MATRIX_MODEL )->computeCellVolumes();
+    results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
 
     return true;
 }
@@ -288,7 +288,8 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
         CVF_ASSERT( mainEclipseCase && mainEclipseCase->mainGrid() );
         eclipseCase->setMainGrid( mainEclipseCase->mainGrid() );
 
-        std::vector<QDateTime> timeStepDates = mainEclipseCase->results( RiaDefines::MATRIX_MODEL )->timeStepDates();
+        std::vector<QDateTime> timeStepDates =
+            mainEclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
         if ( !readerEclipseOutput->openAndReadActiveCellData( gridFileName(), timeStepDates, eclipseCase.p() ) )
         {
@@ -300,8 +301,8 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
         readerInterface = readerEclipseOutput;
     }
 
-    results( RiaDefines::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
-    results( RiaDefines::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
+    results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setReaderInterface( readerInterface.p() );
+    results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->setReaderInterface( readerInterface.p() );
 
     CVF_ASSERT( this->eclipseCaseData() );
     CVF_ASSERT( readerInterface.notNull() );
@@ -318,9 +319,9 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::loadAndUpdateSourSimData()
 {
-    if ( !results( RiaDefines::MATRIX_MODEL ) ) return;
+    if ( !results( RiaDefines::PorosityModelType::MATRIX_MODEL ) ) return;
 
-    results( RiaDefines::MATRIX_MODEL )->setHdf5Filename( m_sourSimFileName().path() );
+    results( RiaDefines::PorosityModelType::MATRIX_MODEL )->setHdf5Filename( m_sourSimFileName().path() );
 
     if ( !hasSourSimFile() )
     {
@@ -612,8 +613,8 @@ void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     group->add( &m_flipXAxis );
     group->add( &m_flipYAxis );
 
-    if ( eclipseCaseData() && eclipseCaseData()->results( RiaDefines::MATRIX_MODEL ) &&
-         eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->maxTimeStepCount() > 0 )
+    if ( eclipseCaseData() && eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
+         eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount() > 0 )
     {
         auto group1 = uiOrdering.addNewGroup( "Time Step Filter" );
         group1->setCollapsedByDefault( true );

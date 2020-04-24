@@ -1163,7 +1163,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
     }
 
     const RigActiveCellInfo* activeCellInfo =
-        settings.caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
+        settings.caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     if ( wellPath->perforationIntervalCollection()->isChecked() )
     {
@@ -1285,30 +1285,30 @@ CellDirection RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirec
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DX" ) );
     cvf::ref<RigResultAccessor> dxAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "DX" ) );
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DY" ) );
     cvf::ref<RigResultAccessor> dyAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "DY" ) );
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
     cvf::ref<RigResultAccessor> dzAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "DZ" ) );
@@ -1347,58 +1347,58 @@ TransmissibilityData
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DX" ) );
     cvf::ref<RigResultAccessor> dxAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "DX" ) );
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DY" ) );
     cvf::ref<RigResultAccessor> dyAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "DY" ) );
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
     cvf::ref<RigResultAccessor> dzAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "DZ" ) );
 
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMX" ) );
     cvf::ref<RigResultAccessor> permxAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "PERMX" ) );
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMY" ) );
     cvf::ref<RigResultAccessor> permyAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "PERMY" ) );
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMZ" ) );
     cvf::ref<RigResultAccessor> permzAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "PERMZ" ) );
@@ -1412,13 +1412,13 @@ TransmissibilityData
     double ntg = 1.0;
     {
         // Trigger loading from file
-        eclipseCase->results( RiaDefines::MATRIX_MODEL )
+        eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
             ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
 
         cvf::ref<RigResultAccessor> ntgAccessObject =
             RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                0,
-                                                               RiaDefines::MATRIX_MODEL,
+                                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                0,
                                                                RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                         "NTG" ) );
@@ -1504,12 +1504,12 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor( RimEclipseC
 
     double porosity = 0.0;
     {
-        eclipseCase->results( RiaDefines::MATRIX_MODEL )
+        eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
             ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
         cvf::ref<RigResultAccessor> poroAccessObject =
             RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                0,
-                                                               RiaDefines::MATRIX_MODEL,
+                                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                0,
                                                                RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                         "PORO" ) );
@@ -1548,70 +1548,70 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DX" ) );
     cvf::ref<RigResultAccessor> dxAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "DX" ) );
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DY" ) );
     cvf::ref<RigResultAccessor> dyAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "DY" ) );
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
     cvf::ref<RigResultAccessor> dzAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "DZ" ) );
 
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMX" ) );
     cvf::ref<RigResultAccessor> permxAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "PERMX" ) );
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMY" ) );
     cvf::ref<RigResultAccessor> permyAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "PERMY" ) );
-    eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
         ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PERMZ" ) );
     cvf::ref<RigResultAccessor> permzAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
-                                                           RiaDefines::MATRIX_MODEL,
+                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                     "PERMZ" ) );
 
     double ntg = 1.0;
-    if ( eclipseCase->results( RiaDefines::MATRIX_MODEL )
+    if ( eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
              ->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) ) )
     {
         cvf::ref<RigResultAccessor> ntgAccessObject =
             RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                0,
-                                                               RiaDefines::MATRIX_MODEL,
+                                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                0,
                                                                RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                         "NTG" ) );
@@ -1674,12 +1674,12 @@ std::pair<double, cvf::Vec2i>
                                                                                  const RimWellPath*    wellPath,
                                                                                  const QString&        gridName )
 {
-    const RigEclipseCaseData*      caseData         = gridCase->eclipseCaseData();
-    const RigMainGrid*             mainGrid         = caseData->mainGrid();
-    const RigActiveCellInfo*       activeCellInfo   = caseData->activeCellInfo( RiaDefines::MATRIX_MODEL );
-    const RigWellPath*             wellPathGeometry = wellPath->wellPathGeometry();
-    const std::vector<cvf::Vec3d>& coords           = wellPathGeometry->wellPathPoints();
-    const std::vector<double>&     mds              = wellPathGeometry->measureDepths();
+    const RigEclipseCaseData* caseData       = gridCase->eclipseCaseData();
+    const RigMainGrid*        mainGrid       = caseData->mainGrid();
+    const RigActiveCellInfo*  activeCellInfo = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    const RigWellPath*        wellPathGeometry = wellPath->wellPathGeometry();
+    const std::vector<cvf::Vec3d>& coords      = wellPathGeometry->wellPathPoints();
+    const std::vector<double>&     mds         = wellPathGeometry->measureDepths();
     CVF_ASSERT( !coords.empty() && !mds.empty() );
 
     std::vector<WellPathCellIntersectionInfo> intersections =

@@ -72,7 +72,7 @@ std::pair<cvf::Vec3st, cvf::Vec3st> RicCreateMultipleFracturesFeature::ijkRangeF
     cvf::Vec3st maxIJK;
     if ( gridCase && gridCase->eclipseCaseData() )
     {
-        gridCase->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL )->IJKBoundingBox( minIJK, maxIJK );
+        gridCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->IJKBoundingBox( minIJK, maxIJK );
         return std::make_pair( minIJK, maxIJK );
     }
     return std::make_pair( cvf::Vec3st(), cvf::Vec3st() );

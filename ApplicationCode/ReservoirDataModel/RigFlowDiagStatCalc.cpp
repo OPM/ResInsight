@@ -118,7 +118,7 @@ void RigFlowDiagStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, double
     m_resultsData->flowDiagSolution()->firstAncestorOrThisOfType( eclCase );
     if ( !eclCase ) return;
 
-    RigCaseCellResultsData* caseCellResultsData = eclCase->results( RiaDefines::MATRIX_MODEL );
+    RigCaseCellResultsData* caseCellResultsData = eclCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigEclipseResultAddress mobPoreVolResAddr( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                RiaDefines::mobilePoreVolumeName() );
 

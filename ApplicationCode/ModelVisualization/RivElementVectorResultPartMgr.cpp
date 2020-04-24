@@ -126,8 +126,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
         resultAddresses.push_back( addresses[2] );
     }
 
-    RigCaseCellResultsData* resultsData    = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
-    RigActiveCellInfo*      activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::MATRIX_MODEL );
+    RigCaseCellResultsData* resultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     const cvf::Vec3d offset = eclipseCase->mainGrid()->displayModelOffset();
 

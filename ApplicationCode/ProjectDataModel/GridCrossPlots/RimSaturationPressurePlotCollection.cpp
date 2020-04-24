@@ -63,7 +63,7 @@ std::vector<RimSaturationPressurePlot*>
     RigEclipseCaseData* eclipseCaseData = eclipseResultCase->eclipseCaseData();
     if ( !eclipseCaseData ) return generatedPlots;
 
-    auto results = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
+    auto results = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     std::set<int> eqlnumRegionIdsFound;
     {
@@ -93,7 +93,7 @@ std::vector<RimSaturationPressurePlot*>
 
             // As discussed with Liv Merete, it is not any use for creation of different plots for matrix/fracture. For
             // now, use hardcoded value for MATRIX
-            plot->assignCaseAndEquilibriumRegion( RiaDefines::MATRIX_MODEL,
+            plot->assignCaseAndEquilibriumRegion( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                   eclipseResultCase,
                                                   zeroBasedEquilibriumRegion,
                                                   timeStep );

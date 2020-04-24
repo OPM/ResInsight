@@ -211,7 +211,8 @@ void RifEclipseInputPropertyLoader::readInputPropertiesForRemainingKeywords( Rim
 {
     for ( const QString& fileKeyword : *fileKeywordSet )
     {
-        QString resultName = eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->makeResultNameUnique( fileKeyword );
+        QString resultName =
+            eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->makeResultNameUnique( fileKeyword );
         if ( RifEclipseInputFileTools::readProperty( filename, eclipseCaseData, fileKeyword, resultName ) )
         {
             RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;

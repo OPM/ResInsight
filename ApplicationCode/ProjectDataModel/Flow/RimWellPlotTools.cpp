@@ -115,7 +115,7 @@ std::pair<RigEclipseResultAddress, QString>
     {
         for ( const auto& pressureDataName : PRESSURE_DATA_NAMES )
         {
-            if ( eclipseCaseData->results( RiaDefines::MATRIX_MODEL )
+            if ( eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                      ->hasResultEntry(
                          RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, pressureDataName ) ) )
             {
@@ -233,7 +233,7 @@ bool RimWellPlotTools::hasFlowData( RimEclipseResultCase* gridCase )
 
     for ( const QString& channelName : FLOW_DATA_NAMES )
     {
-        if ( eclipseCaseData->results( RiaDefines::MATRIX_MODEL )
+        if ( eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                  ->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, channelName ) ) )
         {
             return true;
@@ -502,7 +502,7 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::timeStep
     if ( resultDataInfo.first.isValid() )
     {
         for ( const QDateTime& timeStep :
-              eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->timeStepDates( resultDataInfo.first ) )
+              eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates( resultDataInfo.first ) )
         {
             if ( timeStepsMap.count( timeStep ) == 0 )
             {
@@ -556,8 +556,9 @@ std::set<QDateTime> RimWellPlotTools::availableSimWellTimesteps( RimEclipseCase*
 {
     std::set<QDateTime> availebleTimeSteps;
 
-    std::vector<QDateTime> allTimeSteps = eclCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->timeStepDates();
-    const RigSimWellData* simWell       = eclCase->eclipseCaseData()->findSimWellData( simWellName );
+    std::vector<QDateTime> allTimeSteps =
+        eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
+    const RigSimWellData* simWell = eclCase->eclipseCaseData()->findSimWellData( simWellName );
 
     for ( size_t tsIdx = 0; tsIdx < allTimeSteps.size(); ++tsIdx )
     {

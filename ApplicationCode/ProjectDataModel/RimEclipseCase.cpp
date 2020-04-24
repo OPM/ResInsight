@@ -608,7 +608,8 @@ void RimEclipseCase::computeCachedData()
 
         {
             auto task = pInf.task( "Calculating faults", 17 );
-            rigEclipseCase->mainGrid()->calculateFaults( rigEclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL ) );
+            rigEclipseCase->mainGrid()->calculateFaults(
+                rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
         }
 
         {
@@ -697,8 +698,9 @@ void RimEclipseCase::setReservoirData( RigEclipseCaseData* eclipseCase )
     m_rigEclipseCase = eclipseCase;
     if ( this->eclipseCaseData() )
     {
-        m_fractureModelResults()->setCellResults( eclipseCaseData()->results( RiaDefines::FRACTURE_MODEL ) );
-        m_matrixModelResults()->setCellResults( eclipseCaseData()->results( RiaDefines::MATRIX_MODEL ) );
+        m_fractureModelResults()->setCellResults(
+            eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL ) );
+        m_matrixModelResults()->setCellResults( eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
     }
     else
     {
@@ -730,9 +732,9 @@ cvf::BoundingBox RimEclipseCase::reservoirBoundingBox()
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimEclipseCase::activeCellsBoundingBox() const
 {
-    if ( m_rigEclipseCase.notNull() && m_rigEclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL ) )
+    if ( m_rigEclipseCase.notNull() && m_rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
     {
-        return m_rigEclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL )->geometryBoundingBox();
+        return m_rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->geometryBoundingBox();
     }
     else
     {
@@ -801,7 +803,7 @@ const RigCaseCellResultsData* RimEclipseCase::results( RiaDefines::PorosityModel
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage* RimEclipseCase::resultsStorage( RiaDefines::PorosityModelType porosityModel )
 {
-    if ( porosityModel == RiaDefines::MATRIX_MODEL )
+    if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
         return m_matrixModelResults();
     }
@@ -814,7 +816,7 @@ RimReservoirCellResultsStorage* RimEclipseCase::resultsStorage( RiaDefines::Poro
 //--------------------------------------------------------------------------------------------------
 const RimReservoirCellResultsStorage* RimEclipseCase::resultsStorage( RiaDefines::PorosityModelType porosityModel ) const
 {
-    if ( porosityModel == RiaDefines::MATRIX_MODEL )
+    if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
         return m_matrixModelResults();
     }
@@ -885,7 +887,7 @@ bool RimEclipseCase::openReserviorCase()
     if ( createPlaceholderEntries )
     {
         {
-            RigCaseCellResultsData* results = this->results( RiaDefines::MATRIX_MODEL );
+            RigCaseCellResultsData* results = this->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
             if ( results )
             {
                 results->createPlaceholderResultEntries();
@@ -927,7 +929,7 @@ bool RimEclipseCase::openReserviorCase()
         }
 
         {
-            RigCaseCellResultsData* results = this->results( RiaDefines::FRACTURE_MODEL );
+            RigCaseCellResultsData* results = this->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
             if ( results )
             {
                 results->createPlaceholderResultEntries();
@@ -989,7 +991,7 @@ QStringList RimEclipseCase::timeStepStrings() const
 {
     QStringList stringList;
 
-    const RigCaseCellResultsData* cellResultData = results( RiaDefines::MATRIX_MODEL );
+    const RigCaseCellResultsData* cellResultData = results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( cellResultData )
     {
         int timeStepCount = static_cast<int>( cellResultData->maxTimeStepCount() );
@@ -1055,9 +1057,9 @@ std::set<QString> RimEclipseCase::sortedSimWellNames() const
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimEclipseCase::timeStepDates() const
 {
-    if ( results( RiaDefines::MATRIX_MODEL ) )
+    if ( results( RiaDefines::PorosityModelType::MATRIX_MODEL ) )
     {
-        return results( RiaDefines::MATRIX_MODEL )->timeStepDates();
+        return results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
     }
     return std::vector<QDateTime>();
 }

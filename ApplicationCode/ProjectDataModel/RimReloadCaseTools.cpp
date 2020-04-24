@@ -95,13 +95,14 @@ void RimReloadCaseTools::clearAllGridData( RigEclipseCaseData* eclipseCaseData )
 {
     if ( !eclipseCaseData ) return;
 
-    RigCaseCellResultsData* matrixModelResults = eclipseCaseData->results( RiaDefines::MATRIX_MODEL );
+    RigCaseCellResultsData* matrixModelResults = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( matrixModelResults )
     {
         matrixModelResults->clearAllResults();
     }
 
-    RigCaseCellResultsData* fractureModelResults = eclipseCaseData->results( RiaDefines::FRACTURE_MODEL );
+    RigCaseCellResultsData* fractureModelResults =
+        eclipseCaseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
     if ( fractureModelResults )
     {
         fractureModelResults->clearAllResults();

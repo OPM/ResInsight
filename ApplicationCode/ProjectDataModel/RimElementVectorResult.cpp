@@ -194,7 +194,7 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
 
     RimEclipseView*         eclipseView = dynamic_cast<RimEclipseView*>( view );
     RigCaseCellResultsData* resultsData =
-        eclipseView->eclipseCase()->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL );
+        eclipseView->eclipseCase()->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     resultsData->ensureKnownResultLoaded( resVarAddr );
 

@@ -610,7 +610,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                 // Time step
 
                 std::vector<QDateTime> timeSteps =
-                    gridCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->timeStepDates();
+                    gridCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
                 int currentTimeStepIndex = -1;
                 for ( size_t tsIdx = 0; tsIdx < timeSteps.size(); ++tsIdx )
                 {

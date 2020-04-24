@@ -98,7 +98,7 @@ std::vector<RigCompletionData>
     findFishboneImportedLateralsWellBoreParts( wellBorePartsInCells, wellPath, settings );
 
     const RigActiveCellInfo* activeCellInfo =
-        settings.caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
+        settings.caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     for ( const auto& cellAndWellBoreParts : wellBorePartsInCells )
     {

@@ -316,7 +316,7 @@ public:
         , m_bytesPerTimeStepToRead( 0 )
         , m_currentTimeStepNumberToRead( 0 )
         , m_invalidConnectionCountDetected( false )
-        , m_porosityModelEnum( RiaDefines::MATRIX_MODEL )
+        , m_porosityModelEnum( RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
     }
 

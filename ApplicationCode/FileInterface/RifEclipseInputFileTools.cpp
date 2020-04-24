@@ -272,7 +272,7 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
         return false;
     }
 
-    const RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL );
+    const RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     CVF_ASSERT( activeCellInfo );
 
@@ -446,7 +446,7 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
     {
         return false;
     }
-    RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+    RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigActiveCellInfo*      activeCells     = cellResultsData->activeCellInfo();
     RigMainGrid*            mainGrid        = eclipseCase->mainGrid();
 
@@ -802,7 +802,7 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties( const QStri
         if ( eclipseKeywordData )
         {
             QString newResultName =
-                caseData->results( RiaDefines::MATRIX_MODEL )->makeResultNameUnique( fileKeywords[i].keyword );
+                caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->makeResultNameUnique( fileKeywords[i].keyword );
             QString errMsg;
             if ( readDataFromKeyword( eclipseKeywordData, caseData, newResultName, &errMsg ) )
             {
@@ -896,10 +896,12 @@ bool RifEclipseInputFileTools::readDataFromKeyword( ecl_kw_type*        eclipseK
 
             scalarValueCount = caseData->mainGrid()->globalCellArray().size();
         }
-        else if ( keywordItemCount == caseData->activeCellInfo( RiaDefines::MATRIX_MODEL )->reservoirActiveCellCount() )
+        else if ( keywordItemCount ==
+                  caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount() )
         {
             mathingItemCount = true;
-            scalarValueCount = caseData->activeCellInfo( RiaDefines::MATRIX_MODEL )->reservoirActiveCellCount();
+            scalarValueCount =
+                caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount();
         }
 
         if ( !mathingItemCount )
@@ -911,9 +913,10 @@ bool RifEclipseInputFileTools::readDataFromKeyword( ecl_kw_type*        eclipseK
     }
 
     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
-    caseData->results( RiaDefines::MATRIX_MODEL )->createResultEntry( resAddr, false );
+    caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
 
-    auto newPropertyData = caseData->results( RiaDefines::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
+    auto newPropertyData =
+        caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
 
     newPropertyData->push_back( std::vector<double>() );
     newPropertyData->at( 0 ).resize( scalarValueCount, HUGE_VAL );

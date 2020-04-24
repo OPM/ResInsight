@@ -166,7 +166,7 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
         for ( QString keyword : mainKeywords() )
         {
             if ( caseData &&
-                 caseData->results( RiaDefines::MATRIX_MODEL )
+                 caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                      ->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, keyword ) ) )
             {
                 selectedKeywords.v().push_back( keyword );
@@ -179,7 +179,7 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
         for ( QString keyword : selectedKeywords() )
         {
             if ( caseData &&
-                 caseData->results( RiaDefines::MATRIX_MODEL )
+                 caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                      ->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, keyword ) ) )
             {
                 validSelectedKeywords.push_back( keyword );
@@ -439,7 +439,7 @@ QList<caf::PdmOptionItemInfo>
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &selectedKeywords )
     {
-        RigCaseCellResultsData*       resultData = m_caseData->results( RiaDefines::MATRIX_MODEL );
+        RigCaseCellResultsData*       resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
         QList<caf::PdmOptionItemInfo> allOptions =
             RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                                resultData );
@@ -561,7 +561,7 @@ void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
     if ( exportGridBox == ACTIVE_CELLS_BOX )
     {
         cvf::Vec3st minActive, maxActive;
-        m_caseData->activeCellInfo( RiaDefines::MATRIX_MODEL )->IJKBoundingBox( minActive, maxActive );
+        m_caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->IJKBoundingBox( minActive, maxActive );
         setMin( cvf::Vec3i( minActive ) );
         setMax( cvf::Vec3i( maxActive ) );
     }
@@ -604,7 +604,7 @@ void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
 //--------------------------------------------------------------------------------------------------
 void RicExportEclipseSectorModelUi::removeInvalidKeywords()
 {
-    RigCaseCellResultsData* resultData = m_caseData->results( RiaDefines::MATRIX_MODEL );
+    RigCaseCellResultsData* resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     std::vector<QString> validKeywords;
     for ( QString keyword : selectedKeywords() )

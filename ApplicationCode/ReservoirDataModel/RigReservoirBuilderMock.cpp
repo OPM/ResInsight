@@ -261,7 +261,7 @@ void RigReservoirBuilderMock::populateReservoir( RigEclipseCaseData* eclipseCase
     addFaults( eclipseCase );
 
     // Set all cells active
-    RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL );
+    RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     activeCellInfo->setReservoirCellCount( eclipseCase->mainGrid()->globalCellArray().size() );
     for ( size_t i = 0; i < eclipseCase->mainGrid()->globalCellArray().size(); i++ )
     {
