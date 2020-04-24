@@ -469,9 +469,9 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                     {
                         for ( RimEclipseCase* eclCase : gridCasesToPlotFrom )
                         {
-                            if ( !( eclCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL ) &&
+                            if ( !( eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
                                     eclCase->eclipseCaseData()
-                                        ->results( RiaDefines::MATRIX_MODEL )
+                                        ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                         ->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                             {
                                 RiaLogging::warning( "Could not find a restart result property with name: \"" +
@@ -525,9 +525,9 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                         std::vector<RimGridTimeHistoryCurve*> createdCurves;
                         for ( RimEclipseCase* eclCase : gridCasesToPlotFrom )
                         {
-                            if ( !( eclCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL ) &&
+                            if ( !( eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
                                     eclCase->eclipseCaseData()
-                                        ->results( RiaDefines::MATRIX_MODEL )
+                                        ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                         ->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                             {
                                 RiaLogging::warning( "Could not find a restart result property with name: \"" +

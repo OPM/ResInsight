@@ -438,7 +438,9 @@ grpc::Status RiaGrpcCaseService::GetDaysSinceStart( grpc::ServerContext*     con
         RigEclipseResultAddress addrToMaxTimeStepCountResult;
         if ( eclipseCase && eclipseCase->eclipseCaseData() )
         {
-            eclipseCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->maxTimeStepCount( &addrToMaxTimeStepCountResult );
+            eclipseCase->eclipseCaseData()
+                ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                ->maxTimeStepCount( &addrToMaxTimeStepCountResult );
             if ( !addrToMaxTimeStepCountResult.isValid() )
             {
                 return grpc::Status( grpc::NOT_FOUND, "Invalid result. No time steps found." );
@@ -446,7 +448,7 @@ grpc::Status RiaGrpcCaseService::GetDaysSinceStart( grpc::ServerContext*     con
         }
 
         std::vector<double> daysSinceSimulationStart = eclipseCase->eclipseCaseData()
-                                                           ->results( RiaDefines::MATRIX_MODEL )
+                                                           ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                                            ->daysSinceSimulationStart( addrToMaxTimeStepCountResult );
 
         for ( auto days : daysSinceSimulationStart )

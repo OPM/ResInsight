@@ -345,7 +345,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
                     for ( RimEclipseCase* eclCase : gridCasesToPlotFrom )
                     {
                         RigCaseCellResultsData* gridCellResults =
-                            eclCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL );
+                            eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
                         if ( !( gridCellResults && gridCellResults->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                         {
                             RiaLogging::warning( "Could not find a restart result property with name: \"" +

@@ -148,7 +148,7 @@ std::vector<RigCompletionData>
         return fractureCompletions;
     }
 
-    auto cellResultsData = caseToApply->results( RiaDefines::MATRIX_MODEL );
+    auto cellResultsData = caseToApply->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     if ( !cellResultsData )
     {
         return fractureCompletions;
@@ -191,7 +191,7 @@ std::vector<RigCompletionData>
 
     if ( pdParams.performScaling )
     {
-        RigCaseCellResultsData* results = caseToApply->results( RiaDefines::MATRIX_MODEL );
+        RigCaseCellResultsData* results = caseToApply->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
         results->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) );
     }
 
@@ -226,8 +226,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     double cDarcyInCorrectUnit  = RiaEclipseUnitTools::darcysConstant( caseToApply->eclipseCaseData()->unitsType() );
     const RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
 
-    const RigCaseCellResultsData* results = caseToApply->results( RiaDefines::MATRIX_MODEL );
-    const RigActiveCellInfo* actCellInfo  = caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
+    const RigCaseCellResultsData* results = caseToApply->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    const RigActiveCellInfo*      actCellInfo =
+        caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     bool performPressureDepletionScaling = pdParams.performScaling;
 

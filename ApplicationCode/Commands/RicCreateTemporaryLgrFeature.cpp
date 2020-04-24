@@ -83,9 +83,10 @@ void RicCreateTemporaryLgrFeature::createLgrsForWellPaths( std::vector<RimWellPa
                                                            const std::set<RigCompletionData::CompletionType>& completionTypes,
                                                            QStringList* wellsIntersectingOtherLgrs )
 {
-    auto               eclipseCaseData        = eclipseCase->eclipseCaseData();
-    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::MATRIX_MODEL );
-    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::FRACTURE_MODEL );
+    auto               eclipseCaseData = eclipseCase->eclipseCaseData();
+    RigActiveCellInfo* activeCellInfo  = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* fractureActiveCellInfo =
+        eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
     auto lgrs = RicExportLgrFeature::buildLgrsForWellPaths( wellPaths,
                                                             eclipseCase,
@@ -302,13 +303,14 @@ void RicCreateTemporaryLgrFeature::deleteAllCachedData( RimEclipseCase* eclipseC
 {
     if ( eclipseCase )
     {
-        RigCaseCellResultsData* cellResultsDataMatrix = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+        RigCaseCellResultsData* cellResultsDataMatrix = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
         if ( cellResultsDataMatrix )
         {
             cellResultsDataMatrix->freeAllocatedResultsData();
         }
 
-        RigCaseCellResultsData* cellResultsDataFracture = eclipseCase->results( RiaDefines::FRACTURE_MODEL );
+        RigCaseCellResultsData* cellResultsDataFracture =
+            eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
         if ( cellResultsDataFracture )
         {
             cellResultsDataFracture->freeAllocatedResultsData();
@@ -330,8 +332,9 @@ void RicCreateTemporaryLgrFeature::computeCachedData( RimEclipseCase* eclipseCas
 {
     if ( eclipseCase )
     {
-        RigCaseCellResultsData* cellResultsDataMatrix   = eclipseCase->results( RiaDefines::MATRIX_MODEL );
-        RigCaseCellResultsData* cellResultsDataFracture = eclipseCase->results( RiaDefines::FRACTURE_MODEL );
+        RigCaseCellResultsData* cellResultsDataMatrix = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        RigCaseCellResultsData* cellResultsDataFracture =
+            eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
         RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
         if ( eclipseCaseData )

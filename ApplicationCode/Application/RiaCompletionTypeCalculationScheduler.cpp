@@ -85,7 +85,7 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
         if ( eclipseCase->eclipseCaseData() )
         {
             eclipseCase->eclipseCaseData()
-                ->results( RiaDefines::MATRIX_MODEL )
+                ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                 ->clearScalarResult( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName() );
 
             // Delete virtual perforation transmissibilities, as these are the basis for the computation of completion type

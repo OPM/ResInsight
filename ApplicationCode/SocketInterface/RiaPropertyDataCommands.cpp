@@ -63,10 +63,10 @@ public:
         QString propertyName      = args[2];
         QString porosityModelName = args[3];
 
-        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::MATRIX_MODEL;
+        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::PorosityModelType::MATRIX_MODEL;
         if ( porosityModelName == "Fracture" )
         {
-            porosityModelEnum = RiaDefines::FRACTURE_MODEL;
+            porosityModelEnum = RiaDefines::PorosityModelType::FRACTURE_MODEL;
         }
 
         // Find the requested data
@@ -242,10 +242,10 @@ public:
             return true;
         }
 
-        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::MATRIX_MODEL;
+        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::PorosityModelType::MATRIX_MODEL;
         if ( porosityModelName == "Fracture" )
         {
-            porosityModelEnum = RiaDefines::FRACTURE_MODEL;
+            porosityModelEnum = RiaDefines::PorosityModelType::FRACTURE_MODEL;
         }
 
         bool isResultsLoaded = false;
@@ -403,7 +403,7 @@ public:
         , m_bytesPerTimeStepToRead( 0 )
         , m_currentTimeStepNumberToRead( 0 )
         , m_invalidActiveCellCountDetected( false )
-        , m_porosityModelEnum( RiaDefines::MATRIX_MODEL )
+        , m_porosityModelEnum( RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
     }
 
@@ -418,7 +418,7 @@ public:
 
         if ( porosityModelName == "Fracture" )
         {
-            m_porosityModelEnum = RiaDefines::FRACTURE_MODEL;
+            m_porosityModelEnum = RiaDefines::PorosityModelType::FRACTURE_MODEL;
         }
 
         // Find the requested data, Or create a set if we are setting data and it is not found
@@ -770,7 +770,7 @@ public:
         , m_bytesPerTimeStepToRead( 0 )
         , m_currentTimeStepNumberToRead( 0 )
         , m_invalidDataDetected( false )
-        , m_porosityModelEnum( RiaDefines::MATRIX_MODEL )
+        , m_porosityModelEnum( RiaDefines::PorosityModelType::MATRIX_MODEL )
     {
     }
 
@@ -794,7 +794,7 @@ public:
 
         if ( porosityModelName == "Fracture" )
         {
-            m_porosityModelEnum = RiaDefines::FRACTURE_MODEL;
+            m_porosityModelEnum = RiaDefines::PorosityModelType::FRACTURE_MODEL;
         }
 
         RigGridBase* grid = rimCase->eclipseCaseData()->grid( m_currentGridIndex );
@@ -1165,11 +1165,11 @@ public:
         }
 
         QString                       porosityModelName = args[2];
-        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::MATRIX_MODEL;
+        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
         if ( porosityModelName == "Fracture" )
         {
-            porosityModelEnum = RiaDefines::FRACTURE_MODEL;
+            porosityModelEnum = RiaDefines::PorosityModelType::FRACTURE_MODEL;
         }
 
         std::vector<QString> propNames;
@@ -1246,14 +1246,14 @@ public:
 
         QString propertyName = args[2];
 
-        RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
+        RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
         if ( args.size() > 1 )
         {
             QString prorosityModelString = args[3];
             if ( prorosityModelString.toUpper() == "FRACTURE" )
             {
-                porosityModel = RiaDefines::FRACTURE_MODEL;
+                porosityModel = RiaDefines::PorosityModelType::FRACTURE_MODEL;
             }
         }
 

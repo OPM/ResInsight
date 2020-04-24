@@ -926,8 +926,9 @@ RicMswExportInfo
                                                                          const RimWellPath* wellPath,
                                                                          const std::vector<RimWellPathFracture*>& fractures )
 {
-    const RigMainGrid*       grid           = caseToApply->eclipseCaseData()->mainGrid();
-    const RigActiveCellInfo* activeCellInfo = caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
+    const RigMainGrid*       grid = caseToApply->eclipseCaseData()->mainGrid();
+    const RigActiveCellInfo* activeCellInfo =
+        caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RiaEclipseUnitTools::UnitSystem unitSystem = caseToApply->eclipseCaseData()->unitsType();
 
     const RigWellPath*             wellPathGeometry = wellPath->wellPathGeometry();
@@ -1087,10 +1088,11 @@ std::vector<SubSegmentIntersectionInfo>
                                                               const RimWellPath*    wellPath,
                                                               double&               initialMD )
 {
-    const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
-    const RigWellPath*       wellPathGeometry = wellPath->wellPathGeometry();
-    const std::vector<cvf::Vec3d>& coords     = wellPathGeometry->wellPathPoints();
-    const std::vector<double>&     mds        = wellPathGeometry->measureDepths();
+    const RigActiveCellInfo* activeCellInfo =
+        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    const RigWellPath*             wellPathGeometry = wellPath->wellPathGeometry();
+    const std::vector<cvf::Vec3d>& coords           = wellPathGeometry->wellPathPoints();
+    const std::vector<double>&     mds              = wellPathGeometry->measureDepths();
     CVF_ASSERT( !coords.empty() && !mds.empty() );
 
     std::vector<WellPathCellIntersectionInfo> intersections =
@@ -1718,7 +1720,8 @@ std::vector<RigCompletionData>
                                                                            RimEclipseCase*               eclipseCase )
 {
     std::vector<RigCompletionData> completionData;
-    const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
+    const RigActiveCellInfo*       activeCellInfo =
+        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     if ( wellPath->perforationIntervalCollection()->isChecked() && perforationInterval->isChecked() &&
          perforationInterval->isActiveOnDate( eclipseCase->timeStepDates()[timeStep] ) )

@@ -591,11 +591,11 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
 
             size_t mxActCellCount = eclipseView->eclipseCase()
                                         ->eclipseCaseData()
-                                        ->activeCellInfo( RiaDefines::MATRIX_MODEL )
+                                        ->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                         ->reservoirActiveCellCount();
             size_t frActCellCount = eclipseView->eclipseCase()
                                         ->eclipseCaseData()
-                                        ->activeCellInfo( RiaDefines::FRACTURE_MODEL )
+                                        ->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )
                                         ->reservoirActiveCellCount();
 
             QString activeCellCountText;

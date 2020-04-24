@@ -79,7 +79,7 @@ void RiaMemoryCleanup::clearSelectedResultsFromMemory()
     RimGeoMechCase* geoMechCase = dynamic_cast<RimGeoMechCase*>( m_case() );
     if ( eclipseCase )
     {
-        RigCaseCellResultsData* caseData = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+        RigCaseCellResultsData* caseData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
         if ( caseData )
         {
             std::vector<RigEclipseResultAddress> resultsToDelete = selectedEclipseResults();
@@ -240,7 +240,7 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf
         if ( eclipseCase )
         {
             std::set<RigEclipseResultAddress> resultsInUse = findEclipseResultsInUse();
-            RigCaseCellResultsData*           caseData     = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+            RigCaseCellResultsData* caseData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
             if ( caseData )
             {
                 m_eclipseResultAddresses = caseData->existingResults();

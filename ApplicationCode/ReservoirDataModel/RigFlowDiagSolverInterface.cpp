@@ -231,8 +231,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 {
     using namespace Opm::FlowDiagnostics;
 
-    RigFlowDiagTimeStepResult result(
-        m_eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL )->reservoirActiveCellCount() );
+    RigFlowDiagTimeStepResult result( m_eclipseCase->eclipseCaseData()
+                                          ->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                          ->reservoirActiveCellCount() );
 
     caf::ProgressInfo progressInfo( 8, "Calculating Flow Diagnostics" );
 
@@ -282,7 +283,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
             size_t restartFileCount = static_cast<size_t>( restartFileNames.size() );
             size_t maxTimeStepCount =
-                m_eclipseCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->maxTimeStepCount();
+                m_eclipseCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount();
 
             if ( restartFileCount <= timeStepIndex && restartFileCount != maxTimeStepCount )
             {
@@ -329,10 +330,12 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
     CVF_ASSERT( currentRestartData );
 
     RigEclipseResultAddress addrToMaxTimeStepCountResult;
-    m_eclipseCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->maxTimeStepCount( &addrToMaxTimeStepCountResult );
+    m_eclipseCase->eclipseCaseData()
+        ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+        ->maxTimeStepCount( &addrToMaxTimeStepCountResult );
 
     int reportStepNumber = m_eclipseCase->eclipseCaseData()
-                               ->results( RiaDefines::MATRIX_MODEL )
+                               ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                ->reportStepNumber( addrToMaxTimeStepCountResult, timeStepIndex );
 
     if ( !currentRestartData->selectReportStep( reportStepNumber ) )
@@ -349,7 +352,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
     try
     {
-        if ( m_eclipseCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->hasFlowDiagUsableFluxes() )
+        if ( m_eclipseCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->hasFlowDiagUsableFluxes() )
         {
             Opm::FlowDiagnostics::ConnectionValues connectionsVals =
                 RigFlowDiagInterfaceTools::extractFluxFieldFromRestartFile( *( m_opmFlowDiagStaticData->m_eclGraph ),
@@ -528,7 +531,7 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
                 return false;
             }
 
-            auto fileReader = eclipseCaseData->results( RiaDefines::MATRIX_MODEL )->readerInterface();
+            auto fileReader = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->readerInterface();
             auto eclOutput  = dynamic_cast<const RifReaderEclipseOutput*>( fileReader );
             if ( eclOutput )
             {
@@ -562,19 +565,19 @@ void RigFlowDiagSolverInterface::assignPhaseCorrecedPORV( RigFlowDiagResultAddre
     switch ( phaseSelection )
     {
         case RigFlowDiagResultAddress::PHASE_OIL:
-            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
+            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                              "SOIL",
                                                              timeStepIdx );
             break;
         case RigFlowDiagResultAddress::PHASE_GAS:
-            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
+            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                              "SGAS",
                                                              timeStepIdx );
             break;
         case RigFlowDiagResultAddress::PHASE_WAT:
-            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::MATRIX_MODEL,
+            phaseSaturation = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                              "SWAT",
                                                              timeStepIdx );

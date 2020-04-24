@@ -33,7 +33,7 @@ bool RifReaderMockModel::open( const QString& fileName, RigEclipseCaseData* ecli
 
     m_reservoir = eclipseCase;
 
-    RigCaseCellResultsData* cellResults = eclipseCase->results( RiaDefines::MATRIX_MODEL );
+    RigCaseCellResultsData* cellResults = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
     std::vector<RigEclipseTimeStepInfo> timeStepInfos;
     {

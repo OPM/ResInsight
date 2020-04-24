@@ -84,7 +84,8 @@ const RigActiveCellInfo* RigFlowDiagResults::activeCellInfo( const RigFlowDiagRe
     RimEclipseResultCase* eclCase;
     m_flowDiagSolution->firstAncestorOrThisOfType( eclCase );
 
-    return eclCase->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL ); // Todo: base on resVarAddr member
+    return eclCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ); // Todo: base on
+                                                                                                      // resVarAddr member
 }
 
 //--------------------------------------------------------------------------------------------------

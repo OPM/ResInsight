@@ -758,7 +758,7 @@ std::map<int, cvf::UByteArray> RimGridCrossPlotDataSet::calculateCellVisibility(
         RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
         if ( eclipseCaseData )
         {
-            RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
+            RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
             RigCaseCellResultsData* cellResultsData = eclipseCaseData->results( porosityModel );
             if ( cellResultsData )

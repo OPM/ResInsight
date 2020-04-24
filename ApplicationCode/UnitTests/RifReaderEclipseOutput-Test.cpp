@@ -58,7 +58,7 @@ TEST( RigReservoirTest, BasicTest10k )
     cvf::ref<RigEclipseCaseData>          reservoir = new RigEclipseCaseData( resultCase.get() );
 
     {
-        RigCaseCellResultsData* cellData = reservoir->results( MATRIX_MODEL );
+        RigCaseCellResultsData* cellData = reservoir->results( PorosityModelType::MATRIX_MODEL );
 
         QStringList staticResults = cellData->resultNames( ResultCatType::STATIC_NATIVE );
         EXPECT_EQ( 0, staticResults.size() );
@@ -81,7 +81,7 @@ TEST( RigReservoirTest, BasicTest10k )
     }
 
     {
-        RigCaseCellResultsData* cellData = reservoir->results( MATRIX_MODEL );
+        RigCaseCellResultsData* cellData = reservoir->results( PorosityModelType::MATRIX_MODEL );
 
         QStringList staticResults = cellData->resultNames( ResultCatType::STATIC_NATIVE );
         EXPECT_EQ( 44, staticResults.size() );

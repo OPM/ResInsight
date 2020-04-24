@@ -23,7 +23,7 @@
 //--------------------------------------------------------------------------------------------------
 namespace RiaDefines
 {
-enum PorosityModelType
+enum class PorosityModelType
 {
     MATRIX_MODEL,
     FRACTURE_MODEL

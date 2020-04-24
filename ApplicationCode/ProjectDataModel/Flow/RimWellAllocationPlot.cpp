@@ -262,7 +262,8 @@ void RimWellAllocationPlot::updateFromWell()
             ( simWellData->wellProductionType( m_timeStep ) == RigWellResultFrame::PRODUCER ||
               simWellData->wellProductionType( m_timeStep ) == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE );
         RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
-                                               m_case->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL ) );
+                                               m_case->eclipseCaseData()->activeCellInfo(
+                                                   RiaDefines::PorosityModelType::MATRIX_MODEL ) );
         wfCalculator.reset( new RigAccWellFlowCalculator( pipeBranchesCLCoords,
                                                           pipeBranchesCellIds,
                                                           tracerFractionCellValues,

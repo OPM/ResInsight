@@ -402,7 +402,7 @@ public:
         // Find timestep index from qdatetime
 
         const std::vector<QDateTime> timeSteps =
-            eclCase->eclipseCaseData()->results( RiaDefines::MATRIX_MODEL )->timeStepDates();
+            eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
         size_t tsIdx = timeSteps.size();
         for ( tsIdx = 0; tsIdx < timeSteps.size(); ++tsIdx )
         {

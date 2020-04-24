@@ -76,7 +76,8 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand( RimEclipseView*    
     std::vector<double> values;
     cvf::UByteArray     visibleCells;
     view->calculateCurrentTotalCellVisibility( &visibleCells, view->currentTimeStep() );
-    RigActiveCellInfo* activeCellInfo = view->eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::MATRIX_MODEL );
+    RigActiveCellInfo* activeCellInfo =
+        view->eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     values.resize( visibleCells.size() );
     for ( size_t i = 0; i < visibleCells.size(); ++i )
     {

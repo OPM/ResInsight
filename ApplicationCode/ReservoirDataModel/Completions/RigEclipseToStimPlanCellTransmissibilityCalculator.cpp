@@ -150,7 +150,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
     const RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
 
-    RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
+    RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
     cvf::ref<RigResultAccessor> dataAccessObjectDx = createResultAccessor( m_case, "DX" );
     cvf::ref<RigResultAccessor> dataAccessObjectDy = createResultAccessor( m_case, "DY" );
@@ -380,7 +380,7 @@ cvf::ref<RigResultAccessor>
     RigEclipseToStimPlanCellTransmissibilityCalculator::createResultAccessor( const RimEclipseCase* eclipseCase,
                                                                               const QString&        uiResultName )
 {
-    RiaDefines::PorosityModelType porosityModel   = RiaDefines::MATRIX_MODEL;
+    RiaDefines::PorosityModelType porosityModel   = RiaDefines::PorosityModelType::MATRIX_MODEL;
     const RigEclipseCaseData*     eclipseCaseData = eclipseCase->eclipseCaseData();
 
     // Create result accessor object for main grid at time step zero (static result date is always at first time step
