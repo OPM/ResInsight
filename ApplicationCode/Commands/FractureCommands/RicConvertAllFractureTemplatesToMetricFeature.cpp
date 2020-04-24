@@ -61,7 +61,7 @@ void RicConvertAllFractureTemplatesToMetricFeature::onActionTriggered( bool isCh
 
     for ( auto ellipseFracTemplate : ellipseFracTemplates )
     {
-        if ( ellipseFracTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD )
+        if ( ellipseFracTemplate->fractureTemplateUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
         {
             ellipseFracTemplate->changeUnits();
 

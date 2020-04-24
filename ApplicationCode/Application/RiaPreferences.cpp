@@ -45,19 +45,19 @@ namespace caf
 template <>
 void RiaPreferences::SummaryRestartFilesImportModeType::setUp()
 {
-    addItem( RiaPreferences::IMPORT, "IMPORT", "Unified" );
-    addItem( RiaPreferences::SEPARATE_CASES, "SEPARATE_CASES", "Separate Cases" );
-    addItem( RiaPreferences::NOT_IMPORT, "NOT_IMPORT", "Skip" );
-    setDefault( RiaPreferences::IMPORT );
+    addItem( RiaPreferences::SummaryRestartFilesImportMode::IMPORT, "IMPORT", "Unified" );
+    addItem( RiaPreferences::SummaryRestartFilesImportMode::SEPARATE_CASES, "SEPARATE_CASES", "Separate Cases" );
+    addItem( RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT, "NOT_IMPORT", "Skip" );
+    setDefault( RiaPreferences::SummaryRestartFilesImportMode::IMPORT );
 }
 
 template <>
 void RiaPreferences::SummaryHistoryCurveStyleModeType::setUp()
 {
-    addItem( RiaPreferences::SYMBOLS, "SYMBOLS", "Symbols" );
-    addItem( RiaPreferences::LINES, "LINES", "Lines" );
-    addItem( RiaPreferences::SYMBOLS_AND_LINES, "SYMBOLS_AND_LINES", "Symbols and Lines" );
-    setDefault( RiaPreferences::SYMBOLS );
+    addItem( RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS, "SYMBOLS", "Symbols" );
+    addItem( RiaPreferences::SummaryHistoryCurveStyleMode::LINES, "LINES", "Lines" );
+    addItem( RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES, "SYMBOLS_AND_LINES", "Symbols and Lines" );
+    setDefault( RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS );
 }
 
 template <>
@@ -258,21 +258,21 @@ RiaPreferences::RiaPreferences( void )
                                 "" );
     CAF_PDM_InitField( &summaryImportMode,
                        "summaryImportMode",
-                       SummaryRestartFilesImportModeType( RiaPreferences::IMPORT ),
+                       SummaryRestartFilesImportModeType( RiaPreferences::SummaryRestartFilesImportMode::IMPORT ),
                        "Default Summary Import Option",
                        "",
                        "",
                        "" );
     CAF_PDM_InitField( &gridImportMode,
                        "gridImportMode",
-                       SummaryRestartFilesImportModeType( RiaPreferences::NOT_IMPORT ),
+                       SummaryRestartFilesImportModeType( RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT ),
                        "Default Grid Import Option",
                        "",
                        "",
                        "" );
     CAF_PDM_InitField( &summaryEnsembleImportMode,
                        "summaryEnsembleImportMode",
-                       SummaryRestartFilesImportModeType( RiaPreferences::IMPORT ),
+                       SummaryRestartFilesImportModeType( RiaPreferences::SummaryRestartFilesImportMode::IMPORT ),
                        "Default Ensemble Summary Import Option",
                        "",
                        "",
@@ -280,7 +280,7 @@ RiaPreferences::RiaPreferences( void )
 
     CAF_PDM_InitField( &defaultSummaryHistoryCurveStyle,
                        "defaultSummaryHistoryCurveStyle",
-                       SummaryHistoryCurveStyleModeType( RiaPreferences::SYMBOLS ),
+                       SummaryHistoryCurveStyleModeType( RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS ),
                        "Default Curve Style for History Vectors",
                        "",
                        "",
@@ -613,20 +613,24 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
     if ( fieldNeedingOptions == &gridImportMode )
     {
         // Manual option handling in order to one only a subset of the enum values
-        SummaryRestartFilesImportModeType skip( RiaPreferences::NOT_IMPORT );
-        SummaryRestartFilesImportModeType separate( RiaPreferences::SEPARATE_CASES );
+        SummaryRestartFilesImportModeType skip( RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT );
+        SummaryRestartFilesImportModeType separate( RiaPreferences::SummaryRestartFilesImportMode::SEPARATE_CASES );
 
-        options.push_back( caf::PdmOptionItemInfo( skip.uiText(), RiaPreferences::NOT_IMPORT ) );
-        options.push_back( caf::PdmOptionItemInfo( separate.uiText(), RiaPreferences::SEPARATE_CASES ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( skip.uiText(), RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT ) );
+        options.push_back( caf::PdmOptionItemInfo( separate.uiText(),
+                                                   RiaPreferences::SummaryRestartFilesImportMode::SEPARATE_CASES ) );
     }
     else if ( fieldNeedingOptions == &summaryEnsembleImportMode )
     {
         // Manual option handling in order to one only a subset of the enum values
-        SummaryRestartFilesImportModeType skip( RiaPreferences::NOT_IMPORT );
-        SummaryRestartFilesImportModeType allowImport( RiaPreferences::IMPORT );
+        SummaryRestartFilesImportModeType skip( RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT );
+        SummaryRestartFilesImportModeType allowImport( RiaPreferences::SummaryRestartFilesImportMode::IMPORT );
 
-        options.push_back( caf::PdmOptionItemInfo( skip.uiText(), RiaPreferences::NOT_IMPORT ) );
-        options.push_back( caf::PdmOptionItemInfo( allowImport.uiText(), RiaPreferences::IMPORT ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( skip.uiText(), RiaPreferences::SummaryRestartFilesImportMode::NOT_IMPORT ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( allowImport.uiText(), RiaPreferences::SummaryRestartFilesImportMode::IMPORT ) );
     }
     else if ( fieldNeedingOptions == &m_dateFormat )
     {
@@ -646,7 +650,8 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
         {
             QTime   exampleTime = QTime( 15, 48, 22 );
             QString timeFormatString =
-                RiaQDateTimeTools::timeFormatString( timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND );
+                RiaQDateTimeTools::timeFormatString( timeFormat,
+                                                     RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
             QString uiText = QString( "%1 (%2)" ).arg( timeFormatString ).arg( exampleTime.toString( timeFormatString ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( timeFormat ) ) );

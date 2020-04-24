@@ -67,7 +67,7 @@ cvf::ref<RigStimPlanFractureDefinition>
 
         RiaEclipseUnitTools::UnitSystemType unitSystem = stimPlanFileData->unitSet();
 
-        if ( unitSystem != RiaEclipseUnitTools::UNITS_UNKNOWN )
+        if ( unitSystem != RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
             RiaLogging::info( QString( "Setting unit system for StimPlan fracture template %1 to %2" )
                                   .arg( stimPlanFileName )
                                   .arg( unitSystem.uiText() ) );
@@ -197,13 +197,13 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
                 gridunit = getAttributeValueString( xmlStream, "uom" );
 
                 if ( gridunit == "m" )
-                    stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UNITS_METRIC;
+                    stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
                 else if ( gridunit == "ft" )
-                    stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UNITS_FIELD;
+                    stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
                 else
-                    stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UNITS_UNKNOWN;
+                    stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 
-                if ( destinationUnit == RiaEclipseUnitTools::UNITS_UNKNOWN )
+                if ( destinationUnit == RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
                 {
                     // Use file unit set if requested unit is unknown
                     destinationUnit = stimPlanFileData->m_unitSet;
@@ -213,11 +213,11 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
                 double tvdToBotPerfFt = getAttributeValueDouble( xmlStream, "TVDToBottomPerfFt" );
 
                 double tvdToTopPerfRequestedUnit =
-                    RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaEclipseUnitTools::UNITS_FIELD,
+                    RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD,
                                                                      destinationUnit,
                                                                      tvdToTopPerfFt );
                 double tvdToBotPerfRequestedUnit =
-                    RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaEclipseUnitTools::UNITS_FIELD,
+                    RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD,
                                                                      destinationUnit,
                                                                      tvdToBotPerfFt );
 
@@ -323,7 +323,8 @@ std::vector<double> RifStimPlanXmlReader::valuesInRequiredUnitSystem( RiaEclipse
                                                                       RiaEclipseUnitTools::UnitSystem requiredUnit,
                                                                       const std::vector<double>&      values )
 {
-    if ( sourceUnit == RiaEclipseUnitTools::UNITS_FIELD && requiredUnit == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( sourceUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD &&
+         requiredUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         std::vector<double> convertedValues;
         for ( const auto& valueInFeet : values )
@@ -333,7 +334,8 @@ std::vector<double> RifStimPlanXmlReader::valuesInRequiredUnitSystem( RiaEclipse
 
         return convertedValues;
     }
-    else if ( sourceUnit == RiaEclipseUnitTools::UNITS_METRIC && requiredUnit == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( sourceUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC &&
+              requiredUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
         std::vector<double> convertedValues;
         for ( const auto& valueInMeter : values )
@@ -354,11 +356,13 @@ double RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaEclipseUnitTools::Uni
                                                         RiaEclipseUnitTools::UnitSystem requiredUnit,
                                                         double                          value )
 {
-    if ( sourceUnit == RiaEclipseUnitTools::UNITS_FIELD && requiredUnit == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( sourceUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD &&
+         requiredUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( value );
     }
-    else if ( sourceUnit == RiaEclipseUnitTools::UNITS_METRIC && requiredUnit == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( sourceUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC &&
+              requiredUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( value );
     }

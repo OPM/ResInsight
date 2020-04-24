@@ -137,7 +137,7 @@ std::string RifColumnBasedUserData::unitName( const RifEclipseSummaryAddress& re
 //--------------------------------------------------------------------------------------------------
 RiaEclipseUnitTools::UnitSystem RifColumnBasedUserData::unitSystem() const
 {
-    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

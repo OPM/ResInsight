@@ -67,7 +67,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     plot->setAxisFont( QwtPlot::yRight, axisFont );
 
     // Axis title font
-    std::vector<QwtPlot::Axis> axes = { QwtPlot::xBottom, QwtPlot::xTop, QwtPlot::yLeft, QwtPlot::yRight };
+    std::vector<QwtPlot::Axis> axes = {QwtPlot::xBottom, QwtPlot::xTop, QwtPlot::yLeft, QwtPlot::yRight};
 
     for ( QwtPlot::Axis axis : axes )
     {
@@ -131,14 +131,14 @@ void RiuQwtPlotTools::enableDateBasedBottomXAxis( QwtPlot*                      
 {
     QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw( Qt::UTC );
 
-    std::set<QwtDate::IntervalType> intervals = { QwtDate::Year,
-                                                  QwtDate::Month,
-                                                  QwtDate::Week,
-                                                  QwtDate::Day,
-                                                  QwtDate::Hour,
-                                                  QwtDate::Minute,
-                                                  QwtDate::Second,
-                                                  QwtDate::Millisecond };
+    std::set<QwtDate::IntervalType> intervals = {QwtDate::Year,
+                                                 QwtDate::Month,
+                                                 QwtDate::Week,
+                                                 QwtDate::Day,
+                                                 QwtDate::Hour,
+                                                 QwtDate::Minute,
+                                                 QwtDate::Second,
+                                                 QwtDate::Millisecond};
 
     for ( QwtDate::IntervalType interval : intervals )
     {
@@ -161,7 +161,7 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
                                                     RiaQDateTimeTools::TimeFormatComponents timeComponents )
 {
     if ( dateComponents != RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED &&
-         timeComponents != RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED )
+         timeComponents != RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED )
     {
         return RiaQDateTimeTools::timeFormatString( timeFormat, timeComponents ) + "\n" +
                RiaQDateTimeTools::dateFormatString( dateFormat, dateComponents );
@@ -172,13 +172,15 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
         {
             case QwtDate::Millisecond:
                 return RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                            RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND );
+                                                            RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND );
             case QwtDate::Second:
-                return RiaQDateTimeTools::timeFormatString( timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND );
+                return RiaQDateTimeTools::timeFormatString( timeFormat,
+                                                            RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
             case QwtDate::Minute:
             {
                 QString fullFormat =
-                    RiaQDateTimeTools::timeFormatString( timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE );
+                    RiaQDateTimeTools::timeFormatString( timeFormat,
+                                                         RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
                 fullFormat += "\n";
                 fullFormat +=
                     RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
@@ -186,7 +188,9 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
             }
             case QwtDate::Hour:
             {
-                QString fullFormat = RiaQDateTimeTools::timeFormatString( timeFormat, RiaQDateTimeTools::TIME_FORMAT_HOUR );
+                QString fullFormat =
+                    RiaQDateTimeTools::timeFormatString( timeFormat,
+                                                         RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR );
                 if ( !fullFormat.endsWith( "AP" ) )
                 {
                     fullFormat += ":00";

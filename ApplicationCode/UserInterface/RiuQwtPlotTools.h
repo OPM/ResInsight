@@ -33,7 +33,7 @@ public:
         const QString&                          dateFormat,
         const QString&                          timeFormat,
         RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
-        RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TIME_FORMAT_UNSPECIFIED );
+        RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED );
 
     static QString dateTimeFormatForInterval( QwtDate::IntervalType                   interval,
                                               const QString&                          dateFormat,

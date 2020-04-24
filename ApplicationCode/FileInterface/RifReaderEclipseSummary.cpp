@@ -66,13 +66,13 @@ RiaEclipseUnitTools::UnitSystem readUnitSystem( ecl_sum_type* ecl_sum )
     switch ( eclUnitEnum )
     {
         case ECL_METRIC_UNITS:
-            return RiaEclipseUnitTools::UNITS_METRIC;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
         case ECL_FIELD_UNITS:
-            return RiaEclipseUnitTools::UNITS_FIELD;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
         case ECL_LAB_UNITS:
-            return RiaEclipseUnitTools::UNITS_LAB;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_LAB;
         default:
-            return RiaEclipseUnitTools::UNITS_UNKNOWN;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
     }
 }
 
@@ -124,7 +124,7 @@ void closeEclSum( ecl_sum_type* ecl_sum )
 RifReaderEclipseSummary::RifReaderEclipseSummary()
     : m_ecl_sum( nullptr )
     , m_ecl_SmSpec( nullptr )
-    , m_unitSystem( RiaEclipseUnitTools::UNITS_METRIC )
+    , m_unitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
 {
     m_valuesCache.reset( new ValuesCache() );
 }

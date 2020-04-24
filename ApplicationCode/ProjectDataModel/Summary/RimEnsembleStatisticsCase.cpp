@@ -205,7 +205,7 @@ RiaEclipseUnitTools::UnitSystem RimEnsembleStatisticsCase::unitSystem() const
     {
         return m_curveSet->summaryCaseCollection()->unitSystem();
     }
-    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

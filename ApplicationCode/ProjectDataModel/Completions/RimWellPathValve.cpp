@@ -232,9 +232,9 @@ double RimWellPathValve::convertOrificeDiameter( double                         
                                                  RiaEclipseUnitTools::UnitSystem wellPathUnits,
                                                  RiaEclipseUnitTools::UnitSystem unitSystem )
 {
-    if ( unitSystem == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
-        if ( wellPathUnits == RiaEclipseUnitTools::UNITS_FIELD )
+        if ( wellPathUnits == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
         {
             return RiaEclipseUnitTools::inchToMeter( orificeDiameterWellPathUnits );
         }
@@ -243,9 +243,9 @@ double RimWellPathValve::convertOrificeDiameter( double                         
             return RiaEclipseUnitTools::mmToMeter( orificeDiameterWellPathUnits );
         }
     }
-    else if ( unitSystem == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
-        if ( wellPathUnits == RiaEclipseUnitTools::UNITS_METRIC )
+        if ( wellPathUnits == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
         {
             return RiaEclipseUnitTools::meterToFeet( RiaEclipseUnitTools::mmToMeter( orificeDiameterWellPathUnits ) );
         }
@@ -504,11 +504,11 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
             firstAncestorOrThisOfType( wellPath );
             if ( wellPath )
             {
-                if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC )
+                if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
                 {
                     m_measuredDepth.uiCapability()->setUiName( "Measured Depth [m]" );
                 }
-                else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD )
+                else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
                 {
                     m_measuredDepth.uiCapability()->setUiName( "Measured Depth [ft]" );
                 }

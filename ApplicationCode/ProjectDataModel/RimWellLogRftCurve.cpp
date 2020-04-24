@@ -403,7 +403,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             return;
         }
 
-        RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
+        RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
         if ( m_eclipseResultCase )
         {
             unitSystem = m_eclipseResultCase->eclipseCaseData()->unitsType();
@@ -419,7 +419,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         else if ( m_observedFmuRftData )
         {
             // TODO: Read unit system somewhere for FMU RFT Data
-            unitSystem     = RiaEclipseUnitTools::UNITS_METRIC;
+            unitSystem     = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
             perPointLabels = this->perPointLabels();
         }
         else
@@ -481,7 +481,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                                    yValues,
                                                    errors,
                                                    keepOnlyPositiveValues,
-                                                   RiaCurveDataTools::ERROR_ALONG_X_AXIS );
+                                                   RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
             }
             else
             {
@@ -523,7 +523,11 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             if ( !errors.empty() )
             {
-                this->setSamplesFromXYErrorValues( xValues, yValues, errors, isLogCurve, RiaCurveDataTools::ERROR_ALONG_X_AXIS );
+                this->setSamplesFromXYErrorValues( xValues,
+                                                   yValues,
+                                                   errors,
+                                                   isLogCurve,
+                                                   RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
             }
             else
             {

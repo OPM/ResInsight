@@ -998,7 +998,7 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
     // Unit system
     {
         // Default units type is METRIC
-        RiaEclipseUnitTools::UnitSystem unitsType = RiaEclipseUnitTools::UNITS_METRIC;
+        RiaEclipseUnitTools::UnitSystem unitsType = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
         int                             unitsTypeValue;
 
         if ( m_dynamicResultsAccess.notNull() )
@@ -1019,11 +1019,11 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
         if ( unitsTypeValue == 2 )
         {
-            unitsType = RiaEclipseUnitTools::UNITS_FIELD;
+            unitsType = RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
         }
         else if ( unitsTypeValue == 3 )
         {
-            unitsType = RiaEclipseUnitTools::UNITS_LAB;
+            unitsType = RiaEclipseUnitTools::UnitSystem::UNITS_LAB;
         }
         m_eclipseCase->setUnitsType( unitsType );
     }

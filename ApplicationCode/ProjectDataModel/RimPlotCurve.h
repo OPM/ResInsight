@@ -117,11 +117,11 @@ protected:
     void         updatePlotTitle();
     virtual void updateLegendsInPlot();
 
-    void setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
-                                      const std::vector<double>&   yValues,
-                                      const std::vector<double>&   errorValues,
-                                      bool                         keepOnlyPositiveValues,
-                                      RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ERROR_ALONG_Y_AXIS );
+    void setSamplesFromXYErrorValues( const std::vector<double>& xValues,
+                                      const std::vector<double>& yValues,
+                                      const std::vector<double>& errorValues,
+                                      bool                       keepOnlyPositiveValues,
+                                      RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
     void setSamplesFromXYValues( const std::vector<double>& xValues,
                                  const std::vector<double>& yValues,
                                  bool                       keepOnlyPositiveValues );

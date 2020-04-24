@@ -56,7 +56,7 @@ RigEclipseCaseData::RigEclipseCaseData( RimEclipseCase* ownerCase )
     m_matrixModelResults->setActiveCellInfo( m_activeCellInfo.p() );
     m_fractureModelResults->setActiveCellInfo( m_fractureActiveCellInfo.p() );
 
-    m_unitsType = RiaEclipseUnitTools::UNITS_METRIC;
+    m_unitsType = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
 }
 
 //--------------------------------------------------------------------------------------------------

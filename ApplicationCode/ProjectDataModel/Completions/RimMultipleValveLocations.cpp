@@ -230,14 +230,14 @@ void RimMultipleValveLocations::defineUiOrdering( QString uiConfigName, caf::Pdm
         firstAncestorOrThisOfType( wellPath );
         if ( wellPath )
         {
-            if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC )
+            if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
             {
                 m_locationOfValves.uiCapability()->setUiName( "Measured Depths [m]" );
                 m_rangeStart.uiCapability()->setUiName( "Start MD [m]" );
                 m_rangeEnd.uiCapability()->setUiName( "End MD [m]" );
                 m_rangeValveSpacing.uiCapability()->setUiName( "Spacing [m]" );
             }
-            else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD )
+            else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
             {
                 m_locationOfValves.uiCapability()->setUiName( "Measured Depths [ft]" );
                 m_rangeStart.uiCapability()->setUiName( "Start MD [ft]" );
@@ -331,7 +331,7 @@ void RimMultipleValveLocations::fieldChangedByUi( const caf::PdmFieldHandle* cha
 
         RimWellPath* wellPath = nullptr;
         this->firstAncestorOrThisOfTypeAsserted( wellPath );
-        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD )
+        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
         {
             double minimumDistanceFeet = RiaEclipseUnitTools::meterToFeet( minimumDistanceMeter );
             m_rangeValveSpacing        = cvf::Math::clamp( m_rangeValveSpacing(),

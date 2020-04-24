@@ -135,11 +135,13 @@ double RimPerforationInterval::diameter( RiaEclipseUnitTools::UnitSystem unitSys
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted( wellPath );
-    if ( unitSystem == RiaEclipseUnitTools::UNITS_METRIC && wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD )
+    if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC &&
+         wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::feetToMeter( m_diameter() );
     }
-    else if ( unitSystem == RiaEclipseUnitTools::UNITS_FIELD && wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC )
+    else if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD &&
+              wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::meterToFeet( m_diameter() );
     }
@@ -196,11 +198,11 @@ void RimPerforationInterval::setUnitSystemSpecificDefaults()
     firstAncestorOrThisOfType( wellPath );
     if ( wellPath )
     {
-        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC )
+        if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
         {
             m_diameter = 0.216;
         }
-        else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD )
+        else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
         {
             m_diameter = 0.709;
         }
@@ -341,13 +343,13 @@ void RimPerforationInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         firstAncestorOrThisOfType( wellPath );
         if ( wellPath )
         {
-            if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC )
+            if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
             {
                 m_startMD.uiCapability()->setUiName( "Start MD [m]" );
                 m_endMD.uiCapability()->setUiName( "End MD [m]" );
                 m_diameter.uiCapability()->setUiName( "Diameter [m]" );
             }
-            else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD )
+            else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
             {
                 m_startMD.uiCapability()->setUiName( "Start MD [ft]" );
                 m_endMD.uiCapability()->setUiName( "End MD [ft]" );

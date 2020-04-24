@@ -148,11 +148,11 @@ public:
 
         // Try and set output unit system to the same system as the eclipse case system
         std::unique_ptr<const Opm::ECLUnits::UnitSystem> eclUnitSystem;
-        if ( caseUnitSystem == RiaEclipseUnitTools::UNITS_METRIC )
+        if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
             eclUnitSystem = Opm::ECLUnits::metricUnitConventions();
-        else if ( caseUnitSystem == RiaEclipseUnitTools::UNITS_FIELD )
+        else if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
             eclUnitSystem = Opm::ECLUnits::fieldUnitConventions();
-        else if ( caseUnitSystem == RiaEclipseUnitTools::UNITS_LAB )
+        else if ( caseUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_LAB )
             eclUnitSystem = Opm::ECLUnits::labUnitConventions();
 
         if ( eclUnitSystem )

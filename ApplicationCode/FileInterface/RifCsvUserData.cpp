@@ -142,7 +142,7 @@ std::string RifCsvUserData::unitName( const RifEclipseSummaryAddress& resultAddr
 //--------------------------------------------------------------------------------------------------
 RiaEclipseUnitTools::UnitSystem RifCsvUserData::unitSystem() const
 {
-    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

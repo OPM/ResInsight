@@ -53,7 +53,7 @@ int main( int argc, char* argv[] )
         return 1;
     }
 #endif
-    RiaLogging::loggerInstance()->setLevel( RI_LL_DEBUG );
+    RiaLogging::loggerInstance()->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
 
     std::unique_ptr<RiaApplication> app( createApplication( argc, argv ) );
 

@@ -24,7 +24,7 @@
 class RiaEclipseUnitTools
 {
 public:
-    enum UnitSystem
+    enum class UnitSystem
     {
         UNITS_METRIC,
         UNITS_FIELD,

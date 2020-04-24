@@ -58,11 +58,11 @@ void caf::AppEnum<RiaQDateTimeTools::DateFormatComponents>::setUp()
 template <>
 void caf::AppEnum<RiaQDateTimeTools::TimeFormatComponents>::setUp()
 {
-    addItem( RiaQDateTimeTools::TIME_FORMAT_NONE,               "NO_TIME",              "No Time of Day" );
-    addItem( RiaQDateTimeTools::TIME_FORMAT_HOUR,               "HOUR",                 "Hour Only" );
-    addItem( RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE,        "HOUR_MINUTE",          "Hour and Minute" );
-    addItem( RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND, "HOUR_MINUTE_SECONDS",  "Hour, Minutes and Seconds" );
-    setDefault( RiaQDateTimeTools::TIME_FORMAT_NONE );
+    addItem( RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_NONE,               "NO_TIME",              "No Time of Day" );
+    addItem( RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR,               "HOUR",                 "Hour Only" );
+    addItem( RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE,        "HOUR_MINUTE",          "Hour and Minute" );
+    addItem( RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND, "HOUR_MINUTE_SECONDS",  "Hour, Minutes and Seconds" );
+    setDefault( RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_NONE );
 }
 
 template <>
@@ -489,12 +489,12 @@ QString RiaQDateTimeTools::dateFormatString( const QString& fullDateFormat, Date
 //--------------------------------------------------------------------------------------------------
 QString RiaQDateTimeTools::timeFormatString( const QString& fullTimeFormat, TimeFormatComponents timeComponents )
 {
-    if ( timeComponents == TIME_FORMAT_NONE ) return "";
+    if ( timeComponents == TimeFormatComponents::TIME_FORMAT_NONE ) return "";
 
     QStringList allVariants = fullTimeFormat.split( ";" );
     if ( static_cast<int>( timeComponents ) < allVariants.size() )
     {
-        return allVariants[timeComponents];
+        return allVariants[static_cast<int>( timeComponents )];
     }
     CVF_ASSERT( false && "Time format string is malformed" );
     return "";
