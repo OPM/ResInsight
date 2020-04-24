@@ -995,10 +995,10 @@ bool RiaPreferences::openExportedPdfInViewer() const
 std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> RiaPreferences::defaultFontSizes() const
 {
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes;
-    fontSizes[RiaDefines::SCENE_FONT]      = defaultSceneFontSize();
-    fontSizes[RiaDefines::ANNOTATION_FONT] = defaultAnnotationFontSize();
-    fontSizes[RiaDefines::WELL_LABEL_FONT] = defaultWellLabelFontSize();
-    fontSizes[RiaDefines::PLOT_FONT]       = defaultPlotFontSize();
+    fontSizes[RiaDefines::FontSettingType::SCENE_FONT]      = defaultSceneFontSize();
+    fontSizes[RiaDefines::FontSettingType::ANNOTATION_FONT] = defaultAnnotationFontSize();
+    fontSizes[RiaDefines::FontSettingType::WELL_LABEL_FONT] = defaultWellLabelFontSize();
+    fontSizes[RiaDefines::FontSettingType::PLOT_FONT]       = defaultPlotFontSize();
     return fontSizes;
 }
 

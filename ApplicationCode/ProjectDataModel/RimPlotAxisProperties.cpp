@@ -297,10 +297,10 @@ QString RimPlotAxisProperties::name() const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::PlotAxis RimPlotAxisProperties::plotAxisType() const
 {
-    if ( m_axis == QwtPlot::yRight ) return RiaDefines::PLOT_AXIS_RIGHT;
-    if ( m_axis == QwtPlot::xBottom ) return RiaDefines::PLOT_AXIS_BOTTOM;
+    if ( m_axis == QwtPlot::yRight ) return RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
+    if ( m_axis == QwtPlot::xBottom ) return RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
 
-    return RiaDefines::PLOT_AXIS_LEFT;
+    return RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -41,7 +41,8 @@ bool RicMswICDAccumulator::accumulateValveParameters( const RimWellPathValve* we
                                                       double                  contributionFraction )
 {
     CVF_ASSERT( wellPathValve );
-    if ( wellPathValve->componentType() == RiaDefines::ICV || wellPathValve->componentType() == RiaDefines::ICD )
+    if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICV ||
+         wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICD )
     {
         double icdOrificeRadius = wellPathValve->orificeDiameter( m_unitSystem ) / 2;
         double icdArea          = icdOrificeRadius * icdOrificeRadius * cvf::PI_D;
@@ -86,7 +87,7 @@ bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
                                                        double                  contributionFraction )
 {
     CVF_ASSERT( wellPathValve );
-    if ( wellPathValve->componentType() == RiaDefines::AICD )
+    if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::AICD )
     {
         const RimWellPathAicdParameters* params = wellPathValve->aicdParameters();
         if ( params->isValid() )

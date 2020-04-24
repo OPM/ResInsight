@@ -375,7 +375,7 @@ bool RimGridView::isGridVisualizationMode() const
 bool RimGridView::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
 {
     bool hasCustomFonts = Rim3dView::hasCustomFontSizes( fontSettingType, defaultFontSize );
-    if ( fontSettingType == RiaDefines::ANNOTATION_FONT )
+    if ( fontSettingType == RiaDefines::FontSettingType::ANNOTATION_FONT )
     {
         auto annotations = annotationCollection();
         if ( annotations )
@@ -396,7 +396,7 @@ bool RimGridView::applyFontSize( RiaDefines::FontSettingType fontSettingType,
                                  bool                        forceChange /*= false*/ )
 {
     bool anyChange = Rim3dView::applyFontSize( fontSettingType, oldFontSize, fontSize, forceChange );
-    if ( fontSettingType == RiaDefines::ANNOTATION_FONT )
+    if ( fontSettingType == RiaDefines::FontSettingType::ANNOTATION_FONT )
     {
         auto annotations = annotationCollection();
         if ( annotations )
@@ -448,7 +448,7 @@ void RimGridView::initAfterRead()
         // This change was introduced in https://github.com/OPM/ResInsight/commit/f7bfe8d0
 
         bool isGridVisualizationModeBefore_2018_1_1 =
-            ( ( surfaceMode() == RimGridView::SURFACE ) || ( meshMode() == RiaDefines::FULL_MESH ) );
+            ( ( surfaceMode() == RimGridView::SURFACE ) || ( meshMode() == RiaDefines::MeshModeType::FULL_MESH ) );
 
         m_gridCollection->setActive( isGridVisualizationModeBefore_2018_1_1 );
         if ( !isGridVisualizationModeBefore_2018_1_1 )
@@ -457,7 +457,7 @@ void RimGridView::initAfterRead()
             // If was showing with mesh and/or surfaces, turn to full mesh/surf mode to show the mesh,
             // and to avoid a strange setup when dropping out into grid mode again
             if ( surfaceMode() != RimGridView::NO_SURFACE ) surfaceMode = RimGridView::SURFACE;
-            if ( meshMode() != RiaDefines::NO_MESH ) meshMode = RiaDefines::FULL_MESH;
+            if ( meshMode() != RiaDefines::MeshModeType::NO_MESH ) meshMode = RiaDefines::MeshModeType::FULL_MESH;
         }
     }
 }

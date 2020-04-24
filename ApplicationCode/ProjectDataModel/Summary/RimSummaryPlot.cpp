@@ -257,8 +257,8 @@ void RimSummaryPlot::setShowPlotTitle( bool showTitle )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxes()
 {
-    updateYAxis( RiaDefines::PLOT_AXIS_LEFT );
-    updateYAxis( RiaDefines::PLOT_AXIS_RIGHT );
+    updateYAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    updateYAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
 
     if ( m_isCrossPlot )
     {
@@ -586,15 +586,15 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSu
 {
     {
         QString data =
-            sourceSummaryPlot.yAxisPropertiesLeftOrRight( RiaDefines::PLOT_AXIS_LEFT )->writeObjectToXmlString();
-        yAxisPropertiesLeftOrRight( RiaDefines::PLOT_AXIS_LEFT )
+            sourceSummaryPlot.yAxisPropertiesLeftOrRight( RiaDefines::PlotAxis::PLOT_AXIS_LEFT )->writeObjectToXmlString();
+        yAxisPropertiesLeftOrRight( RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
             ->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
     }
 
     {
         QString data =
-            sourceSummaryPlot.yAxisPropertiesLeftOrRight( RiaDefines::PLOT_AXIS_RIGHT )->writeObjectToXmlString();
-        yAxisPropertiesLeftOrRight( RiaDefines::PLOT_AXIS_RIGHT )
+            sourceSummaryPlot.yAxisPropertiesLeftOrRight( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )->writeObjectToXmlString();
+        yAxisPropertiesLeftOrRight( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
             ->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
     }
 }
@@ -733,7 +733,7 @@ void RimSummaryPlot::applyDefaultCurveAppearances()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlot::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
 {
-    if ( fontSettingType == RiaDefines::PLOT_FONT && m_plotWidget )
+    if ( fontSettingType == RiaDefines::FontSettingType::PLOT_FONT && m_plotWidget )
     {
         for ( auto plotAxis : allPlotAxes() )
         {
@@ -761,7 +761,7 @@ bool RimSummaryPlot::applyFontSize( RiaDefines::FontSettingType fontSettingType,
 {
     bool anyChange = false;
 
-    if ( fontSettingType == RiaDefines::PLOT_FONT && m_plotWidget )
+    if ( fontSettingType == RiaDefines::FontSettingType::PLOT_FONT && m_plotWidget )
     {
         for ( auto plotAxis : allPlotAxes() )
         {
@@ -812,7 +812,7 @@ void RimSummaryPlot::updateYAxis( RiaDefines::PlotAxis plotAxis )
     if ( !m_plotWidget ) return;
 
     QwtPlot::Axis qwtAxis = QwtPlot::yLeft;
-    if ( plotAxis == RiaDefines::PLOT_AXIS_LEFT )
+    if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
         qwtAxis = QwtPlot::yLeft;
     }
@@ -851,7 +851,7 @@ void RimSummaryPlot::updateYAxis( RiaDefines::PlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomForAxis( RiaDefines::PlotAxis plotAxis )
 {
-    if ( plotAxis == RiaDefines::PLOT_AXIS_BOTTOM )
+    if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
     {
         if ( m_isCrossPlot )
         {
@@ -942,7 +942,7 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis( RiaDe
 {
     std::vector<RimSummaryCurve*> curves;
 
-    if ( plotAxis == RiaDefines::PLOT_AXIS_BOTTOM )
+    if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
     {
         if ( m_summaryCurveCollection && m_summaryCurveCollection->isCurvesVisible() )
         {
@@ -1016,7 +1016,7 @@ RimPlotAxisProperties* RimSummaryPlot::yAxisPropertiesLeftOrRight( RiaDefines::P
 {
     RimPlotAxisProperties* yAxisProps = nullptr;
 
-    if ( leftOrRightPlotAxis == RiaDefines::PLOT_AXIS_LEFT )
+    if ( leftOrRightPlotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
         yAxisProps = m_leftYAxisProperties();
     }
@@ -1041,7 +1041,7 @@ std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::visibleTimeHistoryCurvesFo
     {
         if ( c->isCurveVisible() )
         {
-            if ( c->yAxis() == plotAxis || plotAxis == RiaDefines::PLOT_AXIS_BOTTOM )
+            if ( c->yAxis() == plotAxis || plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
             {
                 curves.push_back( c );
             }
@@ -1062,7 +1062,7 @@ std::vector<RimAsciiDataCurve*> RimSummaryPlot::visibleAsciiDataCurvesForAxis( R
     {
         if ( c->isCurveVisible() )
         {
-            if ( c->yAxis() == plotAxis || plotAxis == RiaDefines::PLOT_AXIS_BOTTOM )
+            if ( c->yAxis() == plotAxis || plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
             {
                 curves.push_back( c );
             }
@@ -1162,9 +1162,9 @@ void RimSummaryPlot::updateBottomXAxis()
         std::set<QString> timeHistoryQuantities;
 
         RimSummaryPlotAxisFormatter calc( bottomAxisProperties,
-                                          visibleSummaryCurvesForAxis( RiaDefines::PLOT_AXIS_BOTTOM ),
+                                          visibleSummaryCurvesForAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ),
                                           {},
-                                          visibleAsciiDataCurvesForAxis( RiaDefines::PLOT_AXIS_BOTTOM ),
+                                          visibleAsciiDataCurvesForAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ),
                                           timeHistoryQuantities );
         calc.applyAxisPropertiesToPlot( m_plotWidget );
     }
@@ -1493,9 +1493,9 @@ void RimSummaryPlot::updateZoomInQwt()
 {
     if ( m_plotWidget )
     {
-        updateZoomForAxis( RiaDefines::PLOT_AXIS_BOTTOM );
-        updateZoomForAxis( RiaDefines::PLOT_AXIS_LEFT );
-        updateZoomForAxis( RiaDefines::PLOT_AXIS_RIGHT );
+        updateZoomForAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+        updateZoomForAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+        updateZoomForAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
 
         m_plotWidget->updateAxes();
         updateZoomFromQwt();

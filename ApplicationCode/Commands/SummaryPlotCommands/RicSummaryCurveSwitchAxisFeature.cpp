@@ -58,13 +58,13 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered( bool isChecked )
     {
         RiaDefines::PlotAxis plotAxis = summaryCurve->axisY();
 
-        if ( plotAxis == RiaDefines::PLOT_AXIS_LEFT )
+        if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
         {
-            summaryCurve->setLeftOrRightAxisY( RiaDefines::PLOT_AXIS_RIGHT );
+            summaryCurve->setLeftOrRightAxisY( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
         }
         else
         {
-            summaryCurve->setLeftOrRightAxisY( RiaDefines::PLOT_AXIS_LEFT );
+            summaryCurve->setLeftOrRightAxisY( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
         }
 
         summaryCurve->updateQwtPlotAxis();
@@ -79,13 +79,13 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered( bool isChecked )
     {
         RiaDefines::PlotAxis plotAxis = asciiCurve->yAxis();
 
-        if ( plotAxis == RiaDefines::PLOT_AXIS_LEFT )
+        if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
         {
-            asciiCurve->setYAxis( RiaDefines::PLOT_AXIS_RIGHT );
+            asciiCurve->setYAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
         }
         else
         {
-            asciiCurve->setYAxis( RiaDefines::PLOT_AXIS_LEFT );
+            asciiCurve->setYAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
         }
 
         asciiCurve->updateQwtPlotAxis();
@@ -100,13 +100,13 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered( bool isChecked )
     {
         RiaDefines::PlotAxis plotAxis = timeHistoryCurve->yAxis();
 
-        if ( plotAxis == RiaDefines::PLOT_AXIS_LEFT )
+        if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
         {
-            timeHistoryCurve->setYAxis( RiaDefines::PLOT_AXIS_RIGHT );
+            timeHistoryCurve->setYAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
         }
         else
         {
-            timeHistoryCurve->setYAxis( RiaDefines::PLOT_AXIS_LEFT );
+            timeHistoryCurve->setYAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
         }
 
         timeHistoryCurve->updateConnectedEditors();

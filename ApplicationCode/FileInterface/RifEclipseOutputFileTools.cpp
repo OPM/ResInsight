@@ -542,17 +542,17 @@ std::set<RiaDefines::PhaseType> RifEclipseOutputFileTools::findAvailablePhases( 
 
             if ( phases & ECL_OIL_PHASE )
             {
-                phaseTypes.insert( RiaDefines::OIL_PHASE );
+                phaseTypes.insert( RiaDefines::PhaseType::OIL_PHASE );
             }
 
             if ( phases & ECL_GAS_PHASE )
             {
-                phaseTypes.insert( RiaDefines::GAS_PHASE );
+                phaseTypes.insert( RiaDefines::PhaseType::GAS_PHASE );
             }
 
             if ( phases & ECL_WATER_PHASE )
             {
-                phaseTypes.insert( RiaDefines::WATER_PHASE );
+                phaseTypes.insert( RiaDefines::PhaseType::WATER_PHASE );
             }
         }
     }

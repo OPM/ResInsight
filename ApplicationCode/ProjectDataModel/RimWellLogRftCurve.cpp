@@ -376,7 +376,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    RiaDefines::DepthTypeEnum depthType       = RiaDefines::TRUE_VERTICAL_DEPTH;
+    RiaDefines::DepthTypeEnum depthType       = RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH;
     DerivedMDSource           derivedMDSource = NO_SOURCE;
 
     if ( isCurveVisible() )
@@ -461,18 +461,18 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                      RiaEclipseUnitTools::depthUnit( unitSystem ),
                                      false );
 
-        RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
+        RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
         if ( wellLogPlot )
         {
             displayUnit = wellLogPlot->depthUnit();
         }
 
-        if ( wellLogPlot->depthType() == RiaDefines::MEASURED_DEPTH )
+        if ( wellLogPlot->depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
         {
             m_qwtPlotCurve->setPerPointLabels( perPointLabels );
 
-            auto xValues                = this->curveData()->xPlotValues();
-            auto yValues                = this->curveData()->depthPlotValues( RiaDefines::MEASURED_DEPTH, displayUnit );
+            auto xValues = this->curveData()->xPlotValues();
+            auto yValues = this->curveData()->depthPlotValues( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
             bool keepOnlyPositiveValues = false;
 
             if ( !errors.empty() )
@@ -516,8 +516,9 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             m_qwtPlotCurve->setPerPointLabels( perPointLabels );
 
-            auto xValues    = this->curveData()->xPlotValues();
-            auto yValues    = this->curveData()->depthPlotValues( RiaDefines::TRUE_VERTICAL_DEPTH, displayUnit );
+            auto xValues = this->curveData()->xPlotValues();
+            auto yValues =
+                this->curveData()->depthPlotValues( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, displayUnit );
             bool isLogCurve = false;
 
             if ( !errors.empty() )

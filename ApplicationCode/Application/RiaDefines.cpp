@@ -42,66 +42,66 @@ void caf::AppEnum<RiaDefines::ResultCatType>::setUp()
 template <>
 void caf::AppEnum<RiaDefines::DepthUnitType>::setUp()
 {
-    addItem( RiaDefines::UNIT_METER, "UNIT_METER", "Meter" );
-    addItem( RiaDefines::UNIT_FEET, "UNIT_FEET", "Feet" );
-    addItem( RiaDefines::UNIT_NONE, "UNIT_NONE", "None" );
+    addItem( RiaDefines::DepthUnitType::UNIT_METER, "UNIT_METER", "Meter" );
+    addItem( RiaDefines::DepthUnitType::UNIT_FEET, "UNIT_FEET", "Feet" );
+    addItem( RiaDefines::DepthUnitType::UNIT_NONE, "UNIT_NONE", "None" );
 
-    setDefault( RiaDefines::UNIT_METER );
+    setDefault( RiaDefines::DepthUnitType::UNIT_METER );
 }
 
 template <>
 void caf::AppEnum<RiaDefines::DepthTypeEnum>::setUp()
 {
-    addItem( RiaDefines::MEASURED_DEPTH, "MEASURED_DEPTH", "Measured Depth" );
-    addItem( RiaDefines::TRUE_VERTICAL_DEPTH, "TRUE_VERTICAL_DEPTH", "True Vertical Depth (MSL)" );
-    addItem( RiaDefines::PSEUDO_LENGTH, "PSEUDO_LENGTH", "Pseudo Length" );
-    addItem( RiaDefines::CONNECTION_NUMBER, "CONNECTION_NUMBER", "Connection Number" );
-    addItem( RiaDefines::TRUE_VERTICAL_DEPTH_RKB, "TRUE_VERTICAL_DEPTH_RKB", "True Vertical Depth (RKB)" );
-    setDefault( RiaDefines::MEASURED_DEPTH );
+    addItem( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, "MEASURED_DEPTH", "Measured Depth" );
+    addItem( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, "TRUE_VERTICAL_DEPTH", "True Vertical Depth (MSL)" );
+    addItem( RiaDefines::DepthTypeEnum::PSEUDO_LENGTH, "PSEUDO_LENGTH", "Pseudo Length" );
+    addItem( RiaDefines::DepthTypeEnum::CONNECTION_NUMBER, "CONNECTION_NUMBER", "Connection Number" );
+    addItem( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, "TRUE_VERTICAL_DEPTH_RKB", "True Vertical Depth (RKB)" );
+    setDefault( RiaDefines::DepthTypeEnum::MEASURED_DEPTH );
 }
 
 template <>
 void caf::AppEnum<RiaDefines::PlotAxis>::setUp()
 {
-    addItem( RiaDefines::PLOT_AXIS_LEFT, "PLOT_AXIS_LEFT", "Left" );
-    addItem( RiaDefines::PLOT_AXIS_RIGHT, "PLOT_AXIS_RIGHT", "Right" );
+    addItem( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "PLOT_AXIS_LEFT", "Left" );
+    addItem( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, "PLOT_AXIS_RIGHT", "Right" );
 
-    setDefault( RiaDefines::PLOT_AXIS_LEFT );
+    setDefault( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
 }
 
 template <>
 void caf::AppEnum<RiaDefines::PhaseType>::setUp()
 {
-    addItem( RiaDefines::OIL_PHASE, "OIL_PHASE", "Oil" );
-    addItem( RiaDefines::GAS_PHASE, "GAS_PHASE", "Gas" );
-    addItem( RiaDefines::WATER_PHASE, "WATER_PHASE", "Water" );
-    setDefault( RiaDefines::OIL_PHASE );
+    addItem( RiaDefines::PhaseType::OIL_PHASE, "OIL_PHASE", "Oil" );
+    addItem( RiaDefines::PhaseType::GAS_PHASE, "GAS_PHASE", "Gas" );
+    addItem( RiaDefines::PhaseType::WATER_PHASE, "WATER_PHASE", "Water" );
+    setDefault( RiaDefines::PhaseType::OIL_PHASE );
 }
 
 template <>
 void caf::AppEnum<RiaDefines::WellPathComponentType>::setUp()
 {
-    addItem( RiaDefines::WELL_PATH, "WELL_PATH", "Well Path" );
-    addItem( RiaDefines::PERFORATION_INTERVAL, "PERFORATION_INTERVAL", "Perforation Interval" );
-    addItem( RiaDefines::FISHBONES, "FISHBONES", "Fishbones" );
-    addItem( RiaDefines::FRACTURE, "FRACTURE", "Fracture" );
-    addItem( RiaDefines::ICD, "ICD", "ICD" );
-    addItem( RiaDefines::AICD, "AICD", "AICD" );
-    addItem( RiaDefines::ICV, "ICV", "ICV" );
-    addItem( RiaDefines::CASING, "CASING", "Casing" );
-    addItem( RiaDefines::LINER, "LINER", "Liner" );
-    addItem( RiaDefines::PACKER, "PACKER", "Packer" );
-    addItem( RiaDefines::UNDEFINED_COMPONENT, "UNDEFINED", "Undefined Component" );
-    setDefault( RiaDefines::WELL_PATH );
+    addItem( RiaDefines::WellPathComponentType::WELL_PATH, "WELL_PATH", "Well Path" );
+    addItem( RiaDefines::WellPathComponentType::PERFORATION_INTERVAL, "PERFORATION_INTERVAL", "Perforation Interval" );
+    addItem( RiaDefines::WellPathComponentType::FISHBONES, "FISHBONES", "Fishbones" );
+    addItem( RiaDefines::WellPathComponentType::FRACTURE, "FRACTURE", "Fracture" );
+    addItem( RiaDefines::WellPathComponentType::ICD, "ICD", "ICD" );
+    addItem( RiaDefines::WellPathComponentType::AICD, "AICD", "AICD" );
+    addItem( RiaDefines::WellPathComponentType::ICV, "ICV", "ICV" );
+    addItem( RiaDefines::WellPathComponentType::CASING, "CASING", "Casing" );
+    addItem( RiaDefines::WellPathComponentType::LINER, "LINER", "Liner" );
+    addItem( RiaDefines::WellPathComponentType::PACKER, "PACKER", "Packer" );
+    addItem( RiaDefines::WellPathComponentType::UNDEFINED_COMPONENT, "UNDEFINED", "Undefined Component" );
+    setDefault( RiaDefines::WellPathComponentType::WELL_PATH );
 }
 
 template <>
 void caf::AppEnum<RiaDefines::MeshModeType>::setUp()
 {
-    addItem( RiaDefines::FULL_MESH, "FULL_MESH", "All" );
-    addItem( RiaDefines::FAULTS_MESH, "FAULTS_MESH", "Faults only" );
-    addItem( RiaDefines::NO_MESH, "NO_MESH", "None" );
-    setDefault( RiaDefines::FULL_MESH );
+    addItem( RiaDefines::MeshModeType::FULL_MESH, "FULL_MESH", "All" );
+    addItem( RiaDefines::MeshModeType::FAULTS_MESH, "FAULTS_MESH", "Faults only" );
+    addItem( RiaDefines::MeshModeType::NO_MESH, "NO_MESH", "None" );
+    setDefault( RiaDefines::MeshModeType::FULL_MESH );
 }
 } // namespace caf
 

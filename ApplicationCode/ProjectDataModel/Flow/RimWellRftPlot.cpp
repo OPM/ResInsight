@@ -95,7 +95,7 @@ RimWellRftPlot::RimWellRftPlot()
     m_wellLogPlot_OBSOLETE.uiCapability()->setUiHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    m_depthType = RiaDefines::TRUE_VERTICAL_DEPTH;
+    m_depthType = RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH;
 
     CAF_PDM_InitFieldNoDefault( &m_wellPathNameOrSimWellName, "WellName", "Well Name", "", "", "" );
     CAF_PDM_InitField( &m_branchIndex, "BranchIndex", 0, "Branch Index", "", "", "" );
@@ -128,7 +128,7 @@ RimWellRftPlot::RimWellRftPlot()
 
     // TODO: may want to support TRUE_VERTICAL_DEPTH_RKB in the future
     // It was developed for regular well log plots and requires some more work for RFT plots.
-    setAvailableDepthTypes( {RiaDefines::MEASURED_DEPTH, RiaDefines::TRUE_VERTICAL_DEPTH} );
+    setAvailableDepthTypes( {RiaDefines::DepthTypeEnum::MEASURED_DEPTH, RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH} );
 
     m_nameConfig->setCustomName( "RFT Plot" );
     m_plotLegendsHorizontal = false;
@@ -647,7 +647,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         }
     }
 
-    if ( depthType() == RiaDefines::MEASURED_DEPTH )
+    if ( depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
     }
@@ -1074,7 +1074,7 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     updateMdiWindowVisibility();
     updateFormationsOnPlot();
 
-    if ( depthType() == RiaDefines::MEASURED_DEPTH )
+    if ( depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
     {
         assignWellPathToExtractionCurves();
     }

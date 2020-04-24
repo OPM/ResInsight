@@ -1208,9 +1208,9 @@ void RiaApplication::applyPreferences()
     // instead of using the application font
     std::map<RiaDefines::FontSettingType, RiaFontCache::FontSize> fontSizes = m_preferences->defaultFontSizes();
 
-    m_defaultSceneFont      = RiaFontCache::getFont( fontSizes[RiaDefines::SCENE_FONT] );
-    m_defaultAnnotationFont = RiaFontCache::getFont( fontSizes[RiaDefines::ANNOTATION_FONT] );
-    m_defaultWellLabelFont  = RiaFontCache::getFont( fontSizes[RiaDefines::WELL_LABEL_FONT] );
+    m_defaultSceneFont      = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::SCENE_FONT] );
+    m_defaultAnnotationFont = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::ANNOTATION_FONT] );
+    m_defaultWellLabelFont  = RiaFontCache::getFont( fontSizes[RiaDefines::FontSettingType::WELL_LABEL_FONT] );
 
     if ( this->project() )
     {

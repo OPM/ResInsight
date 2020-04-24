@@ -686,7 +686,7 @@ void RimMultiPlot::recreatePlotWidgets()
 //--------------------------------------------------------------------------------------------------
 bool RimMultiPlot::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
 {
-    if ( fontSettingType == RiaDefines::PLOT_FONT && m_viewer )
+    if ( fontSettingType == RiaDefines::FontSettingType::PLOT_FONT && m_viewer )
     {
         if ( m_viewer->fontSize() != defaultFontSize )
         {
@@ -716,7 +716,7 @@ bool RimMultiPlot::applyFontSize( RiaDefines::FontSettingType fontSettingType,
                                   bool                        forceChange /*= false */ )
 {
     bool somethingChanged = false;
-    if ( fontSettingType == RiaDefines::PLOT_FONT && m_viewer )
+    if ( fontSettingType == RiaDefines::FontSettingType::PLOT_FONT && m_viewer )
     {
         if ( oldFontSize == m_viewer->fontSize() || forceChange )
         {

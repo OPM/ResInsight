@@ -258,7 +258,7 @@ bool RimPerforationInterval::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::WellPathComponentType RimPerforationInterval::componentType() const
 {
-    return RiaDefines::PERFORATION_INTERVAL;
+    return RiaDefines::WellPathComponentType::PERFORATION_INTERVAL;
 }
 
 //--------------------------------------------------------------------------------------------------

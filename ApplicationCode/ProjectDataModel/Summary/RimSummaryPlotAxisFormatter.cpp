@@ -231,7 +231,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         {
             continue;
         }
-        else if ( m_axisProperties->plotAxisType() == RiaDefines::PLOT_AXIS_BOTTOM )
+        else if ( m_axisProperties->plotAxisType() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
         {
             sumAddress = rimCurve->summaryAddressX();
             unitText   = rimCurve->unitNameX();

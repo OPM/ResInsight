@@ -1302,7 +1302,7 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
 
                     if ( segment->startMD() <= valveMD && valveMD < segment->endMD() )
                     {
-                        if ( valve->componentType() == RiaDefines::AICD )
+                        if ( valve->componentType() == RiaDefines::WellPathComponentType::AICD )
                         {
                             QString valveLabel =
                                 QString( "%1 #%2" ).arg( "Combined Valve for segment" ).arg( nMainSegment + 2 );
@@ -1312,7 +1312,7 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                             superAICD = std::make_shared<RicMswPerforationAICD>( valveLabel, valve );
                             superAICD->addSubSegment( subSegment );
                         }
-                        else if ( valve->componentType() == RiaDefines::ICD )
+                        else if ( valve->componentType() == RiaDefines::WellPathComponentType::ICD )
                         {
                             QString valveLabel =
                                 QString( "%1 #%2" ).arg( "Combined Valve for segment" ).arg( nMainSegment + 2 );
@@ -1322,7 +1322,7 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                             superICD = std::make_shared<RicMswPerforationICD>( valveLabel, valve );
                             superICD->addSubSegment( subSegment );
                         }
-                        else if ( valve->componentType() == RiaDefines::ICV )
+                        else if ( valve->componentType() == RiaDefines::WellPathComponentType::ICV )
                         {
                             QString valveLabel =
                                 QString( "ICV %1 at segment #%2" ).arg( valve->name() ).arg( nMainSegment + 2 );
@@ -1336,7 +1336,8 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                             ICV->setArea( orificeRadius * orificeRadius * cvf::PI_D );
                         }
                     }
-                    else if ( overlap > 0.0 && ( valve->componentType() == RiaDefines::ICD && !superICD ) )
+                    else if ( overlap > 0.0 &&
+                              ( valve->componentType() == RiaDefines::WellPathComponentType::ICD && !superICD ) )
                     {
                         QString valveLabel =
                             QString( "%1 #%2" ).arg( "Combined Valve for segment" ).arg( nMainSegment + 2 );
@@ -1345,7 +1346,8 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                         superICD = std::make_shared<RicMswPerforationICD>( valveLabel, valve );
                         superICD->addSubSegment( subSegment );
                     }
-                    else if ( overlap > 0.0 && ( valve->componentType() == RiaDefines::AICD && !superAICD ) )
+                    else if ( overlap > 0.0 &&
+                              ( valve->componentType() == RiaDefines::WellPathComponentType::AICD && !superAICD ) )
                     {
                         QString valveLabel =
                             QString( "%1 #%2" ).arg( "Combined Valve for segment" ).arg( nMainSegment + 2 );
@@ -1355,11 +1357,11 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                         superAICD->addSubSegment( subSegment );
                     }
 
-                    if ( valve->componentType() == RiaDefines::AICD )
+                    if ( valve->componentType() == RiaDefines::WellPathComponentType::AICD )
                     {
                         totalAICDOverlap += overlap;
                     }
-                    else if ( valve->componentType() == RiaDefines::ICD )
+                    else if ( valve->componentType() == RiaDefines::WellPathComponentType::ICD )
                     {
                         totalICDOverlap += overlap;
                     }
@@ -1516,7 +1518,7 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToICVs(
             for ( const RimWellPathValve* valve : perforationValves )
             {
                 if ( !valve->isChecked() ) continue;
-                if ( valve->componentType() != RiaDefines::ICV ) continue;
+                if ( valve->componentType() != RiaDefines::WellPathComponentType::ICV ) continue;
 
                 auto icvIt = icvCompletionMap.find( valve );
                 if ( icvIt == icvCompletionMap.end() ) continue;

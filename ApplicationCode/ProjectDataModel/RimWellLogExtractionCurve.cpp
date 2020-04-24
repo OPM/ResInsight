@@ -345,7 +345,8 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         RiaDefines::DepthTypeEnum depthType   = wellLogPlot->depthType();
         RiaDefines::DepthUnitType displayUnit = wellLogPlot->depthUnit();
-        if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH || depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+        if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ||
+             depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
         {
             isUsingPseudoLength = false;
         }
@@ -450,7 +451,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     std::vector<double> tvDepthValues;
     double              rkbDiff = 0.0;
 
-    RiaDefines::DepthUnitType depthUnit = RiaDefines::UNIT_METER;
+    RiaDefines::DepthUnitType depthUnit = RiaDefines::DepthUnitType::UNIT_METER;
     QString                   xUnits    = RiaWellLogUnitTools<double>::noUnitString();
 
     if ( eclExtractor.notNull() && eclipseCase )
@@ -477,7 +478,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
         {
             // See https://github.com/OPM/ResInsight/issues/538
 
-            depthUnit = RiaDefines::UNIT_FEET;
+            depthUnit = RiaDefines::DepthUnitType::UNIT_FEET;
         }
     }
     else if ( geomExtractor.notNull() ) // geomExtractor
@@ -517,7 +518,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
         {
             this->setValuesAndDepths( values,
                                       measuredDepthValues,
-                                      RiaDefines::MEASURED_DEPTH,
+                                      RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
                                       0.0,
                                       depthUnit,
                                       !performDataSmoothing,

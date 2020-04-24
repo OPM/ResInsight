@@ -753,7 +753,7 @@ void RimSummaryCurve::updateQwtPlotAxis()
 {
     if ( m_qwtPlotCurve )
     {
-        if ( this->axisY() == RiaDefines::PLOT_AXIS_LEFT )
+        if ( this->axisY() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
         {
             m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
         }

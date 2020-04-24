@@ -95,9 +95,9 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 
     setAsPlotMdiWindow();
 
-    addPlot( new RimWellDistributionPlot( RiaDefines::OIL_PHASE ) );
-    addPlot( new RimWellDistributionPlot( RiaDefines::GAS_PHASE ) );
-    addPlot( new RimWellDistributionPlot( RiaDefines::WATER_PHASE ) );
+    addPlot( new RimWellDistributionPlot( RiaDefines::PhaseType::OIL_PHASE ) );
+    addPlot( new RimWellDistributionPlot( RiaDefines::PhaseType::GAS_PHASE ) );
+    addPlot( new RimWellDistributionPlot( RiaDefines::PhaseType::WATER_PHASE ) );
 }
 
 //--------------------------------------------------------------------------------------------------

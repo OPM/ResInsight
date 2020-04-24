@@ -140,7 +140,7 @@ RimWellPltPlot::RimWellPltPlot()
     m_isOnLoad              = true;
     m_plotLegendsHorizontal = false;
 
-    setAvailableDepthTypes( {RiaDefines::MEASURED_DEPTH} );
+    setAvailableDepthTypes( {RiaDefines::DepthTypeEnum::MEASURED_DEPTH} );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,13 +169,13 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
                 // Todo: Handle different units in the relevant las channels
                 switch ( source.wellLogFile()->wellLogFileData()->depthUnit() )
                 {
-                    case RiaDefines::UNIT_METER:
+                    case RiaDefines::DepthUnitType::UNIT_METER:
                         presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_METRIC );
                         break;
-                    case RiaDefines::UNIT_FEET:
+                    case RiaDefines::DepthUnitType::UNIT_FEET:
                         presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_FIELD );
                         break;
-                    case RiaDefines::UNIT_NONE:
+                    case RiaDefines::DepthUnitType::UNIT_NONE:
                         presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_UNKNOWN );
                         break;
                 }
@@ -657,8 +657,10 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                     RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
                     {
                         RiaDefines::DepthUnitType depthUnit = wellLogFileData->depthUnit();
-                        if ( depthUnit == RiaDefines::UNIT_FEET ) unitSystem = RiaEclipseUnitTools::UNITS_FIELD;
-                        if ( depthUnit == RiaDefines::UNIT_METER ) unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
+                        if ( depthUnit == RiaDefines::DepthUnitType::UNIT_FEET )
+                            unitSystem = RiaEclipseUnitTools::UNITS_FIELD;
+                        if ( depthUnit == RiaDefines::DepthUnitType::UNIT_METER )
+                            unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
                     }
 
                     for ( const ChannelValNameIdxTuple& channelInfo : sortedChannels )

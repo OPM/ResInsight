@@ -798,23 +798,23 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 
     // Header
 
-    if ( depthType == RiaDefines::CONNECTION_NUMBER )
+    if ( depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
     {
         out += "Connection";
     }
-    else if ( depthType == RiaDefines::MEASURED_DEPTH )
+    else if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
     {
         out += "MD   ";
     }
-    else if ( depthType == RiaDefines::PSEUDO_LENGTH )
+    else if ( depthType == RiaDefines::DepthTypeEnum::PSEUDO_LENGTH )
     {
         out += "PL   ";
     }
-    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+    else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
     {
         out += "TVDMSL  ";
     }
-    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+    else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
     {
         out += "TVDRKB  ";
     }
@@ -830,7 +830,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
         size_t i          = dIdx;
         double curveDepth = curveDepths[i];
 
-        if ( depthType == RiaDefines::CONNECTION_NUMBER )
+        if ( depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
         {
             if ( dIdx == 0 )
                 continue; // Skip the first line. (shallow depth, which is last)
@@ -871,7 +871,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogTrack::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
 {
-    if ( fontSettingType == RiaDefines::PLOT_FONT && m_plotWidget )
+    if ( fontSettingType == RiaDefines::FontSettingType::PLOT_FONT && m_plotWidget )
     {
         return defaultFontSize != m_plotWidget->axisTitleFontSize( QwtPlot::xTop );
     }
@@ -886,7 +886,7 @@ bool RimWellLogTrack::applyFontSize( RiaDefines::FontSettingType fontSettingType
                                      int                         fontSize,
                                      bool                        forceChange /*= false*/ )
 {
-    if ( fontSettingType == RiaDefines::PLOT_FONT && m_plotWidget )
+    if ( fontSettingType == RiaDefines::FontSettingType::PLOT_FONT && m_plotWidget )
     {
         if ( oldFontSize == m_plotWidget->axisTitleFontSize( QwtPlot::xTop ) || forceChange )
         {
@@ -1921,7 +1921,7 @@ void RimWellLogTrack::handleWheelEvent( QWheelEvent* event )
 std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( RiaDefines::DepthTypeEnum  depthType,
                                                                              const RigWellLogExtractor* extractor ) const
 {
-    if ( depthType == RiaDefines::MEASURED_DEPTH )
+    if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
     {
         double waterStartMD = 0.0;
         if ( extractor->wellPathData()->rkbDiff() != std::numeric_limits<double>::infinity() )
@@ -1932,14 +1932,14 @@ std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( Ria
         double rockEndMD  = extractor->cellIntersectionMDs().back();
         return {{waterStartMD, waterEndMD}, {waterEndMD, rockEndMD}};
     }
-    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH )
+    else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
     {
         double waterStartTVD = 0.0;
         double waterEndTVD   = extractor->cellIntersectionTVDs().front();
         double rockEndTVD    = extractor->cellIntersectionTVDs().back();
         return {{waterStartTVD, waterEndTVD}, {waterEndTVD, rockEndTVD}};
     }
-    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+    else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
     {
         double waterStartTVDRKB = extractor->wellPathData()->rkbDiff();
         double waterEndTVDRKB   = extractor->cellIntersectionTVDs().front() + extractor->wellPathData()->rkbDiff();
@@ -2171,14 +2171,15 @@ void RimWellLogTrack::findRegionNamesToPlot( const CurveSamplingPointData&      
 
     std::vector<double> depthVector;
 
-    if ( depthType == RiaDefines::MEASURED_DEPTH || depthType == RiaDefines::PSEUDO_LENGTH )
+    if ( depthType == RiaDefines::DepthTypeEnum::MEASURED_DEPTH || depthType == RiaDefines::DepthTypeEnum::PSEUDO_LENGTH )
     {
         depthVector = curveData.md;
     }
-    else if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH || depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+    else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ||
+              depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
     {
         depthVector = curveData.tvd;
-        if ( depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+        if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
         {
             for ( double& depthValue : depthVector )
             {
@@ -2290,8 +2291,9 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     {
         if ( m_formationWellPathForSourceWellPath == nullptr ) return;
 
-        if ( !( plot->depthType() == RiaDefines::MEASURED_DEPTH || plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH ||
-                plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH_RKB ) )
+        if ( !( plot->depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH ||
+                plot->depthType() == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ||
+                plot->depthType() == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB ) )
         {
             return;
         }
@@ -2308,7 +2310,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                      m_showformationFluids(),
                                                      plot->depthType() );
 
-        if ( plot->depthType() == RiaDefines::TRUE_VERTICAL_DEPTH_RKB )
+        if ( plot->depthType() == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
         {
             for ( double& depthValue : yValues )
             {
@@ -2590,16 +2592,17 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
             }
         }
 
-        const std::map<RiaDefines::WellPathComponentType, int> sortIndices = {{RiaDefines::WELL_PATH, 0},
-                                                                              {RiaDefines::CASING, 1},
-                                                                              {RiaDefines::LINER, 2},
-                                                                              {RiaDefines::PERFORATION_INTERVAL, 3},
-                                                                              {RiaDefines::FISHBONES, 4},
-                                                                              {RiaDefines::FRACTURE, 5},
-                                                                              {RiaDefines::PACKER, 6},
-                                                                              {RiaDefines::ICD, 7},
-                                                                              {RiaDefines::AICD, 8},
-                                                                              {RiaDefines::ICV, 9}};
+        const std::map<RiaDefines::WellPathComponentType, int> sortIndices =
+            {{RiaDefines::WellPathComponentType::WELL_PATH, 0},
+             {RiaDefines::WellPathComponentType::CASING, 1},
+             {RiaDefines::WellPathComponentType::LINER, 2},
+             {RiaDefines::WellPathComponentType::PERFORATION_INTERVAL, 3},
+             {RiaDefines::WellPathComponentType::FISHBONES, 4},
+             {RiaDefines::WellPathComponentType::FRACTURE, 5},
+             {RiaDefines::WellPathComponentType::PACKER, 6},
+             {RiaDefines::WellPathComponentType::ICD, 7},
+             {RiaDefines::WellPathComponentType::AICD, 8},
+             {RiaDefines::WellPathComponentType::ICV, 9}};
 
         std::stable_sort( allWellPathComponents.begin(),
                           allWellPathComponents.end(),

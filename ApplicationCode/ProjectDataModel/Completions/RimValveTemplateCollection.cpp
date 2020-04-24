@@ -108,15 +108,15 @@ void RimValveTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 void RimValveTemplateCollection::addDefaultValveTemplates()
 {
     RimValveTemplate* aicd = new RimValveTemplate;
-    aicd->setType( RiaDefines::AICD );
+    aicd->setType( RiaDefines::WellPathComponentType::AICD );
     aicd->setUserLabel( "Valve Template #1" );
 
     RimValveTemplate* icd = new RimValveTemplate;
-    icd->setType( RiaDefines::ICD );
+    icd->setType( RiaDefines::WellPathComponentType::ICD );
     icd->setUserLabel( "Valve Template #2" );
 
     RimValveTemplate* icv = new RimValveTemplate;
-    icv->setType( RiaDefines::ICV );
+    icv->setType( RiaDefines::WellPathComponentType::ICV );
     icv->setUserLabel( "Valve Template #3" );
 
     addValveTemplate( aicd );
