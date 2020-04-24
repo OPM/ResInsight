@@ -274,11 +274,6 @@ if (RESINSIGHT_FOUND_HDF5)
     endif() # MSVC
 
     source_group( "FileInterface" FILES FileInterface/RifHdf5Reader.h FileInterface/RifHdf5Reader.cpp )
-
-endif()
-
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
-    add_definitions(-DENABLE_SOURING)
 endif()
 
 #############################################################################
@@ -838,10 +833,6 @@ endif()
 
 if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
     set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_oct-${OCTAVE_VERSION_STRING}")
-endif()
-
-if(RESINSIGHT_FOUND_HDF5)
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_souring")
 endif()
 
 if(RESINSIGHT_BUNDLE_OPENSSL AND OPENSSL_FOUND)

@@ -1189,10 +1189,10 @@ public:
         resTypeNames.push_back( "Generated" );
         resTypes.push_back( RiaDefines::ResultCatType::INPUT_PROPERTY );
         resTypeNames.push_back( "Input" );
-#ifdef ENABLE_SOURING
+#ifdef USE_HDF5
         resTypes.push_back( RiaDefines::ResultCatType::INJECTION_FLOODING );
         resTypeNames.push_back( "Injection Flooding" );
-#endif /* ENABLE_SOURING */
+#endif /* USE_HDF5 */
 
         for ( size_t rtIdx = 0; rtIdx < resTypes.size(); ++rtIdx )
         {

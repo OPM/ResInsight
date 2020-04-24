@@ -186,43 +186,38 @@ if(MSVC)
     set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Windows Only: Optional path to HDF5 libraries on Windows")
 endif()
 
-option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING "Enable prototype feature Souring (requires third party library HDF5)" ON)
-mark_as_advanced(FORCE RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING) 
+if(MSVC)
+    if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
+	    list(APPEND EXTERNAL_LINK_LIBRARIES
+            ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
+            ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
+	    )
 
-if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
-    if(MSVC)
-        if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
-	        list(APPEND EXTERNAL_LINK_LIBRARIES
-                ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
-                ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
-	        )
-
-	        set(RESINSIGHT_FOUND_HDF5 1)
-	        message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
-        else()
-	        message( WARNING "Use of HDF5 is enabled, but RESINSIGHT_HDF5_DIR is empty. Specify RESINSIGHT_HDF5_DIR to be able to use HDF5" )
-        endif()
+	    set(RESINSIGHT_FOUND_HDF5 1)
+	    message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
     else()
-        find_package(HDF5 COMPONENTS CXX)
-        if (HDF5_FOUND)
-		    list(APPEND EXTERNAL_LINK_LIBRARIES
-		        ${HDF5_LIBRARIES}
-		    )
+	    message( WARNING "Use of HDF5 is enabled, but RESINSIGHT_HDF5_DIR is empty. Specify RESINSIGHT_HDF5_DIR to be able to use HDF5" )
+    endif()
+else()
+    find_package(HDF5 COMPONENTS CXX)
+    if (HDF5_FOUND)
+		list(APPEND EXTERNAL_LINK_LIBRARIES
+		    ${HDF5_LIBRARIES}
+		)
 
-	        set(RESINSIGHT_FOUND_HDF5 1)
-	        message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
+	    set(RESINSIGHT_FOUND_HDF5 1)
+	    message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
 
-			option (RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
-			mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES) 
-	        if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
-		        message( STATUS "Bundling of HDF5 libraries is enabled" )
-	        endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
+		option (RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
+		mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES) 
+	    if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
+		    message( STATUS "Bundling of HDF5 libraries is enabled" )
+	    endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
 
-        else()
-            message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
-        endif() # HDF5_FOUND
-    endif() # MSVC
-endif() # RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING
+    else()
+        message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
+    endif() # HDF5_FOUND
+endif() # MSVC
 
 
 ################################################################################ 

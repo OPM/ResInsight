@@ -647,7 +647,7 @@ QList<caf::PdmOptionItemInfo>
 
         bool enableSouring = false;
 
-#ifdef ENABLE_SOURING
+#ifdef USE_HDF5
         if ( m_eclipseCase.notNull() )
         {
             RigCaseCellResultsData* cellResultsData = m_eclipseCase->results( this->porosityModel() );
@@ -657,7 +657,7 @@ QList<caf::PdmOptionItemInfo>
                 enableSouring = true;
             }
         }
-#endif /* ENABLE_SOURING */
+#endif /* USE_HDF5 */
 
         RimGridTimeHistoryCurve* timeHistoryCurve;
         this->firstAncestorOrThisOfType( timeHistoryCurve );
