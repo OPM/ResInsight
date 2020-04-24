@@ -379,7 +379,7 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
             if ( summaryReader )
             {
                 const std::vector<time_t>& timeSteps = summaryReader->timeSteps( RifEclipseSummaryAddress() );
-                if ( m_fixedTimeStepIndex >= 0 && m_fixedTimeStepIndex < timeSteps.size() )
+                if ( m_fixedTimeStepIndex >= 0 && m_fixedTimeStepIndex < static_cast<int>( timeSteps.size() ) )
                 {
                     time_t    selectedTime = timeSteps[m_fixedTimeStepIndex];
                     QDateTime dt           = RiaQDateTimeTools::fromTime_t( selectedTime );

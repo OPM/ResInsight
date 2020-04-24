@@ -1130,7 +1130,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 
                     if ( filter->consideredTimeStepsType() == RimPlotDataFilterItem::ALL_TIMESTEPS )
                     {
-                        for ( int tIdx = 0; tIdx < timesteps.size(); ++tIdx )
+                        for ( size_t tIdx = 0; tIdx < timesteps.size(); ++tIdx )
                         {
                             double value = values[tIdx];
 
@@ -1310,7 +1310,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 
             if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N )
             {
-                size_t count = 0;
+                int count = 0;
                 for ( auto it = valueSortedSumItems.rbegin();
                       count < filter->topBottomN() && it != valueSortedSumItems.rend();
                       ++it )
@@ -1321,7 +1321,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             }
             else if ( filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
             {
-                size_t count = 0;
+                int count = 0;
                 for ( auto it = valueSortedSumItems.begin();
                       count < filter->topBottomN() && it != valueSortedSumItems.end();
                       ++it )
@@ -1341,7 +1341,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 
             if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N )
             {
-                size_t count = 0;
+                int count = 0;
                 for ( auto it = valueSortedSumCases.rbegin();
                       count < filter->topBottomN() && it != valueSortedSumCases.rend();
                       ++it )
@@ -1352,7 +1352,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             }
             else if ( filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
             {
-                size_t count = 0;
+                int count = 0;
                 for ( auto it = valueSortedSumCases.begin();
                       count < filter->topBottomN() && it != valueSortedSumCases.end();
                       ++it )
