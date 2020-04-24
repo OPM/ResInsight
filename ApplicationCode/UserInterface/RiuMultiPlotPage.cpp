@@ -216,9 +216,9 @@ void RiuMultiPlotPage::removePlot( RiuQwtPlotWidget* plotWidget )
     if ( legend )
     {
         legend->setParent( nullptr );
-        m_legends.removeAt( plotWidgetIdx );
         delete legend;
     }
+    m_legends.removeAt( plotWidgetIdx );
 
     QLabel* subTitle = m_subTitles[plotWidgetIdx];
     subTitle->setParent( nullptr );
