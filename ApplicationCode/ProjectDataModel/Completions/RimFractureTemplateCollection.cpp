@@ -406,7 +406,7 @@ void RimFractureTemplateCollection::initAfterRead()
             else
             {
                 bool anySetShowStimPlanMeshIsSetToFalse = false;
-                for ( templateIt; templateIt != stimPlanFractureTemplatesInView.end(); templateIt++ )
+                for ( ; templateIt != stimPlanFractureTemplatesInView.end(); templateIt++ )
                 {
                     if ( templateIt->first->showStimPlanMesh() == false )
                     {
