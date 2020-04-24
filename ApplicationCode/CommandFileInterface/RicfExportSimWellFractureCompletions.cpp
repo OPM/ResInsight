@@ -98,7 +98,8 @@ caf::PdmScriptResponse RicfExportSimWellFractureCompletions::execute()
         exportSettings->caseToApply = eclipseCase;
     }
 
-    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::COMPLETIONS );
+    QString exportFolder =
+        RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::COMPLETIONS );
     if ( exportFolder.isNull() )
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "completions" );

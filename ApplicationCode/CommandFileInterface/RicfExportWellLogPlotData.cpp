@@ -37,9 +37,9 @@ namespace caf
 template <>
 void RicfExportWellLogPlotData::ExportFormatEnum::setUp()
 {
-    addItem( RicfExportWellLogPlotData::LAS, "LAS", "LAS" );
-    addItem( RicfExportWellLogPlotData::ASCII, "ASCII", "ASCII" );
-    setDefault( RicfExportWellLogPlotData::LAS );
+    addItem( RicfExportWellLogPlotData::ExportFormat::LAS, "LAS", "LAS" );
+    addItem( RicfExportWellLogPlotData::ExportFormat::ASCII, "ASCII", "ASCII" );
+    setDefault( RicfExportWellLogPlotData::ExportFormat::LAS );
 }
 } // namespace caf
 
@@ -90,7 +90,7 @@ caf::PdmScriptResponse RicfExportWellLogPlotData::execute()
         {
             if ( plot->id() == m_viewId() )
             {
-                if ( m_format() == ASCII )
+                if ( m_format() == ExportFormat::ASCII )
                 {
                     QString validFileName =
                         RicAsciiExportWellLogPlotFeature::makeValidExportFileName( plot,

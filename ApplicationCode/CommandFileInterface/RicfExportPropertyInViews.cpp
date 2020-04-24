@@ -139,7 +139,8 @@ caf::PdmScriptResponse RicfExportPropertyInViews::execute()
             continue;
         }
 
-        QDir propertiesDir( RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::PROPERTIES ) );
+        QDir propertiesDir(
+            RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::PROPERTIES ) );
 
         QString fileName = QString( "%1-%2-T%3-%4" )
                                .arg( eclipseCase->caseUserDescription() )

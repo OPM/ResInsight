@@ -78,7 +78,8 @@ caf::PdmScriptResponse RicfExportWellPaths::execute()
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
-    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::WELLPATHS );
+    QString exportFolder =
+        RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::WELLPATHS );
     if ( exportFolder.isNull() )
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "wellpaths" );

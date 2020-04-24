@@ -67,7 +67,8 @@ caf::PdmScriptResponse RicfExportMultiCaseSnapshots::execute()
     std::vector<QString> listFileNames = RiaApplication::readFileListFromTextFile( m_gridListFile() );
     app->runMultiCaseSnapshots( lastProjectPath,
                                 listFileNames,
-                                RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::SNAPSHOTS ) );
+                                RicfCommandFileExecutor::instance()->getExportPath(
+                                    RicfCommandFileExecutor::ExportType::SNAPSHOTS ) );
 
     return caf::PdmScriptResponse();
 }

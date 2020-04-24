@@ -50,10 +50,10 @@ namespace caf
 template <>
 void AppEnum<RicfExportVisibleCells::ExportKeyword>::setUp()
 {
-    addItem( RicfExportVisibleCells::FLUXNUM, "FLUXNUM", "FLUXNUM" );
-    addItem( RicfExportVisibleCells::MULTNUM, "MULTNUM", "MULTNUM" );
+    addItem( RicfExportVisibleCells::ExportKeyword::FLUXNUM, "FLUXNUM", "FLUXNUM" );
+    addItem( RicfExportVisibleCells::ExportKeyword::MULTNUM, "MULTNUM", "MULTNUM" );
 
-    setDefault( RicfExportVisibleCells::FLUXNUM );
+    setDefault( RicfExportVisibleCells::ExportKeyword::FLUXNUM );
 }
 } // namespace caf
 
@@ -119,7 +119,7 @@ caf::PdmScriptResponse RicfExportVisibleCells::execute()
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
-    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::CELLS );
+    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::CELLS );
     if ( exportFolder.isNull() )
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "visibleCells" );
