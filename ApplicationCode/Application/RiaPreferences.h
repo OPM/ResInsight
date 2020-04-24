@@ -76,6 +76,8 @@ public:
     RiaPreferences( void );
     ~RiaPreferences( void ) override;
 
+    static RiaPreferences* current();
+
     QStringList tabNames();
 
     const RifReaderSettings* readerSettings() const;
