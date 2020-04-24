@@ -207,7 +207,7 @@ bool RimWellPath::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::WellPathComponentType RimWellPath::componentType() const
 {
-    return RiaDefines::WELL_PATH;
+    return RiaDefines::WellPathComponentType::WELL_PATH;
 }
 
 //--------------------------------------------------------------------------------------------------

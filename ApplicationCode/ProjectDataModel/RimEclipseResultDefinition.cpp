@@ -1957,22 +1957,26 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                     const std::vector<int>& visibleCategories =
                         cellResultsData->uniqueCellScalarValues( this->eclipseResultAddress() );
 
-                    std::vector<RiaDefines::WellPathComponentType> supportedCompletionTypes = {RiaDefines::WELL_PATH,
-                                                                                               RiaDefines::FISHBONES,
-                                                                                               RiaDefines::PERFORATION_INTERVAL,
-                                                                                               RiaDefines::FRACTURE};
+                    std::vector<RiaDefines::WellPathComponentType> supportedCompletionTypes =
+                        {RiaDefines::WellPathComponentType::WELL_PATH,
+                         RiaDefines::WellPathComponentType::FISHBONES,
+                         RiaDefines::WellPathComponentType::PERFORATION_INTERVAL,
+                         RiaDefines::WellPathComponentType::FRACTURE};
 
                     RiaColorTables::WellPathComponentColors colors = RiaColorTables::wellPathComponentColors();
 
                     std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
                     for ( auto completionType : supportedCompletionTypes )
                     {
-                        if ( std::find( visibleCategories.begin(), visibleCategories.end(), completionType ) !=
-                             visibleCategories.end() )
+                        if ( std::find( visibleCategories.begin(),
+                                        visibleCategories.end(),
+                                        static_cast<int>( completionType ) ) != visibleCategories.end() )
                         {
                             QString categoryText =
                                 caf::AppEnum<RiaDefines::WellPathComponentType>::uiText( completionType );
-                            categories.push_back( std::make_tuple( categoryText, completionType, colors[completionType] ) );
+                            categories.push_back( std::make_tuple( categoryText,
+                                                                   static_cast<int>( completionType ),
+                                                                   colors[completionType] ) );
                         }
                     }
 

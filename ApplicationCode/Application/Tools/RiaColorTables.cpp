@@ -511,17 +511,17 @@ cvf::Color3f RiaColorTables::undefinedCellColor()
 //--------------------------------------------------------------------------------------------------
 RiaColorTables::WellPathComponentColors RiaColorTables::wellPathComponentColors()
 {
-    return {{RiaDefines::WELL_PATH, cvf::Color3::CEETRON},
-            {RiaDefines::PERFORATION_INTERVAL, cvf::Color3::DARK_MAGENTA},
-            {RiaDefines::FISHBONES, cvf::Color3::DARK_GREEN},
-            {RiaDefines::FRACTURE, cvf::Color3::CRIMSON},
-            {RiaDefines::ICD, cvf::Color3::DARK_ORANGE},
-            {RiaDefines::AICD, cvf::Color3::INDIGO},
-            {RiaDefines::ICV, cvf::Color3::ORCHID},
-            {RiaDefines::CASING, cvf::Color3::SEA_GREEN},
-            {RiaDefines::LINER, cvf::Color3::OLIVE},
-            {RiaDefines::PACKER, cvf::Color3::GRAY},
-            {RiaDefines::UNDEFINED_COMPONENT, cvf::Color3::MAGENTA}};
+    return {{RiaDefines::WellPathComponentType::WELL_PATH, cvf::Color3::CEETRON},
+            {RiaDefines::WellPathComponentType::PERFORATION_INTERVAL, cvf::Color3::DARK_MAGENTA},
+            {RiaDefines::WellPathComponentType::FISHBONES, cvf::Color3::DARK_GREEN},
+            {RiaDefines::WellPathComponentType::FRACTURE, cvf::Color3::CRIMSON},
+            {RiaDefines::WellPathComponentType::ICD, cvf::Color3::DARK_ORANGE},
+            {RiaDefines::WellPathComponentType::AICD, cvf::Color3::INDIGO},
+            {RiaDefines::WellPathComponentType::ICV, cvf::Color3::ORCHID},
+            {RiaDefines::WellPathComponentType::CASING, cvf::Color3::SEA_GREEN},
+            {RiaDefines::WellPathComponentType::LINER, cvf::Color3::OLIVE},
+            {RiaDefines::WellPathComponentType::PACKER, cvf::Color3::GRAY},
+            {RiaDefines::WellPathComponentType::UNDEFINED_COMPONENT, cvf::Color3::MAGENTA}};
 }
 
 //--------------------------------------------------------------------------------------------------

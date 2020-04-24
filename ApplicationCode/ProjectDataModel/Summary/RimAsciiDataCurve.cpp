@@ -202,7 +202,7 @@ void RimAsciiDataCurve::updateQwtPlotAxis()
 {
     if ( m_qwtPlotCurve )
     {
-        if ( this->yAxis() == RiaDefines::PLOT_AXIS_LEFT )
+        if ( this->yAxis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
         {
             m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
         }

@@ -125,15 +125,15 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 std::map<RiaDefines::DepthTypeEnum, std::vector<double>> validDepths;
                 if ( values.size() == measuredDepthValues.size() )
                 {
-                    validDepths.insert( std::make_pair( RiaDefines::MEASURED_DEPTH, measuredDepthValues ) );
+                    validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, measuredDepthValues ) );
                 }
                 if ( values.size() == tvdMslValues.size() )
                 {
-                    validDepths.insert( std::make_pair( RiaDefines::TRUE_VERTICAL_DEPTH, tvdMslValues ) );
+                    validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, tvdMslValues ) );
                 }
                 if ( values.size() == tvdRkbValues.size() )
                 {
-                    validDepths.insert( std::make_pair( RiaDefines::TRUE_VERTICAL_DEPTH_RKB, tvdRkbValues ) );
+                    validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, tvdRkbValues ) );
                 }
 
                 this->setValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false );
@@ -165,13 +165,13 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
         }
 
-        RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
+        RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
         if ( wellLogPlot )
         {
             displayUnit = wellLogPlot->depthUnit();
         }
 
-        RiaDefines::DepthTypeEnum depthType = RiaDefines::MEASURED_DEPTH;
+        RiaDefines::DepthTypeEnum depthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
         if ( wellLogPlot && this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
         {
             depthType = wellLogPlot->depthType();

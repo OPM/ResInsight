@@ -107,7 +107,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
         {
             // Left Axis
 
-            RiaDefines::PlotAxis plotAxis = RiaDefines::PLOT_AXIS_LEFT;
+            RiaDefines::PlotAxis plotAxis = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
 
             {
                 // Note : The parameter "WOIR" is probably never-existing, but we check for existence before creating
@@ -147,7 +147,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
         {
             // Left Axis
 
-            RiaDefines::PlotAxis plotAxis = RiaDefines::PLOT_AXIS_LEFT;
+            RiaDefines::PlotAxis plotAxis = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
 
             {
                 // Oil
@@ -186,7 +186,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
         // Right Axis
 
         {
-            RiaDefines::PlotAxis plotAxis = RiaDefines::PLOT_AXIS_RIGHT;
+            RiaDefines::PlotAxis plotAxis = RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
 
             {
                 QString parameterName = "WTHP";

@@ -737,7 +737,7 @@ void Rim3dView::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setMeshOnlyDrawstyle()
 {
-    meshMode.setValueWithFieldChanged( RiaDefines::FULL_MESH );
+    meshMode.setValueWithFieldChanged( RiaDefines::MeshModeType::FULL_MESH );
     surfaceMode.setValueWithFieldChanged( NO_SURFACE );
 }
 
@@ -747,7 +747,7 @@ void Rim3dView::setMeshOnlyDrawstyle()
 void Rim3dView::setMeshSurfDrawstyle()
 {
     surfaceMode.setValueWithFieldChanged( SURFACE );
-    meshMode.setValueWithFieldChanged( RiaDefines::FULL_MESH );
+    meshMode.setValueWithFieldChanged( RiaDefines::MeshModeType::FULL_MESH );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -756,7 +756,7 @@ void Rim3dView::setMeshSurfDrawstyle()
 void Rim3dView::setFaultMeshSurfDrawstyle()
 {
     surfaceMode.setValueWithFieldChanged( SURFACE );
-    meshMode.setValueWithFieldChanged( RiaDefines::FAULTS_MESH );
+    meshMode.setValueWithFieldChanged( RiaDefines::MeshModeType::FAULTS_MESH );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -765,7 +765,7 @@ void Rim3dView::setFaultMeshSurfDrawstyle()
 void Rim3dView::setSurfOnlyDrawstyle()
 {
     surfaceMode.setValueWithFieldChanged( SURFACE );
-    meshMode.setValueWithFieldChanged( RiaDefines::NO_MESH );
+    meshMode.setValueWithFieldChanged( RiaDefines::MeshModeType::NO_MESH );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1252,14 +1252,14 @@ void Rim3dView::updateDisplayModelVisibility()
         mask |= intersectionCellFaceBit;
     }
 
-    if ( meshMode == RiaDefines::FULL_MESH )
+    if ( meshMode == RiaDefines::MeshModeType::FULL_MESH )
     {
         mask |= uintMeshSurfaceBit;
         mask |= uintMeshFaultBit;
         mask |= intersectionCellMeshBit;
         mask |= intersectionFaultMeshBit;
     }
-    else if ( meshMode == RiaDefines::FAULTS_MESH )
+    else if ( meshMode == RiaDefines::MeshModeType::FAULTS_MESH )
     {
         mask |= uintMeshFaultBit;
         mask |= intersectionFaultMeshBit;
@@ -1327,7 +1327,7 @@ bool Rim3dView::applyFontSize( RiaDefines::FontSettingType fontSettingType,
                                int                         fontSize,
                                bool                        forceChange /*= false*/ )
 {
-    if ( fontSettingType == RiaDefines::SCENE_FONT )
+    if ( fontSettingType == RiaDefines::FontSettingType::SCENE_FONT )
     {
         applyBackgroundColorAndFontChanges();
         return true;

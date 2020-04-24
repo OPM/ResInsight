@@ -70,11 +70,11 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
     }
 
     QString phaseResultName;
-    if ( phase == RiaDefines::WATER_PHASE )
+    if ( phase == RiaDefines::PhaseType::WATER_PHASE )
         phaseResultName = "SWAT";
-    else if ( phase == RiaDefines::OIL_PHASE )
+    else if ( phase == RiaDefines::PhaseType::OIL_PHASE )
         phaseResultName = "SOIL";
-    else if ( phase == RiaDefines::GAS_PHASE )
+    else if ( phase == RiaDefines::PhaseType::GAS_PHASE )
         phaseResultName = "SGAS";
     const std::vector<double>* phaseResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,

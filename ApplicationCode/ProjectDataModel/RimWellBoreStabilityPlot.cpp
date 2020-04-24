@@ -63,7 +63,7 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
     m_nameConfig->setCustomName( "Well Bore Stability" );
     m_nameConfig->enableAllAutoNameTags( true );
 
-    m_commonDataSource->setCaseType( RiaDefines::GEOMECH_ODB_CASE );
+    m_commonDataSource->setCaseType( RiaDefines::CaseType::GEOMECH_ODB_CASE );
 }
 
 //--------------------------------------------------------------------------------------------------

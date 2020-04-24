@@ -89,10 +89,10 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
 
-    caf::AppEnum<RimDepthTrackPlot::DepthTypeEnum> depthType = RiaDefines::MEASURED_DEPTH;
+    caf::AppEnum<RimDepthTrackPlot::DepthTypeEnum> depthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
     CAF_PDM_InitScriptableFieldWithIO( &m_depthType, "DepthType", depthType, "Type", "", "", "" );
 
-    caf::AppEnum<RiaDefines::DepthUnitType> depthUnit = RiaDefines::UNIT_METER;
+    caf::AppEnum<RiaDefines::DepthUnitType> depthUnit = RiaDefines::DepthUnitType::UNIT_METER;
     CAF_PDM_InitScriptableFieldWithIO( &m_depthUnit, "DepthUnit", depthUnit, "Unit", "", "", "" );
 
     CAF_PDM_InitScriptableFieldWithIO( &m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "" );
@@ -112,8 +112,10 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "", "", "", "" );
     m_plots.uiCapability()->setUiHidden( true );
 
-    m_availableDepthUnits = {RiaDefines::UNIT_METER, RiaDefines::UNIT_FEET};
-    m_availableDepthTypes = {RiaDefines::MEASURED_DEPTH, RiaDefines::TRUE_VERTICAL_DEPTH, RiaDefines::TRUE_VERTICAL_DEPTH_RKB};
+    m_availableDepthUnits = {RiaDefines::DepthUnitType::UNIT_METER, RiaDefines::DepthUnitType::UNIT_FEET};
+    m_availableDepthTypes = {RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                             RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
+                             RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB};
 
     m_minAvailableDepth = HUGE_VAL;
     m_maxAvailableDepth = -HUGE_VAL;
@@ -771,7 +773,7 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         m_isAutoScaleDepthEnabled = true;
 
-        bool isTVDRKB = m_depthType == RiaDefines::TRUE_VERTICAL_DEPTH_RKB;
+        bool isTVDRKB = m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB;
         m_nameConfig->setAutoNameTags( m_nameConfig->addCaseName(),
                                        m_nameConfig->addWellName(),
                                        m_nameConfig->addTimeStep(),
@@ -959,38 +961,38 @@ QString RimDepthTrackPlot::depthAxisTitle() const
 
     switch ( m_depthType.value() )
     {
-        case RiaDefines::MEASURED_DEPTH:
+        case RiaDefines::DepthTypeEnum::MEASURED_DEPTH:
             depthTitle = "MD";
             break;
 
-        case RiaDefines::TRUE_VERTICAL_DEPTH:
+        case RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH:
             depthTitle = "TVDMSL";
             break;
 
-        case RiaDefines::PSEUDO_LENGTH:
+        case RiaDefines::DepthTypeEnum::PSEUDO_LENGTH:
             depthTitle = "PL";
             break;
 
-        case RiaDefines::CONNECTION_NUMBER:
+        case RiaDefines::DepthTypeEnum::CONNECTION_NUMBER:
             depthTitle = "Connection";
             break;
 
-        case RiaDefines::TRUE_VERTICAL_DEPTH_RKB:
+        case RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB:
             depthTitle = "TVDRKB";
             break;
     }
 
-    if ( m_depthType() == RiaDefines::CONNECTION_NUMBER ) return depthTitle;
+    if ( m_depthType() == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER ) return depthTitle;
 
-    if ( m_depthUnit == RiaDefines::UNIT_METER )
+    if ( m_depthUnit == RiaDefines::DepthUnitType::UNIT_METER )
     {
         depthTitle += " [m]";
     }
-    else if ( m_depthUnit == RiaDefines::UNIT_FEET )
+    else if ( m_depthUnit == RiaDefines::DepthUnitType::UNIT_FEET )
     {
         depthTitle += " [ft]";
     }
-    else if ( m_depthUnit == RiaDefines::UNIT_NONE )
+    else if ( m_depthUnit == RiaDefines::DepthUnitType::UNIT_NONE )
     {
         depthTitle += "";
     }

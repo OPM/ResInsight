@@ -67,19 +67,19 @@ RiaDefines::DepthUnitType RiaEclipseUnitTools::depthUnit( UnitSystem unit )
     switch ( unit )
     {
         case RiaEclipseUnitTools::UNITS_METRIC:
-            return RiaDefines::UNIT_METER;
+            return RiaDefines::DepthUnitType::UNIT_METER;
             break;
         case RiaEclipseUnitTools::UNITS_FIELD:
-            return RiaDefines::UNIT_FEET;
+            return RiaDefines::DepthUnitType::UNIT_FEET;
             break;
         case RiaEclipseUnitTools::UNITS_LAB:
-            return RiaDefines::UNIT_NONE;
+            return RiaDefines::DepthUnitType::UNIT_NONE;
             break;
         case RiaEclipseUnitTools::UNITS_UNKNOWN:
-            return RiaDefines::UNIT_NONE;
+            return RiaDefines::DepthUnitType::UNIT_NONE;
             break;
         default:
-            return RiaDefines::UNIT_NONE;
+            return RiaDefines::DepthUnitType::UNIT_NONE;
             break;
     }
 }

@@ -43,13 +43,13 @@ std::vector<RiaDefines::WellPathComponentType> fromCompletionData( const std::ve
         switch ( d.completionType() )
         {
             case RigCompletionData::FRACTURE:
-                appCompletionTypes.push_back( RiaDefines::FRACTURE );
+                appCompletionTypes.push_back( RiaDefines::WellPathComponentType::FRACTURE );
                 break;
             case RigCompletionData::PERFORATION:
-                appCompletionTypes.push_back( RiaDefines::PERFORATION_INTERVAL );
+                appCompletionTypes.push_back( RiaDefines::WellPathComponentType::PERFORATION_INTERVAL );
                 break;
             case RigCompletionData::FISHBONES:
-                appCompletionTypes.push_back( RiaDefines::FISHBONES );
+                appCompletionTypes.push_back( RiaDefines::WellPathComponentType::FISHBONES );
                 break;
             default:
                 break;
@@ -85,7 +85,8 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult( RimEclips
 
                 for ( auto& intersection : intersectedCells )
                 {
-                    completionTypeCellResult[intersection] = RiaDefines::WELL_PATH;
+                    completionTypeCellResult[intersection] =
+                        static_cast<int>( RiaDefines::WellPathComponentType::WELL_PATH );
                 }
 
                 auto completions = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
@@ -94,28 +95,31 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult( RimEclips
                     for ( const auto& completionsForWell :
                           completions->multipleCompletionsPerEclipseCell( wellPath, timeStep ) )
                     {
-                        RiaDefines::WellPathComponentType appCompletionType = RiaDefines::WELL_PATH;
+                        RiaDefines::WellPathComponentType appCompletionType = RiaDefines::WellPathComponentType::WELL_PATH;
 
                         auto appCompletionTypes = fromCompletionData( completionsForWell.second );
 
-                        if ( std::find( appCompletionTypes.begin(), appCompletionTypes.end(), RiaDefines::FRACTURE ) !=
-                             appCompletionTypes.end() )
+                        if ( std::find( appCompletionTypes.begin(),
+                                        appCompletionTypes.end(),
+                                        RiaDefines::WellPathComponentType::FRACTURE ) != appCompletionTypes.end() )
                         {
-                            appCompletionType = RiaDefines::FRACTURE;
-                        }
-                        else if ( std::find( appCompletionTypes.begin(), appCompletionTypes.end(), RiaDefines::FISHBONES ) !=
-                                  appCompletionTypes.end() )
-                        {
-                            appCompletionType = RiaDefines::FISHBONES;
+                            appCompletionType = RiaDefines::WellPathComponentType::FRACTURE;
                         }
                         else if ( std::find( appCompletionTypes.begin(),
                                              appCompletionTypes.end(),
-                                             RiaDefines::PERFORATION_INTERVAL ) != appCompletionTypes.end() )
+                                             RiaDefines::WellPathComponentType::FISHBONES ) != appCompletionTypes.end() )
                         {
-                            appCompletionType = RiaDefines::PERFORATION_INTERVAL;
+                            appCompletionType = RiaDefines::WellPathComponentType::FISHBONES;
+                        }
+                        else if ( std::find( appCompletionTypes.begin(),
+                                             appCompletionTypes.end(),
+                                             RiaDefines::WellPathComponentType::PERFORATION_INTERVAL ) !=
+                                  appCompletionTypes.end() )
+                        {
+                            appCompletionType = RiaDefines::WellPathComponentType::PERFORATION_INTERVAL;
                         }
 
-                        completionTypeCellResult[completionsForWell.first] = appCompletionType;
+                        completionTypeCellResult[completionsForWell.first] = static_cast<int>( appCompletionType );
                     }
                 }
             }

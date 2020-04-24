@@ -162,7 +162,7 @@ void RimEclipseContourMapView::initAfterRead()
 
     disablePerspectiveProjectionField();
     setShowGridBox( false );
-    meshMode.setValue( RiaDefines::NO_MESH );
+    meshMode.setValue( RiaDefines::MeshModeType::NO_MESH );
     surfaceMode.setValue( FAULTS );
     setFaultVisParameters();
     scheduleCreateDisplayModelAndRedraw();

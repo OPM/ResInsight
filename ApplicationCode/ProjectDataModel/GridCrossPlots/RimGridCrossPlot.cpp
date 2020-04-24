@@ -573,8 +573,8 @@ void RimGridCrossPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    updateAxisInQwt( RiaDefines::PLOT_AXIS_BOTTOM );
-    updateAxisInQwt( RiaDefines::PLOT_AXIS_LEFT );
+    updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
 
     m_plotWidget->updateAnnotationObjects( m_xAxisProperties );
     m_plotWidget->updateAnnotationObjects( m_yAxisProperties );
@@ -733,7 +733,7 @@ void RimGridCrossPlot::setYAxisInverted( bool inverted )
 //--------------------------------------------------------------------------------------------------
 bool RimGridCrossPlot::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
 {
-    if ( fontSettingType != RiaDefines::PLOT_FONT ) return false;
+    if ( fontSettingType != RiaDefines::FontSettingType::PLOT_FONT ) return false;
 
     for ( auto plotAxis : allPlotAxes() )
     {
@@ -759,7 +759,7 @@ bool RimGridCrossPlot::applyFontSize( RiaDefines::FontSettingType fontSettingTyp
                                       bool                        forceChange /*= false*/ )
 {
     bool anyChange = false;
-    if ( fontSettingType == RiaDefines::PLOT_FONT && m_plotWidget )
+    if ( fontSettingType == RiaDefines::FontSettingType::PLOT_FONT && m_plotWidget )
     {
         for ( auto plotAxis : allPlotAxes() )
         {
@@ -819,8 +819,8 @@ void RimGridCrossPlot::updateZoomInQwt()
 {
     if ( m_plotWidget )
     {
-        updateAxisInQwt( RiaDefines::PLOT_AXIS_LEFT );
-        updateAxisInQwt( RiaDefines::PLOT_AXIS_BOTTOM );
+        updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+        updateAxisInQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
         m_plotWidget->updateAxes();
         updateZoomFromQwt();
         m_plotWidget->scheduleReplot();
@@ -832,8 +832,8 @@ void RimGridCrossPlot::updateZoomInQwt()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::updateZoomFromQwt()
 {
-    updateAxisFromQwt( RiaDefines::PLOT_AXIS_LEFT );
-    updateAxisFromQwt( RiaDefines::PLOT_AXIS_BOTTOM );
+    updateAxisFromQwt( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    updateAxisFromQwt( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -894,7 +894,7 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
     RimPlotAxisProperties* axisProperties      = m_xAxisProperties();
     QString                axisParameterString = xAxisParameterString();
 
-    if ( axisType == RiaDefines::PLOT_AXIS_LEFT )
+    if ( axisType == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
         axisProperties      = m_yAxisProperties();
         axisParameterString = yAxisParameterString();
@@ -989,7 +989,7 @@ void RimGridCrossPlot::updateAxisFromQwt( RiaDefines::PlotAxis axisType )
     RimPlotAxisProperties* axisProperties = m_xAxisProperties();
     QwtInterval            axisRange      = xAxisRange;
 
-    if ( axisType == RiaDefines::PLOT_AXIS_LEFT )
+    if ( axisType == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
         axisProperties = m_yAxisProperties();
         axisRange      = yAxisRange;

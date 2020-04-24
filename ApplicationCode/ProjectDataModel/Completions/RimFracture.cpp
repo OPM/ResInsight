@@ -324,7 +324,7 @@ void RimFracture::clearCachedNonDarcyProperties()
 //--------------------------------------------------------------------------------------------------
 RiaDefines::WellPathComponentType RimFracture::componentType() const
 {
-    return RiaDefines::FRACTURE;
+    return RiaDefines::WellPathComponentType::FRACTURE;
 }
 
 //--------------------------------------------------------------------------------------------------

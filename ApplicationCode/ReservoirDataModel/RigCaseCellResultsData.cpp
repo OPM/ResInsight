@@ -1724,8 +1724,8 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep( size_t timeStepIndex
     if ( m_readerInterface.isNull() ) return;
 
     std::set<RiaDefines::PhaseType> phases = m_readerInterface->availablePhases();
-    if ( phases.count( RiaDefines::GAS_PHASE ) == 0 ) return;
-    if ( phases.count( RiaDefines::OIL_PHASE ) > 0 ) return;
+    if ( phases.count( RiaDefines::PhaseType::GAS_PHASE ) == 0 ) return;
+    if ( phases.count( RiaDefines::PhaseType::OIL_PHASE ) > 0 ) return;
 
     // Simulation type is gas and water. No SGAS is present, compute SGAS based on SWAT
 

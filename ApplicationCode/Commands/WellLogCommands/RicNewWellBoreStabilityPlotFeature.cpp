@@ -112,7 +112,7 @@ RimWellBoreStabilityPlot*
         plot->setPlotTitleVisible( true );
         plot->setLegendsVisible( true );
         plot->setLegendsHorizontal( true );
-        plot->setDepthType( RiaDefines::TRUE_VERTICAL_DEPTH_RKB );
+        plot->setDepthType( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB );
         plot->setAutoScaleDepthEnabled( true );
 
         RicNewWellLogPlotFeatureImpl::updateAfterCreation( plot );

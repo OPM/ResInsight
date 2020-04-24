@@ -127,16 +127,16 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                                  measuredDepthValues,
                                                  trueVerticalDepthValues,
                                                  m_wellPath->wellPathGeometry()->rkbDiff(),
-                                                 RiaDefines::UNIT_METER,
+                                                 RiaDefines::DepthUnitType::UNIT_METER,
                                                  false );
                 }
                 else
                 {
                     this->setValuesAndDepths( values,
                                               measuredDepthValues,
-                                              RiaDefines::MEASURED_DEPTH,
+                                              RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
                                               0.0,
-                                              RiaDefines::UNIT_METER,
+                                              RiaDefines::DepthUnitType::UNIT_METER,
                                               false );
                 }
             }
@@ -151,13 +151,13 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
             setSymbolEdgeColor( getColorForMeasurementKind( measurementKind() ) );
             setLineStyle( RiuQwtPlotCurve::STYLE_NONE );
 
-            RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
+            RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
             if ( wellLogPlot )
             {
                 displayUnit = wellLogPlot->depthUnit();
             }
 
-            RiaDefines::DepthTypeEnum depthType = RiaDefines::MEASURED_DEPTH;
+            RiaDefines::DepthTypeEnum depthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
             if ( wellLogPlot && this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
             {
                 depthType = wellLogPlot->depthType();

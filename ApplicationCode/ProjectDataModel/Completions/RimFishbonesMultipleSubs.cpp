@@ -74,7 +74,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     m_name.uiCapability()->setUiReadOnly( true );
     m_name.xmlCapability()->setIOWritable( false );
 
-    cvf::Color3f defaultColor = RiaColorTables::wellPathComponentColors()[RiaDefines::FISHBONES];
+    cvf::Color3f defaultColor = RiaColorTables::wellPathComponentColors()[RiaDefines::WellPathComponentType::FISHBONES];
     CAF_PDM_InitField( &fishbonesColor, "Color", defaultColor, "Fishbones Color", "", "", "" );
 
     CAF_PDM_InitField( &m_lateralCountPerSub, "LateralCountPerSub", 3, "Laterals Per Sub", "", "", "" );
@@ -447,7 +447,7 @@ void RimFishbonesMultipleSubs::setUnitSystemSpecificDefaults()
 //--------------------------------------------------------------------------------------------------
 RiaDefines::WellPathComponentType RimFishbonesMultipleSubs::componentType() const
 {
-    return RiaDefines::FISHBONES;
+    return RiaDefines::WellPathComponentType::FISHBONES;
 }
 
 //--------------------------------------------------------------------------------------------------

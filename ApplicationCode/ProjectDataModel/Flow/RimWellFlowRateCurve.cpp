@@ -254,9 +254,9 @@ void RimWellFlowRateCurve::updateStackedPlotData()
 
     RimWellLogPlot::DepthTypeEnum depthType   = wellLogPlot->depthType();
     RiaDefines::DepthUnitType     displayUnit = wellLogPlot->depthUnit();
-    if ( depthType == RiaDefines::CONNECTION_NUMBER )
+    if ( depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
     {
-        displayUnit = RiaDefines::UNIT_NONE;
+        displayUnit = RiaDefines::DepthUnitType::UNIT_NONE;
     }
 
     std::vector<double>                    depthValues;
@@ -323,7 +323,7 @@ bool RimWellFlowRateCurve::isUsingConnectionNumberDepthType() const
 {
     RimWellLogPlot* wellLogPlot;
     firstAncestorOrThisOfType( wellLogPlot );
-    if ( wellLogPlot && wellLogPlot->depthType() == RiaDefines::CONNECTION_NUMBER )
+    if ( wellLogPlot && wellLogPlot->depthType() == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
     {
         return true;
     }
@@ -350,7 +350,7 @@ void RimWellFlowRateCurve::setFlowValuesPrDepthValue( const QString&            
                                                       const std::vector<double>& depthValues,
                                                       const std::vector<double>& flowRates )
 {
-    this->setValuesAndDepths( flowRates, depthValues, depthType, 0.0, RiaDefines::UNIT_NONE, false );
+    this->setValuesAndDepths( flowRates, depthValues, depthType, 0.0, RiaDefines::DepthUnitType::UNIT_NONE, false );
 
     m_curveAutoName = curveName;
 }
