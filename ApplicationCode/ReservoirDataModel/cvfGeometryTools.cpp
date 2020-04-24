@@ -606,7 +606,7 @@ cvf::Vec3d
     GeometryTools::barycentricCoords( const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const cvf::Vec3d& p )
 {
     // Unnormalized triangle normal
-    cvf::Vec3d m = ( t1 - t0 ^ t2 - t0 );
+    cvf::Vec3d m = ( ( t1 - t0 ) ^ ( t2 - t0 ) );
 
     // Absolute components for determining projection plane
     int X = 0, Y = 1;
