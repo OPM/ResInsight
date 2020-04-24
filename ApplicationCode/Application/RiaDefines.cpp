@@ -552,29 +552,29 @@ RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString
 {
     if ( fileName.endsWith( "EGRID", Qt::CaseInsensitive ) )
     {
-        return ECLIPSE_EGRID_FILE;
+        return ImportFileType::ECLIPSE_EGRID_FILE;
     }
     else if ( fileName.endsWith( "GRID", Qt::CaseInsensitive ) )
     {
-        return ECLIPSE_GRID_FILE;
+        return ImportFileType::ECLIPSE_GRID_FILE;
     }
     else if ( fileName.endsWith( "GRDECL", Qt::CaseInsensitive ) )
     {
-        return ECLIPSE_INPUT_FILE;
+        return ImportFileType::ECLIPSE_INPUT_FILE;
     }
     else if ( fileName.endsWith( "SMSPEC", Qt::CaseInsensitive ) )
     {
-        return ECLIPSE_SUMMARY_FILE;
+        return ImportFileType::ECLIPSE_SUMMARY_FILE;
     }
     else if ( fileName.endsWith( "ODB", Qt::CaseInsensitive ) )
     {
-        return GEOMECH_ODB_FILE;
+        return ImportFileType::GEOMECH_ODB_FILE;
     }
     else if ( fileName.endsWith( ".rsp", Qt::CaseInsensitive ) || fileName.endsWith( ".rip", Qt::CaseInsensitive ) )
     {
-        return RESINSIGHT_PROJECT_FILE;
+        return ImportFileType::RESINSIGHT_PROJECT_FILE;
     }
-    return NOT_A_VALID_IMPORT_FILE;
+    return ImportFileType::NOT_A_VALID_IMPORT_FILE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -584,25 +584,27 @@ QString RiaDefines::defaultDirectoryLabel( RiaDefines::ImportFileType fileType )
 {
     QString defaultDirLabel;
 
-    if ( fileType == ANY_ECLIPSE_FILE )
+    int fileTypeAsInt = int( fileType );
+
+    if ( fileType == ImportFileType::ANY_ECLIPSE_FILE )
     {
         defaultDirLabel = "GENERAL_DATA";
     }
-    else if ( fileType & ECLIPSE_RESULT_GRID )
+    else if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_RESULT_GRID ) )
     {
         defaultDirLabel = "BINARY_GRID";
     }
-    else if ( fileType & ECLIPSE_INPUT_FILE )
+    else if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_INPUT_FILE ) )
     {
         defaultDirLabel = "INPUT_FILES";
     }
-    else if ( fileType & ECLIPSE_SUMMARY_FILE )
+    else if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_SUMMARY_FILE ) )
     {
         // TODO: Summary files used "INPUT_FILES" as last used directory.
         // Check if this is correct.
         defaultDirLabel = "INPUT_FILES";
     }
-    else if ( fileType & GEOMECH_ODB_FILE )
+    else if ( fileTypeAsInt & int( ImportFileType::GEOMECH_ODB_FILE ) )
     {
         defaultDirLabel = "GEOMECH_MODEL";
     }

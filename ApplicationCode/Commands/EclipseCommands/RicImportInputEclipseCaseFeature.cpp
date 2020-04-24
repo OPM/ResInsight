@@ -52,7 +52,7 @@ bool RicImportInputEclipseCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportInputEclipseCaseFeature::onActionTriggered( bool isChecked )
 {
-    RicImportGeneralDataFeature::openFileDialog( RiaDefines::ECLIPSE_INPUT_FILE );
+    RicImportGeneralDataFeature::openFileDialog( RiaDefines::ImportFileType::ECLIPSE_INPUT_FILE );
 }
 
 //--------------------------------------------------------------------------------------------------

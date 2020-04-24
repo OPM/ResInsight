@@ -73,7 +73,7 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
     RiaGuiApplication::clearAllSelections();
 
     const QStringList fileNames =
-        RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ECLIPSE_RESULT_GRID );
+        RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ImportFileType::ECLIPSE_RESULT_GRID );
     if ( fileNames.isEmpty() ) return;
 
     const QString fileName = fileNames[0];

@@ -381,7 +381,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
         RicImportSummaryCasesFeature::addSummaryCases( summaryCasesToUse );
 
         RiaApplication::instance()->setLastUsedDialogDirectory( RiaDefines::defaultDirectoryLabel(
-                                                                    RiaDefines::ECLIPSE_SUMMARY_FILE ),
+                                                                    RiaDefines::ImportFileType::ECLIPSE_SUMMARY_FILE ),
                                                                 QFileInfo( summaryFileNames[0] ).absolutePath() );
     }
 

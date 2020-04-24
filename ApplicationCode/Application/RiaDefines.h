@@ -169,7 +169,7 @@ enum class PhaseType
     WATER_PHASE
 };
 
-enum ImportFileType
+enum class ImportFileType
 {
     NOT_A_VALID_IMPORT_FILE = 0x00,
     ECLIPSE_GRID_FILE       = 0x01,
