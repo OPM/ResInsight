@@ -250,7 +250,7 @@ RiaEclipseUnitTools::UnitSystemType RimSummaryCase::unitsSystem()
     {
         return reader->unitSystem();
     }
-    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

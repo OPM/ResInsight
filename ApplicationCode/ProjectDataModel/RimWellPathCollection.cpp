@@ -644,7 +644,7 @@ RiaEclipseUnitTools::UnitSystemType RimWellPathCollection::findUnitSystemForWell
     firstAncestorOrThisOfTypeAsserted( project );
     if ( project->activeOilField()->analysisModels->cases.empty() )
     {
-        return RiaEclipseUnitTools::UNITS_UNKNOWN;
+        return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
     }
 
     const RigEclipseCaseData* eclipseCaseData = project->activeOilField()->analysisModels->cases()[0]->eclipseCaseData();
@@ -659,7 +659,7 @@ RiaEclipseUnitTools::UnitSystemType RimWellPathCollection::findUnitSystemForWell
     {
         return eclipseCaseData->unitsType();
     }
-    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------

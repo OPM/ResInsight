@@ -78,7 +78,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QDockWidget* parent )
     : QWidget( parent )
-    , m_unitSystem( RiaEclipseUnitTools::UNITS_UNKNOWN )
+    , m_unitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
     , m_swat( HUGE_VAL )
     , m_sgas( HUGE_VAL )
     , m_plotUpdater( new RiuRelativePermeabilityPlotUpdater( this ) )
@@ -207,7 +207,7 @@ void RiuRelativePermeabilityPlotPanel::clearPlot()
         return;
     }
 
-    m_unitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
+    m_unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
     m_allCurvesArr.clear();
     m_swat = HUGE_VAL;
     m_sgas = HUGE_VAL;

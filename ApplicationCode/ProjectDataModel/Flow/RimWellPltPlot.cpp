@@ -170,13 +170,13 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
                 switch ( source.wellLogFile()->wellLogFileData()->depthUnit() )
                 {
                     case RiaDefines::DepthUnitType::UNIT_METER:
-                        presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_METRIC );
+                        presentUnitSystems.insert( RiaEclipseUnitTools::UnitSystem::UNITS_METRIC );
                         break;
                     case RiaDefines::DepthUnitType::UNIT_FEET:
-                        presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_FIELD );
+                        presentUnitSystems.insert( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD );
                         break;
                     case RiaDefines::DepthUnitType::UNIT_NONE:
-                        presentUnitSystems.insert( RiaEclipseUnitTools::UNITS_UNKNOWN );
+                        presentUnitSystems.insert( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN );
                         break;
                 }
             }
@@ -541,7 +541,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             resultPointCalc.reset( new RigSimWellResultPointCalculator( m_wellPathName, rimEclipseResultCase, timeStep ) );
         }
 
-        RiaEclipseUnitTools::UnitSystem unitSet = RiaEclipseUnitTools::UNITS_UNKNOWN;
+        RiaEclipseUnitTools::UnitSystem unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
         if ( rimEclipseResultCase )
         {
             unitSet = rimEclipseResultCase->eclipseCaseData()->unitsType();
@@ -654,13 +654,13 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
                     std::vector<double> depthValues = wellLogFileData->depthValues();
 
-                    RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
+                    RiaEclipseUnitTools::UnitSystem unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
                     {
                         RiaDefines::DepthUnitType depthUnit = wellLogFileData->depthUnit();
                         if ( depthUnit == RiaDefines::DepthUnitType::UNIT_FEET )
-                            unitSystem = RiaEclipseUnitTools::UNITS_FIELD;
+                            unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
                         if ( depthUnit == RiaDefines::DepthUnitType::UNIT_METER )
-                            unitSystem = RiaEclipseUnitTools::UNITS_METRIC;
+                            unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
                     }
 
                     for ( const ChannelValNameIdxTuple& channelInfo : sortedChannels )

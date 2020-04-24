@@ -474,7 +474,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
         }
 
         RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
-        if ( eclipseUnitsType == RiaEclipseUnitTools::UNITS_FIELD )
+        if ( eclipseUnitsType == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
         {
             // See https://github.com/OPM/ResInsight/issues/538
 

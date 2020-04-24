@@ -835,13 +835,13 @@ QString flowConditionReservoirUnitText( RiaEclipseUnitTools::UnitSystem unitSyst
 
     switch ( unitSystem )
     {
-        case RiaEclipseUnitTools::UNITS_METRIC:
+        case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
             unitText = "[m<sup>3</sup>/day]";
             break;
-        case RiaEclipseUnitTools::UNITS_FIELD:
+        case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
             unitText = "[Brl/day]";
             break;
-        case RiaEclipseUnitTools::UNITS_LAB:
+        case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
             unitText = "[cm<sup>3</sup>/hr]";
             break;
         default:
@@ -867,13 +867,13 @@ QString RimWellPlotTools::flowUnitText( RimWellLogFile::WellFlowCondition condit
     {
         switch ( unitSystem )
         {
-            case RiaEclipseUnitTools::UNITS_METRIC:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
                 unitText = "[Liquid Sm<sup>3</sup>/day], [Gas kSm<sup>3</sup>/day]";
                 break;
-            case RiaEclipseUnitTools::UNITS_FIELD:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
                 unitText = "[Liquid BBL/day], [Gas BOE/day]";
                 break;
-            case RiaEclipseUnitTools::UNITS_LAB:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
                 unitText = "[cm<sup>3</sup>/hr]";
                 break;
             default:
@@ -901,7 +901,7 @@ QString RimWellPlotTools::curveUnitText( RimWellLogFile::WellFlowCondition condi
     {
         switch ( unitSystem )
         {
-            case RiaEclipseUnitTools::UNITS_METRIC:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
                 switch ( flowPhase )
                 {
                     case FLOW_PHASE_GAS:
@@ -917,7 +917,7 @@ QString RimWellPlotTools::curveUnitText( RimWellLogFile::WellFlowCondition condi
                 }
                 break;
 
-            case RiaEclipseUnitTools::UNITS_FIELD:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
                 switch ( flowPhase )
                 {
                     case FLOW_PHASE_GAS:
@@ -932,7 +932,7 @@ QString RimWellPlotTools::curveUnitText( RimWellLogFile::WellFlowCondition condi
                         break;
                 }
                 break;
-            case RiaEclipseUnitTools::UNITS_LAB:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
                 unitText = "[cm<sup>3</sup>/hr]";
                 break;
             default:

@@ -399,7 +399,8 @@ QList<caf::PdmOptionItemInfo>
             QTime   exampleTime = QTime( 15, 48, 22 );
             QString timeFormatString =
                 RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                     timeComponents( RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND ) );
+                                                     timeComponents(
+                                                         RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND ) );
             QString uiText = QString( "%1 (%2)" ).arg( timeFormatString ).arg( exampleTime.toString( timeFormatString ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( timeFormat ) ) );
@@ -579,7 +580,7 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
         {
             advancedGroup->add( &m_dateFormat );
         }
-        if ( m_automaticDateComponents() || m_timeComponents() != RiaQDateTimeTools::TIME_FORMAT_NONE )
+        if ( m_automaticDateComponents() || m_timeComponents() != RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_NONE )
         {
             advancedGroup->add( &m_timeFormat );
         }
@@ -709,7 +710,8 @@ void RimSummaryTimeAxisProperties::defineEditorAttribute( const caf::PdmFieldHan
         if ( timeAttrib )
         {
             timeAttrib->timeFormat =
-                RiaQDateTimeTools::timeFormatString( m_timeFormat(), RiaQDateTimeTools::TIME_FORMAT_HOUR_MINUTE_SECOND );
+                RiaQDateTimeTools::timeFormatString( m_timeFormat(),
+                                                     RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
         }
     }
 }

@@ -515,7 +515,7 @@ void RimPlotCurve::setSamplesFromXYErrorValues(
     {
         if ( filteredYValues[i] != DOUBLE_INF && filteredErrorValues[i] != DOUBLE_INF )
         {
-            if ( errorAxis == RiaCurveDataTools::ERROR_ALONG_Y_AXIS )
+            if ( errorAxis == RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS )
             {
                 errorIntervals << QwtIntervalSample( filteredXValues[i],
                                                      filteredYValues[i] - filteredErrorValues[i],
@@ -542,7 +542,7 @@ void RimPlotCurve::setSamplesFromXYErrorValues(
     if ( m_qwtCurveErrorBars )
     {
         m_qwtCurveErrorBars->setSamples( errorIntervals );
-        if ( errorAxis == RiaCurveDataTools::ERROR_ALONG_Y_AXIS )
+        if ( errorAxis == RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS )
         {
             m_qwtCurveErrorBars->setOrientation( Qt::Vertical );
         }

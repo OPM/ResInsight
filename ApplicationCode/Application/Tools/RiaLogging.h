@@ -22,7 +22,7 @@
 
 class QString;
 
-enum RILogLevel
+enum class RILogLevel
 {
     RI_LL_ERROR   = 1,
     RI_LL_WARNING = 2,

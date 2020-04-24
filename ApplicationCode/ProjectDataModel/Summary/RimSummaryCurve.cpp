@@ -825,21 +825,21 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
     {
         RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
-        if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SYMBOLS )
+        if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS )
         {
             m_symbolEdgeColor = m_curveColor;
 
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurve::STYLE_NONE );
         }
-        else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SYMBOLS_AND_LINES )
+        else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES )
         {
             m_symbolEdgeColor = m_curveColor;
 
             setSymbol( RiuQwtSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
         }
-        else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::LINES )
+        else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferences::SummaryHistoryCurveStyleMode::LINES )
         {
             setSymbol( RiuQwtSymbol::SYMBOL_NONE );
             setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );

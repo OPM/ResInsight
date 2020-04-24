@@ -127,11 +127,13 @@ double RimMswCompletionParameters::linerDiameter( RiaEclipseUnitTools::UnitSyste
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted( wellPath );
-    if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && unitSystem == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD &&
+         unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( m_linerDiameter() );
     }
-    else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC &&
+              unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( m_linerDiameter() );
     }
@@ -143,7 +145,7 @@ double RimMswCompletionParameters::linerDiameter( RiaEclipseUnitTools::UnitSyste
 //--------------------------------------------------------------------------------------------------
 double RimMswCompletionParameters::defaultLinerDiameter( RiaEclipseUnitTools::UnitSystem unitSystem )
 {
-    if ( unitSystem == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         return 0.152;
     }
@@ -160,11 +162,13 @@ double RimMswCompletionParameters::roughnessFactor( RiaEclipseUnitTools::UnitSys
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted( wellPath );
-    if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && unitSystem == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD &&
+         unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( m_roughnessFactor() );
     }
-    else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC &&
+              unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( m_roughnessFactor() );
     }
@@ -176,7 +180,7 @@ double RimMswCompletionParameters::roughnessFactor( RiaEclipseUnitTools::UnitSys
 //--------------------------------------------------------------------------------------------------
 double RimMswCompletionParameters::defaultRoughnessFactor( RiaEclipseUnitTools::UnitSystem unitSystem )
 {
-    if ( unitSystem == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         return 1.0e-5;
     }
@@ -288,12 +292,12 @@ void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::Pd
         firstAncestorOrThisOfType( wellPath );
         if ( wellPath )
         {
-            if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC )
+            if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
             {
                 m_linerDiameter.uiCapability()->setUiName( "Liner Inner Diameter [m]" );
                 m_roughnessFactor.uiCapability()->setUiName( "Roughness Factor [m]" );
             }
-            else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD )
+            else if ( wellPath->unitSystem() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
             {
                 m_linerDiameter.uiCapability()->setUiName( "Liner Inner Diameter [ft]" );
                 m_roughnessFactor.uiCapability()->setUiName( "Roughness Factor [ft]" );

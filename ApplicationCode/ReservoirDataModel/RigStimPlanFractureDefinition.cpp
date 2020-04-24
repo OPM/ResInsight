@@ -45,7 +45,7 @@ const double RigStimPlanFractureDefinition::THRESHOLD_VALUE = 1e-5;
 ///
 //--------------------------------------------------------------------------------------------------
 RigStimPlanFractureDefinition::RigStimPlanFractureDefinition()
-    : m_unitSet( RiaEclipseUnitTools::UNITS_UNKNOWN )
+    : m_unitSet( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
     , m_topPerfTvd( HUGE_VAL )
     , m_bottomPerfTvd( HUGE_VAL )
     , m_xMirrorMode( false )
@@ -316,11 +316,11 @@ std::vector<std::vector<double>>
     {
         for ( auto& xVal : yValues )
         {
-            if ( requiredUnitSet == RiaEclipseUnitTools::UNITS_FIELD )
+            if ( requiredUnitSet == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
             {
                 xVal = RiaEclipseUnitTools::convertToFeet( xVal, conductivityUnitTextOnFile );
             }
-            else if ( requiredUnitSet == RiaEclipseUnitTools::UNITS_METRIC )
+            else if ( requiredUnitSet == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
             {
                 xVal = RiaEclipseUnitTools::convertToMeter( xVal, conductivityUnitTextOnFile );
             }

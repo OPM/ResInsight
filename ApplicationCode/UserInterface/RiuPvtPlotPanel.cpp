@@ -506,7 +506,7 @@ void RiuPvtPlotWidget::slotPickerActivated( bool on )
 //--------------------------------------------------------------------------------------------------
 RiuPvtPlotPanel::RiuPvtPlotPanel( QDockWidget* parent )
     : QWidget( parent )
-    , m_unitSystem( RiaEclipseUnitTools::UNITS_UNKNOWN )
+    , m_unitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
     , m_plotUpdater( new RiuPvtPlotUpdater( this ) )
 {
     m_phaseComboBox = new QComboBox( this );
@@ -591,7 +591,7 @@ void RiuPvtPlotPanel::clearPlot()
         return;
     }
 
-    m_unitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
+    m_unitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
     m_allFvfCurvesArr.clear();
     m_allViscosityCurvesArr.clear();
     m_fvfDynProps       = FvfDynProps();
@@ -756,11 +756,11 @@ QString RiuPvtPlotPanel::unitLabelFromCurveIdent( RiaEclipseUnitTools::UnitSyste
     {
         switch ( unitSystem )
         {
-            case RiaEclipseUnitTools::UNITS_METRIC:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
                 return "rm3/sm3";
-            case RiaEclipseUnitTools::UNITS_FIELD:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
                 return "rb/stb";
-            case RiaEclipseUnitTools::UNITS_LAB:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
                 return "rcc/scc";
             default:
                 return "";
@@ -770,11 +770,11 @@ QString RiuPvtPlotPanel::unitLabelFromCurveIdent( RiaEclipseUnitTools::UnitSyste
     {
         switch ( unitSystem )
         {
-            case RiaEclipseUnitTools::UNITS_METRIC:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
                 return "rm3/sm3";
-            case RiaEclipseUnitTools::UNITS_FIELD:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
                 return "rb/Mscf";
-            case RiaEclipseUnitTools::UNITS_LAB:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
                 return "rcc/scc";
             default:
                 return "";
@@ -785,11 +785,11 @@ QString RiuPvtPlotPanel::unitLabelFromCurveIdent( RiaEclipseUnitTools::UnitSyste
     {
         switch ( unitSystem )
         {
-            case RiaEclipseUnitTools::UNITS_METRIC:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_METRIC:
                 return "cP";
-            case RiaEclipseUnitTools::UNITS_FIELD:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_FIELD:
                 return "cP";
-            case RiaEclipseUnitTools::UNITS_LAB:
+            case RiaEclipseUnitTools::UnitSystem::UNITS_LAB:
                 return "cP";
             default:
                 return "";

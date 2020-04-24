@@ -249,7 +249,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase, bool update
 
     if ( m_isEnsemble )
     {
-        validateEnsembleCases( { summaryCase } );
+        validateEnsembleCases( {summaryCase} );
         calculateEnsembleParametersIntersectionHash();
     }
 
@@ -744,7 +744,7 @@ RiaEclipseUnitTools::UnitSystem RimSummaryCaseCollection::unitSystem() const
 {
     if ( m_cases.empty() )
     {
-        return RiaEclipseUnitTools::UNITS_UNKNOWN;
+        return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
     }
     return m_cases[0]->unitsSystem();
 }

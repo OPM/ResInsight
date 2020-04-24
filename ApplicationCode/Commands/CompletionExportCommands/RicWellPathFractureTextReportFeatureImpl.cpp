@@ -314,7 +314,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFractureText(
     QString tableText;
 
     RiaEclipseUnitTools::UnitSystem unitSystem   = stimPlanTemplates.front()->fractureTemplateUnit();
-    bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+    bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
 
     QTextStream               stream( &tableText );
     RifTextDataTableFormatter formatter( stream );
@@ -366,7 +366,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText(
     QString tableText;
 
     RiaEclipseUnitTools::UnitSystem unitSystem   = ellipseTemplates.front()->fractureTemplateUnit();
-    bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+    bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
 
     QTextStream               stream( &tableText );
     RifTextDataTableFormatter formatter( stream );
@@ -513,7 +513,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
     if ( fractures.empty() ) return "";
 
     RiaEclipseUnitTools::UnitSystem unitSystem   = fractures.front()->fractureUnit(); // Fix
-    bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+    bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
 
     QString tableText;
 
@@ -622,7 +622,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
     QString tableText;
 
     RiaEclipseUnitTools::UnitSystem unitSystem   = wellPathFractureReportItems.front().unitSystem();
-    bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UNITS_FIELD;
+    bool                            isFieldUnits = unitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
 
     QTextStream               stream( &tableText );
     RifTextDataTableFormatter formatter( stream );

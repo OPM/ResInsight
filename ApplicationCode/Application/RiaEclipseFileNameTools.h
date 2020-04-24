@@ -30,7 +30,7 @@
 class RiaEclipseFileNameTools
 {
 public:
-    enum EclipseFileType
+    enum class EclipseFileType
     {
         ECLIPSE_DATA,
         ECLIPSE_GRID,

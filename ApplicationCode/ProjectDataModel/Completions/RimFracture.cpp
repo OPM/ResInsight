@@ -133,7 +133,7 @@ RimFracture::RimFracture()
     CAF_PDM_InitField(&m_dip, "Dip", 0.0, "Dip", "", "", "");
     CAF_PDM_InitField(&m_tilt, "Tilt", 0.0, "Tilt", "", "", "");
     
-    CAF_PDM_InitField(&m_fractureUnit, "FractureUnit", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Fracture Unit System", "", "", "");
+    CAF_PDM_InitField(&m_fractureUnit, "FractureUnit", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UnitSystem::UNITS_METRIC), "Fracture Unit System", "", "", "");
     m_fractureUnit.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_stimPlanTimeIndexToPlot, "TimeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
@@ -427,11 +427,11 @@ cvf::BoundingBox RimFracture::boundingBoxInDomainCoords() const
 //--------------------------------------------------------------------------------------------------
 double RimFracture::wellRadius() const
 {
-    if ( m_fractureUnit == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( m_fractureUnit == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         return m_wellDiameter / 2.0;
     }
-    else if ( m_fractureUnit == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( m_fractureUnit == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::inchToFeet( m_wellDiameter / 2.0 );
     }
@@ -603,12 +603,12 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions( const caf::Pdm
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( m_fractureUnit() == RiaEclipseUnitTools::UNITS_METRIC )
+    if ( m_fractureUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_METRIC )
     {
         m_wellDiameter.uiCapability()->setUiName( "Well Diameter [m]" );
         m_perforationLength.uiCapability()->setUiName( "Perforation Length [m]" );
     }
-    else if ( m_fractureUnit() == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( m_fractureUnit() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
     {
         m_wellDiameter.uiCapability()->setUiName( "Well Diameter [inches]" );
         m_perforationLength.uiCapability()->setUiName( "Perforation Length [ft]" );

@@ -50,7 +50,7 @@ class RiaPreferences : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum SummaryRestartFilesImportMode
+    enum class SummaryRestartFilesImportMode
     {
         IMPORT,
         NOT_IMPORT,
@@ -59,7 +59,7 @@ public:
     typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
     typedef RiaFontCache::FontSizeType                  FontSizeType;
 
-    enum SummaryHistoryCurveStyleMode
+    enum class SummaryHistoryCurveStyleMode
     {
         SYMBOLS,
         LINES,

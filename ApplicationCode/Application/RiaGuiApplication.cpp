@@ -429,7 +429,7 @@ void RiaGuiApplication::initialize()
         logger->addMessagePanel( m_mainWindow->messagePanel() );
         logger->addMessagePanel( m_mainPlotWindow->messagePanel() );
         RiaLogging::setLoggerInstance( logger );
-        RiaLogging::loggerInstance()->setLevel( RI_LL_DEBUG );
+        RiaLogging::loggerInstance()->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
     }
     m_socketServer = new RiaSocketServer( this );
 }
@@ -497,7 +497,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( cvf::Progr
         // This is useful when executing regression tests on a build server, and this is the reason for creating the
         // logger when parsing the command line options
         auto stdLogger = new RiaStdOutLogger;
-        stdLogger->setLevel( RI_LL_DEBUG );
+        stdLogger->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
 
         RiaLogging::setLoggerInstance( stdLogger );
 

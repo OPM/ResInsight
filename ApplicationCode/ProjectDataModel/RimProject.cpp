@@ -1284,20 +1284,20 @@ RiaEclipseUnitTools::UnitSystemType RimProject::commonUnitSystemForAllCases() co
     std::vector<RimCase*> rimCases;
     allCases( rimCases );
 
-    RiaEclipseUnitTools::UnitSystem commonUnitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
+    RiaEclipseUnitTools::UnitSystem commonUnitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 
     for ( const auto& c : rimCases )
     {
         auto eclipseCase = dynamic_cast<RimEclipseCase*>( c );
         if ( eclipseCase && eclipseCase->eclipseCaseData() )
         {
-            if ( commonUnitSystem == RiaEclipseUnitTools::UNITS_UNKNOWN )
+            if ( commonUnitSystem == RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
             {
                 commonUnitSystem = eclipseCase->eclipseCaseData()->unitsType();
             }
             else if ( commonUnitSystem != eclipseCase->eclipseCaseData()->unitsType() )
             {
-                commonUnitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
+                commonUnitSystem = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
                 break;
             }
         }

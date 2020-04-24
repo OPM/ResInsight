@@ -121,7 +121,7 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
         if ( gridFile.open( QFile::ReadOnly ) )
         {
             RiaEclipseUnitTools::UnitSystem units = readUnitSystem( gridFile, gridunitPos );
-            if ( units != RiaEclipseUnitTools::UNITS_UNKNOWN )
+            if ( units != RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
             {
                 eclipseCase->setUnitsType( units );
             }
@@ -417,9 +417,9 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
     }
 
     ert_ecl_unit_enum ecl_units = ECL_METRIC_UNITS;
-    if ( eclipseCase->unitsType() == RiaEclipseUnitTools::UNITS_FIELD )
+    if ( eclipseCase->unitsType() == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
         ecl_units = ECL_FIELD_UNITS;
-    else if ( eclipseCase->unitsType() == RiaEclipseUnitTools::UNITS_LAB )
+    else if ( eclipseCase->unitsType() == RiaEclipseUnitTools::UnitSystem::UNITS_LAB )
         ecl_units = ECL_LAB_UNITS;
 
     ecl_grid_fprintf_grdecl2( mainEclGrid, filePtr, ecl_units );
@@ -1639,18 +1639,18 @@ RiaEclipseUnitTools::UnitSystem RifEclipseInputFileTools::readUnitSystem( QFile&
     {
         if ( unitString.contains( "FEET", Qt::CaseInsensitive ) )
         {
-            return RiaEclipseUnitTools::UNITS_FIELD;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
         }
         else if ( unitString.contains( "CM", Qt::CaseInsensitive ) )
         {
-            return RiaEclipseUnitTools::UNITS_LAB;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_LAB;
         }
         else if ( unitString.contains( "MET", Qt::CaseInsensitive ) )
         {
-            return RiaEclipseUnitTools::UNITS_METRIC;
+            return RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
         }
     }
-    return RiaEclipseUnitTools::UNITS_UNKNOWN;
+    return RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------
