@@ -65,7 +65,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     if ( !summaryCase ) return;
 
     const QStringList fileNames =
-        RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ECLIPSE_SUMMARY_FILE );
+        RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ImportFileType::ECLIPSE_SUMMARY_FILE );
     if ( fileNames.isEmpty() ) return;
 
     QString oldSummaryHeaderFilename = summaryCase->summaryHeaderFilename();

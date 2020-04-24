@@ -322,16 +322,16 @@ bool RiaApplication::openFile( const QString& fileName )
 
     RiaDefines::ImportFileType fileType = RiaDefines::obtainFileTypeFromFileName( fileName );
 
-    if ( fileType == RiaDefines::RESINSIGHT_PROJECT_FILE )
+    if ( fileType == RiaDefines::ImportFileType::RESINSIGHT_PROJECT_FILE )
     {
         loadingSucceded = loadProject( fileName );
     }
-    else if ( fileType == RiaDefines::GEOMECH_ODB_FILE )
+    else if ( fileType == RiaDefines::ImportFileType::GEOMECH_ODB_FILE )
     {
         loadingSucceded   = openOdbCaseFromFile( fileName );
         lastUsedDialogTag = "GEOMECH_MODEL";
     }
-    else if ( fileType & RiaDefines::ANY_ECLIPSE_FILE )
+    else if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_ECLIPSE_FILE ) )
     {
         loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{fileName}, true );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );

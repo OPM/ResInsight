@@ -51,7 +51,7 @@ bool RicImportSummaryCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
-    RicImportGeneralDataFeature::openFileDialog( RiaDefines::ECLIPSE_SUMMARY_FILE );
+    RicImportGeneralDataFeature::openFileDialog( RiaDefines::ImportFileType::ECLIPSE_SUMMARY_FILE );
 }
 
 //--------------------------------------------------------------------------------------------------

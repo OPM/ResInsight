@@ -1226,11 +1226,11 @@ void RiaGuiApplication::invokeProcessEvents( QEventLoop::ProcessEventsFlags flag
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::onFileSuccessfullyLoaded( const QString& fileName, RiaDefines::ImportFileType fileType )
 {
-    if ( fileType & RiaDefines::ANY_ECLIPSE_FILE )
+    if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_ECLIPSE_FILE ) )
     {
         getOrCreateAndShowMainPlotWindow();
 
-        if ( fileType != RiaDefines::ECLIPSE_SUMMARY_FILE )
+        if ( fileType != RiaDefines::ImportFileType::ECLIPSE_SUMMARY_FILE )
         {
             if ( mainWindow() )
             {
