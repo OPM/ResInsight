@@ -274,10 +274,10 @@ find_package( OpenGL )
 # Qwt
 ################################################################################
 
-add_subdirectory(ThirdParty/Qwt/src)
+add_subdirectory(ThirdParty/qwt)
 
 list(APPEND THIRD_PARTY_LIBRARIES
-    Qwt
+    qwt
 )
 
 
