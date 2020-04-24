@@ -4,9 +4,6 @@
 [submodule "ThirdParty/gsl"]
 	path = ThirdParty/gsl
 	url = https://github.com/ampl/gsl/
-[submodule "qwt"]
-	path = qwt
-	url = https://github.com/CeetronSolutions/qwt.git
 [submodule "ThirdParty/qwt"]
 	path = ThirdParty/qwt
 	url = https://github.com/CeetronSolutions/qwt.git
