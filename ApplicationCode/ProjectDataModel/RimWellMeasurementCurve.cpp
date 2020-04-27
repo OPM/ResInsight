@@ -260,7 +260,7 @@ QList<caf::PdmOptionItemInfo>
             m_wellPath->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
         }
 
-        std::set<QString> names;
+        std::set<QString> kindNames;
 
         if ( wellPathCollection )
         {
@@ -269,14 +269,16 @@ QList<caf::PdmOptionItemInfo>
             {
                 if ( measurement->wellName() == m_wellPath->name() )
                 {
-                    names.insert( measurement->kind() );
+                    kindNames.insert( measurement->kind() );
                 }
             }
+        }
 
-            for ( const auto& kind : names )
-            {
-                options.push_back( caf::PdmOptionItemInfo( kind, kind ) );
-            }
+        options.push_back( caf::PdmOptionItemInfo( "None", "None" ) );
+
+        for ( const auto& kind : kindNames )
+        {
+            options.push_back( caf::PdmOptionItemInfo( kind, kind ) );
         }
     }
 
