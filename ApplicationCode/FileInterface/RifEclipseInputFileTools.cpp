@@ -846,24 +846,50 @@ bool RifEclipseInputFileTools::readProperty( const QString&      fileName,
         return false;
     }
 
-    ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_grdecl_dynamic__( filePointer,
-                                                                            eclipseKeyWord.toLatin1().data(),
-                                                                            false,
-                                                                            ecl_type_create_from_type( ECL_FLOAT_TYPE ) );
-    bool         isOk               = false;
-    if ( eclipseKeywordData )
+    qint64 filePos = -1;
+
     {
-        QString errMsg;
-        isOk = readDataFromKeyword( eclipseKeywordData, caseData, resultName, &errMsg );
-        if ( !isOk )
+        std::vector<RifKeywordAndFilePos> keywordsAndFilePos;
+        findKeywordsOnFile( fileName, &keywordsAndFilePos );
+        for ( auto kwAndPos : keywordsAndFilePos )
         {
-            RiaLogging::error( QString( "Failed to read property: %1" ).arg( errMsg ) );
+            if ( kwAndPos.keyword == eclipseKeyWord )
+            {
+                filePos = kwAndPos.filePos;
+            }
         }
-        ecl_kw_free( eclipseKeywordData );
+    }
+
+    bool isOk = false;
+
+    if ( filePos == -1 )
+    {
+        RiaLogging::error( QString( "Failed to load keyword %1 from file: %2" ).arg( eclipseKeyWord ).arg( fileName ) );
     }
     else
     {
-        RiaLogging::error( QString( "Failed to load keyword %1 from file: %2" ).arg( eclipseKeyWord ).arg( fileName ) );
+        fseek( filePointer, filePos, SEEK_SET );
+
+        ecl_kw_type* eclipseKeywordData =
+            ecl_kw_fscanf_alloc_grdecl_dynamic__( filePointer,
+                                                  eclipseKeyWord.toLatin1().data(),
+                                                  false,
+                                                  ecl_type_create_from_type( ECL_FLOAT_TYPE ) );
+
+        if ( eclipseKeywordData )
+        {
+            QString errMsg;
+            isOk = readDataFromKeyword( eclipseKeywordData, caseData, resultName, &errMsg );
+            if ( !isOk )
+            {
+                RiaLogging::error( QString( "Failed to read property: %1" ).arg( errMsg ) );
+            }
+            ecl_kw_free( eclipseKeywordData );
+        }
+        else
+        {
+            RiaLogging::error( QString( "Failed to load keyword %1 from file: %2" ).arg( eclipseKeyWord ).arg( fileName ) );
+        }
     }
 
     fclose( filePointer );
