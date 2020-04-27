@@ -312,6 +312,14 @@ list(APPEND THIRD_PARTY_LIBRARIES
 )
 
 ################################################################################
+# Thirdparty libraries are put in ThirdParty solution folder
+################################################################################
+set_property(TARGET  
+    ${THIRD_PARTY_LIBRARIES}
+	PROPERTY FOLDER "Thirdparty"
+)
+
+################################################################################
 # GNU GSL
 ################################################################################
 
@@ -324,16 +332,16 @@ if(GSL_ENABLE)
 	add_subdirectory(ThirdParty/gsl)
 	add_definitions(-DUSE_GSL)
 	list(APPEND THIRD_PARTY_LIBRARIES gsl)
+
+    # set this property manually for all GSL projects, as they are put into a separate folder
+    set_property(TARGET  
+        gsl
+        gslcblas
+        copy-headers
+	    PROPERTY FOLDER "Thirdparty/GSL"
+        )
 endif()
 
-
-################################################################################
-# Thirdparty libraries are put in ThirdParty solution folder
-################################################################################
-set_property(TARGET  
-    ${THIRD_PARTY_LIBRARIES}
-	PROPERTY FOLDER "Thirdparty"
-)
 
 ################################################################################
 # Vizualization Framework
