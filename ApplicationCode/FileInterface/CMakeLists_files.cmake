@@ -51,6 +51,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.h
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.h
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.h
@@ -106,7 +107,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifReaderEnsembleStatisticsRft.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader.cpp
-
+${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.cpp
