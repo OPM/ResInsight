@@ -212,6 +212,34 @@ bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
     if ( !tringleIndices.empty() )
     {
         surfaceData = new RigSurface;
+
+        {
+            // Modify the z-value slightly to avoid geometrical numerical issues when the surface intersects exactly at
+            // the cell face
+
+            double delta = 1.0e-5;
+
+            cvf::Vec3d offset = cvf::Vec3d::ZERO;
+
+            if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_I )
+            {
+                offset.x() += delta;
+            }
+            else if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_J )
+            {
+                offset.y() += delta;
+            }
+            if ( m_sliceDirection == RiaDefines::GridCaseAxis::AXIS_K )
+            {
+                offset.z() += delta;
+            }
+
+            for ( auto& v : vertices )
+            {
+                v += offset;
+            }
+        }
+
         surfaceData->setTriangleData( tringleIndices, vertices );
     }
 
