@@ -75,6 +75,11 @@ RimFractureModelPlot*
     }
 
     {
+        auto task = progInfo.task( "Creating facies track", 2 );
+        createFaciesTrack( plot, fractureModel, eclipseCase );
+    }
+
+    {
         auto task = progInfo.task( "Creating parameters track", 15 );
 
         std::vector<QString> resultVariables = {"PORO", "PRESSURE", "PERMZ"};
@@ -159,6 +164,48 @@ void RicNewFractureModelPlotFeature::createFormationTrack( RimFractureModelPlot*
     formationTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
     formationTrack->setVisibleXRange( 0.0, 0.0 );
     formationTrack->setColSpan( RimPlot::ONE );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* plot,
+                                                        RimFractureModel*     fractureModel,
+                                                        RimEclipseCase*       eclipseCase )
+{
+    RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Facies", plot );
+    faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
+    faciesTrack->setFormationCase( eclipseCase );
+    //    formationTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
+    // formationTrack->setVisibleXRange( 0.0, 0.0 );
+    faciesTrack->setColSpan( RimPlot::ONE );
+
+    caf::ColorTable                             colors     = RiaColorTables::contrastCategoryPaletteColors();
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = {RiuQwtPlotCurve::STYLE_SOLID,
+                                                              RiuQwtPlotCurve::STYLE_DASH,
+                                                              RiuQwtPlotCurve::STYLE_DASH_DOT};
+
+    RimFractureModelCurve* curve = new RimFractureModelCurve;
+    curve->setFractureModel( fractureModel );
+    curve->setCase( eclipseCase );
+    curve->setEclipseResultVariable( "OPERNUM_1" );
+    curve->setColor( colors.cycledColor3f( 0 ) );
+    curve->setLineStyle( lineStyles[0] );
+    curve->setLineThickness( 2 );
+
+    faciesTrack->addCurve( curve );
+    faciesTrack->setAutoScaleXEnabled( true );
+    curve->loadDataAndUpdate( true );
+
+    curve->updateConnectedEditors();
+    faciesTrack->updateConnectedEditors();
+    plot->updateConnectedEditors();
+
+    RiaApplication::instance()->project()->updateConnectedEditors();
+
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
+    RiuPlotMainWindowTools::showPlotMainWindow();
 }
 
 //--------------------------------------------------------------------------------------------------

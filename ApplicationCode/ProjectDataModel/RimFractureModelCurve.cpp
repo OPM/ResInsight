@@ -111,6 +111,8 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
         m_eclipseResultDefinition->setResultType( RiaDefines::STATIC_NATIVE );
         if ( m_eclipseResultDefinition->resultVariable() == QString( "PRESSURE" ) )
             m_eclipseResultDefinition->setResultType( RiaDefines::DYNAMIC_NATIVE );
+        else if ( m_eclipseResultDefinition->resultVariable() == QString( "OPERNUM_1" ) )
+            m_eclipseResultDefinition->setResultType( RiaDefines::INPUT_PROPERTY );
 
         m_eclipseResultDefinition->setEclipseCase( eclipseCase );
 

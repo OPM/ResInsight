@@ -43,7 +43,9 @@ protected:
 
 private:
     static void
-                createFormationTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
+        createFormationTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
+    static void
+                createFaciesTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
     static void createParametersTrack( RimFractureModelPlot* plot,
                                        RimFractureModel*     fractureModel,
                                        RimEclipseCase*       eclipseCase,
