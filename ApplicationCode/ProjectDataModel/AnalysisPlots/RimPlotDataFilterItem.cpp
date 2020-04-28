@@ -243,7 +243,7 @@ void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changed
         this->updateMaxMinAndDefaultValues( false );
         parentPlot->onFiltersChanged();
     }
-    else if ( changedField = &m_filterOperation )
+    else if ( changedField == &m_filterOperation )
     {
         this->updateMaxMinAndDefaultValues( false );
         parentPlot->onFiltersChanged();
