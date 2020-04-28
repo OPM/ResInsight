@@ -26,6 +26,7 @@
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogTrack.h"
+#include "RimWellMeasurementCurve.h"
 
 #include "cafPdmObjectGroup.h"
 #include "cafPdmObjectHandle.h"
@@ -105,8 +106,9 @@ void RicPasteWellLogCurveFeature::onActionTriggered( bool isChecked )
             continue;
         }
 
-        RimWellLogFileCurve* fileCurve = dynamic_cast<RimWellLogFileCurve*>( sourceObjects[i].p() );
-        if ( fileCurve )
+        RimWellLogFileCurve*     fileCurve        = dynamic_cast<RimWellLogFileCurve*>( sourceObjects[i].p() );
+        RimWellMeasurementCurve* measurementCurve = dynamic_cast<RimWellMeasurementCurve*>( sourceObjects[i].p() );
+        if ( fileCurve || measurementCurve )
         {
             RimWellLogFileCurve* newObject = dynamic_cast<RimWellLogFileCurve*>(
                 sourceObjects[i]->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );

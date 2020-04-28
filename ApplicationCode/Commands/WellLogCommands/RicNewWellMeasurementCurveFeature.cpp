@@ -79,6 +79,6 @@ void RicNewWellMeasurementCurveFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewWellMeasurementCurveFeature::setupActionLook( QAction* actionToSetup )
 {
-    // actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
     actionToSetup->setText( "New Well Measurement Curve" );
 }
