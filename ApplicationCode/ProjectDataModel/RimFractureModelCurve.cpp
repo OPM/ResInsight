@@ -78,7 +78,7 @@ RimFractureModelCurve::~RimFractureModelCurve()
 void RimFractureModelCurve::setFractureModel( RimFractureModel* fractureModel )
 {
     m_fractureModel = fractureModel;
-    m_wellPath      = fractureModel->wellPath();
+    m_wellPath      = fractureModel->thicknessDirectionWellPath();
 }
 
 //--------------------------------------------------------------------------------------------------

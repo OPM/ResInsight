@@ -154,9 +154,7 @@ void RicNewFractureModelPlotFeature::createFormationTrack( RimFractureModelPlot*
                                                            RimEclipseCase*       eclipseCase )
 {
     RimWellLogTrack* formationTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Formations", plot );
-
-    // TODO: this needs to be the "fake" wellpath?
-    formationTrack->setFormationWellPath( fractureModel->wellPath() );
+    formationTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     formationTrack->setFormationCase( eclipseCase );
     formationTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
     formationTrack->setVisibleXRange( 0.0, 0.0 );
