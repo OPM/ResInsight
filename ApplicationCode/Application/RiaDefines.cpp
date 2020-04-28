@@ -103,6 +103,17 @@ void caf::AppEnum<RiaDefines::MeshModeType>::setUp()
     addItem( RiaDefines::MeshModeType::NO_MESH, "NO_MESH", "None" );
     setDefault( RiaDefines::MeshModeType::FULL_MESH );
 }
+
+template <>
+void caf::AppEnum<RiaDefines::GridCaseAxis>::setUp()
+{
+    addItem( RiaDefines::GridCaseAxis::UNDEFINED_AXIS, "None", "None" );
+    addItem( RiaDefines::GridCaseAxis::AXIS_I, "I", "I" );
+    addItem( RiaDefines::GridCaseAxis::AXIS_J, "J", "J" );
+    addItem( RiaDefines::GridCaseAxis::AXIS_K, "K", "K" );
+
+    setDefault( RiaDefines::GridCaseAxis::AXIS_K );
+}
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------

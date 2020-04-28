@@ -204,4 +204,12 @@ enum class FontSettingType
     PLOT_FONT
 };
 
+enum class GridCaseAxis
+{
+    AXIS_I,
+    AXIS_J,
+    AXIS_K,
+    UNDEFINED_AXIS
+};
+
 }; // namespace RiaDefines
