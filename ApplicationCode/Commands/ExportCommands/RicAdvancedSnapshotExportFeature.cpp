@@ -250,7 +250,7 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
             viewer->animationControl()->setCurrentFrameOnly( i );
         }
 
-        if ( msd->sliceDirection == RimAdvancedSnapshotExportDefinition::NO_RANGEFILTER )
+        if ( msd->sliceDirection == RiaDefines::GridCaseAxis::UNDEFINED_AXIS )
         {
             QString fileName = viewCaseResultString + "_" + timeStepString;
             fileName.replace( " ", "_" );
@@ -273,17 +273,17 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
                 QString fileName          = viewCaseResultString + "_" + timeStepString + "_" + rangeFilterString;
 
                 rangeFilter->setDefaultValues();
-                if ( msd->sliceDirection == RimAdvancedSnapshotExportDefinition::RANGEFILTER_I )
+                if ( msd->sliceDirection == RiaDefines::GridCaseAxis::AXIS_I )
                 {
                     rangeFilter->cellCountI  = 1;
                     rangeFilter->startIndexI = sliceIndex;
                 }
-                else if ( msd->sliceDirection == RimAdvancedSnapshotExportDefinition::RANGEFILTER_J )
+                else if ( msd->sliceDirection == RiaDefines::GridCaseAxis::AXIS_J )
                 {
                     rangeFilter->cellCountJ  = 1;
                     rangeFilter->startIndexJ = sliceIndex;
                 }
-                else if ( msd->sliceDirection == RimAdvancedSnapshotExportDefinition::RANGEFILTER_K )
+                else if ( msd->sliceDirection == RiaDefines::GridCaseAxis::AXIS_K )
                 {
                     rangeFilter->cellCountK  = 1;
                     rangeFilter->startIndexK = sliceIndex;
