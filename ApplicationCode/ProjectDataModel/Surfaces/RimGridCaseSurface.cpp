@@ -50,7 +50,7 @@ RimGridCaseSurface::RimGridCaseSurface()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_sliceIndex, "SliceIndex", 0, "Slice Index", "", "", "" );
+    CAF_PDM_InitField( &m_sliceIndex, "SliceIndex", 1, "Slice Index", "", "", "" );
     m_sliceIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 }
 
@@ -130,6 +130,8 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue )
 {
+    RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_case || changedField == &m_sliceDirection || changedField == &m_sliceIndex )
     {
         updateSurfaceDataFromGridCase();
@@ -174,12 +176,12 @@ bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
             {
                 const RigMainGrid* grid = eclCase->mainGrid();
 
-                size_t k = m_sliceIndex;
+                size_t zeroBasedLayerIndex = static_cast<size_t>( m_sliceIndex - 1 );
                 for ( size_t i = 0; i < grid->cellCountI(); i++ )
                 {
                     for ( size_t j = 0; j < grid->cellCountJ(); j++ )
                     {
-                        size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
+                        size_t cellIndex = grid->cellIndexFromIJK( i, j, zeroBasedLayerIndex );
 
                         if ( grid->cell( cellIndex ).isInvalid() ) continue;
 
@@ -234,10 +236,10 @@ bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
                 offset.z() += delta;
             }
 
-            for ( auto& v : vertices )
-            {
-                v += offset;
-            }
+            // Include the potential depth offset in the base class
+            offset.z() += depthOffset();
+
+            RimSurface::applyDepthOffset( offset, &vertices );
         }
 
         surfaceData->setTriangleData( tringleIndices, vertices );

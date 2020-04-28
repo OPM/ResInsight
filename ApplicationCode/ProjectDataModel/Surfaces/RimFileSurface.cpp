@@ -118,6 +118,9 @@ bool RimFileSurface::updateSurfaceDataFromFile()
     if ( !vertices.empty() && !tringleIndices.empty() )
     {
         auto surface = new RigSurface();
+
+        RimSurface::applyDepthOffsetIfNeeded( &vertices );
+
         surface->setTriangleData( tringleIndices, vertices );
 
         setSurfaceData( surface );

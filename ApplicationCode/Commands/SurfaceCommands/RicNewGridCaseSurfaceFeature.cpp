@@ -18,8 +18,6 @@
 
 #include "RicNewGridCaseSurfaceFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSurface.h"
@@ -44,11 +42,7 @@ bool RicNewGridSurfaceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewGridSurfaceFeature::onActionTriggered( bool isChecked )
 {
-    RiaApplication* app = RiaApplication::instance();
-
-    // Find or create the SurfaceCollection
-
-    RimProject*           proj     = RiaApplication::instance()->project();
+    RimProject*           proj     = RimProject::current();
     RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
 
     if ( !surfColl )
