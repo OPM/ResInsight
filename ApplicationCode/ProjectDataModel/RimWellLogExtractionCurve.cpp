@@ -91,7 +91,7 @@ void AppEnum<RimWellLogExtractionCurve::TrajectoryType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellLogExtractionCurve::RimWellLogExtractionCurve()
 {
-    CAF_PDM_InitObject( "Well Log Curve", "", "", "" );
+    CAF_PDM_InitObject( "Well Log Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_trajectoryType, "TrajectoryType", "Trajectory Type", "", "", "" );
 

@@ -72,6 +72,8 @@ public:
     virtual QString wellLogChannelUnits() const = 0;
     virtual QString wellDate() const { return ""; };
 
+    static QString wellLogCurveIconName();
+
 protected:
     void updateZoomInParentPlot() override;
     void updateLegendsInPlot() override;
