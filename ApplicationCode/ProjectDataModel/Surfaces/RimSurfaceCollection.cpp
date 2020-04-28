@@ -194,6 +194,8 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
         surf->objectsWithReferringPtrFieldsOfType( surfsInView );
         for ( auto surfInView : surfsInView )
         {
+            surfInView->clearGeometry();
+
             RimGridView* gridView;
             surfInView->firstAncestorOrThisOfType( gridView );
 

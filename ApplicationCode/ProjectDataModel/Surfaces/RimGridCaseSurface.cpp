@@ -19,8 +19,17 @@
 #include "RimGridCaseSurface.h"
 
 #include "RigSurface.h"
+
+#include "RigMainGrid.h"
 #include "RimCase.h"
+#include "RimEclipseCase.h"
+#include "RimSurfaceCollection.h"
 #include "RimTools.h"
+
+#include "cafPdmUiSliderEditor.h"
+
+#include "RigReservoirGridTools.h"
+#include "cvfVector3.h"
 
 CAF_PDM_SOURCE_INIT( RimGridCaseSurface, "GridCaseSurface" );
 
@@ -40,6 +49,9 @@ RimGridCaseSurface::RimGridCaseSurface()
                        "",
                        "",
                        "" );
+
+    CAF_PDM_InitField( &m_sliceIndex, "SliceIndex", 0, "Slice Index", "", "", "" );
+    m_sliceIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,7 +74,7 @@ void RimGridCaseSurface::setCase( RimCase* sourceCase )
 //--------------------------------------------------------------------------------------------------
 bool RimGridCaseSurface::loadData()
 {
-    return updateSurfaceDataFromFile();
+    return updateSurfaceDataFromGridCase();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,62 +96,126 @@ QList<caf::PdmOptionItemInfo> RimGridCaseSurface::calculateValueOptions( const c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimGridCaseSurface::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                QString                    uiConfigName,
+                                                caf::PdmUiEditorAttribute* attribute )
+{
+    caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
+    if ( myAttr && m_case )
+    {
+        const cvf::StructGridInterface* grid = RigReservoirGridTools::mainGrid( m_case );
+        if ( !grid ) return;
+
+        myAttr->m_minimum = 1;
+
+        if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_I )
+        {
+            myAttr->m_maximum = static_cast<int>( grid->cellCountI() );
+        }
+        else if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_J )
+        {
+            myAttr->m_maximum = static_cast<int>( grid->cellCountJ() );
+        }
+        else if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_K )
+        {
+            myAttr->m_maximum = static_cast<int>( grid->cellCountK() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue )
 {
-    /*
-        if ( changedField == &m_surfaceDefinitionFilePath )
-        {
-            updateSurfaceDataFromFile();
+    if ( changedField == &m_case || changedField == &m_sliceDirection || changedField == &m_sliceIndex )
+    {
+        updateSurfaceDataFromGridCase();
 
-            RimSurfaceCollection* surfColl;
-            this->firstAncestorOrThisOfTypeAsserted( surfColl );
-            surfColl->updateViews( {this} );
-        }
-        else if ( changedField == &m_color )
-        {
-            RimSurfaceCollection* surfColl;
-            this->firstAncestorOrThisOfTypeAsserted( surfColl );
-            surfColl->updateViews( {this} );
-        }
-    */
+        RimSurfaceCollection* surfColl;
+        this->firstAncestorOrThisOfTypeAsserted( surfColl );
+        surfColl->updateViews( {this} );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Returns false for fatal failure
 //--------------------------------------------------------------------------------------------------
-bool RimGridCaseSurface::updateSurfaceDataFromFile()
+bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
 {
-    /*
-        QString filePath = this->surfaceFilePath();
+    RigSurface* surfaceData = nullptr;
 
-        std::vector<unsigned>   tringleIndices;
-        std::vector<cvf::Vec3d> vertices;
+    std::vector<unsigned>   tringleIndices;
+    std::vector<cvf::Vec3d> vertices;
 
-        if ( filePath.endsWith( "ptl", Qt::CaseInsensitive ) )
+    cvf::StructGridInterface::FaceType faceType = cvf::StructGridInterface::NO_FACE;
+    {
+        if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_K )
         {
-            auto surface = RifSurfaceReader::readPetrelFile( filePath );
-
-            vertices       = surface.first;
-            tringleIndices = surface.second;
+            faceType = cvf::StructGridInterface::NEG_K;
         }
-        else if ( filePath.endsWith( "ts", Qt::CaseInsensitive ) )
+        else if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_J )
         {
-            auto surface = RifSurfaceReader::readGocadFile( filePath );
-
-            vertices       = surface.first;
-            tringleIndices = surface.second;
+            faceType = cvf::StructGridInterface::NEG_J;
         }
-
-        if ( !vertices.empty() && !tringleIndices.empty() )
+        else if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_I )
         {
-            m_surfaceData = new RigSurface();
-            m_surfaceData->setTriangleData( tringleIndices, vertices );
-
-            return true;
+            faceType = cvf::StructGridInterface::NEG_I;
         }
-    */
+    }
 
-    return false;
+    if ( m_case && faceType != cvf::StructGridInterface::NO_FACE )
+    {
+        RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>( m_case() );
+        if ( eclCase && eclCase->mainGrid() )
+        {
+            {
+                const RigMainGrid* grid = eclCase->mainGrid();
+
+                size_t k = m_sliceIndex;
+                for ( size_t i = 0; i < grid->cellCountI(); i++ )
+                {
+                    for ( size_t j = 0; j < grid->cellCountJ(); j++ )
+                    {
+                        size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
+
+                        if ( grid->cell( cellIndex ).isInvalid() ) continue;
+
+                        cvf::Vec3d cornerVerts[8];
+                        grid->cellCornerVertices( cellIndex, cornerVerts );
+
+                        cvf::ubyte faceConn[4];
+                        grid->cellFaceVertexIndices( faceType, faceConn );
+
+                        cvf::uint triangleIndex = static_cast<cvf::uint>( vertices.size() );
+
+                        for ( int n = 0; n < 4; n++ )
+                        {
+                            vertices.push_back( cornerVerts[faceConn[n]] );
+                        }
+
+                        tringleIndices.push_back( triangleIndex + 0 );
+                        tringleIndices.push_back( triangleIndex + 1 );
+                        tringleIndices.push_back( triangleIndex + 2 );
+
+                        tringleIndices.push_back( triangleIndex + 0 );
+                        tringleIndices.push_back( triangleIndex + 2 );
+                        tringleIndices.push_back( triangleIndex + 3 );
+                    }
+                }
+            }
+        }
+    }
+
+    if ( !tringleIndices.empty() )
+    {
+        surfaceData = new RigSurface;
+        surfaceData->setTriangleData( tringleIndices, vertices );
+    }
+
+    setSurfaceData( surfaceData );
+
+    return true;
 }

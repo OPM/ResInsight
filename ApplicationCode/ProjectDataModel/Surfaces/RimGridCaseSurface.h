@@ -21,6 +21,7 @@
 #include "RimSurface.h"
 
 #include "RiaDefines.h"
+
 #include "cafPdmPtrField.h"
 
 class RimCase;
@@ -41,11 +42,16 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
 private:
-    bool updateSurfaceDataFromFile();
+    bool updateSurfaceDataFromGridCase();
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     caf::PdmPtrField<RimCase*>                            m_case;
     caf::PdmField<caf::AppEnum<RiaDefines::GridCaseAxis>> m_sliceDirection;
+    caf::PdmField<int>                                    m_sliceIndex;
 };
