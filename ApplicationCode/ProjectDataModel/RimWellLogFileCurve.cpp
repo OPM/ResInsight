@@ -52,7 +52,7 @@ CAF_PDM_SOURCE_INIT( RimWellLogFileCurve, "WellLogFileCurve" );
 //--------------------------------------------------------------------------------------------------
 RimWellLogFileCurve::RimWellLogFileCurve()
 {
-    CAF_PDM_InitObject( "Well Log File Curve", "", "", "" );
+    CAF_PDM_InitObject( "Well Log File Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path", "", "", "" );
     m_wellPath.uiCapability()->setUiTreeChildrenHidden( true );

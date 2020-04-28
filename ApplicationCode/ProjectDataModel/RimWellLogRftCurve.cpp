@@ -94,7 +94,7 @@ CAF_PDM_SOURCE_INIT( RimWellLogRftCurve, "WellLogRftCurve" );
 //--------------------------------------------------------------------------------------------------
 RimWellLogRftCurve::RimWellLogRftCurve()
 {
-    CAF_PDM_InitObject( "Well Log RFT Curve", "", "", "" );
+    CAF_PDM_InitObject( "Well Log RFT Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseResultCase, "CurveEclipseResultCase", "Eclipse Result Case", "", "", "" );
     m_eclipseResultCase.uiCapability()->setUiTreeChildrenHidden( true );
