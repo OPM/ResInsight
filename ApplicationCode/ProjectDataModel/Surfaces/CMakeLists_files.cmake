@@ -1,5 +1,6 @@
 
 set (SOURCE_GROUP_HEADER_FILES
+${CMAKE_CURRENT_LIST_DIR}/RimFileSurface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSurface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceInView.h
@@ -7,6 +8,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceInViewCollection.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
+${CMAKE_CURRENT_LIST_DIR}/RimFileSurface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSurface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceInView.cpp

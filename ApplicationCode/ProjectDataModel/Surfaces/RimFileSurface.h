@@ -15,24 +15,21 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "RimSurface.h"
 
-#include "cvfObject.h"
-
-#include "cafPdmFieldCvfColor.h"
-
-class RigSurface;
-
-class RimSurface : public caf::PdmObject
+class RimFileSurface : public RimSurface
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSurface();
-    ~RimSurface() override;
+    RimFileSurface();
+    ~RimFileSurface() override;
+
+    void    setSurfaceFilePath( const QString& filePath );
+    QString surfaceFilePath();
 
     void         setColor( const cvf::Color3f& color );
     cvf::Color3f color() const;
@@ -41,14 +38,18 @@ public:
 
     QString userDescription();
 
-    virtual bool loadData();
+    bool loadData() override;
+
+private:
+    bool updateSurfaceDataFromFile();
 
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    caf::PdmField<QString>      m_userDescription;
-    caf::PdmField<cvf::Color3f> m_color;
+    caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
+    caf::PdmField<QString>       m_userDescription;
+    caf::PdmField<cvf::Color3f>  m_color;
 
     cvf::ref<RigSurface> m_surfaceData;
 };
