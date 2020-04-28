@@ -15,45 +15,37 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "RimSurface.h"
 
-#include "cvfObject.h"
+#include "RiaDefines.h"
+#include "cafPdmPtrField.h"
 
-#include "cafPdmFieldCvfColor.h"
+class RimCase;
 
-class RigSurface;
-
-class RimSurface : public caf::PdmObject
+class RimGridCaseSurface : public RimSurface
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSurface();
-    ~RimSurface() override;
+    RimGridCaseSurface();
+    ~RimGridCaseSurface() override;
 
-    void         setColor( const cvf::Color3f& color );
-    cvf::Color3f color() const;
+    void setCase( RimCase* sourceCase );
 
-    RigSurface* surfaceData();
-
-    QString userDescription();
-
-    virtual bool loadData();
+    bool loadData() override;
 
 protected:
-    void setUserDescription( const QString& description );
-    void setSurfaceData( RigSurface* surface );
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 
+private:
+    bool updateSurfaceDataFromFile();
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    caf::PdmFieldHandle* userDescriptionField() override;
-
-    caf::PdmField<QString>      m_userDescription;
-    caf::PdmField<cvf::Color3f> m_color;
-
-    cvf::ref<RigSurface> m_surfaceData;
+    caf::PdmPtrField<RimCase*>                            m_case;
+    caf::PdmField<caf::AppEnum<RiaDefines::GridCaseAxis>> m_sliceDirection;
 };

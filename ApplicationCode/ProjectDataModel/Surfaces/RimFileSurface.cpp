@@ -33,9 +33,7 @@ RimFileSurface::RimFileSurface()
 {
     CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_userDescription, "SurfaceUserDecription", "Name", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_surfaceDefinitionFilePath, "SurfaceFilePath", "File", "", "", "" );
-    CAF_PDM_InitField( &m_color, "SurfaceColor", cvf::Color3f( 0.5f, 0.3f, 0.2f ), "Color", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,9 +49,9 @@ RimFileSurface::~RimFileSurface()
 void RimFileSurface::setSurfaceFilePath( const QString& filePath )
 {
     m_surfaceDefinitionFilePath = filePath;
-    if ( m_userDescription().isEmpty() )
+    if ( userDescription().isEmpty() )
     {
-        m_userDescription = QFileInfo( filePath ).fileName();
+        setUserDescription( QFileInfo( filePath ).fileName() );
     }
 }
 
@@ -68,49 +66,9 @@ QString RimFileSurface::surfaceFilePath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFileSurface::setColor( const cvf::Color3f& color )
-{
-    m_color = color;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Color3f RimFileSurface::color() const
-{
-    return m_color();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimFileSurface::userDescription()
-{
-    return m_userDescription();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimFileSurface::loadData()
 {
     return updateSurfaceDataFromFile();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigSurface* RimFileSurface::surfaceData()
-{
-    return m_surfaceData.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFileSurface::userDescriptionField()
-{
-    return &m_userDescription;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,16 +78,12 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            oldValue,
                                        const QVariant&            newValue )
 {
+    RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_surfaceDefinitionFilePath )
     {
         updateSurfaceDataFromFile();
 
-        RimSurfaceCollection* surfColl;
-        this->firstAncestorOrThisOfTypeAsserted( surfColl );
-        surfColl->updateViews( {this} );
-    }
-    else if ( changedField == &m_color )
-    {
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
         surfColl->updateViews( {this} );
@@ -163,8 +117,10 @@ bool RimFileSurface::updateSurfaceDataFromFile()
 
     if ( !vertices.empty() && !tringleIndices.empty() )
     {
-        m_surfaceData = new RigSurface();
-        m_surfaceData->setTriangleData( tringleIndices, vertices );
+        auto surface = new RigSurface();
+        surface->setTriangleData( tringleIndices, vertices );
+
+        setSurfaceData( surface );
 
         return true;
     }

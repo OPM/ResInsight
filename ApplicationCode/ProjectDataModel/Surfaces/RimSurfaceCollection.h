@@ -21,6 +21,7 @@
 #include "cafPdmObject.h"
 
 class RimSurface;
+class RimCase;
 
 class RimSurfaceCollection : public caf::PdmObject
 {
@@ -33,6 +34,7 @@ public:
     void addSurface( RimSurface* surface );
 
     RimSurface* importSurfacesFromFiles( const QStringList& fileNames );
+    RimSurface* addGridCaseSurface( RimCase* sourceCase );
 
     std::vector<RimSurface*> surfaces() const;
 

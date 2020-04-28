@@ -18,26 +18,18 @@
 
 #pragma once
 
-#include "RimSurface.h"
+#include "cafCmdFeature.h"
 
-class RimFileSurface : public RimSurface
+//==================================================================================================
+///
+//==================================================================================================
+class RicNewGridSurfaceFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimFileSurface();
-    ~RimFileSurface() override;
-
-    void    setSurfaceFilePath( const QString& filePath );
-    QString surfaceFilePath();
-
-    bool loadData() override;
-
-private:
-    bool updateSurfaceDataFromFile();
-
-private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
-    caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
+protected:
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

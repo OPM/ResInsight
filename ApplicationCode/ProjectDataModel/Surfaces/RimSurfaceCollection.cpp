@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 
 #include "RimFileSurface.h"
+#include "RimGridCaseSurface.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimSurface.h"
@@ -128,6 +129,21 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
     {
         return nullptr;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
+{
+    auto s = new RimGridCaseSurface;
+    s->setCase( sourceCase );
+
+    m_surfaces.push_back( s );
+
+    this->updateConnectedEditors();
+
+    return s;
 }
 
 //--------------------------------------------------------------------------------------------------
