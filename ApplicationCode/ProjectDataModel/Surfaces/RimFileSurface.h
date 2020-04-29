@@ -31,13 +31,18 @@ public:
     void    setSurfaceFilePath( const QString& filePath );
     QString surfaceFilePath();
 
-    bool loadData() override;
+    bool onLoadData() override;
 
 private:
     bool updateSurfaceDataFromFile();
+    void clearCachedNativeFileData();
+    bool loadDataFromFile();
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
+
+    std::vector<unsigned>   m_tringleIndices;
+    std::vector<cvf::Vec3d> m_vertices;
 };

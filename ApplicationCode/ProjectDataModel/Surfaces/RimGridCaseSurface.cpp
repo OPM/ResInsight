@@ -72,7 +72,7 @@ void RimGridCaseSurface::setCase( RimCase* sourceCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCaseSurface::loadData()
+bool RimGridCaseSurface::onLoadData()
 {
     return updateSurfaceDataFromGridCase();
 }

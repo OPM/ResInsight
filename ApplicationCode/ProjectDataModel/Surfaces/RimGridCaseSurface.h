@@ -36,7 +36,7 @@ public:
 
     void setCase( RimCase* sourceCase );
 
-    bool loadData() override;
+    bool onLoadData() override;
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,

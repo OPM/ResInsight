@@ -44,7 +44,7 @@ public:
 
     QString userDescription();
 
-    virtual bool loadData();
+    void loadDataIfRequired();
 
 protected:
     void setUserDescription( const QString& description );
@@ -56,6 +56,8 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     static void applyDepthOffset( const cvf::Vec3d& offset, std::vector<cvf::Vec3d>* vertices );
+
+    virtual bool onLoadData() = 0;
 
 private:
     caf::PdmFieldHandle* userDescriptionField() override;

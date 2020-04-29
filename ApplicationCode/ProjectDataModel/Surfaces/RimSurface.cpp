@@ -26,7 +26,7 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
-CAF_PDM_SOURCE_INIT( RimSurface, "Surface" );
+CAF_PDM_ABSTRACT_SOURCE_INIT( RimSurface, "Surface" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -75,9 +75,12 @@ QString RimSurface::userDescription()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSurface::loadData()
+void RimSurface::loadDataIfRequired()
 {
-    return true;
+    if ( m_surfaceData.isNull() )
+    {
+        onLoadData();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,7 +171,7 @@ void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
     }
     else if ( changedField == &m_depthOffset )
     {
-        this->loadData();
+        this->onLoadData();
 
         updateViews = true;
     }

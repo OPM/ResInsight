@@ -53,6 +53,8 @@ void RimFileSurface::setSurfaceFilePath( const QString& filePath )
     {
         setUserDescription( QFileInfo( filePath ).fileName() );
     }
+
+    clearCachedNativeFileData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +68,7 @@ QString RimFileSurface::surfaceFilePath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFileSurface::loadData()
+bool RimFileSurface::onLoadData()
 {
     return updateSurfaceDataFromFile();
 }
@@ -82,6 +84,7 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( changedField == &m_surfaceDefinitionFilePath )
     {
+        clearCachedNativeFileData();
         updateSurfaceDataFromFile();
 
         RimSurfaceCollection* surfColl;
@@ -95,11 +98,46 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 bool RimFileSurface::updateSurfaceDataFromFile()
 {
-    QString filePath = this->surfaceFilePath();
+    bool result = true;
+    if ( m_vertices.empty() )
+    {
+        result = loadDataFromFile();
+    }
 
-    std::vector<unsigned>   tringleIndices;
+    std::vector<cvf::Vec3d> vertices{m_vertices};
+    std::vector<unsigned>   tringleIndices{m_tringleIndices};
+
+    auto surface = new RigSurface;
+    if ( !vertices.empty() && !tringleIndices.empty() )
+    {
+        RimSurface::applyDepthOffsetIfNeeded( &vertices );
+
+        surface->setTriangleData( tringleIndices, vertices );
+    }
+
+    setSurfaceData( surface );
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSurface::clearCachedNativeFileData()
+{
+    m_vertices.clear();
+    m_tringleIndices.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFileSurface::loadDataFromFile()
+{
     std::vector<cvf::Vec3d> vertices;
+    std::vector<unsigned>   tringleIndices;
 
+    QString filePath = this->surfaceFilePath();
     if ( filePath.endsWith( "ptl", Qt::CaseInsensitive ) )
     {
         auto surface = RifSurfaceReader::readPetrelFile( filePath );
@@ -115,18 +153,10 @@ bool RimFileSurface::updateSurfaceDataFromFile()
         tringleIndices = surface.second;
     }
 
-    if ( !vertices.empty() && !tringleIndices.empty() )
-    {
-        auto surface = new RigSurface();
+    m_vertices       = vertices;
+    m_tringleIndices = tringleIndices;
 
-        RimSurface::applyDepthOffsetIfNeeded( &vertices );
+    if ( vertices.empty() || tringleIndices.empty() ) return false;
 
-        surface->setTriangleData( tringleIndices, vertices );
-
-        setSurfaceData( surface );
-
-        return true;
-    }
-
-    return false;
+    return true;
 }

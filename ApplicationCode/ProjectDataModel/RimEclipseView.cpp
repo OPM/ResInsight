@@ -999,6 +999,8 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     this->m_wellCollection->scaleWellDisks();
 
+    this->m_surfaceCollection->loadData();
+
     scheduleReservoirGridGeometryRegen();
     m_simWellsPartManager->clearGeometryCache();
 
