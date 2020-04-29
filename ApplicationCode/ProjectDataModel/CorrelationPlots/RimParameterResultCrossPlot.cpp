@@ -69,7 +69,7 @@ RimParameterResultCrossPlot::RimParameterResultCrossPlot()
 //--------------------------------------------------------------------------------------------------
 RimParameterResultCrossPlot::~RimParameterResultCrossPlot()
 {
-    removeMdiWindowFromMdiArea();
+    if ( isMdiWindow() ) removeMdiWindowFromMdiArea();
     cleanupBeforeClose();
 }
 

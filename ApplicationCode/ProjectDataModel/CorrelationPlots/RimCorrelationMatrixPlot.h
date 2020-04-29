@@ -43,6 +43,10 @@ public:
     RimCorrelationMatrixPlot();
     ~RimCorrelationMatrixPlot() override;
 
+    CorrelationFactor correlationFactor() const;
+    bool              showAbsoluteValues() const;
+    bool              sortByAbsoluteValues() const;
+
 private:
     // Overridden PDM methods
 
@@ -65,9 +69,11 @@ private:
     void updateLegend() override;
 
 private:
-    caf::PdmField<CorrelationFactorEnum>        m_correlationFactor;
-    caf::PdmField<bool>                         m_showAbsoluteValues;
-    caf::PdmField<bool>                         m_sortByValues;
+    caf::PdmField<CorrelationFactorEnum> m_correlationFactor;
+    caf::PdmField<bool>                  m_showAbsoluteValues;
+    caf::PdmField<bool>                  m_sortByValues;
+    caf::PdmField<bool>                  m_sortByAbsoluteValues;
+
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 
     std::map<size_t, QString> m_paramLabels;

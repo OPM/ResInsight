@@ -24,6 +24,7 @@
 class RimAbstractCorrelationPlot;
 class RimCorrelationPlot;
 class RimCorrelationMatrixPlot;
+class RimCorrelationReportPlot;
 class RimParameterResultCrossPlot;
 
 //==================================================================================================
@@ -41,15 +42,20 @@ public:
     RimCorrelationPlot*          createCorrelationPlot( bool defaultToFirstEnsembleFopt = true );
     RimCorrelationMatrixPlot*    createCorrelationMatrixPlot( bool defaultToFirstEnsembleField = true );
     RimParameterResultCrossPlot* createParameterResultCrossPlot( bool defaultToFirstEnsembleFopt = true );
-    void                         removePlot( RimAbstractCorrelationPlot* CorrelationPlot );
+    RimCorrelationReportPlot*    createCorrelationReportPlot( bool defaultToFirstEnsembleFopt = true );
+    void                         removePlot( RimAbstractCorrelationPlot* correlationPlot );
+    void                         removeReport( RimCorrelationReportPlot* correlationReport );
 
     std::vector<RimAbstractCorrelationPlot*> plots();
+    std::vector<RimCorrelationReportPlot*>   reports();
 
     void deleteAllChildObjects();
 
 private:
     void applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot, const std::string& quantityName = "" );
+    void applyFirstEnsembleFieldAddressesToReport( RimCorrelationReportPlot* plot, const std::string& quantityName = "" );
 
 private:
     caf::PdmChildArrayField<RimAbstractCorrelationPlot*> m_correlationPlots;
+    caf::PdmChildArrayField<RimCorrelationReportPlot*>   m_correlationReports;
 };
