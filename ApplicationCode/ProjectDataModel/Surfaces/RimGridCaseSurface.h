@@ -50,8 +50,14 @@ private:
     bool updateSurfaceDataFromGridCase();
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
+    void extractDataFromGrid();
+    void clearNativeGridData();
+
 private:
     caf::PdmPtrField<RimCase*>                            m_case;
     caf::PdmField<caf::AppEnum<RiaDefines::GridCaseAxis>> m_sliceDirection;
     caf::PdmField<int>                                    m_sliceIndex;
+
+    std::vector<unsigned>   m_tringleIndices;
+    std::vector<cvf::Vec3d> m_vertices;
 };
