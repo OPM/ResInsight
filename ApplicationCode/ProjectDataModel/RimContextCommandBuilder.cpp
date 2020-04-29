@@ -864,6 +864,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicImportSurfacesFeature";
             menuBuilder << "RicNewGridSurfaceFeature";
+
+            if ( dynamic_cast<RimSurface*>( firstUiItem ) )
+            {
+                menuBuilder << "RicExportSurfaceFeature";
+            }
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) ||
                   dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )
