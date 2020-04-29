@@ -652,7 +652,7 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     updateVisibleGeometriesAndCellColors();
 
-    wellCollection()->updateWellDisks();
+    wellCollection()->scaleWellDisks();
 
     appendWellsAndFracturesToModel();
 
@@ -945,7 +945,7 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     this->faultCollection()->syncronizeFaults();
 
-    this->m_wellCollection->updateWellDisks();
+    this->m_wellCollection->scaleWellDisks();
 
     scheduleReservoirGridGeometryRegen();
     m_simWellsPartManager->clearGeometryCache();
