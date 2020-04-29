@@ -21,6 +21,7 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
+#include "RimCorrelationReportPlot.h"
 #include "RimParameterResultCrossPlot.h"
 #include "RimProject.h"
 
@@ -34,7 +35,10 @@ RimCorrelationPlotCollection::RimCorrelationPlotCollection()
     CAF_PDM_InitObject( "Correlation Plots", ":/AnalysisPlots16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_correlationPlots, "CorrelationPlots", "Correlation Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_correlationReports, "CorrelationReports", "Correlation Reports", "", "", "" );
+
     m_correlationPlots.uiCapability()->setUiHidden( true );
+    m_correlationReports.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,6 +93,20 @@ RimParameterResultCrossPlot* RimCorrelationPlotCollection::createParameterResult
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCorrelationReportPlot*
+    RimCorrelationPlotCollection::createCorrelationReportPlot( bool defaultToFirstEnsembleFopt /*= true */ )
+{
+    RimCorrelationReportPlot* report = new RimCorrelationReportPlot;
+    report->setAsPlotMdiWindow();
+    if ( defaultToFirstEnsembleFopt ) applyFirstEnsembleFieldAddressesToReport( report, "FOPT" );
+
+    m_correlationReports.push_back( report );
+    return report;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCorrelationPlotCollection::removePlot( RimAbstractCorrelationPlot* correlationPlot )
 {
     m_correlationPlots.removeChildObject( correlationPlot );
@@ -105,9 +123,18 @@ std::vector<RimAbstractCorrelationPlot*> RimCorrelationPlotCollection::plots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimCorrelationReportPlot*> RimCorrelationPlotCollection::reports()
+{
+    return m_correlationReports.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCorrelationPlotCollection::deleteAllChildObjects()
 {
     m_correlationPlots.deleteAllChildObjects();
+    m_correlationReports.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,5 +166,37 @@ void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAb
         {
             crossPlot->setEnsembleParameter( ensembles.front()->alphabeticEnsembleParameters().front().name );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlotCollection::applyFirstEnsembleFieldAddressesToReport( RimCorrelationReportPlot* plot,
+                                                                             const std::string& quantityName /*= "" */ )
+{
+    std::vector<RimSummaryCaseCollection*> ensembles;
+    RimProject::current()->descendantsIncludingThisOfType( ensembles );
+    if ( !ensembles.empty() )
+    {
+        std::set<RifEclipseSummaryAddress>     allAddresses = ensembles.front()->ensembleSummaryAddresses();
+        std::vector<RiaSummaryCurveDefinition> curveDefsMatrix;
+        std::vector<RiaSummaryCurveDefinition> curveDefsTornadoAndCrossPlot;
+        for ( auto address : allAddresses )
+        {
+            if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
+            {
+                curveDefsMatrix.push_back( RiaSummaryCurveDefinition( nullptr, address, ensembles.front() ) );
+                if ( quantityName.empty() || quantityName == address.quantityName() )
+                {
+                    curveDefsTornadoAndCrossPlot.push_back(
+                        RiaSummaryCurveDefinition( nullptr, address, ensembles.front() ) );
+                }
+            }
+        }
+        plot->matrixPlot()->setCurveDefinitions( curveDefsMatrix );
+        plot->correlationPlot()->setCurveDefinitions( curveDefsTornadoAndCrossPlot );
+        plot->crossPlot()->setCurveDefinitions( curveDefsTornadoAndCrossPlot );
+        plot->crossPlot()->setEnsembleParameter( ensembles.front()->alphabeticEnsembleParameters().front().name );
     }
 }

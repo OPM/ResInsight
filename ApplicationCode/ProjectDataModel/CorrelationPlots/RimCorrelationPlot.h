@@ -46,6 +46,15 @@ public:
     RimCorrelationPlot();
     ~RimCorrelationPlot() override;
 
+    CorrelationFactor correlationFactor() const;
+    void              setCorrelationFactor( CorrelationFactor factor );
+
+    bool showAbsoluteValues() const;
+    void setShowAbsoluteValues( bool showAbsoluteValues );
+
+    bool sortByAbsoluteValues() const;
+    void setSortByAbsoluteValues( bool sortByAbsoluteValues );
+
 private:
     // Overridden PDM methods
 

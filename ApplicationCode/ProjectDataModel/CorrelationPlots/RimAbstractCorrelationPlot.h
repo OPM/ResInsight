@@ -41,8 +41,12 @@ public:
     ~RimAbstractCorrelationPlot() override;
 
 public:
+    std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
     void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     std::set<RimSummaryCaseCollection*> ensembles();
+    RiuQwtPlotWidget*                   viewer() override;
+    void                                detachAllCurves() override;
+    QDateTime                           timeStep() const;
 
 protected:
     // Overridden PDM methods
@@ -56,9 +60,8 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
 
-    std::set<time_t>                       allAvailableTimeSteps();
-    std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
-    RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
+    std::set<time_t>                   allAvailableTimeSteps();
+    RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
 
     std::set<RifEclipseSummaryAddress> addresses();
     std::set<EnsembleParameter>        ensembleParameters();
@@ -80,9 +83,7 @@ protected:
 
     // RimPlot Overrides
     RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
-    RiuQwtPlotWidget* viewer() override;
 
-    void detachAllCurves() override;
     void reattachAllCurves() override {}
     void doRemoveFromCollection() override {}
     void updateZoomInQwt() override {}

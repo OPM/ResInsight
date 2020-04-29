@@ -534,6 +534,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewCorrelationPlotFeature";
             menuBuilder << "RicNewCorrelationMatrixPlotFeature";
             menuBuilder << "RicNewParameterResultCrossPlotFeature";
+            menuBuilder << "RicNewCorrelationReportPlotFeature";
         }
         else if ( dynamic_cast<RimCorrelationPlot*>( firstUiItem ) )
         {

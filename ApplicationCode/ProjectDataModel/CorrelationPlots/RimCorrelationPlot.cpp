@@ -77,7 +77,7 @@ RimCorrelationPlot::RimCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 RimCorrelationPlot::~RimCorrelationPlot()
 {
-    removeMdiWindowFromMdiArea();
+    if ( isMdiWindow() ) removeMdiWindowFromMdiArea();
 
     cleanupBeforeClose();
 }
@@ -292,4 +292,52 @@ void RimCorrelationPlot::updatePlotTitle()
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimCorrelationPlot::CorrelationFactor RimCorrelationPlot::correlationFactor() const
+{
+    return m_correlationFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlot::setCorrelationFactor( CorrelationFactor factor )
+{
+    m_correlationFactor = factor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCorrelationPlot::showAbsoluteValues() const
+{
+    m_showAbsoluteValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlot::setShowAbsoluteValues( bool showAbsoluteValues )
+{
+    m_showAbsoluteValues = showAbsoluteValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCorrelationPlot::sortByAbsoluteValues() const
+{
+    return m_sortByAbsoluteValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlot::setSortByAbsoluteValues( bool sortByAbsoluteValues )
+{
+    m_sortByAbsoluteValues = sortByAbsoluteValues;
 }
