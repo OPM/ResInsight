@@ -61,6 +61,7 @@ public:
     const RigSimWellData* simWellData() const;
     size_t                resultWellIndex() const;
 
+    bool isWellDiskVisible() const;
     bool isWellCellsVisible() const;
     bool isWellPipeVisible( size_t frameIndex ) const;
     bool isWellSpheresVisible( size_t frameIndex ) const;

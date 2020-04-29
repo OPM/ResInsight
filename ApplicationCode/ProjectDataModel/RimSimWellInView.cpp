@@ -644,6 +644,26 @@ size_t RimSimWellInView::resultWellIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSimWellInView::isWellDiskVisible() const
+{
+    const RimEclipseView* reservoirView = nullptr;
+    this->firstAncestorOrThisOfType( reservoirView );
+
+    if ( reservoirView == nullptr ) return false;
+    if ( this->simWellData() == nullptr ) return false;
+
+    if ( !reservoirView->wellCollection()->isActive() ) return false;
+
+    if ( !this->showWell() ) return false;
+
+    if ( !this->showWellDisks() ) return false;
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig, bool* isOk )
 {
     const RimEclipseView* reservoirView = nullptr;

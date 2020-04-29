@@ -508,8 +508,6 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         if ( &isActive == changedField || &m_showWellLabel == changedField || &m_showWellCells == changedField ||
              &m_showWellCellFence == changedField || &wellCellFenceType == changedField )
         {
-            RimWellDiskConfig wellDiskConfig = getActiveWellDiskConfig();
-            updateWellDisks( wellDiskConfig );
             m_reservoirView->scheduleGeometryRegen( VISIBLE_WELL_CELLS );
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
@@ -520,11 +518,9 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         else if ( &m_wellDiskQuantity == changedField || &m_wellDiskPropertyType == changedField ||
                   &m_wellDiskPropertyConfigType == changedField || &m_wellDiskshowLabelsBackground == changedField ||
                   &m_wellDiskShowQuantityLabels == changedField || &m_wellDiskSummaryCase == changedField ||
-                  &m_wellDiskScaleFactor == changedField || &m_showWellDisks == changedField ||
-                  &wellDiskColor == changedField )
+                  &m_wellDiskScaleFactor == changedField || &wellDiskColor == changedField ||
+                  &m_showWellDisks == changedField )
         {
-            RimWellDiskConfig wellDiskConfig = getActiveWellDiskConfig();
-            updateWellDisks( wellDiskConfig );
             m_reservoirView->updateDisplayModelForCurrentTimeStepAndRedraw();
         }
         else if ( &spheresScaleFactor == changedField || &m_showWellSpheres == changedField ||
@@ -1057,21 +1053,26 @@ bool RimSimWellInViewCollection::showWellDiskQuantityLables() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellInViewCollection::updateWellDisks()
+void RimSimWellInViewCollection::scaleWellDisks()
 {
+    if ( !isActive ) return;
+    if ( m_showWellDisks().isFalse() ) return;
+
     RimWellDiskConfig wellDiskConfig = getActiveWellDiskConfig();
-    updateWellDisks( wellDiskConfig );
+    scaleWellDisksFromConfig( wellDiskConfig );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellInViewCollection::updateWellDisks( const RimWellDiskConfig& wellDiskConfig )
+void RimSimWellInViewCollection::scaleWellDisksFromConfig( const RimWellDiskConfig& wellDiskConfig )
 {
     double minValue = std::numeric_limits<double>::max();
     double maxValue = -minValue;
     for ( RimSimWellInView* w : wells )
     {
+        if ( !w->isWellDiskVisible() ) continue;
+
         bool   isOk  = true;
         double value = w->calculateInjectionProductionFractions( wellDiskConfig, &isOk );
         if ( isOk )

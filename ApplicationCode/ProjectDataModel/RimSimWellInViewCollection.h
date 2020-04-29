@@ -158,7 +158,7 @@ public:
     static void updateWellAllocationPlots();
 
     void   setDefaultSourceCaseForWellDisks();
-    void   updateWellDisks();
+    void   scaleWellDisks();
     double wellDiskScaleFactor() const;
 
     caf::PdmField<cvf::Color3f> wellDiskColor;
@@ -177,7 +177,7 @@ protected:
 private:
     void calculateWellGeometryVisibility( size_t frameIndex );
     void updateStateFromEnabledChildCount( size_t showLabelCount, caf::PdmField<caf::Tristate>* fieldToUpdate );
-    void updateWellDisks( const RimWellDiskConfig& wellDiskConfig );
+    void scaleWellDisksFromConfig( const RimWellDiskConfig& wellDiskConfig );
     RimWellDiskConfig getActiveWellDiskConfig() const;
 
 private:
