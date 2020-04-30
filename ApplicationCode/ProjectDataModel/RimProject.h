@@ -127,7 +127,8 @@ public:
     void assignCaseIdToSummaryCase( RimSummaryCase* summaryCase );
     void assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollection );
 
-    void allCases( std::vector<RimCase*>& cases ) const;
+    std::vector<RimCase*> allGridCases() const;
+    void                  allCases( std::vector<RimCase*>& cases ) const; // Deprecated, use allGridCases()
 
     std::vector<RimSummaryCase*>           allSummaryCases() const;
     std::vector<RimSummaryCaseCollection*> summaryGroups() const;
