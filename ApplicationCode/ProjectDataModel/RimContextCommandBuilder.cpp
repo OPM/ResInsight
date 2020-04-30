@@ -39,6 +39,7 @@
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimColorLegendCollection.h"
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationPlotCollection.h"
@@ -781,6 +782,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSimWellInViewCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicExportCompletionsForVisibleSimWellsFeature";
+        }
+        else if ( dynamic_cast<RimColorLegendCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicImportColorCategories";
         }
         else if ( dynamic_cast<RimFormationNames*>( firstUiItem ) )
         {

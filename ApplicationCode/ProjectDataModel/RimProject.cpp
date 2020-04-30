@@ -39,6 +39,7 @@
 #include "RimCalcScript.h"
 #include "RimCase.h"
 #include "RimCaseCollection.h"
+#include "RimColorLegendCollection.h"
 #include "RimCommandObject.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimContextCommandBuilder.h"
@@ -128,6 +129,9 @@ RimProject::RimProject( void )
 
     CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields", "", "", "" );
     oilFields.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &colorLegendCollection, "ColorLegendCollection", "Color Legend Collection", "", "", "" );
+    colorLegendCollection = new RimColorLegendCollection();
 
     CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png", "", "" );
     scriptCollection.uiCapability()->setUiHidden( true );
@@ -1457,6 +1461,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->annotationCollection() ) uiTreeOrdering.add( oilField->annotationCollection() );
         }
 
+        uiTreeOrdering.add( colorLegendCollection() );
         uiTreeOrdering.add( scriptCollection() );
     }
 
