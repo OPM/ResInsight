@@ -52,7 +52,11 @@ void RicNewGridSurfaceFeature::onActionTriggered( bool isChecked )
         proj->updateConnectedEditors();
     }
 
-    RimSurface* lastCreatedOrUpdated = surfColl->addGridCaseSurface( nullptr );
+    RimCase* sourceCase = nullptr;
+    auto     allCases   = proj->allGridCases();
+    if ( !allCases.empty() ) sourceCase = allCases.front();
+
+    RimSurface* lastCreatedOrUpdated = surfColl->addGridCaseSurface( sourceCase );
 
     if ( lastCreatedOrUpdated )
     {

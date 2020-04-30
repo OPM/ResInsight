@@ -50,8 +50,8 @@ RimGridCaseSurface::RimGridCaseSurface()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_sliceIndex, "SliceIndex", 1, "Slice Index", "", "", "" );
-    m_sliceIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_oneBasedSliceIndex, "SliceIndex", 1, "Slice Index", "", "", "" );
+    m_oneBasedSliceIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,6 +67,15 @@ RimGridCaseSurface::~RimGridCaseSurface()
 void RimGridCaseSurface::setCase( RimCase* sourceCase )
 {
     m_case = sourceCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCaseSurface::setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis sliceType, int oneBasedSliceIndex )
+{
+    m_sliceDirection     = sliceType;
+    m_oneBasedSliceIndex = oneBasedSliceIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,10 +141,11 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 {
     RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_case || changedField == &m_sliceDirection || changedField == &m_sliceIndex )
+    if ( changedField == &m_case || changedField == &m_sliceDirection || changedField == &m_oneBasedSliceIndex )
     {
         clearNativeGridData();
         updateSurfaceDataFromGridCase();
+        updateUserDescription();
 
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
@@ -174,7 +184,7 @@ void RimGridCaseSurface::extractDataFromGrid()
         {
             const RigMainGrid* grid = eclCase->mainGrid();
 
-            size_t zeroBasedLayerIndex = static_cast<size_t>( m_sliceIndex - 1 );
+            size_t zeroBasedLayerIndex = static_cast<size_t>( m_oneBasedSliceIndex - 1 );
             for ( size_t i = 0; i < grid->cellCountI(); i++ )
             {
                 for ( size_t j = 0; j < grid->cellCountJ(); j++ )
@@ -219,6 +229,36 @@ void RimGridCaseSurface::clearNativeGridData()
 {
     m_vertices.clear();
     m_tringleIndices.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCaseSurface::updateUserDescription()
+{
+    QString name;
+
+    auto dirValue = m_sliceDirection().value();
+    switch ( dirValue )
+    {
+        case RiaDefines::GridCaseAxis::AXIS_I:
+            name = "Surface I : %1";
+            break;
+        case RiaDefines::GridCaseAxis::AXIS_J:
+            name = "Surface J : ";
+            break;
+        case RiaDefines::GridCaseAxis::AXIS_K:
+            name = "Surface K : ";
+            break;
+        case RiaDefines::GridCaseAxis::UNDEFINED_AXIS:
+        default:
+            name = "Surface  ";
+            break;
+    }
+
+    name += QString::number( m_oneBasedSliceIndex );
+
+    setUserDescription( name );
 }
 
 //--------------------------------------------------------------------------------------------------

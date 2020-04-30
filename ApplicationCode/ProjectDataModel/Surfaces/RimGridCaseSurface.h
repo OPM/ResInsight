@@ -35,8 +35,10 @@ public:
     ~RimGridCaseSurface() override;
 
     void setCase( RimCase* sourceCase );
+    void setSliceTypeAndOneBasedIndex( RiaDefines::GridCaseAxis sliceType, int oneBasedSliceIndex );
 
     bool onLoadData() override;
+    void updateUserDescription();
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -56,7 +58,7 @@ private:
 private:
     caf::PdmPtrField<RimCase*>                            m_case;
     caf::PdmField<caf::AppEnum<RiaDefines::GridCaseAxis>> m_sliceDirection;
-    caf::PdmField<int>                                    m_sliceIndex;
+    caf::PdmField<int>                                    m_oneBasedSliceIndex;
 
     std::vector<unsigned>   m_tringleIndices;
     std::vector<cvf::Vec3d> m_vertices;
