@@ -184,10 +184,12 @@ double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface
     // Find the data point which best matches the selected time step
     std::vector<time_t> resampledTimeSteps = resampler.resampledTimeSteps();
     std::vector<double> resampledValues    = resampler.resampledValues();
+
+    time_t currentTime_t = currentDate.toTime_t();
+
     for ( unsigned int i = 0; i < resampledTimeSteps.size(); i++ )
     {
-        QDateTime t = QDateTime::fromTime_t( resampledTimeSteps[i] );
-        if ( t > currentDate )
+        if ( resampledTimeSteps[i] > currentTime_t )
         {
             *isOk = true;
             return resampledValues[i];
