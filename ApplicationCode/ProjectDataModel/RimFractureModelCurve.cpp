@@ -91,7 +91,7 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
     std::vector<double> tvDepthValues;
     double              rkbDiff = 0.0;
 
-    RiaDefines::DepthUnitType depthUnit = RiaDefines::UNIT_METER;
+    RiaDefines::DepthUnitType depthUnit = RiaDefines::DepthUnitType::UNIT_METER;
     QString                   xUnits    = RiaWellLogUnitTools<double>::noUnitString();
 
     *isUsingPseudoLength = false;
@@ -108,11 +108,11 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
         rkbDiff             = eclExtractor.wellPathData()->rkbDiff();
 
         // TODO: hard coded!
-        m_eclipseResultDefinition->setResultType( RiaDefines::STATIC_NATIVE );
+        m_eclipseResultDefinition->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
         if ( m_eclipseResultDefinition->resultVariable() == QString( "PRESSURE" ) )
-            m_eclipseResultDefinition->setResultType( RiaDefines::DYNAMIC_NATIVE );
+            m_eclipseResultDefinition->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
         else if ( m_eclipseResultDefinition->resultVariable() == QString( "OPERNUM_1" ) )
-            m_eclipseResultDefinition->setResultType( RiaDefines::INPUT_PROPERTY );
+            m_eclipseResultDefinition->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
 
         m_eclipseResultDefinition->setEclipseCase( eclipseCase );
 
@@ -134,11 +134,11 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
         }
 
         RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
-        if ( eclipseUnitsType == RiaEclipseUnitTools::UNITS_FIELD )
+        if ( eclipseUnitsType == RiaEclipseUnitTools::UnitSystem::UNITS_FIELD )
         {
             // See https://github.com/OPM/ResInsight/issues/538
 
-            depthUnit = RiaDefines::UNIT_FEET;
+            depthUnit = RiaDefines::DepthUnitType::UNIT_FEET;
         }
     }
 
@@ -149,7 +149,7 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
         {
             this->setValuesAndDepths( values,
                                       measuredDepthValues,
-                                      RiaDefines::MEASURED_DEPTH,
+                                      RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
                                       0.0,
                                       depthUnit,
                                       !performDataSmoothing,
