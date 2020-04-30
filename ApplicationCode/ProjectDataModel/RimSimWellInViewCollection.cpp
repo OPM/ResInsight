@@ -505,8 +505,8 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
             setDefaultSourceCaseForWellDisks();
         }
 
-        if ( &isActive == changedField || &m_showWellLabel == changedField || &m_showWellCells == changedField ||
-             &m_showWellCellFence == changedField || &wellCellFenceType == changedField )
+        if ( &isActive == changedField || &m_showWellCells == changedField || &m_showWellCellFence == changedField ||
+             &wellCellFenceType == changedField || &showWellsIntersectingVisibleCells == changedField )
         {
             m_reservoirView->scheduleGeometryRegen( VISIBLE_WELL_CELLS );
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
@@ -519,7 +519,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
                   &m_wellDiskPropertyConfigType == changedField || &m_wellDiskshowLabelsBackground == changedField ||
                   &m_wellDiskShowQuantityLabels == changedField || &m_wellDiskSummaryCase == changedField ||
                   &m_wellDiskScaleFactor == changedField || &wellDiskColor == changedField ||
-                  &m_showWellDisks == changedField )
+                  &m_showWellDisks == changedField || &m_showWellLabel == changedField )
         {
             m_reservoirView->updateDisplayModelForCurrentTimeStepAndRedraw();
         }
@@ -539,12 +539,6 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
             for ( RimSimWellInView* w : wells )
                 w->schedule2dIntersectionViewUpdate();
-        }
-        else if ( &showWellsIntersectingVisibleCells == changedField )
-        {
-            m_reservoirView->scheduleGeometryRegen( VISIBLE_WELL_CELLS );
-            m_reservoirView->scheduleSimWellGeometryRegen();
-            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
 
