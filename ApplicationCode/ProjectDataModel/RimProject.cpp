@@ -536,6 +536,19 @@ void RimProject::assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimCase*> RimProject::allGridCases() const
+{
+    std::vector<RimCase*> cases;
+
+    // TODO: Move code from allCases here
+    allCases( cases );
+
+    return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimProject::assignCaseIdToCase( RimCase* reservoirCase )
 {
     if ( reservoirCase )
@@ -626,7 +639,7 @@ void RimProject::assignCalculationIdToCalculation( RimSummaryCalculation* calcul
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// TODO: This function is deprecated, use allGridCases()
 //--------------------------------------------------------------------------------------------------
 void RimProject::allCases( std::vector<RimCase*>& cases ) const
 {
