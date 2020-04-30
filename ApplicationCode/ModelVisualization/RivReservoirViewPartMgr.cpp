@@ -163,11 +163,6 @@ void RivReservoirViewPartMgr::clearGeometryCache( RivCellSetEnum geomType )
         for ( size_t i = 0; i < m_propFilteredGeometryFramesNeedsRegen.size(); ++i )
         {
             m_propFilteredGeometryFramesNeedsRegen[i] = true;
-            if ( m_propFilteredGeometryFrames[i].notNull() )
-            {
-                m_propFilteredGeometryFrames[i]->clearAndSetReservoir( geomType, rimEclipseCase, m_reservoirView );
-                m_propFilteredGeometryFrames[i]->setTransform( m_scaleTransform.p() );
-            }
         }
     }
     else if ( geomType == PROPERTY_FILTERED_WELL_CELLS )
@@ -175,18 +170,11 @@ void RivReservoirViewPartMgr::clearGeometryCache( RivCellSetEnum geomType )
         for ( size_t i = 0; i < m_propFilteredWellGeometryFramesNeedsRegen.size(); ++i )
         {
             m_propFilteredWellGeometryFramesNeedsRegen[i] = true;
-            if ( m_propFilteredWellGeometryFrames[i].notNull() )
-            {
-                m_propFilteredWellGeometryFrames[i]->clearAndSetReservoir( geomType, rimEclipseCase, m_reservoirView );
-                m_propFilteredWellGeometryFrames[i]->setTransform( m_scaleTransform.p() );
-            }
         }
     }
     else
     {
         m_geometriesNeedsRegen[geomType] = true;
-        m_geometries[geomType].clearAndSetReservoir( geomType, rimEclipseCase, m_reservoirView );
-        m_geometries[geomType].setTransform( m_scaleTransform.p() );
     }
 }
 
