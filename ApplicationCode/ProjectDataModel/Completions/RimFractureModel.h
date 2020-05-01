@@ -83,6 +83,7 @@ private:
     void             updateThicknessDirection();
     cvf::Vec3d       calculateTSTDirection() const;
     void             findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
+    static QString   vecToString( const cvf::Vec3d& vec );
 
 protected:
     caf::PdmField<double>                      m_MD;

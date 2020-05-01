@@ -309,24 +309,27 @@ void RimFractureModel::updateThicknessDirection()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimFractureModel::calculateTSTDirection() const
 {
-    cvf::Vec3d direction = cvf::Vec3d::ZERO;
+    cvf::Vec3d defaultDirection = cvf::Vec3d( 0.0, 0.0, -1.0 );
 
     // TODO: find a better way?
     // Find an eclipse case
     RiaApplication* app  = RiaApplication::instance();
     RimProject*     proj = app->project();
-    if ( proj->eclipseCases().empty() ) return direction;
+    if ( proj->eclipseCases().empty() ) return defaultDirection;
 
     RimEclipseCase* eclipseCase = proj->eclipseCases()[0];
-    if ( !eclipseCase ) return direction;
+    if ( !eclipseCase ) return defaultDirection;
 
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
-    if ( !eclipseCaseData ) return direction;
+    if ( !eclipseCaseData ) return defaultDirection;
 
     RigMainGrid* mainGrid = eclipseCaseData->mainGrid();
-    if ( !mainGrid ) return direction;
+    if ( !mainGrid ) return defaultDirection;
 
     cvf::Vec3d boundingBoxSize( m_boundingBoxHorizontal, m_boundingBoxHorizontal, m_boundingBoxVertical );
 
@@ -334,25 +337,30 @@ cvf::Vec3d RimFractureModel::calculateTSTDirection() const
     cvf::BoundingBox    boundingBox( m_anchorPosition() - boundingBoxSize, m_anchorPosition() + boundingBoxSize );
     std::vector<size_t> closeCells;
     mainGrid->findIntersectingCells( boundingBox, &closeCells );
-    std::cout << "Close cells count: " << closeCells.size() << std::endl;
 
-    if ( closeCells.empty() )
-    {
-        // No close cells found: just point straight up
-        return cvf::Vec3d( 0.0, 0.0, -1.0 );
-    }
+    // The stratigraphic thickness is the averge of normals of the top face
+    cvf::Vec3d direction = cvf::Vec3d::ZERO;
 
-    // The stratigraphic thickness is average the averge of normals of the top face
+    int numContributingCells = 0;
     for ( size_t globalCellIndex : closeCells )
     {
         const RigCell& cell = mainGrid->globalCellArray()[globalCellIndex];
 
-        if ( cell.isInvalid() ) continue;
-
-        direction += ( cell.center() - cell.faceCenter( cvf::StructGridInterface::NEG_K ) ).getNormalized();
+        if ( !cell.isInvalid() )
+        {
+            direction += cell.faceNormalWithAreaLenght( cvf::StructGridInterface::NEG_K ).getNormalized();
+            numContributingCells++;
+        }
     }
 
-    return ( direction / static_cast<double>( closeCells.size() ) ).getNormalized();
+    RiaLogging::info( QString( "TST contributing cells: %1/%2" ).arg( numContributingCells ).arg( closeCells.size() ) );
+    if ( numContributingCells == 0 )
+    {
+        // No valid close cells found: just point straight up
+        return defaultDirection;
+    }
+
+    return ( direction / static_cast<double>( numContributingCells ) ).getNormalized();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -392,18 +400,17 @@ void RimFractureModel::setThicknessDirectionWellPath( RimModeledWellPath* thickn
     m_thicknessDirectionWellPath = thicknessDirectionWellPath;
 }
 
-// TODO: replace with logging!!!!
-#include <sstream>
-std::string toString2( const cvf::Vec3d& vec )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFractureModel::vecToString( const cvf::Vec3d& vec )
 {
-    std::stringstream stream;
-    stream << "[" << vec.x() << " " << vec.y() << " " << vec.z() << "]";
-    return stream.str();
+    return QString( "[%1, %2, %3]" ).arg( vec.x() ).arg( vec.y() ).arg( vec.z() );
 }
 
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 ///
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
 void RimFractureModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition )
 {
     // TODO: duplicated and ugly!
@@ -425,10 +432,11 @@ void RimFractureModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::
 
     const cvf::BoundingBox& geometryBoundingBox = eclipseCase->mainGrid()->boundingBox();
 
-    std::cout << "All cells bounding box: " << toString2( geometryBoundingBox.min() ) << " "
-              << toString2( geometryBoundingBox.max() ) << std::endl;
-    std::cout << "Position: " << toString2( position ) << std::endl;
-    std::cout << "Direction: " << toString2( direction ) << std::endl;
+    RiaLogging::info( QString( "All cells bounding box: %1 %2" )
+                          .arg( RimFractureModel::vecToString( geometryBoundingBox.min() ) )
+                          .arg( RimFractureModel::vecToString( geometryBoundingBox.max() ) ) );
+    RiaLogging::info( QString( "Position:  %1" ).arg( RimFractureModel::vecToString( position ) ) );
+    RiaLogging::info( QString( "Direction: %1" ).arg( RimFractureModel::vecToString( direction ) ) );
 
     // Create plane on top and bottom of formation
     cvf::Plane topPlane;
@@ -436,19 +444,13 @@ void RimFractureModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::
     cvf::Plane bottomPlane;
     bottomPlane.setFromPointAndNormal( geometryBoundingBox.min(), cvf::Vec3d::Z_AXIS );
 
-    // Convert direction up for z
-    cvf::Vec3d directionUp( direction.x(), direction.y(), -direction.z() );
-
     // Find and add point on top plane
-    cvf::Vec3d abovePlane = position + ( directionUp * 10000.0 );
+    cvf::Vec3d abovePlane = position + ( direction * -10000.0 );
     topPlane.intersect( position, abovePlane, &topPosition );
-    std::cout << "TOP:    " << toString2( topPosition ) << " MD: " << std::endl;
-
-    // The anchor position
-    std::cout << "ANCHOR: " << toString2( position ) << std::endl;
+    RiaLogging::info( QString( "Top: %1" ).arg( RimFractureModel::vecToString( topPosition ) ) );
 
     // Find and add point on bottom plane
-    cvf::Vec3d belowPlane = position + ( directionUp * -10000.0 );
+    cvf::Vec3d belowPlane = position + ( direction * 10000.0 );
     bottomPlane.intersect( position, belowPlane, &bottomPosition );
-    std::cout << "BOTTOM: " << toString2( bottomPosition ) << std::endl;
+    RiaLogging::info( QString( "Bottom: %1" ).arg( RimFractureModel::vecToString( bottomPosition ) ) );
 }
