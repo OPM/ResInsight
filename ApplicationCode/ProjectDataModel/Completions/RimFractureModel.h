@@ -22,10 +22,8 @@
 
 #include "Rim3dPropertiesInterface.h"
 #include "RimCheckableNamedObject.h"
-#include "RimFractureTemplate.h"
 #include "RimWellPathComponentInterface.h"
 
-#include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
@@ -59,8 +57,6 @@ public:
     cvf::Vec3d anchorPosition() const;
     cvf::Vec3d thicknessDirection() const;
 
-    cvf::Mat4d transformMatrix() const;
-
     void       fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     cvf::Vec3d fracturePosition() const;
 
@@ -80,9 +76,6 @@ public:
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     cvf::BoundingBox boundingBoxInDomainCoords() const override;
@@ -91,18 +84,12 @@ private:
     cvf::Vec3d       calculateTSTDirection() const;
     void             findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
 
-    static cvf::Mat4d rotationMatrixBetweenVectors( const cvf::Vec3d& v1, const cvf::Vec3d& v2 );
-
 protected:
-    caf::PdmField<double>                                                 m_MD;
-    caf::PdmField<caf::AppEnum<RimFractureTemplate::FracOrientationEnum>> m_orientationType;
-    caf::PdmField<caf::AppEnum<ThicknessType>>                            m_thicknessType;
-    caf::PdmField<double>                                                 m_azimuth;
-    caf::PdmField<double>                                                 m_dip;
-    caf::PdmField<double>                                                 m_tilt;
-    caf::PdmField<cvf::Vec3d>                                             m_anchorPosition;
-    caf::PdmField<cvf::Vec3d>                                             m_thicknessDirection;
-    caf::PdmField<double>                                                 m_boundingBoxVertical;
-    caf::PdmField<double>                                                 m_boundingBoxHorizontal;
-    caf::PdmPtrField<RimModeledWellPath*>                                 m_thicknessDirectionWellPath;
+    caf::PdmField<double>                      m_MD;
+    caf::PdmField<caf::AppEnum<ThicknessType>> m_thicknessType;
+    caf::PdmField<cvf::Vec3d>                  m_anchorPosition;
+    caf::PdmField<cvf::Vec3d>                  m_thicknessDirection;
+    caf::PdmField<double>                      m_boundingBoxVertical;
+    caf::PdmField<double>                      m_boundingBoxHorizontal;
+    caf::PdmPtrField<RimModeledWellPath*>      m_thicknessDirectionWellPath;
 };

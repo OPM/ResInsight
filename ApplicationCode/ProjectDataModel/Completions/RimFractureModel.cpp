@@ -89,22 +89,6 @@ RimFractureModel::RimFractureModel()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_orientationType,
-                       "Orientation",
-                       caf::AppEnum<RimFractureTemplate::FracOrientationEnum>( RimFractureTemplate::TRANSVERSE_WELL_PATH ),
-                       "Fracture Orientation",
-                       "",
-                       "",
-                       "" );
-
-    CAF_PDM_InitField( &m_azimuth, "Azimuth", 0.0, "Azimuth", "", "", "" );
-    m_azimuth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitField( &m_dip, "Dip", 0.0, "Dip", "", "", "" );
-    m_dip.uiCapability()->setUiReadOnly( true );
-    CAF_PDM_InitField( &m_tilt, "Tilt", 0.0, "Tilt", "", "", "" );
-    m_tilt.uiCapability()->setUiReadOnly( true );
-
     CAF_PDM_InitFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
     m_anchorPosition.uiCapability()->setUiReadOnly( true );
 
@@ -264,37 +248,6 @@ cvf::Vec3d RimFractureModel::thicknessDirection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Mat4d RimFractureModel::transformMatrix() const
-{
-    // Ellipsis geometry is produced in XY-plane, rotate 90 deg around X to get zero azimuth along Y
-    cvf::Mat4d rotationFromTesselator = cvf::Mat4d::fromRotation( cvf::Vec3d::Y_AXIS, cvf::Math::toRadians( 90.0f ) );
-
-    cvf::Mat4d directionRotation = rotationMatrixBetweenVectors( cvf::Vec3d::Z_AXIS, m_thicknessDirection() );
-
-    cvf::Mat4d m = directionRotation * rotationFromTesselator;
-    m.setTranslation( anchorPosition() );
-
-    return m;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Taken from OverlayNavigationCube::computeNewUpVector
-/// Consider move to geometry util class
-//--------------------------------------------------------------------------------------------------
-cvf::Mat4d RimFractureModel::rotationMatrixBetweenVectors( const cvf::Vec3d& v1, const cvf::Vec3d& v2 )
-{
-    cvf::Vec3d rotAxis = v1 ^ v2;
-    rotAxis.normalize();
-
-    // Guard acos against out-of-domain input
-    const double dotProduct = cvf::Math::clamp( v1 * v2, -1.0, 1.0 );
-    const double angle      = cvf::Math::acos( dotProduct );
-    return cvf::Mat4d::fromRotation( rotAxis, angle );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimFractureModel::updatePositionFromMeasuredDepth()
 {
     cvf::Vec3d positionAlongWellpath = cvf::Vec3d::ZERO;
@@ -354,10 +307,6 @@ void RimFractureModel::updateThicknessDirection()
         wellGeomDef->updateConnectedEditors();
         wellGeomDef->updateWellPathVisualization();
     }
-
-    m_dip     = cvf::Math::toDegrees( cvf::GeometryTools::getAngle( cvf::Vec3d::Z_AXIS, direction ) );
-    m_tilt    = cvf::Math::toDegrees( cvf::GeometryTools::getAngle( cvf::Vec3d::X_AXIS, direction ) );
-    m_azimuth = cvf::Math::toDegrees( cvf::GeometryTools::getAngle( cvf::Vec3d::Y_AXIS, direction ) );
 }
 
 cvf::Vec3d RimFractureModel::calculateTSTDirection() const
@@ -411,25 +360,7 @@ cvf::Vec3d RimFractureModel::calculateTSTDirection() const
 //--------------------------------------------------------------------------------------------------
 void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    m_azimuth.uiCapability()->setUiHidden( m_orientationType != RimFractureTemplate::AZIMUTH );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFractureModel::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                              QString                    uiConfigName,
-                                              caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_azimuth )
-    {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( myAttr )
-        {
-            myAttr->m_minimum = 0;
-            myAttr->m_maximum = 360;
-        }
-    }
+    m_thicknessDirectionWellPath.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -511,23 +442,13 @@ void RimFractureModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::
     // Find and add point on top plane
     cvf::Vec3d abovePlane = position + ( directionUp * 10000.0 );
     topPlane.intersect( position, abovePlane, &topPosition );
-    double topMD = 0.0;
-    // m_wellPath->m_wellPathPoints.push_back( topPosition );
-    // m_wellPath->m_measuredDepths.push_back( topMD );
-    std::cout << "TOP:    " << toString2( topPosition ) << " MD: " << topMD << std::endl;
+    std::cout << "TOP:    " << toString2( topPosition ) << " MD: " << std::endl;
 
     // The anchor position
-    double dist = ( topPosition - position ).length();
-    // m_wellPath->m_wellPathPoints.push_back( position );
-    // m_wellPath->m_measuredDepths.push_back( dist );
-    std::cout << "ANCHOR: " << toString2( position ) << " MD: " << dist << std::endl;
+    std::cout << "ANCHOR: " << toString2( position ) << std::endl;
 
     // Find and add point on bottom plane
     cvf::Vec3d belowPlane = position + ( directionUp * -10000.0 );
     bottomPlane.intersect( position, belowPlane, &bottomPosition );
-
-    double dist2 = ( topPosition - bottomPosition ).length();
-    // m_wellPath->m_wellPathPoints.push_back( bottomPosition );
-    // m_wellPath->m_measuredDepths.push_back( dist2 );
-    std::cout << "BOTTOM: " << toString2( bottomPosition ) << " MD: " << dist2 << std::endl;
+    std::cout << "BOTTOM: " << toString2( bottomPosition ) << std::endl;
 }
