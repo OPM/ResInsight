@@ -158,68 +158,90 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimGridCaseSurface::extractDataFromGrid()
 {
-    std::vector<unsigned>   tringleIndices;
-    std::vector<cvf::Vec3d> vertices;
+    clearNativeGridData();
 
-    cvf::StructGridInterface::FaceType faceType = cvf::StructGridInterface::NO_FACE;
-    {
-        if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_K )
-        {
-            faceType = cvf::StructGridInterface::NEG_K;
-        }
-        else if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_J )
-        {
-            faceType = cvf::StructGridInterface::NEG_J;
-        }
-        else if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_I )
-        {
-            faceType = cvf::StructGridInterface::NEG_I;
-        }
-    }
+    if ( m_sliceDirection() == RiaDefines::GridCaseAxis::UNDEFINED_AXIS ) return;
 
-    if ( m_case && faceType != cvf::StructGridInterface::NO_FACE )
+    if ( m_case )
     {
         RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>( m_case() );
         if ( eclCase && eclCase->mainGrid() )
         {
             const RigMainGrid* grid = eclCase->mainGrid();
 
+            size_t minI = 0;
+            size_t minJ = 0;
+            size_t minK = 0;
+            size_t maxI = grid->cellCountI();
+            size_t maxJ = grid->cellCountJ();
+            size_t maxK = grid->cellCountK();
+
             size_t zeroBasedLayerIndex = static_cast<size_t>( m_oneBasedSliceIndex - 1 );
-            for ( size_t i = 0; i < grid->cellCountI(); i++ )
+
+            cvf::StructGridInterface::FaceType faceType = cvf::StructGridInterface::NO_FACE;
             {
-                for ( size_t j = 0; j < grid->cellCountJ(); j++ )
+                if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_K )
                 {
-                    size_t cellIndex = grid->cellIndexFromIJK( i, j, zeroBasedLayerIndex );
+                    faceType = cvf::StructGridInterface::NEG_K;
 
-                    if ( grid->cell( cellIndex ).isInvalid() ) continue;
-
-                    cvf::Vec3d cornerVerts[8];
-                    grid->cellCornerVertices( cellIndex, cornerVerts );
-
-                    cvf::ubyte faceConn[4];
-                    grid->cellFaceVertexIndices( faceType, faceConn );
-
-                    cvf::uint triangleIndex = static_cast<cvf::uint>( vertices.size() );
-
-                    for ( int n = 0; n < 4; n++ )
-                    {
-                        vertices.push_back( cornerVerts[faceConn[n]] );
-                    }
-
-                    tringleIndices.push_back( triangleIndex + 0 );
-                    tringleIndices.push_back( triangleIndex + 1 );
-                    tringleIndices.push_back( triangleIndex + 2 );
-
-                    tringleIndices.push_back( triangleIndex + 0 );
-                    tringleIndices.push_back( triangleIndex + 2 );
-                    tringleIndices.push_back( triangleIndex + 3 );
+                    minK = zeroBasedLayerIndex;
+                    maxK = zeroBasedLayerIndex + 1;
+                }
+                else if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_J )
+                {
+                    faceType = cvf::StructGridInterface::NEG_J;
+                    minJ     = zeroBasedLayerIndex;
+                    maxJ     = zeroBasedLayerIndex + 1;
+                }
+                else if ( m_sliceDirection() == RiaDefines::GridCaseAxis::AXIS_I )
+                {
+                    faceType = cvf::StructGridInterface::NEG_I;
+                    minI     = zeroBasedLayerIndex;
+                    maxI     = zeroBasedLayerIndex + 1;
                 }
             }
+
+            std::vector<unsigned>   tringleIndices;
+            std::vector<cvf::Vec3d> vertices;
+
+            for ( size_t i = minI; i < maxI; i++ )
+            {
+                for ( size_t j = minJ; j < maxJ; j++ )
+                {
+                    for ( size_t k = minK; k < maxK; k++ )
+                    {
+                        size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
+
+                        if ( grid->cell( cellIndex ).isInvalid() ) continue;
+
+                        cvf::Vec3d cornerVerts[8];
+                        grid->cellCornerVertices( cellIndex, cornerVerts );
+
+                        cvf::ubyte faceConn[4];
+                        grid->cellFaceVertexIndices( faceType, faceConn );
+
+                        cvf::uint triangleIndex = static_cast<cvf::uint>( vertices.size() );
+
+                        for ( int n = 0; n < 4; n++ )
+                        {
+                            vertices.push_back( cornerVerts[faceConn[n]] );
+                        }
+
+                        tringleIndices.push_back( triangleIndex + 0 );
+                        tringleIndices.push_back( triangleIndex + 1 );
+                        tringleIndices.push_back( triangleIndex + 2 );
+
+                        tringleIndices.push_back( triangleIndex + 0 );
+                        tringleIndices.push_back( triangleIndex + 2 );
+                        tringleIndices.push_back( triangleIndex + 3 );
+                    }
+                }
+            }
+
+            m_vertices       = vertices;
+            m_tringleIndices = tringleIndices;
         }
     }
-
-    m_vertices       = vertices;
-    m_tringleIndices = tringleIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,6 +280,12 @@ void RimGridCaseSurface::updateUserDescription()
 
     name += QString::number( m_oneBasedSliceIndex );
 
+    const double epsilon = 1.0e-3;
+    if ( std::fabs( depthOffset() ) > epsilon )
+    {
+        name += ", Offset : " + QString::number( depthOffset() );
+    }
+
     setUserDescription( name );
 }
 
@@ -279,8 +307,8 @@ bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
     if ( !tringleIndices.empty() )
     {
         {
-            // Modify the z-value slightly to avoid geometrical numerical issues when the surface intersects exactly at
-            // the cell face
+            // Modify the z-value slightly to avoid geometrical numerical issues when the surface intersects
+            // exactly at the cell face
 
             double delta = 1.0e-5;
 
