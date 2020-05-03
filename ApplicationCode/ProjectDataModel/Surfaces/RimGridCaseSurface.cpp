@@ -50,7 +50,7 @@ RimGridCaseSurface::RimGridCaseSurface()
                        "",
                        "" );
 
-    CAF_PDM_InitField( &m_sliceIndex, "SliceIndex", 0, "Slice Index", "", "", "" );
+    CAF_PDM_InitField( &m_sliceIndex, "SliceIndex", 1, "Slice Index", "", "", "" );
     m_sliceIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 }
 
@@ -72,7 +72,7 @@ void RimGridCaseSurface::setCase( RimCase* sourceCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCaseSurface::loadData()
+bool RimGridCaseSurface::onLoadData()
 {
     return updateSurfaceDataFromGridCase();
 }
@@ -130,8 +130,11 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue )
 {
+    RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( changedField == &m_case || changedField == &m_sliceDirection || changedField == &m_sliceIndex )
     {
+        clearNativeGridData();
         updateSurfaceDataFromGridCase();
 
         RimSurfaceCollection* surfColl;
@@ -141,12 +144,10 @@ void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns false for fatal failure
+///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
+void RimGridCaseSurface::extractDataFromGrid()
 {
-    RigSurface* surfaceData = nullptr;
-
     std::vector<unsigned>   tringleIndices;
     std::vector<cvf::Vec3d> vertices;
 
@@ -171,48 +172,72 @@ bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
         RimEclipseCase* eclCase = dynamic_cast<RimEclipseCase*>( m_case() );
         if ( eclCase && eclCase->mainGrid() )
         {
+            const RigMainGrid* grid = eclCase->mainGrid();
+
+            size_t zeroBasedLayerIndex = static_cast<size_t>( m_sliceIndex - 1 );
+            for ( size_t i = 0; i < grid->cellCountI(); i++ )
             {
-                const RigMainGrid* grid = eclCase->mainGrid();
-
-                size_t k = m_sliceIndex;
-                for ( size_t i = 0; i < grid->cellCountI(); i++ )
+                for ( size_t j = 0; j < grid->cellCountJ(); j++ )
                 {
-                    for ( size_t j = 0; j < grid->cellCountJ(); j++ )
+                    size_t cellIndex = grid->cellIndexFromIJK( i, j, zeroBasedLayerIndex );
+
+                    if ( grid->cell( cellIndex ).isInvalid() ) continue;
+
+                    cvf::Vec3d cornerVerts[8];
+                    grid->cellCornerVertices( cellIndex, cornerVerts );
+
+                    cvf::ubyte faceConn[4];
+                    grid->cellFaceVertexIndices( faceType, faceConn );
+
+                    cvf::uint triangleIndex = static_cast<cvf::uint>( vertices.size() );
+
+                    for ( int n = 0; n < 4; n++ )
                     {
-                        size_t cellIndex = grid->cellIndexFromIJK( i, j, k );
-
-                        if ( grid->cell( cellIndex ).isInvalid() ) continue;
-
-                        cvf::Vec3d cornerVerts[8];
-                        grid->cellCornerVertices( cellIndex, cornerVerts );
-
-                        cvf::ubyte faceConn[4];
-                        grid->cellFaceVertexIndices( faceType, faceConn );
-
-                        cvf::uint triangleIndex = static_cast<cvf::uint>( vertices.size() );
-
-                        for ( int n = 0; n < 4; n++ )
-                        {
-                            vertices.push_back( cornerVerts[faceConn[n]] );
-                        }
-
-                        tringleIndices.push_back( triangleIndex + 0 );
-                        tringleIndices.push_back( triangleIndex + 1 );
-                        tringleIndices.push_back( triangleIndex + 2 );
-
-                        tringleIndices.push_back( triangleIndex + 0 );
-                        tringleIndices.push_back( triangleIndex + 2 );
-                        tringleIndices.push_back( triangleIndex + 3 );
+                        vertices.push_back( cornerVerts[faceConn[n]] );
                     }
+
+                    tringleIndices.push_back( triangleIndex + 0 );
+                    tringleIndices.push_back( triangleIndex + 1 );
+                    tringleIndices.push_back( triangleIndex + 2 );
+
+                    tringleIndices.push_back( triangleIndex + 0 );
+                    tringleIndices.push_back( triangleIndex + 2 );
+                    tringleIndices.push_back( triangleIndex + 3 );
                 }
             }
         }
     }
 
+    m_vertices       = vertices;
+    m_tringleIndices = tringleIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCaseSurface::clearNativeGridData()
+{
+    m_vertices.clear();
+    m_tringleIndices.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns false for fatal failure
+//--------------------------------------------------------------------------------------------------
+bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
+{
+    if ( m_vertices.empty() || m_tringleIndices.empty() )
+    {
+        extractDataFromGrid();
+    }
+
+    RigSurface* surfaceData = nullptr;
+
+    std::vector<unsigned>   tringleIndices{m_tringleIndices};
+    std::vector<cvf::Vec3d> vertices{m_vertices};
+
     if ( !tringleIndices.empty() )
     {
-        surfaceData = new RigSurface;
-
         {
             // Modify the z-value slightly to avoid geometrical numerical issues when the surface intersects exactly at
             // the cell face
@@ -234,12 +259,13 @@ bool RimGridCaseSurface::updateSurfaceDataFromGridCase()
                 offset.z() += delta;
             }
 
-            for ( auto& v : vertices )
-            {
-                v += offset;
-            }
+            // Include the potential depth offset in the base class
+            offset.z() += depthOffset();
+
+            RimSurface::applyDepthOffset( offset, &vertices );
         }
 
+        surfaceData = new RigSurface;
         surfaceData->setTriangleData( tringleIndices, vertices );
     }
 

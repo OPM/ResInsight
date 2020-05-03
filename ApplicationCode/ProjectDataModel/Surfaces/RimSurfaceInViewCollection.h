@@ -40,6 +40,7 @@ public:
     ~RimSurfaceInViewCollection() override;
 
     void updateFromSurfaceCollection();
+    void loadData();
 
     void appendPartsToModel( cvf::ModelBasicList* surfaceVizModel, cvf::Transform* scaleTransform );
     void updateCellResultColor( bool hasGeneralCellResult, size_t timeStepIndex );

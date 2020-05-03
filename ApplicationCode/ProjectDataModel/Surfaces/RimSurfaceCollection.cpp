@@ -98,7 +98,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
         newSurface->setSurfaceFilePath( newFileName );
         newSurface->setColor( newColor );
 
-        if ( !newSurface->loadData() )
+        if ( !newSurface->onLoadData() )
         {
             delete newSurface;
             errorMessages += newFileName + "\n";
@@ -161,10 +161,7 @@ void RimSurfaceCollection::loadData()
 {
     for ( auto surf : m_surfaces )
     {
-        if ( !surf->loadData() )
-        {
-            // Error: could not open the surface file surf->surfaceFilePath();
-        }
+        surf->loadDataIfRequired();
     }
 }
 
