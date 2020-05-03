@@ -15,33 +15,29 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "RimSurface.h"
 
-class RimSurface;
-class RimCase;
-
-class RimSurfaceCollection : public caf::PdmObject
+class RimFileSurface : public RimSurface
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSurfaceCollection();
-    ~RimSurfaceCollection() override;
+    RimFileSurface();
+    ~RimFileSurface() override;
 
-    void addSurface( RimSurface* surface );
+    void    setSurfaceFilePath( const QString& filePath );
+    QString surfaceFilePath();
 
-    RimSurface* importSurfacesFromFiles( const QStringList& fileNames );
-    RimSurface* addGridCaseSurface( RimCase* sourceCase );
-
-    std::vector<RimSurface*> surfaces() const;
-
-    void loadData();
-    void updateViews();
-    void updateViews( const std::vector<RimSurface*>& surfsToReload );
+    bool loadData() override;
 
 private:
-    caf::PdmChildArrayField<RimSurface*> m_surfaces;
+    bool updateSurfaceDataFromFile();
+
+private:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
 };

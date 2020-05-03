@@ -17,9 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimSurfaceCollection.h"
-#include "QMessageBox"
+
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaLogging.h"
+
+#include "RimFileSurface.h"
+#include "RimGridCaseSurface.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimSurface.h"
@@ -66,7 +70,8 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
         bool isFound = false;
         for ( RimSurface* surface : m_surfaces() )
         {
-            if ( surface->surfaceFilePath() == newFileName )
+            RimFileSurface* fileSurface = dynamic_cast<RimFileSurface*>( surface );
+            if ( fileSurface && fileSurface->surfaceFilePath() == newFileName )
             {
                 surfacesToReload.push_back( surface );
                 isFound = true;
@@ -86,14 +91,14 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 
     for ( const QString& newFileName : newFileNames )
     {
-        RimSurface* newSurface = new RimSurface;
+        RimFileSurface* newSurface = new RimFileSurface;
 
         auto newColor = RiaColorTables::categoryPaletteColors().cycledColor3f( existingSurfCount + newSurfCount );
 
         newSurface->setSurfaceFilePath( newFileName );
         newSurface->setColor( newColor );
 
-        if ( !newSurface->updateSurfaceDataFromFile() )
+        if ( !newSurface->loadData() )
         {
             delete newSurface;
             errorMessages += newFileName + "\n";
@@ -109,7 +114,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 
     if ( !errorMessages.isEmpty() )
     {
-        QMessageBox::warning( nullptr, "Import Surfaces:", "Could not import the following files:\n" + errorMessages );
+        RiaLogging::warning( "Import Surfaces : Could not import the following files:\n" + errorMessages );
     }
 
     this->updateConnectedEditors();
@@ -129,6 +134,21 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase )
+{
+    auto s = new RimGridCaseSurface;
+    s->setCase( sourceCase );
+
+    m_surfaces.push_back( s );
+
+    this->updateConnectedEditors();
+
+    return s;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 {
     return m_surfaces.childObjects();
@@ -141,7 +161,7 @@ void RimSurfaceCollection::loadData()
 {
     for ( auto surf : m_surfaces )
     {
-        if ( !surf->updateSurfaceDataFromFile() )
+        if ( !surf->loadData() )
         {
             // Error: could not open the surface file surf->surfaceFilePath();
         }
@@ -158,7 +178,7 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
     std::vector<Rim3dView*> views;
     proj->allViews( views );
 
-    // Make sure the tree items are syncronized
+    // Make sure the tree items are synchronized
 
     for ( auto view : views )
     {
@@ -174,6 +194,8 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
         surf->objectsWithReferringPtrFieldsOfType( surfsInView );
         for ( auto surfInView : surfsInView )
         {
+            surfInView->clearGeometry();
+
             RimGridView* gridView;
             surfInView->firstAncestorOrThisOfType( gridView );
 
@@ -197,7 +219,7 @@ void RimSurfaceCollection::updateViews()
     std::vector<RimGridView*> views;
     proj->allVisibleGridViews( views );
 
-    // Make sure the tree items are syncronized
+    // Make sure the tree items are synchronized
 
     for ( auto view : views )
     {

@@ -141,6 +141,7 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 {
     if ( m_triangleVxes->size() ) return;
     if ( m_hexGrid.isNull() ) return;
+    if ( !m_surfaceInView->surface()->surfaceData() ) return;
 
     std::vector<cvf::Vec3f> outputTriangleVertices;
 
@@ -322,8 +323,6 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 cvf::ref<cvf::DrawableGeo> RivSurfaceIntersectionGeometryGenerator::generateSurface()
 {
     calculateArrays();
-
-    CVF_ASSERT( m_triangleVxes.notNull() );
 
     if ( m_triangleVxes->size() == 0 ) return nullptr;
 

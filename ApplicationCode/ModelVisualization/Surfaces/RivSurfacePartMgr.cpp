@@ -377,7 +377,9 @@ void RivSurfacePartMgr::generateNativePartGeometry()
     m_surfaceInView->firstAncestorOrThisOfTypeAsserted( ownerCase );
     cvf::Vec3d displayModOffsett = ownerCase->displayModelOffset();
 
-    m_usedSurfaceData     = m_surfaceInView->surface()->surfaceData();
+    m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
+    if ( m_usedSurfaceData.isNull() ) return;
+
     double depthOffset    = m_surfaceInView->depthOffset();
     displayModOffsett.z() = displayModOffsett.z() + depthOffset;
 
@@ -413,6 +415,8 @@ void RivSurfacePartMgr::generateNativePartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::generateNativeVertexToCellIndexMap()
 {
+    if ( m_usedSurfaceData.isNull() ) return;
+
     cvf::ref<RivIntersectionHexGridInterface> hexGrid = m_surfaceInView->createHexGridInterface();
 
     const std::vector<cvf::Vec3d>& vertices = m_usedSurfaceData->vertices();
