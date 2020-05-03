@@ -15,33 +15,21 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "cafCmdFeature.h"
 
-class RimSurface;
-class RimCase;
-
-class RimSurfaceCollection : public caf::PdmObject
+//==================================================================================================
+///
+//==================================================================================================
+class RicNewGridSurfaceFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimSurfaceCollection();
-    ~RimSurfaceCollection() override;
-
-    void addSurface( RimSurface* surface );
-
-    RimSurface* importSurfacesFromFiles( const QStringList& fileNames );
-    RimSurface* addGridCaseSurface( RimCase* sourceCase );
-
-    std::vector<RimSurface*> surfaces() const;
-
-    void loadData();
-    void updateViews();
-    void updateViews( const std::vector<RimSurface*>& surfsToReload );
-
-private:
-    caf::PdmChildArrayField<RimSurface*> m_surfaces;
+protected:
+    // Overrides
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

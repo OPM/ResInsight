@@ -34,24 +34,26 @@ public:
     RimSurface();
     ~RimSurface() override;
 
-    void    setSurfaceFilePath( const QString& filePath );
-    QString surfaceFilePath();
-
     void         setColor( const cvf::Color3f& color );
     cvf::Color3f color() const;
 
-    bool        updateSurfaceDataFromFile();
     RigSurface* surfaceData();
 
     QString userDescription();
 
+    virtual bool loadData();
+
+protected:
+    void setUserDescription( const QString& description );
+    void setSurfaceData( RigSurface* surface );
+
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    caf::PdmField<caf::FilePath> m_surfaceDefinitionFilePath;
-    caf::PdmField<QString>       m_userDescription;
-    caf::PdmField<cvf::Color3f>  m_color;
+    caf::PdmField<QString>      m_userDescription;
+    caf::PdmField<cvf::Color3f> m_color;
 
     cvf::ref<RigSurface> m_surfaceData;
 };

@@ -16,109 +16,114 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSurface.h"
-
-#include "RimSurfaceCollection.h"
-
-#include "RigSurface.h"
+#include "RimFileSurface.h"
 
 #include "RifSurfaceReader.h"
+#include "RigSurface.h"
+#include "RimSurfaceCollection.h"
 
 #include <QFileInfo>
 
-CAF_PDM_SOURCE_INIT( RimSurface, "Surface" );
+CAF_PDM_SOURCE_INIT( RimFileSurface, "FileSurface" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurface::RimSurface()
+RimFileSurface::RimFileSurface()
 {
     CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_userDescription, "SurfaceUserDecription", "Name", "", "", "" );
-    CAF_PDM_InitField( &m_color, "SurfaceColor", cvf::Color3f( 0.5f, 0.3f, 0.2f ), "Color", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceDefinitionFilePath, "SurfaceFilePath", "File", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurface::~RimSurface()
+RimFileSurface::~RimFileSurface()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurface::setColor( const cvf::Color3f& color )
+void RimFileSurface::setSurfaceFilePath( const QString& filePath )
 {
-    m_color = color;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Color3f RimSurface::color() const
-{
-    return m_color();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSurface::userDescription()
-{
-    return m_userDescription();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSurface::loadData()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSurface::setUserDescription( const QString& description )
-{
-    m_userDescription = description;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSurface::setSurfaceData( RigSurface* surface )
-{
-    m_surfaceData = surface;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigSurface* RimSurface::surfaceData()
-{
-    return m_surfaceData.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSurface::userDescriptionField()
-{
-    return &m_userDescription;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
-{
-    if ( changedField == &m_color )
+    m_surfaceDefinitionFilePath = filePath;
+    if ( userDescription().isEmpty() )
     {
+        setUserDescription( QFileInfo( filePath ).fileName() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFileSurface::surfaceFilePath()
+{
+    return m_surfaceDefinitionFilePath().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFileSurface::loadData()
+{
+    return updateSurfaceDataFromFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                       const QVariant&            oldValue,
+                                       const QVariant&            newValue )
+{
+    RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( changedField == &m_surfaceDefinitionFilePath )
+    {
+        updateSurfaceDataFromFile();
+
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
         surfColl->updateViews( {this} );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns false for fatal failure
+//--------------------------------------------------------------------------------------------------
+bool RimFileSurface::updateSurfaceDataFromFile()
+{
+    QString filePath = this->surfaceFilePath();
+
+    std::vector<unsigned>   tringleIndices;
+    std::vector<cvf::Vec3d> vertices;
+
+    if ( filePath.endsWith( "ptl", Qt::CaseInsensitive ) )
+    {
+        auto surface = RifSurfaceReader::readPetrelFile( filePath );
+
+        vertices       = surface.first;
+        tringleIndices = surface.second;
+    }
+    else if ( filePath.endsWith( "ts", Qt::CaseInsensitive ) )
+    {
+        auto surface = RifSurfaceReader::readGocadFile( filePath );
+
+        vertices       = surface.first;
+        tringleIndices = surface.second;
+    }
+
+    if ( !vertices.empty() && !tringleIndices.empty() )
+    {
+        auto surface = new RigSurface();
+        surface->setTriangleData( tringleIndices, vertices );
+
+        setSurfaceData( surface );
+
+        return true;
+    }
+
+    return false;
 }
