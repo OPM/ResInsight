@@ -20,9 +20,12 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "cvfObject.h"
-
 #include "cafPdmFieldCvfColor.h"
+
+#include "cvfObject.h"
+#include "cvfVector3.h"
+
+#include <vector>
 
 class RigSurface;
 
@@ -41,19 +44,27 @@ public:
 
     QString userDescription();
 
-    virtual bool loadData();
+    void loadDataIfRequired();
 
 protected:
     void setUserDescription( const QString& description );
     void setSurfaceData( RigSurface* surface );
 
+    void   applyDepthOffsetIfNeeded( std::vector<cvf::Vec3d>* vertices ) const;
+    double depthOffset() const;
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    static void applyDepthOffset( const cvf::Vec3d& offset, std::vector<cvf::Vec3d>* vertices );
+
+    virtual bool onLoadData() = 0;
 
 private:
     caf::PdmFieldHandle* userDescriptionField() override;
 
     caf::PdmField<QString>      m_userDescription;
     caf::PdmField<cvf::Color3f> m_color;
+    caf::PdmField<double>       m_depthOffset;
 
     cvf::ref<RigSurface> m_surfaceData;
 };

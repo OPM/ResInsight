@@ -24,9 +24,9 @@
 
 #include "RifSurfaceReader.h"
 
-#include <QFileInfo>
+#include "cafPdmUiDoubleSliderEditor.h"
 
-CAF_PDM_SOURCE_INIT( RimSurface, "Surface" );
+CAF_PDM_ABSTRACT_SOURCE_INIT( RimSurface, "Surface" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,6 +37,8 @@ RimSurface::RimSurface()
 
     CAF_PDM_InitFieldNoDefault( &m_userDescription, "SurfaceUserDecription", "Name", "", "", "" );
     CAF_PDM_InitField( &m_color, "SurfaceColor", cvf::Color3f( 0.5f, 0.3f, 0.2f ), "Color", "", "", "" );
+
+    CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,9 +75,12 @@ QString RimSurface::userDescription()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSurface::loadData()
+void RimSurface::loadDataIfRequired()
 {
-    return true;
+    if ( m_surfaceData.isNull() )
+    {
+        onLoadData();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,6 +97,45 @@ void RimSurface::setUserDescription( const QString& description )
 void RimSurface::setSurfaceData( RigSurface* surface )
 {
     m_surfaceData = surface;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurface::applyDepthOffsetIfNeeded( std::vector<cvf::Vec3d>* vertices ) const
+{
+    double epsilon = 1.0e-10;
+
+    if ( std::fabs( m_depthOffset ) > epsilon )
+    {
+        cvf::Vec3d offset = cvf::Vec3d::ZERO;
+
+        offset.z() += m_depthOffset;
+
+        RimSurface::applyDepthOffset( offset, vertices );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSurface::depthOffset() const
+{
+    return m_depthOffset;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurface::applyDepthOffset( const cvf::Vec3d& offset, std::vector<cvf::Vec3d>* vertices )
+{
+    if ( vertices )
+    {
+        for ( auto& v : *vertices )
+        {
+            v += offset;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,7 +159,24 @@ caf::PdmFieldHandle* RimSurface::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    bool updateViews = false;
+
     if ( changedField == &m_color )
+    {
+        updateViews = true;
+    }
+    else if ( changedField == &m_userDescription )
+    {
+        this->updateConnectedEditors();
+    }
+    else if ( changedField == &m_depthOffset )
+    {
+        this->onLoadData();
+
+        updateViews = true;
+    }
+
+    if ( updateViews )
     {
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );

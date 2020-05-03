@@ -23,6 +23,7 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 #include "RimSurfaceInView.h"
 
@@ -92,6 +93,20 @@ void RimSurfaceInViewCollection::updateFromSurfaceCollection()
     }
 
     this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::loadData()
+{
+    for ( RimSurfaceInView* surf : m_surfacesInView )
+    {
+        if ( surf->isActive() && surf->surface() )
+        {
+            surf->surface()->loadDataIfRequired();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
