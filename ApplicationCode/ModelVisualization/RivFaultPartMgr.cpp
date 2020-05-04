@@ -64,6 +64,11 @@ RivFaultPartMgr::RivFaultPartMgr( const RigGridBase*              grid,
     , m_rimFault( rimFault )
     , m_opacityLevel( 1.0f )
     , m_defaultColor( cvf::Color3::WHITE )
+    , m_isNativeFaultsGenerated( false )
+    , m_isOppositeFaultsGenerated( false )
+    , m_isNativeNncsGenerated( false )
+    , m_isAllNncsGenerated( false )
+
 {
     CVF_ASSERT( rimFault->faultGeometry() );
     cvf::ref<cvf::Array<size_t>> connIdxes = new cvf::Array<size_t>;
@@ -100,7 +105,7 @@ void RivFaultPartMgr::setCellVisibility( cvf::UByteArray* cellVisibilities )
     m_NNCGenerator->setCellVisibility( cellVisibilities, m_grid.p() );
     m_allenNNCGenerator->setCellVisibility( cellVisibilities, m_grid.p() );
 
-    generatePartGeometry();
+    clearFlags();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -379,71 +384,94 @@ void RivFaultPartMgr::generatePartGeometry()
         }
     }
 
-    {
-        cvf::ref<cvf::DrawableGeo> geo = m_NNCGenerator->generateSurface();
-        if ( geo.notNull() )
-        {
-            geo->computeNormals();
-
-            if ( useBufferObjects )
-            {
-                geo->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
-            }
-
-            cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName( "NNC in Fault. Grid " + cvf::String( static_cast<int>( m_grid->gridIndex() ) ) );
-            part->setDrawable( geo.p() );
-
-            // Set mapping from triangle face index to cell index
-            cvf::ref<RivSourceInfo> si = new RivSourceInfo( m_rimFault, m_grid->gridIndex() );
-            si->m_NNCIndices           = m_NNCGenerator->triangleToNNCIndex().p();
-            part->setSourceInfo( si.p() );
-
-            part->updateBoundingBox();
-            part->setEnableMask( faultBit );
-            part->setPriority( RivPartPriority::PartType::Nnc );
-
-            cvf::ref<cvf::Effect> eff = new cvf::Effect;
-            part->setEffect( eff.p() );
-
-            m_NNCFaces = part;
-        }
-    }
-
-    {
-        cvf::ref<cvf::DrawableGeo> geo = m_allenNNCGenerator->generateSurface();
-        if ( geo.notNull() )
-        {
-            geo->computeNormals();
-
-            if ( useBufferObjects )
-            {
-                geo->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
-            }
-
-            cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName( "Allen NNC in Fault. Grid " + cvf::String( static_cast<int>( m_grid->gridIndex() ) ) );
-            part->setDrawable( geo.p() );
-
-            // Set mapping from triangle face index to cell index
-            cvf::ref<RivSourceInfo> si = new RivSourceInfo( m_rimFault, m_grid->gridIndex() );
-            si->m_NNCIndices           = m_allenNNCGenerator->triangleToNNCIndex().p();
-            part->setSourceInfo( si.p() );
-
-            part->updateBoundingBox();
-            part->setEnableMask( faultBit );
-            part->setPriority( RivPartPriority::PartType::Nnc );
-
-            cvf::ref<cvf::Effect> eff = new cvf::Effect;
-            part->setEffect( eff.p() );
-
-            m_allenNNCFaces = part;
-        }
-    }
+    m_isNativeFaultsGenerated   = true;
+    m_isOppositeFaultsGenerated = true;
 
     createLabelWithAnchorLine( m_nativeFaultFaces.p() );
 
     updatePartEffect();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivFaultPartMgr::generateNativeNncPartGeometry()
+{
+    cvf::ref<cvf::DrawableGeo> geo = m_NNCGenerator->generateSurface();
+    if ( geo.notNull() )
+    {
+        geo->computeNormals();
+        geo->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
+
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "NNC in Fault. Grid " + cvf::String( static_cast<int>( m_grid->gridIndex() ) ) );
+        part->setDrawable( geo.p() );
+
+        // Set mapping from triangle face index to cell index
+        cvf::ref<RivSourceInfo> si = new RivSourceInfo( m_rimFault, m_grid->gridIndex() );
+        si->m_NNCIndices           = m_NNCGenerator->triangleToNNCIndex().p();
+        part->setSourceInfo( si.p() );
+
+        part->updateBoundingBox();
+        part->setEnableMask( faultBit );
+        part->setPriority( RivPartPriority::PartType::Nnc );
+
+        cvf::ref<cvf::Effect> eff = new cvf::Effect;
+        part->setEffect( eff.p() );
+
+        m_NNCFaces = part;
+
+        updatePartEffect();
+    }
+
+    m_isNativeNncsGenerated = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivFaultPartMgr::generateAllNncPartGeometry()
+{
+    cvf::ref<cvf::DrawableGeo> geo = m_allenNNCGenerator->generateSurface();
+    if ( geo.notNull() )
+    {
+        geo->computeNormals();
+
+        geo->setRenderMode( cvf::DrawableGeo::BUFFER_OBJECT );
+
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName( "Allen NNC in Fault. Grid " + cvf::String( static_cast<int>( m_grid->gridIndex() ) ) );
+        part->setDrawable( geo.p() );
+
+        // Set mapping from triangle face index to cell index
+        cvf::ref<RivSourceInfo> si = new RivSourceInfo( m_rimFault, m_grid->gridIndex() );
+        si->m_NNCIndices           = m_allenNNCGenerator->triangleToNNCIndex().p();
+        part->setSourceInfo( si.p() );
+
+        part->updateBoundingBox();
+        part->setEnableMask( faultBit );
+        part->setPriority( RivPartPriority::PartType::Nnc );
+
+        cvf::ref<cvf::Effect> eff = new cvf::Effect;
+        part->setEffect( eff.p() );
+
+        m_allenNNCFaces = part;
+
+        updatePartEffect();
+    }
+
+    m_isAllNncsGenerated = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivFaultPartMgr::clearFlags()
+{
+    m_isNativeFaultsGenerated   = false;
+    m_isOppositeFaultsGenerated = false;
+    m_isNativeNncsGenerated     = false;
+    m_isAllNncsGenerated        = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -651,6 +679,11 @@ cvf::Vec3f RivFaultPartMgr::findClosestVertex( const cvf::Vec3f& point, const cv
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::appendNativeFaultFacesToModel( cvf::ModelBasicList* model )
 {
+    if ( !m_isNativeFaultsGenerated )
+    {
+        generatePartGeometry();
+    }
+
     if ( m_nativeFaultFaces.notNull() )
     {
         model->addPart( m_nativeFaultFaces.p() );
@@ -662,6 +695,11 @@ void RivFaultPartMgr::appendNativeFaultFacesToModel( cvf::ModelBasicList* model 
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::appendOppositeFaultFacesToModel( cvf::ModelBasicList* model )
 {
+    if ( !m_isOppositeFaultsGenerated )
+    {
+        generatePartGeometry();
+    }
+
     if ( m_oppositeFaultFaces.notNull() )
     {
         model->addPart( m_oppositeFaultFaces.p() );
@@ -691,6 +729,11 @@ void RivFaultPartMgr::appendMeshLinePartsToModel( cvf::ModelBasicList* model )
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::appendCompleteNNCFacesToModel( cvf::ModelBasicList* model )
 {
+    if ( !m_isAllNncsGenerated )
+    {
+        generateAllNncPartGeometry();
+    }
+
     if ( m_allenNNCFaces.notNull() ) model->addPart( m_allenNNCFaces.p() );
 }
 
@@ -699,6 +742,11 @@ void RivFaultPartMgr::appendCompleteNNCFacesToModel( cvf::ModelBasicList* model 
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::appendNativeNNCFacesToModel( cvf::ModelBasicList* model )
 {
+    if ( !m_isNativeNncsGenerated )
+    {
+        generateNativeNncPartGeometry();
+    }
+
     if ( m_NNCFaces.notNull() ) model->addPart( m_NNCFaces.p() );
 }
 
