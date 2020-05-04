@@ -139,6 +139,12 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         updateThicknessDirection();
     }
 
+    if ( changedField == &m_thicknessType || changedField == &m_thicknessDirectionWellPath )
+    {
+        updateThicknessDirectionWellPathName();
+        m_thicknessDirectionWellPath()->updateConnectedEditors();
+    }
+
     {
         RimEclipseCase* eclipseCase = nullptr;
         this->firstAncestorOrThisOfType( eclipseCase );
@@ -398,6 +404,16 @@ RimModeledWellPath* RimFractureModel::thicknessDirectionWellPath() const
 void RimFractureModel::setThicknessDirectionWellPath( RimModeledWellPath* thicknessDirectionWellPath )
 {
     m_thicknessDirectionWellPath = thicknessDirectionWellPath;
+    updateThicknessDirectionWellPathName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::updateThicknessDirectionWellPathName()
+{
+    QString wellNameFormat( "%1 for %2" );
+    m_thicknessDirectionWellPath()->setName( wellNameFormat.arg( m_thicknessType().text() ).arg( name() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

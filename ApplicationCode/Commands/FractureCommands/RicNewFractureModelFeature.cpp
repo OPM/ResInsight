@@ -70,7 +70,6 @@ void RicNewFractureModelFeature::addFractureModel( RimWellPath* wellPath, RimWel
 
     // Add a "fake" well path for thickess direction
     RimModeledWellPath* thicknessDirectionWellPath = new RimModeledWellPath;
-    thicknessDirectionWellPath->setName( QString( "Thickness Direction for %1" ).arg( fractureModelName ) );
     fractureModel->setThicknessDirectionWellPath( thicknessDirectionWellPath );
 
     std::vector<RimWellPath*> wellPaths = {thicknessDirectionWellPath};
