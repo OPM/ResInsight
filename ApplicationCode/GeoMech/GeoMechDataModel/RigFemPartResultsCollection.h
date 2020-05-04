@@ -160,7 +160,6 @@ private:
     RigFemScalarResultFrames* calculatePrincipalStrainValues( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateCompactionValues( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateNE( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateSE_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateST_11_22_33( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateST_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateGamma( int partIndex, const RigFemResultAddress& resVarAddr );

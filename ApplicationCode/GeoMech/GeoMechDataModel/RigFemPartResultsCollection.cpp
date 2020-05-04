@@ -36,6 +36,7 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultCalculatorNormalSE.h"
+#include "RigFemPartResultCalculatorShearSE.h"
 #include "RigFemPartResults.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigFormationNames.h"
@@ -2235,77 +2236,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNE( int partInde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSE_12_13_23( int                        partIndex,
-                                                                             const RigFemResultAddress& resVarAddr )
-{
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* srcDataFrames =
-        this->findOrLoadScalarResult( partIndex,
-                                      RigFemResultAddress( resVarAddr.resultPosType, "S-Bar", resVarAddr.componentName ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-    frameCountProgress.incrementProgress();
-
-    const RigFemPart* femPart = m_femParts->part( partIndex );
-    float             inf     = std::numeric_limits<float>::infinity();
-
-    int frameCount = srcDataFrames->frameCount();
-
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& srcSFrameData = srcDataFrames->frameData( fIdx );
-        std::vector<float>&       dstFrameData  = dstDataFrames->frameData( fIdx );
-        size_t                    valCount      = srcSFrameData.size();
-        dstFrameData.resize( valCount );
-
-        int elementCount = femPart->elementCount();
-
-#pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType = femPart->elementType( elmIdx );
-
-            int elmNodeCount = RigFemTypes::elmentNodeCount( femPart->elementType( elmIdx ) );
-
-            if ( elmType == HEX8P )
-            {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
-                {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < srcSFrameData.size() )
-                    {
-                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
-                    }
-                }
-            }
-            else
-            {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
-                {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < dstFrameData.size() )
-                    {
-                        dstFrameData[elmNodResIdx] = inf;
-                    }
-                }
-            }
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_11_22_33( int                        partIndex,
                                                                              const RigFemResultAddress& resVarAddr )
 {
@@ -2701,16 +2631,16 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
         return calculatePrincipalStrainValues( partIndex, resVarAddr );
     }
 
-    RigFemPartResultCalculatorNormalSE calculator( *this );
-    if ( calculator.isMatching( resVarAddr ) )
+    RigFemPartResultCalculatorNormalSE calculatorNormalSE( *this );
+    if ( calculatorNormalSE.isMatching( resVarAddr ) )
     {
-        return calculator.calculate( partIndex, resVarAddr );
+        return calculatorNormalSE.calculate( partIndex, resVarAddr );
     }
 
-    if ( ( resVarAddr.fieldName == "SE" ) &&
-         ( resVarAddr.componentName == "S12" || resVarAddr.componentName == "S13" || resVarAddr.componentName == "S23" ) )
+    RigFemPartResultCalculatorShearSE calculatorShearSE( *this );
+    if ( calculatorShearSE.isMatching( resVarAddr ) )
     {
-        return calculateSE_12_13_23( partIndex, resVarAddr );
+        return calculatorShearSE.calculate( partIndex, resVarAddr );
     }
 
     if ( ( resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST" ) &&

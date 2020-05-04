@@ -40,8 +40,10 @@ add_library( ${PROJECT_NAME}
 	RigHexGradientTools.cpp
 	RigFemPartResultCalculator.h
 	RigFemPartResultCalculator.cpp
+	RigFemPartResultCalculatorNormalSE.h
 	RigFemPartResultCalculatorNormalSE.cpp
-	RigFemPartResultCalculatorNormalSE.cpp
+	RigFemPartResultCalculatorShearSE.h
+	RigFemPartResultCalculatorShearSE.cpp
 	RimGeoMechGeometrySelectionItem.h
 	RimGeoMechGeometrySelectionItem.cpp
 )
