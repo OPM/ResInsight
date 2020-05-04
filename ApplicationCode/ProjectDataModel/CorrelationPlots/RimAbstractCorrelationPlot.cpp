@@ -228,7 +228,13 @@ std::set<RifEclipseSummaryAddress> RimAbstractCorrelationPlot::addresses()
     for ( RimSummaryCaseCollection* ensemble : analyserOfSelectedCurveDefs->m_ensembles )
     {
         const std::set<RifEclipseSummaryAddress>& caseAddrs = ensemble->ensembleSummaryAddresses();
-        addresses.insert( caseAddrs.begin(), caseAddrs.end() );
+        for ( auto addr : caseAddrs )
+        {
+            if ( analyserOfSelectedCurveDefs->m_quantityNames.count( addr.quantityName() ) )
+            {
+                addresses.insert( addr );
+            }
+        }
     }
 
     return addresses;
@@ -335,7 +341,7 @@ RiuQwtPlotWidget* RimAbstractCorrelationPlot::doCreatePlotViewWidget( QWidget* m
     if ( !m_plotWidget )
     {
         m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
-        // updatePlotTitle();
+        updatePlotTitle();
     }
 
     return m_plotWidget;

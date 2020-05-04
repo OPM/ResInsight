@@ -28,6 +28,7 @@
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeOrdering.h"
 
+#include <QDebug>
 #include <QImage>
 #include <QPixmap>
 #include <QStringList>
@@ -61,6 +62,10 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     m_correlationMatrixPlot->setRowSpan( RimPlot::TWO );
     m_correlationPlot          = new RimCorrelationPlot;
     m_parameterResultCrossPlot = new RimParameterResultCrossPlot;
+
+    this->connect( m_correlationMatrixPlot(),
+                   SIGNAL( matrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ),
+                   SLOT( onMatrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,6 +190,8 @@ void RimCorrelationReportPlot::recreatePlotWidgets()
     m_viewer->addPlot( m_correlationMatrixPlot->viewer() );
     m_viewer->addPlot( m_correlationPlot->viewer() );
     m_viewer->addPlot( m_parameterResultCrossPlot->viewer() );
+
+    m_viewer->scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -222,7 +229,6 @@ QWidget* RimCorrelationReportPlot::createViewWidget( QWidget* mainWindowParent /
 {
     m_viewer = new RiuMultiPlotPage( this, mainWindowParent );
     m_viewer->setPlotTitle( m_plotWindowTitle() );
-    m_viewer->setSubTitlesVisible( true );
     recreatePlotWidgets();
 
     return m_viewer;
@@ -293,4 +299,18 @@ void RimCorrelationReportPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
 void RimCorrelationReportPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
     this->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::onMatrixCellSelected( const EnsembleParameter&         param,
+                                                     const RiaSummaryCurveDefinition& curveDef )
+{
+    m_correlationPlot->setCurveDefinitions( { curveDef } );
+    m_correlationPlot->loadDataAndUpdate();
+    m_parameterResultCrossPlot->setCurveDefinitions( { curveDef } );
+    m_parameterResultCrossPlot->setEnsembleParameter( param.name );
+    m_parameterResultCrossPlot->loadDataAndUpdate();
+    //    m_viewer->scheduleUpdate();
 }

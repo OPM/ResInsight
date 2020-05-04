@@ -25,6 +25,7 @@
 #include "cafPdmPtrField.h"
 
 #include <QDateTime>
+#include <QObject>
 #include <QPointer>
 
 class RimAnalysisPlotDataEntry;
@@ -34,8 +35,9 @@ class RimSummaryCaseCollection;
 
 class RiuMultiPlotPage;
 
-class RimCorrelationReportPlot : public RimPlotWindow
+class RimCorrelationReportPlot : public QObject, public RimPlotWindow
 {
+    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
     using CorrelationFactor     = RimCorrelationPlot::CorrelationFactor;
     using CorrelationFactorEnum = RimCorrelationPlot::CorrelationFactorEnum;
@@ -70,6 +72,9 @@ private:
     void     defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void     fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void     childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+
+private slots:
+    void onMatrixCellSelected( const EnsembleParameter& param, const RiaSummaryCurveDefinition& curveDef );
 
 private:
     caf::PdmProxyValueField<QString> m_plotWindowTitle;

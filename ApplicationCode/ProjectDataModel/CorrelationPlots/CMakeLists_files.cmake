@@ -26,6 +26,8 @@ ${SOURCE_GROUP_SOURCE_FILES}
 )
 
 list(APPEND QT_MOC_HEADERS
+${CMAKE_CURRENT_LIST_DIR}/RimCorrelationMatrixPlot.h
+${CMAKE_CURRENT_LIST_DIR}/RimCorrelationReportPlot.h
 )
 
 source_group( "ProjectDataModel\\CorrelationPlots" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake )

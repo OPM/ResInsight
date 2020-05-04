@@ -46,6 +46,7 @@
 #include "cvfScalarMapper.h"
 
 #include "qwt_plot_marker.h"
+#include "qwt_plot_shapeitem.h"
 #include "qwt_scale_draw.h"
 #include "qwt_text.h"
 
@@ -55,6 +56,19 @@
 #include <set>
 
 CAF_PDM_SOURCE_INIT( RimCorrelationMatrixPlot, "CorrelationMatrixPlot" );
+
+class CorrelationMatrixShapeItem : public QwtPlotShapeItem
+{
+public:
+    CorrelationMatrixShapeItem( const QString& title = QString() )
+        : QwtPlotShapeItem( title )
+    {
+    }
+
+public:
+    EnsembleParameter         parameter;
+    RiaSummaryCurveDefinition curveDef;
+};
 
 class TextScaleDraw : public QwtScaleDraw
 {
@@ -75,19 +89,20 @@ private:
     std::map<size_t, QString> m_tickLabels;
 };
 
+template <typename KeyType, typename ValueType>
 class CorrelationMatrixRowOrColumn
 {
 public:
-    CorrelationMatrixRowOrColumn( const QString&              label,
-                                  const std::vector<double>&  values,
-                                  const std::vector<QString>& entryLabels )
-        : m_label( label )
+    CorrelationMatrixRowOrColumn( const KeyType&                key,
+                                  const std::vector<double>&    correlations,
+                                  const std::vector<ValueType>& values )
+        : m_key( key )
+        , m_correlations( correlations )
         , m_values( values )
-        , m_entryLabels( entryLabels )
         , m_correlationSum( 0.0 )
     {
         bool anyValid = false;
-        for ( auto value : values )
+        for ( auto value : correlations )
         {
             if ( RiaCurveDataTools::isValidValue( value, false ) )
             {
@@ -103,12 +118,15 @@ public:
         }
     }
 
-    QString              m_label;
-    std::vector<double>  m_values;
-    std::vector<QString> m_entryLabels;
-    double               m_correlationSum;
-    double               m_correlationMagnitude;
+    KeyType                m_key;
+    std::vector<double>    m_correlations;
+    std::vector<ValueType> m_values;
+    double                 m_correlationSum;
+    double                 m_correlationMagnitude;
 };
+
+using CorrelationMatrixColumn = CorrelationMatrixRowOrColumn<EnsembleParameter, RiaSummaryCurveDefinition>;
+using CorrelationMatrixRow    = CorrelationMatrixRowOrColumn<RiaSummaryCurveDefinition, EnsembleParameter>;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -315,22 +333,24 @@ void RimCorrelationMatrixPlot::updateAxes()
     m_plotWidget->setAxisLabelAlignment( QwtPlot::xBottom, Qt::AlignRight );
 }
 
-void eraseInvalidEntries( std::vector<CorrelationMatrixRowOrColumn>& matrix )
+template <typename KeyType, typename ValueType>
+void eraseInvalidEntries( std::vector<CorrelationMatrixRowOrColumn<KeyType, ValueType>>& matrix )
 {
     matrix.erase( std::remove_if( matrix.begin(),
                                   matrix.end(),
-                                  []( const CorrelationMatrixRowOrColumn& entry ) {
+                                  []( const CorrelationMatrixRowOrColumn<KeyType, ValueType>& entry ) {
                                       return !RiaCurveDataTools::isValidValue( entry.m_correlationSum, false );
                                   } ),
                   matrix.end() );
 }
 
-void sortEntries( std::vector<CorrelationMatrixRowOrColumn>& matrix, bool sortByAbsoluteValues )
+template <typename KeyType, typename ValueType>
+void sortEntries( std::vector<CorrelationMatrixRowOrColumn<KeyType, ValueType>>& matrix, bool sortByAbsoluteValues )
 {
     std::sort( matrix.begin(),
                matrix.end(),
-               [&sortByAbsoluteValues]( const CorrelationMatrixRowOrColumn& lhs,
-                                        const CorrelationMatrixRowOrColumn& rhs ) -> bool {
+               [&sortByAbsoluteValues]( const CorrelationMatrixRowOrColumn<KeyType, ValueType>& lhs,
+                                        const CorrelationMatrixRowOrColumn<KeyType, ValueType>& rhs ) -> bool {
                    if ( sortByAbsoluteValues )
                        return lhs.m_correlationMagnitude > rhs.m_correlationMagnitude;
                    else
@@ -338,20 +358,22 @@ void sortEntries( std::vector<CorrelationMatrixRowOrColumn>& matrix, bool sortBy
                } );
 }
 
-std::vector<CorrelationMatrixRowOrColumn> transpose( const std::vector<CorrelationMatrixRowOrColumn>& matrix )
+template <typename KeyType, typename ValueType>
+std::vector<CorrelationMatrixRowOrColumn<ValueType, KeyType>>
+    transpose( const std::vector<CorrelationMatrixRowOrColumn<KeyType, ValueType>>& matrix )
 {
-    std::vector<CorrelationMatrixRowOrColumn> transposedMatrix;
-    for ( size_t rowIdx = 0u; rowIdx < matrix[0].m_values.size(); ++rowIdx )
+    std::vector<CorrelationMatrixRowOrColumn<ValueType, KeyType>> transposedMatrix;
+    for ( size_t rowIdx = 0u; rowIdx < matrix[0].m_correlations.size(); ++rowIdx )
     {
-        QString              label = matrix[0].m_entryLabels[rowIdx];
-        std::vector<double>  values;
-        std::vector<QString> entryLabels;
+        ValueType            key = matrix[0].m_values[rowIdx];
+        std::vector<double>  correlations;
+        std::vector<KeyType> values;
         for ( size_t colIdx = 0u; colIdx < matrix.size(); ++colIdx )
         {
-            values.push_back( matrix[colIdx].m_values[rowIdx] );
-            entryLabels.push_back( matrix[colIdx].m_label );
+            correlations.push_back( matrix[colIdx].m_correlations[rowIdx] );
+            values.push_back( matrix[colIdx].m_key );
         }
-        transposedMatrix.push_back( CorrelationMatrixRowOrColumn( label, values, entryLabels ) );
+        transposedMatrix.push_back( CorrelationMatrixRowOrColumn<ValueType, KeyType>( key, correlations, values ) );
     }
     return transposedMatrix;
 }
@@ -369,15 +391,15 @@ void RimCorrelationMatrixPlot::createMatrix()
     auto curveDefs = curveDefinitions();
     if ( curveDefs.empty() ) return;
 
-    std::vector<CorrelationMatrixRowOrColumn> correlationMatrixColumns;
+    std::vector<CorrelationMatrixColumn> correlationMatrixColumns;
 
     for ( EnsembleParameter parameter : ensembleParameters() )
     {
         if ( parameter.isNumeric() && parameter.isValid() )
         {
-            bool                 anyValidResults = false;
-            std::vector<double>  correlations;
-            std::vector<QString> resultLabels;
+            bool                                   anyValidResults = false;
+            std::vector<double>                    correlations;
+            std::vector<RiaSummaryCurveDefinition> selectedCurveDefs;
 
             for ( auto curveDef : curveDefs )
             {
@@ -385,8 +407,6 @@ void RimCorrelationMatrixPlot::createMatrix()
 
                 auto ensemble = curveDef.ensemble();
                 auto address  = curveDef.summaryAddress();
-
-                QString resultLabel = curveDef.curveDefinitionText();
 
                 if ( ensemble )
                 {
@@ -442,12 +462,11 @@ void RimCorrelationMatrixPlot::createMatrix()
                     }
                 }
                 correlations.push_back( correlation );
-                resultLabels.push_back( resultLabel );
+                selectedCurveDefs.push_back( curveDef );
             }
             if ( anyValidResults )
             {
-                correlationMatrixColumns.push_back(
-                    CorrelationMatrixRowOrColumn( parameter.name, correlations, resultLabels ) );
+                correlationMatrixColumns.push_back( CorrelationMatrixColumn( parameter, correlations, selectedCurveDefs ) );
             }
         }
     }
@@ -462,20 +481,22 @@ void RimCorrelationMatrixPlot::createMatrix()
 
     for ( size_t rowIdx = 0u; rowIdx < correlationMatrixRows.size(); ++rowIdx )
     {
-        for ( size_t colIdx = 0u; colIdx < correlationMatrixRows[rowIdx].m_values.size(); ++colIdx )
+        for ( size_t colIdx = 0u; colIdx < correlationMatrixRows[rowIdx].m_correlations.size(); ++colIdx )
         {
-            double        correlation = correlationMatrixRows[rowIdx].m_values[colIdx];
+            double        correlation = correlationMatrixRows[rowIdx].m_correlations[colIdx];
             auto          label       = QString( "%1" ).arg( correlation, 0, 'f', 2 );
             cvf::Color3ub color       = m_legendConfig->scalarMapper()->mapToColor( correlation );
             QColor        qColor( color.r(), color.g(), color.b() );
-            QwtPlotItem*  rectangle = RiuQwtPlotTools::createBoxShape( label,
-                                                                      (double)colIdx,
-                                                                      (double)colIdx + 1.0,
-                                                                      (double)rowIdx,
-                                                                      (double)rowIdx + 1,
-                                                                      qColor );
-            QwtText       textLabel( label );
-            cvf::Color3f  contrastColor = RiaColorTools::contrastColor( cvf::Color3f( color ) );
+            auto          rectangle = RiuQwtPlotTools::createBoxShapeT<CorrelationMatrixShapeItem>( label,
+                                                                                           (double)colIdx,
+                                                                                           (double)colIdx + 1.0,
+                                                                                           (double)rowIdx,
+                                                                                           (double)rowIdx + 1,
+                                                                                           qColor );
+            rectangle->curveDef     = correlationMatrixRows[rowIdx].m_key;
+            rectangle->parameter    = correlationMatrixRows[rowIdx].m_values[colIdx];
+            QwtText      textLabel( label );
+            cvf::Color3f contrastColor = RiaColorTools::contrastColor( cvf::Color3f( color ) );
             textLabel.setColor( RiaColorTools::toQColor( contrastColor ) );
             QFont font = textLabel.font();
             font.setPixelSize( RiaFontCache::pointSizeToPixelSize( 7 ) );
@@ -486,9 +507,9 @@ void RimCorrelationMatrixPlot::createMatrix()
             marker->setYValue( rowIdx + 0.5 );
             rectangle->attach( m_plotWidget );
             marker->attach( m_plotWidget );
-            m_paramLabels[colIdx] = correlationMatrixRows[rowIdx].m_entryLabels[colIdx];
+            m_paramLabels[colIdx] = correlationMatrixRows[rowIdx].m_values[colIdx].name;
         }
-        m_resultLabels[rowIdx] = correlationMatrixRows[rowIdx].m_label;
+        m_resultLabels[rowIdx] = correlationMatrixRows[rowIdx].m_key.curveDefinitionText();
     }
 }
 
@@ -517,5 +538,17 @@ void RimCorrelationMatrixPlot::updateLegend()
     else
     {
         m_legendConfig->setAutomaticRanges( 0.0, 1.0, 0.0, 1.0 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationMatrixPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle )
+{
+    CorrelationMatrixShapeItem* matrixItem = dynamic_cast<CorrelationMatrixShapeItem*>( plotItem );
+    if ( matrixItem )
+    {
+        emit matrixCellSelected( matrixItem->parameter, matrixItem->curveDef );
     }
 }

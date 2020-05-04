@@ -21,7 +21,7 @@
 #include <qwt_date.h>
 
 class QwtPlot;
-class QwtPlotItem;
+class QwtPlotShapeItem;
 
 class RiuQwtPlotTools
 {
@@ -41,11 +41,48 @@ public:
                                               RiaQDateTimeTools::DateFormatComponents dateComponents,
                                               RiaQDateTimeTools::TimeFormatComponents timeComponents );
 
-    static QwtPlotItem* createBoxShape( const QString& label,
-                                        double         startX,
-                                        double         endX,
-                                        double         startY,
-                                        double         endY,
-                                        QColor         color,
-                                        Qt::BrushStyle brushStyle = Qt::SolidPattern );
+    static QwtPlotShapeItem* createBoxShape( const QString& label,
+                                             double         startX,
+                                             double         endX,
+                                             double         startY,
+                                             double         endY,
+                                             QColor         color,
+                                             Qt::BrushStyle brushStyle = Qt::SolidPattern );
+
+    template <typename PlotShapeItemType>
+    static PlotShapeItemType* createBoxShapeT( const QString& label,
+                                               double         startX,
+                                               double         endX,
+                                               double         startY,
+                                               double         endY,
+                                               QColor         color,
+                                               Qt::BrushStyle brushStyle = Qt::SolidPattern );
 };
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename PlotShapeItemType>
+PlotShapeItemType* RiuQwtPlotTools::createBoxShapeT( const QString& label,
+                                                     double         startX,
+                                                     double         endX,
+                                                     double         startY,
+                                                     double         endY,
+                                                     QColor         color,
+                                                     Qt::BrushStyle brushStyle /*= Qt::SolidPattern */ )
+{
+    PlotShapeItemType* columnShape = new PlotShapeItemType( label );
+    QPolygonF          polygon;
+
+    polygon.push_back( QPointF( startX, startY ) );
+    polygon.push_back( QPointF( endX, startY ) );
+    polygon.push_back( QPointF( endX, endY ) );
+    polygon.push_back( QPointF( startX, endY ) );
+    polygon.push_back( QPointF( startX, startY ) );
+    columnShape->setPolygon( polygon );
+    columnShape->setXAxis( QwtPlot::xBottom );
+    columnShape->setBrush( QBrush( color, brushStyle ) );
+    columnShape->setLegendMode( QwtPlotShapeItem::LegendShape );
+    columnShape->setLegendIconSize( QSize( 16, 16 ) );
+    return columnShape;
+}
