@@ -188,24 +188,3 @@ private:
     static std::vector<std::string> getStressComponentNames( bool includeShear = true );
     static std::vector<std::string> getStressGradientComponentNames( bool includeShear = true );
 };
-
-class RigFemPart;
-
-class RigFemClosestResultIndexCalculator
-{
-public:
-    RigFemClosestResultIndexCalculator( RigFemPart*         femPart,
-                                        RigFemResultPosEnum resultPosition,
-                                        int                 elementIndex,
-                                        int                 m_face,
-                                        const cvf::Vec3d&   intersectionPointInDomain );
-
-    int resultIndexToClosestResult() { return m_resultIndexToClosestResult; }
-    int closestNodeId() { return m_closestNodeId; }
-    int closestElementNodeResIdx() { return m_closestElementNodeResIdx; }
-
-private:
-    int m_resultIndexToClosestResult;
-    int m_closestNodeId;
-    int m_closestElementNodeResIdx;
-};

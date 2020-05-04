@@ -23,6 +23,8 @@ add_library( ${PROJECT_NAME}
 	RigFemPartResultsCollection.cpp
 	RigFemScalarResultFrames.h
 	RigFemScalarResultFrames.cpp
+	RigFemClosestResultIndexCalculator.h
+	RigFemClosestResultIndexCalculator.cpp
 	RigFemNativeStatCalc.h
 	RigFemNativeStatCalc.cpp
 	RigFemNativeVisibleCellsStatCalc.h
