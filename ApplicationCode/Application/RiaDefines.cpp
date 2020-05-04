@@ -178,7 +178,9 @@ bool RiaDefines::isNativeCategoryResult( const QString& resultName )
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::undefinedResultName()
 {
-    return "None";
+    const static QString undefResultName = "None";
+
+    return undefResultName;
 }
 
 //--------------------------------------------------------------------------------------------------
