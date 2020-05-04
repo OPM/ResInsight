@@ -12,18 +12,18 @@
     <title>Well Bore Stability Plots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1587642745" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1587642745" rel="stylesheet">
-    <link href="/css/hybrid.css?1587642745" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1587642745" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1587642745" rel="stylesheet">
-    <link href="/css/auto-complete.css?1587642745" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1587642745" rel="stylesheet">
-    <link href="/css/theme.css?1587642745" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1587642745" rel="stylesheet">
+    <link href="/css/nucleus.css?1588568942" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1588568942" rel="stylesheet">
+    <link href="/css/hybrid.css?1588568942" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1588568942" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1588568942" rel="stylesheet">
+    <link href="/css/auto-complete.css?1588568942" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1588568942" rel="stylesheet">
+    <link href="/css/theme.css?1588568942" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1588568942" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1587642745"></script>
+    <script src="/js/jquery-3.3.1.min.js?1588568942"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -2126,9 +2126,9 @@ if (!doNotTrack) {
 <p>Then calculate <em>FG</em> in equivalent mud weight units as
 $$ FG = \frac{P_w}{TVD_{RKB} \: g  \: \rho}$$ where $TVD_{RKB} = TVD_{MSL} + AirGap$, the gravity acceleration $g = 9.81 m/s^2$ and  the density of sea water $\rho$ in $kg/m^3$ (thus 1000 x the UI input in $g/cm^3$).</p>
 <h3 id="fracture-gradient-in-shale">Fracture gradient in shale</h3>
-<p>$$FG_{shale} = K0_{FG} \times (OBG0 - PP0)$$</p>
+<p>$$FG_{shale} = K0_{FG} \times (OBG0 - PP0) + PP0$$</p>
 <h3 id="sh-from-matthews--kelly">SH from Matthews &amp; Kelly</h3>
-<p>$$SH_{MK} = K0_{SH} \times (OBG0 - PP0) + PP0 + DF$$</p>
+<p>$$SH_{MK} = K0_{SH} \times (OBG0 - PP0) + PP0 + DF \times (PP-PP0)$$</p>
 <h3 id="stassi-dalia-failure-criterion-in-shale">Stassi-d&rsquo;Alia failure criterion in shale</h3>
 <p>Stassi-d&rsquo;Alia failure criterion in shale is calculated by finding the well pressure $P_w$ that satisfies the following equation 
 for  $\theta \in [0 - 180]$:</p>
@@ -3583,19 +3583,19 @@ under <em>Python Examples</em>.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1587642745"></script>
-    <script src="/js/perfect-scrollbar.min.js?1587642745"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1587642745"></script>
-    <script src="/js/jquery.sticky.js?1587642745"></script>
-    <script src="/js/featherlight.min.js?1587642745"></script>
-    <script src="/js/highlight.pack.js?1587642745"></script>
+    <script src="/js/clipboard.min.js?1588568942"></script>
+    <script src="/js/perfect-scrollbar.min.js?1588568942"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1588568942"></script>
+    <script src="/js/jquery.sticky.js?1588568942"></script>
+    <script src="/js/featherlight.min.js?1588568942"></script>
+    <script src="/js/highlight.pack.js?1588568942"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1587642745"></script>
-    <script src="/js/learn.js?1587642745"></script>
-    <script src="/js/hugo-learn.js?1587642745"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1588568942"></script>
+    <script src="/js/learn.js?1588568942"></script>
+    <script src="/js/hugo-learn.js?1588568942"></script>
 
-    <link href="/mermaid/mermaid.css?1587642745" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1587642745"></script>
+    <link href="/mermaid/mermaid.css?1588568942" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1588568942"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
