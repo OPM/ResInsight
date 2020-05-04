@@ -111,6 +111,11 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
 
     m_biotFixedFactor   = 1.0;
     m_biotResultAddress = "";
+
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalSE( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSE( *this ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2512,6 +2517,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFormationIndices
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( int                        partIndex,
                                                                                const RigFemResultAddress& resVarAddr )
 {
+    for ( auto calculator : m_resultCalculators )
+    {
+        if ( calculator->isMatching( resVarAddr ) ) return calculator->calculate( partIndex, resVarAddr );
+    }
+
     if ( resVarAddr.isTimeLapse() )
     {
         return calculateTimeLapseResult( partIndex, resVarAddr );
@@ -2629,18 +2639,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
          ( resVarAddr.componentName == "E1" || resVarAddr.componentName == "E2" || resVarAddr.componentName == "E3" ) )
     {
         return calculatePrincipalStrainValues( partIndex, resVarAddr );
-    }
-
-    RigFemPartResultCalculatorNormalSE calculatorNormalSE( *this );
-    if ( calculatorNormalSE.isMatching( resVarAddr ) )
-    {
-        return calculatorNormalSE.calculate( partIndex, resVarAddr );
-    }
-
-    RigFemPartResultCalculatorShearSE calculatorShearSE( *this );
-    if ( calculatorShearSE.isMatching( resVarAddr ) )
-    {
-        return calculatorShearSE.calculate( partIndex, resVarAddr );
     }
 
     if ( ( resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST" ) &&

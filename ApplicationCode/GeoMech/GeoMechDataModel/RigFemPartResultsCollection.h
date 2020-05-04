@@ -29,6 +29,7 @@
 #include <QString>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -40,6 +41,7 @@ class RigFemPartResults;
 class RigStatisticsDataCache;
 class RigFemPartCollection;
 class RigFormationNames;
+class RigFemPartResultCalculator;
 
 namespace caf
 {
@@ -183,6 +185,8 @@ private:
 
     double  m_biotFixedFactor;
     QString m_biotResultAddress;
+
+    std::vector<std::shared_ptr<RigFemPartResultCalculator>> m_resultCalculators;
 
     RigStatisticsDataCache*          statistics( const RigFemResultAddress& resVarAddr );
     std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
