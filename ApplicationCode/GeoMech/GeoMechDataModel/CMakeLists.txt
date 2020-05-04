@@ -58,6 +58,10 @@ add_library( ${PROJECT_NAME}
 	RigFemPartResultCalculatorSurfaceAngles.cpp
 	RigFemPartResultCalculatorSurfaceAlignedStress.h
 	RigFemPartResultCalculatorSurfaceAlignedStress.cpp
+	RigFemPartResultCalculatorPrincipalStrain.h
+	RigFemPartResultCalculatorPrincipalStrain.cpp
+	RigFemPartResultCalculatorPrincipalStress.h
+	RigFemPartResultCalculatorPrincipalStress.cpp
 	RimGeoMechGeometrySelectionItem.h
 	RimGeoMechGeometrySelectionItem.cpp
 )
