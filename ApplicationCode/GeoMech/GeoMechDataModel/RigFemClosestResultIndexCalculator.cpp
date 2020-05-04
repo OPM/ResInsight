@@ -126,3 +126,27 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator( RigFemPa
         m_closestNodeId              = femPart->nodes().nodeIds[closestNodeIdx];
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigFemClosestResultIndexCalculator::resultIndexToClosestResult() const
+{
+    return m_resultIndexToClosestResult;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigFemClosestResultIndexCalculator::closestNodeId() const
+{
+    return m_closestNodeId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigFemClosestResultIndexCalculator::closestElementNodeResIdx() const
+{
+    return m_closestElementNodeResIdx;
+}

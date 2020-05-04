@@ -34,9 +34,9 @@ public:
                                         int                 m_face,
                                         const cvf::Vec3d&   intersectionPointInDomain );
 
-    int resultIndexToClosestResult() { return m_resultIndexToClosestResult; }
-    int closestNodeId() { return m_closestNodeId; }
-    int closestElementNodeResIdx() { return m_closestElementNodeResIdx; }
+    int resultIndexToClosestResult() const;
+    int closestNodeId() const;
+    int closestElementNodeResIdx() const;
 
 private:
     int m_resultIndexToClosestResult;
