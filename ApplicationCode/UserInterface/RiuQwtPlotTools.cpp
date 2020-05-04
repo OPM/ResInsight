@@ -67,7 +67,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     plot->setAxisFont( QwtPlot::yRight, axisFont );
 
     // Axis title font
-    std::vector<QwtPlot::Axis> axes = {QwtPlot::xBottom, QwtPlot::xTop, QwtPlot::yLeft, QwtPlot::yRight};
+    std::vector<QwtPlot::Axis> axes = { QwtPlot::xBottom, QwtPlot::xTop, QwtPlot::yLeft, QwtPlot::yRight };
 
     for ( QwtPlot::Axis axis : axes )
     {
@@ -131,14 +131,14 @@ void RiuQwtPlotTools::enableDateBasedBottomXAxis( QwtPlot*                      
 {
     QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw( Qt::UTC );
 
-    std::set<QwtDate::IntervalType> intervals = {QwtDate::Year,
-                                                 QwtDate::Month,
-                                                 QwtDate::Week,
-                                                 QwtDate::Day,
-                                                 QwtDate::Hour,
-                                                 QwtDate::Minute,
-                                                 QwtDate::Second,
-                                                 QwtDate::Millisecond};
+    std::set<QwtDate::IntervalType> intervals = { QwtDate::Year,
+                                                  QwtDate::Month,
+                                                  QwtDate::Week,
+                                                  QwtDate::Day,
+                                                  QwtDate::Hour,
+                                                  QwtDate::Minute,
+                                                  QwtDate::Second,
+                                                  QwtDate::Millisecond };
 
     for ( QwtDate::IntervalType interval : intervals )
     {
@@ -217,26 +217,13 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtPlotItem* RiuQwtPlotTools::createBoxShape( const QString& label,
-                                              double         startX,
-                                              double         endX,
-                                              double         startY,
-                                              double         endY,
-                                              QColor         color,
-                                              Qt::BrushStyle brushStyle )
+QwtPlotShapeItem* RiuQwtPlotTools::createBoxShape( const QString& label,
+                                                   double         startX,
+                                                   double         endX,
+                                                   double         startY,
+                                                   double         endY,
+                                                   QColor         color,
+                                                   Qt::BrushStyle brushStyle )
 {
-    QwtPlotShapeItem* columnShape = new QwtPlotShapeItem( label );
-    QPolygonF         polygon;
-
-    polygon.push_back( QPointF( startX, startY ) );
-    polygon.push_back( QPointF( endX, startY ) );
-    polygon.push_back( QPointF( endX, endY ) );
-    polygon.push_back( QPointF( startX, endY ) );
-    polygon.push_back( QPointF( startX, startY ) );
-    columnShape->setPolygon( polygon );
-    columnShape->setXAxis( QwtPlot::xBottom );
-    columnShape->setBrush( QBrush( color, brushStyle ) );
-    columnShape->setLegendMode( QwtPlotShapeItem::LegendShape );
-    columnShape->setLegendIconSize( QSize( 16, 16 ) );
-    return columnShape;
+    return createBoxShapeT<QwtPlotShapeItem>( label, startX, endX, startY, endY, color, brushStyle );
 }

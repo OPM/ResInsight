@@ -39,6 +39,7 @@ class QwtLegend;
 class QwtPicker;
 class QwtPlotCurve;
 class QwtPlotGrid;
+class QwtPlotItem;
 class QwtPlotMarker;
 class QwtPlotPicker;
 
@@ -134,7 +135,7 @@ public:
 signals:
     void plotSelected( bool toggleSelection );
     void axisSelected( int axisId, bool toggleSelection );
-    void curveSelected( QwtPlotCurve* curve, bool toggleSelection );
+    void plotItemSelected( QwtPlotItem* plotItem, bool toggleSelection );
     void onKeyPressEvent( QKeyEvent* event );
     void onWheelEvent( QWheelEvent* event );
 
@@ -157,12 +158,12 @@ protected:
     virtual void endZoomOperations();
 
 private:
-    void       selectClosestCurve( const QPoint& pos, bool toggleItemInSelection = false );
+    void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
     void       replot() override;
 
-    void highlightCurve( const QwtPlotCurve* closestCurve );
-    void resetCurveHighlighting();
+    void highlightPlotItem( const QwtPlotItem* closestItem );
+    void resetPlotItemHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
     void recalculateAxisExtents( QwtPlot::Axis axis );
 

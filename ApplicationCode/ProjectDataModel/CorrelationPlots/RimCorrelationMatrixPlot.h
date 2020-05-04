@@ -33,6 +33,7 @@ class RiuGroupedBarChartBuilder;
 //==================================================================================================
 class RimCorrelationMatrixPlot : public RimAbstractCorrelationPlot
 {
+    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
 
 public:
@@ -46,6 +47,9 @@ public:
     CorrelationFactor correlationFactor() const;
     bool              showAbsoluteValues() const;
     bool              sortByAbsoluteValues() const;
+
+signals:
+    void matrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& );
 
 private:
     // Overridden PDM methods
@@ -67,6 +71,7 @@ private:
     void createMatrix();
     void updatePlotTitle() override;
     void updateLegend() override;
+    void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle ) override;
 
 private:
     caf::PdmField<CorrelationFactorEnum> m_correlationFactor;

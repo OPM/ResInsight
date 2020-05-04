@@ -43,6 +43,7 @@
 #include "qwt_plot_marker.h"
 #include "qwt_plot_picker.h"
 #include "qwt_plot_renderer.h"
+#include "qwt_plot_shapeitem.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_widget.h"
 #include "qwt_symbol.h"
@@ -632,7 +633,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                  !m_clickPosition.isNull() )
             {
                 endZoomOperations();
-                selectClosestCurve( mouseEvent->pos(), toggleItemInSelection );
+                selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
                 m_clickPosition = QPoint();
                 return true;
             }
@@ -646,7 +647,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::hideEvent( QHideEvent* event )
 {
-    resetCurveHighlighting();
+    resetPlotItemHighlighting();
     QwtPlot::hideEvent( event );
 }
 
@@ -946,11 +947,11 @@ void RiuQwtPlotWidget::updateOverlayFrameLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::selectClosestCurve( const QPoint& pos, bool toggleItemInSelection /*= false*/ )
+void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection /*= false*/ )
 {
-    QwtPlotCurve* closestCurve      = nullptr;
-    double        distMin           = DBL_MAX;
-    int           closestCurvePoint = -1;
+    QwtPlotItem* closestItem       = nullptr;
+    double       distMin           = DBL_MAX;
+    int          closestCurvePoint = -1;
 
     const QwtPlotItemList& itmList = itemList();
     for ( QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++ )
@@ -962,24 +963,34 @@ void RiuQwtPlotWidget::selectClosestCurve( const QPoint& pos, bool toggleItemInS
             int           curvePoint     = candidateCurve->closestPoint( pos, &dist );
             if ( dist < distMin )
             {
-                closestCurve      = candidateCurve;
+                closestItem       = candidateCurve;
                 distMin           = dist;
                 closestCurvePoint = curvePoint;
+            }
+        }
+        else if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotShape )
+        {
+            QwtPlotShapeItem* shapeItem = static_cast<QwtPlotShapeItem*>( *it );
+            QPoint            scalePos( invTransform( xBottom, pos.x() ), invTransform( yLeft, pos.y() ) );
+            if ( shapeItem->shape().boundingRect().contains( scalePos ) )
+            {
+                closestItem = *it;
+                distMin     = 0.0;
             }
         }
     }
 
     RiuPlotMainWindowTools::showPlotMainWindow();
-    resetCurveHighlighting();
-    if ( closestCurve && distMin < 20 )
+    resetPlotItemHighlighting();
+    if ( closestItem && distMin < 20 )
     {
         // TODO: highlight all selected curves
-        highlightCurve( closestCurve );
-        emit curveSelected( closestCurve, toggleItemInSelection );
+        highlightPlotItem( closestItem );
+        emit plotItemSelected( closestItem, toggleItemInSelection );
 
-        if ( distMin < 10 )
+        if ( distMin < 10 && ( closestItem )->rtti() == QwtPlotItem::Rtti_PlotCurve )
         {
-            selectPoint( closestCurve, closestCurvePoint );
+            selectPoint( static_cast<QwtPlotCurve*>( closestItem ), closestCurvePoint );
         }
         else
         {
@@ -1012,14 +1023,15 @@ void RiuQwtPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightCurve( const QwtPlotCurve* closestCurve )
+void RiuQwtPlotWidget::highlightPlotItem( const QwtPlotItem* closestItem )
 {
     // NB! Create a copy of the item list before the loop to avoid invalidated iterators when iterating the list
     // plotCurve->setZ() causes the ordering of items in the list to change
     auto plotItemList = this->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
-        QwtPlotCurve* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
+        QwtPlotCurve*     plotCurve     = dynamic_cast<QwtPlotCurve*>( plotItem );
+        QwtPlotShapeItem* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
         if ( plotCurve )
         {
             QPen   existingPen = plotCurve->pen();
@@ -1037,7 +1049,7 @@ void RiuQwtPlotWidget::highlightCurve( const QwtPlotCurve* closestCurve )
             }
 
             double zValue = plotCurve->z();
-            if ( plotCurve == closestCurve )
+            if ( plotCurve == closestItem )
             {
                 plotCurve->setZ( zValue + 100.0 );
             }
@@ -1059,20 +1071,29 @@ void RiuQwtPlotWidget::highlightCurve( const QwtPlotCurve* closestCurve )
             m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
             m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );
         }
+        else if ( plotShapeItem && plotItem == closestItem )
+        {
+            QPen pen = plotShapeItem->pen();
+            pen.setColor( QColor( Qt::green ) );
+            pen.setWidth( 3 );
+            plotShapeItem->setPen( pen );
+            plotShapeItem->setZ( plotShapeItem->z() + 100.0 );
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::resetCurveHighlighting()
+void RiuQwtPlotWidget::resetPlotItemHighlighting()
 {
     // NB! Create a copy of the item list before the loop to avoid invalidated iterators when iterating the list
     // plotCurve->setZ() causes the ordering of items in the list to change
     auto plotItemList = this->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
-        QwtPlotCurve* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
+        QwtPlotCurve*     plotCurve     = dynamic_cast<QwtPlotCurve*>( plotItem );
+        QwtPlotShapeItem* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
         if ( plotCurve && m_originalCurveColors.count( plotCurve ) )
         {
             const QPen& existingPen = plotCurve->pen();
@@ -1087,6 +1108,14 @@ void RiuQwtPlotWidget::resetCurveHighlighting()
                 symbol->setColor( colors.symbolColor );
                 symbol->setPen( colors.symbolLineColor, symbol->pen().width(), symbol->pen().style() );
             }
+        }
+        else if ( plotShapeItem )
+        {
+            QPen pen = plotShapeItem->pen();
+            pen.setColor( QColor( Qt::black ) );
+            pen.setWidth( 1 );
+            plotShapeItem->setPen( pen );
+            plotShapeItem->setZ( plotShapeItem->z() - 100.0 );
         }
     }
     m_originalCurveColors.clear();

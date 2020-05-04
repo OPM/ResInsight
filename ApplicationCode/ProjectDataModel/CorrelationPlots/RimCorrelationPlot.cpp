@@ -291,7 +291,7 @@ void RimCorrelationPlot::updatePlotTitle()
         m_description = QString( "%1 for %2" ).arg( m_correlationFactor().uiText() ).arg( m_selectedVarsUiField );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,7 +315,7 @@ void RimCorrelationPlot::setCorrelationFactor( CorrelationFactor factor )
 //--------------------------------------------------------------------------------------------------
 bool RimCorrelationPlot::showAbsoluteValues() const
 {
-    m_showAbsoluteValues;
+    return m_showAbsoluteValues;
 }
 
 //--------------------------------------------------------------------------------------------------
