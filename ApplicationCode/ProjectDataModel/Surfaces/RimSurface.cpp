@@ -26,6 +26,8 @@
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
+#include <cmath>
+
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimSurface, "SurfaceInterface" );
 
 //--------------------------------------------------------------------------------------------------
