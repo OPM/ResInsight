@@ -127,7 +127,8 @@ public:
     static std::set<RigFemResultAddress>    normalizedResults();
     static bool                             isNormalizableResult( const RigFemResultAddress& result );
 
-    void setNormalizationAirGap( double normalizationAirGap );
+    void   setNormalizationAirGap( double normalizationAirGap );
+    double normalizationAirGap() const;
 
     RigFemScalarResultFrames* findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* createScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
@@ -137,17 +138,10 @@ public:
 private:
     RigFemScalarResultFrames* calculateDerivedResult( int partIndex, const RigFemResultAddress& resVarAddr );
 
-    void calculateGammaFromFrames( int                             partIndex,
-                                   const RigFemScalarResultFrames* totalStressComponentDataFrames,
-                                   const RigFemScalarResultFrames* srcPORDataFrames,
-                                   RigFemScalarResultFrames*       dstDataFrames,
-                                   caf::ProgressInfo*              frameCountProgress );
-
     RigFemScalarResultFrames* calculateBarConvertedResult( int                        partIndex,
                                                            const RigFemResultAddress& convertedResultAddr,
                                                            const std::string&         fieldNameToConvert );
     RigFemScalarResultFrames* calculateEnIpPorBarResult( int partIndex, const RigFemResultAddress& convertedResultAddr );
-    RigFemScalarResultFrames* calculateTimeLapseResult( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateMeanStressSEM( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateSFI( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateDSM( int partIndex, const RigFemResultAddress& resVarAddr );
@@ -164,11 +158,9 @@ private:
     RigFemScalarResultFrames* calculateNE( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateST_11_22_33( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateST_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateGamma( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateFormationIndices( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateStressGradients( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateNodalGradients( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateNormalizedResult( int partIndex, const RigFemResultAddress& resVarAddr );
 
     const RigFormationNames* activeFormationNames() const;
 

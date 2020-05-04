@@ -44,6 +44,12 @@ add_library( ${PROJECT_NAME}
 	RigFemPartResultCalculatorNormalSE.cpp
 	RigFemPartResultCalculatorShearSE.h
 	RigFemPartResultCalculatorShearSE.cpp
+	RigFemPartResultCalculatorTimeLapse.h
+	RigFemPartResultCalculatorTimeLapse.cpp
+	RigFemPartResultCalculatorGamma.h
+	RigFemPartResultCalculatorGamma.cpp
+	RigFemPartResultCalculatorNormalized.h
+	RigFemPartResultCalculatorNormalized.cpp
 	RimGeoMechGeometrySelectionItem.h
 	RimGeoMechGeometrySelectionItem.cpp
 )

@@ -35,8 +35,11 @@
 #include "RigFemNativeStatCalc.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
+#include "RigFemPartResultCalculatorGamma.h"
 #include "RigFemPartResultCalculatorNormalSE.h"
+#include "RigFemPartResultCalculatorNormalized.h"
 #include "RigFemPartResultCalculatorShearSE.h"
+#include "RigFemPartResultCalculatorTimeLapse.h"
 #include "RigFemPartResults.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigFormationNames.h"
@@ -113,9 +116,15 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
     m_biotResultAddress = "";
 
     m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalized( *this ) ) );
+    m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalSE( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSE( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorGamma( *this ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -769,106 +778,6 @@ RigFemScalarResultFrames*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateTimeLapseResult( int                        partIndex,
-                                                                                 const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.isTimeLapse() );
-
-    if ( resVarAddr.fieldName != "Gamma" )
-    {
-        caf::ProgressInfo frameCountProgress( this->frameCount() * 2, "" );
-        frameCountProgress.setProgressDescription(
-            "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-        frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-        RigFemResultAddress       resVarNative( resVarAddr.resultPosType,
-                                          resVarAddr.fieldName,
-                                          resVarAddr.componentName,
-                                          RigFemResultAddress::noTimeLapseValue(),
-                                          resVarAddr.refKLayerIndex );
-        RigFemScalarResultFrames* srcDataFrames = this->findOrLoadScalarResult( partIndex, resVarNative );
-        RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-        frameCountProgress.incrementProgress();
-
-        int frameCount   = srcDataFrames->frameCount();
-        int baseFrameIdx = resVarAddr.timeLapseBaseFrameIdx;
-        if ( baseFrameIdx >= frameCount ) return dstDataFrames;
-        const std::vector<float>& baseFrameData = srcDataFrames->frameData( baseFrameIdx );
-        if ( baseFrameData.empty() ) return dstDataFrames;
-
-        for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-        {
-            const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
-            if ( srcFrameData.empty() ) continue; // Create empty results
-
-            std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-            size_t              valCount     = srcFrameData.size();
-            dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-            {
-                dstFrameData[vIdx] = srcFrameData[vIdx] - baseFrameData[vIdx];
-            }
-
-            frameCountProgress.incrementProgress();
-        }
-
-        return dstDataFrames;
-    }
-    else
-    {
-        // Gamma time lapse needs to be calculated as ST_dt / POR_dt and not Gamma - Gamma_baseFrame see github
-        // issue #937
-
-        caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "" );
-        frameCountProgress.setProgressDescription(
-            "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-        frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-        RigFemResultAddress totStressCompAddr( resVarAddr.resultPosType, "ST", "", resVarAddr.timeLapseBaseFrameIdx );
-        {
-            std::string scomp;
-            std::string gcomp = resVarAddr.componentName;
-            if ( gcomp == "Gamma1" )
-                scomp = "S1";
-            else if ( gcomp == "Gamma2" )
-                scomp = "S2";
-            else if ( gcomp == "Gamma3" )
-                scomp = "S3";
-            else if ( gcomp == "Gamma11" )
-                scomp = "S11";
-            else if ( gcomp == "Gamma22" )
-                scomp = "S22";
-            else if ( gcomp == "Gamma33" )
-                scomp = "S33";
-            totStressCompAddr.componentName = scomp;
-        }
-
-        RigFemScalarResultFrames* srcDataFrames = this->findOrLoadScalarResult( partIndex, totStressCompAddr );
-        frameCountProgress.incrementProgress();
-        frameCountProgress.setNextProgressIncrement( this->frameCount() );
-        RigFemScalarResultFrames* srcPORDataFrames =
-            this->findOrLoadScalarResult( partIndex,
-                                          RigFemResultAddress( RIG_NODAL, "POR-Bar", "", resVarAddr.timeLapseBaseFrameIdx ) );
-        RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-        frameCountProgress.incrementProgress();
-
-        calculateGammaFromFrames( partIndex, srcDataFrames, srcPORDataFrames, dstDataFrames, &frameCountProgress );
-        if ( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) )
-        {
-            dstDataFrames = calculateNormalizedResult( partIndex, resVarAddr );
-        }
-
-        return dstDataFrames;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSEM( int                        partIndex,
                                                                                const RigFemResultAddress& resVarAddr )
 {
@@ -1327,115 +1236,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradients( 
     RigFemScalarResultFrames* requestedGradient = this->findOrLoadScalarResult( partIndex, resVarAddr );
     CVF_ASSERT( requestedGradient );
     return requestedGradient;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNormalizedResult( int                        partIndex,
-                                                                                  const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) );
-
-    RigFemResultAddress unscaledResult = resVarAddr;
-    if ( unscaledResult.resultPosType == RIG_NODAL && unscaledResult.fieldName == "POR-Bar" )
-        unscaledResult.resultPosType = RIG_ELEMENT_NODAL;
-    unscaledResult.normalizedByHydrostaticPressure = false;
-
-    CAF_ASSERT( unscaledResult.resultPosType == RIG_ELEMENT_NODAL );
-
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 4, "Calculating Normalized Result" );
-
-    RigFemScalarResultFrames* porDataFrames = nullptr;
-    RigFemScalarResultFrames* srcDataFrames = nullptr;
-    RigFemScalarResultFrames* dstDataFrames = nullptr;
-
-    {
-        auto task     = frameCountProgress.task( "Loading POR Result", this->frameCount() );
-        porDataFrames = this->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
-        if ( !porDataFrames ) return nullptr;
-    }
-
-    {
-        auto task     = frameCountProgress.task( "Loading Unscaled Result", this->frameCount() );
-        srcDataFrames = this->findOrLoadScalarResult( partIndex, unscaledResult );
-        if ( !srcDataFrames ) return nullptr;
-    }
-    {
-        auto task     = frameCountProgress.task( "Creating Space for Normalized Result", this->frameCount() );
-        dstDataFrames = m_femPartResults[partIndex]->createScalarResult( RigFemResultAddress( resVarAddr ) );
-        if ( !dstDataFrames ) return nullptr;
-    }
-
-    frameCountProgress.setProgressDescription( "Normalizing Result" );
-    frameCountProgress.setNextProgressIncrement( 1u );
-
-    const RigFemPart*     femPart     = m_femParts->part( partIndex );
-    const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
-
-    float                          inf          = std::numeric_limits<float>::infinity();
-    int                            elmNodeCount = femPart->elementCount();
-    const std::vector<cvf::Vec3f>& nodeCoords   = femPart->nodes().coordinates;
-
-    int frameCount = srcDataFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& porFrameData = porDataFrames->frameData( fIdx );
-        const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
-        std::vector<float>&       dstFrameData = dstDataFrames->frameData( fIdx );
-
-        size_t resultCount = srcFrameData.size();
-        dstFrameData.resize( resultCount );
-
-        if ( unscaledResult.resultPosType == RIG_ELEMENT_NODAL )
-        {
-#pragma omp parallel for schedule( dynamic )
-            for ( int elmIdx = 0; elmIdx < femPart->elementCount(); ++elmIdx )
-            {
-                RigElementType elmType = femPart->elementType( elmIdx );
-                if ( !( elmType == HEX8 || elmType == HEX8P ) ) continue;
-
-                bool porRegion = false;
-                for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
-                {
-                    size_t    elmNodeResIdx     = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
-                    const int nodeIdx           = femPart->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
-                    dstFrameData[elmNodeResIdx] = srcFrameData[elmNodeResIdx];
-                    if ( porFrameData[elmNodeResIdx] != std::numeric_limits<float>::infinity() )
-                    {
-                        porRegion = true;
-                    }
-                }
-                if ( porRegion )
-                {
-                    // This is in the POR-region. Use hydrostatic pressure from the individual nodes
-                    for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
-                    {
-                        size_t    elmNodeResIdx    = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
-                        const int nodeIdx          = femPart->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
-                        double    tvdRKB           = std::abs( nodeCoords[nodeIdx].z() ) + m_normalizationAirGap;
-                        double hydrostaticPressure = RiaWellLogUnitTools<double>::hydrostaticPorePressureBar( tvdRKB );
-                        dstFrameData[elmNodeResIdx] /= hydrostaticPressure;
-                    }
-                }
-                else
-                {
-                    // Over/under/sideburden. Use hydrostatic pressure from cell centroid.
-                    cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
-                    double     cellCentroidTvdRKB = std::abs( cellCentroid.z() ) + m_normalizationAirGap;
-                    double     cellCenterHydroStaticPressure =
-                        RiaWellLogUnitTools<double>::hydrostaticPorePressureBar( cellCentroidTvdRKB );
-
-                    for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
-                    {
-                        size_t elmNodeResIdx = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
-                        dstFrameData[elmNodeResIdx] /= cellCenterHydroStaticPressure;
-                    }
-                }
-            }
-        }
-    }
-    return dstDataFrames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2406,51 +2206,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_12_13_23( int
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateGamma( int partIndex, const RigFemResultAddress& resVarAddr )
-{
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemResultAddress totStressCompAddr( resVarAddr.resultPosType, "ST", "" );
-    {
-        std::string scomp;
-        std::string gcomp = resVarAddr.componentName;
-        if ( gcomp == "Gamma1" )
-            scomp = "S1";
-        else if ( gcomp == "Gamma2" )
-            scomp = "S2";
-        else if ( gcomp == "Gamma3" )
-            scomp = "S3";
-        else if ( gcomp == "Gamma11" )
-            scomp = "S11";
-        else if ( gcomp == "Gamma22" )
-            scomp = "S22";
-        else if ( gcomp == "Gamma33" )
-            scomp = "S33";
-        totStressCompAddr.componentName = scomp;
-    }
-
-    RigFemScalarResultFrames* srcDataFrames = this->findOrLoadScalarResult( partIndex, totStressCompAddr );
-
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* srcPORDataFrames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-    frameCountProgress.incrementProgress();
-
-    calculateGammaFromFrames( partIndex, srcDataFrames, srcPORDataFrames, dstDataFrames, &frameCountProgress );
-
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFormationIndices( int                        partIndex,
                                                                                   const RigFemResultAddress& resVarAddr )
 {
@@ -2520,16 +2275,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
     for ( auto calculator : m_resultCalculators )
     {
         if ( calculator->isMatching( resVarAddr ) ) return calculator->calculate( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.isTimeLapse() )
-    {
-        return calculateTimeLapseResult( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) )
-    {
-        return calculateNormalizedResult( partIndex, resVarAddr );
     }
 
     if ( resVarAddr.resultPosType == RIG_ELEMENT_NODAL_FACE )
@@ -2668,14 +2413,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
         return m_femPartResults[partIndex]->createScalarResult( resVarAddr );
     }
 
-    if ( resVarAddr.fieldName == "Gamma" &&
-         ( resVarAddr.componentName == "Gamma1" || resVarAddr.componentName == "Gamma2" ||
-           resVarAddr.componentName == "Gamma3" || resVarAddr.componentName == "Gamma11" ||
-           resVarAddr.componentName == "Gamma22" || resVarAddr.componentName == "Gamma33" ) )
-    {
-        return calculateGamma( partIndex, resVarAddr );
-    }
-
     if ( resVarAddr.fieldName == "Gamma" && resVarAddr.componentName.empty() )
     {
         // Create and return an empty result
@@ -2688,73 +2425,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
     }
 
     return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::calculateGammaFromFrames( int                             partIndex,
-                                                            const RigFemScalarResultFrames* totalStressComponentDataFrames,
-                                                            const RigFemScalarResultFrames* srcPORDataFrames,
-                                                            RigFemScalarResultFrames*       dstDataFrames,
-                                                            caf::ProgressInfo*              frameCountProgress )
-{
-    const RigFemPart* femPart    = m_femParts->part( partIndex );
-    int               frameCount = totalStressComponentDataFrames->frameCount();
-    float             inf        = std::numeric_limits<float>::infinity();
-
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& srcSTFrameData  = totalStressComponentDataFrames->frameData( fIdx );
-        const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData( fIdx );
-
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-
-        size_t valCount = srcSTFrameData.size();
-        dstFrameData.resize( valCount );
-
-        int elementCount = femPart->elementCount();
-
-#pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType = femPart->elementType( elmIdx );
-
-            int elmNodeCount = RigFemTypes::elmentNodeCount( femPart->elementType( elmIdx ) );
-
-            if ( elmType == HEX8P )
-            {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
-                {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < srcSTFrameData.size() )
-                    {
-                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
-
-                        float por = srcPORFrameData[nodeIdx];
-
-                        if ( por == inf || fabs( por ) < 0.01e6 * 1.0e-5 )
-                            dstFrameData[elmNodResIdx] = inf;
-                        else
-                            dstFrameData[elmNodResIdx] = srcSTFrameData[elmNodResIdx] / por;
-                    }
-                }
-            }
-            else
-            {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
-                {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < dstFrameData.size() )
-                    {
-                        dstFrameData[elmNodResIdx] = inf;
-                    }
-                }
-            }
-        }
-
-        frameCountProgress->incrementProgress();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3199,6 +2869,14 @@ void RigFemPartResultsCollection::setNormalizationAirGap( double normalizationAi
         }
     }
     m_normalizationAirGap = normalizationAirGap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigFemPartResultsCollection::normalizationAirGap() const
+{
+    return m_normalizationAirGap;
 }
 
 //--------------------------------------------------------------------------------------------------
