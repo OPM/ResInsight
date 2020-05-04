@@ -67,7 +67,9 @@ public:
     double parameterCohesion() const { return m_cohesion; }
     double parameterFrictionAngleRad() const { return m_frictionAngleRad; }
 
-    void setBiotCoefficientParameters( double fixedFactor, const QString& biotResultAddress );
+    void    setBiotCoefficientParameters( double fixedFactor, const QString& biotResultAddress );
+    double  biotFixedFactor() const { return m_biotFixedFactor; }
+    QString biotResultAddress() const { return m_biotResultAddress; }
 
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
     std::vector<std::string>                        filteredStepNames() const;
@@ -78,8 +80,10 @@ public:
 
     const std::vector<float>& resultValues( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
     std::vector<caf::Ten3f>   tensors( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
-    int                       partCount() const;
-    int                       frameCount();
+
+    const RigFemPartCollection* parts() const;
+    int                         partCount() const;
+    int                         frameCount();
 
     static float dsm( float p1, float p3, float tanFricAng, float cohPrTanFricAngle );
 
@@ -123,9 +127,12 @@ public:
 
     void setNormalizationAirGap( double normalizationAirGap );
 
-private:
     RigFemScalarResultFrames* findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* createScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
 
+    bool isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const;
+
+private:
     RigFemScalarResultFrames* calculateDerivedResult( int partIndex, const RigFemResultAddress& resVarAddr );
 
     void calculateGammaFromFrames( int                             partIndex,
@@ -153,7 +160,6 @@ private:
     RigFemScalarResultFrames* calculatePrincipalStrainValues( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateCompactionValues( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateNE( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateSE_11_22_33( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateSE_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateST_11_22_33( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateST_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
@@ -164,8 +170,6 @@ private:
     RigFemScalarResultFrames* calculateNormalizedResult( int partIndex, const RigFemResultAddress& resVarAddr );
 
     const RigFormationNames* activeFormationNames() const;
-
-    bool isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const;
 
 private:
     cvf::Collection<RigFemPartResults>  m_femPartResults;
