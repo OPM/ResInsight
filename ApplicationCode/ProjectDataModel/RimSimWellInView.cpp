@@ -653,6 +653,7 @@ bool RimSimWellInView::isWellDiskVisible() const
     if ( this->simWellData() == nullptr ) return false;
 
     if ( !reservoirView->wellCollection()->isActive() ) return false;
+    if ( !reservoirView->wellCollection()->isWellDisksVisible() ) return false;
 
     if ( !this->showWell() ) return false;
 
