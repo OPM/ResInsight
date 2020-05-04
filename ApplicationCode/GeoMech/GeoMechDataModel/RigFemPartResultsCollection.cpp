@@ -37,6 +37,7 @@
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultCalculatorGamma.h"
 #include "RigFemPartResultCalculatorNormalSE.h"
+#include "RigFemPartResultCalculatorNormalST.h"
 #include "RigFemPartResultCalculatorNormalized.h"
 #include "RigFemPartResultCalculatorShearSE.h"
 #include "RigFemPartResultCalculatorTimeLapse.h"
@@ -119,6 +120,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalized( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalST( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalSE( *this ) ) );
     m_resultCalculators.push_back(
@@ -2041,132 +2044,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNE( int partInde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_11_22_33( int                        partIndex,
-                                                                             const RigFemResultAddress& resVarAddr )
-{
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* srcSDataFrames =
-        this->findOrLoadScalarResult( partIndex,
-                                      RigFemResultAddress( resVarAddr.resultPosType, "S-Bar", resVarAddr.componentName ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* srcPORDataFrames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
-
-    // Biot porelastic coeffisient (alpha)
-    RigFemScalarResultFrames* biotCoefficient = nullptr;
-    if ( !m_biotResultAddress.isEmpty() )
-    {
-        biotCoefficient =
-            this->findOrLoadScalarResult( partIndex,
-                                          RigFemResultAddress( RIG_ELEMENT, m_biotResultAddress.toStdString(), "" ) );
-    }
-
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-    const RigFemPart*         femPart       = m_femParts->part( partIndex );
-    int                       frameCount    = srcSDataFrames->frameCount();
-
-    frameCountProgress.incrementProgress();
-
-    const float inf = std::numeric_limits<float>::infinity();
-
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& srcSFrameData   = srcSDataFrames->frameData( fIdx );
-        const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData( fIdx );
-
-        int elementCount = femPart->elementCount();
-
-        std::vector<float> biotData;
-        if ( biotCoefficient )
-        {
-            biotData = biotCoefficient->frameData( fIdx );
-            if ( !isValidBiotData( biotData, elementCount ) )
-            {
-                deleteResult( resVarAddr );
-                return nullptr;
-            }
-        }
-
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-
-        size_t valCount = srcSFrameData.size();
-        dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType = femPart->elementType( elmIdx );
-
-            int elmNodeCount = RigFemTypes::elmentNodeCount( femPart->elementType( elmIdx ) );
-
-            if ( elmType == HEX8P )
-            {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
-                {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < srcSFrameData.size() )
-                    {
-                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
-
-                        float por = srcPORFrameData[nodeIdx];
-                        if ( por == inf ) por = 0.0f;
-
-                        // ST = SE_abacus + alpha * porePressure
-                        // where alpha is biot coefficient, and porePressure is POR-Bar.
-
-                        double SE_abacus = -srcSFrameData[elmNodResIdx];
-                        if ( fIdx == 0 )
-                        {
-                            // Geostatic step: biot coefficient == 1.0
-                            dstFrameData[elmNodResIdx] = SE_abacus + por;
-                        }
-                        else
-                        {
-                            // Use biot coefficient for all other (not Geostatic) timesteps
-                            double biotCoefficient = 1.0;
-                            if ( biotData.empty() )
-                            {
-                                biotCoefficient = m_biotFixedFactor;
-                            }
-                            else
-                            {
-                                // Use coefficient from element property table
-                                biotCoefficient = biotData[elmIdx];
-                            }
-
-                            dstFrameData[elmNodResIdx] = SE_abacus + biotCoefficient * por;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
-                {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < srcSFrameData.size() )
-                    {
-                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
-                    }
-                }
-            }
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateST_12_13_23( int                        partIndex,
                                                                              const RigFemResultAddress& resVarAddr )
 {
@@ -2393,12 +2270,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
            resVarAddr.componentName == "S3inc" || resVarAddr.componentName == "S3azi" ) )
     {
         return calculatePrincipalStressValues( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.fieldName == "ST" &&
-         ( resVarAddr.componentName == "S11" || resVarAddr.componentName == "S22" || resVarAddr.componentName == "S33" ) )
-    {
-        return calculateST_11_22_33( partIndex, resVarAddr );
     }
 
     if ( resVarAddr.fieldName == "ST" &&
