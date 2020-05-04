@@ -29,7 +29,6 @@
 #endif
 
 #include "RiaApplication.h"
-
 #include "RiaOffshoreSphericalCoords.h"
 
 #include "RigFemNativeStatCalc.h"
@@ -41,6 +40,8 @@
 #include "RigFemPartResultCalculatorNormalized.h"
 #include "RigFemPartResultCalculatorShearSE.h"
 #include "RigFemPartResultCalculatorShearST.h"
+#include "RigFemPartResultCalculatorSurfaceAlignedStress.h"
+#include "RigFemPartResultCalculatorSurfaceAngles.h"
 #include "RigFemPartResultCalculatorTimeLapse.h"
 #include "RigFemPartResults.h"
 #include "RigFemScalarResultFrames.h"
@@ -59,7 +60,6 @@
 #include "cafTensor3.h"
 
 #include "cvfBoundingBox.h"
-#include "cvfGeometryTools.h"
 #include "cvfMath.h"
 
 #include <QString>
@@ -119,6 +119,10 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
 
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAngles( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAlignedStress( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalized( *this ) ) );
     m_resultCalculators.push_back(
@@ -1413,281 +1417,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDeviatoricStrain
 ///
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames*
-    RigFemPartResultsCollection::calculateSurfaceAlignedStress( int partIndex, const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.componentName == "STH" || resVarAddr.componentName == "STQV" ||
-                resVarAddr.componentName == "SN" || resVarAddr.componentName == "TPH" ||
-                resVarAddr.componentName == "TPQV" || resVarAddr.componentName == "THQV" ||
-                resVarAddr.componentName == "TP" || resVarAddr.componentName == "TPinc" ||
-                resVarAddr.componentName == "FAULTMOB" || resVarAddr.componentName == "PCRIT" );
-
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 7, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* s11Frames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S11" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s22Frames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S22" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s33Frames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S33" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s12Frames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S12" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s23Frames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S23" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* s13Frames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S13" ) );
-
-    RigFemScalarResultFrames* SNFrames = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "SN" ) );
-    RigFemScalarResultFrames* STHFrames = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "STH" ) );
-    RigFemScalarResultFrames* STQVFrames = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "STQV" ) );
-    RigFemScalarResultFrames* TNHFrames = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "TPH" ) );
-    RigFemScalarResultFrames* TNQVFrames = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "TPQV" ) );
-    RigFemScalarResultFrames* THQVFrames = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "THQV" ) );
-    RigFemScalarResultFrames* TPFrames = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "TP" ) );
-    RigFemScalarResultFrames* TPincFrames = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "TPinc" ) );
-    RigFemScalarResultFrames* FAULTMOBFrames = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "FAULTMOB" ) );
-    RigFemScalarResultFrames* PCRITFrames = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "PCRIT" ) );
-
-    frameCountProgress.incrementProgress();
-
-    const RigFemPart*              femPart         = m_femParts->part( partIndex );
-    const std::vector<cvf::Vec3f>& nodeCoordinates = femPart->nodes().coordinates;
-
-    float tanFricAng        = tan( m_frictionAngleRad );
-    float cohPrTanFricAngle = (float)( m_cohesion / tanFricAng );
-
-    int frameCount = s11Frames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& s11 = s11Frames->frameData( fIdx );
-        const std::vector<float>& s22 = s22Frames->frameData( fIdx );
-        const std::vector<float>& s33 = s33Frames->frameData( fIdx );
-        const std::vector<float>& s12 = s12Frames->frameData( fIdx );
-        const std::vector<float>& s23 = s23Frames->frameData( fIdx );
-        const std::vector<float>& s13 = s13Frames->frameData( fIdx );
-
-        std::vector<float>& SNDat       = SNFrames->frameData( fIdx );
-        std::vector<float>& STHDat      = STHFrames->frameData( fIdx );
-        std::vector<float>& STQVDat     = STQVFrames->frameData( fIdx );
-        std::vector<float>& TNHDat      = TNHFrames->frameData( fIdx );
-        std::vector<float>& TNQVDat     = TNQVFrames->frameData( fIdx );
-        std::vector<float>& THQVDat     = THQVFrames->frameData( fIdx );
-        std::vector<float>& TPDat       = TPFrames->frameData( fIdx );
-        std::vector<float>& TincDat     = TPincFrames->frameData( fIdx );
-        std::vector<float>& FAULTMOBDat = FAULTMOBFrames->frameData( fIdx );
-        std::vector<float>& PCRITDat    = PCRITFrames->frameData( fIdx );
-
-        // HACK ! Todo : make it robust against other elements than Hex8
-        size_t valCount = s11.size() * 3; // Number of Elm Node Face results 24 = 4 * num faces = 3* numElmNodes
-
-        SNDat.resize( valCount );
-        STHDat.resize( valCount );
-        STQVDat.resize( valCount );
-        TNHDat.resize( valCount );
-        TNQVDat.resize( valCount );
-        THQVDat.resize( valCount );
-        TPDat.resize( valCount );
-        TincDat.resize( valCount );
-        FAULTMOBDat.resize( valCount );
-        PCRITDat.resize( valCount );
-
-        int elementCount = femPart->elementCount();
-
-#pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType        = femPart->elementType( elmIdx );
-            int            faceCount      = RigFemTypes::elmentFaceCount( elmType );
-            const int*     elmNodeIndices = femPart->connectivities( elmIdx );
-
-            int elmNodFaceResIdxElmStart = elmIdx * 24; // HACK should get from part
-
-            for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
-            {
-                int        faceNodeCount = 0;
-                const int* localElmNodeIndicesForFace =
-                    RigFemTypes::localElmNodeIndicesForFace( elmType, lfIdx, &faceNodeCount );
-                if ( faceNodeCount == 4 )
-                {
-                    int        elmNodFaceResIdxFaceStart = elmNodFaceResIdxElmStart + lfIdx * 4; // HACK
-                    cvf::Vec3f quadVxs[4];
-
-                    quadVxs[0] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] );
-                    quadVxs[1] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] );
-                    quadVxs[2] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] );
-                    quadVxs[3] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] );
-
-                    cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx( quadVxs[2] - quadVxs[0],
-                                                                                             quadVxs[3] - quadVxs[1] );
-
-                    size_t qElmNodeResIdx[4];
-                    qElmNodeResIdx[0] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[0] );
-                    qElmNodeResIdx[1] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[1] );
-                    qElmNodeResIdx[2] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[2] );
-                    qElmNodeResIdx[3] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[3] );
-
-                    for ( int qIdx = 0; qIdx < 4; ++qIdx )
-                    {
-                        size_t elmNodResIdx = qElmNodeResIdx[qIdx];
-                        float  t11          = s11[elmNodResIdx];
-                        float  t22          = s22[elmNodResIdx];
-                        float  t33          = s33[elmNodResIdx];
-                        float  t12          = s12[elmNodResIdx];
-                        float  t23          = s23[elmNodResIdx];
-                        float  t13          = s13[elmNodResIdx];
-
-                        caf::Ten3f tensor( t11, t22, t33, t12, t23, t13 );
-                        caf::Ten3f xfTen            = tensor.rotated( rotMx );
-                        int        elmNodFaceResIdx = elmNodFaceResIdxFaceStart + qIdx;
-
-                        float szx = xfTen[caf::Ten3f::SZX];
-                        float syz = xfTen[caf::Ten3f::SYZ];
-                        float szz = xfTen[caf::Ten3f::SZZ];
-
-                        STHDat[elmNodFaceResIdx]  = xfTen[caf::Ten3f::SXX];
-                        STQVDat[elmNodFaceResIdx] = xfTen[caf::Ten3f::SYY];
-                        SNDat[elmNodFaceResIdx]   = xfTen[caf::Ten3f::SZZ];
-
-                        TNHDat[elmNodFaceResIdx]  = xfTen[caf::Ten3f::SZX];
-                        TNQVDat[elmNodFaceResIdx] = xfTen[caf::Ten3f::SYZ];
-                        THQVDat[elmNodFaceResIdx] = xfTen[caf::Ten3f::SXY];
-
-                        float TP                = sqrt( szx * szx + syz * syz );
-                        TPDat[elmNodFaceResIdx] = TP;
-
-                        if ( TP > 1e-5 )
-                        {
-                            TincDat[elmNodFaceResIdx] = cvf::Math::toDegrees( acos( syz / TP ) );
-                        }
-                        else
-                        {
-                            TincDat[elmNodFaceResIdx] = std::numeric_limits<float>::infinity();
-                        }
-
-                        FAULTMOBDat[elmNodFaceResIdx] = TP / ( tanFricAng * ( szz + cohPrTanFricAngle ) );
-                        PCRITDat[elmNodFaceResIdx]    = szz - TP / tanFricAng;
-                    }
-                }
-            }
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    RigFemScalarResultFrames* requestedSurfStress = this->findOrLoadScalarResult( partIndex, resVarAddr );
-    return requestedSurfStress;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSurfaceAngles( int                        partIndex,
-                                                                               const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.componentName == "Pazi" || resVarAddr.componentName == "Pinc" );
-
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 1, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-
-    RigFemScalarResultFrames* PaziFrames = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "Pazi" ) );
-    RigFemScalarResultFrames* PincFrames = m_femPartResults[partIndex]->createScalarResult(
-        RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "Pinc" ) );
-
-    const RigFemPart*              femPart         = m_femParts->part( partIndex );
-    const std::vector<cvf::Vec3f>& nodeCoordinates = femPart->nodes().coordinates;
-    int                            frameCount      = this->frameCount();
-
-    // HACK ! Todo : make it robust against other elements than Hex8
-    size_t valCount = femPart->elementCount() * 24; // Number of Elm Node Face results 24 = 4 * num faces = 3*
-                                                    // numElmNodes
-
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        std::vector<float>& Pazi = PaziFrames->frameData( fIdx );
-        std::vector<float>& Pinc = PincFrames->frameData( fIdx );
-
-        Pazi.resize( valCount );
-        Pinc.resize( valCount );
-
-        int elementCount = femPart->elementCount();
-#pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType        = femPart->elementType( elmIdx );
-            int            faceCount      = RigFemTypes::elmentFaceCount( elmType );
-            const int*     elmNodeIndices = femPart->connectivities( elmIdx );
-
-            int elmNodFaceResIdxElmStart = elmIdx * 24; // HACK should get from part
-
-            for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
-            {
-                int        faceNodeCount = 0;
-                const int* localElmNodeIndicesForFace =
-                    RigFemTypes::localElmNodeIndicesForFace( elmType, lfIdx, &faceNodeCount );
-                if ( faceNodeCount == 4 )
-                {
-                    int        elmNodFaceResIdxFaceStart = elmNodFaceResIdxElmStart + lfIdx * 4; // HACK
-                    cvf::Vec3f quadVxs[4];
-
-                    quadVxs[0] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] );
-                    quadVxs[1] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] );
-                    quadVxs[2] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] );
-                    quadVxs[3] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] );
-
-                    cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx( quadVxs[2] - quadVxs[0],
-                                                                                             quadVxs[3] - quadVxs[1] );
-                    RiaOffshoreSphericalCoords sphCoord(
-                        cvf::Vec3f( rotMx.rowCol( 0, 2 ), rotMx.rowCol( 1, 2 ), rotMx.rowCol( 2, 2 ) ) ); // Use Ez
-                                                                                                          // from the
-                                                                                                          // matrix
-                                                                                                          // as plane
-                                                                                                          // normal
-
-                    for ( int qIdx = 0; qIdx < 4; ++qIdx )
-                    {
-                        int elmNodFaceResIdx   = elmNodFaceResIdxFaceStart + qIdx;
-                        Pazi[elmNodFaceResIdx] = cvf::Math::toDegrees( sphCoord.azi() );
-                        Pinc[elmNodFaceResIdx] = cvf::Math::toDegrees( sphCoord.inc() );
-                    }
-                }
-            }
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    RigFemScalarResultFrames* requestedPlaneAngle = this->findOrLoadScalarResult( partIndex, resVarAddr );
-    return requestedPlaneAngle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames*
     RigFemPartResultsCollection::calculatePrincipalStressValues( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ||
@@ -2116,22 +1845,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
     for ( auto calculator : m_resultCalculators )
     {
         if ( calculator->isMatching( resVarAddr ) ) return calculator->calculate( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.resultPosType == RIG_ELEMENT_NODAL_FACE )
-    {
-        if ( resVarAddr.componentName == "Pazi" || resVarAddr.componentName == "Pinc" )
-        {
-            return calculateSurfaceAngles( partIndex, resVarAddr );
-        }
-        else if ( resVarAddr.componentName.empty() )
-        {
-            return nullptr;
-        }
-        else
-        {
-            return calculateSurfaceAlignedStress( partIndex, resVarAddr );
-        }
     }
 
     if ( resVarAddr.fieldName == FIELD_NAME_COMPACTION )
