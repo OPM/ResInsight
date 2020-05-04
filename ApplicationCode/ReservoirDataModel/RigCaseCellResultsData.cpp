@@ -314,6 +314,7 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
     RigEclipseResultInfo resInfo( resVarAddr, needsToBeStored, false, scalarResultIndex );
 
     m_resultInfos.push_back( resInfo );
+    m_addressToResultIndexMap[resVarAddr] = scalarResultIndex;
 
     // Create statistics calculator and add statistics cache object
     // Todo: Move to a "factory" method
@@ -730,6 +731,7 @@ void RigCaseCellResultsData::clearAllResults()
 {
     m_cellScalarResults.clear();
     m_resultInfos.clear();
+    m_addressToResultIndexMap.clear();
     m_statisticsDataCache.clear();
 }
 
@@ -3256,13 +3258,10 @@ size_t RigCaseCellResultsData::findScalarResultIndexFromAddress( const RigEclips
     }
     else
     {
-        std::vector<RigEclipseResultInfo>::const_iterator it;
-        for ( it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it )
+        auto index = m_addressToResultIndexMap.find( resVarAddr );
+        if ( index != m_addressToResultIndexMap.end() )
         {
-            if ( it->eclipseResultAddress() == resVarAddr )
-            {
-                return it->gridScalarResultIndex();
-            }
+            return index->second;
         }
 
         return cvf::UNDEFINED_SIZE_T;
