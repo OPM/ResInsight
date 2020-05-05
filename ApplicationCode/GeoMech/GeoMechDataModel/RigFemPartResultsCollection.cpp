@@ -33,12 +33,15 @@
 #include "RigFemNativeStatCalc.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
+#include "RigFemPartResultCalculatorDSM.h"
+#include "RigFemPartResultCalculatorFOS.h"
 #include "RigFemPartResultCalculatorGamma.h"
 #include "RigFemPartResultCalculatorNormalSE.h"
 #include "RigFemPartResultCalculatorNormalST.h"
 #include "RigFemPartResultCalculatorNormalized.h"
 #include "RigFemPartResultCalculatorPrincipalStrain.h"
 #include "RigFemPartResultCalculatorPrincipalStress.h"
+#include "RigFemPartResultCalculatorSFI.h"
 #include "RigFemPartResultCalculatorShearSE.h"
 #include "RigFemPartResultCalculatorShearST.h"
 #include "RigFemPartResultCalculatorSurfaceAlignedStress.h"
@@ -124,6 +127,12 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAngles( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAlignedStress( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSFI( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorDSM( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFOS( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalized( *this ) ) );
     m_resultCalculators.push_back(
@@ -844,153 +853,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSEM( i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSFI( int partIndex, const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SFI" );
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* se1Frames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S1" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* se3Frames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S3" ) );
-
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-    frameCountProgress.incrementProgress();
-
-    float cohPrFricAngle = (float)( m_cohesion / tan( m_frictionAngleRad ) );
-    float sinFricAng     = sin( m_frictionAngleRad );
-
-    int frameCount = se1Frames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& se1Data = se1Frames->frameData( fIdx );
-        const std::vector<float>& se3Data = se3Frames->frameData( fIdx );
-
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = se1Data.size();
-        dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            float se1        = se1Data[vIdx];
-            float se3        = se3Data[vIdx];
-            float se1Se3Diff = se1 - se3;
-
-            if ( fabs( se1Se3Diff ) < 1e-7 )
-            {
-                dstFrameData[vIdx] = std::numeric_limits<float>::infinity();
-            }
-            else
-            {
-                dstFrameData[vIdx] = ( ( cohPrFricAngle + 0.5 * ( se1Data[vIdx] + se3Data[vIdx] ) ) * sinFricAng ) /
-                                     ( 0.5 * ( se1Data[vIdx] - se3Data[vIdx] ) );
-            }
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDSM( int partIndex, const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "DSM" );
-
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* se1Frames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S1" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* se3Frames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S3" ) );
-
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-    frameCountProgress.incrementProgress();
-
-    float tanFricAng        = tan( m_frictionAngleRad );
-    float cohPrTanFricAngle = (float)( m_cohesion / tanFricAng );
-    int   frameCount        = se1Frames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& se1Data = se1Frames->frameData( fIdx );
-        const std::vector<float>& se3Data = se3Frames->frameData( fIdx );
-
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = se1Data.size();
-        dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = dsm( se1Data[vIdx], se3Data[vIdx], tanFricAng, cohPrTanFricAngle );
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFOS( int partIndex, const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "FOS" );
-
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 2, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* dsmFrames =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "DSM" ) );
-
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-    frameCountProgress.incrementProgress();
-
-    int frameCount = dsmFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& dsmData = dsmFrames->frameData( fIdx );
-
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = dsmData.size();
-        dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            float dsm          = dsmData[vIdx];
-            dstFrameData[vIdx] = 1.0f / dsm;
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSTM( int                        partIndex,
                                                                                const RigFemResultAddress& resVarAddr )
 {
@@ -1612,21 +1474,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
         return calculateCompactionValues( partIndex, resVarAddr );
     }
 
-    if ( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SFI" )
-    {
-        return calculateSFI( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "DSM" )
-    {
-        return calculateDSM( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "FOS" )
-    {
-        return calculateFOS( partIndex, resVarAddr );
-    }
-
     if ( resVarAddr.fieldName == "NE" && resVarAddr.componentName == "EV" )
     {
         return calculateVolumetricStrain( partIndex, resVarAddr );
@@ -1778,24 +1625,6 @@ std::vector<std::string> RigFemPartResultsCollection::filteredStepNames() const
 int RigFemPartResultsCollection::frameCount()
 {
     return static_cast<int>( filteredStepNames().size() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-float RigFemPartResultsCollection::dsm( float p1, float p3, float tanFricAng, float cohPrTanFricAngle )
-{
-    if ( p1 == HUGE_VAL || p3 == HUGE_VAL )
-    {
-        return std::nan( "" );
-    }
-
-    CVF_ASSERT( p1 > p3 );
-
-    float pi_4 = 0.785398163397448309616f;
-    float rho  = 2.0f * ( atan( sqrt( ( p1 + cohPrTanFricAngle ) / ( p3 + cohPrTanFricAngle ) ) ) - pi_4 );
-
-    return tan( rho ) / tanFricAng;
 }
 
 //--------------------------------------------------------------------------------------------------

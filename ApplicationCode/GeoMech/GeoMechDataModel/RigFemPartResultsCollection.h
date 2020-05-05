@@ -87,8 +87,6 @@ public:
     int                         partCount() const;
     int                         frameCount();
 
-    static float dsm( float p1, float p3, float tanFricAng, float cohPrTanFricAngle );
-
     void minMaxScalarValues( const RigFemResultAddress& resVarAddr, int frameIndex, double* localMin, double* localMax );
     void minMaxScalarValues( const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax );
     void posNegClosestToZero( const RigFemResultAddress& resVarAddr,
@@ -143,9 +141,6 @@ private:
                                                            const std::string&         fieldNameToConvert );
     RigFemScalarResultFrames* calculateEnIpPorBarResult( int partIndex, const RigFemResultAddress& convertedResultAddr );
     RigFemScalarResultFrames* calculateMeanStressSEM( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateSFI( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateDSM( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateFOS( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateMeanStressSTM( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateDeviatoricStress( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateVolumetricStrain( int partIndex, const RigFemResultAddress& resVarAddr );
