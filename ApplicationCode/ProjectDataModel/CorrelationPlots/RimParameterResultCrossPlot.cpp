@@ -257,5 +257,6 @@ void RimParameterResultCrossPlot::updatePlotTitle()
         m_description = QString( "Cross Plot %1 x %2" ).arg( m_ensembleParameter ).arg( m_selectedVarsUiField() );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
+    m_plotWidget->setPlotTitleFontSize( isMdiWindow() ? 8 : 10 );
 }

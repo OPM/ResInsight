@@ -84,6 +84,7 @@ public:
     const QString& plotTitle() const;
     void           setPlotTitleEnabled( bool enabled );
     bool           plotTitleEnabled() const;
+    void           setPlotTitleFontSize( int titleFontSize );
 
     void setLegendFontSize( int fontSize );
     void setLegendVisible( bool visible );
