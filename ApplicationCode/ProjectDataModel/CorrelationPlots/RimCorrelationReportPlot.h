@@ -74,7 +74,7 @@ private:
     void     childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
 
 private slots:
-    void onMatrixCellSelected( const EnsembleParameter& param, const RiaSummaryCurveDefinition& curveDef );
+    void onDataSelection( const EnsembleParameter& param, const RiaSummaryCurveDefinition& curveDef );
 
 private:
     caf::PdmProxyValueField<QString> m_plotWindowTitle;

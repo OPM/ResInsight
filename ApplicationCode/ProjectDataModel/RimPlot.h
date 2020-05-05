@@ -105,7 +105,7 @@ private:
 private slots:
     void         onPlotSelected( bool toggle );
     virtual void onAxisSelected( int axis, bool toggle ) {}
-    virtual void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle );
+    virtual void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex );
     void         onViewerDestroyed();
     void         onKeyPressEvent( QKeyEvent* event );
     void         onWheelEvent( QWheelEvent* event );

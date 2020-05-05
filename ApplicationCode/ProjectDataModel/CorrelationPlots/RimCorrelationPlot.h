@@ -18,7 +18,9 @@
 
 #pragma once
 
+#include "RiaSummaryCurveDefinition.h"
 #include "RimAbstractCorrelationPlot.h"
+#include "RimSummaryCaseCollection.h"
 #include "cafAppEnum.h"
 
 #include <QDateTime>
@@ -32,6 +34,7 @@ class RiuGroupedBarChartBuilder;
 //==================================================================================================
 class RimCorrelationPlot : public RimAbstractCorrelationPlot
 {
+    Q_OBJECT;
     CAF_PDM_HEADER_INIT;
 
 public:
@@ -55,6 +58,9 @@ public:
     bool sortByAbsoluteValues() const;
     void setSortByAbsoluteValues( bool sortByAbsoluteValues );
 
+signals:
+    void tornadoItemSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& curveDef );
+
 private:
     // Overridden PDM methods
 
@@ -71,6 +77,7 @@ private:
     // Private methods
     void addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBuilder );
     void updatePlotTitle() override;
+    void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex ) override;
 
 private:
     caf::PdmField<CorrelationFactorEnum> m_correlationFactor;

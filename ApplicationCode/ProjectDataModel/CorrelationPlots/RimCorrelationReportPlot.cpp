@@ -65,7 +65,11 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
 
     this->connect( m_correlationMatrixPlot(),
                    SIGNAL( matrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ),
-                   SLOT( onMatrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ) );
+                   SLOT( onDataSelection( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ) );
+
+    this->connect( m_correlationPlot(),
+                   SIGNAL( tornadoItemSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ),
+                   SLOT( onDataSelection( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -304,8 +308,7 @@ void RimCorrelationReportPlot::childFieldChangedByUi( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationReportPlot::onMatrixCellSelected( const EnsembleParameter&         param,
-                                                     const RiaSummaryCurveDefinition& curveDef )
+void RimCorrelationReportPlot::onDataSelection( const EnsembleParameter& param, const RiaSummaryCurveDefinition& curveDef )
 {
     m_correlationPlot->setCurveDefinitions( { curveDef } );
     m_correlationPlot->loadDataAndUpdate();

@@ -39,6 +39,8 @@
 
 #include "cafPdmUiComboBoxEditor.h"
 
+#include "qwt_plot_barchart.h"
+
 #include <limits>
 #include <map>
 #include <set>
@@ -293,6 +295,26 @@ void RimCorrelationPlot::updatePlotTitle()
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
     m_plotWidget->setPlotTitleFontSize( isMdiWindow() ? 8 : 10 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCorrelationPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex )
+{
+    QwtPlotBarChart* barChart = dynamic_cast<QwtPlotBarChart*>( plotItem );
+    if ( barChart && !curveDefinitions().empty() )
+    {
+        auto curveDef = curveDefinitions().front();
+        auto barTitle = barChart->title();
+        for ( auto param : ensembleParameters() )
+        {
+            if ( barTitle.text() == param.name )
+            {
+                emit tornadoItemSelected( param, curveDef );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
