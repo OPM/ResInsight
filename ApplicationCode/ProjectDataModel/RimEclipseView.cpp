@@ -20,9 +20,9 @@
 
 #include "RimEclipseView.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 
 #include "HoloLensCommands/RicExportToSharingServerScheduler.h"
@@ -110,8 +110,6 @@
 #include "cvfViewport.h"
 #include "cvfqtUtils.h"
 
-#include <QMessageBox>
-
 #include <climits>
 
 CAF_PDM_XML_SOURCE_INIT( RimEclipseView, "ReservoirView" );
@@ -120,8 +118,7 @@ CAF_PDM_XML_SOURCE_INIT( RimEclipseView, "ReservoirView" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseView::RimEclipseView()
 {
-    RiaApplication* app         = RiaApplication::instance();
-    RiaPreferences* preferences = app->preferences();
+    RiaPreferences* preferences = RiaPreferences::current();
     CVF_ASSERT( preferences );
 
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Reservoir View",
@@ -974,9 +971,7 @@ void RimEclipseView::onLoadDataAndUpdate()
     {
         if ( !m_eclipseCase->openReserviorCase() )
         {
-            QMessageBox::warning( RiuMainWindow::instance(),
-                                  "Error when opening project file",
-                                  "Could not open the Eclipse Grid file: \n" + m_eclipseCase->gridFileName() );
+            RiaLogging::warning( "Could not open the Eclipse Grid file: \n" + m_eclipseCase->gridFileName() );
             this->setEclipseCase( nullptr );
             return;
         }
@@ -1388,7 +1383,8 @@ void RimEclipseView::onUpdateLegends()
         bool hasAnyVisibleFractures = false;
         {
             std::vector<RimFracture*> fractures;
-            RiaApplication::instance()->project()->activeOilField()->descendantsIncludingThisOfType( fractures );
+
+            RimProject::current()->activeOilField()->descendantsIncludingThisOfType( fractures );
 
             for ( const auto& f : fractures )
             {
