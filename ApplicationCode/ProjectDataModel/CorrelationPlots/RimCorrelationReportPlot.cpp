@@ -56,12 +56,17 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
 
     setAsPlotMdiWindow();
 
-    m_showWindow            = true;
+    m_showWindow      = true;
+    m_showPlotLegends = false;
+
     m_correlationMatrixPlot = new RimCorrelationMatrixPlot;
+    m_correlationMatrixPlot->setLegendsVisible( false );
     m_correlationMatrixPlot->setColSpan( RimPlot::TWO );
     m_correlationMatrixPlot->setRowSpan( RimPlot::TWO );
-    m_correlationPlot          = new RimCorrelationPlot;
+    m_correlationPlot = new RimCorrelationPlot;
+    m_correlationPlot->setLegendsVisible( false );
     m_parameterResultCrossPlot = new RimParameterResultCrossPlot;
+    m_parameterResultCrossPlot->setLegendsVisible( false );
 
     this->connect( m_correlationMatrixPlot(),
                    SIGNAL( matrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ),
