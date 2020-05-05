@@ -86,7 +86,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                                     const std::vector<RimSimWellInView*>& simWells,
                                                                     const RicExportCompletionDataSettingsUi& exportSettings )
 {
-    if ( exportSettings.caseToApply() == nullptr )
+    if ( exportSettings.caseToApply() == nullptr || exportSettings.caseToApply()->eclipseCaseData() == nullptr )
     {
         RiaLogging::error( "Export Completions Data: Cannot export completions data without specified eclipse case" );
         return;
