@@ -34,6 +34,8 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigFemPartResultCalculatorDSM.h"
+#include "RigFemPartResultCalculatorED.h"
+#include "RigFemPartResultCalculatorEV.h"
 #include "RigFemPartResultCalculatorFOS.h"
 #include "RigFemPartResultCalculatorGamma.h"
 #include "RigFemPartResultCalculatorNormalSE.h"
@@ -41,7 +43,9 @@
 #include "RigFemPartResultCalculatorNormalized.h"
 #include "RigFemPartResultCalculatorPrincipalStrain.h"
 #include "RigFemPartResultCalculatorPrincipalStress.h"
+#include "RigFemPartResultCalculatorQ.h"
 #include "RigFemPartResultCalculatorSFI.h"
+#include "RigFemPartResultCalculatorSTM.h"
 #include "RigFemPartResultCalculatorShearSE.h"
 #include "RigFemPartResultCalculatorShearST.h"
 #include "RigFemPartResultCalculatorSurfaceAlignedStress.h"
@@ -133,6 +137,13 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorDSM( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFOS( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorED( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEV( *this ) ) );
+    m_resultCalculators.push_back( std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorQ( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSTM( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalized( *this ) ) );
     m_resultCalculators.push_back(
@@ -853,57 +864,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSEM( i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSTM( int                        partIndex,
-                                                                               const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.fieldName == "ST" && resVarAddr.componentName == "STM" );
-
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 4, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* st11 =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S11" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* st22 =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S22" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* st33 =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S33" ) );
-
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-    frameCountProgress.incrementProgress();
-
-    int frameCount = st11->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& st11Data = st11->frameData( fIdx );
-        const std::vector<float>& st22Data = st22->frameData( fIdx );
-        const std::vector<float>& st33Data = st33->frameData( fIdx );
-
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = st11Data.size();
-        dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = ( st11Data[vIdx] + st22Data[vIdx] + st33Data[vIdx] ) / 3.0f;
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateStressGradients( int                        partIndex,
                                                                                  const RigFemResultAddress& resVarAddr )
 {
@@ -1118,171 +1078,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradients( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDeviatoricStress( int                        partIndex,
-                                                                                  const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.fieldName == "ST" && resVarAddr.componentName == "Q" );
-
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 5, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* st11 =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S1" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* st22 =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S2" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* st33 =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S3" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* stm =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "STM" ) );
-
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-    frameCountProgress.incrementProgress();
-
-    int frameCount = st11->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& st11Data = st11->frameData( fIdx );
-        const std::vector<float>& st22Data = st22->frameData( fIdx );
-        const std::vector<float>& st33Data = st33->frameData( fIdx );
-
-        const std::vector<float>& stmData = stm->frameData( fIdx );
-
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = st11Data.size();
-        dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            float stmVal   = stmData[vIdx];
-            float st11Corr = st11Data[vIdx] - stmVal;
-            float st22Corr = st22Data[vIdx] - stmVal;
-            float st33Corr = st33Data[vIdx] - stmVal;
-
-            dstFrameData[vIdx] = sqrt( 1.5 * ( st11Corr * st11Corr + st22Corr * st22Corr + st33Corr * st33Corr ) );
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateVolumetricStrain( int                        partIndex,
-                                                                                  const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.fieldName == "NE" && resVarAddr.componentName == "EV" );
-
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 4, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* ea11 = nullptr;
-    RigFemScalarResultFrames* ea22 = nullptr;
-    RigFemScalarResultFrames* ea33 = nullptr;
-
-    {
-        ea11 = this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "NE", "E11" ) );
-        frameCountProgress.incrementProgress();
-        frameCountProgress.setNextProgressIncrement( this->frameCount() );
-        ea22 = this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "NE", "E22" ) );
-        frameCountProgress.incrementProgress();
-        frameCountProgress.setNextProgressIncrement( this->frameCount() );
-        ea33 = this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "NE", "E33" ) );
-    }
-
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-    frameCountProgress.incrementProgress();
-
-    int frameCount = ea11->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& ea11Data = ea11->frameData( fIdx );
-        const std::vector<float>& ea22Data = ea22->frameData( fIdx );
-        const std::vector<float>& ea33Data = ea33->frameData( fIdx );
-
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = ea11Data.size();
-        dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = ( ea11Data[vIdx] + ea22Data[vIdx] + ea33Data[vIdx] );
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDeviatoricStrain( int                        partIndex,
-                                                                                  const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.fieldName == "NE" && resVarAddr.componentName == "ED" );
-
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* ea11 = nullptr;
-    RigFemScalarResultFrames* ea33 = nullptr;
-    {
-        ea11 = this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "NE", "E1" ) );
-        frameCountProgress.incrementProgress();
-        frameCountProgress.setNextProgressIncrement( this->frameCount() );
-        ea33 = this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "NE", "E3" ) );
-    }
-
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-    frameCountProgress.incrementProgress();
-
-    int frameCount = ea11->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& ea11Data = ea11->frameData( fIdx );
-        const std::vector<float>& ea33Data = ea33->frameData( fIdx );
-
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = ea11Data.size();
-        dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = 0.666666666666667f * ( ea11Data[vIdx] - ea33Data[vIdx] );
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateCompactionValues( int                        partIndex,
                                                                                   const RigFemResultAddress& resVarAddr )
 {
@@ -1472,26 +1267,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
     if ( resVarAddr.fieldName == FIELD_NAME_COMPACTION )
     {
         return calculateCompactionValues( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.fieldName == "NE" && resVarAddr.componentName == "EV" )
-    {
-        return calculateVolumetricStrain( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.fieldName == "NE" && resVarAddr.componentName == "ED" )
-    {
-        return calculateDeviatoricStrain( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.fieldName == "ST" && resVarAddr.componentName == "Q" )
-    {
-        return calculateDeviatoricStress( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.fieldName == "ST" && resVarAddr.componentName == "STM" )
-    {
-        return calculateMeanStressSTM( partIndex, resVarAddr );
     }
 
     if ( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" )

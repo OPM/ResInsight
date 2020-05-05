@@ -68,6 +68,14 @@ add_library( ${PROJECT_NAME}
 	RigFemPartResultCalculatorDSM.cpp
 	RigFemPartResultCalculatorFOS.h
 	RigFemPartResultCalculatorFOS.cpp
+	RigFemPartResultCalculatorED.h
+	RigFemPartResultCalculatorED.cpp
+ 	RigFemPartResultCalculatorEV.h
+	RigFemPartResultCalculatorEV.cpp
+	RigFemPartResultCalculatorQ.h
+	RigFemPartResultCalculatorQ.cpp
+	RigFemPartResultCalculatorSTM.h
+	RigFemPartResultCalculatorSTM.cpp
 	RimGeoMechGeometrySelectionItem.h
 	RimGeoMechGeometrySelectionItem.cpp
 )

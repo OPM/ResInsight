@@ -141,10 +141,6 @@ private:
                                                            const std::string&         fieldNameToConvert );
     RigFemScalarResultFrames* calculateEnIpPorBarResult( int partIndex, const RigFemResultAddress& convertedResultAddr );
     RigFemScalarResultFrames* calculateMeanStressSEM( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateMeanStressSTM( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateDeviatoricStress( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateVolumetricStrain( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateDeviatoricStrain( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculatePrincipalStressValues( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculatePrincipalStrainValues( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateCompactionValues( int partIndex, const RigFemResultAddress& resVarAddr );
