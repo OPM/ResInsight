@@ -100,6 +100,7 @@ public:
         , m_correlations( correlations )
         , m_values( values )
         , m_correlationSum( 0.0 )
+        , m_correlationAbsSum( 0.0 )
     {
         bool anyValid = false;
         for ( auto value : correlations )
@@ -107,14 +108,14 @@ public:
             if ( RiaCurveDataTools::isValidValue( value, false ) )
             {
                 m_correlationSum += value;
-                m_correlationMagnitude += value * value;
+                m_correlationAbsSum += std::abs( value );
                 anyValid = true;
             }
         }
         if ( !anyValid )
         {
-            m_correlationSum       = std::numeric_limits<double>::infinity();
-            m_correlationMagnitude = std::numeric_limits<double>::infinity();
+            m_correlationSum    = std::numeric_limits<double>::infinity();
+            m_correlationAbsSum = std::numeric_limits<double>::infinity();
         }
     }
 
@@ -122,7 +123,7 @@ public:
     std::vector<double>    m_correlations;
     std::vector<ValueType> m_values;
     double                 m_correlationSum;
-    double                 m_correlationMagnitude;
+    double                 m_correlationAbsSum;
 };
 
 using CorrelationMatrixColumn = CorrelationMatrixRowOrColumn<EnsembleParameter, RiaSummaryCurveDefinition>;
@@ -138,7 +139,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_correlationFactor, "CorrelationFactor", "Correlation Factor", "", "", "" );
     m_correlationFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", true, "Show Absolute Values", "", "", "" );
+    CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByValues, "CorrelationSorting", true, "Sort Matrix by Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
 
@@ -209,7 +210,10 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     correlationGroup->add( &m_correlationFactor );
     correlationGroup->add( &m_showAbsoluteValues );
     correlationGroup->add( &m_sortByValues );
-    correlationGroup->add( &m_sortByAbsoluteValues );
+    if ( !m_showAbsoluteValues() )
+    {
+        correlationGroup->add( &m_sortByAbsoluteValues );
+    }
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
     m_selectedVarsUiField           = selectedVarsText();
@@ -352,7 +356,7 @@ void sortEntries( std::vector<CorrelationMatrixRowOrColumn<KeyType, ValueType>>&
                [&sortByAbsoluteValues]( const CorrelationMatrixRowOrColumn<KeyType, ValueType>& lhs,
                                         const CorrelationMatrixRowOrColumn<KeyType, ValueType>& rhs ) -> bool {
                    if ( sortByAbsoluteValues )
-                       return lhs.m_correlationMagnitude > rhs.m_correlationMagnitude;
+                       return lhs.m_correlationAbsSum > rhs.m_correlationAbsSum;
                    else
                        return lhs.m_correlationSum > rhs.m_correlationSum;
                } );
@@ -472,12 +476,12 @@ void RimCorrelationMatrixPlot::createMatrix()
     }
 
     eraseInvalidEntries( correlationMatrixColumns );
-    if ( m_sortByValues() ) sortEntries( correlationMatrixColumns, m_sortByAbsoluteValues() );
+    if ( m_sortByValues() ) sortEntries( correlationMatrixColumns, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
 
     auto correlationMatrixRows = transpose( correlationMatrixColumns );
 
     eraseInvalidEntries( correlationMatrixRows );
-    if ( m_sortByValues() ) sortEntries( correlationMatrixRows, m_sortByAbsoluteValues() );
+    if ( m_sortByValues() ) sortEntries( correlationMatrixRows, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
 
     for ( size_t rowIdx = 0u; rowIdx < correlationMatrixRows.size(); ++rowIdx )
     {
@@ -523,7 +527,8 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
         m_description = QString( "%1 Matrix for Parameters vs Result Vectors" ).arg( m_correlationFactor().uiText() );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
+    m_plotWidget->setPlotTitleFontSize( isMdiWindow() ? 8 : 10 );
 }
 
 //--------------------------------------------------------------------------------------------------

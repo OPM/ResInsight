@@ -292,6 +292,7 @@ void RimCorrelationPlot::updatePlotTitle()
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
+    m_plotWidget->setPlotTitleFontSize( isMdiWindow() ? 8 : 10 );
 }
 
 //--------------------------------------------------------------------------------------------------

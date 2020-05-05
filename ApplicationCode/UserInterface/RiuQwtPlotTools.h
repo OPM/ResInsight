@@ -19,9 +19,8 @@
 
 #include "RiaQDateTimeTools.h"
 #include <qwt_date.h>
-
-class QwtPlot;
-class QwtPlotShapeItem;
+#include <qwt_plot.h>
+#include <qwt_plot_shapeitem.h>
 
 class RiuQwtPlotTools
 {

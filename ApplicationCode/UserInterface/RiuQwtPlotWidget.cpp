@@ -242,6 +242,18 @@ bool RiuQwtPlotWidget::plotTitleEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setPlotTitleFontSize( int titleFontSize )
+{
+    auto  title = this->title();
+    QFont font  = title.font();
+    font.setPixelSize( RiaFontCache::pointSizeToPixelSize( titleFontSize ) );
+    title.setFont( font );
+    setTitle( title );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setLegendFontSize( int fontSize )
 {
     if ( legend() )
