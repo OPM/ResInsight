@@ -131,7 +131,9 @@ public:
     RigFemScalarResultFrames* findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* createScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
 
-    bool isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const;
+    bool                            isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const;
+    static std::vector<std::string> getStressComponentNames( bool includeShear = true );
+    static std::vector<std::string> getStressGradientComponentNames( bool includeShear = true );
 
 private:
     RigFemScalarResultFrames* calculateDerivedResult( int partIndex, const RigFemResultAddress& resVarAddr );
@@ -145,7 +147,6 @@ private:
     RigFemScalarResultFrames* calculatePrincipalStrainValues( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateNE( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateFormationIndices( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateStressGradients( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateNodalGradients( int partIndex, const RigFemResultAddress& resVarAddr );
 
     const RigFormationNames* activeFormationNames() const;
@@ -169,7 +170,4 @@ private:
     RigStatisticsDataCache*          statistics( const RigFemResultAddress& resVarAddr );
     std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache>> m_resultStatistics;
-
-    static std::vector<std::string> getStressComponentNames( bool includeShear = true );
-    static std::vector<std::string> getStressGradientComponentNames( bool includeShear = true );
 };
