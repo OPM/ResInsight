@@ -136,7 +136,7 @@ public:
 signals:
     void plotSelected( bool toggleSelection );
     void axisSelected( int axisId, bool toggleSelection );
-    void plotItemSelected( QwtPlotItem* plotItem, bool toggleSelection );
+    void plotItemSelected( QwtPlotItem* plotItem, bool toggleSelection, int sampleIndex );
     void onKeyPressEvent( QKeyEvent* event );
     void onWheelEvent( QWheelEvent* event );
 
@@ -153,8 +153,6 @@ protected:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
-    virtual void selectPoint( QwtPlotCurve* curve, int pointNumber );
-    virtual void clearPointSelection();
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
 

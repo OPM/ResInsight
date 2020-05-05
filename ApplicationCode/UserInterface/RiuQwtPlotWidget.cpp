@@ -36,6 +36,7 @@
 
 #include "qwt_legend.h"
 #include "qwt_legend_label.h"
+#include "qwt_plot_barchart.h"
 #include "qwt_plot_canvas.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
@@ -742,20 +743,6 @@ QSize RiuQwtPlotWidget::minimumSizeHint() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Empty default implementation
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::selectPoint( QwtPlotCurve* curve, int pointNumber )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Empty default implementation
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::clearPointSelection()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RiuQwtPlotWidget::isZoomerActive() const
@@ -983,11 +970,30 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
         else if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotShape )
         {
             QwtPlotShapeItem* shapeItem = static_cast<QwtPlotShapeItem*>( *it );
-            QPoint            scalePos( invTransform( xBottom, pos.x() ), invTransform( yLeft, pos.y() ) );
+            QPointF           scalePos( invTransform( xBottom, pos.x() ), invTransform( yLeft, pos.y() ) );
             if ( shapeItem->shape().boundingRect().contains( scalePos ) )
             {
                 closestItem = *it;
                 distMin     = 0.0;
+            }
+        }
+        else if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotBarChart )
+        {
+            QwtPlotBarChart* barChart = static_cast<QwtPlotBarChart*>( *it );
+            QPointF          scalePos( invTransform( xBottom, pos.x() ), invTransform( yLeft, pos.y() ) );
+
+            bool horizontal = barChart->orientation() == Qt::Horizontal;
+            for ( size_t i = 0; i < barChart->dataSize(); ++i )
+            {
+                QPointF samplePoint = barChart->sample( i );
+                double  dist        = horizontal ? std::abs( samplePoint.x() - scalePos.y() )
+                                         : std::abs( samplePoint.x() - scalePos.x() );
+                if ( dist < distMin )
+                {
+                    closestItem       = *it;
+                    closestCurvePoint = (int)i;
+                    distMin           = dist;
+                }
             }
         }
     }
@@ -998,16 +1004,8 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
     {
         // TODO: highlight all selected curves
         highlightPlotItem( closestItem );
-        emit plotItemSelected( closestItem, toggleItemInSelection );
+        emit plotItemSelected( closestItem, toggleItemInSelection, distMin < 10 ? closestCurvePoint : -1 );
 
-        if ( distMin < 10 && ( closestItem )->rtti() == QwtPlotItem::Rtti_PlotCurve )
-        {
-            selectPoint( static_cast<QwtPlotCurve*>( closestItem ), closestCurvePoint );
-        }
-        else
-        {
-            clearPointSelection();
-        }
         scheduleReplot();
     }
     else

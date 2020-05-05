@@ -26,6 +26,7 @@ ${SOURCE_GROUP_SOURCE_FILES}
 )
 
 list(APPEND QT_MOC_HEADERS
+${CMAKE_CURRENT_LIST_DIR}/RimCorrelationPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCorrelationMatrixPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimCorrelationReportPlot.h
 )

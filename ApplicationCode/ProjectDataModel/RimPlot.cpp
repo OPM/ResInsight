@@ -163,8 +163,8 @@ void RimPlot::attachPlotWidgetSignals( RimPlot* plot, RiuQwtPlotWidget* plotWidg
     plot->connect( plotWidget, SIGNAL( plotSelected( bool ) ), SLOT( onPlotSelected( bool ) ) );
     plot->connect( plotWidget, SIGNAL( axisSelected( int, bool ) ), SLOT( onAxisSelected( int, bool ) ) );
     plot->connect( plotWidget,
-                   SIGNAL( plotItemSelected( QwtPlotItem*, bool ) ),
-                   SLOT( onPlotItemSelected( QwtPlotItem*, bool ) ) );
+                   SIGNAL( plotItemSelected( QwtPlotItem*, bool, int ) ),
+                   SLOT( onPlotItemSelected( QwtPlotItem*, bool, int ) ) );
     plot->connect( plotWidget, SIGNAL( onKeyPressEvent( QKeyEvent* ) ), SLOT( onKeyPressEvent( QKeyEvent* ) ) );
     plot->connect( plotWidget, SIGNAL( onWheelEvent( QWheelEvent* ) ), SLOT( onWheelEvent( QWheelEvent* ) ) );
     plot->connect( plotWidget, SIGNAL( destroyed() ), SLOT( onViewerDestroyed() ) );
@@ -199,7 +199,7 @@ void RimPlot::onPlotSelected( bool toggle )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle )
+void RimPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex )
 {
     QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( plotItem );
     if ( curve )

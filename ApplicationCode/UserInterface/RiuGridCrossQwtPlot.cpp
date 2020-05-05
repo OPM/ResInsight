@@ -84,6 +84,9 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
     connect( m_zoomerLeft, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
     connect( m_zoomerRight, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
     connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
+    connect( this,
+             SIGNAL( plotItemSelected( QwtPlotItem*, bool, int ) ),
+             SLOT( onPlotItemSelected( QwtPlotItem*, bool, int ) ) );
 
     m_annotationTool      = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
     m_selectedPointMarker = new QwtPlotMarker;
@@ -189,33 +192,34 @@ void RiuGridCrossQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::selectPoint( QwtPlotCurve* curve, int pointNumber )
+void RiuGridCrossQwtPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int pointNumber )
 {
-    QPointF sample = curve->sample( pointNumber );
-    m_selectedPointMarker->setValue( sample );
-    m_selectedPointMarker->setAxes( QwtPlot::xBottom, QwtPlot::yLeft );
-    m_selectedPointMarker->attach( this );
-    QString curveName, xAxisName, yAxisName;
-    if ( curveText( curve, &curveName, &xAxisName, &yAxisName ) )
+    if ( pointNumber == -1 )
+        m_selectedPointMarker->detach();
+    else
     {
-        QString labelFormat( "<div style=\"margin: 4px;\"><b>%1:</b><br/>%2 = %3, %4 = %5</div>" );
-        QString labelString =
-            labelFormat.arg( curveName ).arg( xAxisName ).arg( sample.x() ).arg( yAxisName ).arg( sample.y() );
-        QwtText curveLabel( labelString, QwtText::RichText );
-        curveLabel.setBackgroundBrush( QBrush( QColor( 250, 250, 250, 220 ) ) );
-        curveLabel.setPaintAttribute( QwtText::PaintBackground );
-        curveLabel.setBorderPen( QPen( Qt::black, 1.0 ) );
-        curveLabel.setBorderRadius( 2.0 );
-        m_selectedPointMarker->setLabel( curveLabel );
+        QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( plotItem );
+        if ( curve )
+        {
+            QPointF sample = curve->sample( pointNumber );
+            m_selectedPointMarker->setValue( sample );
+            m_selectedPointMarker->setAxes( QwtPlot::xBottom, QwtPlot::yLeft );
+            m_selectedPointMarker->attach( this );
+            QString curveName, xAxisName, yAxisName;
+            if ( curveText( curve, &curveName, &xAxisName, &yAxisName ) )
+            {
+                QString labelFormat( "<div style=\"margin: 4px;\"><b>%1:</b><br/>%2 = %3, %4 = %5</div>" );
+                QString labelString =
+                    labelFormat.arg( curveName ).arg( xAxisName ).arg( sample.x() ).arg( yAxisName ).arg( sample.y() );
+                QwtText curveLabel( labelString, QwtText::RichText );
+                curveLabel.setBackgroundBrush( QBrush( QColor( 250, 250, 250, 220 ) ) );
+                curveLabel.setPaintAttribute( QwtText::PaintBackground );
+                curveLabel.setBorderPen( QPen( Qt::black, 1.0 ) );
+                curveLabel.setBorderRadius( 2.0 );
+                m_selectedPointMarker->setLabel( curveLabel );
+            }
+        }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::clearPointSelection()
-{
-    m_selectedPointMarker->detach();
 }
 
 //--------------------------------------------------------------------------------------------------

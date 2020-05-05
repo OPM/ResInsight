@@ -71,7 +71,7 @@ private:
     void createMatrix();
     void updatePlotTitle() override;
     void updateLegend() override;
-    void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle ) override;
+    void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex ) override;
 
 private:
     caf::PdmField<CorrelationFactorEnum> m_correlationFactor;
