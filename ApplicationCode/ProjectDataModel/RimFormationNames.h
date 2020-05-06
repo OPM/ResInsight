@@ -55,8 +55,6 @@ protected:
 
 private:
     void updateUiTreeName();
-    void readLyrFormationNameFile( QTextStream& stream, QString* errorMessage );
-    void readFmuFormationNameFile( QTextStream& stream, QString* errorMessage );
 
 private:
     caf::PdmField<caf::FilePath> m_formationNamesFileName;
