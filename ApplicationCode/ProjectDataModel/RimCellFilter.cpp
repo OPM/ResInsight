@@ -69,19 +69,9 @@ caf::PdmFieldHandle* RimCellFilter::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimCellFilter::updateIconState()
 {
-    // Reset dynamic icon
-    this->setUiIcon( caf::QIconProvider() );
-    // Get static one
     caf::QIconProvider iconProvider = this->uiIconProvider();
 
     if ( iconProvider.isNull() ) return;
-
-    QIcon icon = iconProvider.icon();
-
-    // Get a pixmap, and modify it
-
-    QPixmap icPixmap;
-    icPixmap = icon.pixmap( 16, 16, QIcon::Normal );
 
     QPixmap sign;
     if ( filterMode() == INCLUDE )
@@ -93,13 +83,9 @@ void RimCellFilter::updateIconState()
         sign.load( ":/Minus.png" );
     }
 
-    {
-        QPainter painter( &icPixmap );
-        painter.drawPixmap( 0, 0, sign );
-    }
-
-    iconProvider.setPixmap( icPixmap );
+    iconProvider.setOverlayPixmap( sign );
     iconProvider.setActive( isActive && !isActive.uiCapability()->isUiReadOnly() );
+
     this->setUiIcon( iconProvider );
 }
 

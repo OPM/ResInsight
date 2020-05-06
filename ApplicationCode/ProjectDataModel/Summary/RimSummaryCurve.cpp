@@ -596,9 +596,6 @@ void RimSummaryCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderi
 {
     RimPlotCurve::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
 
-    // Reset dynamic icon
-    this->setUiIcon( caf::QIconProvider() );
-    // Get static one
     caf::QIconProvider iconProvider = this->uiIconProvider();
     if ( iconProvider.isNull() ) return;
 
@@ -608,13 +605,16 @@ void RimSummaryCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderi
     this->firstAncestorOrThisOfType( coll );
     if ( coll && coll->curveForSourceStepping() == this )
     {
-        QPixmap  combined = icon.pixmap( 16, 16 );
-        QPainter painter( &combined );
-        QPixmap  updownpixmap( ":/StepUpDownCorner16x16.png" );
-        painter.drawPixmap( 0, 0, updownpixmap );
-        iconProvider.setPixmap( combined );
-        setUiIcon( iconProvider );
+        QPixmap updownpixmap( ":/StepUpDownCorner16x16.png" );
+
+        iconProvider.setOverlayPixmap( updownpixmap );
     }
+    else
+    {
+        iconProvider.setOverlayPixmap( QPixmap() );
+    }
+
+    setUiIcon( iconProvider );
 }
 
 //--------------------------------------------------------------------------------------------------
