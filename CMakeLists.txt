@@ -411,9 +411,6 @@ set_property(TARGET cafPdmScripting PROPERTY FOLDER "AppFwk")
 add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
 set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
 
-
-#add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
-
 add_subdirectory(Fwk/AppFwk/cafTensor)
 add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
 
@@ -461,6 +458,9 @@ if (RESINSIGHT_INCLUDE_APPFWK_TESTS)
     # Executables
     add_subdirectory(Fwk/AppFwk/cafTests/cafTestApplication)
     set_property(TARGET cafTestApplication PROPERTY FOLDER "AppFwkTests")
+    
+    add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
+    set_property(TARGET cafTestCvfApplication PROPERTY FOLDER "AppFwkTests")
 endif()
 
 
