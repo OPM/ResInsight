@@ -164,6 +164,7 @@ list( APPEND REFERENCED_CMAKE_FILES
 	Commands/AnalysisPlotCommands/CMakeLists_files.cmake
     Commands/ApplicationCommands/CMakeLists_files.cmake
     Commands/AnnotationCommands/CMakeLists_files.cmake
+	Commands/ColorLegendCommands/CMakeLists_files.cmake
     Commands/CompletionCommands/CMakeLists_files.cmake
     Commands/CompletionExportCommands/CMakeLists_files.cmake
 	Commands/CorrelationPlotCommands/CMakeLists_files.cmake

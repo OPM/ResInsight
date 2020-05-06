@@ -22,42 +22,24 @@
 #include "cvfObject.h"
 
 class RigFormationNames;
+class QString;
 
-class QTextStream;
+namespace cvf
+{
+class Color3f;
+}
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimFormationNames : public caf::PdmObject
+class RifColorLegendData
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimFormationNames();
-    ~RimFormationNames() override;
-
-    void    setFileName( const QString& fileName );
-    QString fileName();
-    QString fileNameWoPath();
-
-    RigFormationNames* formationNamesData() { return m_formationNamesData.p(); }
-    void               updateConnectedViews();
-
-    void readFormationNamesFile( QString* errorMessage );
-    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
-
-    static QString layerZoneTableFileName();
-
-protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
-    virtual void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    static cvf::ref<RigFormationNames> readFormationNamesFile( const QString& fileName, QString* errorMessage );
 
 private:
-    void updateUiTreeName();
+    static cvf::ref<RigFormationNames> readLyrFormationNameFile( const QString& fileName, QString* errorMessage );
+    static cvf::ref<RigFormationNames> readFmuFormationNameFile( const QString& fileName, QString* errorMessage );
 
-private:
-    caf::PdmField<caf::FilePath> m_formationNamesFileName;
-
-    cvf::ref<RigFormationNames> m_formationNamesData;
+    static bool convertStringToColor( const QString& word, cvf::Color3f* color );
 };

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
+//  Copyright (C) 2020 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,49 +15,45 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldCvfColor.h"
 #include "cafPdmObject.h"
-#include "cvfObject.h"
+#include "cafPdmProxyValueField.h"
 
-class RigFormationNames;
-
-class QTextStream;
+namespace caf
+{
+class PdmUiEditorAttribute;
+}
 
 //==================================================================================================
 ///
+///
 //==================================================================================================
-class RimFormationNames : public caf::PdmObject
+class RimColorLegendItem : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFormationNames();
-    ~RimFormationNames() override;
+    RimColorLegendItem();
+    ~RimColorLegendItem() override;
 
-    void    setFileName( const QString& fileName );
-    QString fileName();
-    QString fileNameWoPath();
+    void setValues( const QString& categoryName, int categoryValue, const cvf::Color3f& color );
 
-    RigFormationNames* formationNamesData() { return m_formationNamesData.p(); }
-    void               updateConnectedViews();
-
-    void readFormationNamesFile( QString* errorMessage );
-    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
-
-    static QString layerZoneTableFileName();
-
-protected:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-
-    virtual void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+public:
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    void updateUiTreeName();
+    QString extractColorItemName() const;
 
 private:
-    caf::PdmField<caf::FilePath> m_formationNamesFileName;
+    caf::PdmField<cvf::Color3f> m_color;
+    caf::PdmField<int>          m_categoryValue;
+    caf::PdmField<QString>      m_categoryName;
 
-    cvf::ref<RigFormationNames> m_formationNamesData;
+    caf::PdmProxyValueField<QString> m_nameProxy;
 };

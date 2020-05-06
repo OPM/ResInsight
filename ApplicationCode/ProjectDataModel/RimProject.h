@@ -52,6 +52,7 @@ class RimMeasurement;
 class RimAdvancedSnapshotExportDefinition;
 class RimObservedSummaryData;
 class RimOilField;
+class RimColorLegendCollection;
 class RimScriptCollection;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
@@ -93,6 +94,7 @@ public:
     static RimProject* current();
 
     caf::PdmChildArrayField<RimOilField*>                oilFields;
+    caf::PdmChildField<RimColorLegendCollection*>        colorLegendCollection;
     caf::PdmChildField<RimScriptCollection*>             scriptCollection;
     caf::PdmChildField<RimWellPathImport*>               wellPathImport;
     caf::PdmChildField<RimMainPlotCollection*>           mainPlotCollection;

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
+//  Copyright (C) 2020 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,49 +15,42 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cvfObject.h"
 
-class RigFormationNames;
+class RimColorLegendItem;
 
-class QTextStream;
+namespace caf
+{
+class PdmUiEditorAttribute;
+}
 
 //==================================================================================================
 ///
+///
 //==================================================================================================
-class RimFormationNames : public caf::PdmObject
+class RimColorLegend : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFormationNames();
-    ~RimFormationNames() override;
+    RimColorLegend();
+    ~RimColorLegend() override;
 
-    void    setFileName( const QString& fileName );
-    QString fileName();
-    QString fileNameWoPath();
+public:
+    void setColorLegendName( const QString& colorLegendName );
+    void appendColorLegendItem( RimColorLegendItem* colorLegendItem );
 
-    RigFormationNames* formationNamesData() { return m_formationNamesData.p(); }
-    void               updateConnectedViews();
+public:
+    caf::PdmFieldHandle* userDescriptionField() override;
 
-    void readFormationNamesFile( QString* errorMessage );
-    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
-
-    static QString layerZoneTableFileName();
-
-protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    virtual void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-
 private:
-    void updateUiTreeName();
-
-private:
-    caf::PdmField<caf::FilePath> m_formationNamesFileName;
-
-    cvf::ref<RigFormationNames> m_formationNamesData;
+    caf::PdmField<QString>                       m_colorLegendName;
+    caf::PdmChildArrayField<RimColorLegendItem*> m_colorLegendItems;
 };
