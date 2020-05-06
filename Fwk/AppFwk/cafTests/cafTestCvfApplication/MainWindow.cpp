@@ -234,6 +234,7 @@ void MainWindow::slotInsert()
 
             if (uiFh) field = dynamic_cast<caf::PdmChildArrayField< caf::PdmObjectHandle*> *>(uiFh->fieldHandle());
             
+
             if (field)
             {
                 field->push_back(new DemoPdmObject);
