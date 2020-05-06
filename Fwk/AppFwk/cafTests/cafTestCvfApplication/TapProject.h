@@ -16,5 +16,5 @@ public:
 
     caf::PdmChildArrayField<caf::PdmObjectHandle*> m_objectList;
 
-    caf::PdmChildField<TapCvfSpecialization*> m_testSpecialization;
+    caf::PdmChildArrayField<TapCvfSpecialization*> m_testSpecialization;
 };
