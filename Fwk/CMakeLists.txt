@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8.12)
 
 project (TestCafAndVizFwk)
 
-option(CEE_USE_QT5 "Use Qt5" OFF)
+option(CEE_USE_QT5 "Use Qt5" ON)
 
 if (CEE_USE_QT5)
 	find_package(Qt5 COMPONENTS REQUIRED Core Gui OpenGL Widgets)
@@ -18,6 +18,7 @@ add_subdirectory(AppFwk/cafProjectDataModel/cafPdmUiCore)
 add_subdirectory(AppFwk/cafProjectDataModel/cafPdmXml)
 add_subdirectory(AppFwk/cafProjectDataModel)
 add_subdirectory(AppFwk/cafCommand)
+add_subdirectory(AppFwk/cafCommandFeatures)
 add_subdirectory(AppFwk/cafUserInterface)
 add_subdirectory(AppFwk/cafPdmScripting)
 
