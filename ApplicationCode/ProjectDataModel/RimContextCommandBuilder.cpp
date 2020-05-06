@@ -428,6 +428,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimFractureModel*>( firstUiItem ) )
         {
             menuBuilder << "RicNewFractureModelPlotFeature";
+            menuBuilder << "RicImportFaciesFeature";
         }
         else if ( dynamic_cast<Rim3dWellLogCurveCollection*>( firstUiItem ) ||
                   dynamic_cast<Rim3dWellLogExtractionCurve*>( firstUiItem ) ||
