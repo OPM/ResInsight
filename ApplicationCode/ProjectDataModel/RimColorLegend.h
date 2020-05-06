@@ -45,6 +45,8 @@ public:
     void setColorLegendName( const QString& colorLegendName );
     void appendColorLegendItem( RimColorLegendItem* colorLegendItem );
 
+    std::vector<RimColorLegendItem*> colorLegendItems() const;
+
 public:
     caf::PdmFieldHandle* userDescriptionField() override;
 
