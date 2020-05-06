@@ -41,8 +41,9 @@ public:
     RimColorLegendCollection();
     ~RimColorLegendCollection() override;
 
-public:
     void appendColorLegend( RimColorLegend* colorLegend );
+
+    std::vector<RimColorLegend*> colorLegends() const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 

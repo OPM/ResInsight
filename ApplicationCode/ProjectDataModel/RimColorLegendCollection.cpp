@@ -50,6 +50,14 @@ void RimColorLegendCollection::appendColorLegend( RimColorLegend* colorLegend )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimColorLegend*> RimColorLegendCollection::colorLegends() const
+{
+    return m_colorLegends.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimColorLegendCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                  const QVariant&            oldValue,
                                                  const QVariant&            newValue )
