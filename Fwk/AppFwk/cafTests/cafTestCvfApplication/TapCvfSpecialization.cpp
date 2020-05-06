@@ -49,3 +49,18 @@ void TapCvfSpecialization::defineEditorAttribute(const caf::PdmFieldHandle* fiel
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void TapCvfSpecialization::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    caf::QIconProvider iconProvider = this->uiIconProvider();
+
+    cvf::Color3f cvfColor = m_colorField();
+    QColor       qcolor(cvfColor.rByte(), cvfColor.gByte(), cvfColor.bByte());
+
+    iconProvider.setBackgroundColor(qcolor);
+
+    this->setUiIcon(iconProvider);
+}
