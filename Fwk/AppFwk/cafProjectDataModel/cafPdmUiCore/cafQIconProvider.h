@@ -61,15 +61,22 @@ public:
     void         setActive(bool active);
     void         setIconResourceString(const QString& iconResourceString);
     void         setPixmap(const QPixmap& pixmap);
+    void         setOverlayPixmap(const QPixmap& pixmap);
+    void         setBackgroundColor(const QColor& color);
 
 protected:
     bool          hasValidPixmap() const;
     virtual QIcon generateIcon() const;
     static bool   isGuiApplication();
 
+private:
+    void          copyPixmaps(const QIconProvider& other);
+
 protected:
     QString                  m_iconResourceString;
     std::unique_ptr<QPixmap> m_iconPixmap;
+    std::unique_ptr<QPixmap> m_overlayPixmap;
+    QColor                   m_backgoundColor;
     mutable QIcon            m_icon;
     bool                     m_active;
 };
