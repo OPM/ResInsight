@@ -44,6 +44,8 @@ public:
 
     void setFractureModel( RimFractureModel* fractureModel );
 
+    void setEclipseResultCategory( RiaDefines::ResultCatType catType );
+
 protected:
     void performDataExtraction( bool* isUsingPseudoLength ) override;
 

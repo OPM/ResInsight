@@ -21,6 +21,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaExtractionTools.h"
+#include "RiaLogging.h"
 #include "RiaSimWellBranchTools.h"
 
 #include "RigEclipseCaseData.h"
@@ -41,7 +42,11 @@
 #include "RigWellPathFormations.h"
 
 #include "RimCase.h"
+#include "RimColorLegend.h"
+#include "RimColorLegendCollection.h"
+#include "RimColorLegendItem.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultDefinition.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimGeoMechCase.h"
@@ -134,6 +139,7 @@ void AppEnum<RiuPlotAnnotationTool::RegionAnnotationType>::setUp()
     addItem( RiuPlotAnnotationTool::NO_ANNOTATIONS, "NO_ANNOTATIONS", "No Annotations" );
     addItem( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS, "FORMATIONS", "Formations" );
     addItem( RiuPlotAnnotationTool::CURVE_ANNOTATIONS, "CURVE_DATA", "Curve Data Annotations" );
+    addItem( RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS, "RESULT_PROPERTY", "Result Property" );
     setDefault( RiuPlotAnnotationTool::NO_ANNOTATIONS );
 }
 
@@ -244,6 +250,11 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitField( &m_showWellPathComponentLabels, "ShowWellPathAttrLabels", false, "Show Labels", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_wellPathComponentSource, "AttributesWellPathSource", "Well Path", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_wellPathAttributeCollection, "AttributesCollection", "Well Attributes", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
+    m_resultDefinition.uiCapability()->setUiHidden( true );
+    m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
+    m_resultDefinition = new RimEclipseResultDefinition;
 
     CAF_PDM_InitField( &m_show_OBSOLETE, "Show", false, "Show Plot", "", "", "" );
     m_show_OBSOLETE.uiCapability()->setUiHidden( true );
@@ -957,6 +968,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
                 caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::CURVE_ANNOTATIONS ),
                                         RiuPlotAnnotationTool::CURVE_ANNOTATIONS ) );
         }
+
+        options.push_back(
+            caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS ),
+                                    RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS ) );
     }
     if ( fieldNeedingOptions == &m_formationWellPathForSourceCase )
     {
@@ -1142,8 +1157,10 @@ void RimWellLogTrack::onLoadDataAndUpdate()
         m_curves[cIdx]->loadDataAndUpdate( false );
     }
 
-    if ( m_regionAnnotationType == RiuPlotAnnotationTool::FORMATION_ANNOTATIONS )
+    if ( m_regionAnnotationType == RiuPlotAnnotationTool::FORMATION_ANNOTATIONS ||
+         m_regionAnnotationType == RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS )
     {
+        m_resultDefinition->loadDataAndUpdate();
         setFormationFieldsUiReadOnly( false );
     }
     else
@@ -1362,6 +1379,17 @@ int RimWellLogTrack::formationBranchIndex() const
 void RimWellLogTrack::setFormationCase( RimCase* rimCase )
 {
     m_formationCase = rimCase;
+    m_resultDefinition->setEclipseCase( dynamic_cast<RimEclipseCase*>( rimCase ) );
+    m_resultDefinition->setPorosityModel( RiaDefines::PorosityModelType::MATRIX_MODEL );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setRegionPropertyResultType( RiaDefines::ResultCatType resultCatType, const QString& resultVariable )
+{
+    m_resultDefinition->setResultType( resultCatType );
+    m_resultDefinition->setResultVariable( resultVariable );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1751,6 +1779,11 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         }
     }
 
+    if ( m_regionAnnotationType() == RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS )
+    {
+        m_resultDefinition->uiOrdering( uiConfigName, *annotationGroup );
+    }
+
     caf::PdmUiGroup* componentGroup = uiOrdering.addNewGroup( "Well Path Components" );
     componentGroup->add( &m_showWellPathAttributes );
     componentGroup->add( &m_showWellPathCompletions );
@@ -1775,6 +1808,12 @@ void RimWellLogTrack::initAfterRead()
     {
         m_regionAnnotationType    = RiuPlotAnnotationTool::FORMATION_ANNOTATIONS;
         m_regionAnnotationDisplay = RiuPlotAnnotationTool::DARK_LINES;
+    }
+
+    if ( m_regionAnnotationType() == RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS )
+    {
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_formationCase.value() );
+        m_resultDefinition->setEclipseCase( dynamic_cast<RimEclipseCase*>( eclipseCase ) );
     }
 
     if ( m_xAxisGridVisibility() == RimWellLogPlot::AXIS_GRID_MINOR )
@@ -2254,6 +2293,8 @@ void RimWellLogTrack::setFormationFieldsUiReadOnly( bool readOnly /*= true*/ )
     m_formationBranchIndex.uiCapability()->setUiReadOnly( readOnly );
     m_formationLevel.uiCapability()->setUiReadOnly( readOnly );
     m_showformationFluids.uiCapability()->setUiReadOnly( readOnly );
+    m_colorShadingTransparency.uiCapability()->setUiReadOnly( readOnly );
+    m_colorShadingPalette.uiCapability()->setUiReadOnly( readOnly );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2273,6 +2314,10 @@ void RimWellLogTrack::updateRegionAnnotationsOnPlot()
     if ( m_regionAnnotationType == RiuPlotAnnotationTool::FORMATION_ANNOTATIONS )
     {
         updateFormationNamesOnPlot();
+    }
+    else if ( m_regionAnnotationType == RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS )
+    {
+        updateResultPropertyNamesOnPlot();
     }
     else
     {
@@ -2425,6 +2470,103 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                   ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
                                                   m_showRegionLabels() );
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateResultPropertyNamesOnPlot()
+{
+    RimDepthTrackPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted( plot );
+
+    RimMainPlotCollection* mainPlotCollection;
+    this->firstAncestorOrThisOfTypeAsserted( mainPlotCollection );
+
+    RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
+
+    RigEclipseWellLogExtractor* eclWellLogExtractor =
+        RiaExtractionTools::wellLogExtractorEclipseCase( m_formationWellPathForSourceCase,
+                                                         dynamic_cast<RimEclipseCase*>( m_formationCase() ) );
+
+    if ( !eclWellLogExtractor )
+    {
+        RiaLogging::error( "No well log extractor found for case." );
+        return;
+    }
+
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_formationCase() );
+
+    m_resultDefinition->loadResult();
+
+    size_t                      m_timeStep = 0;
+    cvf::ref<RigResultAccessor> resultAccessor =
+        RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(), 0, m_timeStep, m_resultDefinition );
+    if ( !resultAccessor.notNull() )
+    {
+        RiaLogging::error( "Unable to get result accessor" );
+        return;
+    }
+
+    CurveSamplingPointData curveData = RimWellLogTrack::curveSamplingPointData( eclWellLogExtractor, resultAccessor.p() );
+
+    // Attach water and rock base formations
+    const std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
+
+    if ( m_formationSource == CASE )
+    {
+        if ( ( m_formationSimWellName == QString( "None" ) && m_formationWellPathForSourceCase == nullptr ) ||
+             m_formationCase == nullptr )
+            return;
+
+        RimProject*                  proj                  = RimProject::current();
+        RimColorLegendCollection*    colorLegendCollection = proj->colorLegendCollection;
+        std::vector<RimColorLegend*> legends               = colorLegendCollection->colorLegends();
+        if ( legends.empty() )
+        {
+            RiaLogging::error( "No color legend found." );
+            return;
+        }
+
+        // TODO: let the user select the color legend instead of just picking the first one...
+        std::vector<cvf::Color3ub> colors;
+        std::vector<QString>       namesVector;
+        for ( RimColorLegendItem* legendItem : legends[0]->colorLegendItems() )
+        {
+            namesVector.push_back( legendItem->categoryName() );
+        }
+
+        std::vector<QString>                   namesToPlot;
+        std::vector<std::pair<double, double>> yValues;
+        RimWellLogTrack::findRegionNamesToPlot( curveData, namesVector, plot->depthType(), &namesToPlot, &yValues );
+
+        // TODO: unecessarily messy!
+        // Need to map colors to names (since a category can be used several times)
+        for ( QString nameToPlot : namesToPlot )
+        {
+            for ( RimColorLegendItem* legendItem : legends[0]->colorLegendItems() )
+            {
+                if ( legendItem->categoryName() == nameToPlot )
+                    colors.push_back( cvf::Color3ub( legendItem->color() ) );
+            }
+        }
+
+        if ( colors.empty() )
+        {
+            RiaLogging::error( "No colors found." );
+            return;
+        }
+
+        caf::ColorTable colorTable( colors );
+        m_annotationTool->attachNamedRegions( m_plotWidget,
+                                              namesToPlot,
+                                              xRange,
+                                              yValues,
+                                              m_regionAnnotationDisplay(),
+                                              colorTable,
+                                              ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
+                                              m_showRegionLabels() );
     }
 }
 

@@ -35,9 +35,10 @@ class RiuPlotAnnotationTool
 public:
     enum RegionAnnotationType
     {
-        NO_ANNOTATIONS        = 0,
-        FORMATION_ANNOTATIONS = 1,
-        CURVE_ANNOTATIONS     = 2
+        NO_ANNOTATIONS              = 0,
+        FORMATION_ANNOTATIONS       = 1,
+        CURVE_ANNOTATIONS           = 2,
+        RESULT_PROPERTY_ANNOTATIONS = 3
     };
     enum RegionDisplay
     {

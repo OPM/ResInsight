@@ -20,6 +20,8 @@
 
 #include "cafCmdFeature.h"
 
+#include "RiaDefines.h"
+
 class RimEclipseCase;
 class RimFractureModelPlot;
 class RimFractureModelPlotCollection;
@@ -46,11 +48,12 @@ private:
         createFormationTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
     static void
                 createFaciesTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
-    static void createParametersTrack( RimFractureModelPlot* plot,
-                                       RimFractureModel*     fractureModel,
-                                       RimEclipseCase*       eclipseCase,
-                                       int                   timeStep,
-                                       const QString&        resultVariable );
+    static void createParametersTrack( RimFractureModelPlot*     plot,
+                                       RimFractureModel*         fractureModel,
+                                       RimEclipseCase*           eclipseCase,
+                                       int                       timeStep,
+                                       const QString&            resultVariable,
+                                       RiaDefines::ResultCatType resultCategoryType );
 
     static RimFractureModelPlot* createFractureModelPlot( bool showAfterCreation, const QString& plotDescription );
 

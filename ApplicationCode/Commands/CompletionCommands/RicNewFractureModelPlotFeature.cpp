@@ -82,10 +82,14 @@ RimFractureModelPlot*
     {
         auto task = progInfo.task( "Creating parameters track", 15 );
 
-        std::vector<QString> resultVariables = {"PORO", "PRESSURE", "PERMZ"};
-        for ( auto resultVariable : resultVariables )
+        std::vector<std::pair<QString, RiaDefines::ResultCatType>> results =
+            {std::make_pair( "PORO", RiaDefines::ResultCatType::STATIC_NATIVE ),
+             std::make_pair( "PRESSURE", RiaDefines::ResultCatType::DYNAMIC_NATIVE ),
+             std::make_pair( "PERMZ", RiaDefines::ResultCatType::STATIC_NATIVE )};
+
+        for ( auto result : results )
         {
-            createParametersTrack( plot, fractureModel, eclipseCase, timeStep, resultVariable );
+            createParametersTrack( plot, fractureModel, eclipseCase, timeStep, result.first, result.second );
         }
     }
 
@@ -96,7 +100,7 @@ RimFractureModelPlot*
         plot->setPlotTitleVisible( true );
         plot->setLegendsVisible( true );
         plot->setLegendsHorizontal( true );
-        plot->setDepthType( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB );
+        plot->setDepthType( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH );
         plot->setAutoScaleDepthEnabled( true );
 
         // RicNewWellLogPlotFeatureImpl::updateAfterCreation( plot );
@@ -173,11 +177,14 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
                                                         RimFractureModel*     fractureModel,
                                                         RimEclipseCase*       eclipseCase )
 {
+    QString defaultProperty = "OPERNUM_1";
+
     RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Facies", plot );
     faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     faciesTrack->setFormationCase( eclipseCase );
-    //    formationTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
-    // formationTrack->setVisibleXRange( 0.0, 0.0 );
+    faciesTrack->setAnnotationType( RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS );
+    faciesTrack->setRegionPropertyResultType( RiaDefines::ResultCatType::INPUT_PROPERTY, defaultProperty );
+    faciesTrack->setVisibleXRange( 0.0, 0.0 );
     faciesTrack->setColSpan( RimPlot::ONE );
 
     caf::ColorTable                             colors     = RiaColorTables::contrastCategoryPaletteColors();
@@ -188,7 +195,8 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     RimFractureModelCurve* curve = new RimFractureModelCurve;
     curve->setFractureModel( fractureModel );
     curve->setCase( eclipseCase );
-    curve->setEclipseResultVariable( "OPERNUM_1" );
+    curve->setEclipseResultCategory( RiaDefines::ResultCatType::INPUT_PROPERTY );
+    curve->setEclipseResultVariable( defaultProperty );
     curve->setColor( colors.cycledColor3f( 0 ) );
     curve->setLineStyle( lineStyles[0] );
     curve->setLineThickness( 2 );
@@ -211,11 +219,12 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot* plot,
-                                                            RimFractureModel*     fractureModel,
-                                                            RimEclipseCase*       eclipseCase,
-                                                            int                   timeStep,
-                                                            const QString&        resultVariable )
+void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot*     plot,
+                                                            RimFractureModel*         fractureModel,
+                                                            RimEclipseCase*           eclipseCase,
+                                                            int                       timeStep,
+                                                            const QString&            resultVariable,
+                                                            RiaDefines::ResultCatType resultCategoryType )
 {
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, resultVariable, plot );
     plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
@@ -237,6 +246,7 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
     curve->setFractureModel( fractureModel );
     curve->setCase( eclipseCase );
     curve->setEclipseResultVariable( resultVariable );
+    curve->setEclipseResultCategory( resultCategoryType );
     curve->setColor( colors.cycledColor3f( 0 ) );
     curve->setLineStyle( lineStyles[0] );
     curve->setLineThickness( 2 );

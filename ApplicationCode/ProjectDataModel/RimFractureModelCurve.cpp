@@ -84,6 +84,14 @@ void RimFractureModelCurve::setFractureModel( RimFractureModel* fractureModel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModelCurve::setEclipseResultCategory( RiaDefines::ResultCatType catType )
+{
+    m_eclipseResultDefinition->setResultType( catType );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
 {
     std::vector<double> values;
@@ -106,13 +114,6 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
         measuredDepthValues = eclExtractor.cellIntersectionMDs();
         tvDepthValues       = eclExtractor.cellIntersectionTVDs();
         rkbDiff             = eclExtractor.wellPathData()->rkbDiff();
-
-        // TODO: hard coded!
-        m_eclipseResultDefinition->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
-        if ( m_eclipseResultDefinition->resultVariable() == QString( "PRESSURE" ) )
-            m_eclipseResultDefinition->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
-        else if ( m_eclipseResultDefinition->resultVariable() == QString( "OPERNUM_1" ) )
-            m_eclipseResultDefinition->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
 
         m_eclipseResultDefinition->setEclipseCase( eclipseCase );
 
