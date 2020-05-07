@@ -142,7 +142,6 @@ private:
                                                            const RigFemResultAddress& convertedResultAddr,
                                                            const std::string&         fieldNameToConvert );
     RigFemScalarResultFrames* calculateEnIpPorBarResult( int partIndex, const RigFemResultAddress& convertedResultAddr );
-    RigFemScalarResultFrames* calculateNE( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateFormationIndices( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateNodalGradients( int partIndex, const RigFemResultAddress& resVarAddr );
 

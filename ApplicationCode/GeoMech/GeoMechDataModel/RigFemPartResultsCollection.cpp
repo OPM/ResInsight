@@ -39,6 +39,7 @@
 #include "RigFemPartResultCalculatorEV.h"
 #include "RigFemPartResultCalculatorFOS.h"
 #include "RigFemPartResultCalculatorGamma.h"
+#include "RigFemPartResultCalculatorNE.h"
 #include "RigFemPartResultCalculatorNormalSE.h"
 #include "RigFemPartResultCalculatorNormalST.h"
 #include "RigFemPartResultCalculatorNormalized.h"
@@ -144,6 +145,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalSE( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSE( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNE( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorGamma( *this ) ) );
     m_resultCalculators.push_back(
@@ -924,43 +927,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradients( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNE( int partIndex, const RigFemResultAddress& resVarAddr )
-{
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 2, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* srcDataFrames =
-        this->findOrLoadScalarResult( partIndex,
-                                      RigFemResultAddress( resVarAddr.resultPosType, "E", resVarAddr.componentName ) );
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-    frameCountProgress.incrementProgress();
-
-    int frameCount = srcDataFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
-        std::vector<float>&       dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t                    valCount     = srcFrameData.size();
-        dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = -srcFrameData[vIdx];
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFormationIndices( int                        partIndex,
                                                                                   const RigFemResultAddress& resVarAddr )
 {
@@ -1052,13 +1018,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
         }
         else
             return calculateEnIpPorBarResult( partIndex, resVarAddr );
-    }
-
-    if ( ( resVarAddr.fieldName == "NE" ) && ( resVarAddr.componentName == "E11" || resVarAddr.componentName == "E22" ||
-                                               resVarAddr.componentName == "E33" || resVarAddr.componentName == "E12" ||
-                                               resVarAddr.componentName == "E13" || resVarAddr.componentName == "E23" ) )
-    {
-        return calculateNE( partIndex, resVarAddr );
     }
 
     if ( resVarAddr.fieldName == "ST" && resVarAddr.componentName.empty() )
