@@ -80,6 +80,8 @@ add_library( ${PROJECT_NAME}
 	RigFemPartResultCalculatorCompaction.cpp
 	RigFemPartResultCalculatorStressGradients.h
 	RigFemPartResultCalculatorStressGradients.cpp
+	RigFemPartResultCalculatorSEM.h
+	RigFemPartResultCalculatorSEM.cpp
 	RimGeoMechGeometrySelectionItem.h
 	RimGeoMechGeometrySelectionItem.cpp
 )

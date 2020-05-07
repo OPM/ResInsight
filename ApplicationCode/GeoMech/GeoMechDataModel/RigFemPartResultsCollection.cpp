@@ -45,6 +45,7 @@
 #include "RigFemPartResultCalculatorPrincipalStrain.h"
 #include "RigFemPartResultCalculatorPrincipalStress.h"
 #include "RigFemPartResultCalculatorQ.h"
+#include "RigFemPartResultCalculatorSEM.h"
 #include "RigFemPartResultCalculatorSFI.h"
 #include "RigFemPartResultCalculatorSTM.h"
 #include "RigFemPartResultCalculatorShearSE.h"
@@ -126,6 +127,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorED( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEV( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSEM( *this ) ) );
     m_resultCalculators.push_back( std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorQ( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSTM( *this ) ) );
@@ -800,57 +803,6 @@ RigFemScalarResultFrames*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSEM( int                        partIndex,
-                                                                               const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SEM" );
-
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 4, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* sa11 =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S11" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* sa22 =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S22" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-    RigFemScalarResultFrames* sa33 =
-        this->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S33" ) );
-
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-
-    frameCountProgress.incrementProgress();
-
-    int frameCount = sa11->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& sa11Data = sa11->frameData( fIdx );
-        const std::vector<float>& sa22Data = sa22->frameData( fIdx );
-        const std::vector<float>& sa33Data = sa33->frameData( fIdx );
-
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = sa11Data.size();
-        dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = ( sa11Data[vIdx] + sa22Data[vIdx] + sa33Data[vIdx] ) / 3.0f;
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradients( int                        partIndex,
                                                                                 const RigFemResultAddress& resVarAddr )
 {
@@ -1078,11 +1030,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
     for ( auto calculator : m_resultCalculators )
     {
         if ( calculator->isMatching( resVarAddr ) ) return calculator->calculate( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "SEM" )
-    {
-        return calculateMeanStressSEM( partIndex, resVarAddr );
     }
 
     if ( resVarAddr.fieldName == "S-Bar" )
