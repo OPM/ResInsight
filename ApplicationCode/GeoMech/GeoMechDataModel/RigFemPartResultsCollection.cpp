@@ -32,14 +32,17 @@
 
 #include "RigFemNativeStatCalc.h"
 #include "RigFemPartCollection.h"
+#include "RigFemPartResultCalculatorBarConverted.h"
 #include "RigFemPartResultCalculatorCompaction.h"
 #include "RigFemPartResultCalculatorDSM.h"
 #include "RigFemPartResultCalculatorED.h"
 #include "RigFemPartResultCalculatorEV.h"
+#include "RigFemPartResultCalculatorEnIpPorBar.h"
 #include "RigFemPartResultCalculatorFOS.h"
 #include "RigFemPartResultCalculatorFormationIndices.h"
 #include "RigFemPartResultCalculatorGamma.h"
 #include "RigFemPartResultCalculatorNE.h"
+#include "RigFemPartResultCalculatorNodalGradients.h"
 #include "RigFemPartResultCalculatorNormalSE.h"
 #include "RigFemPartResultCalculatorNormalST.h"
 #include "RigFemPartResultCalculatorNormalized.h"
@@ -58,7 +61,6 @@
 #include "RigFemPartResults.h"
 #include "RigFemScalarResultFrames.h"
 #include "RigFormationNames.h"
-#include "RigHexGradientTools.h"
 #include "RigStatisticsDataCache.h"
 #include "RigWbsParameter.h"
 
@@ -116,6 +118,14 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAngles( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAlignedStress( *this ) ) );
+    m_resultCalculators.push_back( std::shared_ptr<RigFemPartResultCalculator>(
+        new RigFemPartResultCalculatorBarConverted( *this, "S-Bar", "S" ) ) );
+    m_resultCalculators.push_back( std::shared_ptr<RigFemPartResultCalculator>(
+        new RigFemPartResultCalculatorBarConverted( *this, "POR-Bar", "POR" ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEnIpPorBar( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNodalGradients( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorCompaction( *this ) ) );
     m_resultCalculators.push_back(
@@ -708,255 +718,12 @@ std::map<std::string, std::vector<std::string>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames*
-    RigFemPartResultsCollection::calculateBarConvertedResult( int                        partIndex,
-                                                              const RigFemResultAddress& convertedResultAddr,
-                                                              const std::string&         fieldNameToConvert )
-{
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 2, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " +
-        QString::fromStdString( convertedResultAddr.fieldName + ": " + convertedResultAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemResultAddress       unconvertedResultAddr( convertedResultAddr.resultPosType,
-                                               fieldNameToConvert,
-                                               convertedResultAddr.componentName );
-    RigFemScalarResultFrames* srcDataFrames = this->findOrLoadScalarResult( partIndex, unconvertedResultAddr );
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( convertedResultAddr );
-
-    frameCountProgress.incrementProgress();
-
-    int frameCount = srcDataFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
-        std::vector<float>&       dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t                    valCount     = srcFrameData.size();
-        dstFrameData.resize( valCount );
-
-#pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = 1.0e-5 * srcFrameData[vIdx];
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-    this->deleteResult( unconvertedResultAddr );
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Convert POR NODAL result to POR-Bar Elment Nodal result
-//--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames*
-    RigFemPartResultsCollection::calculateEnIpPorBarResult( int partIndex, const RigFemResultAddress& convertedResultAddr )
-{
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 2, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " +
-        QString::fromStdString( convertedResultAddr.fieldName + ": " + convertedResultAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemResultAddress       unconvertedResultAddr( RIG_NODAL, "POR", "" );
-    RigFemScalarResultFrames* srcDataFrames = this->findOrLoadScalarResult( partIndex, unconvertedResultAddr );
-    RigFemScalarResultFrames* dstDataFrames = m_femPartResults[partIndex]->createScalarResult( convertedResultAddr );
-
-    frameCountProgress.incrementProgress();
-
-    const RigFemPart* femPart = m_femParts->part( partIndex );
-    float             inf     = std::numeric_limits<float>::infinity();
-
-    int frameCount = srcDataFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
-        std::vector<float>&       dstFrameData = dstDataFrames->frameData( fIdx );
-
-        if ( srcFrameData.empty() ) continue; // Create empty results if we have no POR result.
-
-        size_t valCount = femPart->elementNodeResultCount();
-        dstFrameData.resize( valCount, inf );
-
-        int elementCount = femPart->elementCount();
-
-#pragma omp parallel for schedule( dynamic )
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType = femPart->elementType( elmIdx );
-
-            if ( elmType == HEX8P )
-            {
-                int elmNodeCount = RigFemTypes::elmentNodeCount( elmType );
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
-                {
-                    size_t elmNodResIdx        = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    int    nodeIdx             = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
-                    dstFrameData[elmNodResIdx] = 1.0e-5 * srcFrameData[nodeIdx];
-                }
-            }
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    this->deleteResult( unconvertedResultAddr );
-    return dstDataFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradients( int                        partIndex,
-                                                                                const RigFemResultAddress& resVarAddr )
-{
-    CVF_ASSERT( resVarAddr.fieldName == "POR-Bar" );
-    CVF_ASSERT( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" );
-
-    caf::ProgressInfo frameCountProgress( this->frameCount() * 5, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating gradient: " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* dataFramesX =
-        m_femPartResults[partIndex]->createScalarResult( RigFemResultAddress( RIG_NODAL, resVarAddr.fieldName, "X" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* dataFramesY =
-        m_femPartResults[partIndex]->createScalarResult( RigFemResultAddress( RIG_NODAL, resVarAddr.fieldName, "Y" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemScalarResultFrames* dataFramesZ =
-        m_femPartResults[partIndex]->createScalarResult( RigFemResultAddress( RIG_NODAL, resVarAddr.fieldName, "Z" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( this->frameCount() );
-
-    RigFemResultAddress       porResultAddr( RIG_NODAL, "POR-Bar", "" );
-    RigFemScalarResultFrames* srcDataFrames = this->findOrLoadScalarResult( partIndex, porResultAddr );
-
-    frameCountProgress.incrementProgress();
-
-    const RigFemPart* femPart = m_femParts->part( partIndex );
-    float             inf     = std::numeric_limits<float>::infinity();
-
-    const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
-    size_t                         nodeCount  = femPart->nodes().nodeIds.size();
-
-    int frameCount = srcDataFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& srcFrameData  = srcDataFrames->frameData( fIdx );
-        std::vector<float>&       dstFrameDataX = dataFramesX->frameData( fIdx );
-        std::vector<float>&       dstFrameDataY = dataFramesY->frameData( fIdx );
-        std::vector<float>&       dstFrameDataZ = dataFramesZ->frameData( fIdx );
-
-        if ( srcFrameData.empty() ) continue; // Create empty results if we have no POR result.
-
-        size_t valCount = femPart->elementNodeResultCount();
-        dstFrameDataX.resize( valCount, inf );
-        dstFrameDataY.resize( valCount, inf );
-        dstFrameDataZ.resize( valCount, inf );
-
-        int elementCount = femPart->elementCount();
-
-#pragma omp parallel for schedule( dynamic )
-        for ( long nodeIdx = 0; nodeIdx < static_cast<long>( nodeCount ); nodeIdx++ )
-        {
-            const std::vector<int> elements = femPart->elementsUsingNode( nodeIdx );
-
-            // Compute the average of the elements contributing to this node
-            cvf::Vec3d result         = cvf::Vec3d::ZERO;
-            int        nValidElements = 0;
-            for ( int elmIdx : elements )
-            {
-                RigElementType elmType = femPart->elementType( elmIdx );
-                if ( elmType == HEX8P )
-                {
-                    // Find the corner coordinates and values for the node
-                    std::array<cvf::Vec3d, 8> hexCorners;
-                    std::array<double, 8>     cornerValues;
-
-                    int elmNodeCount = RigFemTypes::elmentNodeCount( elmType );
-                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
-                    {
-                        size_t elmNodResIdx   = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                        size_t resultValueIdx = femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
-
-                        cornerValues[elmNodIdx] = srcFrameData[resultValueIdx];
-                        hexCorners[elmNodIdx]   = cvf::Vec3d( nodeCoords[resultValueIdx] );
-                    }
-
-                    std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
-
-                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
-                    {
-                        size_t elmNodResIdx   = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                        size_t resultValueIdx = femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
-                        // Only use the gradient for particular corner corresponding to the node
-                        if ( static_cast<size_t>( nodeIdx ) == resultValueIdx )
-                        {
-                            result.add( gradients[elmNodIdx] );
-                        }
-                    }
-
-                    nValidElements++;
-                }
-            }
-
-            if ( nValidElements > 0 )
-            {
-                // Round very small values to zero to avoid ugly coloring when gradients
-                // are dominated by floating point math artifacts.
-                double epsilon = 1.0e-6;
-                result /= static_cast<double>( nValidElements );
-                dstFrameDataX[nodeIdx] = std::abs( result.x() ) > epsilon ? result.x() : 0.0;
-                dstFrameDataY[nodeIdx] = std::abs( result.y() ) > epsilon ? result.y() : 0.0;
-                dstFrameDataZ[nodeIdx] = std::abs( result.z() ) > epsilon ? result.z() : 0.0;
-            }
-        }
-
-        frameCountProgress.incrementProgress();
-    }
-
-    RigFemScalarResultFrames* requestedGradient = this->findOrLoadScalarResult( partIndex, resVarAddr );
-    CVF_ASSERT( requestedGradient );
-    return requestedGradient;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( int                        partIndex,
                                                                                const RigFemResultAddress& resVarAddr )
 {
     for ( auto calculator : m_resultCalculators )
     {
         if ( calculator->isMatching( resVarAddr ) ) return calculator->calculate( partIndex, resVarAddr );
-    }
-
-    if ( resVarAddr.fieldName == "S-Bar" )
-    {
-        return calculateBarConvertedResult( partIndex, resVarAddr, "S" );
-    }
-
-    if ( resVarAddr.fieldName == "POR-Bar" )
-    {
-        if ( resVarAddr.resultPosType == RIG_NODAL )
-        {
-            if ( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" )
-            {
-                return calculateNodalGradients( partIndex, resVarAddr );
-            }
-            else
-            {
-                return calculateBarConvertedResult( partIndex, resVarAddr, "POR" );
-            }
-        }
-        else
-            return calculateEnIpPorBarResult( partIndex, resVarAddr );
     }
 
     if ( resVarAddr.fieldName == "ST" && resVarAddr.componentName.empty() )
