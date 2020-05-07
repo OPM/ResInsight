@@ -134,6 +134,7 @@ public:
     bool                            isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const;
     static std::vector<std::string> getStressComponentNames( bool includeShear = true );
     static std::vector<std::string> getStressGradientComponentNames( bool includeShear = true );
+    const RigFormationNames*        activeFormationNames() const;
 
 private:
     RigFemScalarResultFrames* calculateDerivedResult( int partIndex, const RigFemResultAddress& resVarAddr );
@@ -142,10 +143,7 @@ private:
                                                            const RigFemResultAddress& convertedResultAddr,
                                                            const std::string&         fieldNameToConvert );
     RigFemScalarResultFrames* calculateEnIpPorBarResult( int partIndex, const RigFemResultAddress& convertedResultAddr );
-    RigFemScalarResultFrames* calculateFormationIndices( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* calculateNodalGradients( int partIndex, const RigFemResultAddress& resVarAddr );
-
-    const RigFormationNames* activeFormationNames() const;
 
 private:
     cvf::Collection<RigFemPartResults>  m_femPartResults;

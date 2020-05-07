@@ -84,6 +84,8 @@ add_library( ${PROJECT_NAME}
 	RigFemPartResultCalculatorSEM.cpp
 	RigFemPartResultCalculatorNE.h
 	RigFemPartResultCalculatorNE.cpp
+	RigFemPartResultCalculatorFormationIndices.h
+	RigFemPartResultCalculatorFormationIndices.cpp
 	RimGeoMechGeometrySelectionItem.h
 	RimGeoMechGeometrySelectionItem.cpp
 )

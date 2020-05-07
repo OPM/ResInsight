@@ -32,12 +32,12 @@
 
 #include "RigFemNativeStatCalc.h"
 #include "RigFemPartCollection.h"
-#include "RigFemPartGrid.h"
 #include "RigFemPartResultCalculatorCompaction.h"
 #include "RigFemPartResultCalculatorDSM.h"
 #include "RigFemPartResultCalculatorED.h"
 #include "RigFemPartResultCalculatorEV.h"
 #include "RigFemPartResultCalculatorFOS.h"
+#include "RigFemPartResultCalculatorFormationIndices.h"
 #include "RigFemPartResultCalculatorGamma.h"
 #include "RigFemPartResultCalculatorNE.h"
 #include "RigFemPartResultCalculatorNormalSE.h"
@@ -153,6 +153,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStrain( *this ) ) );
     m_resultCalculators.push_back(
         std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStress( *this ) ) );
+    m_resultCalculators.push_back(
+        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -927,69 +929,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateNodalGradients( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFormationIndices( int                        partIndex,
-                                                                                  const RigFemResultAddress& resVarAddr )
-{
-    caf::ProgressInfo frameCountProgress( 2, "" );
-    frameCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-
-    RigFemScalarResultFrames* resFrames = m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-    resFrames->enableAsSingleFrameResult();
-
-    const RigFemPart*   femPart      = m_femParts->part( partIndex );
-    std::vector<float>& dstFrameData = resFrames->frameData( 0 );
-
-    size_t valCount = femPart->elementNodeResultCount();
-    float  inf      = std::numeric_limits<float>::infinity();
-    dstFrameData.resize( valCount, inf );
-
-    const RigFormationNames* activeFormNames = m_activeFormationNamesData.p();
-
-    frameCountProgress.incrementProgress();
-
-    if ( activeFormNames )
-    {
-        // Has to be done before the parallel loop because the first call allocates.
-        const RigFemPartGrid* structGrid = femPart->getOrCreateStructGrid();
-
-        int elementCount = femPart->elementCount();
-
-#pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType      = femPart->elementType( elmIdx );
-            int            elmNodeCount = RigFemTypes::elmentNodeCount( elmType );
-
-            size_t i, j, k;
-            bool   validIndex = structGrid->ijkFromCellIndex( elmIdx, &i, &j, &k );
-            if ( validIndex )
-            {
-                int formNameIdx = activeFormNames->formationIndexFromKLayerIdx( k );
-
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
-                {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-
-                    if ( formNameIdx != -1 )
-                    {
-                        dstFrameData[elmNodResIdx] = formNameIdx;
-                    }
-                    else
-                    {
-                        dstFrameData[elmNodResIdx] = HUGE_VAL;
-                    }
-                }
-            }
-        }
-    }
-
-    return resFrames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( int                        partIndex,
                                                                                const RigFemResultAddress& resVarAddr )
 {
@@ -1030,11 +969,6 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
     {
         // Create and return an empty result
         return m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-    }
-
-    if ( resVarAddr.resultPosType == RIG_FORMATION_NAMES )
-    {
-        return calculateFormationIndices( partIndex, resVarAddr );
     }
 
     return nullptr;
