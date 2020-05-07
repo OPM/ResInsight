@@ -10,20 +10,28 @@ env:
 
 jobs:
   ResInsight-x64:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        include:
-          - os: windows-latest
+        config:
+        - {
+            name: "Windows Latest MSVC"
+            os: windows-latest,
+            cc: "cl", cxx: "cl",
+            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
             vcpkg-response-file: vcpkg_x64-windows.txt
             vcpkg-triplet: x64-windows
             cmake-toolchain: 'vcpkg/scripts/buildsystems/vcpkg.cmake'
-          - os: ubuntu-latest
+          }
+        - {
+            name: "Ubuntu Latest GCC"
+            os: ubuntu-latest,
+            cc: "gcc", cxx: "g++"
             vcpkg-response-file: vcpkg_x64-linux.txt
             vcpkg-triplet: x64-linux
             cmake-toolchain: 'vcpkg/scripts/buildsystems/vcpkg.cmake'
+          }
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -83,19 +91,19 @@ jobs:
           pip install grpcio-tools
           pip install pytest
       - name: Install Linux dependencies
-        if: "contains( matrix.os, 'ubuntu')"
+        if: "contains( matrix.config.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
       - name: Cache vcpkg artifacts
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}/vcpkg/
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
-          key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}
+          key: ${{ hashFiles( format('{0}/{1}', github.workspace, matrix.config.vcpkg-response-file )) }}-${{ hashFiles('.git/modules/vcpkg/HEAD') }}-${{ runner.os }}
       - name: Run vcpkg
         uses: lukka/run-vcpkg@v1
         id: runvcpkg
         with:
-          vcpkgArguments: '@${{ github.workspace }}/${{ matrix.vcpkg-response-file }}'
+          vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
       - name: Configure
         shell: cmake -P {0}
@@ -127,8 +135,8 @@ jobs:
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_ENABLE_GRPC=true
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=python
-              -D VCPKG_TARGET_TRIPLET=${{ matrix.vcpkg-triplet }}
-              -D CMAKE_TOOLCHAIN_FILE=${{ matrix.cmake-toolchain }}
+              -D VCPKG_TARGET_TRIPLET=${{ matrix.config.vcpkg-triplet }}
+              -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
               -G Ninja
             RESULT_VARIABLE result
           )
@@ -167,19 +175,19 @@ jobs:
         run: |
           rm -rf cmakebuild/packages/_CPack_Packages
 #      - name: Test with pytest
-#        if: "contains( matrix.os, 'windows')" 
+#        if: "contains( matrix.config.os, 'windows')" 
 #        env:
 #          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/Release/ResInsight.exe
 #        run: |
 #          cd ApplicationCode/GrpcInterface/Python/rips
 #          pytest --console
       - name: (Windows) Run Unit Tests
-        if: contains( matrix.os, 'windows')  
+        if: contains( matrix.config.os, 'windows')  
         shell: bash
         run: |
           cmakebuild/ApplicationCode/Release/ResInsight --unittest
       - name: (Linux) Run Unit Tests
-        if: "!contains( matrix.os, 'windows')"
+        if: "!contains( matrix.config.os, 'windows')"
         shell: bash
         run: |
           cmakebuild/ApplicationCode/ResInsight --unittest
