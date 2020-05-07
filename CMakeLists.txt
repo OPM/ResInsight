@@ -104,8 +104,9 @@ include(cafCotireTools)
 # ERT
 ################################################################################
 
-# buildcache is not working with libecl. Disable buildcache by temporarily setting
+# Use of CMAKE_CXX_COMPILER_LAUNCHER is not working with libecl. Disable by temporarily setting
 # compiler launcher to nothing
+set(TEMP_CMAKE_CXX_COMPILER_LAUNCHER ${CMAKE_CXX_COMPILER_LAUNCHER})
 set(CMAKE_CXX_COMPILER_LAUNCHER)
 
 if (NOT MSVC)
@@ -178,7 +179,7 @@ else()
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
 # restore buildcache when libecl has been configured
-set(CMAKE_CXX_COMPILER_LAUNCHER "${buildcache_program}")
+set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 
 ###############################################
 # Init GIT submodules if they haven't already #
