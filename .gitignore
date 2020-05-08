@@ -58,6 +58,9 @@ CTest*.cmake
 *.unsuccessfulbuild
 ipch/
 Ankh.NoLoad
+.vs
+out
+CMakeSettings.json
 
 #Visual Studio Code files
 .vscode
