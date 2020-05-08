@@ -113,58 +113,58 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
     m_biotResultAddress = "";
 
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAngles( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAngles( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAlignedStress( *this ) ) );
-    m_resultCalculators.push_back( std::shared_ptr<RigFemPartResultCalculator>(
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAlignedStress( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
         new RigFemPartResultCalculatorBarConverted( *this, "S-Bar", "S" ) ) );
-    m_resultCalculators.push_back( std::shared_ptr<RigFemPartResultCalculator>(
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
         new RigFemPartResultCalculatorBarConverted( *this, "POR-Bar", "POR" ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEnIpPorBar( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEnIpPorBar( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNodalGradients( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNodalGradients( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorCompaction( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorCompaction( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSFI( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSFI( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorDSM( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorDSM( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFOS( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFOS( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorED( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorED( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEV( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEV( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSEM( *this ) ) );
-    m_resultCalculators.push_back( std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorQ( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSEM( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorQ( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSTM( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSTM( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorStressGradients( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorStressGradients( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalized( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalized( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalST( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalST( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearST( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearST( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalSE( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalSE( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSE( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSE( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNE( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNE( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorGamma( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorGamma( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStrain( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStrain( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStress( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStress( *this ) ) );
     m_resultCalculators.push_back(
-        std::shared_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
