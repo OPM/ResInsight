@@ -63,7 +63,7 @@ CAF_PDM_SOURCE_INIT( RimFractureModel, "RimFractureModel" );
 namespace caf
 {
 template <>
-void caf::AppEnum<RimFractureModel::ThicknessType>::setUp()
+void caf::AppEnum<RimFractureModel::ExtractionType>::setUp()
 {
     addItem( RimFractureModel::TRUE_VERTICAL_THICKNESS, "TVT", "True Vertical Thickness" );
     addItem( RimFractureModel::TRUE_STRATIGRAPHIC_THICKNESS, "TST", "True Stratigraphic Thickness" );
@@ -81,10 +81,10 @@ RimFractureModel::RimFractureModel()
 
     CAF_PDM_InitField( &m_MD, "MD", 0.0, "MD", "", "", "" );
 
-    CAF_PDM_InitField( &m_thicknessType,
-                       "ThicknessType",
-                       caf::AppEnum<ThicknessType>( TRUE_STRATIGRAPHIC_THICKNESS ),
-                       "Thickness Type",
+    CAF_PDM_InitField( &m_extractionType,
+                       "ExtractionType",
+                       caf::AppEnum<ExtractionType>( TRUE_STRATIGRAPHIC_THICKNESS ),
+                       "Extraction Type",
                        "",
                        "",
                        "" );
@@ -133,13 +133,13 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         updatePositionFromMeasuredDepth();
     }
 
-    if ( changedField == &m_MD || changedField == &m_thicknessType || changedField == &m_boundingBoxVertical ||
+    if ( changedField == &m_MD || changedField == &m_extractionType || changedField == &m_boundingBoxVertical ||
          changedField == &m_boundingBoxHorizontal )
     {
         updateThicknessDirection();
     }
 
-    if ( changedField == &m_thicknessType || changedField == &m_thicknessDirectionWellPath )
+    if ( changedField == &m_extractionType || changedField == &m_thicknessDirectionWellPath )
     {
         updateThicknessDirectionWellPathName();
         m_thicknessDirectionWellPath()->updateConnectedEditors();
@@ -282,7 +282,7 @@ void RimFractureModel::updateThicknessDirection()
     // True vertical thickness: just point straight up
     cvf::Vec3d direction( 0.0, 0.0, -1.0 );
 
-    if ( m_thicknessType() == TRUE_STRATIGRAPHIC_THICKNESS )
+    if ( m_extractionType() == TRUE_STRATIGRAPHIC_THICKNESS )
     {
         direction = calculateTSTDirection();
     }
@@ -413,7 +413,7 @@ void RimFractureModel::setThicknessDirectionWellPath( RimModeledWellPath* thickn
 void RimFractureModel::updateThicknessDirectionWellPathName()
 {
     QString wellNameFormat( "%1 for %2" );
-    m_thicknessDirectionWellPath()->setName( wellNameFormat.arg( m_thicknessType().text() ).arg( name() ) );
+    m_thicknessDirectionWellPath()->setName( wellNameFormat.arg( m_extractionType().text() ).arg( name() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -45,7 +45,7 @@ class RimFractureModel : public RimCheckableNamedObject, public Rim3dPropertiesI
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum ThicknessType
+    enum ExtractionType
     {
         TRUE_VERTICAL_THICKNESS,
         TRUE_STRATIGRAPHIC_THICKNESS,
@@ -87,11 +87,11 @@ private:
     void             updateThicknessDirectionWellPathName();
 
 protected:
-    caf::PdmField<double>                      m_MD;
-    caf::PdmField<caf::AppEnum<ThicknessType>> m_thicknessType;
-    caf::PdmField<cvf::Vec3d>                  m_anchorPosition;
-    caf::PdmField<cvf::Vec3d>                  m_thicknessDirection;
-    caf::PdmField<double>                      m_boundingBoxVertical;
-    caf::PdmField<double>                      m_boundingBoxHorizontal;
-    caf::PdmPtrField<RimModeledWellPath*>      m_thicknessDirectionWellPath;
+    caf::PdmField<double>                       m_MD;
+    caf::PdmField<caf::AppEnum<ExtractionType>> m_extractionType;
+    caf::PdmField<cvf::Vec3d>                   m_anchorPosition;
+    caf::PdmField<cvf::Vec3d>                   m_thicknessDirection;
+    caf::PdmField<double>                       m_boundingBoxVertical;
+    caf::PdmField<double>                       m_boundingBoxHorizontal;
+    caf::PdmPtrField<RimModeledWellPath*>       m_thicknessDirectionWellPath;
 };
