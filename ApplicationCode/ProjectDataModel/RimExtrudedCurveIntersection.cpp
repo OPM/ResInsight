@@ -348,7 +348,7 @@ QList<caf::PdmOptionItemInfo>
         {
             caf::PdmChildArrayField<RimSimWellInView*>& simWells = coll->wells;
 
-            caf::QIconProvider simWellIcon( ":/Well.png" );
+            caf::IconProvider simWellIcon( ":/Well.png" );
             for ( RimSimWellInView* eclWell : simWells )
             {
                 options.push_back( caf::PdmOptionItemInfo( eclWell->name(), eclWell, false, simWellIcon ) );

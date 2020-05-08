@@ -30,7 +30,7 @@
 
 namespace caf
 {
-class QIconProvider;
+class IconProvider;
 }
 
 namespace cvf
@@ -88,7 +88,7 @@ public:
 
     void addViewControllers( caf::PdmUiTreeOrdering& uiTreeOrdering ) const;
 
-    static void findNameAndIconFromView( QString* name, caf::QIconProvider* icon, RimGridView* view );
+    static void findNameAndIconFromView( QString* name, caf::IconProvider* icon, RimGridView* view );
 
     void updateCursorPosition( const RimGridView* sourceView, const cvf::Vec3d& domainCoord );
 

@@ -356,7 +356,8 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
         }
         else if (role == Qt::DecorationRole)
         {
-            return optionItemInfo->icon();
+            auto icon = optionItemInfo->icon();
+            return icon ? *icon : QIcon();
         }
         else if (role == Qt::CheckStateRole && !optionItemInfo->isHeading())
         {

@@ -632,7 +632,7 @@ void RimPlotCurve::updateUiIconFromPlotSymbol()
         QSizeF     iconSize( 24, 24 );
         QwtGraphic graphic = m_qwtPlotCurve->legendIcon( 0, iconSize );
         QPixmap    pixmap  = graphic.toPixmap();
-        setUiIcon( caf::QIconProvider( pixmap ) );
+        setUiIcon( caf::IconProvider( pixmap ) );
     }
 }
 

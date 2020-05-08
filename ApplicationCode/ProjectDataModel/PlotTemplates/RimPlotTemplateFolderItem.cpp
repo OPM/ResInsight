@@ -209,7 +209,7 @@ void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplatesRecursively( QL
         }
     }
 
-    caf::QIconProvider templateIcon( ":/SummaryTemplate16x16.png" );
+    caf::IconProvider templateIcon( ":/SummaryTemplate16x16.png" );
 
     auto files = templateFolderItem->fileNames();
     for ( auto file : files )

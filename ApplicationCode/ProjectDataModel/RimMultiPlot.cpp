@@ -591,7 +591,7 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
                 options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
                                                            enumVal,
                                                            false,
-                                                           caf::QIconProvider( iconPath ) ) );
+                                                           caf::IconProvider( iconPath ) ) );
             }
             else
             {
@@ -599,7 +599,7 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
                 options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
                                                            enumVal,
                                                            false,
-                                                           caf::QIconProvider( iconPath ) ) );
+                                                           caf::IconProvider( iconPath ) ) );
             }
         }
     }

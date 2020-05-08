@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2019- Ceetron Solutions AS
+//   Copyright (C) 2020- Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -37,47 +37,50 @@
 
 #include <QIcon>
 #include <QPixmap>
+#include <QSize>
 #include <QString>
 
 #include <memory>
 
+class QIcon;
+class QPixmap;
+
 namespace caf
 {
 //==================================================================================================
-/// Utility class to provide QIcons when required. Qt crashes if a non-empty QIcon is created
+/// Utility class to provide Icons when required. Qt crashes if a non-empty QIcon is created
 /// ... without a GUI Application running. So create the icon on demand instead.
 //==================================================================================================
-class QIconProvider
+class IconProvider
 {
 public:
-    QIconProvider();
-    QIconProvider(const QString& iconResourceString);
-    QIconProvider(const QPixmap& pixmap);
-    QIconProvider(const QIconProvider& rhs);
-    QIconProvider& operator=(const QIconProvider& rhs);
+    IconProvider();
+    IconProvider(const QString& iconResourceString);
+    IconProvider(const QPixmap& pixmap);
+    IconProvider(const IconProvider& rhs);
+    IconProvider& operator=(const IconProvider& rhs);
+    
+    void setActive(bool active);
+    bool valid() const;
 
-    QIcon        icon() const;
-    virtual bool isNull() const;
-    void         setActive(bool active);
-    void         setIconResourceString(const QString& iconResourceString);
-    void         setPixmap(const QPixmap& pixmap);
-    void         setOverlayPixmap(const QPixmap& pixmap);
-    void         setBackgroundColor(const QColor& color);
+    std::unique_ptr<QIcon> icon(const QSize& size = QSize(16, 16)) const;
 
-protected:
-    bool          hasValidPixmap() const;
-    virtual QIcon generateIcon() const;
-    static bool   isGuiApplication();
+    void setIconResourceString(const QString& iconResourceString);
+    void setOverlayResourceString(const QString& overlayResourceString);
+    void setBackgroundColorString(const QString& colorName);
+
+    void setPixmap(const QPixmap& pixmap);
 
 private:
-    void          copyPixmaps(const QIconProvider& other);
+    static bool isGuiApplication();
+    void copyPixmap(const IconProvider& rhs);
+private:
+    bool m_active;
 
-protected:
     QString                  m_iconResourceString;
-    std::unique_ptr<QPixmap> m_iconPixmap;
-    std::unique_ptr<QPixmap> m_overlayPixmap;
-    QColor                   m_backgoundColor;
-    mutable QIcon            m_icon;
-    bool                     m_active;
+    QString                  m_overlayResourceString;
+    QString                  m_backgroundColorString;
+
+    std::unique_ptr<QPixmap> m_pixmap;
 };
 }
