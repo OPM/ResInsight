@@ -96,7 +96,7 @@ RimFractureModelPlot*
     {
         auto task = progInfo.task( "Updating all tracks", 5 );
 
-        plot->nameConfig()->setAutoNameTags( true, true, true, true, true );
+        plot->nameConfig()->setAutoNameTags( false, false, false, false, false );
         plot->setPlotTitleVisible( true );
         plot->setLegendsVisible( true );
         plot->setLegendsHorizontal( true );
@@ -200,6 +200,7 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     curve->setColor( colors.cycledColor3f( 0 ) );
     curve->setLineStyle( lineStyles[0] );
     curve->setLineThickness( 2 );
+    curve->setAutoNameComponents( false, true, false, false, false );
 
     faciesTrack->addCurve( curve );
     faciesTrack->setAutoScaleXEnabled( true );
@@ -250,6 +251,7 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
     curve->setColor( colors.cycledColor3f( 0 ) );
     curve->setLineStyle( lineStyles[0] );
     curve->setLineThickness( 2 );
+    curve->setAutoNameComponents( false, true, false, false, false );
 
     plotTrack->addCurve( curve );
     plotTrack->setAutoScaleXEnabled( true );
