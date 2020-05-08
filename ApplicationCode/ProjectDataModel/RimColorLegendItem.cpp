@@ -108,3 +108,15 @@ QString RimColorLegendItem::extractColorItemName() const
 {
     return QString( "%1" ).arg( m_categoryValue, 2, 10, QChar( '0' ) ) + " " + m_categoryName;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegendItem::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
+{
+    QColor qcolor( m_color().rByte(), m_color().gByte(), m_color().bByte() );
+
+    caf::QIconProvider iconProvider = this->uiIconProvider();
+    iconProvider.setBackgroundColor( qcolor );
+    this->setUiIcon( iconProvider );
+}
