@@ -1,6 +1,11 @@
-name: ResInsight Build
+name: ResInsight Build and Package
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+      - dev
+  pull_request:
 jobs:
   ResInsight-x64:
     runs-on: ${{ matrix.os }}
