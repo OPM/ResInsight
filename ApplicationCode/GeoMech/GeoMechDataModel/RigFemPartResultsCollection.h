@@ -153,7 +153,7 @@ private:
     double  m_biotFixedFactor;
     QString m_biotResultAddress;
 
-    std::vector<std::shared_ptr<RigFemPartResultCalculator>> m_resultCalculators;
+    std::vector<std::unique_ptr<RigFemPartResultCalculator>> m_resultCalculators;
 
     RigStatisticsDataCache*          statistics( const RigFemResultAddress& resVarAddr );
     std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
