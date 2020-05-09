@@ -370,53 +370,6 @@ bool RimGridView::isGridVisualizationMode() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridView::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
-{
-    bool hasCustomFonts = Rim3dView::hasCustomFontSizes( fontSettingType, defaultFontSize );
-    if ( fontSettingType == RiaDefines::FontSettingType::ANNOTATION_FONT )
-    {
-        auto annotations = annotationCollection();
-        if ( annotations )
-        {
-            RiaFontCache::FontSize defaultFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize( defaultFontSize );
-            hasCustomFonts = annotations->hasTextAnnotationsWithCustomFontSize( defaultFontSizeEnum ) || hasCustomFonts;
-        }
-    }
-    return hasCustomFonts;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimGridView::applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                 int                         oldFontSize,
-                                 int                         fontSize,
-                                 bool                        forceChange /*= false*/ )
-{
-    bool anyChange = Rim3dView::applyFontSize( fontSettingType, oldFontSize, fontSize, forceChange );
-    if ( fontSettingType == RiaDefines::FontSettingType::ANNOTATION_FONT )
-    {
-        auto annotations = annotationCollection();
-        if ( annotations )
-        {
-            RiaFontCache::FontSize oldFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize( oldFontSize );
-            RiaFontCache::FontSize newFontSizeEnum = RiaFontCache::fontSizeEnumFromPointSize( fontSize );
-            bool applyFontSizes = forceChange || !annotations->hasTextAnnotationsWithCustomFontSize( oldFontSizeEnum );
-
-            if ( applyFontSizes )
-            {
-                anyChange =
-                    annotations->applyFontSizeToAllTextAnnotations( oldFontSizeEnum, newFontSizeEnum, forceChange ) ||
-                    anyChange;
-            }
-        }
-    }
-    return anyChange;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 Rim3dOverlayInfoConfig* RimGridView::overlayInfoConfig() const
 {
     return m_overlayInfoConfig;

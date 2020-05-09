@@ -98,6 +98,10 @@ public:
 
     bool previewModeEnabled() const;
 
+    int subTitleFontSize() const;
+    int axisTitleFontSize() const;
+    int axisValueFontSize() const;
+
 protected:
     QImage snapshotWindowContent() override;
 
@@ -121,12 +125,6 @@ protected:
     void updateZoom();
     void recreatePlotWidgets();
 
-    bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
-    bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                        int                         oldFontSize,
-                        int                         fontSize,
-                        bool                        forceChange = false ) override;
-
 private:
     void cleanupBeforeClose();
     void doUpdateLayout() override;
@@ -136,11 +134,14 @@ private:
     void onPlotAdditionOrRemoval();
 
 protected:
-    caf::PdmField<bool>            m_showPlotWindowTitle;
-    caf::PdmField<QString>         m_plotWindowTitle;
-    caf::PdmField<ColumnCountEnum> m_columnCount;
-    caf::PdmField<RowCountEnum>    m_rowsPerPage;
-    caf::PdmField<bool>            m_showIndividualPlotTitles;
+    caf::PdmField<bool>                             m_showPlotWindowTitle;
+    caf::PdmField<QString>                          m_plotWindowTitle;
+    caf::PdmField<ColumnCountEnum>                  m_columnCount;
+    caf::PdmField<RowCountEnum>                     m_rowsPerPage;
+    caf::PdmField<bool>                             m_showIndividualPlotTitles;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_subTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
 
     caf::PdmField<RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum> m_majorTickmarkCount;
 

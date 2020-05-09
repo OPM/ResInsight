@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "cafFontTools.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -30,7 +31,7 @@ class TitledOverlayFrame;
 ///
 ///
 //==================================================================================================
-class RimLegendConfig : public caf::PdmObject
+class RimLegendConfig : public caf::PdmObject, public caf::FontHolderInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -49,4 +50,6 @@ public:
 
     virtual const caf::TitledOverlayFrame* titledOverlayFrame() const = 0;
     virtual caf::TitledOverlayFrame*       titledOverlayFrame()       = 0;
+
+    virtual int fontSize() const override;
 };

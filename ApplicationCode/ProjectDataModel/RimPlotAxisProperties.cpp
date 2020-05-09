@@ -89,10 +89,9 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField(&m_isAxisInverted, "AxisInverted", false, "Invert Axis", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
-    CAF_PDM_InitField(&m_titleFontSize, "FontSize", 10, "Font Size", "", "", "");
-    m_titleFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
-    CAF_PDM_InitField(&m_valuesFontSize, "ValuesFontSize", 10, "Font Size", "", "", "");
-    m_valuesFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
+
+    CAF_PDM_InitFieldNoDefault(&m_titleFontSize, "TitleDeltaFontSize", "Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_valuesFontSize, "ValueDeltaFontSize", "Font Size", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_annotations, "Annotations", "", "", "", "");
 
@@ -136,26 +135,7 @@ QList<caf::PdmOptionItemInfo>
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
 
-    if ( &m_titleFontSize == fieldNeedingOptions || &m_valuesFontSize == fieldNeedingOptions )
-    {
-        std::vector<int> fontSizes;
-        fontSizes.push_back( 8 );
-        fontSizes.push_back( 9 );
-        fontSizes.push_back( 10 );
-        fontSizes.push_back( 11 );
-        fontSizes.push_back( 12 );
-        fontSizes.push_back( 14 );
-        fontSizes.push_back( 16 );
-        fontSizes.push_back( 18 );
-        fontSizes.push_back( 24 );
-
-        for ( int value : fontSizes )
-        {
-            QString text = QString( "%1" ).arg( value );
-            options.push_back( caf::PdmOptionItemInfo( text, value ) );
-        }
-    }
-    else if ( fieldNeedingOptions == &scaleFactor )
+    if ( fieldNeedingOptions == &scaleFactor )
     {
         for ( int exp = -12; exp <= 12; exp += 3 )
         {
@@ -249,15 +229,7 @@ RimPlotAxisPropertiesInterface::AxisTitlePositionType RimPlotAxisProperties::tit
 //--------------------------------------------------------------------------------------------------
 int RimPlotAxisProperties::titleFontSize() const
 {
-    return m_titleFontSize;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setTitleFontSize( int fontSize )
-{
-    m_titleFontSize = fontSize;
+    return caf::FontTools::absolutePointSize( plotFontSize(), m_titleFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -265,15 +237,7 @@ void RimPlotAxisProperties::setTitleFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 int RimPlotAxisProperties::valuesFontSize() const
 {
-    return m_valuesFontSize;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setValuesFontSize( int fontSize )
-{
-    m_valuesFontSize = fontSize;
+    return caf::FontTools::absolutePointSize( plotFontSize(), m_valuesFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -452,6 +416,14 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
 void RimPlotAxisProperties::updateOptionSensitivity()
 {
     customTitle.uiCapability()->setUiReadOnly( isAutoTitle );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::FontTools::FontSize RimPlotAxisProperties::plotFontSize() const
+{
+    return RiaPreferences::current()->defaultPlotFontSize();
 }
 
 //--------------------------------------------------------------------------------------------------

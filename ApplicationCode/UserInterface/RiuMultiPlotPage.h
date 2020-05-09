@@ -79,8 +79,9 @@ public:
 
     void setPlotTitle( const QString& plotTitle );
     void setTitleVisible( bool visible );
-    void setFontSize( int fontSize );
-    int  fontSize() const;
+    void setTitleFontSizes( int titleFontSize, int subTitleFontSize );
+    void setLegendFontSize( int legendFontSize );
+    void setAxisFontSizes( int axisTitleFontSize, int axisValueFontSize );
     void setSubTitlesVisible( bool visible );
 
     bool previewModeEnabled() const;
@@ -141,6 +142,12 @@ protected:
     QList<QPointer<RiuQwtPlotLegend>> m_legends;
     QList<QPointer<RiuQwtPlotWidget>> m_plotWidgets;
     caf::PdmPointer<RimPlotWindow>    m_plotDefinition;
+
+    int m_titleFontPixelSize;
+    int m_subTitleFontPixelSize;
+    int m_legendFontPixelSize;
+    int m_axisTitleFontPixelSize;
+    int m_axisValueFontPixelSize;
 
     bool m_previewMode;
     bool m_showSubTitles;

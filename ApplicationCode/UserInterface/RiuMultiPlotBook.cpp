@@ -133,10 +133,6 @@ RiuMultiPlotBook::RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* paren
 
     setFocusPolicy( Qt::StrongFocus );
 
-    RiaApplication* app             = RiaApplication::instance();
-    int             defaultFontSize = app->preferences()->defaultPlotFontSize();
-    setFontSize( defaultFontSize );
-
     QSize pageSize = m_plotDefinition->pageLayout().fullRectPixels( RiaGuiApplication::applicationResolution() ).size();
     setBookSize( pageSize.width() );
     this->setObjectName( QString( "%1" ).arg( reinterpret_cast<uint64_t>( this ) ) );
@@ -229,26 +225,34 @@ void RiuMultiPlotBook::setSubTitlesVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::setFontSize( int fontSize )
+void RiuMultiPlotBook::setTitleFontSizes( int titleFontSize, int subTitleFontSize )
 {
-    QFont font      = this->font();
-    int   pixelSize = RiaFontCache::pointSizeToPixelSize( fontSize );
-
-    font.setPixelSize( pixelSize );
-    this->setFont( font );
-
     for ( auto page : m_pages )
     {
-        page->setFontSize( fontSize );
+        page->setTitleFontSizes( titleFontSize, subTitleFontSize );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuMultiPlotBook::fontSize() const
+void RiuMultiPlotBook::setLegendFontSize( int legendFontSize )
 {
-    return RiaFontCache::pixelSizeToPointSize( this->font().pixelSize() );
+    for ( auto page : m_pages )
+    {
+        page->setLegendFontSize( legendFontSize );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::setAxisFontSizes( int axisTitleFontSize, int axisValueFontSize )
+{
+    for ( auto page : m_pages )
+    {
+        page->setAxisFontSizes( axisTitleFontSize, axisValueFontSize );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -512,7 +516,9 @@ RiuMultiPlotPage* RiuMultiPlotBook::createPage()
 
     // Reapply plot settings
     page->setPlotTitle( m_plotTitle );
-    page->setFontSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+    page->setTitleFontSizes( m_plotDefinition->titleFontSize(), m_plotDefinition->subTitleFontSize() );
+    page->setLegendFontSize( m_plotDefinition->legendFontSize() );
+    page->setAxisFontSizes( m_plotDefinition->axisTitleFontSize(), m_plotDefinition->axisValueFontSize() );
     page->setTitleVisible( m_titleVisible );
     page->setSubTitlesVisible( m_subTitlesVisible );
     page->setPreviewModeEnabled( m_previewMode );

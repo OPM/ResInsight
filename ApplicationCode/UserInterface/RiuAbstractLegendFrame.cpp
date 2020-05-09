@@ -105,7 +105,7 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
 {
     QFont font = this->font();
     font.setPixelSize(
-        RiaFontCache::pointSizeToPixelSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() ) );
+        caf::FontTools::pointSizeToPixelSize( RiaApplication::instance()->preferences()->defaultPlotFontSize() ) );
     this->setFont( font );
 
     LayoutInfo layout( QSize( targetRect.width(), targetRect.height() ) );

@@ -1459,6 +1459,19 @@ cvf::Font* RiaApplication::defaultSceneFont()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Font* RiaApplication::sceneFont( int fontSize )
+{
+    if (fontSize != caf::FontTools::absolutePointSize(m_preferences->defaultSceneFontSize()))
+    {
+        auto font = RiaFontCache::getFont(fontSize);
+        return font.p();
+    }
+    return defaultSceneFont();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Font* RiaApplication::defaultAnnotationFont()
 {
     CVF_ASSERT( m_defaultAnnotationFont.notNull() );

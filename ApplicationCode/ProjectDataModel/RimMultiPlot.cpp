@@ -18,6 +18,8 @@
 
 #include "RimMultiPlot.h"
 
+#include "RiaPreferences.h"
+
 #include "RimPlot.h"
 #include "RimProject.h"
 #include "RimSummaryTimeAxisProperties.h"
@@ -76,6 +78,8 @@ RimMultiPlot::RimMultiPlot()
     CAF_PDM_InitField( &m_showIndividualPlotTitles, "ShowPlotTitles", true, "Show Sub Plot Titles", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Sub Plot Title Font Size", "", "", "" );
+
     m_viewer = nullptr;
 
     setDeletable( true );
@@ -115,6 +119,7 @@ RimMultiPlot& RimMultiPlot::operator=( RimMultiPlot&& rhs )
     m_columnCount              = rhs.m_columnCount;
     m_rowsPerPage              = rhs.m_rowsPerPage;
     m_showIndividualPlotTitles = rhs.m_showIndividualPlotTitles;
+    m_subTitleFontSize         = rhs.m_subTitleFontSize;
 
     return *this;
 }
@@ -302,6 +307,11 @@ void RimMultiPlot::doUpdateLayout()
         m_viewer->setPlotTitle( description() );
         m_viewer->setTitleVisible( m_showPlotWindowTitle );
         m_viewer->setSubTitlesVisible( m_showIndividualPlotTitles );
+
+        m_viewer->setTitleFontSizes( titleFontSize(), subTitleFontSize() );
+        m_viewer->setLegendFontSize( legendFontSize() );
+        m_viewer->setAxisFontSizes( axisTitleFontSize(), axisValueFontSize() );
+
         m_viewer->scheduleUpdate();
         m_viewer->adjustSize();
     }
@@ -468,6 +478,30 @@ bool RimMultiPlot::previewModeEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimMultiPlot::subTitleFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_subTitleFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimMultiPlot::axisTitleFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimMultiPlot::axisValueFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QImage RimMultiPlot::snapshotWindowContent()
 {
     QImage image;
@@ -528,6 +562,10 @@ void RimMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
         updatePlotWindowTitle();
         applyPlotWindowTitleToWidgets();
     }
+    else if ( changedField == &m_subTitleFontSize )
+    {
+        updateFonts();
+    }
     else if ( changedField == &m_columnCount || changedField == &m_rowsPerPage )
     {
         updateLayout();
@@ -568,6 +606,7 @@ void RimMultiPlot::uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_plotWindowTitle );
     uiOrdering.add( &m_showIndividualPlotTitles );
     RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, uiOrdering );
+    uiOrdering.add( &m_subTitleFontSize );
     uiOrdering.add( &m_columnCount );
     uiOrdering.add( &m_rowsPerPage );
     uiOrdering.add( &m_majorTickmarkCount );
@@ -603,6 +642,11 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
                                                            caf::IconProvider( iconPath ) ) );
             }
         }
+    }
+    else if ( fieldNeedingOptions == &m_subTitleFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||
+              fieldNeedingOptions == &m_axisValueFontSize )
+    {
+        return caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
     }
     return options;
 }
@@ -680,70 +724,6 @@ void RimMultiPlot::recreatePlotWidgets()
         plotVector[tIdx]->createPlotWidget();
         m_viewer->addPlot( plotVector[tIdx]->viewer() );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimMultiPlot::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
-{
-    if ( fontSettingType == RiaDefines::FontSettingType::PLOT_FONT && m_viewer )
-    {
-        if ( m_viewer->fontSize() != defaultFontSize )
-        {
-            return true;
-        }
-        if ( m_legendFontSize() != defaultFontSize )
-        {
-            return true;
-        }
-        for ( const RimPlot* plot : plots() )
-        {
-            if ( plot->hasCustomFontSizes( fontSettingType, defaultFontSize ) )
-            {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimMultiPlot::applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                  int                         oldFontSize,
-                                  int                         fontSize,
-                                  bool                        forceChange /*= false */ )
-{
-    bool somethingChanged = false;
-    if ( fontSettingType == RiaDefines::FontSettingType::PLOT_FONT && m_viewer )
-    {
-        if ( oldFontSize == m_viewer->fontSize() || forceChange )
-        {
-            m_viewer->setFontSize( fontSize );
-            somethingChanged = true;
-        }
-
-        if ( oldFontSize == m_legendFontSize() || forceChange )
-        {
-            m_legendFontSize = fontSize;
-            somethingChanged = true;
-        }
-
-        for ( RimPlot* plot : plots() )
-        {
-            if ( plot->applyFontSize( fontSettingType, oldFontSize, fontSize, forceChange ) )
-            {
-                somethingChanged = true;
-            }
-        }
-        if ( somethingChanged )
-        {
-            m_viewer->scheduleUpdate();
-        }
-    }
-    return somethingChanged;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -127,8 +127,8 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* q
         }
         qwtPlot->setAxisTitleText( m_axisProperties->qwtPlotAxisType(), axisTitle );
         qwtPlot->setAxisFontsAndAlignment( m_axisProperties->qwtPlotAxisType(),
-                                           m_axisProperties->titleFontSize(),
-                                           m_axisProperties->valuesFontSize(),
+                                           caf::FontTools::pointSizeToPixelSize( m_axisProperties->titleFontSize() ),
+                                           caf::FontTools::pointSizeToPixelSize( m_axisProperties->valuesFontSize() ),
                                            true,
                                            titleAlignment );
         qwtPlot->setAxisTitleEnabled( m_axisProperties->qwtPlotAxisType(), true );

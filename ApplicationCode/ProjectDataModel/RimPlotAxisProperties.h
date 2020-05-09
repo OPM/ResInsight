@@ -23,6 +23,7 @@
 #include "RimPlotAxisPropertiesInterface.h"
 
 #include "cafAppEnum.h"
+#include "cafFontTools.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -56,10 +57,9 @@ public:
     void                  enableRangeSettings( bool enable );
     void                  setNameAndAxis( const QString& name, QwtPlot::Axis axis );
     AxisTitlePositionType titlePosition() const override;
-    int                   titleFontSize() const override;
-    void                  setTitleFontSize( int fontSize ) override;
-    int                   valuesFontSize() const override;
-    void                  setValuesFontSize( int fontSize ) override;
+
+    int titleFontSize() const override;
+    int valuesFontSize() const override;
 
     QwtPlot::Axis        qwtPlotAxisType() const;
     QString              name() const;
@@ -102,7 +102,8 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
 private:
-    void updateOptionSensitivity();
+    void                     updateOptionSensitivity();
+    caf::FontTools::FontSize plotFontSize() const;
 
 private:
     caf::PdmField<bool> m_isActive;
@@ -120,9 +121,9 @@ private:
     bool m_enableTitleTextSettings;
     bool m_isRangeSettingsEnabled;
 
-    caf::PdmField<int>                                 m_titleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum>    m_titleFontSize;
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
-    caf::PdmField<int>                                 m_valuesFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum>    m_valuesFontSize;
     caf::PdmChildArrayField<RimPlotAxisAnnotation*>    m_annotations;
 };
 

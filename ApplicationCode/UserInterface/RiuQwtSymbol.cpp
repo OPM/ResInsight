@@ -32,7 +32,7 @@ RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, Labe
     : QwtSymbol( QwtSymbol::NoSymbol )
     , m_globalLabel( label )
     , m_labelPosition( labelPosition )
-    , m_labelFontSizePx( RiaFontCache::pointSizeToPixelSize( labelFontSizePt ) )
+    , m_labelFontSizePx( caf::FontTools::pointSizeToPixelSize( labelFontSizePt ) )
 {
     QwtSymbol::Style style = QwtSymbol::NoSymbol;
 

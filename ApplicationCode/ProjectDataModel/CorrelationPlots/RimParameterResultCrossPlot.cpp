@@ -173,12 +173,12 @@ void RimParameterResultCrossPlot::updateAxes()
     m_plotWidget->setAxisTitleText( QwtPlot::yLeft, m_selectedVarsUiField );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
     m_plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, 11, 11, false, Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, 10, 10, false, Qt::AlignCenter );
 
     m_plotWidget->setAxisTitleText( QwtPlot::xBottom, m_ensembleParameter );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
     m_plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, 11, 11, false, Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, 10, 10, false, Qt::AlignCenter );
 }
 
 //--------------------------------------------------------------------------------------------------

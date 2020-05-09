@@ -56,10 +56,11 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     gridPen.setColor( Qt::lightGray );
     grid->setPen( gridPen );
 
-    int fontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
     // Axis number font
-    QFont axisFont = plot->axisFont( QwtPlot::xBottom );
-    axisFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( fontSize ) );
+    int   axisFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
+                                                          caf::FontTools::RelativeSize::Medium );
+    QFont axisFont     = plot->axisFont( QwtPlot::xBottom );
+    axisFont.setPixelSize( caf::FontTools::pointSizeToPixelSize( axisFontSize ) );
 
     plot->setAxisFont( QwtPlot::xBottom, axisFont );
     plot->setAxisFont( QwtPlot::xTop, axisFont );
@@ -73,7 +74,7 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     {
         QwtText axisTitle     = plot->axisTitle( axis );
         QFont   axisTitleFont = axisTitle.font();
-        axisTitleFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( fontSize ) );
+        axisTitleFont.setPixelSize( caf::FontTools::pointSizeToPixelSize( axisFontSize ) );
         axisTitleFont.setBold( false );
         axisTitle.setFont( axisTitleFont );
         axisTitle.setRenderFlags( Qt::AlignRight );

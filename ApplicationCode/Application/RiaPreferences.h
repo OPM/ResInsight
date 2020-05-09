@@ -56,7 +56,7 @@ public:
         SEPARATE_CASES
     };
     typedef caf::AppEnum<SummaryRestartFilesImportMode> SummaryRestartFilesImportModeType;
-    typedef RiaFontCache::FontSizeType                  FontSizeType;
+    typedef RiaFontCache::FontSizeEnum                  FontSizeEnum;
 
     enum class SummaryHistoryCurveStyleMode
     {
@@ -139,10 +139,10 @@ public: // Pdm Fields
     caf::PdmField<cvf::Color3f> defaultWellLabelColor;
     caf::PdmField<bool>         showLasCurveWithoutTvdWarning;
 
-    caf::PdmField<FontSizeType> defaultSceneFontSize;
-    caf::PdmField<FontSizeType> defaultWellLabelFontSize;
-    caf::PdmField<FontSizeType> defaultAnnotationFontSize;
-    caf::PdmField<FontSizeType> defaultPlotFontSize;
+    caf::PdmField<FontSizeEnum> defaultSceneFontSize;
+    caf::PdmField<FontSizeEnum> defaultWellLabelFontSize;
+    caf::PdmField<FontSizeEnum> defaultAnnotationFontSize;
+    caf::PdmField<FontSizeEnum> defaultPlotFontSize;
 
     caf::PdmField<QString> lastUsedProjectFileName;
 
@@ -220,9 +220,4 @@ private:
     caf::PdmField<bool>                                                m_enableFaultsByDefault;
 
     QStringList m_tabNames;
-
-    caf::PdmField<FontSizeType> m_defaultSceneFontSize_OBSOLETE;
-    caf::PdmField<FontSizeType> m_defaultWellLabelFontSize_OBSOLETE;
-    caf::PdmField<FontSizeType> m_defaultAnnotationFontSize_OBSOLETE;
-    caf::PdmField<FontSizeType> m_defaultPlotFontSize_OBSOLETE;
 };

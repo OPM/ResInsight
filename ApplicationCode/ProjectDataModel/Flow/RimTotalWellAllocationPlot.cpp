@@ -18,6 +18,8 @@
 
 #include "RimTotalWellAllocationPlot.h"
 
+#include "RiaPreferences.h"
+
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
 
@@ -84,6 +86,21 @@ void RimTotalWellAllocationPlot::deleteViewWidget()
         delete m_wellTotalAllocationPlotWidget;
         m_wellTotalAllocationPlotWidget = nullptr;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimTotalWellAllocationPlot::fontSize() const
+{
+    return caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultPlotFontSize());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTotalWellAllocationPlot::updateFonts()
+{    
 }
 
 //--------------------------------------------------------------------------------------------------

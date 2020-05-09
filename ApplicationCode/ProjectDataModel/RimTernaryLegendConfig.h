@@ -63,6 +63,7 @@ public:
     const RivTernaryScalarMapper*  scalarMapper() const;
     const caf::TitledOverlayFrame* titledOverlayFrame() const override;
     caf::TitledOverlayFrame*       titledOverlayFrame() override;
+    void                           updateFonts() override;
 
 private:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

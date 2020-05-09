@@ -66,6 +66,11 @@ class RiuPlotMainWindow;
 class RiuRecentFileActionProvider;
 class RiaArgumentParser;
 
+namespace caf
+{
+class FontHolderInterface;
+}
+
 //==================================================================================================
 //
 //
@@ -123,7 +128,8 @@ public:
     std::vector<QAction*> recentFileActions() const;
 
     static void clearAllSelections();
-    void        applyGuiPreferences( const RiaPreferences* oldPreferences = nullptr );
+    void        applyGuiPreferences( const RiaPreferences*                         oldPreferences     = nullptr,
+                                     const std::vector<caf::FontHolderInterface*>& defaultFontObjects = {} );
     void        updateGrpcServer();
     static int  applicationResolution();
 

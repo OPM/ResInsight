@@ -73,8 +73,9 @@ public:
     void setTitleVisible( bool visible );
     void setSubTitlesVisible( bool visible );
 
-    void setFontSize( int fontSize );
-    int  fontSize() const;
+    void setTitleFontSizes( int titleFontSize, int subTitleFontSize );
+    void setLegendFontSize( int legendFontSize );
+    void setAxisFontSizes( int axisTitleFontSize, int axisValueFontSize );
 
     int indexOfPlotWidget( RiuQwtPlotWidget* plotWidget );
 

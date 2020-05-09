@@ -18,6 +18,8 @@
 
 #include "RimWellAllocationPlot.h"
 
+#include "RiaPreferences.h"
+
 #include "RigAccWellFlowCalculator.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResultAddress.h"
@@ -791,6 +793,21 @@ void RimWellAllocationPlot::removeFromMdiAreaAndDeleteViewWidget()
 void RimWellAllocationPlot::showPlotLegend( bool doShow )
 {
     if ( m_wellAllocationPlotWidget ) m_wellAllocationPlotWidget->showLegend( doShow );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellAllocationPlot::fontSize() const
+{
+    return caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultPlotFontSize());
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationPlot::updateFonts()
+{
 }
 
 //--------------------------------------------------------------------------------------------------

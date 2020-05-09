@@ -730,66 +730,6 @@ void RimSummaryPlot::applyDefaultCurveAppearances()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlot::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
-{
-    if ( fontSettingType == RiaDefines::FontSettingType::PLOT_FONT && m_plotWidget )
-    {
-        for ( auto plotAxis : allPlotAxes() )
-        {
-            if ( plotAxis->titleFontSize() != defaultFontSize || plotAxis->valuesFontSize() != defaultFontSize )
-            {
-                return true;
-            }
-        }
-
-        if ( m_legendFontSize() != defaultFontSize )
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimSummaryPlot::applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                    int                         oldFontSize,
-                                    int                         fontSize,
-                                    bool                        forceChange /*= false*/ )
-{
-    bool anyChange = false;
-
-    if ( fontSettingType == RiaDefines::FontSettingType::PLOT_FONT && m_plotWidget )
-    {
-        for ( auto plotAxis : allPlotAxes() )
-        {
-            if ( forceChange || plotAxis->titleFontSize() == oldFontSize )
-            {
-                plotAxis->setTitleFontSize( fontSize );
-                anyChange = true;
-            }
-            if ( forceChange || plotAxis->valuesFontSize() == oldFontSize )
-            {
-                plotAxis->setValuesFontSize( fontSize );
-                anyChange = true;
-            }
-        }
-
-        if ( forceChange || m_legendFontSize() == oldFontSize )
-        {
-            m_legendFontSize = fontSize;
-            anyChange        = true;
-        }
-
-        if ( anyChange ) loadDataAndUpdate();
-    }
-    return anyChange;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::setNormalizationEnabled( bool enable )
 {
     m_normalizeCurveYValues = enable;
@@ -1110,8 +1050,9 @@ void RimSummaryPlot::updateTimeAxis()
         }
 
         m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom,
-                                                m_timeAxisProperties->titleFontSize(),
-                                                m_timeAxisProperties->valuesFontSize(),
+                                                caf::FontTools::pointSizeToPixelSize( m_timeAxisProperties->titleFontSize() ),
+                                                caf::FontTools::pointSizeToPixelSize(
+                                                    m_timeAxisProperties->valuesFontSize() ),
                                                 true,
                                                 alignment );
         m_plotWidget->setAxisTitleText( QwtPlot::xBottom, m_timeAxisProperties->title() );
@@ -1477,7 +1418,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
     if ( m_plotWidget )
     {
         m_plotWidget->setLegendVisible( m_showPlotLegends && isMdiWindow() );
-        m_plotWidget->setLegendFontSize( m_legendFontSize() );
+        m_plotWidget->setLegendFontSize( legendFontSize() );
         m_plotWidget->updateLegend();
     }
     this->updateAxes();
@@ -1664,11 +1605,7 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
     if ( isMdiWindow() )
     {
-        mainOptions->add( &m_showPlotLegends );
-        if ( m_showPlotLegends() )
-        {
-            mainOptions->add( &m_legendFontSize );
-        }
+        uiOrderingForPlotLayout( uiConfigName, *mainOptions );
     }
 
     mainOptions->add( &m_normalizeCurveYValues );
@@ -1826,6 +1763,8 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::doUpdateLayout()
 {
+    updateFonts();
+
     this->loadDataAndUpdate();
 }
 

@@ -689,11 +689,17 @@ void RimPlotCurve::updateCurveAppearance()
 
     if ( m_pointSymbol() != RiuQwtSymbol::SYMBOL_NONE )
     {
+        int legendFontSize        = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
+                                                                caf::FontTools::RelativeSize::Small );
+        RimPlotWindow* plotWindow = nullptr;
+        this->firstAncestorOrThisOfType( plotWindow );
+        if ( plotWindow )
+        {
+            legendFontSize = plotWindow->legendFontSize();
+        }
+
         // QwtPlotCurve will take ownership of the symbol
-        symbol = new RiuQwtSymbol( m_pointSymbol(),
-                                   m_symbolLabel(),
-                                   m_symbolLabelPosition(),
-                                   RiaApplication::instance()->preferences()->defaultPlotFontSize() );
+        symbol = new RiuQwtSymbol( m_pointSymbol(), m_symbolLabel(), m_symbolLabelPosition(), legendFontSize );
         symbol->setSize( m_symbolSize, m_symbolSize );
         symbol->setColor( curveColor );
 

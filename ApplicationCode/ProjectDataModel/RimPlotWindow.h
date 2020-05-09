@@ -55,8 +55,12 @@ public:
     void            setLegendsVisible( bool doShow );
     bool            legendsHorizontal() const;
     void            setLegendsHorizontal( bool horizontal );
-    int             legendFontSize() const;
-    void            setLegendFontSize( int fontSize );
+
+    void updateFonts() override;
+
+    int fontSize() const override;
+    int titleFontSize() const;
+    int legendFontSize() const;
 
     void updateLayout();
     void updateParentLayout();
@@ -90,5 +94,7 @@ protected:
     caf::PdmField<int>  m_id;
     caf::PdmField<bool> m_showPlotLegends;
     caf::PdmField<bool> m_plotLegendsHorizontal;
-    caf::PdmField<int>  m_legendFontSize;
+
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_titleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_legendFontSize;
 };

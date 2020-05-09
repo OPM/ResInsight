@@ -150,6 +150,8 @@ Rim3dView::Rim3dView( void )
 
     CAF_PDM_InitFieldNoDefault( &m_comparisonView, "ComparisonView", "Comparison View", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_fontSize, "FontSize", "Font Size", "", "", "" );
+
     m_intersectionVizModel = new cvf::ModelBasicList;
     m_intersectionVizModel->setName( "CrossSectionModel" );
 
@@ -385,6 +387,7 @@ void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOr
 {
     caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroupWithKeyword( "Viewer", "ViewGroup" );
 
+    viewGroup->add( &m_fontSize );
     viewGroup->add( &m_backgroundColor );
     viewGroup->add( &m_showZScaleLabel );
     viewGroup->add( &m_showGridBox );
@@ -876,8 +879,17 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
             m_viewer->update();
         }
     }
-    else if ( changedField == &m_backgroundColor )
+    else if ( changedField == &m_backgroundColor || changedField == &m_fontSize )
     {
+        if ( changedField == &m_fontSize )
+        {
+            std::vector<caf::FontHolderInterface*> fontHolderChildren;
+            descendantsOfType( fontHolderChildren );
+            for ( auto fontHolder : fontHolderChildren )
+            {
+                fontHolder->updateFonts();
+            }
+        }
         this->applyBackgroundColorAndFontChanges();
     }
     else if ( changedField == &maximumFrameRate )
@@ -996,7 +1008,7 @@ void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* measureModel )
 
 //--------------------------------------------------------------------------------------------------
 ///
-//--------------------------------------------------------------------------------------------------
+//---------------------------------------------------- ----------------------------------------------
 bool Rim3dView::isMasterView() const
 {
     RimViewLinker* viewLinker = this->assosiatedViewLinker();
@@ -1040,7 +1052,11 @@ void Rim3dView::updateGridBoxData()
             }
         }
 
-        viewer()->updateGridBoxData( scaleZ(), ownerCase()->displayModelOffset(), backgroundColor(), combinedDomainBBox );
+        viewer()->updateGridBoxData( scaleZ(),
+                                     ownerCase()->displayModelOffset(),
+                                     backgroundColor(),
+                                     combinedDomainBBox,
+                                     fontSize() );
     }
 }
 
@@ -1204,11 +1220,28 @@ void Rim3dView::applyBackgroundColorAndFontChanges()
     if ( viewer() != nullptr )
     {
         viewer()->mainCamera()->viewport()->setClearColor( cvf::Color4f( backgroundColor() ) );
-        viewer()->updateFonts();
+        viewer()->updateFonts( fontSize() );
     }
     updateGridBoxData();
     updateAnnotationItems();
     onUpdateLegends();
+    this->scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int Rim3dView::fontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultSceneFontSize(), m_fontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::updateFonts()
+{
+    applyBackgroundColorAndFontChanges();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1314,30 +1347,6 @@ cvf::ref<caf::DisplayCoordTransform> Rim3dView::displayCoordTransform() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Rim3dView::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool Rim3dView::applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                               int                         oldFontSize,
-                               int                         fontSize,
-                               bool                        forceChange /*= false*/ )
-{
-    if ( fontSettingType == RiaDefines::FontSettingType::SCENE_FONT )
-    {
-        applyBackgroundColorAndFontChanges();
-        return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                 bool*                      useOptionsOnly )
 {
@@ -1364,6 +1373,10 @@ QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFi
                 options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
             }
         }
+    }
+    else if ( fieldNeedingOptions == &m_fontSize )
+    {
+        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultSceneFontSize() );
     }
 
     return options;

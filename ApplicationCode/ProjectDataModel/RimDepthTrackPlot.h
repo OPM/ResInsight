@@ -123,6 +123,10 @@ public:
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
+    int subTitleFontSize() const;
+    int axisTitleFontSize() const;
+    int axisValueFontSize() const;
+
 protected:
     QImage snapshotWindowContent() override;
 
@@ -164,6 +168,9 @@ protected:
     caf::PdmField<double>                                  m_maxVisibleDepth;
     caf::PdmField<AxisGridEnum>                            m_depthAxisGridVisibility;
     caf::PdmField<bool>                                    m_isAutoScaleDepthEnabled;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum>        m_subTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum>        m_axisTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum>        m_axisValueFontSize;
 
     caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
     caf::PdmChildArrayField<RimPlot*>             m_plots;

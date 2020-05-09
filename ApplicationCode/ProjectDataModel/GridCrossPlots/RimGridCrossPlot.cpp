@@ -593,6 +593,7 @@ void RimGridCrossPlot::updatePlot()
         RiuQwtPlotTools::setCommonPlotBehaviour( m_plotWidget );
         RiuQwtPlotTools::setDefaultAxes( m_plotWidget );
 
+        updateFonts();
         updateAxes();
 
         for ( auto dataSet : m_crossPlotDataSets )
@@ -732,65 +733,6 @@ void RimGridCrossPlot::setYAxisInverted( bool inverted )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGridCrossPlot::hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const
-{
-    if ( fontSettingType != RiaDefines::FontSettingType::PLOT_FONT ) return false;
-
-    for ( auto plotAxis : allPlotAxes() )
-    {
-        if ( plotAxis->titleFontSize() != defaultFontSize || plotAxis->valuesFontSize() != defaultFontSize )
-        {
-            return true;
-        }
-    }
-
-    if ( legendFontSize() != defaultFontSize )
-    {
-        return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimGridCrossPlot::applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                      int                         oldFontSize,
-                                      int                         fontSize,
-                                      bool                        forceChange /*= false*/ )
-{
-    bool anyChange = false;
-    if ( fontSettingType == RiaDefines::FontSettingType::PLOT_FONT && m_plotWidget )
-    {
-        for ( auto plotAxis : allPlotAxes() )
-        {
-            if ( forceChange || plotAxis->titleFontSize() == oldFontSize )
-            {
-                plotAxis->setTitleFontSize( fontSize );
-                anyChange = true;
-            }
-            if ( forceChange || plotAxis->valuesFontSize() == oldFontSize )
-            {
-                plotAxis->setValuesFontSize( fontSize );
-                anyChange = true;
-            }
-        }
-
-        if ( forceChange || legendFontSize() == oldFontSize )
-        {
-            setLegendFontSize( fontSize );
-
-            anyChange = true;
-        }
-
-        if ( anyChange ) loadDataAndUpdate();
-    }
-    return anyChange;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::doUpdateLayout()
 {
     updateLegend();
@@ -913,8 +855,8 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
             alignment = Qt::AlignRight;
         }
         m_plotWidget->setAxisFontsAndAlignment( qwtAxisId,
-                                                axisProperties->titleFontSize(),
-                                                axisProperties->valuesFontSize(),
+                                                caf::FontTools::pointSizeToPixelSize( axisProperties->titleFontSize() ),
+                                                caf::FontTools::pointSizeToPixelSize( axisProperties->valuesFontSize() ),
                                                 true,
                                                 alignment );
         m_plotWidget->setAxisTitleText( qwtAxisId, axisParameterString );

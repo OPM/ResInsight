@@ -97,7 +97,9 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
 {
     cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
     QFont      font         = RiaGuiApplication::instance()->font();
-    font.setPointSize( RiaGuiApplication::instance()->preferences()->defaultSceneFontSize() );
+
+    auto viewFontSize = RiaPreferences::current()->defaultSceneFontSize();
+    font.setPointSize( caf::FontTools::absolutePointSize( viewFontSize ) );
 
     m_axisCross = new cvf::OverlayAxisCross( m_mainCamera.p(), standardFont );
     m_axisCross->setAxisLabels( "X", "Y", "Z" );
@@ -206,6 +208,8 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
 
     m_comparisonWindowMover = new RiuComparisonViewMover( this );
     this->setComparisonViewToFollowAnimation( false );
+
+    m_fontPointSize = caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultSceneFontSize());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -715,7 +719,7 @@ void RiuViewer::addColorLegendToBottomLeftCorner( caf::TitledOverlayFrame* added
     addedLegend->enableBackground( preferences->showLegendBackground() );
     addedLegend->setBackgroundColor( backgroundColor );
     addedLegend->setBackgroundFrameColor( frameColor );
-    addedLegend->setFont( app->defaultSceneFont() );
+    addedLegend->setFont( app->sceneFont(m_fontPointSize) );
 
     overlayRendering->addOverlayItem( addedLegend );
 
@@ -908,7 +912,7 @@ void RiuViewer::updateLegendLayout()
         const int xPos = width() - (int)scaleLegendSize.x() - margin - edgeAxisBorderWidth;
         const int yPos = margin + edgeAxisBorderHeight + margin + otherItemsHeight;
 
-        m_scaleLegend->setLayoutFixedPosition( {xPos, yPos} );
+        m_scaleLegend->setLayoutFixedPosition( { xPos, yPos } );
     }
 }
 
@@ -1111,15 +1115,17 @@ void RiuViewer::leaveEvent( QEvent* )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::updateGridBoxData( double                  scaleZ,
-                                   const cvf::Vec3d&       displayModelOffset,
-                                   const cvf::Color3f&     backgroundColor,
-                                   const cvf::BoundingBox& domainCoordBoundingBox )
+void RiuViewer::updateGridBoxData( double scaleZ,
+                                   const cvf::Vec3d& displayModelOffset,
+                                   const cvf::Color3f& backgroundColor,
+                                   const cvf::BoundingBox& domainCoordBoundingBox,
+                                   int fontPointSize )
 {
     m_gridBoxGenerator->setScaleZ( scaleZ );
     m_gridBoxGenerator->setDisplayModelOffset( displayModelOffset );
     m_gridBoxGenerator->updateFromBackgroundColor( backgroundColor );
     m_gridBoxGenerator->setGridBoxDomainCoordBoundingBox( domainCoordBoundingBox );
+    m_gridBoxGenerator->setGridLabelFontSize(fontPointSize);
 
     m_gridBoxGenerator->createGridBoxParts();
 
@@ -1285,9 +1291,9 @@ void RiuViewer::showScaleLegend( bool show )
     if ( show )
     {
         if ( m_scaleLegend->orientation() == caf::OverlayScaleLegend::HORIZONTAL )
-            m_scaleLegend->setRenderSize( {280, 45} );
+            m_scaleLegend->setRenderSize( { 280, 45 } );
         else
-            m_scaleLegend->setRenderSize( {50, 280} );
+            m_scaleLegend->setRenderSize( { 50, 280 } );
 
         overlayItemsRendering()->addOverlayItem( m_scaleLegend.p() );
     }
@@ -1316,19 +1322,27 @@ void RiuViewer::clearHoverCursor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::updateFonts()
+void RiuViewer::updateFonts(int fontPointSize)
 {
-    cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
-    overlayItemsRendering()->removeOverlayItem( m_axisCross.p() );
+    m_fontPointSize = fontPointSize;
 
-    m_axisCross = new cvf::OverlayAxisCross( m_mainCamera.p(), standardFont );
+    auto       defaultFontSize = RiaApplication::instance()->preferences()->defaultSceneFontSize();
+    cvf::Font* axisFont        = RiaGuiApplication::instance()->defaultSceneFont();
+    QFont      font            = QApplication::font();
+    font.setPixelSize( caf::FontTools::pointSizeToPixelSize(m_fontPointSize ));
+
+    if ( caf::FontTools::absolutePointSize(defaultFontSize) != m_fontPointSize )
+    {
+        axisFont = RiaFontCache::getFont( m_fontPointSize ).p();
+    }
+
+    overlayItemsRendering()->removeOverlayItem( m_axisCross.p() );
+    
+    m_axisCross = new cvf::OverlayAxisCross( m_mainCamera.p(), axisFont );
     m_axisCross->setAxisLabels( "X", "Y", "Z" );
     m_axisCross->setLayout( cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_RIGHT );
     overlayItemsRendering()->addOverlayItem( m_axisCross.p() );
     m_showAxisCross = true;
-
-    QFont font = QApplication::font();
-    font.setPointSize( RiaApplication::instance()->preferences()->defaultSceneFontSize() );
 
     m_zScaleLabel->setFont( font );
     m_infoLabel->setFont( font );
@@ -1337,6 +1351,8 @@ void RiuViewer::updateFonts()
     m_animationProgress->setFont( font );
     m_animationProgressCompView->setFont( font );
     m_versionInfoLabel->setFont( font );
+
+    m_gridBoxGenerator->setGridLabelFontSize(m_fontPointSize);
 }
 
 //--------------------------------------------------------------------------------------------------

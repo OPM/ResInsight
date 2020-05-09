@@ -69,6 +69,9 @@ public:
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
 
+    int  fontSize() const override;
+    void updateFonts() override;
+
 protected:
     // RimViewWindow overrides
 
