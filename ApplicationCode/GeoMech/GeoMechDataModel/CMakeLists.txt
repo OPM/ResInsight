@@ -23,6 +23,8 @@ add_library( ${PROJECT_NAME}
 	RigFemPartResultsCollection.cpp
 	RigFemScalarResultFrames.h
 	RigFemScalarResultFrames.cpp
+	RigFemClosestResultIndexCalculator.h
+	RigFemClosestResultIndexCalculator.cpp
 	RigFemNativeStatCalc.h
 	RigFemNativeStatCalc.cpp
 	RigFemNativeVisibleCellsStatCalc.h
@@ -36,6 +38,60 @@ add_library( ${PROJECT_NAME}
 	RimFemResultObserver.cpp
 	RigHexGradientTools.h
 	RigHexGradientTools.cpp
+	RigFemPartResultCalculator.h
+	RigFemPartResultCalculator.cpp
+	RigFemPartResultCalculatorNormalSE.h
+	RigFemPartResultCalculatorNormalSE.cpp
+	RigFemPartResultCalculatorShearSE.h
+	RigFemPartResultCalculatorShearSE.cpp
+	RigFemPartResultCalculatorNormalST.h
+	RigFemPartResultCalculatorNormalST.cpp
+	RigFemPartResultCalculatorShearST.h
+	RigFemPartResultCalculatorShearST.cpp
+	RigFemPartResultCalculatorTimeLapse.h
+	RigFemPartResultCalculatorTimeLapse.cpp
+	RigFemPartResultCalculatorGamma.h
+	RigFemPartResultCalculatorGamma.cpp
+	RigFemPartResultCalculatorNormalized.h
+	RigFemPartResultCalculatorNormalized.cpp
+	RigFemPartResultCalculatorSurfaceAngles.h
+	RigFemPartResultCalculatorSurfaceAngles.cpp
+	RigFemPartResultCalculatorSurfaceAlignedStress.h
+	RigFemPartResultCalculatorSurfaceAlignedStress.cpp
+	RigFemPartResultCalculatorPrincipalStrain.h
+	RigFemPartResultCalculatorPrincipalStrain.cpp
+	RigFemPartResultCalculatorPrincipalStress.h
+	RigFemPartResultCalculatorPrincipalStress.cpp
+ 	RigFemPartResultCalculatorSFI.h
+	RigFemPartResultCalculatorSFI.cpp
+	RigFemPartResultCalculatorDSM.h
+	RigFemPartResultCalculatorDSM.cpp
+	RigFemPartResultCalculatorFOS.h
+	RigFemPartResultCalculatorFOS.cpp
+	RigFemPartResultCalculatorED.h
+	RigFemPartResultCalculatorED.cpp
+ 	RigFemPartResultCalculatorEV.h
+	RigFemPartResultCalculatorEV.cpp
+	RigFemPartResultCalculatorQ.h
+	RigFemPartResultCalculatorQ.cpp
+	RigFemPartResultCalculatorSTM.h
+	RigFemPartResultCalculatorSTM.cpp
+	RigFemPartResultCalculatorCompaction.h
+	RigFemPartResultCalculatorCompaction.cpp
+	RigFemPartResultCalculatorStressGradients.h
+	RigFemPartResultCalculatorStressGradients.cpp
+	RigFemPartResultCalculatorSEM.h
+	RigFemPartResultCalculatorSEM.cpp
+	RigFemPartResultCalculatorNE.h
+	RigFemPartResultCalculatorNE.cpp
+	RigFemPartResultCalculatorFormationIndices.h
+	RigFemPartResultCalculatorFormationIndices.cpp
+	RigFemPartResultCalculatorBarConverted.h
+	RigFemPartResultCalculatorBarConverted.cpp
+	RigFemPartResultCalculatorEnIpPorBar.h
+	RigFemPartResultCalculatorEnIpPorBar.cpp
+	RigFemPartResultCalculatorNodalGradients.h
+	RigFemPartResultCalculatorNodalGradients.cpp
 	RimGeoMechGeometrySelectionItem.h
 	RimGeoMechGeometrySelectionItem.cpp
 )

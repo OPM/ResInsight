@@ -29,6 +29,7 @@
 #include <QString>
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -40,6 +41,7 @@ class RigFemPartResults;
 class RigStatisticsDataCache;
 class RigFemPartCollection;
 class RigFormationNames;
+class RigFemPartResultCalculator;
 
 namespace caf
 {
@@ -67,7 +69,9 @@ public:
     double parameterCohesion() const { return m_cohesion; }
     double parameterFrictionAngleRad() const { return m_frictionAngleRad; }
 
-    void setBiotCoefficientParameters( double fixedFactor, const QString& biotResultAddress );
+    void    setBiotCoefficientParameters( double fixedFactor, const QString& biotResultAddress );
+    double  biotFixedFactor() const { return m_biotFixedFactor; }
+    QString biotResultAddress() const { return m_biotResultAddress; }
 
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
     std::vector<std::string>                        filteredStepNames() const;
@@ -78,10 +82,10 @@ public:
 
     const std::vector<float>& resultValues( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
     std::vector<caf::Ten3f>   tensors( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
-    int                       partCount() const;
-    int                       frameCount();
 
-    static float dsm( float p1, float p3, float tanFricAng, float cohPrTanFricAngle );
+    const RigFemPartCollection* parts() const;
+    int                         partCount() const;
+    int                         frameCount();
 
     void minMaxScalarValues( const RigFemResultAddress& resVarAddr, int frameIndex, double* localMin, double* localMax );
     void minMaxScalarValues( const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax );
@@ -121,51 +125,19 @@ public:
     static std::set<RigFemResultAddress>    normalizedResults();
     static bool                             isNormalizableResult( const RigFemResultAddress& result );
 
-    void setNormalizationAirGap( double normalizationAirGap );
+    void   setNormalizationAirGap( double normalizationAirGap );
+    double normalizationAirGap() const;
+
+    RigFemScalarResultFrames* findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
+    RigFemScalarResultFrames* createScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
+
+    bool                            isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const;
+    static std::vector<std::string> getStressComponentNames( bool includeShear = true );
+    static std::vector<std::string> getStressGradientComponentNames( bool includeShear = true );
+    const RigFormationNames*        activeFormationNames() const;
 
 private:
-    RigFemScalarResultFrames* findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
-
     RigFemScalarResultFrames* calculateDerivedResult( int partIndex, const RigFemResultAddress& resVarAddr );
-
-    void calculateGammaFromFrames( int                             partIndex,
-                                   const RigFemScalarResultFrames* totalStressComponentDataFrames,
-                                   const RigFemScalarResultFrames* srcPORDataFrames,
-                                   RigFemScalarResultFrames*       dstDataFrames,
-                                   caf::ProgressInfo*              frameCountProgress );
-
-    RigFemScalarResultFrames* calculateBarConvertedResult( int                        partIndex,
-                                                           const RigFemResultAddress& convertedResultAddr,
-                                                           const std::string&         fieldNameToConvert );
-    RigFemScalarResultFrames* calculateEnIpPorBarResult( int partIndex, const RigFemResultAddress& convertedResultAddr );
-    RigFemScalarResultFrames* calculateTimeLapseResult( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateMeanStressSEM( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateSFI( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateDSM( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateFOS( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateMeanStressSTM( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateDeviatoricStress( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateVolumetricStrain( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateDeviatoricStrain( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateSurfaceAlignedStress( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateSurfaceAngles( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculatePrincipalStressValues( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculatePrincipalStrainValues( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateCompactionValues( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateNE( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateSE_11_22_33( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateSE_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateST_11_22_33( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateST_12_13_23( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateGamma( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateFormationIndices( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateStressGradients( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateNodalGradients( int partIndex, const RigFemResultAddress& resVarAddr );
-    RigFemScalarResultFrames* calculateNormalizedResult( int partIndex, const RigFemResultAddress& resVarAddr );
-
-    const RigFormationNames* activeFormationNames() const;
-
-    bool isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const;
 
 private:
     cvf::Collection<RigFemPartResults>  m_femPartResults;
@@ -181,31 +153,9 @@ private:
     double  m_biotFixedFactor;
     QString m_biotResultAddress;
 
+    std::vector<std::unique_ptr<RigFemPartResultCalculator>> m_resultCalculators;
+
     RigStatisticsDataCache*          statistics( const RigFemResultAddress& resVarAddr );
     std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache>> m_resultStatistics;
-
-    static std::vector<std::string> getStressComponentNames( bool includeShear = true );
-    static std::vector<std::string> getStressGradientComponentNames( bool includeShear = true );
-};
-
-class RigFemPart;
-
-class RigFemClosestResultIndexCalculator
-{
-public:
-    RigFemClosestResultIndexCalculator( RigFemPart*         femPart,
-                                        RigFemResultPosEnum resultPosition,
-                                        int                 elementIndex,
-                                        int                 m_face,
-                                        const cvf::Vec3d&   intersectionPointInDomain );
-
-    int resultIndexToClosestResult() { return m_resultIndexToClosestResult; }
-    int closestNodeId() { return m_closestNodeId; }
-    int closestElementNodeResIdx() { return m_closestElementNodeResIdx; }
-
-private:
-    int m_resultIndexToClosestResult;
-    int m_closestNodeId;
-    int m_closestElementNodeResIdx;
 };

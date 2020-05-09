@@ -26,6 +26,7 @@
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
+#include "RigFemPartResultCalculatorDSM.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultPosEnum.h"
 #include "RigGeoMechCaseData.h"
@@ -567,7 +568,7 @@ float RiuMohrsCirclePlot::calculateFOS( const cvf::Vec3f& principals, double fri
     float tanFricAng        = cvf::Math::tan( cvf::Math::toRadians( frictionAngle ) );
     float cohPrTanFricAngle = 1.0f * cohesion / tanFricAng;
 
-    float dsm = RigFemPartResultsCollection::dsm( se1, se3, tanFricAng, cohPrTanFricAngle );
+    float dsm = RigFemPartResultCalculatorDSM::dsm( se1, se3, tanFricAng, cohPrTanFricAngle );
 
     return 1.0f / dsm;
 }

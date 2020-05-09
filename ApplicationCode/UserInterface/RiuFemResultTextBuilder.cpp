@@ -19,6 +19,7 @@
 
 #include "RiuFemResultTextBuilder.h"
 
+#include "RigFemClosestResultIndexCalculator.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
