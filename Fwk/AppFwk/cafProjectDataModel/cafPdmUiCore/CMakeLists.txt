@@ -74,6 +74,8 @@ set( PROJECT_FILES
 	cafQShortenedLabel.h
 	cafIconProvider.cpp
 	cafIconProvider.h
+	cafFontTools.cpp
+	cafFontTools.h
 )
 
 add_library( ${PROJECT_NAME}

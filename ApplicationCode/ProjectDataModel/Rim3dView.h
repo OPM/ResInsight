@@ -126,11 +126,9 @@ public:
     void         setBackgroundColor( const cvf::Color3f& newBackgroundColor );
     cvf::Color3f backgroundColor() const override; // Implementation of RiuViewerToViewInterface
     void         applyBackgroundColorAndFontChanges();
-    bool         hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
-    bool         applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                int                         oldFontSize,
-                                int                         fontSize,
-                                bool                        forceChange = false ) override;
+
+    int  fontSize() const;
+    void updateFonts() override;
 
     void disableLighting( bool disable );
     bool isLightingDisabled() const;
@@ -302,6 +300,8 @@ private:
     caf::PdmField<bool>                    m_showGridBox;
     caf::PdmField<bool>                    m_showZScaleLabel;
     caf::PdmPtrField<Rim3dView*>           m_comparisonView;
+
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_fontSize;
 
     // 3D display model data
     cvf::ref<cvf::ModelBasicList>   m_highlightVizModel;

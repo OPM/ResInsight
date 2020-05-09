@@ -98,10 +98,8 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     m_visibleTimeSinceStartRangeMin.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_titlePositionEnum, "TitlePosition", "Title Position", "", "", "" );
-    CAF_PDM_InitField( &m_titleFontSize, "FontSize", 10, "Font Size", "", "", "" );
-    m_titleFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
-    CAF_PDM_InitField( &m_valuesFontSize, "ValuesFontSize", 10, "Font Size", "", "", "" );
-    m_valuesFontSize = RiaApplication::instance()->preferences()->defaultPlotFontSize();
+    CAF_PDM_InitFieldNoDefault( &m_titleFontSize, "FontSize", "Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valuesFontSize, "ValuesFontSize", "Font Size", "", "", "" );
 
     CAF_PDM_InitField( &m_automaticDateComponents, "AutoDate", true, "Automatic Date/Time Labels", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_dateComponents, "DateComponents", "Set Date Label", "", "", "" );
@@ -137,15 +135,7 @@ RimPlotAxisPropertiesInterface::AxisTitlePositionType RimSummaryTimeAxisProperti
 //--------------------------------------------------------------------------------------------------
 int RimSummaryTimeAxisProperties::titleFontSize() const
 {
-    return m_titleFontSize;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::setTitleFontSize( int fontSize )
-{
-    m_titleFontSize = fontSize;
+    return caf::FontTools::absolutePointSize( plotFontSize(), m_titleFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,15 +143,15 @@ void RimSummaryTimeAxisProperties::setTitleFontSize( int fontSize )
 //--------------------------------------------------------------------------------------------------
 int RimSummaryTimeAxisProperties::valuesFontSize() const
 {
-    return m_valuesFontSize;
+    return caf::FontTools::absolutePointSize( plotFontSize(), m_valuesFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTimeAxisProperties::setValuesFontSize( int fontSize )
+caf::FontTools::FontSize RimSummaryTimeAxisProperties::plotFontSize() const
 {
-    m_valuesFontSize = fontSize;
+    return RiaPreferences::current()->defaultPlotFontSize();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -359,27 +349,8 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
-
-    if ( &m_titleFontSize == fieldNeedingOptions || &m_valuesFontSize == fieldNeedingOptions )
-    {
-        std::vector<int> fontSizes;
-        fontSizes.push_back( 8 );
-        fontSizes.push_back( 9 );
-        fontSizes.push_back( 10 );
-        fontSizes.push_back( 11 );
-        fontSizes.push_back( 12 );
-        fontSizes.push_back( 14 );
-        fontSizes.push_back( 16 );
-        fontSizes.push_back( 18 );
-        fontSizes.push_back( 24 );
-
-        for ( int value : fontSizes )
-        {
-            QString text = QString( "%1" ).arg( value );
-            options.push_back( caf::PdmOptionItemInfo( text, value ) );
-        }
-    }
-    else if ( fieldNeedingOptions == &m_dateFormat )
+  
+    if ( fieldNeedingOptions == &m_dateFormat )
     {
         for ( auto dateFormat : RiaQDateTimeTools::supportedDateFormats() )
         {

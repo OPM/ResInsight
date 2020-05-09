@@ -18,6 +18,8 @@
 
 #include "RimLegendConfig.h"
 
+#include "RiaPreferences.h"
+
 // NB! Special macro for pure virtual class
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimLegendConfig, "LegendConfig" );
 
@@ -45,4 +47,16 @@ RimLegendConfig::RimLegendConfig()
 //--------------------------------------------------------------------------------------------------
 RimLegendConfig::~RimLegendConfig()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimLegendConfig::fontSize() const
+{
+    caf::FontHolderInterface* parentFontHolder = nullptr;
+    this->firstAncestorOfType(parentFontHolder);
+    if (parentFontHolder) return parentFontHolder->fontSize();
+
+    return caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultSceneFontSize());
 }

@@ -96,12 +96,6 @@ public:
     bool isYAxisLogarithmic() const;
     void setYAxisInverted( bool inverted );
 
-    bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
-    bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                        int                         oldFontSize,
-                        int                         fontSize,
-                        bool                        forceChange = false ) override;
-
     void updateLegend() override;
 
     void updateZoomInQwt() override;

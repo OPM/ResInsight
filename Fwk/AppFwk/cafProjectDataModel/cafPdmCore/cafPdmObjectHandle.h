@@ -56,6 +56,11 @@ public:
     template <typename T>
     void                    descendantsIncludingThisOfType(std::vector<T*>& descendants) const;
 
+    /// Traverses all children recursively to find objects of the requested type. This object is NOT
+    /// included if it is of the requested type.
+    template <typename T>
+    void                    descendantsOfType(std::vector<T*>& descendants) const;
+
      // PtrReferences
     /// The PdmPtrField's containing pointers to this PdmObjecthandle 
     /// Use ownerObject() on the fieldHandle to get the PdmObjectHandle 
@@ -195,6 +200,15 @@ void PdmObjectHandle::descendantsIncludingThisOfType(std::vector<T*>& descendant
         descendants.push_back(const_cast<T*>(objectOfType));
     }
 
+    descendantsOfType(descendants);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObjectHandle::descendantsOfType(std::vector<T*>& descendants) const
+{
     for (auto f : m_fields)
     {
         std::vector<PdmObjectHandle*> childObjects;

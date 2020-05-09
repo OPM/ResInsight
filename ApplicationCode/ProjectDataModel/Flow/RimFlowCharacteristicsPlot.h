@@ -82,6 +82,9 @@ public:
     void setMinimumCommunication( double minimumCommunication );
     void setAquiferCellThreshold( double aquiferCellThreshold );
 
+    int  fontSize() const override;
+    void updateFonts() override;
+
 protected:
     // RimViewWindow overrides
 

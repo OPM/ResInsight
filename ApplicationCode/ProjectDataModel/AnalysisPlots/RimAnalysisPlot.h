@@ -115,10 +115,6 @@ private:
     void     onLoadDataAndUpdate() override;
     void     zoomAll() override {}
     QImage   snapshotWindowContent() override;
-    bool     applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                            int                         oldFontSize,
-                            int                         fontSize,
-                            bool                        forceChange = false ) override;
 
     // RimPlotWindow overrides
 

@@ -72,10 +72,6 @@ protected:
     void     deleteViewWidget() override;
     void     zoomAll() override {}
     QImage   snapshotWindowContent() override;
-    bool     applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                            int                         oldFontSize,
-                            int                         fontSize,
-                            bool                        forceChange = false ) override;
 
     // RimPlotWindow overrides
     QString description() const override;
@@ -118,4 +114,6 @@ protected:
     caf::PdmField<bool>    m_showPlotTitle;
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
+
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_labelFontSize;
 };

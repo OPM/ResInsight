@@ -147,12 +147,6 @@ public:
     size_t singleColorCurveCount() const;
     void   applyDefaultCurveAppearances();
 
-    bool hasCustomFontSizes( RiaDefines::FontSettingType fontSettingType, int defaultFontSize ) const override;
-    bool applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                        int                         oldFontSize,
-                        int                         fontSize,
-                        bool                        forceChange = false ) override;
-
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();
 

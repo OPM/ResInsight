@@ -179,7 +179,7 @@ void RivContourMapProjectionPartMgr::appendContourLinesToModel( const cvf::Camer
 cvf::ref<cvf::DrawableText> RivContourMapProjectionPartMgr::createTextLabel( const cvf::Color3f& textColor,
                                                                              const cvf::Color3f& backgroundColor )
 {
-    auto font = RiaFontCache::getFont( RiaFontCache::FONT_SIZE_10 );
+    auto font = RiaFontCache::getFont( RiaFontCache::FontSize::FONT_SIZE_10 );
 
     cvf::ref<cvf::DrawableText> labelDrawable = new cvf::DrawableText();
     labelDrawable->setFont( font.p() );

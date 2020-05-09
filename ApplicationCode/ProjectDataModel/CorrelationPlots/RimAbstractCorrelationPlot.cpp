@@ -48,6 +48,9 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "" );
     CAF_PDM_InitField( &m_useAutoPlotTitle, "AutoTitle", true, "Automatic Plot Title", "", "", "" );
     CAF_PDM_InitField( &m_description, "PlotTitle", QString( "Correlation Plot" ), "Custom Plot Title", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_labelFontSize, "LabelFontSize", "Label Font Size", "", "", "" );
+    m_labelFontSize = caf::FontTools::RelativeSize::XSmall;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -309,19 +312,6 @@ QImage RimAbstractCorrelationPlot::snapshotWindowContent()
     }
 
     return image;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimAbstractCorrelationPlot::applyFontSize( RiaDefines::FontSettingType fontSettingType,
-                                                int                         oldFontSize,
-                                                int                         fontSize,
-                                                bool                        forceChange /*= false */ )
-{
-    bool anyChange = false;
-
-    return anyChange;
 }
 
 //--------------------------------------------------------------------------------------------------

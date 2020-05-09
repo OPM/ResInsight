@@ -64,6 +64,18 @@ QWidget* RimPlot::createViewWidget( QWidget* parent /*= nullptr */ )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlot::updateFonts()
+{
+    if (viewer())
+    {
+        viewer()->setPlotTitleFontSize(titleFontSize());
+        viewer()->setLegendFontSize(legendFontSize());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* RimPlot::createPlotWidget( QWidget* parent )
 {
     return createViewWidget( parent );

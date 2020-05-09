@@ -121,6 +121,9 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
     RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+    plotLayoutGroup->add( &m_subTitleFontSize );
+    plotLayoutGroup->add( &m_axisTitleFontSize );
+    plotLayoutGroup->add( &m_axisValueFontSize );
 
     uiOrdering.skipRemainingFields( true );
 }

@@ -147,6 +147,8 @@ public:
     static cvf::Color3ubArray colorArrayFromColorType( ColorRangesType colorType );
     static RimColorLegend*    mapToColorLegend( ColorRangesType colorType );
 
+    void updateFonts() override;
+
 private:
     void                 setNamedCategories( const std::vector<QString>& categoryNames, bool inverse );
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

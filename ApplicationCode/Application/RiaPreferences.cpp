@@ -179,12 +179,10 @@ RiaPreferences::RiaPreferences( void )
 
     CAF_PDM_InitField( &m_defaultScaleFactorZ, "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "" );
 
-    caf::AppEnum<RiaFontCache::FontSize> fontSize     = RiaFontCache::FONT_SIZE_8;
-    caf::AppEnum<RiaFontCache::FontSize> plotFontSize = RiaFontCache::FONT_SIZE_10;
-    CAF_PDM_InitField( &defaultSceneFontSize, "defaultSceneFontSizePt", fontSize, "Viewer Font Size", "", "", "" );
-    CAF_PDM_InitField( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", fontSize, "Annotation Font Size", "", "", "" );
-    CAF_PDM_InitField( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", fontSize, "Well Label Font Size", "", "", "" );
-    CAF_PDM_InitField( &defaultPlotFontSize, "defaultPlotFontSizePt", plotFontSize, "Plot Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &defaultSceneFontSize, "defaultSceneFontSizePt", "Viewer Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", "Annotation Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", "Well Label Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &defaultPlotFontSize, "defaultPlotFontSizePt", "Plot Font Size", "", "", "" );
 
     CAF_PDM_InitField( &showLasCurveWithoutTvdWarning,
                        "showLasCurveWithoutTvdWarning",
@@ -368,31 +366,6 @@ RiaPreferences::RiaPreferences( void )
     CAF_PDM_InitField( &m_pageTopMargin, "pageTopMargin", defaultMarginSize( m_pageSize() ), "Top Margin", "", "", "" );
     CAF_PDM_InitField( &m_pageRightMargin, "pageRightMargin", defaultMarginSize( m_pageSize() ), "Right Margin", "", "", "" );
     CAF_PDM_InitField( &m_pageBottomMargin, "pageBottomMargin", defaultMarginSize( m_pageSize() ), "Bottom Margin", "", "", "" );
-
-    caf::AppEnum<RiaFontCache::FontSize> invalidFontSize = RiaFontCache::INVALID;
-    CAF_PDM_InitField( &m_defaultSceneFontSize_OBSOLETE, "fontSizeInScene", invalidFontSize, "Viewer Font Size", "", "", "" );
-    m_defaultSceneFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
-
-    CAF_PDM_InitField( &m_defaultAnnotationFontSize_OBSOLETE,
-                       "defaultAnnotationFontSize",
-                       invalidFontSize,
-                       "Annotation Font Size",
-                       "",
-                       "",
-                       "" );
-    m_defaultAnnotationFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
-
-    CAF_PDM_InitField( &m_defaultWellLabelFontSize_OBSOLETE,
-                       "wellLabelFontSize",
-                       invalidFontSize,
-                       "Well Label Font Size",
-                       "",
-                       "",
-                       "" );
-    m_defaultWellLabelFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
-
-    CAF_PDM_InitField( &m_defaultPlotFontSize_OBSOLETE, "defaultPlotFontSize", invalidFontSize, "Plot Font Size", "", "", "" );
-    m_defaultPlotFontSize_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer", "", "", "" );
     m_openExportedPdfInViewer.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -668,27 +641,6 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::initAfterRead()
 {
-    // If the stored font size is smaller than the minimum enum value, the stored font size is actually just an enum value
-    int defaultSceneFontEnumValue = static_cast<int>( m_defaultSceneFontSize_OBSOLETE.v() );
-    if ( defaultSceneFontEnumValue >= (int)RiaFontCache::MIN_FONT_SIZE )
-    {
-        defaultSceneFontSize = RiaFontCache::legacyEnumToPointSize( defaultSceneFontEnumValue );
-    }
-    int defaultWellLabelFontEnumValue = static_cast<int>( m_defaultWellLabelFontSize_OBSOLETE.v() );
-    if ( defaultWellLabelFontEnumValue >= (int)RiaFontCache::MIN_FONT_SIZE )
-    {
-        defaultWellLabelFontSize = RiaFontCache::legacyEnumToPointSize( defaultWellLabelFontEnumValue );
-    }
-    int defaultAnnotationFontEnumValue = static_cast<int>( m_defaultAnnotationFontSize_OBSOLETE.v() );
-    if ( defaultAnnotationFontEnumValue >= (int)RiaFontCache::MIN_FONT_SIZE )
-    {
-        defaultAnnotationFontSize = RiaFontCache::legacyEnumToPointSize( defaultAnnotationFontEnumValue );
-    }
-    int defaultPlotFontEnumValue = static_cast<int>( m_defaultPlotFontSize_OBSOLETE.v() );
-    if ( defaultPlotFontEnumValue >= (int)RiaFontCache::MIN_FONT_SIZE )
-    {
-        defaultPlotFontSize = RiaFontCache::legacyEnumToPointSize( defaultPlotFontEnumValue );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

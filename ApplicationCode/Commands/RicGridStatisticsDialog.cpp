@@ -21,6 +21,8 @@
 #include "ExportCommands/RicSnapshotViewToClipboardFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
 
+#include "RiaPreferences.h"
+
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimEclipseView.h"
 
@@ -68,6 +70,7 @@ RicGridStatisticsDialog::RicGridStatisticsDialog( QWidget* parent )
 
     // Set widget properties
     m_textEdit->setReadOnly( true );
+
     RiuQwtPlotTools::setCommonPlotBehaviour( m_historgramPlot );
     RiuQwtPlotTools::setCommonPlotBehaviour( m_aggregatedPlot );
 

@@ -407,7 +407,7 @@ if (MSVC)
     # If possible, the following command is supposed to be the final target
     # set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W3 /wd4190 /wd4100 /wd4127")    
     
-    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/W3 /wd4190 /wd4100 /wd4127 /wd4245 /wd4005")
+    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005")
     if (CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
         # The following warning is generated over 800 times from a qwt header only using VS2015
         # Disabling temporarily

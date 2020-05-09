@@ -72,8 +72,8 @@ public:
     int  axisTitleFontSize( QwtPlot::Axis axis ) const;
     int  axisValueFontSize( QwtPlot::Axis axis ) const;
     void setAxisFontsAndAlignment( QwtPlot::Axis,
-                                   int  titleFontSize,
-                                   int  valueFontSize,
+                                   int  titleFontPixelSize,
+                                   int  valueFontPixelSize,
                                    bool titleBold = false,
                                    int  alignment = (int)Qt::AlignRight );
 

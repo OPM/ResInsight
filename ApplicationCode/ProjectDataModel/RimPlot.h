@@ -98,6 +98,7 @@ protected:
     static void attachPlotWidgetSignals( RimPlot* plot, RiuQwtPlotWidget* plotWidget );
     QWidget*    createViewWidget( QWidget* parent = nullptr ) final;
 
+    void updateFonts();
 private:
     virtual void              doRemoveFromCollection() = 0;
     virtual void              doRenderWindowContent( QPaintDevice* paintDevice );

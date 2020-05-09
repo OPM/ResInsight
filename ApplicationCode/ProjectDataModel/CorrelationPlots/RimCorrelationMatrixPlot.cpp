@@ -304,7 +304,7 @@ void RimCorrelationMatrixPlot::updateAxes()
     m_plotWidget->setAxisScaleEngine( QwtPlot::yLeft, new RiuQwtLinearScaleEngine );
     m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Result Vector" );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, 11, 7, false, Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, 10, 6, false, Qt::AlignCenter );
     m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, true, false );
     m_plotWidget->setAxisRange( QwtPlot::yLeft, 0.0, (double)m_resultLabels.size() + 1 );
     m_plotWidget->setMajorAndMinorTickIntervalsAndRange( QwtPlot::yLeft,
@@ -322,7 +322,7 @@ void RimCorrelationMatrixPlot::updateAxes()
     m_plotWidget->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
     m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Ensemble Parameter" );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, 11, 6, false, Qt::AlignCenter | Qt::AlignTop );
+    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, 10, 6, false, Qt::AlignCenter | Qt::AlignTop );
     m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xBottom, true, false );
     m_plotWidget->setAxisRange( QwtPlot::xBottom, 0.0, (double)m_paramLabels.size() + 1 );
     m_plotWidget->setMajorAndMinorTickIntervalsAndRange( QwtPlot::xBottom,
@@ -502,7 +502,7 @@ void RimCorrelationMatrixPlot::createMatrix()
             cvf::Color3f contrastColor = RiaColorTools::contrastColor( cvf::Color3f( color ) );
             textLabel.setColor( RiaColorTools::toQColor( contrastColor ) );
             QFont font = textLabel.font();
-            font.setPixelSize( RiaFontCache::pointSizeToPixelSize( 7 ) );
+            font.setPixelSize( caf::FontTools::pointSizeToPixelSize( 7 ) );
             textLabel.setFont( font );
             QwtPlotMarker* marker = new QwtPlotMarker();
             marker->setLabel( textLabel );

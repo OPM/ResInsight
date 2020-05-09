@@ -117,7 +117,7 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
 
     curveDataGroup->add( &m_selectedVarsUiField );
-    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
+    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, {false, 1, 0} );
     curveDataGroup->add( &m_timeStep );
 
     caf::PdmUiGroup* plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
@@ -184,11 +184,11 @@ void RimCorrelationPlot::updateAxes()
 
     m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Parameter" );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, 11, 11, false, Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, 10, 10, false, Qt::AlignCenter );
 
     m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient" );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, 11, 11, false, Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, 10, 10, false, Qt::AlignCenter );
     if ( m_showAbsoluteValues )
     {
         m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient ABS" );

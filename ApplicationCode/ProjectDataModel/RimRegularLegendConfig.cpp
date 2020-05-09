@@ -639,9 +639,9 @@ void RimRegularLegendConfig::recreateLegend()
     // has been removed, (and thus the opengl resources has been deleted) The text in
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
-    cvf::Font* standardFont = RiaApplication::instance()->defaultSceneFont();
-    m_scalarMapperLegend    = new caf::OverlayScalarMapperLegend( standardFont );
-    m_categoryLegend        = new caf::CategoryLegend( standardFont, m_categoryMapper.p() );
+    cvf::Font* font      = RiaApplication::instance()->sceneFont( this->fontSize() );
+    m_scalarMapperLegend = new caf::OverlayScalarMapperLegend( font );
+    m_categoryLegend     = new caf::CategoryLegend( font, m_categoryMapper.p() );
 
     updateLegend();
 }
@@ -943,6 +943,19 @@ RimColorLegend* RimRegularLegendConfig::mapToColorLegend( ColorRangesType colorT
 {
     RimProject* project = RimProject::current();
     return project->colorLegendCollection()->findByName( RimRegularLegendConfig::ColorRangeEnum::uiText( colorType ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::updateFonts()
+{
+    int  pointSize = this->fontSize();
+    auto font      = RiaApplication::instance()->sceneFont( pointSize );
+
+    m_scalarMapperLegend = new caf::OverlayScalarMapperLegend( font );
+    m_categoryLegend     = new caf::CategoryLegend( font, m_categoryMapper.p() );
+    updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

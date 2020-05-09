@@ -20,7 +20,9 @@
 #include "RivGridBoxGenerator.h"
 
 #include "RiaColorTools.h"
+#include "RiaFontCache.h"
 #include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
 
 #include "RivPartPriority.h"
 #include "RivPatchGenerator.h"
@@ -49,6 +51,8 @@ RivGridBoxGenerator::RivGridBoxGenerator()
 
     m_scaleZ             = 1.0;
     m_displayModelOffset = cvf::Vec3d::ZERO;
+
+    m_fontPointSize = caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultSceneFontSize());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,6 +213,18 @@ void RivGridBoxGenerator::createGridBoxParts()
         createGridBoxFaceParts();
         createGridBoxLegendParts();
         m_needsRegeneration = false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivGridBoxGenerator::setGridLabelFontSize( int fontSize )
+{
+    if (m_fontPointSize != fontSize)
+    {
+        m_fontPointSize = fontSize;
+        m_needsRegeneration = true;
     }
 }
 
@@ -653,9 +669,12 @@ void RivGridBoxGenerator::createLegend( EdgeType edge, cvf::Collection<cvf::Part
 
         cvf::ref<cvf::DrawableText> geo = new cvf::DrawableText;
 
-        cvf::Font* standardFont = RiaGuiApplication::instance()->defaultSceneFont();
-
-        geo->setFont( standardFont );
+        cvf::ref<cvf::Font> font = RiaGuiApplication::instance()->defaultSceneFont();
+        if (caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultSceneFontSize()) != m_fontPointSize)
+        {
+            font = RiaFontCache::getFont(m_fontPointSize);
+        }
+        geo->setFont( font.p() );
         geo->setTextColor( m_gridLegendColor );
         geo->setCheckPosVisible( false );
         geo->setDrawBackground( false );

@@ -20,6 +20,7 @@
 #include "RimDepthTrackPlot.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
 
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
@@ -103,6 +104,10 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitScriptableFieldWithIONoDefault( &m_depthAxisGridVisibility, "ShowDepthGridLines", "Show Grid Lines", "", "", "" );
     CAF_PDM_InitScriptableFieldWithIO( &m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "" );
     m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Track Title Font Size", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size", "", "", "" );
+    CAF_PDM_InitScriptableFieldWithIONoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
     m_nameConfig.uiCapability()->setUiTreeHidden( true );
@@ -701,6 +706,9 @@ void RimDepthTrackPlot::doUpdateLayout()
 {
     if ( m_viewer )
     {
+        m_viewer->setTitleFontSizes( titleFontSize(), subTitleFontSize() );
+        m_viewer->setLegendFontSize( legendFontSize() );
+        m_viewer->setAxisFontSizes( axisTitleFontSize(), axisValueFontSize() );
         m_viewer->scheduleUpdate();
     }
 }
@@ -796,6 +804,11 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         m_isAutoScaleDepthEnabled = true;
         updateZoom();
     }
+    else if ( changedField == &m_subTitleFontSize || changedField == &m_axisTitleFontSize ||
+              changedField == &m_axisValueFontSize )
+    {
+        updateFonts();
+    }
 
     updateConnectedEditors();
 }
@@ -818,6 +831,9 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 
     caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
     RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+    plotLayoutGroup->add( &m_subTitleFontSize );
+    plotLayoutGroup->add( &m_axisTitleFontSize );
+    plotLayoutGroup->add( &m_axisValueFontSize );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -850,6 +866,11 @@ QList<caf::PdmOptionItemInfo> RimDepthTrackPlot::calculateValueOptions( const ca
         {
             options.push_back( caf::PdmOptionItemInfo( UnitAppEnum::uiText( depthUnit ), depthUnit ) );
         }
+    }
+    else if ( fieldNeedingOptions == &m_subTitleFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||
+              fieldNeedingOptions == &m_axisValueFontSize )
+    {
+        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
     }
 
     ( *useOptionsOnly ) = true;
@@ -1063,4 +1084,28 @@ void RimDepthTrackPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      chil
     updateZoom();
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateWellLogPlotToolBar();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimDepthTrackPlot::subTitleFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_subTitleFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimDepthTrackPlot::axisTitleFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimDepthTrackPlot::axisValueFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
 }

@@ -68,6 +68,12 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
     , m_plotDefinition( plotDefinition )
     , m_previewMode( false )
     , m_showSubTitles( false )
+    , m_titleFontPixelSize( 12 )
+    , m_subTitleFontPixelSize( 11 )
+    , m_legendFontPixelSize( 8 )
+    , m_axisTitleFontPixelSize( 10 )
+    , m_axisValueFontPixelSize( 10 )
+
 {
     CAF_ASSERT( m_plotDefinition );
 
@@ -108,10 +114,6 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
     }
 
     setFocusPolicy( Qt::StrongFocus );
-
-    RiaApplication* app             = RiaApplication::instance();
-    int             defaultFontSize = app->preferences()->defaultPlotFontSize();
-    setFontSize( defaultFontSize );
 
     this->setObjectName( QString( "%1" ).arg( reinterpret_cast<uint64_t>( this ) ) );
 
@@ -259,32 +261,33 @@ void RiuMultiPlotPage::setTitleVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::setFontSize( int fontSize )
+void RiuMultiPlotPage::setTitleFontSizes( int titleFontSize, int subTitleFontSize )
 {
-    int pixelSize = RiaFontCache::pointSizeToPixelSize( fontSize );
-    {
-        QFont font = m_plotTitle->font();
+    m_titleFontPixelSize    = caf::FontTools::pointSizeToPixelSize( titleFontSize );
+    m_subTitleFontPixelSize = caf::FontTools::pointSizeToPixelSize( subTitleFontSize );
 
-        font.setPixelSize( pixelSize + 2 );
-        font.setBold( true );
-        m_plotTitle->setFont( font );
-    }
-
-    for ( QLabel* subTitle : m_subTitles )
-    {
-        QFont font = subTitle->font();
-        font.setPixelSize( pixelSize );
-        font.setBold( true );
-        subTitle->setFont( font );
-    }
+    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuMultiPlotPage::fontSize() const
+void RiuMultiPlotPage::setLegendFontSize( int legendFontSize )
 {
-    return m_plotTitle->font().pointSize() - 2;
+    m_legendFontPixelSize = caf::FontTools::pointSizeToPixelSize( legendFontSize );
+
+    scheduleUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::setAxisFontSizes( int axisTitleFontSize, int axisValueFontSize )
+{
+    m_axisTitleFontPixelSize = caf::FontTools::pointSizeToPixelSize( axisTitleFontSize );
+    m_axisValueFontPixelSize = caf::FontTools::pointSizeToPixelSize( axisValueFontSize );
+
+    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -579,6 +582,10 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
 {
     clearGridLayout();
 
+    auto titleFont = m_plotTitle->font();
+    titleFont.setPixelSize( m_titleFontPixelSize );
+    m_plotTitle->setFont( titleFont );
+
     for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
     {
         if ( m_plotWidgets[tIdx] )
@@ -621,11 +628,17 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, column, 1 + ( rowSpan - 1 ) * 3, colSpan );
 
             subTitles[visibleIndex]->setVisible( m_showSubTitles );
+            QFont subTitleFont = subTitles[visibleIndex]->font();
+            subTitleFont.setPixelSize( m_subTitleFontPixelSize );
+            subTitles[visibleIndex]->setFont( subTitleFont );
 
             plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft,
                                                                      showYAxis( row, column ),
                                                                      showYAxis( row, column ) );
             plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
+            plotWidgets[visibleIndex]->setAxisFontsAndAlignment( QwtPlot::yLeft,
+                                                                 m_axisTitleFontPixelSize,
+                                                                 m_axisValueFontPixelSize );
 
             plotWidgets[visibleIndex]->show();
 
@@ -640,7 +653,7 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
                     }
                     legends[visibleIndex]->setMaxColumns( legendColumns );
                     QFont legendFont = legends[visibleIndex]->font();
-                    legendFont.setPixelSize( RiaFontCache::pointSizeToPixelSize( m_plotDefinition->legendFontSize() ) );
+                    legendFont.setPixelSize( m_legendFontPixelSize );
                     legends[visibleIndex]->setFont( legendFont );
                     legends[visibleIndex]->show();
                 }
