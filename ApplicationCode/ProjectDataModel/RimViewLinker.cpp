@@ -46,8 +46,8 @@
 #include "RiuViewer.h"
 
 #include "RiaOptionItemFactory.h"
+#include "cafIconProvider.h"
 #include "cafPdmUiTreeOrdering.h"
-#include "cafQIconProvider.h"
 #include "cvfCamera.h"
 #include "cvfMatrix4.h"
 #include "cvfScene.h"
@@ -412,7 +412,7 @@ bool RimViewLinker::isActive() const
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateUiNameAndIcon()
 {
-    caf::QIconProvider iconProvider;
+    caf::IconProvider iconProvider;
     RimViewLinker::findNameAndIconFromView( &m_name.v(), &iconProvider, m_masterView );
 
     if ( m_masterView ) m_masterView->updateAutoName();
@@ -445,7 +445,7 @@ void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::findNameAndIconFromView( QString* name, caf::QIconProvider* icon, RimGridView* view )
+void RimViewLinker::findNameAndIconFromView( QString* name, caf::IconProvider* icon, RimGridView* view )
 {
     CVF_ASSERT( name && icon );
 
@@ -456,7 +456,7 @@ void RimViewLinker::findNameAndIconFromView( QString* name, caf::QIconProvider* 
     }
     else
     {
-        *icon = caf::QIconProvider();
+        *icon = caf::IconProvider();
     }
 }
 

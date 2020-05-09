@@ -69,21 +69,19 @@ caf::PdmFieldHandle* RimCellFilter::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimCellFilter::updateIconState()
 {
-    caf::QIconProvider iconProvider = this->uiIconProvider();
+    caf::IconProvider iconProvider = this->uiIconProvider();
 
-    if ( iconProvider.isNull() ) return;
+    if ( !iconProvider.valid() ) return;
 
-    QPixmap sign;
     if ( filterMode() == INCLUDE )
     {
-        sign.load( ":/Plus.png" );
+        iconProvider.setOverlayResourceString( ":/Plus.png" );
     }
     else
     {
-        sign.load( ":/Minus.png" );
+        iconProvider.setOverlayResourceString( ":/Minus.png" );
     }
 
-    iconProvider.setOverlayPixmap( sign );
     iconProvider.setActive( isActive && !isActive.uiCapability()->isUiReadOnly() );
 
     this->setUiIcon( iconProvider );

@@ -179,7 +179,7 @@ PdmUiTreeOrdering::PdmUiTreeOrdering(const QString & title, const QString& iconR
 {
     m_uiItem = new PdmUiItem();
     m_uiItem->setUiName(title);
-    m_uiItem->setUiIcon(QIconProvider(iconResourceName));
+    m_uiItem->setUiIcon(IconProvider(iconResourceName));
 }
 
 //--------------------------------------------------------------------------------------------------
