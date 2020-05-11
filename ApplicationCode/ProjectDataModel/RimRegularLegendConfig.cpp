@@ -541,6 +541,15 @@ void RimRegularLegendConfig::setAutomaticRanges( double globalMin, double global
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::initAfterRead()
 {
+    if ( resultVariableName == "Binary Formation Allen" )
+    {
+        resultVariableName = RiaDefines::formationBinaryAllanResultName();
+    }
+    else if ( resultVariableName == "Formation Allen" )
+    {
+        resultVariableName = RiaDefines::formationAllanResultName();
+    }
+
     updateFieldVisibility();
 
     this->updateUiIconFromToggleField();

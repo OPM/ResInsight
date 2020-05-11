@@ -1234,6 +1234,17 @@ void RimEclipseResultDefinition::initAfterRead()
         assignFlowSolutionFromCase();
     }
 
+    if ( m_resultVariable == "Formation Allen" )
+    {
+        m_resultVariable = RiaDefines::formationAllanResultName();
+        m_resultType     = RiaDefines::ResultCatType::ALLAN_DIAGRAMS;
+    }
+    else if ( m_resultVariable == "Binary Formation Allen" )
+    {
+        m_resultVariable = RiaDefines::formationBinaryAllanResultName();
+        m_resultType     = RiaDefines::ResultCatType::ALLAN_DIAGRAMS;
+    }
+
     m_porosityModelUiField  = m_porosityModel;
     m_resultTypeUiField     = m_resultType;
     m_resultVariableUiField = m_resultVariable;
