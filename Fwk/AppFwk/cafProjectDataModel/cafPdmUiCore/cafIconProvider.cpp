@@ -112,30 +112,42 @@ std::unique_ptr<QIcon> IconProvider::icon(const QSize& size /*= QSize(16, 16)*/)
     }
 
     if (m_pixmap) return std::unique_ptr<QIcon>(new QIcon(*m_pixmap));
-
+    
     QPixmap pixmap(size);
 
+    bool validIcon = false;
     if (!m_backgroundColorString.isEmpty() && QColor::isValidColor(m_backgroundColorString))
     {
         pixmap.fill(QColor(m_backgroundColorString));
+        validIcon = true;
     }
     else pixmap.fill(Qt::transparent);
 
     if (!m_iconResourceString.isEmpty())
     {
-        QPixmap iconPixmap = QIcon(m_iconResourceString).pixmap(size, m_active ? QIcon::Normal : QIcon::Disabled);
-        QPainter painter(&pixmap);
-        painter.drawPixmap(0, 0, iconPixmap);
+        QIcon resourceStringIcon(m_iconResourceString);
+        if (!resourceStringIcon.isNull())
+        {
+            QPixmap iconPixmap = resourceStringIcon.pixmap(size, m_active ? QIcon::Normal : QIcon::Disabled);
+            QPainter painter(&pixmap);
+            painter.drawPixmap(0, 0, iconPixmap);
+            validIcon = true;
+        }
     }
 
     if (!m_overlayResourceString.isEmpty())
     {
-        QPixmap overlayPixmap = QIcon(m_overlayResourceString).pixmap(size, m_active ? QIcon::Normal : QIcon::Disabled);
-        QPainter painter(&pixmap);
-        painter.drawPixmap(0, 0, overlayPixmap);
+        QIcon overlayIcon (m_overlayResourceString);
+        if (!overlayIcon.isNull())
+        {
+            QPixmap overlayPixmap = overlayIcon.pixmap(size, m_active ? QIcon::Normal : QIcon::Disabled);
+            QPainter painter(&pixmap);
+            painter.drawPixmap(0, 0, overlayPixmap);
+            validIcon = true;
+        }
     }
 
-    return std::unique_ptr<QIcon>(new QIcon(pixmap));
+    return validIcon ? std::unique_ptr<QIcon>(new QIcon(pixmap)) : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
