@@ -47,7 +47,7 @@ class RigWellPath;
 class RimEclipseCase;
 class RigVirtualPerforationTransmissibilities;
 class RigEquil;
-class RigAllenDiagramData;
+class RigAllanDiagramData;
 
 struct RigWellResultPoint;
 
@@ -89,7 +89,7 @@ public:
     void                       setActiveFormationNames( RigFormationNames* activeFormationNames );
     const RigFormationNames*   activeFormationNames() const;
     const std::vector<QString> formationNames() const;
-    RigAllenDiagramData*       allanDiagramData();
+    RigAllanDiagramData*       allanDiagramData();
 
     void                                   setSimWellData( const cvf::Collection<RigSimWellData>& data );
     const cvf::Collection<RigSimWellData>& wellResults() const { return m_simWellData; }

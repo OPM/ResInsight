@@ -40,7 +40,7 @@
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
-#include "RigAllenDiagramData.h"
+#include "RigAllanDiagramData.h"
 #include "RimIntersectionResultDefinition.h"
 #include "cafDisplayCoordTransform.h"
 

@@ -23,11 +23,11 @@
 
 #include <map>
 
-class RigAllenDiagramData : public cvf::Object
+class RigAllanDiagramData : public cvf::Object
 {
 public:
-    RigAllenDiagramData();
-    ~RigAllenDiagramData() override;
+    RigAllanDiagramData();
+    ~RigAllanDiagramData() override;
 
     const std::map<std::pair<int, int>, int>& formationCombinationToCategory()
     {

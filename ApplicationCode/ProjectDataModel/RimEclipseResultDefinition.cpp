@@ -28,7 +28,7 @@
 #include "RicfCommandObject.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigAllenDiagramData.h"
+#include "RigAllanDiagramData.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"

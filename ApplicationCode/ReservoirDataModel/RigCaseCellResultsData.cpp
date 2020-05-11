@@ -23,7 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "RigAllenDiagramData.h"
+#include "RigAllanDiagramData.h"
 #include "RigCaseCellResultCalculator.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
@@ -45,7 +45,7 @@
 
 #include <QDateTime>
 
-#include "RigEclipseAllenFaultsStatCalc.h"
+#include "RigEclipseAllanFaultsStatCalc.h"
 #include <algorithm>
 #include <cmath>
 
@@ -63,7 +63,7 @@ RigCaseCellResultsData::RigCaseCellResultsData( RigEclipseCaseData*           ow
     m_ownerCaseData = ownerCaseData;
     m_ownerMainGrid = ownerCaseData->mainGrid();
 
-    m_allanDiagramData = new RigAllenDiagramData;
+    m_allanDiagramData = new RigAllanDiagramData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -429,8 +429,8 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
     else if ( resultName == RiaDefines::formationAllanResultName() ||
               resultName == RiaDefines::formationBinaryAllanResultName() )
     {
-        cvf::ref<RigEclipseAllenFaultsStatCalc> calc =
-            new RigEclipseAllenFaultsStatCalc( m_ownerMainGrid->nncData(), resVarAddr );
+        cvf::ref<RigEclipseAllanFaultsStatCalc> calc =
+            new RigEclipseAllanFaultsStatCalc( m_ownerMainGrid->nncData(), resVarAddr );
         statisticsCalculator = calc;
     }
     else
@@ -2908,7 +2908,7 @@ const RigFormationNames* RigCaseCellResultsData::activeFormationNames() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigAllenDiagramData* RigCaseCellResultsData::allanDiagramData()
+RigAllanDiagramData* RigCaseCellResultsData::allanDiagramData()
 {
     return m_allanDiagramData.p();
 }
@@ -3132,9 +3132,9 @@ void RigCaseCellResultsData::computeAllanResults( RigCaseCellResultsData* cellRe
                 binaryValue = 1.0;
             }
 
-            fnAllenNncResults[i]        = k1;
-            allAllenFormationResults[i] = k1;
-            fnBinAllenNncResults[i]     = binaryValue;
+            fnAllanNncResults[i]        = k1;
+            allAllanFormationResults[i] = k1;
+            fnBinAllanNncResults[i]     = binaryValue;
         }
 #endif
     }
