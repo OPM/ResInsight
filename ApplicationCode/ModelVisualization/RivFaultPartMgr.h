@@ -115,9 +115,9 @@ private:
     cvf::ref<cvf::Vec2fArray>         m_NNCTextureCoords;
 
     bool                              m_isAllNncsGenerated;
-    cvf::ref<RivNNCGeometryGenerator> m_allenNNCGenerator;
-    cvf::ref<cvf::Part>               m_allenNNCFaces;
-    cvf::ref<cvf::Vec2fArray>         m_allenNNCTextureCoords;
+    cvf::ref<RivNNCGeometryGenerator> m_allanNNCGenerator;
+    cvf::ref<cvf::Part>               m_allanNNCFaces;
+    cvf::ref<cvf::Vec2fArray>         m_allanNNCTextureCoords;
 
     cvf::ref<cvf::Part> m_faultLabelPart;
     cvf::ref<cvf::Part> m_faultLabelLinePart;

@@ -323,7 +323,7 @@ QString RiuResultTextBuilder::faultResultDetails()
             if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->faultResultSettings()->hasValidCustomResult() )
             {
                 if ( m_viewWithFaultsSettings->faultResultSettings()->customFaultResult()->resultType() !=
-                     RiaDefines::ALLEN_DIAGRAMS )
+                     RiaDefines::ALLAN_DIAGRAMS )
                 {
                     text += "Fault result data:\n";
                     this->appendTextFromResultColors( eclipseCaseData,
@@ -478,16 +478,16 @@ QString RiuResultTextBuilder::nncResultText()
                         text = QString( "%1 : %2" ).arg( resultVar ).arg( scalarValue );
                     }
 
-                    if ( resultType == RiaDefines::ALLEN_DIAGRAMS )
+                    if ( resultType == RiaDefines::ALLAN_DIAGRAMS )
                     {
                         nncValues = nncData->staticConnectionScalarResult( eclipseResultAddress );
                         QString resultValueText;
 
                         if ( m_viewWithFaultsSettings->currentFaultResultColors()->resultVariable() ==
-                             RiaDefines::formationAllenResultName() )
+                             RiaDefines::formationAllanResultName() )
                         {
                             std::pair<int, int> fmIndexPair =
-                                eclipseCase->allenDiagramData()->formationIndexCombinationFromCategory(
+                                eclipseCase->allanDiagramData()->formationIndexCombinationFromCategory(
                                     ( *nncValues )[m_nncIndex] );
 
                             std::vector<QString> fmNames = eclipseCase->formationNames();
@@ -503,7 +503,7 @@ QString RiuResultTextBuilder::nncResultText()
                             // clang-format on
                         }
                         else if ( m_viewWithFaultsSettings->currentFaultResultColors()->resultVariable() ==
-                                  RiaDefines::formationBinaryAllenResultName() )
+                                  RiaDefines::formationBinaryAllanResultName() )
                         {
                             resultValueText = ( *nncValues )[m_nncIndex] == 0 ? "Same formation" : "Different formation";
                         }

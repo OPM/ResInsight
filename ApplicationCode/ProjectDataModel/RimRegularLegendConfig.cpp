@@ -961,7 +961,7 @@ QList<caf::PdmOptionItemInfo>
     if ( rftCurveSet ) hasRftPlotParent = true;
 
     bool isCategoryResult = false;
-    bool isAllenDiagram   = false;
+    bool isAllanDiagram   = false;
     {
         RimEclipseCellColors* eclCellColors = nullptr;
         this->firstAncestorOrThisOfType( eclCellColors );
@@ -983,9 +983,9 @@ QList<caf::PdmOptionItemInfo>
             isCategoryResult = true;
         }
 
-        if ( eclCellColors && eclCellColors->resultType() == RiaDefines::ALLEN_DIAGRAMS )
+        if ( eclCellColors && eclCellColors->resultType() == RiaDefines::ALLAN_DIAGRAMS )
         {
-            isAllenDiagram = true;
+            isAllanDiagram = true;
         }
     }
 
@@ -996,7 +996,7 @@ QList<caf::PdmOptionItemInfo>
         // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of
         // this type
         std::vector<MappingType> mappingTypes;
-        if ( !isAllenDiagram )
+        if ( !isAllanDiagram )
         {
             mappingTypes.push_back( LINEAR_DISCRETE );
 
@@ -1023,7 +1023,7 @@ QList<caf::PdmOptionItemInfo>
         // This is an app enum field, see cafInternalPdmFieldTypeSpecializations.h for the default specialization of
         // this type
         std::vector<ColorRangesType> rangeTypes;
-        if ( !isAllenDiagram )
+        if ( !isAllanDiagram )
         {
             if ( !hasEnsembleCurveSetParent && !hasRftPlotParent )
             {

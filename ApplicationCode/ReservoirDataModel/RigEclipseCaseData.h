@@ -89,7 +89,7 @@ public:
     void                       setActiveFormationNames( RigFormationNames* activeFormationNames );
     const RigFormationNames*   activeFormationNames() const;
     const std::vector<QString> formationNames() const;
-    RigAllenDiagramData*       allenDiagramData();
+    RigAllenDiagramData*       allanDiagramData();
 
     void                                   setSimWellData( const cvf::Collection<RigSimWellData>& data );
     const cvf::Collection<RigSimWellData>& wellResults() const { return m_simWellData; }
