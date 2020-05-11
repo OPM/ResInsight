@@ -47,7 +47,7 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 PdmUiItemInfo::PdmUiItemInfo(const QString& uiName,
-                             IconProvider  iconProvider /*= IconProvider() */,
+                             QIconProvider  iconProvider /*= QIconProvider() */,
                              QString        toolTip /*= ""*/,
                              QString        whatsThis /*= ""*/,
                              QString        extraDebugText /*= ""*/)
@@ -90,7 +90,7 @@ PdmUiItemInfo::PdmUiItemInfo(const QString& uiName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<QIcon> PdmUiItemInfo::icon() const
+QIcon PdmUiItemInfo::icon() const
 {
     return m_iconProvider.icon();
 }
@@ -98,7 +98,7 @@ std::unique_ptr<QIcon> PdmUiItemInfo::icon() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const IconProvider& PdmUiItemInfo::iconProvider() const
+const QIconProvider& PdmUiItemInfo::iconProvider() const
 {
     return m_iconProvider;
 }
@@ -109,7 +109,7 @@ const IconProvider& PdmUiItemInfo::iconProvider() const
 PdmOptionItemInfo::PdmOptionItemInfo(const QString&         anOptionUiText,
                                      const QVariant&        aValue,
                                      bool                   isReadOnly /* = false */,
-                                     const IconProvider&   anIcon /* = IconProvider()*/)
+                                     const QIconProvider&   anIcon /* = QIconProvider()*/)
     : m_optionUiText(anOptionUiText)
     , m_value(aValue)
     , m_isReadOnly(isReadOnly)
@@ -124,7 +124,7 @@ PdmOptionItemInfo::PdmOptionItemInfo(const QString&         anOptionUiText,
 PdmOptionItemInfo::PdmOptionItemInfo(const QString&        anOptionUiText,
                                      caf::PdmObjectHandle* obj,
                                      bool                  isReadOnly /*= false*/,
-                                     const IconProvider&  anIcon /*= IconProvider()*/)
+                                     const QIconProvider&  anIcon /*= QIconProvider()*/)
     : m_optionUiText(anOptionUiText)
     , m_isReadOnly(isReadOnly)
     , m_iconProvider(anIcon)
@@ -137,7 +137,7 @@ PdmOptionItemInfo::PdmOptionItemInfo(const QString&        anOptionUiText,
 ///
 //--------------------------------------------------------------------------------------------------
 PdmOptionItemInfo
-    PdmOptionItemInfo::createHeader(const QString& anOptionUiText, bool isReadOnly /*= false*/, const IconProvider& anIcon /*= IconProvider()*/)
+    PdmOptionItemInfo::createHeader(const QString& anOptionUiText, bool isReadOnly /*= false*/, const QIconProvider& anIcon /*= QIconProvider()*/)
 {
     PdmOptionItemInfo header(anOptionUiText, QVariant(), isReadOnly, anIcon);
 
@@ -187,7 +187,7 @@ bool PdmOptionItemInfo::isHeading() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<QIcon> PdmOptionItemInfo::icon() const
+const QIcon PdmOptionItemInfo::icon() const
 {
     return m_iconProvider.icon();
 }
@@ -248,7 +248,7 @@ void PdmUiItem::setUiName(const QString& uiName, const QString& uiConfigName /*=
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<QIcon> PdmUiItem::uiIcon(const QString& uiConfigName) const
+const QIcon PdmUiItem::uiIcon(const QString& uiConfigName) const
 {
     return uiIconProvider(uiConfigName).icon();
 }
@@ -256,22 +256,22 @@ std::unique_ptr<QIcon> PdmUiItem::uiIcon(const QString& uiConfigName) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const IconProvider PdmUiItem::uiIconProvider(const QString& uiConfigName) const
+const QIconProvider PdmUiItem::uiIconProvider(const QString& uiConfigName) const
 {
     const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
     const PdmUiItemInfo* defInfo = defaultInfo();
     const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
-    if (conInfo && conInfo->iconProvider().valid()) return conInfo->iconProvider();
-    if (defInfo && defInfo->iconProvider().valid()) return defInfo->iconProvider();
-    if (sttInfo && sttInfo->iconProvider().valid()) return sttInfo->iconProvider();
+    if (conInfo && !(conInfo->iconProvider().isNull())) return conInfo->iconProvider();
+    if (defInfo && !(defInfo->iconProvider().isNull())) return defInfo->iconProvider();
+    if (sttInfo && !(sttInfo->iconProvider().isNull())) return sttInfo->iconProvider();
 
-    return IconProvider();
+    return QIconProvider();
 }
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiItem::setUiIcon(const IconProvider& uiIconProvider, const QString& uiConfigName /*= ""*/)
+void PdmUiItem::setUiIcon(const QIconProvider& uiIconProvider, const QString& uiConfigName /*= ""*/)
 {
     m_configItemInfos[uiConfigName].m_iconProvider = uiIconProvider;
 }
@@ -281,7 +281,7 @@ void PdmUiItem::setUiIcon(const IconProvider& uiIconProvider, const QString& uiC
 //--------------------------------------------------------------------------------------------------
 void PdmUiItem::setUiIconFromResourceString(const QString& uiIconResourceName, const QString& uiConfigName /*= ""*/)
 {
-    setUiIcon(caf::IconProvider(uiIconResourceName), uiConfigName);
+    setUiIcon(caf::QIconProvider(uiIconResourceName), uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -653,7 +653,7 @@ PdmUiItem::PdmUiItem()
 //--------------------------------------------------------------------------------------------------
 void PdmUiItem::updateUiIconFromState(bool isActive, const QString& uiConfigName)
 {
-    IconProvider normalIconProvider = this->uiIconProvider(uiConfigName);
+    QIconProvider normalIconProvider = this->uiIconProvider(uiConfigName);
     normalIconProvider.setActive(isActive);
     this->setUiIcon(normalIconProvider, uiConfigName);
 }

@@ -56,10 +56,10 @@ void PdmUiToolButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     CAF_ASSERT(!m_toolButton.isNull());
 
-    auto ic = uiField()->uiIcon(uiConfigName);
-    if (ic)
+    QIcon ic = uiField()->uiIcon(uiConfigName);
+    if (!ic.isNull())
     {
-        m_toolButton->setIcon(*ic);
+        m_toolButton->setIcon(ic);
     }
 
     QString buttonText = uiField()->uiName(uiConfigName);

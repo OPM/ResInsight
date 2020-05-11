@@ -65,13 +65,10 @@ void RicCompareTo3dViewFeature::setupActionLook( QAction* actionToSetup )
     auto view = static_cast<Rim3dView*>( userData.value<void*>() );
     if ( view )
     {
-        auto icon = view->uiIconProvider().icon();
-        if ( icon ) actionToSetup->setIcon( *icon );
+        actionToSetup->setIcon( view->uiIconProvider().icon() );
     }
     else
     {
-        caf::IconProvider iconProvider( ":/ComparisonView16x16.png" );
-        auto              icon = iconProvider.icon();
-        if ( icon ) actionToSetup->setIcon( *icon );
+        actionToSetup->setIcon( QIcon( ":/ComparisonView16x16.png" ) );
     }
 }

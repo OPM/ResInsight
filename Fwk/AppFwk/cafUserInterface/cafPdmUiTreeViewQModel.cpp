@@ -631,8 +631,7 @@ QVariant PdmUiTreeViewQModel::data(const QModelIndex &index, int role ) const
     {
         if (uitreeOrdering->activeItem())
         {
-            auto icon = uitreeOrdering->activeItem()->uiIcon();
-            return icon ? *icon : QIcon();
+            return uitreeOrdering->activeItem()->uiIcon();
         }
         else
         {

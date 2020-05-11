@@ -596,18 +596,22 @@ void RimSummaryCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderi
 {
     RimPlotCurve::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
 
-    caf::IconProvider iconProvider = this->uiIconProvider();
-    if ( !iconProvider.valid() ) return;
+    caf::QIconProvider iconProvider = this->uiIconProvider();
+    if ( iconProvider.isNull() ) return;
+
+    QIcon icon = iconProvider.icon();
 
     RimSummaryCurveCollection* coll = nullptr;
     this->firstAncestorOrThisOfType( coll );
     if ( coll && coll->curveForSourceStepping() == this )
     {
-        iconProvider.setOverlayResourceString( ":/StepUpDownCorner16x16.png" );
+        QPixmap updownpixmap( ":/StepUpDownCorner16x16.png" );
+
+        iconProvider.setOverlayPixmap( updownpixmap );
     }
     else
     {
-        iconProvider.setOverlayResourceString( "" );
+        iconProvider.setOverlayPixmap( QPixmap() );
     }
 
     setUiIcon( iconProvider );
@@ -641,10 +645,10 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         QString curveDataGroupName = "Summary Vector";
         if ( isCrossPlotCurve() ) curveDataGroupName += " Y";
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword( curveDataGroupName, "Summary Vector Y" );
-        curveDataGroup->add( &m_yValuesSummaryCase, { true, 3, 1 } );
-        curveDataGroup->add( &m_yValuesSummaryAddressUiField, { true, 2, 1 } );
-        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
-        curveDataGroup->add( &m_plotAxis, { true, 3, 1 } );
+        curveDataGroup->add( &m_yValuesSummaryCase, {true, 3, 1} );
+        curveDataGroup->add( &m_yValuesSummaryAddressUiField, {true, 2, 1} );
+        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, {false, 1, 0} );
+        curveDataGroup->add( &m_plotAxis, {true, 3, 1} );
 
         if ( isCrossPlotCurve() )
             m_showErrorBars = false;
@@ -655,9 +659,9 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     if ( isCrossPlotCurve() )
     {
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector X" );
-        curveDataGroup->add( &m_xValuesSummaryCase, { true, 3, 1 } );
-        curveDataGroup->add( &m_xValuesSummaryAddressUiField, { true, 2, 1 } );
-        curveDataGroup->add( &m_xPushButtonSelectSummaryAddress, { false, 1, 0 } );
+        curveDataGroup->add( &m_xValuesSummaryCase, {true, 3, 1} );
+        curveDataGroup->add( &m_xValuesSummaryAddressUiField, {true, 2, 1} );
+        curveDataGroup->add( &m_xPushButtonSelectSummaryAddress, {false, 1, 0} );
     }
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );

@@ -184,16 +184,15 @@ void PdmUiTableViewEditor::configureAndUpdateUi(const QString& uiConfigName)
     if (childArrayFH && childArrayFH->uiCapability())
     {
         QString text = "";
-        auto icon = childArrayFH->uiCapability()->uiIcon(uiConfigName);
-        if ( icon )
-        {
-            m_tableHeadingIcon->setPixmap(icon->pixmap(16, 16));
-            m_tableHeading->setText(childArrayFH->uiCapability()->uiName(uiConfigName) + QString(" (%1)").arg(childArrayFH->size()));
-        }
-        else
+        if ( childArrayFH->uiCapability()->uiIcon(uiConfigName).isNull() )
         {
             m_tableHeadingIcon->setText(childArrayFH->uiCapability()->uiName(uiConfigName) + QString(" (%1)").arg(childArrayFH->size()));
             m_tableHeading->setText("");
+        }
+        else
+        {
+            m_tableHeadingIcon->setPixmap(childArrayFH->uiCapability()->uiIcon(uiConfigName).pixmap(16, 16));
+            m_tableHeading->setText(childArrayFH->uiCapability()->uiName(uiConfigName) + QString(" (%1)").arg(childArrayFH->size()));
         }
         m_tableModelPdm->createPersistentPushButtonWidgets(m_tableView);
     }

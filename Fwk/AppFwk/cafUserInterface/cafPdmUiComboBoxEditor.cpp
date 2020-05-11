@@ -211,11 +211,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
         {
             for (const auto& option : options)
             {
-                auto icon = option.icon();
-                if (icon)
-                    m_comboBox->addItem(*icon, option.optionUiText());
-                else
-                    m_comboBox->addItem(option.optionUiText());
+                m_comboBox->addItem(option.icon(), option.optionUiText());
                 m_comboBox->setIconSize(m_attributes.iconSize);
             }
             m_comboBox->setCurrentIndex(uiField()->uiValue().toInt());

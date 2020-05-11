@@ -174,10 +174,10 @@ void PdmUiFieldEditorHandle::updateLabelFromField(QShortenedLabel* label, const 
     const PdmUiFieldHandle* fieldHandle = dynamic_cast<const PdmUiFieldHandle*>(pdmItem());
     if (fieldHandle)
     {
-        auto ic = fieldHandle->uiIcon(uiConfigName);
-        if (ic)
+        QIcon ic = fieldHandle->uiIcon(uiConfigName);
+        if (!ic.isNull())
         {
-            label->setPixmap(ic->pixmap(ic->actualSize(QSize(64, 64))));
+            label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
         }
         else
         {

@@ -125,9 +125,9 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     this->setAsPlotMdiWindow();
 
     m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
-    m_accumulatedWellFlowPlot->setAvailableDepthTypes( { RiaDefines::DepthTypeEnum::CONNECTION_NUMBER,
-                                                         RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
-                                                         RiaDefines::DepthTypeEnum::PSEUDO_LENGTH } );
+    m_accumulatedWellFlowPlot->setAvailableDepthTypes( {RiaDefines::DepthTypeEnum::CONNECTION_NUMBER,
+                                                        RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
+                                                        RiaDefines::DepthTypeEnum::PSEUDO_LENGTH} );
 
     m_accumulatedWellFlowPlot->setCommonDataSourceEnabled( false );
 
@@ -710,7 +710,7 @@ QList<caf::PdmOptionItemInfo>
     {
         std::set<QString> sortedWellNames = this->findSortedWellNames();
 
-        caf::IconProvider simWellIcon( ":/Well.png" );
+        caf::QIconProvider simWellIcon( ":/Well.png" );
         for ( const QString& wname : sortedWellNames )
         {
             options.push_back( caf::PdmOptionItemInfo( wname, wname, false, simWellIcon ) );

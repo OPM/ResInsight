@@ -616,7 +616,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector Y" );
         curveDataGroup->add( &m_yValuesSummaryCaseCollection );
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
-        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
+        curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, {false, 1, 0} );
         curveDataGroup->add( &m_plotAxis );
     }
 
@@ -680,14 +680,19 @@ void RimEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
 
     uiTreeOrdering.skipRemainingChildren( true );
 
-    caf::IconProvider iconProvider = this->uiIconProvider();
-    if ( !iconProvider.valid() ) return;
+    caf::QIconProvider iconProvider = this->uiIconProvider();
+    if ( iconProvider.isNull() ) return;
 
     RimEnsembleCurveSetCollection* coll = nullptr;
     this->firstAncestorOrThisOfType( coll );
     if ( coll && coll->curveSetForSourceStepping() == this )
     {
-        iconProvider.setOverlayResourceString( ":/StepUpDownCorner16x16.png" );
+        QPixmap updownpixmap( ":/StepUpDownCorner16x16.png" );
+        iconProvider.setOverlayPixmap( updownpixmap );
+    }
+    else
+    {
+        iconProvider.setOverlayPixmap( QPixmap() );
     }
 
     this->setUiIcon( iconProvider );

@@ -71,10 +71,9 @@ void PdmUiActionPushButtonEditor::configureAndUpdateUi( const QString& uiConfigN
 
     m_buttonLayout->setAlignment(Qt::AlignRight);
 
-    auto icon = uiField()->uiIcon(uiConfigName);
-    if( icon )
+    if( !uiField()->uiIcon( uiConfigName ).isNull() )
     {
-        m_pushButton->setIcon( *icon );
+        m_pushButton->setIcon( uiField()->uiIcon( uiConfigName ) );
         m_pushButton->setMaximumWidth(m_pushButton->sizeHint().width());
     }
     else

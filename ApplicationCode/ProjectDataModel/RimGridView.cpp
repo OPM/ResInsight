@@ -96,7 +96,7 @@ RimGridView::RimGridView()
     m_surfaceResultDefCollection.uiCapability()->setUiTreeHidden( true );
     m_surfaceResultDefCollection = new RimIntersectionResultsDefinitionCollection;
     m_surfaceResultDefCollection->uiCapability()->setUiName( "Separate Surface Results" );
-    m_surfaceResultDefCollection->uiCapability()->setUiIcon( caf::IconProvider( ":/ReservoirSurface16x16.png" ) );
+    m_surfaceResultDefCollection->uiCapability()->setUiIcon( caf::QIconProvider( ":/ReservoirSurface16x16.png" ) );
 
     CAF_PDM_InitFieldNoDefault( &m_gridCollection, "GridCollection", "GridCollection", "", "", "" );
     m_gridCollection.uiCapability()->setUiHidden( true );
