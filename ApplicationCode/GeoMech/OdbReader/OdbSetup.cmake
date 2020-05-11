@@ -20,8 +20,8 @@ if (MSVC)
 	foreach (aDLL ${RI_ODB_DLLS})
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                            COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-						   "${RESINSIGHT_ODB_API_DIR}/lib/${aDLL}"  
-						   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+						   ${RESINSIGHT_ODB_API_DIR}/lib/${aDLL}
+						   $<TARGET_FILE_DIR:ResInsight>)
     endforeach()
 
 endif(MSVC)

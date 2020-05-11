@@ -577,13 +577,13 @@ endif(MSVC)
 foreach (FILE_TO_COPY ${RI_DLL_FILENAMES})
     add_custom_command(TARGET ResInsight POST_BUILD
                         COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-                        "${FILE_TO_COPY}"  
-                        "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+                        ${FILE_TO_COPY}
+                        $<TARGET_FILE_DIR:ResInsight>)
     if (_unityTargetName)
         add_custom_command(TARGET ${_unityTargetName} POST_BUILD
                             COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-                            "${FILE_TO_COPY}"  
-                            "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+                            ${FILE_TO_COPY}
+                            $<TARGET_FILE_DIR:ResInsight>)
     endif()
 endforeach()
 
@@ -714,7 +714,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
         if (RESINSIGHT_ENABLE_GRPC)
             set (GRPC_DLL_NAMES libprotobuf cares zlib1)
             foreach (dllname ${GRPC_DLL_NAMES})		  
-              list(APPEND RESINSIGHT_FILES "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>/${dllname}.dll")
+              list(APPEND RESINSIGHT_FILES $<TARGET_FILE_DIR:ResInsight>/${dllname}.dll)
             endforeach(dllname ${GRPC_DLL_NAMES})
 	    endif()
 
