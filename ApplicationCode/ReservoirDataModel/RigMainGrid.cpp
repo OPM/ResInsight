@@ -556,7 +556,7 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
         }
     }
 
-    this->nncData()->computeCompleteSetOfNncs( this );
+    this->nncData()->computeCompleteSetOfNncs( this, activeCellInfo );
 
     distributeNNCsToFaults();
 }
@@ -566,7 +566,7 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::distributeNNCsToFaults()
 {
-    const std::vector<RigConnection>& nncs = this->nncData()->connections();
+    const RigConnectionContainer& nncs = this->nncData()->connections();
     for ( size_t nncIdx = 0; nncIdx < nncs.size(); ++nncIdx )
     {
         // Find the fault for each side of the nnc

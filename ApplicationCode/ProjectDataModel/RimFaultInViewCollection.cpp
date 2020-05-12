@@ -266,8 +266,8 @@ void RimFaultInViewCollection::syncronizeFaults()
     // NNCs
     this->noCommonAreaNnncCollection()->noCommonAreaNncs().deleteAllChildObjects();
 
-    RigMainGrid*                      mainGrid       = parentView()->mainGrid();
-    const std::vector<RigConnection>& nncConnections = mainGrid->nncData()->connections();
+    RigMainGrid*                  mainGrid       = parentView()->mainGrid();
+    const RigConnectionContainer& nncConnections = mainGrid->nncData()->connections();
     for ( size_t connIndex = 0; connIndex < nncConnections.size(); connIndex++ )
     {
         if ( !nncConnections[connIndex].hasCommonArea() )

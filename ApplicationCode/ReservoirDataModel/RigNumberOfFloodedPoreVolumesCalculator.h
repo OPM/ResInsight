@@ -18,13 +18,15 @@
 
 #pragma once
 
+#include "RigNncConnection.h"
+
 #include <QString>
 #include <cstddef>
+#include <deque>
 #include <vector>
 
 class RimEclipseCase;
 class RigMainGrid;
-class RigConnection;
 
 //==================================================================================================
 ///
@@ -48,15 +50,15 @@ private:
                     std::vector<const std::vector<double>*> flowrateIatAllTimeSteps,
                     std::vector<const std::vector<double>*> flowrateJatAllTimeSteps,
                     std::vector<const std::vector<double>*> flowrateKatAllTimeSteps,
-                    const std::vector<RigConnection>&       connections,
+                    const RigConnectionContainer&           connections,
                     std::vector<const std::vector<double>*> flowrateNNCatAllTimeSteps,
                     std::vector<std::vector<double>>        summedTracersAtAllTimesteps );
 
-    void distributeNNCflow( const std::vector<RigConnection>& connections,
-                            RimEclipseCase*                   caseToApply,
-                            const std::vector<double>&        summedTracerValues,
-                            const std::vector<double>*        flowrateNNC,
-                            std::vector<double>&              flowrateIntoCell );
+    void distributeNNCflow( const RigConnectionContainer& connections,
+                            RimEclipseCase*               caseToApply,
+                            const std::vector<double>&    summedTracerValues,
+                            const std::vector<double>*    flowrateNNC,
+                            std::vector<double>&          flowrateIntoCell );
 
     void distributeNeighbourCellFlow( RigMainGrid*               mainGrid,
                                       RimEclipseCase*            caseToApply,

@@ -88,8 +88,8 @@ rips::Vec3i* createConnectionVec3i( const RigCell& cell )
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaNNCConnectionsStateHandler::assignReply( rips::NNCConnections* reply )
 {
-    RigMainGrid*               mainGrid    = m_eclipseCase->eclipseCaseData()->mainGrid();
-    std::vector<RigConnection> connections = mainGrid->nncData()->connections();
+    RigMainGrid*                  mainGrid    = m_eclipseCase->eclipseCaseData()->mainGrid();
+    const RigConnectionContainer& connections = mainGrid->nncData()->connections();
 
     size_t       connectionCount = connections.size();
     const size_t packageSize     = RiaGrpcServiceInterface::numberOfDataUnitsInPackage( sizeof( rips::NNCConnection ) );
@@ -97,7 +97,7 @@ grpc::Status RiaNNCConnectionsStateHandler::assignReply( rips::NNCConnections* r
     reply->mutable_connections()->Reserve( (int)packageSize );
     for ( ; indexInPackage < packageSize && m_currentIdx < connectionCount; ++indexInPackage )
     {
-        RigConnection& connection = connections[m_currentIdx];
+        RigConnection  connection = connections[m_currentIdx];
         const RigCell& cell1      = mainGrid->globalCellArray()[connection.m_c1GlobIdx];
         const RigCell& cell2      = mainGrid->globalCellArray()[connection.m_c2GlobIdx];
 
@@ -188,8 +188,8 @@ const std::vector<double>* getScalarResultByName( const RigNNCData*         nncD
 //--------------------------------------------------------------------------------------------------
 grpc::Status RiaNNCValuesStateHandler::assignReply( rips::NNCValues* reply )
 {
-    RigMainGrid*               mainGrid    = m_eclipseCase->eclipseCaseData()->mainGrid();
-    std::vector<RigConnection> connections = mainGrid->nncData()->connections();
+    RigMainGrid* mainGrid    = m_eclipseCase->eclipseCaseData()->mainGrid();
+    auto         connections = mainGrid->nncData()->connections();
 
     QString                   propertyName = QString::fromStdString( m_request->property_name() );
     RigNNCData::NNCResultType propertyType = static_cast<RigNNCData::NNCResultType>( m_request->property_type() );
@@ -496,31 +496,32 @@ std::vector<RiaGrpcCallbackInterface*> RiaGrpcNNCPropertiesService::createCallba
 
     std::vector<RiaGrpcCallbackInterface*> callbacks;
     callbacks =
-        {new RiaGrpcUnaryCallback<Self, CaseRequest, AvailableNNCProperties>( this,
-                                                                              &Self::GetAvailableNNCProperties,
-                                                                              &Self::RequestGetAvailableNNCProperties ),
-         new RiaGrpcServerToClientStreamCallback<Self,
-                                                 CaseRequest,
-                                                 rips::NNCConnections,
-                                                 RiaNNCConnectionsStateHandler>( this,
-                                                                                 &Self::GetNNCConnections,
-                                                                                 &Self::RequestGetNNCConnections,
-                                                                                 new RiaNNCConnectionsStateHandler ),
-         new RiaGrpcServerToClientStreamCallback<Self,
-                                                 NNCValuesRequest,
-                                                 rips::NNCValues,
-                                                 RiaNNCValuesStateHandler>( this,
-                                                                            &Self::GetNNCValues,
-                                                                            &Self::RequestGetNNCValues,
-                                                                            new RiaNNCValuesStateHandler ),
+        { new RiaGrpcUnaryCallback<Self, CaseRequest, AvailableNNCProperties>( this,
+                                                                               &Self::GetAvailableNNCProperties,
+                                                                               &Self::RequestGetAvailableNNCProperties ),
+          new RiaGrpcServerToClientStreamCallback<Self,
+                                                  CaseRequest,
+                                                  rips::NNCConnections,
+                                                  RiaNNCConnectionsStateHandler>( this,
+                                                                                  &Self::GetNNCConnections,
+                                                                                  &Self::RequestGetNNCConnections,
+                                                                                  new RiaNNCConnectionsStateHandler ),
+          new RiaGrpcServerToClientStreamCallback<Self,
+                                                  NNCValuesRequest,
+                                                  rips::NNCValues,
+                                                  RiaNNCValuesStateHandler>( this,
+                                                                             &Self::GetNNCValues,
+                                                                             &Self::RequestGetNNCValues,
+                                                                             new RiaNNCValuesStateHandler ),
 
-         new RiaGrpcClientToServerStreamCallback<Self,
-                                                 NNCValuesChunk,
-                                                 ClientToServerStreamReply,
-                                                 RiaNNCInputValuesStateHandler>( this,
-                                                                                 &Self::SetNNCValues,
-                                                                                 &Self::RequestSetNNCValues,
-                                                                                 new RiaNNCInputValuesStateHandler( true ) )};
+          new RiaGrpcClientToServerStreamCallback<Self,
+                                                  NNCValuesChunk,
+                                                  ClientToServerStreamReply,
+                                                  RiaNNCInputValuesStateHandler>( this,
+                                                                                  &Self::SetNNCValues,
+                                                                                  &Self::RequestSetNNCValues,
+                                                                                  new RiaNNCInputValuesStateHandler(
+                                                                                      true ) ) };
 
     return callbacks;
 }

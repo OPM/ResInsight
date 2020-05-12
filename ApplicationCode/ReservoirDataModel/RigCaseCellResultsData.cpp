@@ -2239,7 +2239,7 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
     bool                     isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
     // NNC calculation
-    const std::vector<RigConnection>& nncConnections = m_ownerMainGrid->nncData()->connections();
+    const RigConnectionContainer& nncConnections = m_ownerMainGrid->nncData()->connections();
     for ( size_t connIdx = 0; connIdx < nncConnections.size(); connIdx++ )
     {
         size_t                             nativeResvCellIndex = nncConnections[connIdx].m_c1GlobIdx;
@@ -2601,7 +2601,7 @@ void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
 
     if ( transResults->size() != riAreaNormTransResults.size() ) return;
 
-    const std::vector<RigConnection>& connections = m_ownerMainGrid->nncData()->connections();
+    const RigConnectionContainer& connections = m_ownerMainGrid->nncData()->connections();
 
     for ( size_t nncConIdx = 0; nncConIdx < riAreaNormTransResults.size(); ++nncConIdx )
     {
@@ -3063,7 +3063,7 @@ void RigCaseCellResultsData::computeAllanResults( RigCaseCellResultsData* cellRe
             formationCount = cellResultsData->activeFormationNames()->formationNames().size();
         }
 
-        const std::vector<RigConnection>& nncConnections = mainGrid->nncData()->connections();
+        const RigConnectionContainer& nncConnections = mainGrid->nncData()->connections();
 
         std::map<std::pair<int, int>, int> formationCombinationToCategory;
         for ( size_t i = 0; i < nncConnections.size(); i++ )
