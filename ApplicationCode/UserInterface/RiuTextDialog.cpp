@@ -212,7 +212,11 @@ RiuTabbedTextDialog::RiuTabbedTextDialog( RiuTabbedTextProvider* textProvider, Q
         textEdit->setContextMenuPolicy( Qt::NoContextMenu );
 
         auto fontWidth = QFontMetrics( font ).boundingRect( "m" ).width();
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 )
+        textEdit->setTabStopDistance( fontWidth * 4 );
+#else
         textEdit->setTabStopWidth( fontWidth * 4 );
+#endif
 
         m_tabWidget->addTab( textEdit, tabTitle );
     }
