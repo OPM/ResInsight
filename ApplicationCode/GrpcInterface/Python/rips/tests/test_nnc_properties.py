@@ -20,9 +20,9 @@ def test_10kSync(rips_instance, initialize_test):
 
     assert("TRAN" == properties[0].name)
     assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_STATIC') == properties[0].property_type)
-    assert("Binary Formation Allen" == properties[1].name)
+    assert("Binary Formation Allan" == properties[1].name)
     assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_GENERATED') == properties[1].property_type)
-    assert("Formation Allen" == properties[2].name)
+    assert("Formation Allan" == properties[2].name)
     assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_GENERATED') == properties[2].property_type)
 
     nnc_connections = case.nnc_connections()
@@ -40,10 +40,10 @@ def test_10kSync(rips_instance, initialize_test):
     for t in tran_vals:
         assert(isinstance(t, float))
 
-    allen_vals = case.nnc_connections_generated_values("Formation Allen", 0)
-    assert(len(allen_vals) == len(nnc_connections))
+    allan_vals = case.nnc_connections_generated_values("Formation Allan", 0)
+    assert(len(allan_vals) == len(nnc_connections))
 
-    for a in allen_vals:
+    for a in allan_vals:
         assert(isinstance(a, float))
 
     # Generate some data
@@ -81,4 +81,4 @@ def test_invalid_time_steps(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/TEST10K_FLT_LGR_NNC/TEST10K_FLT_LGR_NNC.EGRID"
     case = rips_instance.project.load_case(path=casePath)
     with pytest.raises(grpc.RpcError):
-        case.nnc_connections_generated_values("Formation Allen", 9999)
+        case.nnc_connections_generated_values("Formation Allan", 9999)

@@ -30,10 +30,10 @@
 
 #include "cvfArray.h"
 
-class RigEclipseAllenFaultsStatCalc : public RigStatisticsCalculator
+class RigEclipseAllanFaultsStatCalc : public RigStatisticsCalculator
 {
 public:
-    RigEclipseAllenFaultsStatCalc( RigNNCData* cellResultsData, const RigEclipseResultAddress& scalarResultIndex );
+    RigEclipseAllanFaultsStatCalc( RigNNCData* cellResultsData, const RigEclipseResultAddress& scalarResultIndex );
 
     void   minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
     void   posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg ) override;

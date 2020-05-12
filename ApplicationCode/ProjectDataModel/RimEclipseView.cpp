@@ -2250,7 +2250,6 @@ bool RimEclipseView::isUsingFormationNames() const
 {
     if ( cellResult()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES ) return true;
 
-    if ( faultResultSettings()->customFaultResult()->resultType() == RiaDefines::ResultCatType::ALLEN_DIAGRAMS )
         return true;
 
     return eclipsePropertyFilterCollection()->isUsingFormationNames();

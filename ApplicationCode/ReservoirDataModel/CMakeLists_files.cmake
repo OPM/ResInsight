@@ -16,7 +16,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigCombMultResultAccessor.h
 ${CMAKE_CURRENT_LIST_DIR}/RigResultModifier.h
 ${CMAKE_CURRENT_LIST_DIR}/RigResultModifierFactory.h
 ${CMAKE_CURRENT_LIST_DIR}/RigFormationNames.h
-${CMAKE_CURRENT_LIST_DIR}/RigAllenDiagramData.h
+${CMAKE_CURRENT_LIST_DIR}/RigAllanDiagramData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigFlowDiagResultAddress.h
 ${CMAKE_CURRENT_LIST_DIR}/RigFlowDiagResults.h
 ${CMAKE_CURRENT_LIST_DIR}/RigFlowDiagResultFrames.h
@@ -74,7 +74,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigGridCrossPlotCurveGrouping.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor.h
 ${CMAKE_CURRENT_LIST_DIR}/RigEquil.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.h
-${CMAKE_CURRENT_LIST_DIR}/RigEclipseAllenFaultsStatCalc.h
+${CMAKE_CURRENT_LIST_DIR}/RigEclipseAllanFaultsStatCalc.h
 ${CMAKE_CURRENT_LIST_DIR}/RigCellFaceGeometryTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigNncConnection.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellDiskData.h
@@ -97,7 +97,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigCombTransResultAccessor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigCombMultResultAccessor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigResultModifierFactory.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigFormationNames.cpp
-${CMAKE_CURRENT_LIST_DIR}/RigAllenDiagramData.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigAllanDiagramData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigFlowDiagResultAddress.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigFlowDiagResults.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigFlowDiagResultFrames.cpp
@@ -149,7 +149,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigCaseCellResultCalculator.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCrossPlotDataExtractor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigEquil.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWbsParameter.cpp
-${CMAKE_CURRENT_LIST_DIR}/RigEclipseAllenFaultsStatCalc.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigEclipseAllanFaultsStatCalc.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigCellFaceGeometryTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigNncConnection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellDiskData.cpp
