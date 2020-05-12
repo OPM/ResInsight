@@ -18,8 +18,6 @@
 
 #include "RicAddStoredWellAllocationPlotFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -40,10 +38,9 @@ CAF_CMD_SOURCE_INIT( RicAddStoredWellAllocationPlotFeature, "RicAddStoredWellAll
 //--------------------------------------------------------------------------------------------------
 bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled()
 {
-    if ( RiaApplication::instance()->project() )
+    if ( RimProject::current() )
     {
-        RimFlowPlotCollection* flowPlotColl =
-            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimWellAllocationPlot* wellAllocationPlot =
@@ -64,10 +61,9 @@ bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAddStoredWellAllocationPlotFeature::onActionTriggered( bool isChecked )
 {
-    if ( RiaApplication::instance()->project() )
+    if ( RimProject::current() )
     {
-        RimFlowPlotCollection* flowPlotColl =
-            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimWellAllocationPlot* sourceObject =

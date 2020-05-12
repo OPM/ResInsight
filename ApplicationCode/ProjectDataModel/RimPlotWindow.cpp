@@ -299,6 +299,6 @@ void RimPlotWindow::assignIdIfNecessary()
 {
     if ( m_id == -1 && isMdiWindow() )
     {
-        RiaApplication::instance()->project()->assignPlotIdToPlotWindow( this );
+        RimProject::current()->assignPlotIdToPlotWindow( this );
     }
 }

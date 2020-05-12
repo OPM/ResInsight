@@ -18,8 +18,6 @@
 
 #include "RimSummaryCalculationCollection.h"
 
-#include "RiaApplication.h"
-
 #include "RimCalculatedSummaryCase.h"
 #include "RimProject.h"
 #include "RimSummaryCalculation.h"
@@ -49,7 +47,7 @@ RimSummaryCalculationCollection::RimSummaryCalculationCollection()
 RimSummaryCalculation* RimSummaryCalculationCollection::addCalculation()
 {
     RimSummaryCalculation* calculation = new RimSummaryCalculation;
-    RiaApplication::instance()->project()->assignCalculationIdToCalculation( calculation );
+    RimProject::current()->assignCalculationIdToCalculation( calculation );
 
     QString varName = QString( "Calculation_%1" ).arg( calculation->id() );
     calculation->setDescription( varName );
@@ -162,7 +160,7 @@ void RimSummaryCalculationCollection::rebuildCaseMetaData()
     {
         if ( calculation->id() == -1 )
         {
-            RiaApplication::instance()->project()->assignCalculationIdToCalculation( calculation );
+            RimProject::current()->assignCalculationIdToCalculation( calculation );
         }
     }
 

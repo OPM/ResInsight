@@ -53,7 +53,7 @@ bool RicNewSummaryCrossPlotCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryCrossPlotCurveFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     RimSummaryCrossPlot* plot = selectedCrossPlot();
     if ( plot )

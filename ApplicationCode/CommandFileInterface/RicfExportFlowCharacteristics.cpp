@@ -89,7 +89,7 @@ caf::PdmScriptResponse RicfExportFlowCharacteristics::execute()
         }
 
         RimFlowPlotCollection* flowPlotColl =
-            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+            RimProject::current()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimFlowCharacteristicsPlot* plot = flowPlotColl->defaultFlowCharacteristicsPlot();

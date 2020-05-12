@@ -19,7 +19,6 @@
 
 #include "RimGeoMechCase.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
@@ -153,7 +152,7 @@ RimGeoMechCase::~RimGeoMechCase( void )
 {
     geoMechViews.deleteAllChildObjects();
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     if ( project )
     {
         if ( project->mainPlotCollection() )

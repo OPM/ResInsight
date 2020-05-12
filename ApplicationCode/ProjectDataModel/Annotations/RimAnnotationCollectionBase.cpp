@@ -18,8 +18,6 @@
 
 #include "RimAnnotationCollectionBase.h"
 
-#include "RiaApplication.h"
-
 #include "RimPolylinesAnnotation.h"
 #include "RimReachCircleAnnotation.h"
 #include "RimTextAnnotation.h"

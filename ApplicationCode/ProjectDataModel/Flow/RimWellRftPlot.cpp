@@ -18,7 +18,6 @@
 
 #include "RimWellRftPlot.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
 #include "RiaDateStringParser.h"
@@ -122,7 +121,7 @@ RimWellRftPlot::RimWellRftPlot()
     CAF_PDM_InitFieldNoDefault( &m_wellPathCollection, "WellPathCollection", "Well Path Collection", "", "", "" );
     m_wellPathCollection.uiCapability()->setUiHidden( true );
     m_wellPathCollection.xmlCapability()->disableIO();
-    m_wellPathCollection = RiaApplication::instance()->project()->activeOilField()->wellPathCollection();
+    m_wellPathCollection = RimProject::current()->activeOilField()->wellPathCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSets, "EnsembleCurveSets", "Ensemble Curve Sets", "", "", "" );
 
@@ -190,7 +189,7 @@ void RimWellRftPlot::updateFormationsOnPlot() const
 {
     if ( plotCount() > 0 )
     {
-        RimProject*  proj     = RiaApplication::instance()->project();
+        RimProject*  proj     = RimProject::current();
         RimWellPath* wellPath = proj->wellPathByName( m_wellPathNameOrSimWellName );
 
         RimCase*         formationNamesCase = nullptr;
@@ -996,7 +995,7 @@ std::map<QString, QStringList> RimWellRftPlot::findWellSources()
 {
     std::map<QString /*value*/, QStringList /*uitext*/> wellNames;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     if ( proj != nullptr )
     {
@@ -1138,7 +1137,7 @@ void RimWellRftPlot::onLegendDefinitionChanged()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::assignWellPathToExtractionCurves()
 {
-    RimProject*  proj     = RiaApplication::instance()->project();
+    RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathByName( m_wellPathNameOrSimWellName );
 
     if ( wellPath )

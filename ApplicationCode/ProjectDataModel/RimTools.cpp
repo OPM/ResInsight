@@ -20,8 +20,6 @@
 
 #include "RimTools.h"
 
-#include "RiaApplication.h"
-
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
@@ -43,12 +41,12 @@
 //--------------------------------------------------------------------------------------------------
 QString RimTools::getCacheRootDirectoryPathFromProject()
 {
-    if ( !RiaApplication::instance()->project() )
+    if ( !RimProject::current() )
     {
         return QString();
     }
 
-    QString projectFileName = RiaApplication::instance()->project()->fileName();
+    QString projectFileName = RimProject::current()->fileName();
 
     QString   cacheRootFolderPath;
     QFileInfo fileInfo( projectFileName );
@@ -298,7 +296,7 @@ void RimTools::caseOptionItems( QList<caf::PdmOptionItemInfo>* options )
     CVF_ASSERT( options );
     if ( !options ) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         std::vector<RimCase*> cases;
@@ -319,7 +317,7 @@ void RimTools::eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
     CVF_ASSERT( options );
     if ( !options ) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         std::vector<RimCase*> cases;
@@ -344,7 +342,7 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
     CVF_ASSERT( options );
     if ( !options ) return;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         std::vector<RimCase*> cases;
@@ -366,7 +364,7 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
 //--------------------------------------------------------------------------------------------------
 RimWellPathCollection* RimTools::wellPathCollection()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj && proj->activeOilField() )
     {
         return proj->activeOilField()->wellPathCollection();

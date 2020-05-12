@@ -53,7 +53,7 @@ caf::PdmScriptResponse RicfRunOctaveScript::execute()
     std::vector<int> caseIds = m_caseIds();
     if ( caseIds.empty() )
     {
-        RimProject* project = RiaApplication::instance()->project();
+        RimProject* project = RimProject::current();
         if ( project )
         {
             auto eclipeCases = project->eclipseCases();

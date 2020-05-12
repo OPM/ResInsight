@@ -18,7 +18,6 @@
 
 #include "RicConvertAllFractureTemplatesToMetricFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
 
 #include "Rim3dView.h"

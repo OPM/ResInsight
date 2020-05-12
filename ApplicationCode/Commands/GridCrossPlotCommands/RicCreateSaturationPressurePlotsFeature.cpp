@@ -59,7 +59,7 @@ std::vector<RimSaturationPressurePlot*>
         return plots;
     }
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     RimSaturationPressurePlotCollection* collection = project->mainPlotCollection()->saturationPressurePlotCollection();
 
@@ -124,7 +124,7 @@ bool RicCreateSaturationPressurePlotsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     RimSaturationPressurePlotCollection* collection = project->mainPlotCollection()->saturationPressurePlotCollection();
 

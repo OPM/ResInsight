@@ -119,7 +119,7 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
-    RimProject*                        project        = RiaApplication::instance()->project();
+    RimProject*                        project        = RimProject::current();
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
 
     if ( m_timeStep < 0 )
@@ -171,7 +171,7 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
     std::vector<RimWellPath*> wellPaths;
     if ( m_wellPathNames().empty() )
     {
-        for ( auto wellPath : RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPaths() )
+        for ( auto wellPath : RimProject::current()->activeOilField()->wellPathCollection->wellPaths() )
         {
             if ( wellPath->showWellPath() )
             {
@@ -184,7 +184,7 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
         for ( const QString& wellPathName : m_wellPathNames() )
         {
             RimWellPath* wellPath =
-                RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPathByName( wellPathName );
+                RimProject::current()->activeOilField()->wellPathCollection->wellPathByName( wellPathName );
             if ( wellPath )
             {
                 wellPaths.push_back( wellPath );

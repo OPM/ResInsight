@@ -33,7 +33,6 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaWellNameComparer.h"
 
@@ -83,7 +82,7 @@ caf::PdmScriptResponse RicfCreateMultipleFractures::execute()
 {
     using TOOLS = RicfApplicationTools;
 
-    RimProject*                   project  = RiaApplication::instance()->project();
+    RimProject*                   project  = RimProject::current();
     RiuCreateMultipleFractionsUi* settings = project->dialogData()->multipleFractionsData();
 
     // Get case and fracture template
@@ -184,7 +183,7 @@ bool RicfCreateMultipleFractures::validateArguments() const
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplate* RicfCreateMultipleFractures::fractureTemplateFromId( int templateId ) const
 {
-    for ( RimFractureTemplate* t : RiaApplication::instance()->project()->allFractureTemplates() )
+    for ( RimFractureTemplate* t : RimProject::current()->allFractureTemplates() )
     {
         if ( t->id() == templateId ) return t;
     }

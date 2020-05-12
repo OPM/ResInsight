@@ -18,8 +18,6 @@
 
 #include "RicDeleteAnnotationFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimOilField.h"

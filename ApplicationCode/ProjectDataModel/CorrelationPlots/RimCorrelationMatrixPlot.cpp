@@ -18,7 +18,6 @@
 
 #include "RimCorrelationMatrixPlot.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTools.h"
 #include "RiaPreferences.h"
 #include "RiaStatisticsTools.h"
@@ -219,7 +218,7 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     m_selectedVarsUiField           = selectedVarsText();
 
     curveDataGroup->add( &m_selectedVarsUiField );
-    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
+    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, {false, 1, 0} );
     curveDataGroup->add( &m_timeStep );
 
     if ( uiConfigName != "report" )

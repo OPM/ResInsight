@@ -1136,7 +1136,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimContextCommandBuilder::allWellPaths()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     return proj->allWellPaths();
 }
 

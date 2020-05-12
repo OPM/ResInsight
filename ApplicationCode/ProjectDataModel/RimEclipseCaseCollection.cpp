@@ -20,8 +20,6 @@
 
 #include "RimEclipseCaseCollection.h"
 
-#include "RiaApplication.h"
-
 #include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
@@ -80,13 +78,13 @@ RimIdenticalGridCaseGroup* RimEclipseCaseCollection::createIdenticalCaseGroupFro
     CVF_ASSERT( equalGrid );
 
     RimIdenticalGridCaseGroup* group = new RimIdenticalGridCaseGroup;
-    assert( RiaApplication::instance()->project() );
-    RiaApplication::instance()->project()->assignIdToCaseGroup( group );
+    assert( RimProject::current() );
+    RimProject::current()->assignIdToCaseGroup( group );
 
     group->addCase( mainCase );
     RimEclipseCase* createdCase = group->createAndAppendStatisticsCase();
 
-    RiaApplication::instance()->project()->assignCaseIdToCase( createdCase );
+    RimProject::current()->assignCaseIdToCase( createdCase );
 
     caseGroups().push_back( group );
 

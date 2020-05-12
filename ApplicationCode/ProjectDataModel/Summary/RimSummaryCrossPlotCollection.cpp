@@ -18,7 +18,6 @@
 
 #include "RimSummaryCrossPlotCollection.h"
 
-#include "RiaApplication.h"
 #include "RimProject.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"

@@ -18,7 +18,6 @@
 
 #include "RicConvertGroupToEnsembleFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "RicCreateSummaryCaseCollectionFeature.h"

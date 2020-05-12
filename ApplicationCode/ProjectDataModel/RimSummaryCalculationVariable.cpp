@@ -201,7 +201,7 @@ void RimSummaryCalculationVariable::readDataFromApplicationStore( RiuSummaryVect
             RiaApplication::instance()->cacheDataObject( "CalculatorSummaryCase" ).toString();
 
         auto* lastUsedSummaryCase = dynamic_cast<RimSummaryCase*>(
-            caf::PdmReferenceHelper::objectFromReference( RiaApplication::instance()->project(),
+            caf::PdmReferenceHelper::objectFromReference( RimProject::current(),
                                                           lastUsedSummaryCaseString ) );
         if ( lastUsedSummaryCase )
         {
@@ -218,7 +218,7 @@ void RimSummaryCalculationVariable::readDataFromApplicationStore( RiuSummaryVect
 void RimSummaryCalculationVariable::writeDataToApplicationStore() const
 {
     QString refFromProjectToObject =
-        caf::PdmReferenceHelper::referenceFromRootToObject( RiaApplication::instance()->project(), m_case );
+        caf::PdmReferenceHelper::referenceFromRootToObject( RimProject::current(), m_case );
     RiaApplication::instance()->setCacheDataObject( "CalculatorSummaryCase", refFromProjectToObject );
 
     QVariant sumAdrVar = QVariant::fromValue( m_summaryAddress->address() );

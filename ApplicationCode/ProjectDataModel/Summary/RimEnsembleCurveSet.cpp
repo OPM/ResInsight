@@ -740,7 +740,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
 
     if ( fieldNeedingOptions == &m_yValuesSummaryCaseCollection )
     {
-        RimProject*                            proj   = RiaApplication::instance()->project();
+        RimProject*                            proj   = RimProject::current();
         std::vector<RimSummaryCaseCollection*> groups = proj->summaryGroups();
 
         for ( RimSummaryCaseCollection* group : groups )

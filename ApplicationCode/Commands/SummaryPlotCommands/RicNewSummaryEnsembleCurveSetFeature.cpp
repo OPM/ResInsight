@@ -54,7 +54,7 @@ RimEnsembleCurveSet* RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSet( R
 {
     CVF_ASSERT( plot && ensemble );
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
     RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
@@ -114,7 +114,7 @@ bool RicNewSummaryEnsembleCurveSetFeature::isCommandEnabled()
     bool summaryPlotSelected = selectedSummaryPlot();
     if ( summaryPlotSelected )
     {
-        RimProject* project = RiaApplication::instance()->project();
+        RimProject* project = RimProject::current();
         CVF_ASSERT( project );
         if ( !project->summaryGroups().empty() )
         {
@@ -129,7 +129,7 @@ bool RicNewSummaryEnsembleCurveSetFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
     RimSummaryPlot* plot = selectedSummaryPlot();

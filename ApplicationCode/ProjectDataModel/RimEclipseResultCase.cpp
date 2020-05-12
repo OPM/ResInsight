@@ -73,7 +73,7 @@ RimEclipseResultCase::RimEclipseResultCase()
     CAF_PDM_InitScriptableObject( "Eclipse Case", ":/Case48x48.png", "", "The Regular Eclipse Results Case" );
 
     CAF_PDM_InitFieldNoDefault( &m_unitSystem, "UnitSystem", "Unit System", "", "", "" );
-    m_unitSystem.registerGetMethod( RiaApplication::instance()->project(), &RimProject::commonUnitSystemForAllCases );
+    m_unitSystem.registerGetMethod( RimProject::current(), &RimProject::commonUnitSystemForAllCases );
     m_unitSystem.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions", "", "", "" );
@@ -408,7 +408,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
     {
         QApplication::setOverrideCursor( QCursor( Qt::ArrowCursor ) );
 
-        RimMockModelSettings* mockModelSettings = RiaApplication::instance()->project()->dialogData()->mockModelSettings();
+        RimMockModelSettings* mockModelSettings = RimProject::current()->dialogData()->mockModelSettings();
 
         if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
         {
@@ -559,7 +559,7 @@ void RimEclipseResultCase::setCaseInfo( const QString& userDescription, const QS
     this->caseUserDescription = userDescription;
     setGridFileName( fileName );
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     proj->assignCaseIdToCase( this );
 }
 

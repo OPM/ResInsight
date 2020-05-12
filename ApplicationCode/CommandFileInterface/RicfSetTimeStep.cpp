@@ -24,7 +24,6 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "cafPdmFieldIOScriptability.h"
@@ -74,7 +73,7 @@ caf::PdmScriptResponse RicfSetTimeStep::execute()
     std::vector<RimCase*> allCases;
 
     {
-        RiaApplication::instance()->project()->allCases( allCases );
+        RimProject::current()->allCases( allCases );
 
         bool foundCase = false;
         for ( RimCase* c : allCases )

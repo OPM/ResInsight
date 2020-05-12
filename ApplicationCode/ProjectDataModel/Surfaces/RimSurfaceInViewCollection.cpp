@@ -18,7 +18,6 @@
 
 #include "RimSurfaceInViewCollection.h"
 
-#include "RiaApplication.h"
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimOilField.h"
@@ -74,7 +73,7 @@ void RimSurfaceInViewCollection::updateFromSurfaceCollection()
 
     // Create new entries
 
-    RimProject*           proj     = RiaApplication::instance()->project();
+    RimProject*           proj     = RimProject::current();
     RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
 
     if ( surfColl )

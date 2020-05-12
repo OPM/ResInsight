@@ -23,8 +23,6 @@
 #include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicWellLogTools.h"
 
-#include "RiaApplication.h"
-
 #include "RimTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"

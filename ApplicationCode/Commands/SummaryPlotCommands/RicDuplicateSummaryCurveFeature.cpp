@@ -18,7 +18,6 @@
 
 #include "RicDuplicateSummaryCurveFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaSummaryTools.h"
 
 #include "RicPasteSummaryCurveFeature.h"

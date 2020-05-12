@@ -45,7 +45,7 @@ CAF_CMD_SOURCE_INIT( RicImportFormationNamesFeature, "RicImportFormationNamesFea
 //--------------------------------------------------------------------------------------------------
 RimFormationNames* RicImportFormationNamesFeature::importFormationFiles( const QStringList& fileNames )
 {
-    RimProject*                  proj        = RiaApplication::instance()->project();
+    RimProject*                  proj        = RimProject::current();
     RimFormationNamesCollection* fomNameColl = proj->activeOilField()->formationNamesCollection();
     if ( !fomNameColl )
     {
@@ -97,7 +97,7 @@ void RicImportFormationNamesFeature::onActionTriggered( bool isChecked )
 
     if ( formationName )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
 
         std::vector<RimCase*> cases;
         proj->allCases( cases );

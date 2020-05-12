@@ -18,7 +18,6 @@
 
 #include "RicCreateUserDefinedPolylinesAnnotationFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 
 #include "RimAnnotationCollection.h"
@@ -85,7 +84,7 @@ void RicCreateUserDefinedPolylinesAnnotationFeature::setupActionLook( QAction* a
 //--------------------------------------------------------------------------------------------------
 RimAnnotationCollection* RicCreateUserDefinedPolylinesAnnotationFeature::annotationCollection() const
 {
-    auto project  = RiaApplication::instance()->project();
+    auto project  = RimProject::current();
     auto oilField = project->activeOilField();
     return oilField ? oilField->annotationCollection() : nullptr;
 }

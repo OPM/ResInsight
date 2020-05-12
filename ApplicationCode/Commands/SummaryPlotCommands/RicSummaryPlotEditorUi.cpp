@@ -266,7 +266,7 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_targetPlot )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
 
         RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
 
@@ -808,7 +808,7 @@ void RicSummaryPlotEditorUi::updateAppearanceEditor()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::createNewPlot()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
     if ( summaryPlotColl )
@@ -886,7 +886,7 @@ bool RicSummaryPlotEditorUi::isObservedData( RimSummaryCase* sumCase ) const
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RicSummaryPlotEditorUi::calculatedSummaryCase()
 {
-    RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
     return calcColl->calculationSummaryCase();
 }

@@ -18,8 +18,6 @@
 
 #include "RicNewDerivedEnsembleFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -78,7 +76,7 @@ void RicNewDerivedEnsembleFeature::onActionTriggered( bool isChecked )
 {
     if ( isCommandEnabled() )
     {
-        auto project  = RiaApplication::instance()->project();
+        auto project  = RimProject::current();
         auto mainColl = project->firstSummaryCaseMainCollection();
 
         auto newColl = mainColl->addCaseCollection( {}, "", true, []() { return new RimDerivedEnsembleCaseCollection(); } );

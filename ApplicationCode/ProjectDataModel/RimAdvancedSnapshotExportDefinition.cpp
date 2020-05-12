@@ -18,7 +18,6 @@
 
 #include "RimAdvancedSnapshotExportDefinition.h"
 
-#include "RiaApplication.h"
 #include "RiaOptionItemFactory.h"
 
 #include "RigActiveCellInfo.h"
@@ -90,7 +89,7 @@ QList<caf::PdmOptionItemInfo>
 
         std::vector<Rim3dView*> views;
 
-        RimProject*           proj = RiaApplication::instance()->project();
+        RimProject*           proj = RimProject::current();
         std::vector<RimCase*> cases;
         proj->allCases( cases );
 

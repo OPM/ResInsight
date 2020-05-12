@@ -18,7 +18,6 @@
 
 #include "RicExportFishbonesLateralsFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "ExportCommands/RicExportSelectedWellPathsFeature.h"

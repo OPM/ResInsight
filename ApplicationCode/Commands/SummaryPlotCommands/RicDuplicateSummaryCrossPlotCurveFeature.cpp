@@ -18,8 +18,6 @@
 
 #include "RicDuplicateSummaryCrossPlotCurveFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicPasteSummaryCurveFeature.h"
 
 #include "RiaSummaryTools.h"

@@ -65,7 +65,7 @@ void RicNewStimPlanFractureTemplateFeature::selectFractureTemplateAndUpdate( Rim
     fractureTemplate->firstAncestorOrThisOfTypeAsserted( templateCollection );
     templateCollection->updateConnectedEditors();
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     project->scheduleCreateDisplayModelAndRedrawAllViews();
     Riu3DMainWindowTools::selectAsCurrentItem( fractureTemplate );
@@ -85,7 +85,7 @@ std::vector<RimStimPlanFractureTemplate*> RicNewStimPlanFractureTemplateFeature:
 
     if ( fileNames.isEmpty() ) return std::vector<RimStimPlanFractureTemplate*>();
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
     RimOilField* oilfield = project->activeOilField();

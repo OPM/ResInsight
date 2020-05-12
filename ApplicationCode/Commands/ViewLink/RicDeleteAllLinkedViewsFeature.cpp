@@ -19,7 +19,6 @@
 
 #include "RicDeleteAllLinkedViewsFeature.h"
 
-#include "RiaApplication.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewLinker.h"
@@ -36,7 +35,7 @@ class DeleteAllLinkedViewsImpl
 public:
     static void execute()
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
 
         RimViewLinker* viewLinker = proj->viewLinkerCollection()->viewLinker();
         if ( viewLinker )

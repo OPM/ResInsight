@@ -18,8 +18,6 @@
 
 #include "RicImportObservedDataInMenuFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicImportObservedDataFeature.h"
 
 #include "RimObservedDataCollection.h"

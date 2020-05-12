@@ -181,7 +181,7 @@ QString RiuMainWindow::mainWindowName()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::initializeGuiNewProjectLoaded()
 {
-    setPdmRoot( RiaApplication::instance()->project() );
+    setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
     if ( subWindowsAreTiled() )
@@ -1039,7 +1039,7 @@ RimViewWindow* RiuMainWindow::findViewWindowFromSubWindow( QMdiSubWindow* subWin
     if ( subWindow )
     {
         std::vector<RimViewWindow*> allViewWindows;
-        RiaApplication::instance()->project()->descendantsIncludingThisOfType( allViewWindows );
+        RimProject::current()->descendantsIncludingThisOfType( allViewWindows );
 
         for ( RimViewWindow* viewWindow : allViewWindows )
         {
@@ -1644,14 +1644,14 @@ void RiuMainWindow::restoreTreeViewState()
 {
     if ( m_projectTreeView )
     {
-        QString stateString = RiaApplication::instance()->project()->mainWindowTreeViewState;
+        QString stateString = RimProject::current()->mainWindowTreeViewState;
         if ( !stateString.isEmpty() )
         {
             m_projectTreeView->treeView()->collapseAll();
             caf::QTreeViewStateSerializer::applyTreeViewStateFromString( m_projectTreeView->treeView(), stateString );
         }
 
-        QString currentIndexString = RiaApplication::instance()->project()->mainWindowCurrentModelIndexPath;
+        QString currentIndexString = RimProject::current()->mainWindowCurrentModelIndexPath;
         if ( !currentIndexString.isEmpty() )
         {
             QModelIndex mi =
@@ -1965,7 +1965,7 @@ void RiuMainWindow::tileSubWindows()
     }
 
     // Get the active view linker if there is one
-    RimProject*              proj                 = RiaApplication::instance()->project();
+    RimProject*              proj                 = RimProject::current();
     RimViewLinkerCollection* viewLinkerCollection = proj->viewLinkerCollection();
     RimViewLinker*           viewLinker           = nullptr;
     if ( viewLinkerCollection && viewLinkerCollection->isActive() )
@@ -2031,7 +2031,7 @@ void RiuMainWindow::tileSubWindows()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::storeSubWindowTiling( bool tiled )
 {
-    RiaApplication::instance()->project()->setSubWindowsTiledIn3DWindow( tiled );
+    RimProject::current()->setSubWindowsTiledIn3DWindow( tiled );
     refreshViewActions();
 }
 
@@ -2057,9 +2057,9 @@ void RiuMainWindow::clearWindowTiling()
 //--------------------------------------------------------------------------------------------------
 bool RiuMainWindow::subWindowsAreTiled() const
 {
-    if ( RiaApplication::instance()->project() )
+    if ( RimProject::current() )
     {
-        return RiaApplication::instance()->project()->subWindowsTiled3DWindow();
+        return RimProject::current()->subWindowsTiled3DWindow();
     }
     return false;
 }

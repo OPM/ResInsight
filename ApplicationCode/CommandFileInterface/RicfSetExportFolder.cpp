@@ -18,7 +18,6 @@
 
 #include "RicfSetExportFolder.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "cafPdmFieldIOScriptability.h"

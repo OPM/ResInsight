@@ -18,8 +18,6 @@
 
 #include "RicNewAnnotationFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimAnnotationCollection.h"
 #include "RimOilField.h"
 #include "RimPolylinesAnnotation.h"
@@ -68,7 +66,7 @@ void RicNewAnnotationFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimAnnotationCollection* RicNewAnnotationFeature::annotationCollection() const
 {
-    auto project  = RiaApplication::instance()->project();
+    auto project  = RimProject::current();
     auto oilField = project->activeOilField();
     return oilField ? oilField->annotationCollection() : nullptr;
 }

@@ -18,8 +18,6 @@
 
 #include "RimGridTimeHistoryCurve.h"
 
-#include "RiaApplication.h"
-
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemResultAddress.h"

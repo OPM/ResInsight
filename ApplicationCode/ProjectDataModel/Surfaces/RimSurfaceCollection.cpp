@@ -18,7 +18,6 @@
 
 #include "RimSurfaceCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 
@@ -176,7 +175,7 @@ void RimSurfaceCollection::loadData()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToReload )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     std::vector<Rim3dView*> views;
     proj->allViews( views );
@@ -218,7 +217,7 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::updateViews()
 {
-    RimProject*               proj = RiaApplication::instance()->project();
+    RimProject*               proj = RimProject::current();
     std::vector<RimGridView*> views;
     proj->allVisibleGridViews( views );
 

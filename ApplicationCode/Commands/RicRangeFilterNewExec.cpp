@@ -19,8 +19,6 @@
 
 #include "RicRangeFilterNewExec.h"
 
-#include "RiaApplication.h"
-
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimGridView.h"

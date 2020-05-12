@@ -18,7 +18,6 @@
 
 #include "RicWellPathFractureTextReportFeatureImpl.h"
 
-#include "RiaApplication.h"
 #include "RiaRegressionTestRunner.h"
 
 #include "RicExportFractureCompletionsImpl.h"
@@ -85,7 +84,7 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
     std::vector<RimEllipseFractureTemplate*>  ellipseTemplates;
 
     {
-        auto proj              = RiaApplication::instance()->project();
+        auto proj              = RimProject::current();
         auto fractureTemplates = proj->activeOilField()->fractureDefinitionCollection()->fractureTemplates();
 
         std::set<QString> usedFractureTemplateNames;

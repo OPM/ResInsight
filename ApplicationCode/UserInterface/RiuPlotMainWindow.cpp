@@ -104,7 +104,7 @@ QString RiuPlotMainWindow::mainWindowName()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
 {
-    setPdmRoot( RiaApplication::instance()->project() );
+    setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
     if ( m_pdmUiPropertyView && m_pdmUiPropertyView->currentObject() )
@@ -506,7 +506,7 @@ QMdiSubWindow* RiuPlotMainWindow::findMdiSubWindow( QWidget* viewer )
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RiuPlotMainWindow::findViewWindowFromSubWindow( QMdiSubWindow* subWindow )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( subWindow && proj )
     {
         return RiuInterfaceToViewWindow::viewWindowFromWidget( subWindow->widget() );
@@ -897,14 +897,14 @@ void RiuPlotMainWindow::restoreTreeViewState()
 {
     if ( m_projectTreeView )
     {
-        QString stateString = RiaApplication::instance()->project()->plotWindowTreeViewState;
+        QString stateString = RimProject::current()->plotWindowTreeViewState;
         if ( !stateString.isEmpty() )
         {
             m_projectTreeView->treeView()->collapseAll();
             caf::QTreeViewStateSerializer::applyTreeViewStateFromString( m_projectTreeView->treeView(), stateString );
         }
 
-        QString currentIndexString = RiaApplication::instance()->project()->plotWindowCurrentModelIndexPath;
+        QString currentIndexString = RimProject::current()->plotWindowCurrentModelIndexPath;
         if ( !currentIndexString.isEmpty() )
         {
             QModelIndex mi =
@@ -996,7 +996,7 @@ void RiuPlotMainWindow::tileSubWindows()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::storeSubWindowTiling( bool tiled )
 {
-    RiaApplication::instance()->project()->setSubWindowsTiledInPlotWindow( tiled );
+    RimProject::current()->setSubWindowsTiledInPlotWindow( tiled );
     refreshToolbars();
 }
 
@@ -1022,9 +1022,9 @@ void RiuPlotMainWindow::clearWindowTiling()
 //--------------------------------------------------------------------------------------------------
 bool RiuPlotMainWindow::subWindowsAreTiled() const
 {
-    if ( RiaApplication::instance()->project() )
+    if ( RimProject::current() )
     {
-        return RiaApplication::instance()->project()->subWindowsTiledPlotWindow();
+        return RimProject::current()->subWindowsTiledPlotWindow();
     }
     return false;
 }

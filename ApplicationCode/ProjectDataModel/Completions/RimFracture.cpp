@@ -265,7 +265,7 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
             RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
         }
 
-        RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
+        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 
@@ -553,7 +553,7 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions( const caf::Pdm
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     CVF_ASSERT( proj );
 
     if ( fieldNeedingOptions == &m_fractureTemplate )

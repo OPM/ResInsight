@@ -37,7 +37,6 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaSimWellBranchTools.h"
 
 #include "cafPdmUiCheckBoxTristateEditor.h"

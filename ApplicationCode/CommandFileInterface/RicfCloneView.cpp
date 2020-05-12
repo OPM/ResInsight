@@ -1,6 +1,5 @@
 #include "RicfCloneView.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RicfCreateView.h"
@@ -34,7 +33,7 @@ RicfCloneView::RicfCloneView()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCloneView::execute()
 {
-    RimProject*             project = RiaApplication::instance()->project();
+    RimProject*             project = RimProject::current();
     std::vector<Rim3dView*> allViews;
     project->descendantsIncludingThisOfType( allViews );
 

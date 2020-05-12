@@ -120,10 +120,10 @@ void RicCreateTemporaryLgrFeature::updateViews( RimEclipseCase* eclipseCase )
     app->clearAllSelections();
 
     deleteAllCachedData( eclipseCase );
-    RiaApplication::instance()->project()->mainPlotCollection()->deleteAllCachedData();
+    RimProject::current()->mainPlotCollection()->deleteAllCachedData();
     computeCachedData( eclipseCase );
 
-    RiaApplication::instance()->project()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
+    RimProject::current()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
 
     for ( const auto& v : eclipseCase->views() )
     {

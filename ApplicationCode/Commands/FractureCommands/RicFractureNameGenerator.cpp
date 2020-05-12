@@ -18,8 +18,6 @@
 
 #include "RicFractureNameGenerator.h"
 
-#include "RiaApplication.h"
-
 #include "RimFracture.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -30,7 +28,7 @@
 QString RicFractureNameGenerator::nameForNewFracture()
 {
     std::vector<RimFracture*> oldFractures;
-    RiaApplication::instance()->project()->activeOilField()->descendantsIncludingThisOfType( oldFractures );
+    RimProject::current()->activeOilField()->descendantsIncludingThisOfType( oldFractures );
 
     size_t fractureNum = oldFractures.size();
 

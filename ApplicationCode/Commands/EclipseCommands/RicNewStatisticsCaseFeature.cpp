@@ -25,7 +25,6 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"
 
-#include "RiaApplication.h"
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
@@ -113,7 +112,7 @@ RimEclipseStatisticsCase* RicNewStatisticsCaseFeature::addStatisticalCalculation
 
     if ( caseGroup )
     {
-        RimProject*               proj          = RiaApplication::instance()->project();
+        RimProject*               proj          = RimProject::current();
         RimEclipseStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
         proj->assignCaseIdToCase( createdObject );
 

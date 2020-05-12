@@ -19,8 +19,6 @@
 
 #include "RicNewWellLogPlotFeatureImpl.h"
 
-#include "RiaApplication.h"
-
 #include "RimCase.h"
 #include "RimEclipseCase.h"
 #include "RimMainPlotCollection.h"
@@ -141,7 +139,7 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool     
     if ( !caseToApply )
     {
         std::vector<RimCase*> allCases;
-        RiaApplication::instance()->project()->allCases( allCases );
+        RimProject::current()->allCases( allCases );
         if ( !allCases.empty() )
         {
             caseToApply = allCases.front();
@@ -150,7 +148,7 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool     
 
     if ( !wellPathToApply && caseToApply )
     {
-        auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
+        auto allWellPaths = RimProject::current()->allWellPaths();
         if ( !allWellPaths.empty() )
         {
             wellPathToApply = allWellPaths.front();
@@ -236,7 +234,7 @@ void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimWellLogPlot* plot )
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection* RicNewWellLogPlotFeatureImpl::wellLogPlotCollection()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
     RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();

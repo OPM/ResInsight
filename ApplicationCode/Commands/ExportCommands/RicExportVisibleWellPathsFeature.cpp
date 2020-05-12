@@ -18,7 +18,6 @@
 
 #include "RicExportVisibleWellPathsFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "CompletionExportCommands/RicExportCompletionsForVisibleWellPathsFeature.h"

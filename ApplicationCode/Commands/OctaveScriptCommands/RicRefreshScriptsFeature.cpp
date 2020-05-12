@@ -58,7 +58,7 @@ void RicRefreshScriptsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicRefreshScriptsFeature::refreshScriptFolders()
 {
-    RimProject*     proj  = RiaApplication::instance()->project();
+    RimProject*     proj  = RimProject::current();
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
     proj->setScriptDirectories( prefs->scriptDirectories() );

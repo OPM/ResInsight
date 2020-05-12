@@ -19,8 +19,6 @@
 
 #include "RimViewLinker.h"
 
-#include "RiaApplication.h"
-
 #include "RigFemResultAddress.h"
 #include "RigMainGrid.h"
 

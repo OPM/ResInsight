@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicVec3dPickEventHandler.h"
 
-#include "RiaApplication.h"
 #include "Rim3dView.h"
 #include "RimCase.h"
 #include "RiuViewer.h"

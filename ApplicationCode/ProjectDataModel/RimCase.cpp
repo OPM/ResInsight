@@ -19,7 +19,6 @@
 
 #include "RimCase.h"
 
-#include "RiaApplication.h"
 #include "RicfCommandObject.h"
 
 #include "RimFormationNames.h"
@@ -192,7 +191,7 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFiel
 
     if ( fieldNeedingOptions == &m_activeFormationNames )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
         if ( proj && proj->activeOilField() && proj->activeOilField()->formationNamesCollection() )
         {
             for ( RimFormationNames* fnames : proj->activeOilField()->formationNamesCollection()->formationNamesList() )
@@ -217,7 +216,7 @@ void RimCase::initAfterRead()
 {
     if ( caseId() == -1 )
     {
-        RiaApplication::instance()->project()->assignCaseIdToCase( this );
+        RimProject::current()->assignCaseIdToCase( this );
     }
 }
 

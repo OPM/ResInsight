@@ -16,8 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaApplication.h"
-
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFractureCompletionsImpl.h"
 

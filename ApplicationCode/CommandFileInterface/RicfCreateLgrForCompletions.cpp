@@ -33,7 +33,6 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaWellNameComparer.h"
 
@@ -93,7 +92,7 @@ caf::PdmScriptResponse RicfCreateLgrForCompletions::execute()
 
     RimEclipseCase* eclipseCase = nullptr;
     {
-        for ( RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases() )
+        for ( RimEclipseCase* c : RimProject::current()->activeOilField()->analysisModels->cases() )
         {
             if ( c->caseId() == m_caseId() )
             {

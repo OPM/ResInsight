@@ -67,7 +67,7 @@ void RicImportPolylinesAnnotationFeature::onActionTriggered( bool isChecked )
 
     // Find or create the AnnotationsCollection
 
-    RimProject*              proj      = RiaApplication::instance()->project();
+    RimProject*              proj      = RimProject::current();
     RimAnnotationCollection* annotColl = proj->activeOilField()->annotationCollection();
 
     if ( !annotColl )

@@ -18,7 +18,6 @@
 
 #include "RimSummaryCase.h"
 
-#include "RiaApplication.h"
 #include "RiaSummaryTools.h"
 
 #include "RicfCommandObject.h"
@@ -260,7 +259,7 @@ void RimSummaryCase::initAfterRead()
 {
     if ( m_caseId() == -1 )
     {
-        RiaApplication::instance()->project()->assignCaseIdToSummaryCase( this );
+        RimProject::current()->assignCaseIdToSummaryCase( this );
     }
 
     updateOptionSensitivity();

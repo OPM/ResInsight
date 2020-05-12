@@ -18,8 +18,6 @@
 
 #include "RimGridView.h"
 
-#include "RiaApplication.h"
-
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimAnnotationInViewCollection.h"
 #include "RimCellRangeFilterCollection.h"
@@ -125,7 +123,7 @@ RimGridView::RimGridView()
 //--------------------------------------------------------------------------------------------------
 RimGridView::~RimGridView( void )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     if ( proj && this->isMasterView() )
     {
@@ -605,7 +603,7 @@ void RimGridView::updateWellMeasurements()
 //--------------------------------------------------------------------------------------------------
 void RimGridView::updateSurfacesInViewTreeItems()
 {
-    RimProject*           proj     = RiaApplication::instance()->project();
+    RimProject*           proj     = RimProject::current();
     RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
 
     if ( surfColl && surfColl->surfaces().size() )

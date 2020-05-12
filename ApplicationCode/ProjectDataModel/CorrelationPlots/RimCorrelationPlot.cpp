@@ -18,7 +18,6 @@
 
 #include "RimCorrelationPlot.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RiaStatisticsTools.h"
 #include "RiuGroupedBarChartBuilder.h"

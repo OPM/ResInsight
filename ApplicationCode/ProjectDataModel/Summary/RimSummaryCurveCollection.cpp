@@ -18,7 +18,6 @@
 
 #include "RimSummaryCurveCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaStdStringTools.h"
 
 #include "SummaryPlotCommands/RicEditSummaryPlotFeature.h"

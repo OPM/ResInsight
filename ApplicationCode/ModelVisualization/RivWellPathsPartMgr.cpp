@@ -18,8 +18,6 @@
 
 #include "RivWellPathsPartMgr.h"
 
-#include "RiaApplication.h"
-
 #include "RimEclipseView.h"
 #include "RimProject.h"
 #include "RimTools.h"
@@ -121,7 +119,7 @@ void RivWellPathsPartMgr::scheduleGeometryRegen()
 //--------------------------------------------------------------------------------------------------
 void RivWellPathsPartMgr::createPartManagersIfRequired()
 {
-    RimProject* proj      = RiaApplication::instance()->project();
+    RimProject* proj      = RimProject::current();
     auto        wellPaths = proj->allWellPaths();
 
     if ( m_wellPathsPartMgrs.size() != wellPaths.size() )

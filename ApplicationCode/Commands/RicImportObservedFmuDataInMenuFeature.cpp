@@ -18,8 +18,6 @@
 
 #include "RicImportObservedFmuDataInMenuFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicImportObservedFmuDataFeature.h"
 
 #include "RimObservedDataCollection.h"

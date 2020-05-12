@@ -75,7 +75,7 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
                                                                         int            caseId /*= -1*/,
                                                                         int            viewId /*= -1*/ )
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     if ( project == nullptr ) return;
 

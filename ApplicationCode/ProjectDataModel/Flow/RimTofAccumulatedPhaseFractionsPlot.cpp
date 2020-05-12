@@ -18,8 +18,6 @@
 
 #include "RimTofAccumulatedPhaseFractionsPlot.h"
 
-#include "RiaApplication.h"
-
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimWellAllocationPlot.h"

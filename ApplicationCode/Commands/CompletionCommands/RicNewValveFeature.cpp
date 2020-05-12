@@ -1,7 +1,6 @@
 #include "RicNewValveFeature.h"
 #include "Riu3DMainWindowTools.h"
 
-#include "RiaApplication.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"

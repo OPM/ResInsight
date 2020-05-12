@@ -674,7 +674,7 @@ void RimSimWellInViewCollection::assignDefaultWellColors()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::updateWellAllocationPlots()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     std::vector<RimWellAllocationPlot*> wellAllocationPlots;
     proj->descendantsIncludingThisOfType( wellAllocationPlots );

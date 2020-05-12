@@ -26,7 +26,6 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
-#include "RiaApplication.h"
 #include "Riu3DMainWindowTools.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -57,7 +56,7 @@ QString RicEclipseCaseNewGroupExec::name()
 //--------------------------------------------------------------------------------------------------
 void RicEclipseCaseNewGroupExec::redo()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     CVF_ASSERT( proj );
 
     RimEclipseCaseCollection* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels() : nullptr;

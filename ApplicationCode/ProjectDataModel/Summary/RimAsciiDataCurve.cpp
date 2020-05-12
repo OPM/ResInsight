@@ -18,8 +18,6 @@
 
 #include "RimAsciiDataCurve.h"
 
-#include "RiaApplication.h"
-
 #include "RifReaderEclipseSummary.h"
 
 #include "RiaDefines.h"

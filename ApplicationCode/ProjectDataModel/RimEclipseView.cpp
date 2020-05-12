@@ -1561,7 +1561,7 @@ void RimEclipseView::syncronizeWellsWithResults()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::syncronizeLocalAnnotationsFromGlobal()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj && proj->activeOilField() )
     {
         RimAnnotationCollection* annotColl = proj->activeOilField()->annotationCollection();

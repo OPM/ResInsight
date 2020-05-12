@@ -18,8 +18,6 @@
 
 #include "RimWellAllocationPlot.h"
 
-#include "RiaApplication.h"
-
 #include "RigAccWellFlowCalculator.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResultAddress.h"

@@ -27,7 +27,6 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "cafPdmFieldIOScriptability.h"
@@ -54,8 +53,7 @@ caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
 
     if ( m_groupId() >= 0 )
     {
-        for ( RimIdenticalGridCaseGroup* group :
-              RiaApplication::instance()->project()->activeOilField()->analysisModels()->caseGroups )
+        for ( RimIdenticalGridCaseGroup* group : RimProject::current()->activeOilField()->analysisModels()->caseGroups )
         {
             for ( RimEclipseCase* c : group->statisticsCaseCollection->reservoirs )
             {
@@ -67,8 +65,7 @@ caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
     for ( int caseId : caseIds )
     {
         bool foundCase = false;
-        for ( RimIdenticalGridCaseGroup* group :
-              RiaApplication::instance()->project()->activeOilField()->analysisModels()->caseGroups )
+        for ( RimIdenticalGridCaseGroup* group : RimProject::current()->activeOilField()->analysisModels()->caseGroups )
         {
             for ( RimEclipseCase* c : group->statisticsCaseCollection->reservoirs )
             {

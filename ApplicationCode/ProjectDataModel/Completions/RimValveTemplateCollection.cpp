@@ -18,8 +18,6 @@
 
 #include "RimValveTemplateCollection.h"
 
-#include "RiaApplication.h"
-
 #include "RimProject.h"
 #include "RimValveTemplate.h"
 
@@ -93,7 +91,7 @@ RiaEclipseUnitTools::UnitSystemType RimValveTemplateCollection::defaultUnitSyste
 //--------------------------------------------------------------------------------------------------
 void RimValveTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     auto commonUnitSystem = proj->commonUnitSystemForAllCases();
     if ( commonUnitSystem != RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )

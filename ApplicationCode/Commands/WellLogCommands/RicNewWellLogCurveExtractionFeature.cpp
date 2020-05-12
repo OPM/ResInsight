@@ -142,7 +142,7 @@ void RicNewWellLogCurveExtractionFeature::setupActionLook( QAction* actionToSetu
 bool RicNewWellLogCurveExtractionFeature::caseAvailable()
 {
     std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases( cases );
+    RimProject::current()->allCases( cases );
 
     return !cases.empty();
 }

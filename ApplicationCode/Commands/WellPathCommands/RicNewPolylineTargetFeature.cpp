@@ -19,8 +19,6 @@
 
 CAF_CMD_SOURCE_INIT( RicNewPolylineTargetFeature, "RicNewPolylineTargetFeature" );
 
-#include "RiaApplication.h"
-
 #include "RimCase.h"
 #include "RimGridView.h"
 #include "RimPolylineTarget.h"
@@ -128,7 +126,7 @@ void RicNewPolylineTargetFeature::onActionTriggered( bool isChecked )
 
             // Set decent position
             std::vector<RimGridView*> gridViews;
-            RiaApplication::instance()->project()->allVisibleGridViews( gridViews );
+            RimProject::current()->allVisibleGridViews( gridViews );
             if ( !gridViews.empty() )
             {
                 auto minPos = gridViews.front()->ownerCase()->allCellsBoundingBox().min();

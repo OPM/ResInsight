@@ -19,8 +19,6 @@
 
 #include "RicNewEllipseFractureTemplateFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
@@ -59,7 +57,7 @@ void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate( RimF
     fractureTemplate->firstAncestorOrThisOfTypeAsserted( templateCollection );
     templateCollection->updateConnectedEditors();
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     project->scheduleCreateDisplayModelAndRedrawAllViews();
 
@@ -71,7 +69,7 @@ void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate( RimF
 //--------------------------------------------------------------------------------------------------
 RimEllipseFractureTemplate* RicNewEllipseFractureTemplateFeature::createNewTemplate()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
     RimOilField* oilfield = project->activeOilField();

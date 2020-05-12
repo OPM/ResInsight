@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlotCollection.h"
 
-#include "RiaApplication.h"
 #include "RimGridCrossPlot.h"
 #include "RimProject.h"
 

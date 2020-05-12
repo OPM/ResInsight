@@ -21,8 +21,6 @@
 #include "ExportCommands/RicSnapshotViewToClipboardFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
 
-#include "RiaApplication.h"
-
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimEclipseView.h"
 

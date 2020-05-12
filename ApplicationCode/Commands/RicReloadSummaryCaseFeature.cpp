@@ -18,7 +18,6 @@
 
 #include "RicReloadSummaryCaseFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 

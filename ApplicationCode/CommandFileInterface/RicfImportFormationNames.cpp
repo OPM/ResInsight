@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfImportFormationNames.h"
 
-#include "RiaApplication.h"
 #include "RicImportFormationNamesFeature.h"
 
 #include "RimCase.h"
@@ -68,7 +67,7 @@ caf::PdmScriptResponse RicfImportFormationNames::execute()
             {
                 bool                  foundCase = false;
                 std::vector<RimCase*> cases;
-                RiaApplication::instance()->project()->allCases( cases );
+                RimProject::current()->allCases( cases );
                 for ( RimCase* rimCase : cases )
                 {
                     if ( rimCase->caseId() == m_applyToCaseId() )

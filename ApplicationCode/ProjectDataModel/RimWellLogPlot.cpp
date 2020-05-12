@@ -19,8 +19,6 @@
 
 #include "RimWellLogPlot.h"
 
-#include "RiaApplication.h"
-
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 

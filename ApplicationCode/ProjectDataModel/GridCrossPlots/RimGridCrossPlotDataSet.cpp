@@ -18,7 +18,6 @@
 
 #include "RimGridCrossPlotDataSet.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 
@@ -1287,7 +1286,7 @@ void RimGridCrossPlotDataSet::performAutoNameUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotDataSet::setDefaults()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     if ( project )
     {
         if ( !project->eclipseCases().empty() )

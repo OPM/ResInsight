@@ -20,7 +20,6 @@
 
 #include "RivMeasurementPartMgr.h"
 
-#include "RiaApplication.h"
 #include "RiaBoundingBoxTools.h"
 #include "RiaColorTools.h"
 #include "RiaFontCache.h"
@@ -79,7 +78,7 @@ void RivMeasurementPartMgr::appendGeometryPartsToModel( const cvf::Camera*      
 {
     if ( m_measurement.isNull() )
     {
-        m_measurement = RiaApplication::instance()->project()->measurement();
+        m_measurement = RimProject::current()->measurement();
     }
 
     if ( m_measurement.isNull() ) return;

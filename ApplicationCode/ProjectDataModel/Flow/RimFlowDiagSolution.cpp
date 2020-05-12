@@ -18,7 +18,6 @@
 
 #include "RimFlowDiagSolution.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 
 #include "RigActiveCellInfo.h"

@@ -18,7 +18,6 @@
 
 #include "RimStimPlanColors.h"
 
-#include "RiaApplication.h"
 #include "RiaFractureDefines.h"
 
 #include "RimEclipseView.h"
@@ -449,7 +448,7 @@ QString toString( const std::pair<QString, QString>& resultNameAndUnit )
 //--------------------------------------------------------------------------------------------------
 void setDefaultFractureResult( caf::PdmField<QString>& field )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     std::vector<RimFractureTemplate*> stimPlanFracTemplates = proj->allFractureTemplates();
 

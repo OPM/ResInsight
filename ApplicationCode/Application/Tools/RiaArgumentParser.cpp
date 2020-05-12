@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaArgumentParser.h"
-#include "RiaApplication.h"
+
 #include "RiaBaseDefs.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"

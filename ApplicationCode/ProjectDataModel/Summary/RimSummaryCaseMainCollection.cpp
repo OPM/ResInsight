@@ -262,7 +262,7 @@ RimSummaryCaseCollection*
 
     if ( summaryCaseCollection->ensembleId() == -1 )
     {
-        RimProject* project = RiaApplication::instance()->project();
+        RimProject* project = RimProject::current();
         project->assignIdToEnsemble( summaryCaseCollection );
     }
 
@@ -494,7 +494,7 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
     const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
     bool                                             showProgress )
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     std::vector<RimSummaryCase*> sumCases;
 

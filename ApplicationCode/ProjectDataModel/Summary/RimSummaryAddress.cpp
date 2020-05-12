@@ -18,8 +18,6 @@
 
 #include "RimSummaryAddress.h"
 
-#include "RiaApplication.h"
-
 #include "RimProject.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
@@ -142,7 +140,7 @@ void RimSummaryAddress::ensureIdIsAssigned()
 {
     if ( m_category == RifEclipseSummaryAddress::SUMMARY_CALCULATED && m_calculationId == -1 )
     {
-        RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+        RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
         for ( const RimSummaryCalculation* c : calcColl->calculations() )
         {

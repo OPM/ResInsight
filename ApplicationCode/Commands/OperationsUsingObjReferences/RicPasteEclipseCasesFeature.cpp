@@ -19,8 +19,6 @@
 
 #include "RicPasteEclipseCasesFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicPasteFeatureImpl.h"
 
 #include "RigGridManager.h"
@@ -106,7 +104,7 @@ void RicPasteEclipseCasesFeature::setupActionLook( QAction* actionToSetup )
 void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup( caf::PdmObjectGroup&       objectGroup,
                                                            RimIdenticalGridCaseGroup* gridCaseGroup )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     CVF_ASSERT( proj );
 
     std::vector<RimEclipseResultCase*> resultCases;

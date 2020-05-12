@@ -19,8 +19,6 @@
 
 #include "RimExtrudedCurveIntersection.h"
 
-#include "RiaApplication.h"
-
 #include "RigEclipseCaseData.h"
 #include "RigWellPath.h"
 

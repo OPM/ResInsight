@@ -18,7 +18,6 @@
 
 #include "RiaMemoryCleanup.h"
 
-#include "RiaApplication.h"
 #include "RigCaseCellResultsData.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
@@ -217,7 +216,7 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_case )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
         if ( proj )
         {
             std::vector<RimEclipseCase*> eclipseCases = proj->eclipseCases();
