@@ -52,6 +52,7 @@
 #include "RigFemPartResultCalculatorSTM.h"
 #include "RigFemPartResultCalculatorShearSE.h"
 #include "RigFemPartResultCalculatorShearST.h"
+#include "RigFemPartResultCalculatorStressAnisotropy.h"
 #include "RigFemPartResultCalculatorStressGradients.h"
 #include "RigFemPartResultCalculatorSurfaceAlignedStress.h"
 #include "RigFemPartResultCalculatorSurfaceAngles.h"
@@ -161,6 +162,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStrain( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStress( *this ) ) );
+    m_resultCalculators.push_back(
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorStressAnisotropy( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
 }
@@ -335,6 +338,13 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
         for ( auto fieldName : {"SE", "ST"} )
         {
             for ( auto componentName : componentNames )
+            {
+                deleteResult(
+                    RigFemResultAddress( elementType, fieldName, componentName, RigFemResultAddress::allTimeLapsesValue() ) );
+            }
+
+            const std::vector<std::string> stressAnisotropyComponentNames = getStressAnisotropyComponentNames();
+            for ( auto componentName : stressAnisotropyComponentNames )
             {
                 deleteResult(
                     RigFemResultAddress( elementType, fieldName, componentName, RigFemResultAddress::allTimeLapsesValue() ) );
@@ -514,8 +524,9 @@ std::map<std::string, std::vector<std::string>>
         if ( activeFormationNames() ) fieldCompNames["Active Formation Names"];
     }
 
-    const std::vector<std::string> stressComponentNames         = getStressComponentNames();
-    const std::vector<std::string> stressGradientComponentNames = getStressGradientComponentNames();
+    const std::vector<std::string> stressComponentNames           = getStressComponentNames();
+    const std::vector<std::string> stressGradientComponentNames   = getStressGradientComponentNames();
+    const std::vector<std::string> stressAnisotropyComponentNames = getStressAnisotropyComponentNames();
 
     if ( m_readerInterface.notNull() )
     {
@@ -539,6 +550,11 @@ std::map<std::string, std::vector<std::string>>
                 fieldCompNames["SE"].push_back( s );
             }
 
+            for ( auto& s : stressAnisotropyComponentNames )
+            {
+                fieldCompNames["SE"].push_back( "SE" + s );
+            }
+
             fieldCompNames["SE"].push_back( "S1inc" );
             fieldCompNames["SE"].push_back( "S1azi" );
             fieldCompNames["SE"].push_back( "S2inc" );
@@ -552,6 +568,11 @@ std::map<std::string, std::vector<std::string>>
             for ( auto& s : stressComponentNames )
             {
                 fieldCompNames["ST"].push_back( s );
+            }
+
+            for ( auto& s : stressAnisotropyComponentNames )
+            {
+                fieldCompNames["ST"].push_back( "ST" + s );
             }
 
             fieldCompNames["ST"].push_back( "S1inc" );
@@ -599,6 +620,11 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["SE"].push_back( "S2" );
             fieldCompNames["SE"].push_back( "S3" );
 
+            for ( auto& s : stressAnisotropyComponentNames )
+            {
+                fieldCompNames["SE"].push_back( "SE" + s );
+            }
+
             fieldCompNames["SE"].push_back( "S1inc" );
             fieldCompNames["SE"].push_back( "S1azi" );
             fieldCompNames["SE"].push_back( "S2inc" );
@@ -618,6 +644,11 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["ST"].push_back( "S1" );
             fieldCompNames["ST"].push_back( "S2" );
             fieldCompNames["ST"].push_back( "S3" );
+
+            for ( auto& s : stressAnisotropyComponentNames )
+            {
+                fieldCompNames["ST"].push_back( "ST" + s );
+            }
 
             fieldCompNames["ST"].push_back( "S1inc" );
             fieldCompNames["ST"].push_back( "S1azi" );
@@ -1353,6 +1384,14 @@ std::vector<std::string> RigFemPartResultsCollection::getStressComponentNames( b
     }
 
     return componentNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RigFemPartResultsCollection::getStressAnisotropyComponentNames()
+{
+    return {"A12", "A13", "A23"};
 }
 
 //--------------------------------------------------------------------------------------------------

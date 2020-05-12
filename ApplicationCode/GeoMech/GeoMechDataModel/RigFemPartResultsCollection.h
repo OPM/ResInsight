@@ -134,6 +134,7 @@ public:
     bool                            isValidBiotData( const std::vector<float>& biotData, size_t elementCount ) const;
     static std::vector<std::string> getStressComponentNames( bool includeShear = true );
     static std::vector<std::string> getStressGradientComponentNames( bool includeShear = true );
+    static std::vector<std::string> getStressAnisotropyComponentNames();
     const RigFormationNames*        activeFormationNames() const;
 
 private:
