@@ -18,7 +18,6 @@
 
 #include "RimAnalysisPlot.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
@@ -586,7 +585,7 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
     }
     else if ( fieldNeedingOptions == &m_referenceCase )
     {
-        std::vector<RimSummaryCase*> allSummaryCases = RiaApplication::instance()->project()->allSummaryCases();
+        std::vector<RimSummaryCase*> allSummaryCases = RimProject::current()->allSummaryCases();
 
         options.push_back( {"None", nullptr} );
 

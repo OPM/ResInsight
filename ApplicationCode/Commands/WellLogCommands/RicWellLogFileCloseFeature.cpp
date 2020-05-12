@@ -19,8 +19,6 @@
 
 #include "RicWellLogFileCloseFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogFile.h"

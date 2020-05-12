@@ -59,7 +59,7 @@ void RicImportSurfacesFeature::onActionTriggered( bool isChecked )
 
     // Find or create the SurfaceCollection
 
-    RimProject*           proj     = RiaApplication::instance()->project();
+    RimProject*           proj     = RimProject::current();
     RimSurfaceCollection* surfColl = proj->activeOilField()->surfaceCollection();
 
     if ( !surfColl )

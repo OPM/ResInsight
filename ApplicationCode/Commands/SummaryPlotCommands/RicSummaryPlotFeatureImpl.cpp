@@ -147,7 +147,7 @@ void RicSummaryPlotFeatureImpl::ensureAtLeastOnePlot( RimSummaryPlotCollection* 
 caf::PdmObject* RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( RimSummaryCase* summaryCase )
 {
     RimSummaryPlotCollection* summaryPlotCollection =
-        RiaApplication::instance()->project()->mainPlotCollection->summaryPlotCollection();
+        RimProject::current()->mainPlotCollection->summaryPlotCollection();
 
     caf::PdmObject* itemToSelect = nullptr;
 
@@ -394,7 +394,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
         RimSummaryPlot* lastPlotCreated = nullptr;
 
         RimSummaryPlotCollection* sumPlotColl =
-            RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+            RimProject::current()->mainPlotCollection()->summaryPlotCollection();
 
         splitAddressFiltersInGridAndSummary( summaryCasesToUse[0],
                                              allCurveAddressFilters,

@@ -18,7 +18,6 @@
 
 #include "RimMultiPlot.h"
 
-#include "RiaApplication.h"
 #include "RimPlot.h"
 #include "RimProject.h"
 #include "RimSummaryTimeAxisProperties.h"

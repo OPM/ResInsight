@@ -18,7 +18,6 @@
 
 #include "RicReloadWellMeasurementsFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RimWellMeasurementFilePath.h"

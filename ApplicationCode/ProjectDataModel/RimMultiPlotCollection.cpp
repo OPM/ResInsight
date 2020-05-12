@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimMultiPlotCollection.h"
 
-#include "RiaApplication.h"
 #include "RimMultiPlot.h"
 #include "RimProject.h"
 

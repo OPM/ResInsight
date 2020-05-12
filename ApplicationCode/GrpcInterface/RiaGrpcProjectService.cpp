@@ -78,7 +78,7 @@ grpc::Status RiaGrpcProjectService::GetAllCaseGroups( grpc::ServerContext* conte
                                                       const rips::Empty*   request,
                                                       rips::CaseGroups*    reply )
 {
-    RimProject*               proj = RiaApplication::instance()->project();
+    RimProject*               proj = RimProject::current();
     RimEclipseCaseCollection* analysisModels =
         ( proj && proj->activeOilField() ) ? proj->activeOilField()->analysisModels() : nullptr;
     if ( analysisModels )
@@ -102,7 +102,7 @@ grpc::Status RiaGrpcProjectService::GetAllCases( grpc::ServerContext* context,
                                                  rips::CaseInfoArray* reply )
 {
     std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases( cases );
+    RimProject::current()->allCases( cases );
 
     if ( cases.empty() )
     {
@@ -132,7 +132,7 @@ grpc::Status RiaGrpcProjectService::GetCasesInGroup( grpc::ServerContext*   cont
                                                      const rips::CaseGroup* request,
                                                      rips::CaseInfoArray*   reply )
 {
-    RimProject*               proj = RiaApplication::instance()->project();
+    RimProject*               proj = RimProject::current();
     RimEclipseCaseCollection* analysisModels =
         ( proj && proj->activeOilField() ) ? proj->activeOilField()->analysisModels() : nullptr;
     if ( analysisModels )
@@ -189,7 +189,7 @@ grpc::Status RiaGrpcProjectService::GetCasesInGroup( grpc::ServerContext*   cont
 grpc::Status
     RiaGrpcProjectService::GetPdmObject( grpc::ServerContext* context, const rips::Empty* request, rips::PdmObject* reply )
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     if ( project )
     {
         copyPdmObjectFromCafToRips( project, reply );

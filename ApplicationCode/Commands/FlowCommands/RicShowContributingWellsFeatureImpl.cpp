@@ -18,8 +18,6 @@
 
 #include "RicShowContributingWellsFeatureImpl.h"
 
-#include "RiaApplication.h"
-
 #include "RicSelectOrCreateViewFeatureImpl.h"
 
 #include "RigFlowDiagResultAddress.h"

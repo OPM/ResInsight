@@ -18,7 +18,6 @@
 
 #include "RiuMainWindowBase.h"
 
-#include "RiaApplication.h"
 #include "RiaVersionInfo.h"
 
 #include "RiuDockWidgetTools.h"

@@ -18,7 +18,6 @@
 
 #include "RicReplaceSummaryCaseFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaSummaryTools.h"
 
@@ -75,7 +74,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     summaryCase->createRftReaderInterface();
     RiaLogging::info( QString( "Replaced summary data for %1" ).arg( oldSummaryHeaderFilename ) );
 
-    RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
     // Find and update all changed calculations
     std::set<int> ids;

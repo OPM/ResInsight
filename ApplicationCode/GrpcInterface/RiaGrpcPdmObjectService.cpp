@@ -17,7 +17,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcPdmObjectService.h"
 
-#include "RiaApplication.h"
 #include "RiaGrpcCallbacks.h"
 #include "Rim3dView.h"
 #include "RimEclipseResultDefinition.h"
@@ -337,7 +336,7 @@ grpc::Status RiaGrpcPdmObjectService::GetAncestorPdmObject( grpc::ServerContext*
                                                             const rips::PdmParentObjectRequest* request,
                                                             rips::PdmObject*                    reply )
 {
-    RimProject*                  project = RiaApplication::instance()->project();
+    RimProject*                  project = RimProject::current();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
 
     QString scriptClassName = QString::fromStdString( request->object().class_keyword() );
@@ -449,7 +448,7 @@ grpc::Status RiaGrpcPdmObjectService::UpdateExistingPdmObject( grpc::ServerConte
         }
 
         matchingObject->updateAllRequiredEditors();
-        RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
+        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
 
         Rim3dView* view = dynamic_cast<Rim3dView*>( matchingObject );
         if ( view )
@@ -610,7 +609,7 @@ caf::PdmObject* RiaGrpcPdmObjectService::findCafObjectFromRipsObject( const rips
 caf::PdmObject* RiaGrpcPdmObjectService::findCafObjectFromScriptNameAndAddress( const QString& scriptClassName,
                                                                                 uint64_t       address )
 {
-    RimProject*                  project = RiaApplication::instance()->project();
+    RimProject*                  project = RimProject::current();
     std::vector<caf::PdmObject*> objectsOfCurrentClass;
 
     QString classKeyword = caf::PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( scriptClassName );

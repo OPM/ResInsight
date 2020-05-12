@@ -19,7 +19,6 @@
 
 #include "RicImportInputEclipseCaseFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
 

@@ -86,10 +86,10 @@ void RicShowFlowCharacteristicsPlotFeature::onActionTriggered( bool isChecked )
             }
         }
 
-        if ( RiaApplication::instance()->project() )
+        if ( RimProject::current() )
         {
             RimFlowPlotCollection* flowPlotColl =
-                RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+                RimProject::current()->mainPlotCollection->flowPlotCollection();
             if ( flowPlotColl )
             {
                 RiuPlotMainWindowTools::showPlotMainWindow();

@@ -19,7 +19,6 @@
 
 #include "RimGeoMechView.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"

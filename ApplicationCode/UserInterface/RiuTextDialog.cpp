@@ -20,7 +20,6 @@
 #include "RiuTextDialog.h"
 #include "RiuTools.h"
 
-#include "RiaApplication.h"
 #include "RiaQDateTimeTools.h"
 
 #include "SummaryPlotCommands/RicAsciiExportSummaryPlotFeature.h"

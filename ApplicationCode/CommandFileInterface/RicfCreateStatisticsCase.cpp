@@ -24,7 +24,6 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimProject.h"
 
-#include "RiaApplication.h"
 #include "Riu3DMainWindowTools.h"
 
 #include "cafPdmFieldIOScriptability.h"
@@ -58,7 +57,7 @@ RicfCreateStatisticsCase::RicfCreateStatisticsCase()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCreateStatisticsCase::execute()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     std::vector<RimIdenticalGridCaseGroup*> gridCaseGroups;
     project->descendantsIncludingThisOfType( gridCaseGroups );

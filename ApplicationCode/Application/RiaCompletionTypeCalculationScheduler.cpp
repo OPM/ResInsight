@@ -56,7 +56,7 @@ RiaCompletionTypeCalculationScheduler* RiaCompletionTypeCalculationScheduler::in
 void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews()
 {
     std::vector<RimEclipseCase*> eclipseCases =
-        RiaApplication::instance()->project()->activeOilField()->analysisModels->cases().childObjects();
+        RimProject::current()->activeOilField()->analysisModels->cases().childObjects();
 
     scheduleRecalculateCompletionTypeAndRedrawAllViews( eclipseCases );
 }

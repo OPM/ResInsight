@@ -18,7 +18,6 @@
 
 #include "RicSelectSummaryPlotUI.h"
 
-#include "RiaApplication.h"
 #include "RiaSummaryTools.h"
 
 #include "RimEclipseResultCase.h"

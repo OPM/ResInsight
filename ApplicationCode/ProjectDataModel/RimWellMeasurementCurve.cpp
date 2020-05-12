@@ -37,7 +37,6 @@
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 
 #include "cafPdmUiTreeOrdering.h"

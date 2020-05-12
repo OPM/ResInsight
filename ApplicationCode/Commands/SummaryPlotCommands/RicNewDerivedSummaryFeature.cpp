@@ -18,8 +18,6 @@
 
 #include "RicNewDerivedSummaryFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimDerivedSummaryCase.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"

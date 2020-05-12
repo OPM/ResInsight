@@ -18,8 +18,6 @@
 
 #include "RiaExtractionTools.h"
 
-#include "RiaApplication.h"
-
 #include "RigWellPath.h"
 #include "RimEclipseCase.h"
 #include "RimMainPlotCollection.h"
@@ -84,7 +82,7 @@ RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( co
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection* RiaExtractionTools::wellLogPlotCollection()
 {
-    auto proj = RiaApplication::instance()->project();
+    auto proj = RimProject::current();
     if ( !proj ) return nullptr;
 
     auto plotCollection = proj->mainPlotCollection();

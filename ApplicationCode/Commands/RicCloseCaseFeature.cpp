@@ -19,8 +19,6 @@
 
 #include "RicCloseCaseFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimAdvancedSnapshotExportDefinition.h"
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
@@ -129,7 +127,7 @@ void RicCloseCaseFeature::removeCaseFromAllGroups( RimEclipseCase* eclipseCase )
 {
     CVF_ASSERT( eclipseCase );
 
-    RimProject*               proj           = RiaApplication::instance()->project();
+    RimProject*               proj           = RimProject::current();
     RimOilField*              activeOilField = proj ? proj->activeOilField() : nullptr;
     RimEclipseCaseCollection* analysisModels = ( activeOilField ) ? activeOilField->analysisModels() : nullptr;
     if ( analysisModels )
@@ -190,7 +188,7 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
     RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>( eclipseCase );
     if ( resultCase )
     {
-        RimProject*                   project = RiaApplication::instance()->project();
+        RimProject*                   project = RimProject::current();
         RimSummaryCaseMainCollection* sumCaseColl =
             project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
         if ( sumCaseColl )
@@ -207,7 +205,7 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
     delete eclipseCase;
 
     {
-        RimProject* project = RiaApplication::instance()->project();
+        RimProject* project = RimProject::current();
 
         std::vector<RimCase*> cases;
         project->allCases( cases );
@@ -233,7 +231,7 @@ void RicCloseCaseFeature::deleteGeoMechCase( RimGeoMechCase* geoMechCase )
 {
     CVF_ASSERT( geoMechCase );
 
-    RimProject*       proj           = RiaApplication::instance()->project();
+    RimProject*       proj           = RimProject::current();
     RimOilField*      activeOilField = proj ? proj->activeOilField() : nullptr;
     RimGeoMechModels* models         = ( activeOilField ) ? activeOilField->geoMechModels() : nullptr;
     if ( models )

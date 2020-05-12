@@ -18,7 +18,6 @@
 
 #include "RimDerivedSummaryCase.h"
 
-#include "RiaApplication.h"
 #include "RiaCurveMerger.h"
 #include "RiaLogging.h"
 
@@ -446,7 +445,7 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimProject* proj         = RiaApplication::instance()->project();
+    RimProject* proj         = RimProject::current();
     auto        summaryCases = proj->allSummaryCases();
 
     if ( fieldNeedingOptions == &m_fixedTimeStepIndex )

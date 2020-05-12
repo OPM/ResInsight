@@ -1,6 +1,5 @@
 #include "RimAbstractCorrelationPlot.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RiaSummaryCurveDefinition.h"
 

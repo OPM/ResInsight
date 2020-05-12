@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
 #include "RiaGuiApplication.h"

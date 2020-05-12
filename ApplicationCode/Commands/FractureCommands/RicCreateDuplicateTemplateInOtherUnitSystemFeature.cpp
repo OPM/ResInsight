@@ -18,7 +18,6 @@
 
 #include "RicCreateDuplicateTemplateInOtherUnitSystemFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
 
 #include "RicNewEllipseFractureTemplateFeature.h"

@@ -18,8 +18,6 @@
 
 #include "RicShowMainWindowFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RiuMainWindow.h"
 
 #include <QAction>

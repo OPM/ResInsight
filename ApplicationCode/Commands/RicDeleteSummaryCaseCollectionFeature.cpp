@@ -18,8 +18,6 @@
 
 #include "RicDeleteSummaryCaseCollectionFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RiaSummaryTools.h"
 
 #include "RimDerivedEnsembleCaseCollection.h"

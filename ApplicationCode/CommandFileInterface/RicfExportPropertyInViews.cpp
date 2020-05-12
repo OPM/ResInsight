@@ -20,7 +20,6 @@
 
 #include "ExportCommands/RicEclipseCellResultToFileImpl.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RicfApplicationTools.h"

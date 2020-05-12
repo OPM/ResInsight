@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfExportWellLogPlotData.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "ExportCommands/RicExportToLasFileFeature.h"
@@ -83,7 +82,7 @@ caf::PdmScriptResponse RicfExportWellLogPlotData::execute()
     if ( QFileInfo::exists( m_folder ) )
     {
         std::vector<RimWellLogPlot*> plots;
-        RiaApplication::instance()->project()->descendantsIncludingThisOfType( plots );
+        RimProject::current()->descendantsIncludingThisOfType( plots );
         RicfExportWellLogPlotDataResult* result = new RicfExportWellLogPlotDataResult;
 
         for ( RimWellLogPlot* plot : plots )

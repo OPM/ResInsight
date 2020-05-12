@@ -80,7 +80,7 @@ caf::PdmScriptResponse RicfExportSimWellFractureCompletions::execute()
 {
     using TOOLS = RicfApplicationTools;
 
-    RimProject*                        project        = RiaApplication::instance()->project();
+    RimProject*                        project        = RimProject::current();
     RicExportCompletionDataSettingsUi* exportSettings = project->dialogData()->exportCompletionData();
 
     exportSettings->timeStep      = m_timeStep;

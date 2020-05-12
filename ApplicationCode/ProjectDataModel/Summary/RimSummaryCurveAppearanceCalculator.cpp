@@ -18,7 +18,6 @@
 
 #include "RimSummaryCurveAppearanceCalculator.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaSummaryCurveDefinition.h"
 
@@ -587,7 +586,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::gradeColor( const cvf::Color3f
 std::set<std::string> RimSummaryCurveAppearanceCalculator::getAllSummaryCaseNames()
 {
     std::set<std::string> summaryCaseHashes;
-    RimProject*           proj = RiaApplication::instance()->project();
+    RimProject*           proj = RimProject::current();
 
     std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
     for ( RimSummaryCase* rimCase : cases )
@@ -604,7 +603,7 @@ std::set<std::string> RimSummaryCurveAppearanceCalculator::getAllSummaryCaseName
 std::set<std::string> RimSummaryCurveAppearanceCalculator::getAllSummaryWellNames()
 {
     std::set<std::string> summaryWellNames;
-    RimProject*           proj = RiaApplication::instance()->project();
+    RimProject*           proj = RimProject::current();
 
     std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
     for ( RimSummaryCase* rimCase : cases )

@@ -19,7 +19,6 @@
 
 #include "RicfScaleFractureTemplate.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RimFractureTemplate.h"
@@ -60,7 +59,7 @@ caf::PdmScriptResponse RicfScaleFractureTemplate::execute()
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     if ( !project )
     {

@@ -16,7 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaApplication.h"
 #include "RiaQDateTimeTools.h"
 
 #include "SummaryPlotCommands/RicNewDerivedEnsembleFeature.h"
@@ -584,7 +583,7 @@ std::vector<RimSummaryCaseCollection*> RimDerivedEnsembleCaseCollection::allEnse
 {
     std::vector<RimSummaryCaseCollection*> ensembles;
 
-    auto project = RiaApplication::instance()->project();
+    auto project = RimProject::current();
 
     for ( auto group : project->summaryGroups() )
     {

@@ -1,6 +1,5 @@
 #include "RicfCreateView.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "Rim3dView.h"
@@ -43,7 +42,7 @@ RicfCreateView::RicfCreateView()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCreateView::execute()
 {
-    RimProject*           project = RiaApplication::instance()->project();
+    RimProject*           project = RimProject::current();
     std::vector<RimCase*> allCases;
     project->allCases( allCases );
 

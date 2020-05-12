@@ -148,7 +148,7 @@ RimEclipseCase::~RimEclipseCase()
     delete m_fractureModelResults();
     delete m_inputPropertyCollection;
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     if ( project )
     {
         if ( project->mainPlotCollection() )
@@ -365,7 +365,7 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
         std::vector<RimWellPath*> visibleWellPaths;
         bool                      anyPerforationsPresent = false;
         {
-            RimProject*               proj      = RiaApplication::instance()->project();
+            RimProject*               proj      = RimProject::current();
             std::vector<RimWellPath*> wellPaths = proj->allWellPaths();
             for ( auto w : wellPaths )
             {
@@ -509,7 +509,7 @@ void RimEclipseCase::updateFormationNamesData()
 
         // Update plots based on formations
         {
-            RimProject* project = RiaApplication::instance()->project();
+            RimProject* project = RimProject::current();
             if ( project )
             {
                 if ( project->mainPlotCollection() )
@@ -940,7 +940,7 @@ bool RimEclipseCase::openReserviorCase()
     createTimeStepFormatString();
 
     // Associate existing well paths with simulation wells
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     for ( const auto& oilField : proj->oilFields() )
     {
         for ( const auto& wellPath : oilField->wellPathCollection()->wellPaths() )

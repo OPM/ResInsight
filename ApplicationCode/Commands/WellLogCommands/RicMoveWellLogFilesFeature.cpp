@@ -19,7 +19,6 @@
 
 #include "RicMoveWellLogFilesFeature.h"
 
-#include "RiaApplication.h"
 #include "RimProject.h"
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
@@ -43,7 +42,7 @@ bool RicMoveWellLogFilesFeature::isCommandEnabled()
     if ( !selectedWellLogFile ) return false;
 
     // If only one well path exists, the move command is not applicable
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     return proj->allWellPaths().size() > 1;
 }
 
@@ -55,7 +54,7 @@ void RicMoveWellLogFilesFeature::onActionTriggered( bool isChecked )
     const QVariant userData = this->userData();
     if ( !userData.isNull() && userData.type() == QVariant::String )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
 
         RimWellPath*    destWellPath   = proj->wellPathByName( userData.toString() );
         RimWellLogFile* wellLogFile    = caf::firstAncestorOfTypeFromSelectedObject<RimWellLogFile*>();

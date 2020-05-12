@@ -19,8 +19,6 @@
 
 #include "RiuSelectionChangedHandler.h"
 
-#include "RiaApplication.h"
-
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
@@ -316,7 +314,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuSelectionIt
 //--------------------------------------------------------------------------------------------------
 void RiuSelectionChangedHandler::scheduleUpdateForAllVisibleViews() const
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         std::vector<Rim3dView*> visibleViews;

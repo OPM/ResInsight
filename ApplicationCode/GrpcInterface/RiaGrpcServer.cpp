@@ -18,7 +18,6 @@
 
 #include "RiaGrpcServer.h"
 
-#include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaLogging.h"
 

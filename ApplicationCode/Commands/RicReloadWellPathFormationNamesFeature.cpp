@@ -18,8 +18,6 @@
 
 #include "RicReloadWellPathFormationNamesFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
@@ -67,7 +65,7 @@ void RicReloadWellPathFormationNamesFeature::onActionTriggered( bool isChecked )
         wellPathCollections[0]->reloadAllWellPathFormations();
     }
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     if ( project )
     {
         if ( project->mainPlotCollection() )

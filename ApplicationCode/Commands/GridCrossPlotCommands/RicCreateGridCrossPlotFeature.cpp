@@ -50,7 +50,7 @@ bool RicCreateGridCrossPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateGridCrossPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject*                 project = RiaApplication::instance()->project();
+    RimProject*                 project = RimProject::current();
     RimGridCrossPlotCollection* collection =
         caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGridCrossPlotCollection>();
     if ( !collection )

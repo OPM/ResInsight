@@ -20,7 +20,6 @@
 
 #include "RimWellPath.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaSimWellBranchTools.h"
@@ -375,7 +374,7 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions( const caf::Pdm
 
     if ( fieldNeedingOptions == &m_simWellName )
     {
-        RimProject* proj = RiaApplication::instance()->project();
+        RimProject* proj = RimProject::current();
 
         // Find simulation wells already assigned to a well path
         std::set<QString> associatedSimWells;

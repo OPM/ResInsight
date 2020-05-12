@@ -18,8 +18,6 @@
 
 #include "RiaSummaryTools.h"
 
-#include "RiaApplication.h"
-
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimMainPlotCollection.h"
@@ -43,7 +41,7 @@
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection* RiaSummaryTools::summaryPlotCollection()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     return project->mainPlotCollection()->summaryPlotCollection();
 }
@@ -53,7 +51,7 @@ RimSummaryPlotCollection* RiaSummaryTools::summaryPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlotCollection* RiaSummaryTools::summaryCrossPlotCollection()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     return project->mainPlotCollection()->summaryCrossPlotCollection();
 }
@@ -63,7 +61,7 @@ RimSummaryCrossPlotCollection* RiaSummaryTools::summaryCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
 {
-    RimProject*                   project                   = RiaApplication::instance()->project();
+    RimProject*                   project                   = RimProject::current();
     RimSummaryCaseMainCollection* summaryCaseMainCollection = project->activeOilField()->summaryCaseMainCollection();
     CVF_ASSERT( summaryCaseMainCollection );
     return summaryCaseMainCollection;
@@ -197,7 +195,7 @@ void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int            
                                                                  std::vector<RimSummaryCase*>&          cases,
                                                                  std::vector<RifEclipseSummaryAddress>& addresses )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     RimSummaryCalculationCollection* calculationColl = proj->calculationCollection();
     if ( !calculationColl ) return;

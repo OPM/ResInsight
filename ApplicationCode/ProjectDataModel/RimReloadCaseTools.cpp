@@ -18,7 +18,6 @@
 
 #include "RimReloadCaseTools.h"
 
-#include "RiaApplication.h"
 #include "RiaFractureDefines.h"
 #include "RiaSummaryTools.h"
 
@@ -144,7 +143,7 @@ void RimReloadCaseTools::updateAll3dViews( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 void RimReloadCaseTools::updateAllPlots()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     if ( project && project->mainPlotCollection() )
     {
         RimWellLogPlotCollection* wellPlotCollection = project->mainPlotCollection()->wellLogPlotCollection();

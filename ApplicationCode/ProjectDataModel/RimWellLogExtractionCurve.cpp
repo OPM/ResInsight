@@ -19,7 +19,6 @@
 
 #include "RimWellLogExtractionCurve.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 #include "RiaSimWellBranchTools.h"
 
@@ -614,7 +613,7 @@ void RimWellLogExtractionCurve::clearGeneratedSimWellPaths()
 
     // Need to use this approach, and not firstAnchestor because the curve might not be inside the hierarchy when deleted.
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj && proj->mainPlotCollection() ) wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
 
     if ( !wellLogCollection ) return;

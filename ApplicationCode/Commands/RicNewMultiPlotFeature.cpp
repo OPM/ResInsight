@@ -19,8 +19,6 @@
 
 #include "RicNewMultiPlotFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlot.h"
 #include "RimMultiPlotCollection.h"
@@ -50,7 +48,7 @@ RicNewMultiPlotFeature::RicNewMultiPlotFeature()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicNewMultiPlotFeature::execute()
 {
-    RimProject*             project        = RiaApplication::instance()->project();
+    RimProject*             project        = RimProject::current();
     RimMultiPlotCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
 
     RimMultiPlot* plotWindow = new RimMultiPlot;

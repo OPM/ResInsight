@@ -18,7 +18,6 @@
 
 #include "RimcProject.h"
 
-#include "RiaApplication.h"
 #include "RicImportSummaryCasesFeature.h"
 
 #include "RimFileSummaryCase.h"
@@ -105,7 +104,7 @@ RimProject_summaryCase::RimProject_summaryCase( caf::PdmObjectHandle* self )
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimProject_summaryCase::execute()
 {
-    auto proj     = RiaApplication::instance()->project();
+    auto proj     = RimProject::current();
     auto sumCases = proj->allSummaryCases();
 
     for ( auto s : sumCases )

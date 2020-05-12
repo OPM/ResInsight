@@ -19,7 +19,6 @@
 
 #include "RimWellLogTrack.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaExtractionTools.h"
 #include "RiaSimWellBranchTools.h"
@@ -627,7 +626,7 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         if ( m_formationTrajectoryType == WELL_PATH )
         {
-            RimProject* proj                 = RiaApplication::instance()->project();
+            RimProject* proj                 = RimProject::current();
             m_formationWellPathForSourceCase = proj->wellPathFromSimWellName( m_formationSimWellName );
         }
         else
@@ -1930,21 +1929,21 @@ std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( Ria
         }
         double waterEndMD = extractor->cellIntersectionMDs().front();
         double rockEndMD  = extractor->cellIntersectionMDs().back();
-        return { { waterStartMD, waterEndMD }, { waterEndMD, rockEndMD } };
+        return {{waterStartMD, waterEndMD}, {waterEndMD, rockEndMD}};
     }
     else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
     {
         double waterStartTVD = 0.0;
         double waterEndTVD   = extractor->cellIntersectionTVDs().front();
         double rockEndTVD    = extractor->cellIntersectionTVDs().back();
-        return { { waterStartTVD, waterEndTVD }, { waterEndTVD, rockEndTVD } };
+        return {{waterStartTVD, waterEndTVD}, {waterEndTVD, rockEndTVD}};
     }
     else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
     {
         double waterStartTVDRKB = extractor->wellPathData()->rkbDiff();
         double waterEndTVDRKB   = extractor->cellIntersectionTVDs().front() + extractor->wellPathData()->rkbDiff();
         double rockEndTVDRKB    = extractor->cellIntersectionTVDs().back() + extractor->wellPathData()->rkbDiff();
-        return { { waterStartTVDRKB, waterEndTVDRKB }, { waterEndTVDRKB, rockEndTVDRKB } };
+        return {{waterStartTVDRKB, waterEndTVDRKB}, {waterEndTVDRKB, rockEndTVDRKB}};
     }
     return {};
 }
@@ -2386,7 +2385,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             const std::vector<std::pair<double, double>> waterAndRockIntervals =
                 waterAndRockRegions( plot->depthType(), extractor );
             m_annotationTool->attachNamedRegions( m_plotWidget,
-                                                  { "Sea Level", "" },
+                                                  {"Sea Level", ""},
                                                   xRange,
                                                   waterAndRockIntervals,
                                                   m_regionAnnotationDisplay(),
@@ -2394,7 +2393,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                   ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
                                                   m_showRegionLabels(),
                                                   RiuPlotAnnotationTool::LEFT_COLUMN,
-                                                  { Qt::SolidPattern, Qt::Dense6Pattern } );
+                                                  {Qt::SolidPattern, Qt::Dense6Pattern} );
         }
 
         if ( m_formationSource == CASE )
@@ -2593,16 +2592,16 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
         }
 
         const std::map<RiaDefines::WellPathComponentType, int> sortIndices =
-            { { RiaDefines::WellPathComponentType::WELL_PATH, 0 },
-              { RiaDefines::WellPathComponentType::CASING, 1 },
-              { RiaDefines::WellPathComponentType::LINER, 2 },
-              { RiaDefines::WellPathComponentType::PERFORATION_INTERVAL, 3 },
-              { RiaDefines::WellPathComponentType::FISHBONES, 4 },
-              { RiaDefines::WellPathComponentType::FRACTURE, 5 },
-              { RiaDefines::WellPathComponentType::PACKER, 6 },
-              { RiaDefines::WellPathComponentType::ICD, 7 },
-              { RiaDefines::WellPathComponentType::AICD, 8 },
-              { RiaDefines::WellPathComponentType::ICV, 9 } };
+            {{RiaDefines::WellPathComponentType::WELL_PATH, 0},
+             {RiaDefines::WellPathComponentType::CASING, 1},
+             {RiaDefines::WellPathComponentType::LINER, 2},
+             {RiaDefines::WellPathComponentType::PERFORATION_INTERVAL, 3},
+             {RiaDefines::WellPathComponentType::FISHBONES, 4},
+             {RiaDefines::WellPathComponentType::FRACTURE, 5},
+             {RiaDefines::WellPathComponentType::PACKER, 6},
+             {RiaDefines::WellPathComponentType::ICD, 7},
+             {RiaDefines::WellPathComponentType::AICD, 8},
+             {RiaDefines::WellPathComponentType::ICV, 9}};
 
         std::stable_sort( allWellPathComponents.begin(),
                           allWellPathComponents.end(),

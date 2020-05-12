@@ -18,7 +18,6 @@
 
 #include "RimSummaryCaseCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaFieldHandleTools.h"
 
 #include "RicfCommandObject.h"
@@ -813,7 +812,7 @@ void RimSummaryCaseCollection::initAfterRead()
 {
     if ( m_ensembleId() == -1 )
     {
-        RimProject* project = RiaApplication::instance()->project();
+        RimProject* project = RimProject::current();
         project->assignIdToEnsemble( this );
     }
 

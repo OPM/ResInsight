@@ -20,7 +20,6 @@
 
 #include "RivTextAnnotationPartMgr.h"
 
-#include "RiaApplication.h"
 #include "RiaBoundingBoxTools.h"
 #include "RiaColorTools.h"
 #include "RiaFontCache.h"

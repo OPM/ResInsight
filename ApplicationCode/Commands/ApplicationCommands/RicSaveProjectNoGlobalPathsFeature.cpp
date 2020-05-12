@@ -18,7 +18,6 @@
 
 #include "RicSaveProjectNoGlobalPathsFeature.h"
 
-#include "RiaApplication.h"
 #include "RimProject.h"
 
 #include <QAction>
@@ -39,7 +38,7 @@ bool RicSaveProjectNoGlobalPathsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSaveProjectNoGlobalPathsFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         proj->writeFile();

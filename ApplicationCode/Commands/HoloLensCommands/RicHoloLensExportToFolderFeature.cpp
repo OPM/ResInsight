@@ -57,7 +57,7 @@ void RicHoloLensExportToFolderFeature::onActionTriggered( bool isChecked )
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
 
     RicHoloLensExportToFolderUi* featureUi =
-        RiaApplication::instance()->project()->dialogData()->holoLensExportToFolderData();
+        RimProject::current()->dialogData()->holoLensExportToFolderData();
     featureUi->setViewForExport( activeView );
 
     caf::PdmUiPropertyViewDialog propertyDialog( nullptr,

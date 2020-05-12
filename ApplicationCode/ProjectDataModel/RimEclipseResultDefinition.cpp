@@ -20,7 +20,6 @@
 
 #include "RimEclipseResultDefinition.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
@@ -881,7 +880,7 @@ void RimEclipseResultDefinition::setFromEclipseResultAddress( const RigEclipseRe
 
     if ( canonizedAddress.hasDifferenceCase() )
     {
-        auto eclipseCases = RiaApplication::instance()->project()->eclipseCases();
+        auto eclipseCases = RimProject::current()->eclipseCases();
         for ( RimEclipseCase* c : eclipseCases )
         {
             if ( c && c->caseId() == canonizedAddress.m_differenceCaseId )

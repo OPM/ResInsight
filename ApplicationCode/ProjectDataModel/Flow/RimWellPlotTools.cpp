@@ -18,7 +18,6 @@
 
 #include "RimWellPlotTools.h"
 
-#include "RiaApplication.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaWellNameComparer.h"
 
@@ -178,7 +177,7 @@ bool RimWellPlotTools::hasFlowData( const RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 bool RimWellPlotTools::hasAssociatedWellPath( const QString& wellName )
 {
-    RimProject*  proj     = RiaApplication::instance()->project();
+    RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathByName( wellName );
 
     return wellPath != nullptr;
@@ -276,7 +275,7 @@ void RimWellPlotTools::addTimeStepsToMap( std::map<QDateTime, std::set<RifDataSo
 std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingPressure( const QString& wellPathNameOrSimWellName )
 {
     std::vector<RimWellLogFile*> wellLogFiles;
-    const RimProject* const      project   = RiaApplication::instance()->project();
+    const RimProject* const      project   = RimProject::current();
     std::vector<RimWellPath*>    wellPaths = project->allWellPaths();
 
     for ( auto wellPath : wellPaths )
@@ -324,7 +323,7 @@ RimWellLogFileChannel* RimWellPlotTools::getPressureChannelFromWellFile( const R
 std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow( const QString& wellPathName )
 {
     std::vector<RimWellLogFile*> wellLogFiles;
-    const RimProject* const      project   = RiaApplication::instance()->project();
+    const RimProject* const      project   = RimProject::current();
     std::vector<RimWellPath*>    wellPaths = project->allWellPaths();
 
     for ( auto wellPath : wellPaths )
@@ -350,7 +349,7 @@ std::vector<RimWellLogFile*> RimWellPlotTools::wellLogFilesContainingFlow( const
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellPlotTools::wellPathFromWellLogFile( const RimWellLogFile* wellLogFile )
 {
-    RimProject* const project = RiaApplication::instance()->project();
+    RimProject* const project = RimProject::current();
     for ( const auto& oilField : project->oilFields )
     {
         auto wellPaths = std::vector<RimWellPath*>( oilField->wellPathCollection()->wellPaths.begin(),
@@ -377,7 +376,7 @@ RimWellPath* RimWellPlotTools::wellPathFromWellLogFile( const RimWellLogFile* we
 std::vector<RimEclipseResultCase*> RimWellPlotTools::gridCasesForWell( const QString& simWellName )
 {
     std::vector<RimEclipseResultCase*> cases;
-    const RimProject*                  project = RiaApplication::instance()->project();
+    const RimProject*                  project = RimProject::current();
 
     for ( RimEclipseCase* eclCase : project->eclipseCases() )
     {
@@ -400,7 +399,7 @@ std::vector<RimEclipseResultCase*> RimWellPlotTools::gridCasesForWell( const QSt
 std::vector<RimEclipseResultCase*> RimWellPlotTools::rftCasesForWell( const QString& simWellName )
 {
     std::vector<RimEclipseResultCase*> cases;
-    const RimProject*                  project = RiaApplication::instance()->project();
+    const RimProject*                  project = RimProject::current();
 
     for ( RimEclipseCase* eclCase : project->eclipseCases() )
     {
@@ -419,7 +418,7 @@ std::vector<RimEclipseResultCase*> RimWellPlotTools::rftCasesForWell( const QStr
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCaseCollection*> RimWellPlotTools::rftEnsemblesForWell( const QString& simWellName )
 {
-    const RimProject* project = RiaApplication::instance()->project();
+    const RimProject* project = RimProject::current();
 
     std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections = project->summaryGroups();
 
@@ -441,7 +440,7 @@ std::vector<RimSummaryCaseCollection*> RimWellPlotTools::rftEnsemblesForWell( co
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCaseCollection*> RimWellPlotTools::rftEnsembles()
 {
-    const RimProject* project = RiaApplication::instance()->project();
+    const RimProject* project = RimProject::current();
 
     std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections = project->summaryGroups();
 
@@ -479,7 +478,7 @@ std::vector<RimObservedFmuRftData*> RimWellPlotTools::observedFmuRftDataForWell(
 //--------------------------------------------------------------------------------------------------
 std::vector<RimObservedFmuRftData*> RimWellPlotTools::observedFmuRftData()
 {
-    const RimProject*          project = RiaApplication::instance()->project();
+    const RimProject*          project = RimProject::current();
     RimObservedDataCollection* observedDataCollection =
         project->activeOilField() ? project->activeOilField()->observedDataCollection() : nullptr;
 
@@ -662,7 +661,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellPlotTools::wellPathByWellPathNameOrSimWellName( const QString& wellPathNameOrSimwellName )
 {
-    RimProject*  proj     = RiaApplication::instance()->project();
+    RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathByName( wellPathNameOrSimwellName );
 
     return wellPath != nullptr ? wellPath : proj->wellPathFromSimWellName( wellPathNameOrSimwellName );

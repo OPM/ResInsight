@@ -19,7 +19,6 @@
 
 #include "RiuViewerCommands.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaDefines.h"
 
@@ -167,7 +166,7 @@ void RiuViewerCommands::addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBu
         std::vector<Rim3dView*> validComparisonViews;
 
         std::vector<Rim3dView*> views;
-        RiaApplication::instance()->project()->allViews( views );
+        RimProject::current()->allViews( views );
         for ( auto view : views )
         {
             if ( !dynamic_cast<RimGridView*>( view ) ) continue;

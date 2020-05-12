@@ -18,8 +18,6 @@
 
 #include "RicShowCumulativePhasePlotFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
@@ -74,7 +72,7 @@ void RicShowCumulativePhasePlotFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( !proj ) return;
 
     RimFlowPlotCollection* flowPlotColl = proj->mainPlotCollection()->flowPlotCollection();

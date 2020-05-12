@@ -89,7 +89,7 @@ caf::PdmScriptResponse RicfExportMsw::execute()
     exportSettings.includeFractures    = m_includeFractures;
     exportSettings.fileSplit           = m_fileSplit;
 
-    RimWellPath* wellPath = RiaApplication::instance()->project()->wellPathByName( m_wellPathName );
+    RimWellPath* wellPath = RimProject::current()->wellPathByName( m_wellPathName );
     if ( !wellPath )
     {
         QString error = QString( "exportMsw: Could not find well path with name %1" ).arg( m_wellPathName() );

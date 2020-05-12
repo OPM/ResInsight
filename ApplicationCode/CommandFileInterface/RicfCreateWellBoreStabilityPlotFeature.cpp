@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicfCreateWellBoreStabilityPlotFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "WellLogCommands/RicNewWellBoreStabilityPlotFeature.h"
@@ -63,7 +62,7 @@ RicfCreateWellBoreStabilityPlotFeature::RicfCreateWellBoreStabilityPlotFeature()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCreateWellBoreStabilityPlotFeature::execute()
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
 
     std::vector<RimGeoMechCase*> geoMechCases;
     project->descendantsIncludingThisOfType( geoMechCases );

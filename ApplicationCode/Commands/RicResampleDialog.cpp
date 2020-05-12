@@ -18,8 +18,6 @@
 
 #include "RicResampleDialog.h"
 
-#include "RiaApplication.h"
-
 #include "RiuTools.h"
 
 #include <QAbstractItemView>

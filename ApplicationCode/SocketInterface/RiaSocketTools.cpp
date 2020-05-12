@@ -20,7 +20,6 @@
 
 #include "RiaSocketTools.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RiaSocketDataTransfer.h"
 #include "RiaSocketServer.h"

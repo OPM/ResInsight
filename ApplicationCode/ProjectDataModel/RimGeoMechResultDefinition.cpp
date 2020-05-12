@@ -20,7 +20,6 @@
 
 #include "RimGeoMechResultDefinition.h"
 
-#include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaMedianCalculator.h"
 
@@ -442,7 +441,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 void RimGeoMechResultDefinition::calculateNormalizationAirGapDefault()
 {
     RiaMedianCalculator<double> airGapCalc;
-    for ( auto wellPath : RiaApplication::instance()->project()->allWellPaths() )
+    for ( auto wellPath : RimProject::current()->allWellPaths() )
     {
         if ( wellPath->wellPathGeometry() )
         {

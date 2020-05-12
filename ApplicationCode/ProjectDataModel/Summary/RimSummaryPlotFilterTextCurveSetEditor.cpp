@@ -18,7 +18,6 @@
 
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
 
-#include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaStringListSerializer.h"
@@ -492,7 +491,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::appendOptionItemsForSources( QList<
                                                                           bool hideSummaryCases,
                                                                           bool hideEnsembles )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     std::vector<RimOilField*> oilFields;
 
@@ -579,7 +578,7 @@ std::vector<SummarySource*> RimSummaryPlotFilterTextCurveSetEditor::selectedSumm
     }
 
     // Always add the summary case for calculated curves as this case is not displayed in UI
-    sources.push_back( RiaApplication::instance()->project()->calculationCollection()->calculationSummaryCase() );
+    sources.push_back( RimProject::current()->calculationCollection()->calculationSummaryCase() );
 
     return sources;
 }

@@ -18,7 +18,6 @@
 
 #include "RicCloseObservedDataFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
@@ -77,7 +76,7 @@ void RicCloseObservedDataFeature::deleteObservedSummaryData( const std::vector<R
 //--------------------------------------------------------------------------------------------------
 void RicCloseObservedDataFeature::deleteObservedRmuRftData( const std::vector<RimObservedFmuRftData*>& data )
 {
-    RimProject*           proj        = RiaApplication::instance()->project();
+    RimProject*           proj        = RimProject::current();
     RimRftPlotCollection* rftPlotColl = proj->mainPlotCollection()->rftPlotCollection();
 
     for ( RimObservedFmuRftData* observedData : data )

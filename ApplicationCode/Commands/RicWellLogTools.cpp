@@ -74,7 +74,7 @@ bool RicWellLogTools::wellHasRftData( const QString& wellName )
 {
     RimEclipseResultCase* resultCase;
     std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases( cases );
+    RimProject::current()->allCases( cases );
 
     for ( RimCase* rimCase : cases )
     {
@@ -202,7 +202,7 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
         else
         {
             std::vector<RimCase*> allCases;
-            RiaApplication::instance()->project()->allCases( allCases );
+            RimProject::current()->allCases( allCases );
             if ( !allCases.empty() ) caseToApply = allCases.front();
         }
     }
@@ -220,7 +220,7 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
         }
         else
         {
-            auto allWellPaths = RiaApplication::instance()->project()->allWellPaths();
+            auto allWellPaths = RimProject::current()->allWellPaths();
             if ( !allWellPaths.empty() )
             {
                 wellPath = allWellPaths.front();
@@ -286,7 +286,7 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
     plotTrack->updateConnectedEditors();
     plot->updateConnectedEditors();
 
-    RiaApplication::instance()->project()->updateConnectedEditors();
+    RimProject::current()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
 
@@ -311,7 +311,7 @@ RimWellLogRftCurve*
     RimEclipseResultCase* resultCase = nullptr;
 
     std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases( cases );
+    RimProject::current()->allCases( cases );
 
     for ( RimCase* rimCase : cases )
     {
@@ -337,7 +337,7 @@ RimWellLogRftCurve*
     plotTrack->setFormationTrajectoryType( RimWellLogTrack::SIMULATION_WELL );
     plotTrack->updateConnectedEditors();
 
-    RiaApplication::instance()->project()->updateConnectedEditors();
+    RimProject::current()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
 
@@ -366,7 +366,7 @@ RimWellLogFileCurve* RicWellLogTools::addFileCurve( RimWellLogTrack* plotTrack, 
 
     plotTrack->updateConnectedEditors();
 
-    RiaApplication::instance()->project()->updateConnectedEditors();
+    RimProject::current()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
 
@@ -439,7 +439,7 @@ RimWellMeasurementCurve* RicWellLogTools::addWellMeasurementCurve( RimWellLogTra
     plotTrack->addCurve( curve );
     plotTrack->updateConnectedEditors();
 
-    RiaApplication::instance()->project()->updateConnectedEditors();
+    RimProject::current()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
 

@@ -18,7 +18,6 @@
 
 #include "RiuSummaryVectorSelectionUi.h"
 
-#include "RiaApplication.h"
 #include "RiaCurveSetDefinition.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryCurveDefinition.h"
@@ -577,7 +576,7 @@ void RiuSummaryVectorSelectionUi::setFieldChangedHandler( const std::function<vo
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionUi::setDefaultSelection( const std::vector<SummarySource*>& defaultSources )
 {
-    RimProject* proj        = RiaApplication::instance()->project();
+    RimProject* proj        = RimProject::current();
     auto        allSumCases = proj->allSummaryCases();
 
     if ( allSumCases.size() > 0 )
@@ -1309,7 +1308,7 @@ std::vector<SummarySource*> RiuSummaryVectorSelectionUi::selectedSummarySources(
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RiuSummaryVectorSelectionUi::calculatedSummaryCase()
 {
-    RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
     return calcColl->calculationSummaryCase();
 }
@@ -1319,7 +1318,7 @@ RimSummaryCase* RiuSummaryVectorSelectionUi::calculatedSummaryCase()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionUi::appendOptionItemsForSources( QList<caf::PdmOptionItemInfo>& options ) const
 {
-    RimProject*               proj = RiaApplication::instance()->project();
+    RimProject*               proj = RimProject::current();
     std::vector<RimOilField*> oilFields;
 
     proj->allOilFields( oilFields );

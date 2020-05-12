@@ -18,8 +18,6 @@
 
 #include "RicNewOptionItemFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicCreateMultipleFracturesOptionItemUi.h"
 #include "RicCreateMultipleFracturesUi.h"
 
@@ -55,8 +53,7 @@ void RicNewOptionItemFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicNewOptionItemFeature::onActionTriggered( bool isChecked )
 {
-    RiuCreateMultipleFractionsUi* multipleFractionUi =
-        RiaApplication::instance()->project()->dialogData()->multipleFractionsData();
+    RiuCreateMultipleFractionsUi* multipleFractionUi = RimProject::current()->dialogData()->multipleFractionsData();
     RicCreateMultipleFracturesOptionItemUi* selectedOptionItem = nullptr;
 
     {

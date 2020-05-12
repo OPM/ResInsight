@@ -18,8 +18,6 @@
 
 #include "RimTotalWellAllocationPlot.h"
 
-#include "RiaApplication.h"
-
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
 

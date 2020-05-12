@@ -143,7 +143,7 @@ void RicLinkViewFeature::setupActionLook( QAction* actionToSetup )
     else
     {
         actionToSetup->setText( "Link View" );
-        if ( RiaApplication::instance()->project()->viewLinkerCollection()->viewLinker() )
+        if ( RimProject::current()->viewLinkerCollection()->viewLinker() )
         {
             actionToSetup->setIcon( QIcon( ":/ControlledView16x16.png" ) );
         }

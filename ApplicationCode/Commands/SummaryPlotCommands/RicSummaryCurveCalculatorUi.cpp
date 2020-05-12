@@ -18,7 +18,6 @@
 
 #include "RicSummaryCurveCalculatorUi.h"
 
-#include "RiaApplication.h"
 #include "RiaSummaryTools.h"
 
 #include "RimProject.h"
@@ -195,7 +194,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculationCollection* RicSummaryCurveCalculatorUi::calculationCollection()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         return proj->calculationCollection();

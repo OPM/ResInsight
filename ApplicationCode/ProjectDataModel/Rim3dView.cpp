@@ -349,7 +349,7 @@ void Rim3dView::assignIdIfNecessary()
 {
     if ( m_id == -1 )
     {
-        RiaApplication::instance()->project()->assignViewIdToView( this );
+        RimProject::current()->assignViewIdToView( this );
     }
 }
 
@@ -974,7 +974,7 @@ void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* measureModel )
 {
     if ( !this->ownerCase() ) return;
 
-    RimMeasurement* measurement = RiaApplication::instance()->project()->measurement();
+    RimMeasurement* measurement = RimProject::current()->measurement();
 
     if ( !measurement || measurement->pointsInDomainCoords().empty() )
     {

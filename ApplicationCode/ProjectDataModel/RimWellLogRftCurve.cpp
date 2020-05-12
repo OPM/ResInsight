@@ -18,7 +18,6 @@
 
 #include "RimWellLogRftCurve.h"
 
-#include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaSimWellBranchTools.h"
@@ -445,7 +444,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             measuredDepthVector = tvDepthVector;
         }
 
-        RimProject*  proj     = RiaApplication::instance()->project();
+        RimProject*  proj     = RimProject::current();
         RimWellPath* wellPath = proj->wellPathByName( m_wellName );
 
         double rkbDiff = 0.0;
@@ -758,7 +757,7 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 
     RigEclipseWellLogExtractor* eclExtractor = nullptr;
 
-    RimProject*  proj     = RiaApplication::instance()->project();
+    RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathFromSimWellName( m_wellName() );
     eclExtractor          = wellLogCollection->findOrCreateExtractor( wellPath, m_eclipseResultCase );
 
@@ -1011,7 +1010,7 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 bool RimWellLogRftCurve::deriveMeasuredDepthValuesFromWellPath( const std::vector<double>& tvDepthValues,
                                                                 std::vector<double>&       derivedMDValues )
 {
-    RimProject*  proj     = RiaApplication::instance()->project();
+    RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathByName( m_wellName );
 
     std::vector<double> derivedMdValues;

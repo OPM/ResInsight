@@ -19,8 +19,6 @@
 
 #include "Ric3dWellLogCurveDeleteFeature.h"
 
-#include "RiaApplication.h"
-
 #include "Rim3dWellLogCurve.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimProject.h"

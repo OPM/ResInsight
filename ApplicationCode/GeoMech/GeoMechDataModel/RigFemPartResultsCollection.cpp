@@ -28,8 +28,6 @@
 #include "RifOdbReader.h"
 #endif
 
-#include "RiaApplication.h"
-
 #include "RigFemNativeStatCalc.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultCalculatorBarConverted.h"
@@ -181,7 +179,7 @@ void RigFemPartResultsCollection::setActiveFormationNames( RigFormationNames* ac
 {
     m_activeFormationNamesData = activeFormationNames;
 
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     if ( project )
     {
         if ( project->mainPlotCollection() )

@@ -18,8 +18,6 @@
 
 #include "RicNewWellPathFractureAtPosFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicNewWellPathFractureFeature.h"
 
 #include "RimProject.h"

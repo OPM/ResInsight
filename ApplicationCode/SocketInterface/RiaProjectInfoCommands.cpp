@@ -20,7 +20,6 @@
 
 #include "RiaSocketCommand.h"
 
-#include "RiaApplication.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
 
@@ -168,7 +167,7 @@ public:
     static QString commandName() { return QString( "GetCaseGroups" ); }
     bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
-        RimProject*               proj = RiaApplication::instance()->project();
+        RimProject*               proj = RimProject::current();
         RimEclipseCaseCollection* analysisModels =
             ( proj && proj->activeOilField() ) ? proj->activeOilField()->analysisModels() : nullptr;
         if ( analysisModels )
@@ -231,7 +230,7 @@ public:
             argCaseGroupId = args[1].toInt();
         }
 
-        RimProject*               proj = RiaApplication::instance()->project();
+        RimProject*               proj = RimProject::current();
         RimEclipseCaseCollection* analysisModels =
             ( proj && proj->activeOilField() ) ? proj->activeOilField()->analysisModels() : nullptr;
         if ( analysisModels )

@@ -18,7 +18,6 @@
 
 #include "RimParameterResultCrossPlot.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
 #include "RiaStatisticsTools.h"
@@ -105,7 +104,7 @@ void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::P
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
     curveDataGroup->add( &m_selectedVarsUiField );
-    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );
+    curveDataGroup->add( &m_pushButtonSelectSummaryAddress, {false, 1, 0} );
     curveDataGroup->add( &m_timeStep );
 
     caf::PdmUiGroup* crossPlotGroup = uiOrdering.addNewGroup( "Cross Plot Parameters" );

@@ -18,7 +18,6 @@
 
 #include "RicNewSummaryPlotFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RiaSummaryTools.h"
 
@@ -83,7 +82,7 @@ bool RicNewSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
     std::vector<RimSummaryCase*>           selectedCases  = caf::selectedObjectsByType<RimSummaryCase*>();
@@ -183,7 +182,7 @@ void extractPlotObjectsFromSelection( std::vector<RimSummaryCase*>*           se
         RimSummaryCase*           firstIndividualSummaryCase = nullptr;
         RimSummaryCaseCollection* firstEnsemble              = nullptr;
 
-        auto sumCaseVector = RiaApplication::instance()->project()->allSummaryCases();
+        auto sumCaseVector = RimProject::current()->allSummaryCases();
         for ( RimSummaryCase* summaryCase : sumCaseVector )
         {
             RimSummaryCaseCollection* parentEnsemble = nullptr;
@@ -256,8 +255,7 @@ void RicNewDefaultSummaryPlotFeature::onActionTriggered( bool isChecked )
 
     if ( !selectedIndividualSummaryCases.empty() )
     {
-        RimSummaryPlotCollection* sumPlotColl =
-            RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+        RimSummaryPlotCollection* sumPlotColl = RimProject::current()->mainPlotCollection()->summaryPlotCollection();
         createFromSummaryCases( sumPlotColl, selectedIndividualSummaryCases );
     }
     else

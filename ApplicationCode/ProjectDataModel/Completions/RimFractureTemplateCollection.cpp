@@ -18,7 +18,6 @@
 
 #include "RimFractureTemplateCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RigStatisticsMath.h"
@@ -139,7 +138,7 @@ RiaEclipseUnitTools::UnitSystemType RimFractureTemplateCollection::defaultUnitSy
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplateCollection::setDefaultUnitSystemBasedOnLoadedCases()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     auto commonUnitSystem = proj->commonUnitSystemForAllCases();
     if ( commonUnitSystem != RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )

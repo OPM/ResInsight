@@ -17,7 +17,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 #include "RiaGrpcServiceInterface.h"
 
-#include "RiaApplication.h"
 #include "RimCase.h"
 #include "RimProject.h"
 
@@ -42,7 +41,7 @@
 RimCase* RiaGrpcServiceInterface::findCase( int caseId )
 {
     std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases( cases );
+    RimProject::current()->allCases( cases );
 
     for ( RimCase* rimCase : cases )
     {
@@ -172,7 +171,7 @@ bool RiaGrpcServiceInterface::assignFieldValue( const QString&       stringValue
         QTextStream              stream( stringValue.toLatin1() );
         caf::PdmScriptIOMessages messages;
         if ( valueField ) *oldValue = valueField->toQVariant();
-        scriptability->writeToField( stream, nullptr, &messages, false, RiaApplication::instance()->project() );
+        scriptability->writeToField( stream, nullptr, &messages, false, RimProject::current() );
         if ( valueField ) *newValue = valueField->toQVariant();
         return true;
     }

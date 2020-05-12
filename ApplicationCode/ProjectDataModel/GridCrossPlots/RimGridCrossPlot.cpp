@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlot.h"
 
-#include "RiaApplication.h"
 #include "RiaFontCache.h"
 #include "RiaPreferences.h"
 

@@ -57,7 +57,7 @@ CAF_CMD_SOURCE_INIT( RicAdvancedSnapshotExportFeature, "RicAdvancedSnapshotExpor
 //--------------------------------------------------------------------------------------------------
 bool RicAdvancedSnapshotExportFeature::isCommandEnabled()
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     return proj;
 }
@@ -69,7 +69,7 @@ void RicAdvancedSnapshotExportFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     if ( proj )
     {

@@ -18,7 +18,6 @@
 
 #include "RicImportSummaryCaseFeature.h"
 
-#include "RiaApplication.h"
 #include "RiaFilePathTools.h"
 #include "RiaPreferences.h"
 

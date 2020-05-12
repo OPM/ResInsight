@@ -18,8 +18,6 @@
 
 #include "RiuWellAllocationPlot.h"
 
-#include "RiaApplication.h"
-
 #include "RimContextCommandBuilder.h"
 #include "RimTofAccumulatedPhaseFractionsPlot.h"
 #include "RimTotalWellAllocationPlot.h"

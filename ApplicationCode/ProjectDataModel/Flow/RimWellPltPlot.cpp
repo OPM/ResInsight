@@ -18,7 +18,6 @@
 
 #include "RimWellPltPlot.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaDateStringParser.h"
 #include "RiaQDateTimeTools.h"
@@ -233,7 +232,7 @@ void RimWellPltPlot::updateFormationsOnPlot() const
 {
     if ( plotCount() > 0 )
     {
-        RimProject*  proj     = RiaApplication::instance()->project();
+        RimProject*  proj     = RimProject::current();
         RimWellPath* wellPath = proj->wellPathByName( m_wellPathName );
 
         RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
@@ -289,7 +288,7 @@ public:
 protected:
     RigEclipseWellLogExtractor* findWellLogExtractor( const QString& wellPathName, RimEclipseResultCase* eclCase )
     {
-        RimProject*                 proj              = RiaApplication::instance()->project();
+        RimProject*                 proj              = RimProject::current();
         RimWellPath*                wellPath          = proj->wellPathByName( wellPathName );
         RimWellLogPlotCollection*   wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
         RigEclipseWellLogExtractor* eclExtractor      = wellLogCollection->findOrCreateExtractor( wellPath, eclCase );
@@ -903,7 +902,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_selectedSources )
     {
-        RimProject*  project  = RiaApplication::instance()->project();
+        RimProject*  project  = RimProject::current();
         RimWellPath* wellPath = project->wellPathByName( m_wellPathName() );
         if ( wellPath && !wellPath->wellPathGeometry() )
         {
@@ -1086,7 +1085,7 @@ void RimWellPltPlot::syncSourcesIoFieldFromGuiField()
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::calculateValueOptionsForWells( QList<caf::PdmOptionItemInfo>& options )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     if ( proj != nullptr )
     {

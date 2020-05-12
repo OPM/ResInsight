@@ -108,7 +108,7 @@ void RicImportEnsembleFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 QString RicImportEnsembleFeature::askForEnsembleName()
 {
-    RimProject*                            project = RiaApplication::instance()->project();
+    RimProject*                            project = RimProject::current();
     std::vector<RimSummaryCaseCollection*> groups  = project->summaryGroups();
     int ensembleCount = std::count_if( groups.begin(), groups.end(), []( RimSummaryCaseCollection* group ) {
         return group->isEnsemble();

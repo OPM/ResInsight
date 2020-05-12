@@ -19,8 +19,6 @@
 
 #include "RicLinkVisibleViewsFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RicLinkVisibleViewsFeatureUi.h"
 
 #include "RimEclipseContourMapView.h"
@@ -46,7 +44,7 @@ CAF_CMD_SOURCE_INIT( RicLinkVisibleViewsFeature, "RicLinkVisibleViewsFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicLinkVisibleViewsFeature::isCommandEnabled()
 {
-    RimProject*               proj = RiaApplication::instance()->project();
+    RimProject*               proj = RimProject::current();
     std::vector<Rim3dView*>   visibleViews;
     std::vector<RimGridView*> linkedviews;
     std::vector<RimGridView*> visibleGridViews;
@@ -101,7 +99,7 @@ void RicLinkVisibleViewsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicLinkVisibleViewsFeature::allLinkedViews( std::vector<RimGridView*>& views )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
     if ( proj->viewLinkerCollection()->viewLinker() )
     {
         proj->viewLinkerCollection()->viewLinker()->allViews( views );
@@ -113,7 +111,7 @@ void RicLinkVisibleViewsFeature::allLinkedViews( std::vector<RimGridView*>& view
 //--------------------------------------------------------------------------------------------------
 void RicLinkVisibleViewsFeature::findLinkableVisibleViews( std::vector<RimGridView*>& views )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     std::vector<RimGridView*> alreadyLinkedViews;
     allLinkedViews( alreadyLinkedViews );
@@ -136,7 +134,7 @@ void RicLinkVisibleViewsFeature::findLinkableVisibleViews( std::vector<RimGridVi
 //--------------------------------------------------------------------------------------------------
 void RicLinkVisibleViewsFeature::linkViews( std::vector<RimGridView*>& linkableViews )
 {
-    RimProject*    proj       = RiaApplication::instance()->project();
+    RimProject*    proj       = RimProject::current();
     RimViewLinker* viewLinker = proj->viewLinkerCollection->viewLinker();
 
     std::vector<RimGridView*> masterCandidates = linkableViews;

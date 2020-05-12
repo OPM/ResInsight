@@ -111,7 +111,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions( const ca
 
     if ( fieldNeedingOptions == &m_managedView )
     {
-        RimProject*               proj = RiaApplication::instance()->project();
+        RimProject*               proj = RimProject::current();
         std::vector<RimGridView*> views;
         proj->allNotLinkedViews( views );
 

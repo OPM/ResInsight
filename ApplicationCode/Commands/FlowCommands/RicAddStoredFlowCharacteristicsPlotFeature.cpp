@@ -18,8 +18,6 @@
 
 #include "RicAddStoredFlowCharacteristicsPlotFeature.h"
 
-#include "RiaApplication.h"
-
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
@@ -40,10 +38,9 @@ CAF_CMD_SOURCE_INIT( RicAddStoredFlowCharacteristicsPlotFeature, "RicAddStoredFl
 //--------------------------------------------------------------------------------------------------
 bool RicAddStoredFlowCharacteristicsPlotFeature::isCommandEnabled()
 {
-    if ( RiaApplication::instance()->project() )
+    if ( RimProject::current() )
     {
-        RimFlowPlotCollection* flowPlotColl =
-            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimFlowCharacteristicsPlot* flowCharacteristicsPlot =
@@ -64,10 +61,9 @@ bool RicAddStoredFlowCharacteristicsPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered( bool isChecked )
 {
-    if ( RiaApplication::instance()->project() )
+    if ( RimProject::current() )
     {
-        RimFlowPlotCollection* flowPlotColl =
-            RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimFlowCharacteristicsPlot* sourceObject =

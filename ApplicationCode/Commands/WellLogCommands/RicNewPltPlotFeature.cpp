@@ -22,8 +22,6 @@
 #include "RicNewWellLogPlotFeatureImpl.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
 
-#include "RiaApplication.h"
-
 #include "RigWellLogCurveData.h"
 
 #include "Rim3dView.h"
@@ -71,7 +69,7 @@ bool RicNewPltPlotFeature::isCommandEnabled()
 
     if ( simWell != nullptr )
     {
-        RimProject* proj        = RiaApplication::instance()->project();
+        RimProject* proj        = RimProject::current();
         QString     simWellName = simWell->name();
 
         RimWellPath* wellPath = proj->wellPathFromSimWellName( simWellName );
@@ -85,7 +83,7 @@ bool RicNewPltPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* proj = RiaApplication::instance()->project();
+    RimProject* proj = RimProject::current();
 
     RimPltPlotCollection* pltPlotColl = proj->mainPlotCollection()->pltPlotCollection();
     if ( pltPlotColl )
@@ -173,7 +171,7 @@ RimSimWellInView* RicNewPltPlotFeature::selectedSimulationWell( int* branchIndex
 bool RicNewPltPlotFeature::caseAvailable() const
 {
     std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases( cases );
+    RimProject::current()->allCases( cases );
 
     return cases.size() > 0;
 }

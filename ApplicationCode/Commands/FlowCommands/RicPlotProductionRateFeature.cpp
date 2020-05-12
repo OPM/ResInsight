@@ -74,7 +74,7 @@ bool RicPlotProductionRateFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RiaApplication::instance()->project();
+    RimProject* project = RimProject::current();
     CAF_ASSERT( project );
 
     RimSummaryCaseMainCollection* sumCaseColl =

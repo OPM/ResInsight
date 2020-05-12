@@ -20,8 +20,6 @@
 
 #include "RigEclipseCaseData.h"
 
-#include "RiaApplication.h"
-
 #include "RifReaderEclipseOutput.h"
 
 #include "RigActiveCellInfo.h"
