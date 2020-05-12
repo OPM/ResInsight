@@ -124,11 +124,7 @@ QWidget* RicSummaryCurveCalculatorWidgetCreator::createWidget( QWidget* parent )
     m_pdmTableView->enableHeaderText( false );
 
     QHeaderView* verticalHeader = m_pdmTableView->tableView()->verticalHeader();
-#if QT_VERSION >= 0x050000
     verticalHeader->setSectionResizeMode( QHeaderView::Interactive );
-#else
-    verticalHeader->setResizeMode( QHeaderView::Interactive );
-#endif
 
     m_pdmTableView->tableView()->resizeColumnsToContents();
 

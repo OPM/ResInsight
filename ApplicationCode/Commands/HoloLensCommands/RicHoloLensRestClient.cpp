@@ -528,16 +528,6 @@ QString RicHoloLensRestClient::networkErrorCodeAsString( QNetworkReply::NetworkE
 //--------------------------------------------------------------------------------------------------
 qint64 RicHoloLensRestClient::getCurrentTimeStamp_ms()
 {
-#if QT_VERSION >= 0x040700
     const qint64 timeStamp_ms = QDateTime::currentMSecsSinceEpoch();
     return timeStamp_ms;
-#elif defined( __linux__ )
-    struct timespec ts;
-    if ( clock_gettime( CLOCK_MONOTONIC, &ts ) == 0 )
-    {
-        return static_cast<qint64>( ts.tv_sec * 1000 + ts.tv_nsec / 1000000 );
-    }
-#else
-    return 0;
-#endif
 }
