@@ -28,9 +28,11 @@
 #include "cvfVector3.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
+#include <deque>
 #include <map>
 #include <vector>
 
+class RigActiveCellInfo;
 class RigMainGrid;
 class RigCell;
 class RigEclipseResultAddress;
@@ -48,12 +50,12 @@ public:
     RigNNCData();
 
     void processNativeConnections( const RigMainGrid& mainGrid );
-    void computeCompleteSetOfNncs( const RigMainGrid* mainGrid );
+    void computeCompleteSetOfNncs( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo );
 
-    void   setConnections( std::vector<RigConnection>& connections );
+    void   setConnections( RigConnectionContainer& connections );
     size_t nativeConnectionCount() const;
 
-    const std::vector<RigConnection>& connections() const;
+    const RigConnectionContainer& connections() const;
 
     std::vector<double>&       makeStaticConnectionScalarResult( QString nncDataType );
     const std::vector<double>* staticConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const;
@@ -88,7 +90,7 @@ private:
     bool          isNative( QString nncDataType ) const;
 
 private:
-    std::vector<RigConnection>                          m_connections;
+    RigConnectionContainer                              m_connections;
     size_t                                              m_nativeConnectionCount;
     std::map<QString, std::vector<std::vector<double>>> m_connectionResults;
     std::map<RigEclipseResultAddress, QString>          m_resultAddrToNNCDataType;

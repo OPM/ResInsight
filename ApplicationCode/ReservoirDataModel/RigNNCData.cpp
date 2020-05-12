@@ -55,9 +55,9 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
         {
             // Found an overlap polygon. Store data about connection
 
-            m_connections[cnIdx].m_c1Face = connectionFace;
+            m_connections.face( cnIdx ) = connectionFace;
 
-            m_connections[cnIdx].m_polygon =
+            m_connections.polygon( cnIdx ) =
                 RigCellFaceGeometryTools::extractPolygon( mainGrid.nodes(), connectionPolygon, connectionIntersections );
 
             // Add to search map, possibly not needed
@@ -75,15 +75,16 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid* mainGrid )
+void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo )
 {
     m_nativeConnectionCount = m_connections.size();
 
-    std::vector<RigConnection> otherConnections = RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections );
+    RigConnectionContainer otherConnections =
+        RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections, activeCellInfo );
 
     if ( !otherConnections.empty() )
     {
-        m_connections.insert( m_connections.end(), otherConnections.begin(), otherConnections.end() );
+        m_connections.insert( otherConnections );
 
         // Transmissibility values from Eclipse has been read into propertyNameCombTrans in
         // RifReaderEclipseOutput::transferStaticNNCData(). Initialize computed NNCs with zero transmissibility
@@ -101,7 +102,7 @@ void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid* mainGrid )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::setConnections( std::vector<RigConnection>& connections )
+void RigNNCData::setConnections( RigConnectionContainer& connections )
 {
     m_connections = connections;
 }
@@ -117,7 +118,7 @@ size_t RigNNCData::nativeConnectionCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RigConnection>& RigNNCData::connections() const
+const RigConnectionContainer& RigNNCData::connections() const
 {
     return m_connections;
 }

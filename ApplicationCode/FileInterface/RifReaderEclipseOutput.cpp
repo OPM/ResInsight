@@ -723,8 +723,8 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
             if ( numNNC > 0 )
             {
                 // Transform to our own data structures
-                std::vector<RigConnection> nncConnections;
-                std::vector<double>        transmissibilityValuesTemp;
+                RigConnectionContainer nncConnections;
+                std::vector<double>    transmissibilityValuesTemp;
 
                 const double* transValues = ecl_nnc_data_get_values( tran_data );
 
@@ -1289,7 +1289,7 @@ size_t localGridCellIndexFromErtConnection( const RigGridBase*    grid,
         cellK = 0;
     }
 
-    // Introduced based on discussion with Håkon Høgstøl 08.09.2016
+    // Introduced based on discussion with Hï¿½kon Hï¿½gstï¿½l 08.09.2016
     if ( cellK >= static_cast<int>( grid->cellCountK() ) )
     {
         int maxCellK = static_cast<int>( grid->cellCountK() );
