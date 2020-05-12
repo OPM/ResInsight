@@ -65,9 +65,6 @@ RimFractureModelPlot*
     caf::ProgressInfo progInfo( 100, "Creating Fracture Model Plot" );
 
     RimFractureModelPlot* plot = createFractureModelPlot( true, "Fracture Model" );
-    plot->setEclipseCase( eclipseCase );
-    plot->setFractureModel( fractureModel );
-    plot->setTimeStep( timeStep );
 
     {
         auto task = progInfo.task( "Creating formation track", 2 );

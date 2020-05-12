@@ -22,18 +22,12 @@
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
-class RimEclipseCase;
-class RimFractureModel;
-
 class RimFractureModelPlot : public RimDepthTrackPlot
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimFractureModelPlot();
-    void setFractureModel( RimFractureModel* fractureModel );
-    void setTimeStep( int timeStep );
-    void setEclipseCase( RimEclipseCase* eclipseCase );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -42,8 +36,4 @@ protected:
 
 private:
     void applyDataSource();
-
-    caf::PdmPtrField<RimEclipseCase*>   m_eclipseCase;
-    caf::PdmPtrField<RimFractureModel*> m_fractureModel;
-    caf::PdmField<int>                  m_timeStep;
 };

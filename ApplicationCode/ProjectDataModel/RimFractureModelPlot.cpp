@@ -36,34 +36,6 @@ CAF_PDM_SOURCE_INIT( RimFractureModelPlot, "FractureModelPlot" );
 RimFractureModelPlot::RimFractureModelPlot()
 {
     CAF_PDM_InitScriptableObject( "Fracture Model Plot", "", "", "A fracture model plot" );
-
-    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureModel, "FractureModel", "Fracture Model", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_timeStep, "TimeStep", "Time Step", "", "", "" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFractureModelPlot::setFractureModel( RimFractureModel* fractureModel )
-{
-    m_fractureModel = fractureModel;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFractureModelPlot::setEclipseCase( RimEclipseCase* eclipseCase )
-{
-    m_eclipseCase = eclipseCase;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFractureModelPlot::setTimeStep( int timeStep )
-{
-    m_timeStep = timeStep;
 }
 
 //--------------------------------------------------------------------------------------------------
