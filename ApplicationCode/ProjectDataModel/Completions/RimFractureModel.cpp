@@ -18,7 +18,6 @@
 
 #include "RimFractureModel.h"
 
-#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaEclipseUnitTools.h"
@@ -158,7 +157,7 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
             RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
         }
 
-        RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
+        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }
 
@@ -324,8 +323,7 @@ cvf::Vec3d RimFractureModel::calculateTSTDirection() const
 
     // TODO: find a better way?
     // Find an eclipse case
-    RiaApplication* app  = RiaApplication::instance();
-    RimProject*     proj = app->project();
+    RimProject* proj = RimProject::current();
     if ( proj->eclipseCases().empty() ) return defaultDirection;
 
     RimEclipseCase* eclipseCase = proj->eclipseCases()[0];
@@ -430,8 +428,7 @@ QString RimFractureModel::vecToString( const cvf::Vec3d& vec )
 void RimFractureModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition )
 {
     // TODO: duplicated and ugly!
-    RiaApplication* app  = RiaApplication::instance();
-    RimProject*     proj = app->project();
+    RimProject* proj = RimProject::current();
     if ( proj->eclipseCases().empty() ) return;
 
     RimEclipseCase* eclipseCase = proj->eclipseCases()[0];
