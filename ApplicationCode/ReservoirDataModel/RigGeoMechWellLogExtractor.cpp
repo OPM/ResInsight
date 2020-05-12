@@ -103,7 +103,7 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
 
     if ( !mds->empty() && !values->empty() )
     {
-        std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
+        std::vector<std::vector<double>*> dependentValues = { tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl };
 
         std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
 
@@ -315,7 +315,8 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
                 if ( !lasFileValues.empty() )
                 {
                     double lasValue = getWellLogIntersectionValue( intersectionIdx, lasFileValues );
-                    if ( lasValue != std::numeric_limits<double>::infinity() )
+                    if ( lasValue != std::numeric_limits<double>::infinity() &&
+                         gridValues[intersectionIdx] != std::numeric_limits<double>::infinity() )
                     {
                         unscaledValues[intersectionIdx]         = lasValue;
                         finalSourcesPerSegment[intersectionIdx] = RigWbsParameter::LAS_FILE;
