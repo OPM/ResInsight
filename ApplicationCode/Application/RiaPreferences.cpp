@@ -35,10 +35,7 @@
 #include <QDate>
 #include <QDir>
 #include <QLocale>
-
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 0, 0 )
 #include <QStandardPaths>
-#endif
 
 namespace caf
 {
@@ -118,14 +115,11 @@ RiaPreferences::RiaPreferences( void )
 #ifdef WIN32
     defaultTextEditor = QString( "notepad.exe" );
 #else
-    defaultTextEditor = QString( "kate" );
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 0, 0 )
     defaultTextEditor = QStandardPaths::findExecutable( "kate" );
     if ( defaultTextEditor.isEmpty() )
     {
         defaultTextEditor = QStandardPaths::findExecutable( "gedit" );
     }
-#endif
 #endif
 
     CAF_PDM_InitField( &scriptEditorExecutable, "scriptEditorExecutable", defaultTextEditor, "Script Editor", "", "", "" );

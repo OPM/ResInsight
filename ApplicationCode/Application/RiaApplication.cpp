@@ -1355,12 +1355,8 @@ int RiaApplication::launchUnitTests()
     caf::ProgressInfoBlocker progressBlocker;
     cvf::Assert::setReportMode( cvf::Assert::CONSOLE );
 
-#if QT_VERSION < 0x050000
-    int    argc = QCoreApplication::argc();
-    char** argv = QCoreApplication::argv();
-#else
-    int argc = QCoreApplication::arguments().size();
-    QStringList arguments = QCoreApplication::arguments();
+    int                      argc      = QCoreApplication::arguments().size();
+    QStringList              arguments = QCoreApplication::arguments();
     std::vector<std::string> argumentsStd;
     for ( QString qstring : arguments )
     {
@@ -1372,7 +1368,6 @@ int RiaApplication::launchUnitTests()
         argVector.push_back( &string.front() );
     }
     char** argv = argVector.data();
-#endif
 
     testing::InitGoogleTest( &argc, argv );
 

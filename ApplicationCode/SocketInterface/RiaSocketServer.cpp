@@ -35,12 +35,8 @@
 
 #include "cafFactory.h"
 
-#if QT_VERSION >= 0x050000
-#include <QtWidgets/qmdisubwindow.h>
-#else
-#include <QtGui>
-#endif
 #include <QtNetwork>
+#include <QtWidgets/QMdiSubWindow>
 
 #include <cstdlib>
 
