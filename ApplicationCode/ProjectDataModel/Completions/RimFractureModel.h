@@ -20,7 +20,6 @@
 
 #include "RiaEclipseUnitTools.h"
 
-#include "Rim3dPropertiesInterface.h"
 #include "RimCheckableNamedObject.h"
 #include "RimWellPathComponentInterface.h"
 
@@ -40,7 +39,7 @@ class RimModeledWellPath;
 ///
 ///
 //==================================================================================================
-class RimFractureModel : public RimCheckableNamedObject, public Rim3dPropertiesInterface, public RimWellPathComponentInterface
+class RimFractureModel : public RimCheckableNamedObject, public RimWellPathComponentInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -78,13 +77,12 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    cvf::BoundingBox boundingBoxInDomainCoords() const override;
-    void             updatePositionFromMeasuredDepth();
-    void             updateThicknessDirection();
-    cvf::Vec3d       calculateTSTDirection() const;
-    void             findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
-    static QString   vecToString( const cvf::Vec3d& vec );
-    void             updateThicknessDirectionWellPathName();
+    void           updatePositionFromMeasuredDepth();
+    void           updateThicknessDirection();
+    cvf::Vec3d     calculateTSTDirection() const;
+    void           findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::Vec3d& bottomPosition );
+    static QString vecToString( const cvf::Vec3d& vec );
+    void           updateThicknessDirectionWellPathName();
 
 protected:
     caf::PdmField<double>                       m_MD;

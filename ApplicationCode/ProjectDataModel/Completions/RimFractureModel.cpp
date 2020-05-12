@@ -220,23 +220,6 @@ double RimFractureModel::endMD() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RimFractureModel::boundingBoxInDomainCoords() const
-{
-    // std::vector<cvf::Vec3f> nodeCoordVec;
-    // std::vector<cvf::uint>  triangleIndices;
-
-    // this->triangleGeometry( &triangleIndices, &nodeCoordVec );
-
-    cvf::BoundingBox fractureBBox;
-    // for ( const auto& nodeCoord : nodeCoordVec )
-    //     fractureBBox.add( nodeCoord );
-
-    return fractureBBox;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimFractureModel::anchorPosition() const
 {
     return m_anchorPosition();
