@@ -45,7 +45,7 @@ class RimFractureModel : public RimCheckableNamedObject, public Rim3dPropertiesI
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum ExtractionType
+    enum class ExtractionType
     {
         TRUE_VERTICAL_THICKNESS,
         TRUE_STRATIGRAPHIC_THICKNESS,

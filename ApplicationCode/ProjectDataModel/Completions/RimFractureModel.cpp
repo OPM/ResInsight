@@ -65,10 +65,10 @@ namespace caf
 template <>
 void caf::AppEnum<RimFractureModel::ExtractionType>::setUp()
 {
-    addItem( RimFractureModel::TRUE_VERTICAL_THICKNESS, "TVT", "True Vertical Thickness" );
-    addItem( RimFractureModel::TRUE_STRATIGRAPHIC_THICKNESS, "TST", "True Stratigraphic Thickness" );
+    addItem( RimFractureModel::ExtractionType::TRUE_VERTICAL_THICKNESS, "TVT", "True Vertical Thickness" );
+    addItem( RimFractureModel::ExtractionType::TRUE_STRATIGRAPHIC_THICKNESS, "TST", "True Stratigraphic Thickness" );
 
-    setDefault( RimFractureModel::TRUE_VERTICAL_THICKNESS );
+    setDefault( RimFractureModel::ExtractionType::TRUE_VERTICAL_THICKNESS );
 }
 }; // namespace caf
 
@@ -83,7 +83,7 @@ RimFractureModel::RimFractureModel()
 
     CAF_PDM_InitField( &m_extractionType,
                        "ExtractionType",
-                       caf::AppEnum<ExtractionType>( TRUE_STRATIGRAPHIC_THICKNESS ),
+                       caf::AppEnum<ExtractionType>( ExtractionType::TRUE_STRATIGRAPHIC_THICKNESS ),
                        "Extraction Type",
                        "",
                        "",
@@ -282,7 +282,7 @@ void RimFractureModel::updateThicknessDirection()
     // True vertical thickness: just point straight up
     cvf::Vec3d direction( 0.0, 0.0, -1.0 );
 
-    if ( m_extractionType() == TRUE_STRATIGRAPHIC_THICKNESS )
+    if ( m_extractionType() == ExtractionType::TRUE_STRATIGRAPHIC_THICKNESS )
     {
         direction = calculateTSTDirection();
     }
