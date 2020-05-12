@@ -31,11 +31,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivNNCGeometryGenerator::RivNNCGeometryGenerator( bool                      includeAllen,
+RivNNCGeometryGenerator::RivNNCGeometryGenerator( bool                      includeAllan,
                                                   const RigNNCData*         nncData,
                                                   const cvf::Vec3d&         offset,
                                                   const cvf::Array<size_t>* nncIndexes )
-    : m_includeAllenDiagramGeometry( includeAllen )
+    : m_includeAllanDiagramGeometry( includeAllan )
     , m_nncData( nncData )
     , m_nncIndexes( nncIndexes )
     , m_offset( offset )
@@ -90,7 +90,7 @@ void RivNNCGeometryGenerator::computeArrays()
     {
         size_t conIdx = m_nncIndexes.isNull() ? nIdx : ( *m_nncIndexes )[nIdx];
 
-        if ( !m_includeAllenDiagramGeometry && conIdx >= m_nncData->nativeConnectionCount() )
+        if ( !m_includeAllanDiagramGeometry && conIdx >= m_nncData->nativeConnectionCount() )
         {
             continue;
         }
@@ -164,7 +164,7 @@ void RivNNCGeometryGenerator::textureCoordinates( cvf::Vec2fArray*              
     cvf::Vec2f*                rawPtr        = textureCoords->ptr();
     const std::vector<double>* nncResultVals = nullptr;
     if ( resultType == RiaDefines::STATIC_NATIVE || resultType == RiaDefines::FORMATION_NAMES ||
-         resultType == RiaDefines::ALLEN_DIAGRAMS )
+         resultType == RiaDefines::ALLAN_DIAGRAMS )
     {
         nncResultVals = m_nncData->staticConnectionScalarResult( resVarAddr );
     }

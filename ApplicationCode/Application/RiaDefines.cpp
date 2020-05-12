@@ -33,7 +33,7 @@ void caf::AppEnum<RiaDefines::ResultCatType>::setUp()
     addItem( RiaDefines::GENERATED, "GENERATED", "Generated" );
     addItem( RiaDefines::INPUT_PROPERTY, "INPUT_PROPERTY", "Input Property" );
     addItem( RiaDefines::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names" );
-    addItem( RiaDefines::ALLEN_DIAGRAMS, "ALLEN_DIAGRAMS", "Allen Diagrams" );
+    addItem( RiaDefines::ALLAN_DIAGRAMS, "ALLAN_DIAGRAMS", "Allan Diagrams" );
     addItem( RiaDefines::FLOW_DIAGNOSTICS, "FLOW_DIAGNOSTICS", "Flow Diagnostics" );
     addItem( RiaDefines::INJECTION_FLOODING, "INJECTION_FLOODING", "Injection Flooding" );
     setDefault( RiaDefines::DYNAMIC_NATIVE );
@@ -373,17 +373,17 @@ QString RiaDefines::completionTypeResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::formationBinaryAllenResultName()
+QString RiaDefines::formationBinaryAllanResultName()
 {
-    return "Binary Formation Allen";
+    return "Binary Formation Allan";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::formationAllenResultName()
+QString RiaDefines::formationAllanResultName()
 {
-    return "Formation Allen";
+    return "Formation Allan";
 }
 
 //--------------------------------------------------------------------------------------------------
