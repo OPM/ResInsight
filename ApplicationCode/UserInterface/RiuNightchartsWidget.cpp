@@ -180,7 +180,7 @@ void RiuNightchartsWidget::paintEvent( QPaintEvent* e )
 void RiuNightchartsWidget::addItem( const QString& name, const QColor& color, float value )
 {
     m_chart.addPiece( name, color, value );
-    int textWidth = this->fontMetrics().width( name + " (00 %)" );
+    int textWidth = this->fontMetrics().boundingRect( name + " (00 %)" ).width();
 
     m_maxNameWidth = textWidth > m_maxNameWidth ? textWidth : m_maxNameWidth;
 }
