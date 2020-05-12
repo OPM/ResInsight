@@ -115,8 +115,6 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
     m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
-    m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAngles( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAlignedStress( *this ) ) );
