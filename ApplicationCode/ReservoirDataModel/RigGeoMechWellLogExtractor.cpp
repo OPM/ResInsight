@@ -103,7 +103,7 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
 
     if ( !mds->empty() && !values->empty() )
     {
-        std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
+        std::vector<std::vector<double>*> dependentValues = { tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl };
 
         std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
 
@@ -486,7 +486,8 @@ void RigGeoMechWellLogExtractor::wellPathAngles( const RigFemResultAddress& resA
 std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
     RigGeoMechWellLogExtractor::wellPathScaledCurveData( const RigFemResultAddress& resAddr,
                                                          int                        frameIndex,
-                                                         std::vector<double>*       values )
+                                                         std::vector<double>*       values,
+                                                         bool forceGridSourceForPPReservoir /*=false*/ )
 {
     CVF_ASSERT( values );
 
@@ -499,8 +500,20 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         std::vector<double> ppSandValues( m_intersections.size(), std::numeric_limits<double>::infinity() );
         std::vector<double> ppShaleValues( m_intersections.size(), std::numeric_limits<double>::infinity() );
 
-        std::vector<WbsParameterSource> ppSandSources =
+        std::vector<WbsParameterSource> ppSandSources;
+        if ( forceGridSourceForPPReservoir )
+        {
+            calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(),
+                                                 RigWbsParameter::GRID,
+                                                 frameIndex,
+                                                 &ppSandValues,
+                                                 true );
+        }
+        else
+        {
             calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(), frameIndex, &ppSandValues, true );
+        }
+
         std::vector<WbsParameterSource> ppShaleSources =
             calculateWbsParameterForAllSegments( RigWbsParameter::PP_NonReservoir(), 0, &ppShaleValues, true );
 
@@ -662,8 +675,7 @@ void RigGeoMechWellLogExtractor::wellBoreFGShale( int frameIndex, std::vector<do
         std::vector<double> K0_FG, OBG0; // parameters
 
         RigFemResultAddress ppAddr( RIG_WELLPATH_DERIVED, RiaDefines::wbsPPResult().toStdString(), "" );
-
-        curveData( ppAddr, 0, &PP0 );
+        wellPathScaledCurveData( ppAddr, 0, &PP0, true );
 
         calculateWbsParameterForAllSegments( RigWbsParameter::K0_FG(), frameIndex, &K0_FG, true );
         calculateWbsParameterForAllSegments( RigWbsParameter::OBG0(), 0, &OBG0, true );
