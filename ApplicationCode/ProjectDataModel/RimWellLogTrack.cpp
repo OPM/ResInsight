@@ -136,11 +136,11 @@ void AppEnum<RigWellPathFormations::FormationLevel>::setUp()
 template <>
 void AppEnum<RiuPlotAnnotationTool::RegionAnnotationType>::setUp()
 {
-    addItem( RiuPlotAnnotationTool::NO_ANNOTATIONS, "NO_ANNOTATIONS", "No Annotations" );
-    addItem( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS, "FORMATIONS", "Formations" );
-    addItem( RiuPlotAnnotationTool::CURVE_ANNOTATIONS, "CURVE_DATA", "Curve Data Annotations" );
-    addItem( RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS, "RESULT_PROPERTY", "Result Property" );
-    setDefault( RiuPlotAnnotationTool::NO_ANNOTATIONS );
+    addItem( RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS, "NO_ANNOTATIONS", "No Annotations" );
+    addItem( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS, "FORMATIONS", "Formations" );
+    addItem( RiuPlotAnnotationTool::RegionAnnotationType::CURVE_ANNOTATIONS, "CURVE_DATA", "Curve Data Annotations" );
+    addItem( RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS, "RESULT_PROPERTY", "Result Property" );
+    setDefault( RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS );
 }
 
 template <>
@@ -955,23 +955,25 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
 
     if ( fieldNeedingOptions == &m_regionAnnotationType )
     {
-        options.push_back( caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::NO_ANNOTATIONS ),
-                                                   RiuPlotAnnotationTool::NO_ANNOTATIONS ) );
-        options.push_back(
-            caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS ),
-                                    RiuPlotAnnotationTool::FORMATION_ANNOTATIONS ) );
+        options.push_back( caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText(
+                                                       RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS ),
+                                                   RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS ) );
+        options.push_back( caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText(
+                                                       RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS ),
+                                                   RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS ) );
         RimWellBoreStabilityPlot* wellBoreStabilityPlot = nullptr;
         this->firstAncestorOrThisOfType( wellBoreStabilityPlot );
         if ( wellBoreStabilityPlot )
         {
-            options.push_back(
-                caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::CURVE_ANNOTATIONS ),
-                                        RiuPlotAnnotationTool::CURVE_ANNOTATIONS ) );
+            options.push_back( caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText(
+                                                           RiuPlotAnnotationTool::RegionAnnotationType::CURVE_ANNOTATIONS ),
+                                                       RiuPlotAnnotationTool::RegionAnnotationType::CURVE_ANNOTATIONS ) );
         }
 
         options.push_back(
-            caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS ),
-                                    RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS ) );
+            caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText(
+                                        RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS ),
+                                    RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS ) );
     }
     if ( fieldNeedingOptions == &m_formationWellPathForSourceCase )
     {
@@ -1157,8 +1159,8 @@ void RimWellLogTrack::onLoadDataAndUpdate()
         m_curves[cIdx]->loadDataAndUpdate( false );
     }
 
-    if ( m_regionAnnotationType == RiuPlotAnnotationTool::FORMATION_ANNOTATIONS ||
-         m_regionAnnotationType == RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS )
+    if ( m_regionAnnotationType == RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS ||
+         m_regionAnnotationType == RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS )
     {
         m_resultDefinition->loadDataAndUpdate();
         setFormationFieldsUiReadOnly( false );
@@ -1167,7 +1169,7 @@ void RimWellLogTrack::onLoadDataAndUpdate()
     {
         setFormationFieldsUiReadOnly( true );
     }
-    bool noAnnotations = m_regionAnnotationType() == RiuPlotAnnotationTool::NO_ANNOTATIONS;
+    bool noAnnotations = m_regionAnnotationType() == RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS;
     m_regionAnnotationDisplay.uiCapability()->setUiReadOnly( noAnnotations );
     m_showRegionLabels.uiCapability()->setUiReadOnly( noAnnotations );
 
@@ -1207,7 +1209,7 @@ void RimWellLogTrack::setAndUpdateWellPathFormationNamesData( RimCase* rimCase, 
 
     updateConnectedEditors();
 
-    if ( m_regionAnnotationType != RiuPlotAnnotationTool::NO_ANNOTATIONS )
+    if ( m_regionAnnotationType != RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS )
     {
         updateRegionAnnotationsOnPlot();
     }
@@ -1239,7 +1241,7 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData( RimCase* rimCase, c
 
     updateConnectedEditors();
 
-    if ( m_regionAnnotationType != RiuPlotAnnotationTool::NO_ANNOTATIONS )
+    if ( m_regionAnnotationType != RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS )
     {
         updateRegionAnnotationsOnPlot();
     }
@@ -1586,7 +1588,7 @@ RiuPlotAnnotationTool::RegionDisplay RimWellLogTrack::annotationDisplay() const
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogTrack::showFormations() const
 {
-    return m_regionAnnotationType() == RiuPlotAnnotationTool::FORMATION_ANNOTATIONS;
+    return m_regionAnnotationType() == RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1779,7 +1781,7 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         }
     }
 
-    if ( m_regionAnnotationType() == RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS )
+    if ( m_regionAnnotationType() == RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS )
     {
         m_resultDefinition->uiOrdering( uiConfigName, *annotationGroup );
     }
@@ -1804,13 +1806,14 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::initAfterRead()
 {
-    if ( m_showFormations_OBSOLETE() && m_regionAnnotationType() == RiuPlotAnnotationTool::NO_ANNOTATIONS )
+    if ( m_showFormations_OBSOLETE() &&
+         m_regionAnnotationType() == RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS )
     {
-        m_regionAnnotationType    = RiuPlotAnnotationTool::FORMATION_ANNOTATIONS;
+        m_regionAnnotationType    = RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS;
         m_regionAnnotationDisplay = RiuPlotAnnotationTool::DARK_LINES;
     }
 
-    if ( m_regionAnnotationType() == RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS )
+    if ( m_regionAnnotationType() == RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS )
     {
         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_formationCase.value() );
         m_resultDefinition->setEclipseCase( dynamic_cast<RimEclipseCase*>( eclipseCase ) );
@@ -2304,18 +2307,18 @@ void RimWellLogTrack::updateRegionAnnotationsOnPlot()
 {
     removeRegionAnnotations();
 
-    if ( m_regionAnnotationType == RiuPlotAnnotationTool::NO_ANNOTATIONS ) return;
+    if ( m_regionAnnotationType == RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS ) return;
 
     if ( m_annotationTool == nullptr )
     {
         m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
     }
 
-    if ( m_regionAnnotationType == RiuPlotAnnotationTool::FORMATION_ANNOTATIONS )
+    if ( m_regionAnnotationType == RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS )
     {
         updateFormationNamesOnPlot();
     }
-    else if ( m_regionAnnotationType == RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS )
+    else if ( m_regionAnnotationType == RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS )
     {
         updateResultPropertyNamesOnPlot();
     }
@@ -2439,7 +2442,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                   waterAndRockColors,
                                                   ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100,
                                                   m_showRegionLabels(),
-                                                  RiuPlotAnnotationTool::LEFT_COLUMN,
+                                                  RiuPlotAnnotationTool::TrackSpan::LEFT_COLUMN,
                                                   {Qt::SolidPattern, Qt::Dense6Pattern} );
         }
 
@@ -2633,7 +2636,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                       colorTable,
                                                       ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
                                                       m_showRegionLabels(),
-                                                      RiuPlotAnnotationTool::LEFT_COLUMN );
+                                                      RiuPlotAnnotationTool::TrackSpan::LEFT_COLUMN );
             }
             {
                 caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
@@ -2659,7 +2662,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                       colorTable,
                                                       ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
                                                       m_showRegionLabels(),
-                                                      RiuPlotAnnotationTool::CENTRE_COLUMN );
+                                                      RiuPlotAnnotationTool::TrackSpan::CENTRE_COLUMN );
             }
             {
                 caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
@@ -2684,7 +2687,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                       colorTable,
                                                       ( ( ( 100 - m_colorShadingTransparency ) * 255 ) / 100 ) / 3,
                                                       m_showRegionLabels(),
-                                                      RiuPlotAnnotationTool::RIGHT_COLUMN );
+                                                      RiuPlotAnnotationTool::TrackSpan::RIGHT_COLUMN );
             }
         }
     }

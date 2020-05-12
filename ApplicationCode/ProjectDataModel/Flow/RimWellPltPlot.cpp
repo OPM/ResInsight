@@ -1121,7 +1121,7 @@ void RimWellPltPlot::onLoadDataAndUpdate()
             CAF_ASSERT( plotTrack );
             if ( plotTrack )
             {
-                plotTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
+                plotTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
             }
         }
         m_isOnLoad = false;

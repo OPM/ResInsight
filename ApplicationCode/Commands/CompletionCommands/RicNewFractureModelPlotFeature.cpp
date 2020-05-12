@@ -165,7 +165,7 @@ void RicNewFractureModelPlotFeature::createFormationTrack( RimFractureModelPlot*
     RimWellLogTrack* formationTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Formations", plot );
     formationTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     formationTrack->setFormationCase( eclipseCase );
-    formationTrack->setAnnotationType( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS );
+    formationTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
     formationTrack->setVisibleXRange( 0.0, 0.0 );
     formationTrack->setColSpan( RimPlot::ONE );
 }
@@ -182,7 +182,7 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Facies", plot );
     faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     faciesTrack->setFormationCase( eclipseCase );
-    faciesTrack->setAnnotationType( RiuPlotAnnotationTool::RESULT_PROPERTY_ANNOTATIONS );
+    faciesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS );
     faciesTrack->setRegionPropertyResultType( RiaDefines::ResultCatType::INPUT_PROPERTY, defaultProperty );
     faciesTrack->setVisibleXRange( 0.0, 0.0 );
     faciesTrack->setColSpan( RimPlot::ONE );
@@ -234,7 +234,7 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
     plotTrack->setAutoScaleXEnabled( true );
     plotTrack->setTickIntervals( 1.0, 0.2 );
     plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
-    plotTrack->setAnnotationType( RiuPlotAnnotationTool::CURVE_ANNOTATIONS );
+    plotTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::CURVE_ANNOTATIONS );
     plotTrack->setShowRegionLabels( true );
     plotTrack->setShowWindow( true );
 
