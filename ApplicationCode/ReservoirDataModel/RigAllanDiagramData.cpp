@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigAllenDiagramData.h"
+#include "RigAllanDiagramData.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigFormationNames.h"
@@ -25,13 +25,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigAllenDiagramData::RigAllenDiagramData()
+RigAllanDiagramData::RigAllanDiagramData()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigAllenDiagramData::~RigAllenDiagramData()
+RigAllanDiagramData::~RigAllanDiagramData()
 {
 }

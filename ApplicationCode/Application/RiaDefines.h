@@ -33,7 +33,7 @@ enum class ResultCatType
     GENERATED,
     INPUT_PROPERTY,
     FORMATION_NAMES,
-    ALLEN_DIAGRAMS,
+    ALLAN_DIAGRAMS,
     FLOW_DIAGNOSTICS,
     INJECTION_FLOODING,
     REMOVED,
@@ -106,8 +106,8 @@ QString mobilePoreVolumeName();
 QString completionTypeResultName();
 
 // Fault results
-QString formationBinaryAllenResultName();
-QString formationAllenResultName();
+QString formationBinaryAllanResultName();
+QString formationAllanResultName();
 
 // Mock model text identifiers
 QString mockModelBasic();
