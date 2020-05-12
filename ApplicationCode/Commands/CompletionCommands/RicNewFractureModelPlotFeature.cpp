@@ -281,7 +281,7 @@ RimFractureModelPlot* RicNewFractureModelPlotFeature::createFractureModelPlot( b
     RimFractureModelPlot* plot = new RimFractureModelPlot();
     plot->setAsPlotMdiWindow();
 
-    fractureModelPlotColl->fractureModelPlots().push_back( plot );
+    fractureModelPlotColl->addFractureModelPlot( plot );
 
     if ( !plotDescription.isEmpty() )
     {
@@ -290,7 +290,7 @@ RimFractureModelPlot* RicNewFractureModelPlotFeature::createFractureModelPlot( b
     else
     {
         plot->nameConfig()->setCustomName(
-            QString( "Fracture Model Plot %1" ).arg( fractureModelPlotCollection()->fractureModelPlots.size() ) );
+            QString( "Fracture Model Plot %1" ).arg( fractureModelPlotCollection()->fractureModelPlots().size() ) );
     }
 
     if ( showAfterCreation )

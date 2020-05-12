@@ -36,9 +36,14 @@ public:
     RimFractureModelPlotCollection();
     ~RimFractureModelPlotCollection() override;
 
+    void addFractureModelPlot( RimFractureModelPlot* newPlot );
+
+    std::vector<RimFractureModelPlot*> fractureModelPlots() const;
+
     void reloadAllPlots();
 
-    void deleteAllExtractors();
+    void deleteAllPlots();
 
-    caf::PdmChildArrayField<RimFractureModelPlot*> fractureModelPlots;
+private:
+    caf::PdmChildArrayField<RimFractureModelPlot*> m_fractureModelPlots;
 };

@@ -248,7 +248,7 @@ void RimMainPlotCollection::deleteAllContainedObjects()
     m_multiPlotCollection()->deleteAllChildObjects();
     m_analysisPlotCollection()->deleteAllChildObjects();
     m_correlationPlotCollection()->deleteAllChildObjects();
-    m_fractureModelPlotCollection()->fractureModelPlots.deleteAllChildObjects();
+    m_fractureModelPlotCollection()->deleteAllPlots();
 }
 
 //--------------------------------------------------------------------------------------------------

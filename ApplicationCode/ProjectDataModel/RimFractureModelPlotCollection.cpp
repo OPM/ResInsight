@@ -29,8 +29,8 @@ RimFractureModelPlotCollection::RimFractureModelPlotCollection()
 {
     CAF_PDM_InitObject( "FractureModelPlots", ":/WellLogPlots16x16.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &fractureModelPlots, "FractureModelPlots", "", "", "", "" );
-    fractureModelPlots.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_fractureModelPlots, "FractureModelPlots", "", "", "", "" );
+    m_fractureModelPlots.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ RimFractureModelPlotCollection::RimFractureModelPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimFractureModelPlotCollection::~RimFractureModelPlotCollection()
 {
-    fractureModelPlots.deleteAllChildObjects();
+    m_fractureModelPlots.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,8 +46,32 @@ RimFractureModelPlotCollection::~RimFractureModelPlotCollection()
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelPlotCollection::reloadAllPlots()
 {
-    for ( const auto& w : fractureModelPlots() )
+    for ( const auto& w : m_fractureModelPlots() )
     {
         w->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelPlotCollection::addFractureModelPlot( RimFractureModelPlot* newPlot )
+{
+    m_fractureModelPlots.push_back( newPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimFractureModelPlot*> RimFractureModelPlotCollection::fractureModelPlots() const
+{
+    return m_fractureModelPlots.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelPlotCollection::deleteAllPlots()
+{
+    m_fractureModelPlots.deleteAllChildObjects();
 }
