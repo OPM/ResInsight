@@ -119,7 +119,7 @@ if (NOT ERT_WINDOWS)
 endif()
 
 if (MSVC)
-    add_definitions( "/W3 /D_CRT_SECURE_NO_WARNINGS /wd4996" )
+    add_definitions( "/W4 /D_CRT_SECURE_NO_WARNINGS /wd4996" )
 endif()
 
 
