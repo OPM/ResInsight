@@ -210,6 +210,7 @@ namespace cvf {
         };
 
         std::deque<InternalNodeAndRange> m_previousLevelNodes;
+        std::deque<InternalNodeAndRange> m_currentLevelNodes;
     };
 
     class BoundingBoxTreeImpl : public AABBTree
@@ -493,7 +494,7 @@ bool AABBTree::buildTree()
 			bRes = bRes && bThreadRes;
 		}
     }
-    m_previousLevelNodes.clear();
+    m_previousLevelNodes.swap(m_currentLevelNodes);
 
 #pragma omp parallel
     {
@@ -501,13 +502,14 @@ bool AABBTree::buildTree()
 #pragma omp for schedule(guided)
         for (int i = 0; i < m_previousLevelNodes.size(); ++i)
         {
-            bThreadRes = bThreadRes && buildTree(m_previousLevelNodes[i].node, m_previousLevelNodes[i].fromIdx, m_previousLevelNodes[i].toIdx, 7);
+            bThreadRes = bThreadRes && buildTree(m_previousLevelNodes[i].node, m_previousLevelNodes[i].fromIdx, m_previousLevelNodes[i].toIdx, 6);
         }
 #pragma omp critical
 		{
 			bRes = bRes && bThreadRes;
 		}
     }
+    CVF_ASSERT(m_currentLevelNodes.empty());
     m_previousLevelNodes.clear();
 
     return bRes;
@@ -524,7 +526,7 @@ bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iT
     {
 #pragma omp critical
         {
-            m_previousLevelNodes.emplace_back(pNode, iFromIdx, iToIdx);
+            m_currentLevelNodes.emplace_back(pNode, iFromIdx, iToIdx);
         }
         return true;
     }
@@ -569,7 +571,11 @@ bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iT
 	{
 	    cvf::BoundingBox box = leafBoundingBox(iFromIdx, iMid);
 
-        AABBTreeNodeInternal* newNode = createNode();
+        AABBTreeNodeInternal* newNode = nullptr;
+#pragma omp critical
+        {
+            newNode = createNode();
+        }
         newNode->setBoundingBox(box);
         pNode->setLeft(newNode);
 
@@ -585,7 +591,11 @@ bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iT
 	{
         cvf::BoundingBox box = leafBoundingBox(iMid + 1, iToIdx);
 
-        AABBTreeNodeInternal* newNode = createNode();
+		AABBTreeNodeInternal* newNode = nullptr;
+#pragma omp critical
+		{
+			newNode = createNode();
+		}
         newNode->setBoundingBox(box);
         pNode->setRight(newNode);
 
