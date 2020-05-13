@@ -20,6 +20,11 @@
 
 #include "RimEclipseCaseCollection.h"
 
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
+#include "RifReaderSettings.h"
+
 #include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
@@ -127,8 +132,11 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RigEclipseC
         // This is the first insertion of this grid, compute cached data
         rigEclipseCase->mainGrid()->computeCachedData();
 
-        rigEclipseCase->mainGrid()->calculateFaults(
-            rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+        bool computeNncs = RiaApplication::instance()->preferences()->readerSettings()->importNNCs();
+
+        rigEclipseCase->mainGrid()->calculateFaults( rigEclipseCase->activeCellInfo(
+                                                         RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                                     computeNncs );
 
         equalGrid = rigEclipseCase->mainGrid();
     }

@@ -413,7 +413,7 @@ bool RigMainGrid::hasFaultWithName( const QString& name ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
+void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo, bool computeNncs )
 {
     if ( hasFaultWithName( RiaDefines::undefinedGridFaultName() ) &&
          hasFaultWithName( RiaDefines::undefinedGridFaultWithInactiveName() ) )
@@ -556,7 +556,10 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
         }
     }
 
-    this->nncData()->computeCompleteSetOfNncs( this, activeCellInfo );
+    if ( computeNncs )
+    {
+        this->nncData()->computeCompleteSetOfNncs( this, activeCellInfo );
+    }
 
     distributeNNCsToFaults();
 }
