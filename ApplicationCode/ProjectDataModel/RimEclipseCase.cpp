@@ -608,8 +608,12 @@ void RimEclipseCase::computeCachedData()
 
         {
             auto task = pInf.task( "Calculating faults", 17 );
-            rigEclipseCase->mainGrid()->calculateFaults(
-                rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+
+            bool computeNncs = RiaApplication::instance()->preferences()->readerSettings()->importNNCs();
+
+            rigEclipseCase->mainGrid()->calculateFaults( rigEclipseCase->activeCellInfo(
+                                                             RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                                         computeNncs );
         }
 
         {
