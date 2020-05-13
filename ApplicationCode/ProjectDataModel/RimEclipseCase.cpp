@@ -609,18 +609,7 @@ void RimEclipseCase::computeCachedData()
         {
             auto task = pInf.task( "Calculating faults", 17 );
 
-            bool computeFaults = RiaApplication::instance()->preferences()->readerSettings()->importFaults();
-            if ( computeFaults )
-            {
-                bool computeNncs = RiaApplication::instance()->preferences()->readerSettings()->importNNCs();
-                bool includeInactiveCells =
-                    RiaApplication::instance()->preferences()->readerSettings()->includeInactiveCellsInFaultGeometry();
-
-                rigEclipseCase->mainGrid()->calculateFaults( rigEclipseCase->activeCellInfo(
-                                                                 RiaDefines::PorosityModelType::MATRIX_MODEL ),
-                                                             computeNncs,
-                                                             includeInactiveCells );
-            }
+            ensureFaultDataIsComputed();
         }
 
         {
@@ -699,6 +688,29 @@ void RimEclipseCase::loadAndSyncronizeInputProperties( bool includeGridFileName 
     if ( includeGridFileName ) filenames.push_back( gridFileName() );
 
     RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(), eclipseCaseData(), filenames );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::ensureFaultDataIsComputed()
+{
+    RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
+    if ( rigEclipseCase )
+    {
+        bool computeFaults = RiaApplication::instance()->preferences()->readerSettings()->importFaults();
+        if ( computeFaults )
+        {
+            bool computeNncs = RiaApplication::instance()->preferences()->readerSettings()->importNNCs();
+            bool includeInactiveCells =
+                RiaApplication::instance()->preferences()->readerSettings()->includeInactiveCellsInFaultGeometry();
+
+            rigEclipseCase->mainGrid()->calculateFaults( rigEclipseCase->activeCellInfo(
+                                                             RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                                         computeNncs,
+                                                         includeInactiveCells );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
