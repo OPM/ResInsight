@@ -179,7 +179,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
 #pragma omp parallel
         {
             RigConnectionContainer threadConnections;
-#pragma omp for
+#pragma omp for schedule( guided )
             for ( int faceIdx = 0; faceIdx < static_cast<int>( faultFaces.size() ); faceIdx++ )
             {
                 const RigFault::FaultFace& f = faultFaces[faceIdx];
