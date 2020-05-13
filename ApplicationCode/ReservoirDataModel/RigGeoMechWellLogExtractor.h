@@ -102,9 +102,11 @@ private:
                                                                           std::vector<double>*       values,
                                                                           bool allowNormalization );
 
-    void wellPathAngles( const RigFemResultAddress& resAddr, std::vector<double>* values );
-    std::vector<WbsParameterSource>
-         wellPathScaledCurveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
+    void                            wellPathAngles( const RigFemResultAddress& resAddr, std::vector<double>* values );
+    std::vector<WbsParameterSource> wellPathScaledCurveData( const RigFemResultAddress& resAddr,
+                                                             int                        frameIndex,
+                                                             std::vector<double>*       values,
+                                                             bool forceGridSourceforPPReservoir = false );
     void wellBoreWallCurveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
 
     void wellBoreFGShale( int frameIndex, std::vector<double>* values );
