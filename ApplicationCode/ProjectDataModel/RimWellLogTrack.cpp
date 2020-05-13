@@ -2525,7 +2525,7 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
 
         RimProject*                  proj                  = RimProject::current();
         RimColorLegendCollection*    colorLegendCollection = proj->colorLegendCollection;
-        std::vector<RimColorLegend*> legends               = colorLegendCollection->colorLegends();
+        std::vector<RimColorLegend*> legends               = colorLegendCollection->customColorLegends();
         if ( legends.empty() )
         {
             RiaLogging::error( "No color legend found." );

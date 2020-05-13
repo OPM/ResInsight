@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicImportColorCategories.h"
+#include "RicImportColorCategoriesFeature.h"
 
 #include "RiaApplication.h"
 
@@ -30,23 +30,35 @@
 #include "RifColorLegendData.h"
 #include "Riu3DMainWindowTools.h"
 
+#include "cafSelectionManager.h"
+
 #include <QAction>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT( RicImportColorCategories, "RicImportColorCategories" );
+CAF_CMD_SOURCE_INIT( RicImportColorCategoriesFeature, "RicImportColorCategoriesFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportColorCategories::isCommandEnabled()
+bool RicImportColorCategoriesFeature::isCommandEnabled()
 {
-    return true;
+    RimColorLegendCollection* legendCollection = nullptr;
+
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( selObj )
+    {
+        selObj->firstAncestorOrThisOfType( legendCollection );
+    }
+
+    if ( legendCollection ) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportColorCategories::onActionTriggered( bool isChecked )
+void RicImportColorCategoriesFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
@@ -70,13 +82,13 @@ void RicImportColorCategories::onActionTriggered( bool isChecked )
     const std::vector<cvf::Color3f>& formationColors = formations->formationColors();
 
     RimColorLegend* colorLegend = new RimColorLegend;
-    colorLegend->setColorLegendName( "LYR imported color legend" );
+    colorLegend->setColorLegendName( QFileInfo( fileName ).baseName() );
 
     for ( size_t i = 0; i < formationColors.size(); i++ )
     {
         RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
 
-        colorLegendItem->setValues( formationNames[i], i, formationColors[i] );
+        colorLegendItem->setValues( formationNames[i], (int)i, formationColors[i] );
 
         colorLegend->appendColorLegendItem( colorLegendItem );
     }
@@ -85,15 +97,18 @@ void RicImportColorCategories::onActionTriggered( bool isChecked )
 
     RimColorLegendCollection* colorLegendCollection = proj->colorLegendCollection;
 
-    colorLegendCollection->appendColorLegend( colorLegend );
+    colorLegendCollection->appendCustomColorLegend( colorLegend );
 
     colorLegendCollection->updateConnectedEditors();
+
+    Riu3DMainWindowTools::setExpanded( colorLegend );
+    Riu3DMainWindowTools::selectAsCurrentItem( colorLegend );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportColorCategories::setupActionLook( QAction* actionToSetup )
+void RicImportColorCategoriesFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/Formations16x16.png" ) );
     actionToSetup->setText( "Import Color Legend from LYR Formation File" );

@@ -42,7 +42,12 @@ public:
     ~RimColorLegend() override;
 
 public:
+    QString colorLegendName();
+
     void setColorLegendName( const QString& colorLegendName );
+
+    void setReadOnly( bool doReadOnly );
+
     void appendColorLegendItem( RimColorLegendItem* colorLegendItem );
 
     std::vector<RimColorLegendItem*> colorLegendItems() const;

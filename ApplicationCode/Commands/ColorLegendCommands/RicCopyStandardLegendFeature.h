@@ -18,42 +18,22 @@
 
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafCmdFeature.h"
 
 class RimColorLegend;
 
-namespace caf
-{
-class PdmUiEditorAttribute;
-}
-
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimColorLegendCollection : public caf::PdmObject
+class RicCopyStandardLegendFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 
-public:
-    RimColorLegendCollection();
-    ~RimColorLegendCollection() override;
-
-    void createStandardColorLegends();
-
-    void appendCustomColorLegend( RimColorLegend* customColorLegend );
-
-    bool isStandardColorLegend( RimColorLegend* colorLegend );
-
-    void deleteCustomColorLegends();
-
-    std::vector<RimColorLegend*> customColorLegends() const;
-
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+protected:
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    caf::PdmChildArrayField<RimColorLegend*> m_standardColorLegends; // ResInsight standard (built-in) legends
-    caf::PdmChildArrayField<RimColorLegend*> m_customColorLegends; // user specified legends
+    RimColorLegend* selectedColorLegend();
 };

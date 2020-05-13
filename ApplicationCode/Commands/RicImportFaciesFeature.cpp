@@ -91,7 +91,7 @@ void RicImportFaciesFeature::onActionTriggered( bool isChecked )
     }
 
     RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
-    colorLegendCollection->appendColorLegend( colorLegend );
+    colorLegendCollection->appendCustomColorLegend( colorLegend );
     colorLegendCollection->updateConnectedEditors();
 }
 

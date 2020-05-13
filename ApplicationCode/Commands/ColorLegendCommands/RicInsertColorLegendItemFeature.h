@@ -20,10 +20,12 @@
 
 #include "cafCmdFeature.h"
 
+class RimColorLegend;
+
 //==================================================================================================
 ///
 //==================================================================================================
-class RicImportColorCategories : public caf::CmdFeature
+class RicInsertColorLegendItemFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
@@ -31,4 +33,7 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    RimColorLegend* selectedColorLegend();
 };

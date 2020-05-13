@@ -77,6 +77,8 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafSelectionManager.h"
 
+#include "RimColorLegend.h"
+#include "RimColorLegendItem.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicDeleteItemFeature, "RicDeleteItemFeature" );
@@ -143,6 +145,8 @@ bool isDeletable( caf::PdmUiItem* uiItem )
     if ( dynamic_cast<RimPolylinesAnnotation*>( uiItem ) ) return true;
     if ( dynamic_cast<RimIntersectionResultDefinition*>( uiItem ) ) return true;
     if ( dynamic_cast<RimSurface*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimColorLegend*>( uiItem ) ) return true;
+    if ( dynamic_cast<RimColorLegendItem*>( uiItem ) ) return true;
 
     if ( dynamic_cast<RimGridCrossPlot*>( uiItem ) )
     {
