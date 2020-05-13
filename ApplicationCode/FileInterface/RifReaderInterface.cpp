@@ -50,6 +50,14 @@ bool RifReaderInterface::isNNCsEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifReaderInterface::includeInactiveCellsInFaultGeometry()
+{
+    return readerSettings()->includeInactiveCellsInFaultGeometry();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const QString RifReaderInterface::faultIncludeFileAbsolutePathPrefix()
 {
     return readerSettings()->includeFileAbsolutePathPrefix;

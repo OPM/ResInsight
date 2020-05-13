@@ -50,7 +50,9 @@ public:
     RigNNCData();
 
     void processNativeConnections( const RigMainGrid& mainGrid );
-    void computeCompleteSetOfNncs( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo );
+    void computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
+                                   const RigActiveCellInfo* activeCellInfo,
+                                   bool                     includeInactiveCells );
 
     void   setConnections( RigConnectionContainer& connections );
     size_t nativeConnectionCount() const;
