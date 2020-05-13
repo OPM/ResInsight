@@ -33,6 +33,7 @@ RimColorLegendItem::RimColorLegendItem()
     CAF_PDM_InitObject( "ColorLegendItem", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_color, "Color", "Color", "", "", "" );
+    m_color = cvf::Color3f( cvf::Color3::ColorIdent::BLACK );
 
     CAF_PDM_InitField( &m_categoryValue, "CategoryValue", 0, "Category Value", "", "", "" );
     CAF_PDM_InitField( &m_categoryName, "CategoryName", QString( "" ), "Category Name", "", "", "" );
@@ -58,6 +59,16 @@ void RimColorLegendItem::setValues( const QString& categoryName, int categoryVal
     m_categoryName  = categoryName;
     m_categoryValue = categoryValue;
     m_color         = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegendItem::setReadOnly( bool doReadOnly )
+{
+    m_categoryName.uiCapability()->setUiReadOnly( true );
+    m_categoryValue.uiCapability()->setUiReadOnly( true );
+    m_color.uiCapability()->setUiReadOnly( true );
 }
 
 //--------------------------------------------------------------------------------------------------

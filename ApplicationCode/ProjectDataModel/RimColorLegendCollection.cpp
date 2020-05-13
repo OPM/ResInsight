@@ -18,6 +18,11 @@
 
 #include "RimColorLegendCollection.h"
 #include "RimColorLegend.h"
+#include "RimRegularLegendConfig.h"
+
+#include "RimColorLegendItem.h"
+#include "RimProject.h"
+#include <QString>
 
 CAF_PDM_SOURCE_INIT( RimColorLegendCollection, "ColorLegendCollection" );
 
@@ -26,10 +31,16 @@ CAF_PDM_SOURCE_INIT( RimColorLegendCollection, "ColorLegendCollection" );
 //--------------------------------------------------------------------------------------------------
 RimColorLegendCollection::RimColorLegendCollection()
 {
-    CAF_PDM_InitObject( "ColorLegendCollection", ":/Formations16x16.png", "", "" );
+    CAF_PDM_InitObject( "Color Legend Collection", ":/Legend.png", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_colorLegends, "ColorLegends", "", "", "", "" );
-    m_colorLegends.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_standardColorLegends,
+                                "StandardColorLegends",
+                                "Standard Color Legends",
+                                ":/Legend.png",
+                                "",
+                                "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_customColorLegends, "CustomColorLegends", "Custom Color Legends", ":/Legend.png", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -42,17 +53,86 @@ RimColorLegendCollection::~RimColorLegendCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimColorLegendCollection::appendColorLegend( RimColorLegend* colorLegend )
+void RimColorLegendCollection::appendCustomColorLegend( RimColorLegend* colorLegend )
 {
-    m_colorLegends.push_back( colorLegend );
+    m_customColorLegends.push_back( colorLegend );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimColorLegend*> RimColorLegendCollection::colorLegends() const
+bool RimColorLegendCollection::isStandardColorLegend( RimColorLegend* legend )
 {
-    return m_colorLegends.childObjects();
+    for ( auto standardLegend : m_standardColorLegends )
+    {
+        if ( legend == standardLegend ) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegendCollection::deleteCustomColorLegends()
+{
+    m_customColorLegends.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegendCollection::createStandardColorLegends()
+{
+    typedef caf::AppEnum<RimRegularLegendConfig::ColorRangesType> ColorRangeEnum;
+
+    for ( size_t typeIdx = 0; typeIdx < ColorRangeEnum::size(); typeIdx++ )
+    {
+        QString            legendName = ColorRangeEnum::uiTextFromIndex( typeIdx );
+        cvf::Color3ubArray colorArray =
+            RimRegularLegendConfig::colorArrayFromColorType( ColorRangeEnum::fromIndex( typeIdx ) );
+
+        RimColorLegend* colorLegend = new RimColorLegend;
+        colorLegend->setColorLegendName( legendName );
+
+        for ( int i = (int)colorArray.size() - 1; i > -1; i-- ) // reverse to assign last color to top of legend
+        {
+            cvf::Color3f color3f( colorArray[i] );
+            QColor       colorQ( colorArray[i].r(), colorArray[i].g(), colorArray[i].b() );
+
+            RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
+            colorLegendItem->setValues( colorQ.name(), i, color3f );
+
+            colorLegend->appendColorLegendItem( colorLegendItem );
+            colorLegend->setReadOnly( true );
+        }
+
+        m_standardColorLegends.push_back( colorLegend );
+    }
+
+    this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimColorLegend*> RimColorLegendCollection::customColorLegends() const
+{
+    std::vector<RimColorLegend*> allLegends;
+
+    auto standardLegends = m_standardColorLegends.childObjects();
+    for ( auto l : standardLegends )
+    {
+        allLegends.push_back( l );
+    }
+
+    auto customLegends = m_customColorLegends.childObjects();
+    for ( auto l : customLegends )
+    {
+        allLegends.push_back( l );
+    }
+
+    return allLegends;
 }
 
 //--------------------------------------------------------------------------------------------------

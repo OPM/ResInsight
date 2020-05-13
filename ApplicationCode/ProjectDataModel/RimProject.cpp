@@ -133,6 +133,7 @@ RimProject::RimProject( void )
 
     CAF_PDM_InitFieldNoDefault( &colorLegendCollection, "ColorLegendCollection", "Color Legend Collection", "", "", "" );
     colorLegendCollection = new RimColorLegendCollection();
+    colorLegendCollection->createStandardColorLegends();
 
     CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png", "", "" );
     scriptCollection.uiCapability()->setUiHidden( true );
@@ -256,6 +257,7 @@ void RimProject::close()
     m_dialogData->clearProjectSpecificData();
 
     calculationCollection->deleteAllContainedObjects();
+    colorLegendCollection->deleteCustomColorLegends();
 
     delete viewLinkerCollection->viewLinker();
     viewLinkerCollection->viewLinker = nullptr;

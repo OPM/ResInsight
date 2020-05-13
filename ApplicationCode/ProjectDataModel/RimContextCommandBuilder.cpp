@@ -39,7 +39,9 @@
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
+#include "RimColorLegendItem.h"
 #include "RimCorrelationMatrixPlot.h"
 #include "RimCorrelationPlot.h"
 #include "RimCorrelationPlotCollection.h"
@@ -792,8 +794,20 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimColorLegendCollection*>( firstUiItem ) )
         {
-            menuBuilder << "RicImportColorCategories";
+            menuBuilder << "RicInsertColorLegendFeature";
+            menuBuilder << "RicImportColorCategoriesFeature"; // import of color legend from LYR file
         }
+        else if ( dynamic_cast<RimColorLegend*>( firstUiItem ) )
+        {
+            menuBuilder << "RicInsertColorLegendFeature";
+            menuBuilder << "RicCopyStandardLegendFeature";
+            menuBuilder << "RicInsertColorLegendItemFeature";
+        }
+        else if ( dynamic_cast<RimColorLegendItem*>( firstUiItem ) )
+        {
+            menuBuilder << "RicInsertColorLegendItemFeature";
+        }
+
         else if ( dynamic_cast<RimFormationNames*>( firstUiItem ) )
         {
             menuBuilder << "RicImportFormationNamesFeature";

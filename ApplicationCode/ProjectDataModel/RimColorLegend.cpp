@@ -44,9 +44,9 @@ RimColorLegend::~RimColorLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimColorLegend::userDescriptionField()
+QString RimColorLegend::colorLegendName()
 {
-    return &m_colorLegendName;
+    return m_colorLegendName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,6 +55,19 @@ caf::PdmFieldHandle* RimColorLegend::userDescriptionField()
 void RimColorLegend::setColorLegendName( const QString& colorLegendName )
 {
     m_colorLegendName = colorLegendName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegend::setReadOnly( bool doReadOnly )
+{
+    m_colorLegendName.uiCapability()->setUiReadOnly( true );
+
+    for ( auto colorLegendItem : m_colorLegendItems )
+    {
+        colorLegendItem->setReadOnly( true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,6 +84,14 @@ void RimColorLegend::appendColorLegendItem( RimColorLegendItem* colorLegendItem 
 std::vector<RimColorLegendItem*> RimColorLegend::colorLegendItems() const
 {
     return m_colorLegendItems.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimColorLegend::userDescriptionField()
+{
+    return &m_colorLegendName;
 }
 
 //--------------------------------------------------------------------------------------------------
