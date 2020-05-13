@@ -176,8 +176,9 @@ namespace cvf {
 
         size_t treeSize(const AABBTreeNode* pNode) const;
         size_t treeHeight(const AABBTreeNode* pNode, size_t iLevel, size_t* piMin, size_t* piMax) const;
-        void   leafBoundingBox(cvf::BoundingBox& pBox, size_t iStartIdx, size_t iEndIdx) const;
-        bool   buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iToIdx);
+        cvf::BoundingBox leafBoundingBox(size_t iStartIdx, size_t iEndIdx) const;
+        cvf::BoundingBox leafBoundingBoxParallel(size_t iStartIdx, size_t iEndIdx) const;
+        bool buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iToIdx, int currentLevel, int maxLevel = -1);
 
         // Queries
         bool intersect(const AABBTreeNode* pA, const AABBTreeNode* pB) const;
@@ -194,6 +195,21 @@ namespace cvf {
         std::deque<AABBTreeNodeInternal>  m_nodePool;
         std::deque<AABBTreeNodeLeaf>      m_leafPool;
         size_t                            m_nextNodeIndex;
+
+        struct InternalNodeAndRange
+        {
+            AABBTreeNodeInternal* node;
+            size_t fromIdx;
+            size_t toIdx;
+
+            InternalNodeAndRange(AABBTreeNodeInternal* node, size_t fromIdx, size_t toIdx)
+                : node(node)
+                , fromIdx(fromIdx)
+                , toIdx(toIdx)
+            {}
+        };
+
+        std::deque<InternalNodeAndRange> m_previousLevelNodes;
     };
 
     class BoundingBoxTreeImpl : public AABBTree
@@ -449,8 +465,7 @@ bool AABBTree::buildTree()
     m_nodePool.resize(m_iNumLeaves);
 
 	// Then find the bounding box of all items in the tree
-	cvf::BoundingBox box;
-	leafBoundingBox(box, 0, m_iNumLeaves - 1);
+	cvf::BoundingBox box = leafBoundingBoxParallel(0, m_iNumLeaves - 1);
 
 	// Create the root
 	if (m_iNumLeaves == 1)
@@ -463,17 +478,56 @@ bool AABBTree::buildTree()
     m_pRoot = createNode();
 	m_pRoot->setBoundingBox(box);
 		
-	bool bRes = buildTree((AABBTreeNodeInternal*)m_pRoot, 0, m_iNumLeaves - 1);
+    bool bRes = buildTree((AABBTreeNodeInternal*)m_pRoot, 0, m_iNumLeaves - 1, 0, 3);
 
-	return bRes;
+#pragma omp parallel
+    {
+        bool bThreadRes = bRes;
+#pragma omp for
+        for (int i = 0; i < m_previousLevelNodes.size(); ++i)
+        {
+            bThreadRes = bThreadRes && buildTree(m_previousLevelNodes[i].node, m_previousLevelNodes[i].fromIdx, m_previousLevelNodes[i].toIdx, 3, 6);
+        }
+#pragma omp critical
+		{
+			bRes = bRes && bThreadRes;
+		}
+    }
+    m_previousLevelNodes.clear();
+
+#pragma omp parallel
+    {
+        bool bThreadRes = bRes;
+#pragma omp for schedule(guided)
+        for (int i = 0; i < m_previousLevelNodes.size(); ++i)
+        {
+            bThreadRes = bThreadRes && buildTree(m_previousLevelNodes[i].node, m_previousLevelNodes[i].fromIdx, m_previousLevelNodes[i].toIdx, 7);
+        }
+#pragma omp critical
+		{
+			bRes = bRes && bThreadRes;
+		}
+    }
+    m_previousLevelNodes.clear();
+
+    return bRes;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iToIdx)
+bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iToIdx, int currentLevel, int maxLevel)
 {
     if (!pNode->boundingBox().isValid()) return false;
+
+    if (currentLevel == maxLevel)
+    {
+#pragma omp critical
+        {
+            m_previousLevelNodes.emplace_back(pNode, iFromIdx, iToIdx);
+        }
+        return true;
+    }
 
 	int iLongestAxis = largestComponent(pNode->boundingBox().extent());
 
@@ -513,14 +567,13 @@ bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iT
 	// Create the left tree
 	if (iMid > iFromIdx)
 	{
-	    cvf::BoundingBox box;
-	    leafBoundingBox(box, iFromIdx, iMid);
+	    cvf::BoundingBox box = leafBoundingBox(iFromIdx, iMid);
 
         AABBTreeNodeInternal* newNode = createNode();
         newNode->setBoundingBox(box);
         pNode->setLeft(newNode);
 
-	    if (!buildTree((AABBTreeNodeInternal*)pNode->left(), iFromIdx, iMid)) return false;
+        if (!buildTree((AABBTreeNodeInternal*)pNode->left(), iFromIdx, iMid, currentLevel + 1, maxLevel)) return false;
 	}
 	else
 	{
@@ -530,14 +583,13 @@ bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iT
 	// Create the right tree
 	if (iMid < (iToIdx - 1))
 	{
-        cvf::BoundingBox box;
-		leafBoundingBox(box, iMid + 1, iToIdx);
+        cvf::BoundingBox box = leafBoundingBox(iMid + 1, iToIdx);
 
         AABBTreeNodeInternal* newNode = createNode();
         newNode->setBoundingBox(box);
         pNode->setRight(newNode);
 
-		if (!buildTree((AABBTreeNodeInternal*)pNode->right(), iMid + 1, iToIdx)) return false;
+		if (!buildTree((AABBTreeNodeInternal*)pNode->right(), iMid + 1, iToIdx, currentLevel + 1, maxLevel)) return false;
 	}
 	else
 	{
@@ -570,18 +622,46 @@ void AABBTree::freeThis()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void AABBTree::leafBoundingBox(cvf::BoundingBox& bb, size_t iStartIdx, size_t iEndIdx) const
+cvf::BoundingBox AABBTree::leafBoundingBox(size_t iStartIdx, size_t iEndIdx) const
 {
-    CVF_ASSERT(iStartIdx <= iEndIdx);
+	CVF_ASSERT(iStartIdx <= iEndIdx);
 
-    bb.reset();
+    cvf::BoundingBox bb;
 
-    size_t i;
-    for (i = iStartIdx; i <= iEndIdx; i++)
+	size_t i;
+	for (i = iStartIdx; i <= iEndIdx; i++)
+	{
+		CVF_ASSERT(m_ppLeaves[i]);
+		bb.add(m_ppLeaves[i]->boundingBox());
+	}
+
+    return bb;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox AABBTree::leafBoundingBoxParallel(size_t iStartIdx, size_t iEndIdx) const
+{
+	CVF_ASSERT(iStartIdx <= iEndIdx);
+
+    cvf::BoundingBox bb;
+
+#pragma omp parallel
     {
-        CVF_ASSERT(m_ppLeaves[i]);
-        bb.add(m_ppLeaves[i]->boundingBox());
+        cvf::BoundingBox threadBB;
+#pragma omp parallel for
+        for (int i = (int)iStartIdx; i <= (int)iEndIdx; i++)
+        {
+            CVF_ASSERT(m_ppLeaves[i]);
+            threadBB.add(m_ppLeaves[i]->boundingBox());
+        }
+#pragma omp critical
+        {
+            bb.add(threadBB);
+        }
     }
+    return bb;
 }
 
 //--------------------------------------------------------------------------------------------------
