@@ -28,6 +28,8 @@
 #include "cvfAssert.h"
 #include "cvfBoundingBoxTree.h"
 
+#include <omp.h>
+
 RigMainGrid::RigMainGrid()
     : RigGridBase( this )
 {
@@ -710,38 +712,55 @@ void RigMainGrid::buildCellSearchTree()
 
         size_t cellCount = m_cells.size();
 
-        std::vector<size_t> cellIndicesForBoundingBoxes;
-        cellIndicesForBoundingBoxes.reserve( cellCount );
-
+        std::vector<size_t>           cellIndicesForBoundingBoxes;
         std::vector<cvf::BoundingBox> cellBoundingBoxes;
-        cellBoundingBoxes.reserve( cellCount );
 
-        for ( size_t cIdx = 0; cIdx < cellCount; ++cIdx )
+#pragma omp parallel
         {
-            if ( m_cells[cIdx].isInvalid() ) continue;
+            size_t threadCellCount = std::ceil( cellCount / static_cast<double>( omp_get_num_threads() ) );
 
-            const std::array<size_t, 8>& cellIndices = m_cells[cIdx].cornerIndices();
+            std::vector<size_t>           threadIndicesForBoundingBoxes;
+            std::vector<cvf::BoundingBox> threadBoundingBoxes;
 
-            cvf::BoundingBox cellBB;
-            cellBB.add( m_nodes[cellIndices[0]] );
-            cellBB.add( m_nodes[cellIndices[1]] );
-            cellBB.add( m_nodes[cellIndices[2]] );
-            cellBB.add( m_nodes[cellIndices[3]] );
-            cellBB.add( m_nodes[cellIndices[4]] );
-            cellBB.add( m_nodes[cellIndices[5]] );
-            cellBB.add( m_nodes[cellIndices[6]] );
-            cellBB.add( m_nodes[cellIndices[7]] );
+            threadIndicesForBoundingBoxes.reserve( threadCellCount );
+            threadBoundingBoxes.reserve( threadCellCount );
 
-            if ( cellBB.isValid() )
+#pragma omp for
+            for ( int cIdx = 0; cIdx < (int)cellCount; ++cIdx )
             {
-                cellIndicesForBoundingBoxes.emplace_back( cIdx );
-                cellBoundingBoxes.emplace_back( cellBB );
+                if ( m_cells[cIdx].isInvalid() ) continue;
+
+                const std::array<size_t, 8>& cellIndices = m_cells[cIdx].cornerIndices();
+
+                cvf::BoundingBox cellBB;
+                cellBB.add( m_nodes[cellIndices[0]] );
+                cellBB.add( m_nodes[cellIndices[1]] );
+                cellBB.add( m_nodes[cellIndices[2]] );
+                cellBB.add( m_nodes[cellIndices[3]] );
+                cellBB.add( m_nodes[cellIndices[4]] );
+                cellBB.add( m_nodes[cellIndices[5]] );
+                cellBB.add( m_nodes[cellIndices[6]] );
+                cellBB.add( m_nodes[cellIndices[7]] );
+
+                if ( cellBB.isValid() )
+                {
+                    threadIndicesForBoundingBoxes.emplace_back( cIdx );
+                    threadBoundingBoxes.emplace_back( cellBB );
+                }
+            }
+
+            threadIndicesForBoundingBoxes.shrink_to_fit();
+            threadBoundingBoxes.shrink_to_fit();
+
+#pragma omp critical
+            {
+                cellIndicesForBoundingBoxes.insert( cellIndicesForBoundingBoxes.end(),
+                                                    threadIndicesForBoundingBoxes.begin(),
+                                                    threadIndicesForBoundingBoxes.end() );
+
+                cellBoundingBoxes.insert( cellBoundingBoxes.end(), threadBoundingBoxes.begin(), threadBoundingBoxes.end() );
             }
         }
-
-        cellIndicesForBoundingBoxes.shrink_to_fit();
-        cellBoundingBoxes.shrink_to_fit();
-
         m_cellSearchTree = new cvf::BoundingBoxTree;
         m_cellSearchTree->buildTreeFromBoundingBoxes( cellBoundingBoxes, &cellIndicesForBoundingBoxes );
     }
@@ -868,10 +887,10 @@ void RigMainGrid::setDualPorosity( bool enable )
 //--------------------------------------------------------------------------------------------------
 std::array<double, 6> RigMainGrid::defaultMapAxes()
 {
-    const double origin[2] = {0.0, 0.0};
-    const double xPoint[2] = {1.0, 0.0};
-    const double yPoint[2] = {0.0, 1.0};
+    const double origin[2] = { 0.0, 0.0 };
+    const double xPoint[2] = { 1.0, 0.0 };
+    const double yPoint[2] = { 0.0, 1.0 };
 
     // Order (see Elipse Reference Manual for keyword MAPAXES): Y_x, Y_y, O_x, O_y, X_x, X_y
-    return {yPoint[0], yPoint[1], origin[0], origin[1], xPoint[0], xPoint[1]};
+    return { yPoint[0], yPoint[1], origin[0], origin[1], xPoint[0], xPoint[1] };
 }
