@@ -1279,7 +1279,12 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
         else if ( resultName == RiaDefines::formationAllanResultName() ||
                   resultName == RiaDefines::formationBinaryAllanResultName() )
         {
-            computeAllanResults( this, m_ownerMainGrid );
+            bool includeInactiveCells = false;
+            if ( m_readerInterface.notNull() )
+            {
+                includeInactiveCells = m_readerInterface->includeInactiveCellsInFaultGeometry();
+            }
+            computeAllanResults( this, m_ownerMainGrid, includeInactiveCells );
         }
     }
     else if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
@@ -1313,8 +1318,8 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     {
         if ( this->mustBeCalculated( scalarResultIndex ) )
         {
-            // Trigger loading of SWAT, SGAS to establish time step count if no data has been loaded from file at this
-            // point
+            // Trigger loading of SWAT, SGAS to establish time step count if no data has been loaded from file at
+            // this point
             findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" ) );
             findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) );
 
@@ -1423,7 +1428,13 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     // Allan results
     if ( resultName == RiaDefines::formationAllanResultName() || resultName == RiaDefines::formationBinaryAllanResultName() )
     {
-        computeAllanResults( this, m_ownerMainGrid );
+        bool includeInactiveCells = false;
+        if ( m_readerInterface.notNull() )
+        {
+            includeInactiveCells = m_readerInterface->includeInactiveCellsInFaultGeometry();
+        }
+
+        computeAllanResults( this, m_ownerMainGrid, includeInactiveCells );
     }
 
     // Handle SourSimRL reading
@@ -3083,7 +3094,9 @@ RigStatisticsDataCache* RigCaseCellResultsData::statistics( const RigEclipseResu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::computeAllanResults( RigCaseCellResultsData* cellResultsData, RigMainGrid* mainGrid )
+void RigCaseCellResultsData::computeAllanResults( RigCaseCellResultsData* cellResultsData,
+                                                  RigMainGrid*            mainGrid,
+                                                  bool                    includeInactiveCells )
 {
     CVF_ASSERT( mainGrid );
     CVF_ASSERT( cellResultsData );
@@ -3094,7 +3107,7 @@ void RigCaseCellResultsData::computeAllanResults( RigCaseCellResultsData* cellRe
         // If import of NNC is disabled in preferences, we must make ensure that computed NNC connections are in place
         if ( mainGrid->nncData()->nativeConnectionCount() == mainGrid->nncData()->connections().size() )
         {
-            mainGrid->nncData()->computeCompleteSetOfNncs( mainGrid, cellResultsData->activeCellInfo() );
+            mainGrid->nncData()->computeCompleteSetOfNncs( mainGrid, cellResultsData->activeCellInfo(), includeInactiveCells );
             mainGrid->distributeNNCsToFaults();
         }
 

@@ -75,12 +75,14 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo )
+void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
+                                           const RigActiveCellInfo* activeCellInfo,
+                                           bool                     includeInactiveCells )
 {
     m_nativeConnectionCount = m_connections.size();
 
     RigConnectionContainer otherConnections =
-        RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections, activeCellInfo );
+        RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections, activeCellInfo, includeInactiveCells );
 
     if ( !otherConnections.empty() )
     {

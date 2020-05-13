@@ -191,7 +191,8 @@ private:
 
     RigStatisticsDataCache* statistics( const RigEclipseResultAddress& resVarAddr );
 
-    static void computeAllanResults( RigCaseCellResultsData* cellResultsData, RigMainGrid* mainGrid );
+    static void
+        computeAllanResults( RigCaseCellResultsData* cellResultsData, RigMainGrid* mainGrid, bool includeInactiveCells );
 
 private:
     cvf::ref<RifReaderInterface>  m_readerInterface;

@@ -613,10 +613,13 @@ void RimEclipseCase::computeCachedData()
             if ( computeFaults )
             {
                 bool computeNncs = RiaApplication::instance()->preferences()->readerSettings()->importNNCs();
+                bool includeInactiveCells =
+                    RiaApplication::instance()->preferences()->readerSettings()->includeInactiveCellsInFaultGeometry();
 
                 rigEclipseCase->mainGrid()->calculateFaults( rigEclipseCase->activeCellInfo(
                                                                  RiaDefines::PorosityModelType::MATRIX_MODEL ),
-                                                             computeNncs );
+                                                             computeNncs,
+                                                             includeInactiveCells );
             }
         }
 

@@ -50,6 +50,7 @@ public:
     bool          isFaultImportEnabled();
     bool          isImportOfCompleteMswDataEnabled();
     bool          isNNCsEnabled();
+    bool          includeInactiveCellsInFaultGeometry();
     const QString faultIncludeFileAbsolutePathPrefix();
 
     virtual bool open( const QString& fileName, RigEclipseCaseData* eclipseCase ) = 0;
