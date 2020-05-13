@@ -350,9 +350,10 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             isUsingPseudoLength = false;
         }
 
-        m_qwtPlotCurve->setSamples( curveData()->xPlotValues().data(),
-                                    curveData()->depthPlotValues( depthType, displayUnit ).data(),
-                                    static_cast<int>( curveData()->xPlotValues().size() ) );
+        std::vector<double> xPlotValues     = curveData()->xPlotValues();
+        std::vector<double> depthPlotValues = curveData()->depthPlotValues( depthType, displayUnit );
+        CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
+        m_qwtPlotCurve->setSamples( xPlotValues.data(), depthPlotValues.data(), static_cast<int>( xPlotValues.size() ) );
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
 
