@@ -39,7 +39,8 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
 {
     // cvf::Trace::show("NNC: Total number: " + cvf::String((int)m_connections.size()));
 
-    for ( size_t cnIdx = 0; cnIdx < m_connections.size(); ++cnIdx )
+#pragma omp parallel for
+    for ( int cnIdx = 0; cnIdx < (int) m_connections.size(); ++cnIdx )
     {
         const RigCell& c1 = mainGrid.globalCellArray()[m_connections[cnIdx].m_c1GlobIdx];
         const RigCell& c2 = mainGrid.globalCellArray()[m_connections[cnIdx].m_c2GlobIdx];
@@ -57,8 +58,9 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
 
             m_connections.face( cnIdx ) = connectionFace;
 
-            m_connections.polygon( cnIdx ) =
-                RigCellFaceGeometryTools::extractPolygon( mainGrid.nodes(), connectionPolygon, connectionIntersections );
+            m_connections.polygon( cnIdx ) = RigCellFaceGeometryTools::extractPolygon( mainGrid.nodes(),
+                                                                                        connectionPolygon,
+                                                                                        connectionIntersections );
 
             // Add to search map, possibly not needed
             // m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c1GlobIdx][connectionFace].push_back(cnIdx);
@@ -66,9 +68,10 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
         }
         else
         {
-            // cvf::Trace::show("NNC: No overlap found for : C1: " + cvf::String((int)m_connections[cnIdx].m_c1GlobIdx)
+            // cvf::Trace::show("NNC: No overlap found for : C1: " +
+            // cvf::String((int)m_connections[cnIdx].m_c1GlobIdx)
             // + "C2: " + cvf::String((int)m_connections[cnIdx].m_c2GlobIdx));
-        }
+        }        
     }
 }
 
