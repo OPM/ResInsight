@@ -148,28 +148,25 @@ std::vector<double> RigWellLogCurveData::depths( RiaDefines::DepthTypeEnum depth
         return it->second;
     }
 
-    if ( m_rkbDiff != 0.0 )
+    if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB &&
+         m_depths.count( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ) )
     {
-        if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB &&
-             m_depths.count( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ) )
+        std::vector<double> tvds = depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH );
+        for ( double& tvdValue : tvds )
         {
-            std::vector<double> tvds = depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH );
-            for ( double& tvdValue : tvds )
-            {
-                tvdValue += m_rkbDiff;
-            }
-            return tvds;
+            tvdValue += m_rkbDiff;
         }
-        else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH &&
-                  m_depths.count( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB ) )
+        return tvds;
+    }
+    else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH &&
+              m_depths.count( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB ) )
+    {
+        std::vector<double> tvds = depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB );
+        for ( double& tvdValue : tvds )
         {
-            std::vector<double> tvds = depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB );
-            for ( double& tvdValue : tvds )
-            {
-                tvdValue -= m_rkbDiff;
-            }
-            return tvds;
+            tvdValue -= m_rkbDiff;
         }
+        return tvds;
     }
     return std::vector<double>();
 }
