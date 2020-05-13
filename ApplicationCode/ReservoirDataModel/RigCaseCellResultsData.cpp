@@ -1420,6 +1420,12 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
         computeOilVolumes();
     }
 
+    // Allan results
+    if ( resultName == RiaDefines::formationAllanResultName() || resultName == RiaDefines::formationBinaryAllanResultName() )
+    {
+        computeAllanResults( this, m_ownerMainGrid );
+    }
+
     // Handle SourSimRL reading
 
     if ( type == RiaDefines::ResultCatType::SOURSIMRL )
@@ -2961,7 +2967,11 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
         }
     }
 
-    computeAllanResults( this, m_ownerMainGrid );
+    // As the Allan formation diagram is depending on formation results, we need to clear the data set
+    // Will be recomputed when required
+    auto fnNamesResAddr =
+        RigEclipseResultAddress( RiaDefines::ResultCatType::ALLAN_DIAGRAMS, RiaDefines::formationAllanResultName() );
+    clearScalarResult( fnNamesResAddr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3078,12 +3088,11 @@ void RigCaseCellResultsData::computeAllanResults( RigCaseCellResultsData* cellRe
     CVF_ASSERT( mainGrid );
     CVF_ASSERT( cellResultsData );
 
-    auto fnNamesResAddr   = RigEclipseResultAddress( RiaDefines::ResultCatType::FORMATION_NAMES,
-                                                   RiaDefines::activeFormationNamesResultName() );
-    bool hasFormationData = cellResultsData->hasResultEntry( fnNamesResAddr );
-
-    if ( hasFormationData )
+    if ( cellResultsData && cellResultsData->activeFormationNames() &&
+         !cellResultsData->activeFormationNames()->formationNames().empty() )
     {
+        auto fnNamesResAddr = RigEclipseResultAddress( RiaDefines::ResultCatType::FORMATION_NAMES,
+                                                       RiaDefines::activeFormationNamesResultName() );
         auto fnAllanResultResAddr =
             RigEclipseResultAddress( RiaDefines::ResultCatType::ALLAN_DIAGRAMS, RiaDefines::formationAllanResultName() );
         auto fnBinAllanResAddr = RigEclipseResultAddress( RiaDefines::ResultCatType::ALLAN_DIAGRAMS,
