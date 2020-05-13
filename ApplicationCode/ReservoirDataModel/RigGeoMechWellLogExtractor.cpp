@@ -244,7 +244,8 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
     CVF_ASSERT( primary_it != allSources.end() );
 
     std::vector<double> gridValues;
-    if ( std::find( allSources.begin(), allSources.end(), RigWbsParameter::GRID ) != allSources.end() )
+    if ( std::find( allSources.begin(), allSources.end(), RigWbsParameter::GRID ) != allSources.end() ||
+         parameter == RigWbsParameter::PP_Reservoir() )
     {
         RigFemResultAddress nativeAddr = parameter.femAddress( RigWbsParameter::GRID );
 
@@ -315,7 +316,8 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
                 if ( !lasFileValues.empty() )
                 {
                     double lasValue = getWellLogIntersectionValue( intersectionIdx, lasFileValues );
-                    if ( lasValue != std::numeric_limits<double>::infinity() )
+                    if ( lasValue != std::numeric_limits<double>::infinity() && intersectionIdx < gridValues.size() &&
+                         gridValues[intersectionIdx] != std::numeric_limits<double>::infinity() )
                     {
                         unscaledValues[intersectionIdx]         = lasValue;
                         finalSourcesPerSegment[intersectionIdx] = RigWbsParameter::LAS_FILE;
