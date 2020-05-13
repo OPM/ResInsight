@@ -176,22 +176,35 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
 
         const std::vector<RigFault::FaultFace>& faultFaces = fault->faultFaces();
 
+        // Build a vector of active face indices so we don't have to have this check inside the parallel loop.
+        // This makes the load balancing much better in the loop.
+        std::vector<size_t> activeFaceIndices;
+        activeFaceIndices.reserve( faultFaces.size() );
+        for ( size_t faceIdx = 0; faceIdx < faultFaces.size(); ++faceIdx )
+        {
+            const RigFault::FaultFace& f = faultFaces[faceIdx];
+
+            bool atLeastOneCellActive = true;
+            if ( activeCellInfo && activeCellInfo->reservoirActiveCellCount() > 0u )
+            {
+                atLeastOneCellActive = activeCellInfo->isActive( f.m_nativeReservoirCellIndex ) ||
+                                       activeCellInfo->isActive( f.m_oppositeReservoirCellIndex );
+            }
+
+            if ( atLeastOneCellActive ) activeFaceIndices.push_back( faceIdx );
+        }
+
 #pragma omp parallel
         {
             RigConnectionContainer threadConnections;
 #pragma omp for schedule( guided )
-            for ( int faceIdx = 0; faceIdx < static_cast<int>( faultFaces.size() ); faceIdx++ )
+            for ( int activeFaceIdx = 0; activeFaceIdx < static_cast<int>( activeFaceIndices.size() ); activeFaceIdx++ )
             {
-                const RigFault::FaultFace& f = faultFaces[faceIdx];
+                size_t                     faceIdx = activeFaceIndices[activeFaceIdx];
+                const RigFault::FaultFace& f       = faultFaces[faceIdx];
 
-                bool atLeastOneCellActive = !activeCellInfo ||
-                                            ( activeCellInfo->isActive( f.m_nativeReservoirCellIndex ) ||
-                                              activeCellInfo->isActive( f.m_oppositeReservoirCellIndex ) );
-                if ( atLeastOneCellActive )
-                {
-                    RigConnectionContainer faceConnections = extractConnectionsForFace( f, mainGrid, nativeCellPairs );
-                    threadConnections.insert( faceConnections );
-                }
+                RigConnectionContainer faceConnections = extractConnectionsForFace( f, mainGrid, nativeCellPairs );
+                threadConnections.insert( faceConnections );
             }
             // Merge together connections per thread
             assignThreadConnections( existingPairs, otherConnections, threadConnections );
