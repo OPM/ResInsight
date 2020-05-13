@@ -503,15 +503,16 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         std::vector<WbsParameterSource> ppSandSources;
         if ( forceGridSourceForPPReservoir )
         {
-            calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(),
-                                                 RigWbsParameter::GRID,
-                                                 frameIndex,
-                                                 &ppSandValues,
-                                                 true );
+            ppSandSources = calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(),
+                                                                 RigWbsParameter::GRID,
+                                                                 frameIndex,
+                                                                 &ppSandValues,
+                                                                 true );
         }
         else
         {
-            calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(), frameIndex, &ppSandValues, true );
+            ppSandSources =
+                calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(), frameIndex, &ppSandValues, true );
         }
 
         std::vector<WbsParameterSource> ppShaleSources =
