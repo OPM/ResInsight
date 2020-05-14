@@ -187,6 +187,19 @@ namespace cvf {
         AABBTreeNodeLeaf*      createOrAssignLeaf(size_t leafIndex, size_t bbId);
 
     protected:
+		struct InternalNodeAndRange
+		{
+			AABBTreeNodeInternal* node;
+			size_t fromIdx;
+			size_t toIdx;
+
+			InternalNodeAndRange(AABBTreeNodeInternal* node, size_t fromIdx, size_t toIdx)
+				: node(node)
+				, fromIdx(fromIdx)
+				, toIdx(toIdx)
+			{}
+		};
+
         std::vector<AABBTreeNodeLeaf*> m_ppLeaves;
         size_t m_iNumLeaves;
 
@@ -195,19 +208,6 @@ namespace cvf {
         std::deque<AABBTreeNodeInternal>  m_nodePool;
         std::deque<AABBTreeNodeLeaf>      m_leafPool;
         size_t                            m_nextNodeIndex;
-
-        struct InternalNodeAndRange
-        {
-            AABBTreeNodeInternal* node;
-            size_t fromIdx;
-            size_t toIdx;
-
-            InternalNodeAndRange(AABBTreeNodeInternal* node, size_t fromIdx, size_t toIdx)
-                : node(node)
-                , fromIdx(fromIdx)
-                , toIdx(toIdx)
-            {}
-        };
 
         std::deque<InternalNodeAndRange> m_previousLevelNodes;
         std::deque<InternalNodeAndRange> m_currentLevelNodes;
@@ -625,8 +625,11 @@ void AABBTree::freeThis()
     m_nodePool.clear();
     m_leafPool.clear();
 
-    m_iNumLeaves = 0;
+    m_previousLevelNodes.clear();
+    m_currentLevelNodes.clear();
 
+    m_iNumLeaves    = 0;
+    m_nextNodeIndex = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
