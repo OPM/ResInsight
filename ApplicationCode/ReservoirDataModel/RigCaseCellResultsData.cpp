@@ -2323,9 +2323,10 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
     const RigConnectionContainer& nncConnections = m_ownerMainGrid->nncData()->connections();
     for ( size_t connIdx = 0; connIdx < nncConnections.size(); connIdx++ )
     {
-        size_t                             nativeResvCellIndex = nncConnections[connIdx].m_c1GlobIdx;
-        size_t                             neighborResvCellIdx = nncConnections[connIdx].m_c2GlobIdx;
-        cvf::StructGridInterface::FaceType faceId              = nncConnections[connIdx].m_c1Face;
+        size_t                             nativeResvCellIndex = nncConnections[connIdx].c1GlobIdx();
+        size_t                             neighborResvCellIdx = nncConnections[connIdx].c2GlobIdx();
+        cvf::StructGridInterface::FaceType faceId =
+            static_cast<cvf::StructGridInterface::FaceType>( nncConnections[connIdx].face() );
 
         ResultIndexFunction  permIdxFunc = nullptr;
         std::vector<double>* permResults = nullptr;
@@ -2370,7 +2371,7 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
         cvf::Vec3f faceCenter  = cvf::Vec3f::ZERO;
 
         // Polygon center
-        const std::vector<cvf::Vec3f>& realPolygon = nncConnections[connIdx].m_polygon;
+        const std::vector<cvf::Vec3f>& realPolygon = nncConnections[connIdx].polygon();
         for ( size_t pIdx = 0; pIdx < realPolygon.size(); ++pIdx )
         {
             faceCenter += realPolygon[pIdx];
@@ -2686,7 +2687,7 @@ void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
 
     for ( size_t nncConIdx = 0; nncConIdx < riAreaNormTransResults.size(); ++nncConIdx )
     {
-        const std::vector<cvf::Vec3f>& realPolygon   = connections[nncConIdx].m_polygon;
+        const std::vector<cvf::Vec3f>& realPolygon   = connections[nncConIdx].polygon();
         cvf::Vec3f                     faceAreaVec   = cvf::GeometryTools::polygonAreaNormal3D( realPolygon );
         double                         areaOfOverlap = faceAreaVec.length();
 
@@ -3166,8 +3167,8 @@ void RigCaseCellResultsData::computeAllanResults( RigCaseCellResultsData* cellRe
         {
             const auto& c = nncConnections[i];
 
-            size_t globCellIdx1 = c.m_c1GlobIdx;
-            size_t globCellIdx2 = c.m_c2GlobIdx;
+            size_t globCellIdx1 = c.c1GlobIdx();
+            size_t globCellIdx2 = c.c2GlobIdx();
 
             int formation1 = (int)( fnData[globCellIdx1] );
             int formation2 = (int)( fnData[globCellIdx2] );

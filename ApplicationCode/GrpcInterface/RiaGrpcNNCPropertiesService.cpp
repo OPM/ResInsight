@@ -97,9 +97,9 @@ grpc::Status RiaNNCConnectionsStateHandler::assignReply( rips::NNCConnections* r
     reply->mutable_connections()->Reserve( (int)packageSize );
     for ( ; indexInPackage < packageSize && m_currentIdx < connectionCount; ++indexInPackage )
     {
-        RigConnection  connection = connections[m_currentIdx];
-        const RigCell& cell1      = mainGrid->globalCellArray()[connection.m_c1GlobIdx];
-        const RigCell& cell2      = mainGrid->globalCellArray()[connection.m_c2GlobIdx];
+        const RigConnection& connection = connections[m_currentIdx];
+        const RigCell&       cell1      = mainGrid->globalCellArray()[connection.c1GlobIdx()];
+        const RigCell&       cell2      = mainGrid->globalCellArray()[connection.c2GlobIdx()];
 
         NNCConnection* nncConnection = reply->add_connections();
         nncConnection->set_allocated_cell1( createConnectionVec3i( cell1 ) );

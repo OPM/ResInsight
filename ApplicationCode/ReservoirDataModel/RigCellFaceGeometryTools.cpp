@@ -119,23 +119,12 @@ cvf::StructGridInterface::FaceType
     return cvf::StructGridInterface::NO_FACE;
 }
 
-void assignThreadConnections( std::set<std::pair<unsigned, unsigned>>& existingPairs,
-                              RigConnectionContainer&                  allConnections,
-                              RigConnectionContainer&                  threadConnections )
+void assignThreadConnections( RigConnectionContainer& allConnections, RigConnectionContainer& threadConnections )
 {
-    for ( size_t i = 0; i < threadConnections.size(); ++i )
-    {
 #pragma omp critical
-        {
-            RigConnection connection = threadConnections[i];
-            auto          it         = existingPairs.emplace( connection.m_c1GlobIdx, connection.m_c2GlobIdx );
-            if ( it.second )
-            {
-                allConnections.push_back( connection );
-            }
-        }
+    {
+        allConnections.push_back( threadConnections );
     }
-    threadConnections.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,7 +144,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
     for ( size_t i = 0; i < nativeConnections.size(); ++i )
     {
         RigConnection c = nativeConnections[i];
-        nativeCellPairs.emplace( c.m_c1GlobIdx, c.m_c2GlobIdx );
+        nativeCellPairs.emplace( static_cast<unsigned>( c.c1GlobIdx() ), static_cast<unsigned>( c.c2GlobIdx() ) );
     }
 
     if ( nativeConnections.size() != nativeCellPairs.size() )
@@ -168,8 +157,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
 
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
 
-    std::set<std::pair<unsigned, unsigned>> existingPairs;
-    RigConnectionContainer                  otherConnections;
+    RigConnectionContainer otherConnections;
 
     for ( int faultIdx = 0; faultIdx < (int)faults.size(); faultIdx++ )
     {
@@ -195,38 +183,39 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
             if ( atLeastOneCellActive ) activeFaceIndices.push_back( faceIdx );
         }
 
+        size_t totalNumberOfConnections = 0u;
 #pragma omp parallel
         {
             RigConnectionContainer threadConnections;
-#pragma omp for schedule( guided )
+#pragma omp for schedule( guided ) reduction( + : totalNumberOfConnections )
             for ( int activeFaceIdx = 0; activeFaceIdx < static_cast<int>( activeFaceIndices.size() ); activeFaceIdx++ )
             {
-                size_t                     faceIdx = activeFaceIndices[activeFaceIdx];
-                const RigFault::FaultFace& f       = faultFaces[faceIdx];
-
-                RigConnectionContainer faceConnections = extractConnectionsForFace( f, mainGrid, nativeCellPairs );
-                threadConnections.insert( faceConnections );
+                size_t faceIdx = activeFaceIndices[activeFaceIdx];
+                extractConnectionsForFace( faultFaces[faceIdx], mainGrid, nativeCellPairs, threadConnections );
             }
+#pragma omp barrier
+            otherConnections.reserve( otherConnections.size() + totalNumberOfConnections );
+
             // Merge together connections per thread
-            assignThreadConnections( existingPairs, otherConnections, threadConnections );
+            assignThreadConnections( otherConnections, threadConnections );
         } // end parallel region
     }
 
+    otherConnections.remove_duplicates();
     return otherConnections;
 }
 
-RigConnectionContainer
-    RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultFace&                     face,
-                                                         const RigMainGrid*                             mainGrid,
-                                                         const std::set<std::pair<unsigned, unsigned>>& nativeCellPairs )
+void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultFace&                     face,
+                                                          const RigMainGrid*                             mainGrid,
+                                                          const std::set<std::pair<unsigned, unsigned>>& nativeCellPairs,
+                                                          RigConnectionContainer&                        connections )
 {
-    RigConnectionContainer             faceConnections;
     size_t                             sourceReservoirCellIndex = face.m_nativeReservoirCellIndex;
     cvf::StructGridInterface::FaceType sourceCellFace           = face.m_nativeFace;
 
     if ( sourceReservoirCellIndex >= mainGrid->cellCount() )
     {
-        return {};
+        return;
     }
 
     const std::vector<cvf::Vec3d>& mainGridNodes = mainGrid->nodes();
@@ -317,7 +306,8 @@ RigConnectionContainer
             }
         }
 
-        std::pair<unsigned, unsigned> candidate( sourceReservoirCellIndex, candidateCellIndex );
+        std::pair<unsigned, unsigned> candidate( static_cast<unsigned>( sourceReservoirCellIndex ),
+                                                 static_cast<unsigned>( candidateCellIndex ) );
 
         if ( nativeCellPairs.count( candidate ) > 0 )
         {
@@ -341,17 +331,14 @@ RigConnectionContainer
 
         if ( foundOverlap )
         {
-            RigConnection conn;
-            conn.m_c1GlobIdx = sourceReservoirCellIndex;
-            conn.m_c2GlobIdx = candidateCellIndex;
-            conn.m_c1Face    = sourceCellFace;
+            RigConnection conn( sourceReservoirCellIndex,
+                                candidateCellIndex,
+                                sourceCellFace,
+                                RigCellFaceGeometryTools::extractPolygon( mainGridNodes, polygon, intersections ) );
 
-            conn.m_polygon = RigCellFaceGeometryTools::extractPolygon( mainGridNodes, polygon, intersections );
-
-            faceConnections.push_back( conn );
+            connections.push_back( conn );
         }
     }
-    return faceConnections;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -446,7 +446,7 @@ QString RiuResultTextBuilder::nncResultText()
             {
                 const RigConnection& conn = nncData->connections()[m_nncIndex];
 
-                cvf::StructGridInterface::FaceEnum face( conn.m_c1Face );
+                cvf::StructGridInterface::FaceEnum face( conn.face() );
 
                 if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->currentFaultResultColors() )
                 {
@@ -804,12 +804,12 @@ QString RiuResultTextBuilder::nncDetails()
                 text += "-- NNC details --\n";
                 {
                     const RigConnection&               conn = nncData->connections()[m_nncIndex];
-                    cvf::StructGridInterface::FaceEnum face( conn.m_c1Face );
+                    cvf::StructGridInterface::FaceEnum face( conn.face() );
 
                     // First cell of NNC
                     {
-                        CVF_ASSERT( conn.m_c1GlobIdx < grid->globalCellArray().size() );
-                        const RigCell& cell = grid->globalCellArray()[conn.m_c1GlobIdx];
+                        CVF_ASSERT( conn.c1GlobIdx() < grid->globalCellArray().size() );
+                        const RigCell& cell = grid->globalCellArray()[conn.c1GlobIdx()];
 
                         RigGridBase* hostGrid           = cell.hostGrid();
                         size_t       gridLocalCellIndex = cell.gridLocalCellIndex();
@@ -834,8 +834,8 @@ QString RiuResultTextBuilder::nncDetails()
 
                     // Second cell of NNC
                     {
-                        CVF_ASSERT( conn.m_c2GlobIdx < grid->globalCellArray().size() );
-                        const RigCell& cell = grid->globalCellArray()[conn.m_c2GlobIdx];
+                        CVF_ASSERT( conn.c2GlobIdx() < grid->globalCellArray().size() );
+                        const RigCell& cell = grid->globalCellArray()[conn.c2GlobIdx()];
 
                         RigGridBase* hostGrid           = cell.hostGrid();
                         size_t       gridLocalCellIndex = cell.gridLocalCellIndex();
