@@ -119,9 +119,9 @@ cvf::StructGridInterface::FaceType
     return cvf::StructGridInterface::NO_FACE;
 }
 
-void assignThreadConnections( std::set<std::pair<size_t, size_t>>& existingPairs,
-                              RigConnectionContainer&              allConnections,
-                              RigConnectionContainer&              threadConnections )
+void assignThreadConnections( std::set<std::pair<unsigned, unsigned>>& existingPairs,
+                              RigConnectionContainer&                  allConnections,
+                              RigConnectionContainer&                  threadConnections )
 {
     for ( size_t i = 0; i < threadConnections.size(); ++i )
     {
@@ -150,7 +150,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
     // by Eclipse. Use faults as basis for subset of cells to find NNC connection for. The imported connections from
     // Eclipse are located at the beginning of the connections vector.
 
-    std::set<std::pair<size_t, size_t>> nativeCellPairs;
+    std::set<std::pair<unsigned, unsigned>> nativeCellPairs;
 
     for ( size_t i = 0; i < nativeConnections.size(); ++i )
     {
@@ -168,8 +168,8 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
 
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
 
-    std::set<std::pair<size_t, size_t>> existingPairs;
-    RigConnectionContainer              otherConnections;
+    std::set<std::pair<unsigned, unsigned>> existingPairs;
+    RigConnectionContainer                  otherConnections;
 
     for ( int faultIdx = 0; faultIdx < (int)faults.size(); faultIdx++ )
     {
@@ -216,9 +216,9 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
 }
 
 RigConnectionContainer
-    RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultFace&                 face,
-                                                         const RigMainGrid*                         mainGrid,
-                                                         const std::set<std::pair<size_t, size_t>>& nativeCellPairs )
+    RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultFace&                     face,
+                                                         const RigMainGrid*                             mainGrid,
+                                                         const std::set<std::pair<unsigned, unsigned>>& nativeCellPairs )
 {
     RigConnectionContainer             faceConnections;
     size_t                             sourceReservoirCellIndex = face.m_nativeReservoirCellIndex;
@@ -317,7 +317,7 @@ RigConnectionContainer
             }
         }
 
-        std::pair<size_t, size_t> candidate( sourceReservoirCellIndex, candidateCellIndex );
+        std::pair<unsigned, unsigned> candidate( sourceReservoirCellIndex, candidateCellIndex );
 
         if ( nativeCellPairs.count( candidate ) > 0 )
         {
@@ -357,18 +357,18 @@ RigConnectionContainer
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigCellFaceGeometryTools::extractPolygon( const std::vector<cvf::Vec3d>& nativeNodes,
+std::vector<cvf::Vec3f> RigCellFaceGeometryTools::extractPolygon( const std::vector<cvf::Vec3d>& nativeNodes,
                                                                   const std::vector<size_t>&     connectionPolygon,
                                                                   const std::vector<cvf::Vec3d>& connectionIntersections )
 {
-    std::vector<cvf::Vec3d> allPolygonNodes;
+    std::vector<cvf::Vec3f> allPolygonNodes;
 
     for ( size_t polygonIndex : connectionPolygon )
     {
         if ( polygonIndex < nativeNodes.size() )
-            allPolygonNodes.push_back( nativeNodes[polygonIndex] );
+            allPolygonNodes.push_back( cvf::Vec3f( nativeNodes[polygonIndex] ) );
         else
-            allPolygonNodes.push_back( connectionIntersections[polygonIndex - nativeNodes.size()] );
+            allPolygonNodes.push_back( cvf::Vec3f( connectionIntersections[polygonIndex - nativeNodes.size()] ) );
     }
 
     return allPolygonNodes;
