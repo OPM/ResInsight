@@ -106,6 +106,7 @@ public:
 
     bool isCellValid( size_t i, size_t j, size_t k ) const override;
     bool cellIJKNeighbor( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const override;
+    void cellIJKNeighborUnguarded( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const;
 
 private:
     std::string m_gridName;
