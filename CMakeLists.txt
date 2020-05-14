@@ -1,18 +1,5 @@
 cmake_minimum_required (VERSION 2.8.12)
 
-################################################################################
-# buildcache
-# 
-# buildcache will be used if found in path
-################################################################################
-find_program(buildcache_program buildcache)
-if(buildcache_program)
-    set(CMAKE_CXX_COMPILER_LAUNCHER "${buildcache_program}")
-    message( STATUS "Found buildcache from : ${buildcache_program}" )
-else()
-    message( STATUS "No buildcache found" )
-endif()
-
 include (CheckCSourceCompiles)
 project (ResInsight)
 
@@ -198,6 +185,36 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 			message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
 		endif()
     endif()
+endif()
+
+
+################################################################################
+# buildcache
+# 
+# buildcache will be used if found in path
+# It is required to use compiler flag /Zi to be able to use buildcache
+# See https://docs.microsoft.com/en-us/cpp/build/reference/z7-zi-zi-debug-information-format?view=vs-2019
+# The adjustments of build flags must also be placed after libecl, as the adjustments
+# cause compiler issues for libecl
+################################################################################
+find_program(buildcache_program buildcache)
+if(buildcache_program)
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${buildcache_program}")
+  message( STATUS "Found buildcache from : ${buildcache_program}" )
+
+  if (MSVC)
+    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
+    if(CMAKE_CXX_FLAGS_DEBUG MATCHES "/Zi")
+      message(STATUS "Clearing pdb setting")
+      string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+    endif()
+
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Z7")
+  endif()
+else()
+    message( STATUS "No buildcache found" )
 endif()
 
 ################################################################################
