@@ -31,20 +31,21 @@ class RigConnection
 {
 public:
     RigConnection();
-    RigConnection( size_t                             c1GlobIdx,
-                   size_t                             c2GlobIdx,
+    RigConnection( unsigned                           c1GlobIdx,
+                   unsigned                           c2GlobIdx,
                    cvf::StructGridInterface::FaceType c1Face,
-                   const std::vector<cvf::Vec3d>&     polygon );
+                   const std::vector<cvf::Vec3f>&     polygon );
+
     RigConnection( const RigConnection& rhs );
 
     RigConnection& operator=( RigConnection& rhs );
     bool           operator<( const RigConnection& other ) const;
     bool           hasCommonArea() const;
 
-    size_t                             m_c1GlobIdx;
-    size_t                             m_c2GlobIdx;
+    unsigned                           m_c1GlobIdx;
+    unsigned                           m_c2GlobIdx;
     cvf::StructGridInterface::FaceType m_c1Face;
-    std::vector<cvf::Vec3d>            m_polygon;
+    std::vector<cvf::Vec3f>            m_polygon;
 };
 
 class RigConnectionContainer
@@ -52,9 +53,9 @@ class RigConnectionContainer
 public:
     RigConnection operator[]( size_t i ) const;
 
-    std::pair<size_t, size_t>&          indexPair( size_t i );
-    cvf::StructGridInterface::FaceType& face( size_t i );
-    std::vector<cvf::Vec3d>&            polygon( size_t i );
+    std::pair<unsigned, unsigned>& indexPair( size_t i );
+    unsigned char&                 face( size_t i );
+    std::vector<cvf::Vec3f>&       polygon( size_t i );
 
     void   push_back( const RigConnection& connection );
     void   insert( const RigConnectionContainer& other );
@@ -63,7 +64,7 @@ public:
     bool   empty() const;
 
 private:
-    std::vector<std::pair<size_t, size_t>>          m_globalIndices;
-    std::vector<cvf::StructGridInterface::FaceType> m_faces;
-    std::vector<std::vector<cvf::Vec3d>>            m_polygons;
+    std::vector<std::pair<unsigned, unsigned>> m_globalIndices;
+    std::vector<unsigned char>                 m_faces;
+    std::vector<std::vector<cvf::Vec3f>>       m_polygons;
 };
