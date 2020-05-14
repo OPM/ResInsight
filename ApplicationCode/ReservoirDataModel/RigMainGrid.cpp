@@ -574,16 +574,16 @@ void RigMainGrid::distributeNNCsToFaults()
         int                  fIdx1 = RigFaultsPrCellAccumulator::NO_FAULT;
         int                  fIdx2 = RigFaultsPrCellAccumulator::NO_FAULT;
 
-        if ( conn.m_c1Face != StructGridInterface::NO_FACE )
+        if ( conn.face() != StructGridInterface::NO_FACE )
         {
-            fIdx1 = m_faultsPrCellAcc->faultIdx( conn.m_c1GlobIdx, conn.m_c1Face );
-            fIdx2 = m_faultsPrCellAcc->faultIdx( conn.m_c2GlobIdx, StructGridInterface::oppositeFace( conn.m_c1Face ) );
+            fIdx1 = m_faultsPrCellAcc->faultIdx( conn.c1GlobIdx(), conn.face() );
+            fIdx2 = m_faultsPrCellAcc->faultIdx( conn.c2GlobIdx(), StructGridInterface::oppositeFace( conn.face() ) );
         }
 
         if ( fIdx1 < 0 && fIdx2 < 0 )
         {
             cvf::String lgrString( "Same Grid" );
-            if ( m_cells[conn.m_c1GlobIdx].hostGrid() != m_cells[conn.m_c2GlobIdx].hostGrid() )
+            if ( m_cells[conn.c1GlobIdx()].hostGrid() != m_cells[conn.c2GlobIdx()].hostGrid() )
             {
                 lgrString = "Different Grid";
             }

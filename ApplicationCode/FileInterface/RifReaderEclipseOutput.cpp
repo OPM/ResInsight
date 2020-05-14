@@ -733,9 +733,8 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
                     RigGridBase*             grid1         = mainGrid->gridByIndex( geometry_pair->grid_nr1 );
                     RigGridBase*             grid2         = mainGrid->gridByIndex( geometry_pair->grid_nr2 );
 
-                    RigConnection nncConnection;
-                    nncConnection.m_c1GlobIdx = grid1->reservoirCellIndex( geometry_pair->global_index1 );
-                    nncConnection.m_c2GlobIdx = grid2->reservoirCellIndex( geometry_pair->global_index2 );
+                    RigConnection nncConnection( grid1->reservoirCellIndex( geometry_pair->global_index1 ),
+                                                 grid2->reservoirCellIndex( geometry_pair->global_index2 ) );
 
                     nncConnections.push_back( nncConnection );
 
