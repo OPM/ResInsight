@@ -344,6 +344,17 @@ bool RigGridBase::cellIJKNeighbor( size_t i, size_t j, size_t k, FaceType face, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigGridBase::cellIJKNeighborUnguarded( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const
+{
+    size_t ni, nj, nk;
+    neighborIJKAtCellFace( i, j, k, face, &ni, &nj, &nk );
+
+    *neighborCellIndex = cellIndexFromIJK( ni, nj, nk );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigGridBase::isMainGrid() const
 {
     return this == m_mainGrid;
