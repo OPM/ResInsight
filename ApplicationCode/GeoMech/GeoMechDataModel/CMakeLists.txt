@@ -92,6 +92,8 @@ add_library( ${PROJECT_NAME}
 	RigFemPartResultCalculatorEnIpPorBar.cpp
 	RigFemPartResultCalculatorNodalGradients.h
 	RigFemPartResultCalculatorNodalGradients.cpp
+	RigFemPartResultCalculatorStressAnisotropy.h
+	RigFemPartResultCalculatorStressAnisotropy.cpp
 	RimGeoMechGeometrySelectionItem.h
 	RimGeoMechGeometrySelectionItem.cpp
 )
