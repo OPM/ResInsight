@@ -790,6 +790,59 @@ cvf::Vec3d GeometryTools::polygonAreaNormal3D( const std::vector<cvf::Vec3d>& po
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3f GeometryTools::polygonAreaNormal3D( const std::vector<cvf::Vec3f>& polygon )
+{
+    size_t pSize = polygon.size();
+    switch ( pSize )
+    {
+        case 0:
+        case 1:
+        case 2:
+        {
+            return cvf::Vec3f::ZERO;
+        }
+        break;
+        case 3:
+        {
+            return 0.5f * ( ( polygon[1] - polygon[0] ) ^ ( polygon[2] - polygon[0] ) );
+        }
+        break;
+        case 4:
+        {
+            // Cross product of diagonal = 2*A
+            return 0.5f * ( ( polygon[2] - polygon[0] ) ^ ( polygon[3] - polygon[1] ) );
+        }
+        break;
+        default:
+        {
+            /// JJS:
+            // This is possibly not the fastest approach with large polygons, where a scaled projections approach would
+            // be better, but I suspect this (simpler) approach is faster for small polygons, as long as we do not have
+            // the polygon normal up front.
+            //
+            cvf::Vec3f areaNormal( cvf::Vec3f::ZERO );
+            size_t     h = ( pSize - 1 ) / 2;
+            size_t     k = ( pSize % 2 ) ? 0 : pSize - 1;
+
+            // First quads
+            for ( size_t i = 1; i < h; ++i )
+            {
+                areaNormal += ( ( polygon[2 * i] - polygon[0] ) ^ ( polygon[2 * i + 1] - polygon[2 * i - 1] ) );
+            }
+
+            // Last triangle or quad
+            areaNormal += ( ( polygon[2 * h] - polygon[0] ) ^ ( polygon[k] - polygon[2 * h - 1] ) );
+
+            areaNormal *= 0.5;
+
+            return areaNormal;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void EdgeSplitStorage::setVertexCount( size_t size )
 {
     m_edgeSplitMap.resize( size );

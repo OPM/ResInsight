@@ -592,8 +592,8 @@ void RigReservoirBuilderMock::addNnc( RigMainGrid*            grid,
     size_t c2GlobalIndex = grid->cellIndexFromIJK( i2, j2, k2 );
 
     RigConnection conn;
-    conn.m_c1GlobIdx = c1GlobalIndex;
-    conn.m_c2GlobIdx = c2GlobalIndex;
+    conn.m_c1GlobIdx = static_cast<unsigned>( c1GlobalIndex );
+    conn.m_c2GlobIdx = static_cast<unsigned>( c2GlobalIndex );
 
     nncConnections.push_back( conn );
 }

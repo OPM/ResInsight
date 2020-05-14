@@ -76,6 +76,7 @@ public:
     static double signedAreaPlanarPolygon( const cvf::Vec3d& planeNormal, const std::vector<cvf::Vec3d>& polygon );
 
     static cvf::Vec3d polygonAreaNormal3D( const std::vector<cvf::Vec3d>& polygon );
+    static cvf::Vec3f polygonAreaNormal3D( const std::vector<cvf::Vec3f>& polygon );
 
     enum IntersectionStatus
     {

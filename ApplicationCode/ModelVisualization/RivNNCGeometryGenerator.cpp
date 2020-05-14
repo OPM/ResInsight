@@ -74,7 +74,7 @@ void RivNNCGeometryGenerator::computeArrays()
     std::vector<cvf::Vec3f> vertices;
     std::vector<size_t>     triangleToNNC;
 
-    const cvf::Vec3d offset = m_offset;
+    const cvf::Vec3f offset( m_offset );
     long long        numConnections =
         static_cast<long long>( m_nncIndexes.isNull() ? m_nncData->connections().size() : m_nncIndexes->size() );
 
@@ -122,14 +122,14 @@ void RivNNCGeometryGenerator::computeArrays()
 
             if ( isVisible )
             {
-                cvf::Vec3f vx1 = cvf::Vec3f( conn.m_polygon[0] - offset );
+                cvf::Vec3f vx1 = conn.m_polygon[0] - offset;
                 cvf::Vec3f vx2;
-                cvf::Vec3f vx3 = cvf::Vec3f( conn.m_polygon[1] - offset );
+                cvf::Vec3f vx3 = conn.m_polygon[1] - offset;
 
                 for ( size_t vxIdx = 2; vxIdx < conn.m_polygon.size(); ++vxIdx )
                 {
                     vx2 = vx3;
-                    vx3 = cvf::Vec3f( conn.m_polygon[vxIdx] - offset );
+                    vx3 = conn.m_polygon[vxIdx] - offset;
 #pragma omp critical( critical_section_RivNNCGeometryGenerator_computeArrays )
                     {
                         vertices.push_back( vx1 );
