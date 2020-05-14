@@ -24,8 +24,8 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigConnection::RigConnection()
-    : m_c1GlobIdx( cvf::UNDEFINED_SIZE_T )
-    , m_c2GlobIdx( cvf::UNDEFINED_SIZE_T )
+    : m_c1GlobIdx( cvf::UNDEFINED_UINT )
+    , m_c2GlobIdx( cvf::UNDEFINED_UINT )
     , m_c1Face( cvf::StructGridInterface::NO_FACE )
 {
 }
@@ -33,10 +33,10 @@ RigConnection::RigConnection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigConnection::RigConnection( size_t                             c1GlobIdx,
-                              size_t                             c2GlobIdx,
+RigConnection::RigConnection( unsigned                           c1GlobIdx,
+                              unsigned                           c2GlobIdx,
                               cvf::StructGridInterface::FaceType c1Face,
-                              const std::vector<cvf::Vec3d>&     polygon )
+                              const std::vector<cvf::Vec3f>&     polygon )
     : m_c1GlobIdx( c1GlobIdx )
     , m_c2GlobIdx( c2GlobIdx )
     , m_c1Face( c1Face )
@@ -94,13 +94,16 @@ bool RigConnection::operator<( const RigConnection& other ) const
 RigConnection RigConnectionContainer::operator[]( size_t i ) const
 {
     const auto& globIndices = m_globalIndices[i];
-    return RigConnection( globIndices.first, globIndices.second, m_faces[i], m_polygons[i] );
+    return RigConnection( globIndices.first,
+                          globIndices.second,
+                          static_cast<cvf::StructGridInterface::FaceType>( m_faces[i] ),
+                          m_polygons[i] );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<size_t, size_t>& RigConnectionContainer::indexPair( size_t i )
+std::pair<unsigned, unsigned>& RigConnectionContainer::indexPair( size_t i )
 {
     return m_globalIndices[i];
 }
@@ -108,7 +111,7 @@ std::pair<size_t, size_t>& RigConnectionContainer::indexPair( size_t i )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::StructGridInterface::FaceType& RigConnectionContainer::face( size_t i )
+unsigned char& RigConnectionContainer::face( size_t i )
 {
     return m_faces[i];
 }
@@ -116,7 +119,7 @@ cvf::StructGridInterface::FaceType& RigConnectionContainer::face( size_t i )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d>& RigConnectionContainer::polygon( size_t i )
+std::vector<cvf::Vec3f>& RigConnectionContainer::polygon( size_t i )
 {
     return m_polygons[i];
 }

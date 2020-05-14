@@ -50,10 +50,11 @@ public:
                                                     const RigConnectionContainer& nativeConnections,
                                                     const RigActiveCellInfo*      activeCellInfo );
 
-    static RigConnectionContainer  extractConnectionsForFace( const RigFault::FaultFace&                 face,
-                                                              const RigMainGrid*                         mainGrid,
-                                                              const std::set<std::pair<size_t, size_t>>& nativeCellPairs );
-    static std::vector<cvf::Vec3d> extractPolygon( const std::vector<cvf::Vec3d>& nativeNodes,
+    static RigConnectionContainer
+                                   extractConnectionsForFace( const RigFault::FaultFace&                     face,
+                                                              const RigMainGrid*                             mainGrid,
+                                                              const std::set<std::pair<unsigned, unsigned>>& nativeCellPairs );
+    static std::vector<cvf::Vec3f> extractPolygon( const std::vector<cvf::Vec3d>& nativeNodes,
                                                    const std::vector<size_t>&     connectionPolygon,
                                                    const std::vector<cvf::Vec3d>& connectionIntersections );
 };

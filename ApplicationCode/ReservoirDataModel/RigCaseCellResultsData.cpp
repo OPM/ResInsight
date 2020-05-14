@@ -2285,11 +2285,11 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
 
         // Connection geometry
 
-        cvf::Vec3d faceAreaVec = cvf::Vec3d::ZERO;
-        cvf::Vec3d faceCenter  = cvf::Vec3d::ZERO;
+        cvf::Vec3f faceAreaVec = cvf::Vec3f::ZERO;
+        cvf::Vec3f faceCenter  = cvf::Vec3f::ZERO;
 
         // Polygon center
-        const std::vector<cvf::Vec3d>& realPolygon = nncConnections[connIdx].m_polygon;
+        const std::vector<cvf::Vec3f>& realPolygon = nncConnections[connIdx].m_polygon;
         for ( size_t pIdx = 0; pIdx < realPolygon.size(); ++pIdx )
         {
             faceCenter += realPolygon[pIdx];
@@ -2319,7 +2319,7 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
                 ntg              = ( *ntgResults )[ntgResIdx];
             }
 
-            halfCellTrans = halfCellTransmissibility( perm, ntg, centerToFace, faceAreaVec );
+            halfCellTrans = halfCellTransmissibility( perm, ntg, centerToFace, cvf::Vec3d( faceAreaVec ) );
         }
 
         // Neighbor cell half cell transm
@@ -2336,7 +2336,7 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
                 ntg              = ( *ntgResults )[ntgResIdx];
             }
 
-            neighborHalfCellTrans = halfCellTransmissibility( perm, ntg, centerToFace, -faceAreaVec );
+            neighborHalfCellTrans = halfCellTransmissibility( perm, ntg, centerToFace, -cvf::Vec3d( faceAreaVec ) );
         }
 
         double newtranTemp          = newtran( cdarchy, 1.0, halfCellTrans, neighborHalfCellTrans );
@@ -2605,8 +2605,8 @@ void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
 
     for ( size_t nncConIdx = 0; nncConIdx < riAreaNormTransResults.size(); ++nncConIdx )
     {
-        const std::vector<cvf::Vec3d>& realPolygon   = connections[nncConIdx].m_polygon;
-        cvf::Vec3d                     faceAreaVec   = cvf::GeometryTools::polygonAreaNormal3D( realPolygon );
+        const std::vector<cvf::Vec3f>& realPolygon   = connections[nncConIdx].m_polygon;
+        cvf::Vec3f                     faceAreaVec   = cvf::GeometryTools::polygonAreaNormal3D( realPolygon );
         double                         areaOfOverlap = faceAreaVec.length();
 
         riAreaNormTransResults[nncConIdx] = ( *transResults )[nncConIdx] / areaOfOverlap;
