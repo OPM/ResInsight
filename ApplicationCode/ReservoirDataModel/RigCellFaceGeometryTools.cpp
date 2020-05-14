@@ -43,7 +43,7 @@ cvf::StructGridInterface::FaceType
 {
     // Try to find the shared face
 
-    bool isPossibleNeighborInDirection[6] = {true, true, true, true, true, true};
+    bool isPossibleNeighborInDirection[6] = { true, true, true, true, true, true };
 
     if ( c1.hostGrid() == c2.hostGrid() )
     {
@@ -254,7 +254,7 @@ RigConnectionContainer
         size_t i;
         size_t j;
         size_t k;
-        mainGrid->ijkFromCellIndex( sourceReservoirCellIndex, &i, &j, &k );
+        mainGrid->ijkFromCellIndexNonGuarded( sourceReservoirCellIndex, &i, &j, &k );
 
         mainGrid->neighborIJKAtCellFace( i, j, k, sourceCellFace, &ni, &nj, &nk );
 
@@ -272,14 +272,14 @@ RigConnectionContainer
             continue;
         }
 
-        if ( candidateCellIndex == neighborCellIndex )
+        if ( candidateCellIndex >= mainGrid->cellCount() )
         {
-            // Exclude direct neighbor
             continue;
         }
 
-        if ( candidateCellIndex >= mainGrid->cellCount() )
+        if ( candidateCellIndex == neighborCellIndex )
         {
+            // Exclude direct neighbor
             continue;
         }
 
@@ -291,7 +291,7 @@ RigConnectionContainer
             size_t ci = std::numeric_limits<size_t>::max();
             size_t cj = std::numeric_limits<size_t>::max();
             size_t ck = std::numeric_limits<size_t>::max();
-            mainGrid->ijkFromCellIndex( candidateCellIndex, &ci, &cj, &ck );
+            mainGrid->ijkFromCellIndexNonGuarded( candidateCellIndex, &ci, &cj, &ck );
 
             auto gridAxis = cvf::StructGridInterface::gridAxisFromFace( sourceCellFace );
             if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_I )
