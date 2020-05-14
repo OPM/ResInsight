@@ -37,13 +37,11 @@ RigNNCData::RigNNCData()
 //--------------------------------------------------------------------------------------------------
 void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
 {
-    // cvf::Trace::show("NNC: Total number: " + cvf::String((int)m_connections.size()));
-
 #pragma omp parallel for
-    for ( int cnIdx = 0; cnIdx < (int) m_connections.size(); ++cnIdx )
+    for ( int cnIdx = 0; cnIdx < (int)m_connections.size(); ++cnIdx )
     {
-        const RigCell& c1 = mainGrid.globalCellArray()[m_connections[cnIdx].m_c1GlobIdx];
-        const RigCell& c2 = mainGrid.globalCellArray()[m_connections[cnIdx].m_c2GlobIdx];
+        const RigCell& c1 = mainGrid.globalCellArray()[m_connections[cnIdx].c1GlobIdx()];
+        const RigCell& c2 = mainGrid.globalCellArray()[m_connections[cnIdx].c2GlobIdx()];
 
         std::vector<size_t>                connectionPolygon;
         std::vector<cvf::Vec3d>            connectionIntersections;
@@ -54,24 +52,10 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
 
         if ( connectionFace != cvf::StructGridInterface::NO_FACE )
         {
-            // Found an overlap polygon. Store data about connection
-
-            m_connections.face( cnIdx ) = connectionFace;
-
-            m_connections.polygon( cnIdx ) = RigCellFaceGeometryTools::extractPolygon( mainGrid.nodes(),
-                                                                                        connectionPolygon,
-                                                                                        connectionIntersections );
-
-            // Add to search map, possibly not needed
-            // m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c1GlobIdx][connectionFace].push_back(cnIdx);
-            // m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c2GlobIdx][cvf::StructGridInterface::oppositeFace(connectionFace].push_back(cnIdx);
+            m_connections[cnIdx].setFace( connectionFace );
+            m_connections[cnIdx].setPolygon(
+                RigCellFaceGeometryTools::extractPolygon( mainGrid.nodes(), connectionPolygon, connectionIntersections ) );
         }
-        else
-        {
-            // cvf::Trace::show("NNC: No overlap found for : C1: " +
-            // cvf::String((int)m_connections[cnIdx].m_c1GlobIdx)
-            // + "C2: " + cvf::String((int)m_connections[cnIdx].m_c2GlobIdx));
-        }        
     }
 }
 
@@ -83,13 +67,12 @@ void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
                                            bool                     includeInactiveCells )
 {
     m_nativeConnectionCount = m_connections.size();
-
     RigConnectionContainer otherConnections =
         RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections, activeCellInfo, includeInactiveCells );
 
     if ( !otherConnections.empty() )
     {
-        m_connections.insert( otherConnections );
+        m_connections.push_back( otherConnections );
 
         // Transmissibility values from Eclipse has been read into propertyNameCombTrans in
         // RifReaderEclipseOutput::transferStaticNNCData(). Initialize computed NNCs with zero transmissibility

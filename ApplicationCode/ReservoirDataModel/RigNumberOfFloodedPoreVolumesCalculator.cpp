@@ -311,10 +311,10 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNNCflow( const RigConnec
         RigConnection connection      = connections[connectionIndex];
         double        connectionValue = flowrateNNC->at( connectionIndex );
 
-        size_t cell1Index       = connection.m_c1GlobIdx;
+        size_t cell1Index       = connection.c1GlobIdx();
         size_t cell1ResultIndex = actCellInfo->cellResultIndex( cell1Index );
 
-        size_t cell2Index       = connection.m_c2GlobIdx;
+        size_t cell2Index       = connection.c2GlobIdx();
         size_t cell2ResultIndex = actCellInfo->cellResultIndex( cell2Index );
 
         if ( connectionValue > 0 )

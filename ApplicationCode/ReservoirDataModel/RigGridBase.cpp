@@ -179,6 +179,16 @@ size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RigGridBase::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const
+{
+    size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) +
+                k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
+    return ci;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigGridBase::cellMinMaxCordinates( size_t cellIndex, cvf::Vec3d* minCoordinate, cvf::Vec3d* maxCoordinate ) const
 {
 }
@@ -210,7 +220,7 @@ bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size
 /// This version does no if-guarding. Check that all dimensions of the grid are non-zero before using.
 /// Useful for running in a loop after doing the sanity check once.
 //--------------------------------------------------------------------------------------------------
-void RigGridBase::ijkFromCellIndexNonGuarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
+void RigGridBase::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
 {
     size_t index = cellIndex;
 
@@ -349,7 +359,7 @@ void RigGridBase::cellIJKNeighborUnguarded( size_t i, size_t j, size_t k, FaceTy
     size_t ni, nj, nk;
     neighborIJKAtCellFace( i, j, k, face, &ni, &nj, &nk );
 
-    *neighborCellIndex = cellIndexFromIJK( ni, nj, nk );
+    *neighborCellIndex = cellIndexFromIJKUnguarded( ni, nj, nk );
 }
 
 //--------------------------------------------------------------------------------------------------
