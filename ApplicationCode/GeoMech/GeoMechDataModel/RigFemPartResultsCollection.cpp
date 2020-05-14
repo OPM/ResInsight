@@ -23,6 +23,7 @@
 
 #include "RifElementPropertyReader.h"
 #include "RifGeoMechReaderInterface.h"
+#include "RigFemPartResultCalculatorPoreCompressibility.h"
 
 #ifdef USE_ODB_API
 #include "RifOdbReader.h"
@@ -76,7 +77,7 @@
 #include <QString>
 
 #include <cmath>
-#include <stdlib.h>
+#include <cstdlib>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -164,6 +165,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStress( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorStressAnisotropy( *this ) ) );
+    m_resultCalculators.push_back(
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPoreCompressibility( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
 }
@@ -350,6 +353,17 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
                     RigFemResultAddress( elementType, fieldName, componentName, RigFemResultAddress::allTimeLapsesValue() ) );
             }
         }
+
+        deleteResult(
+            RigFemResultAddress( elementType, "PORE-COMPRESSIBILITY", "PORE", RigFemResultAddress::allTimeLapsesValue() ) );
+        deleteResult( RigFemResultAddress( elementType,
+                                           "PORE-COMPRESSIBILITY",
+                                           "VERTICAL",
+                                           RigFemResultAddress::allTimeLapsesValue() ) );
+        deleteResult( RigFemResultAddress( elementType,
+                                           "PORE-COMPRESSIBILITY",
+                                           "VERTICAL-RATIO",
+                                           RigFemResultAddress::allTimeLapsesValue() ) );
 
         // SE only: depends on SE.S1 and SE.S3
         deleteResult( RigFemResultAddress( elementType, "SE", "SFI", RigFemResultAddress::allTimeLapsesValue() ) );
@@ -600,6 +614,10 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["NE"].push_back( "E1" );
             fieldCompNames["NE"].push_back( "E2" );
             fieldCompNames["NE"].push_back( "E3" );
+
+            fieldCompNames["PORE-COMPRESSIBILITY"].push_back( "PORE" );
+            fieldCompNames["PORE-COMPRESSIBILITY"].push_back( "VERTICAL" );
+            fieldCompNames["PORE-COMPRESSIBILITY"].push_back( "VERTICAL-RATIO" );
         }
         else if ( resPos == RIG_INTEGRATION_POINT )
         {
@@ -675,6 +693,10 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["NE"].push_back( "E1" );
             fieldCompNames["NE"].push_back( "E2" );
             fieldCompNames["NE"].push_back( "E3" );
+
+            fieldCompNames["PORE-COMPRESSIBILITY"].push_back( "PORE" );
+            fieldCompNames["PORE-COMPRESSIBILITY"].push_back( "VERTICAL" );
+            fieldCompNames["PORE-COMPRESSIBILITY"].push_back( "VERTICAL-RATIO" );
         }
         else if ( resPos == RIG_ELEMENT_NODAL_FACE )
         {
