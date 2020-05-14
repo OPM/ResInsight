@@ -221,7 +221,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                 RigMainGrid*         mainGrid = eclipseView->eclipseCase()->eclipseCaseData()->mainGrid();
                 const RigConnection& nncConn  = mainGrid->nncData()->connections()[nncIndex];
 
-                mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( nncConn.m_c1GlobIdx, &gridLocalCellIndex );
+                mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( nncConn.c1GlobIdx(), &gridLocalCellIndex );
             }
         }
         else
@@ -298,10 +298,10 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                     const RigConnection& nncConn = mainGrid->nncData()->connections()[nncIndex];
 
                     size_t c1LocalIdx = cvf::UNDEFINED_SIZE_T;
-                    const RigGridBase* grid1 = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConn.m_c1GlobIdx, &c1LocalIdx);
+                    const RigGridBase* grid1 = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConn.c1GlobIdx(), &c1LocalIdx);
                     size_t c1GridIdx = grid1->gridIndex();
                     size_t c2LocalIdx = cvf::UNDEFINED_SIZE_T;
-                    const RigGridBase* grid2 = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConn.m_c2GlobIdx, &c2LocalIdx);
+                    const RigGridBase* grid2 = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx(nncConn.c2GlobIdx(), &c2LocalIdx);
                     size_t c2GridIdx = grid2->gridIndex();
 
                     if (gridLocalCellIndex == c1LocalIdx && gridIndex == c1GridIdx)
@@ -311,7 +311,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                         
                         if (face == cvf::StructGridInterface::NO_FACE)
                         {
-                            face = nncConn.m_c1Face;
+                            face = nncConn.face();
                         }
                         else
                         {
@@ -324,7 +324,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                         gridIndex = c1GridIdx;
                         if (face == cvf::StructGridInterface::NO_FACE)
                         {
-                            face = cvf::StructGridInterface::oppositeFace(nncConn.m_c1Face);
+                            face = cvf::StructGridInterface::oppositeFace(nncConn.face());
                         }
                         else
                         {

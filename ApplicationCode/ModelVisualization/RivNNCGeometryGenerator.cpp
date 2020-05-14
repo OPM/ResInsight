@@ -97,7 +97,7 @@ void RivNNCGeometryGenerator::computeArrays()
 
         const RigConnection& conn = m_nncData->connections()[conIdx];
 
-        if ( conn.m_polygon.size() )
+        if ( conn.polygon().size() )
         {
             bool isVisible = true;
             if ( isVisibilityCalcActive )
@@ -105,15 +105,15 @@ void RivNNCGeometryGenerator::computeArrays()
                 bool cell1Visible = false;
                 bool cell2Visible = false;
 
-                if ( ( *allCells )[conn.m_c1GlobIdx].hostGrid() == m_grid.p() )
+                if ( ( *allCells )[conn.c1GlobIdx()].hostGrid() == m_grid.p() )
                 {
-                    size_t cell1GridLocalIdx = ( *allCells )[conn.m_c1GlobIdx].gridLocalCellIndex();
+                    size_t cell1GridLocalIdx = ( *allCells )[conn.c1GlobIdx()].gridLocalCellIndex();
                     cell1Visible             = ( *m_cellVisibility )[cell1GridLocalIdx];
                 }
 
-                if ( ( *allCells )[conn.m_c2GlobIdx].hostGrid() == m_grid.p() )
+                if ( ( *allCells )[conn.c2GlobIdx()].hostGrid() == m_grid.p() )
                 {
-                    size_t cell2GridLocalIdx = ( *allCells )[conn.m_c2GlobIdx].gridLocalCellIndex();
+                    size_t cell2GridLocalIdx = ( *allCells )[conn.c2GlobIdx()].gridLocalCellIndex();
                     cell2Visible             = ( *m_cellVisibility )[cell2GridLocalIdx];
                 }
 
@@ -122,14 +122,14 @@ void RivNNCGeometryGenerator::computeArrays()
 
             if ( isVisible )
             {
-                cvf::Vec3f vx1 = conn.m_polygon[0] - offset;
+                cvf::Vec3f vx1 = conn.polygon()[0] - offset;
                 cvf::Vec3f vx2;
-                cvf::Vec3f vx3 = conn.m_polygon[1] - offset;
+                cvf::Vec3f vx3 = conn.polygon()[1] - offset;
 
-                for ( size_t vxIdx = 2; vxIdx < conn.m_polygon.size(); ++vxIdx )
+                for ( size_t vxIdx = 2; vxIdx < conn.polygon().size(); ++vxIdx )
                 {
                     vx2 = vx3;
-                    vx3 = conn.m_polygon[vxIdx] - offset;
+                    vx3 = conn.polygon()[vxIdx] - offset;
 #pragma omp critical( critical_section_RivNNCGeometryGenerator_computeArrays )
                     {
                         vertices.push_back( vx1 );

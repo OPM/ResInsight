@@ -18,7 +18,7 @@
 
 #include "RigNncConnection.h"
 
-#include "cvfMath.h"
+#include "cvfAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -26,7 +26,7 @@
 RigConnection::RigConnection()
     : m_c1GlobIdx( cvf::UNDEFINED_UINT )
     , m_c2GlobIdx( cvf::UNDEFINED_UINT )
-    , m_c1Face( cvf::StructGridInterface::NO_FACE )
+    , m_c1Face( static_cast<unsigned char>( cvf::StructGridInterface::NO_FACE ) )
 {
 }
 
@@ -39,9 +39,24 @@ RigConnection::RigConnection( unsigned                           c1GlobIdx,
                               const std::vector<cvf::Vec3f>&     polygon )
     : m_c1GlobIdx( c1GlobIdx )
     , m_c2GlobIdx( c2GlobIdx )
-    , m_c1Face( c1Face )
+    , m_c1Face( static_cast<unsigned char>( c1Face ) )
     , m_polygon( polygon )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigConnection::RigConnection( size_t                             c1GlobIdx,
+                              size_t                             c2GlobIdx,
+                              cvf::StructGridInterface::FaceType c1Face,
+                              const std::vector<cvf::Vec3f>&     polygon )
+    : m_c1GlobIdx( static_cast<unsigned>( c1GlobIdx ) )
+    , m_c2GlobIdx( static_cast<unsigned>( c2GlobIdx ) )
+    , m_c1Face( static_cast<unsigned char>( c1Face ) )
+    , m_polygon( polygon )
+{
+    CVF_ASSERT( c1GlobIdx < std::numeric_limits<unsigned>::max() && c2GlobIdx < std::numeric_limits<unsigned>::max() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +73,7 @@ RigConnection::RigConnection( const RigConnection& rhs )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigConnection& RigConnection::operator=( RigConnection& rhs )
+RigConnection& RigConnection::operator=( const RigConnection& rhs )
 {
     m_c1GlobIdx = rhs.m_c1GlobIdx;
     m_c2GlobIdx = rhs.m_c2GlobIdx;
@@ -78,6 +93,14 @@ bool RigConnection::hasCommonArea() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigConnection::operator==( const RigConnection& rhs )
+{
+    return m_c1GlobIdx == rhs.m_c1GlobIdx && m_c2GlobIdx == rhs.m_c2GlobIdx;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigConnection::operator<( const RigConnection& other ) const
 {
     if ( m_c1GlobIdx != other.m_c1GlobIdx )
@@ -91,37 +114,17 @@ bool RigConnection::operator<( const RigConnection& other ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigConnection RigConnectionContainer::operator[]( size_t i ) const
+const RigConnection& RigConnectionContainer::operator[]( size_t i ) const
 {
-    const auto& globIndices = m_globalIndices[i];
-    return RigConnection( globIndices.first,
-                          globIndices.second,
-                          static_cast<cvf::StructGridInterface::FaceType>( m_faces[i] ),
-                          m_polygons[i] );
+    return m_connections[i];
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<unsigned, unsigned>& RigConnectionContainer::indexPair( size_t i )
+RigConnection& RigConnectionContainer::operator[]( size_t i )
 {
-    return m_globalIndices[i];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-unsigned char& RigConnectionContainer::face( size_t i )
-{
-    return m_faces[i];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f>& RigConnectionContainer::polygon( size_t i )
-{
-    return m_polygons[i];
+    return m_connections[i];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,19 +132,15 @@ std::vector<cvf::Vec3f>& RigConnectionContainer::polygon( size_t i )
 //--------------------------------------------------------------------------------------------------
 void RigConnectionContainer::push_back( const RigConnection& connection )
 {
-    m_globalIndices.push_back( std::make_pair( connection.m_c1GlobIdx, connection.m_c2GlobIdx ) );
-    m_faces.push_back( connection.m_c1Face );
-    m_polygons.push_back( connection.m_polygon );
+    m_connections.push_back( connection );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigConnectionContainer::insert( const RigConnectionContainer& other )
+void RigConnectionContainer::push_back( const RigConnectionContainer& other )
 {
-    m_globalIndices.insert( m_globalIndices.end(), other.m_globalIndices.begin(), other.m_globalIndices.end() );
-    m_faces.insert( m_faces.end(), other.m_faces.begin(), other.m_faces.end() );
-    m_polygons.insert( m_polygons.end(), other.m_polygons.begin(), other.m_polygons.end() );
+    m_connections.insert( m_connections.end(), other.m_connections.begin(), other.m_connections.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,7 +148,7 @@ void RigConnectionContainer::insert( const RigConnectionContainer& other )
 //--------------------------------------------------------------------------------------------------
 size_t RigConnectionContainer::size() const
 {
-    return m_globalIndices.size();
+    return m_connections.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,9 +156,7 @@ size_t RigConnectionContainer::size() const
 //--------------------------------------------------------------------------------------------------
 void RigConnectionContainer::clear()
 {
-    m_globalIndices.clear();
-    m_faces.clear();
-    m_polygons.clear();
+    m_connections.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,5 +164,25 @@ void RigConnectionContainer::clear()
 //--------------------------------------------------------------------------------------------------
 bool RigConnectionContainer::empty() const
 {
-    return m_globalIndices.empty();
+    return m_connections.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigConnectionContainer::remove_duplicates()
+{
+    std::sort( m_connections.begin(), m_connections.end() );
+    m_connections.erase( std::unique( m_connections.begin(), m_connections.end() ), m_connections.end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigConnectionContainer::reserve( size_t requiredSize )
+{
+    if ( m_connections.capacity() < requiredSize )
+    {
+        m_connections.reserve( requiredSize );
+    }
 }

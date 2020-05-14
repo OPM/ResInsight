@@ -91,6 +91,7 @@ public:
     cvf::Vec3d displayModelOffset() const override;
 
     size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const override;
+    size_t cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const;
     bool   ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const override;
 
     bool       cellIJKFromCoordinate( const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k ) const override;
