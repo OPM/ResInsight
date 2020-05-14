@@ -105,14 +105,12 @@ protected:
 
     static QString dataSourceGroupKeyword();
 
-private:
     void              setLogScaleFromSelectedResult();
     void              clampTimestep();
     void              clampBranchIndex();
     std::set<QString> sortedSimWellNames();
     void              clearGeneratedSimWellPaths();
 
-private:
     caf::PdmPtrField<RimCase*>                  m_case;
     caf::PdmField<caf::AppEnum<TrajectoryType>> m_trajectoryType;
     caf::PdmPtrField<RimWellPath*>              m_wellPath;

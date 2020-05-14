@@ -63,6 +63,7 @@
 #include "RimTernaryLegendConfig.h"
 #include "RimViewLinker.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellLogTrack.h"
 
 #include "cafCategoryMapper.h"
 #include "cafPdmFieldIOScriptability.h"
@@ -499,6 +500,14 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
     if ( contourMap )
     {
         contourMap->updatedWeightingResult();
+    }
+
+    RimWellLogTrack* wellLogTrack = nullptr;
+    this->firstAncestorOrThisOfType( wellLogTrack );
+    if ( wellLogTrack )
+    {
+        wellLogTrack->loadDataAndUpdate();
+        wellLogTrack->updateEditors();
     }
 }
 

@@ -35,6 +35,7 @@
 #include "Rim3dWellLogCurve.h"
 #include "Rim3dWellLogCurveCollection.h"
 #include "RimFishbonesMultipleSubs.h"
+#include "RimFractureModelCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimTools.h"
@@ -323,6 +324,26 @@ const RimWellPathFractureCollection* RimWellPath::fractureCollection() const
     CVF_ASSERT( m_completions );
 
     return m_completions->fractureCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFractureModelCollection* RimWellPath::fractureModelCollection()
+{
+    CVF_ASSERT( m_completions );
+
+    return m_completions->fractureModelCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RimFractureModelCollection* RimWellPath::fractureModelCollection() const
+{
+    CVF_ASSERT( m_completions );
+
+    return m_completions->fractureModelCollection();
 }
 
 //--------------------------------------------------------------------------------------------------

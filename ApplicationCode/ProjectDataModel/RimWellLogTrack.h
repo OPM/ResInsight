@@ -46,6 +46,7 @@ class RimWellPathAttributeCollection;
 class RimWellFlowRateCurve;
 class RimWellLogCurve;
 class RimWellPath;
+class RimDepthTrackPlot;
 class RiuWellPathComponentPlotItem;
 class RiuWellLogTrack;
 class RigEclipseWellLogExtractor;
@@ -54,6 +55,7 @@ class RigGeoMechWellLogExtractor;
 class RigResultAccessor;
 class RigFemResultAddress;
 class RigWellLogExtractor;
+class RimEclipseResultDefinition;
 
 class QwtPlotCurve;
 
@@ -124,6 +126,7 @@ public:
     RimCase*       formationNamesCase() const;
     void           setFormationTrajectoryType( TrajectoryType trajectoryType );
     TrajectoryType formationTrajectoryType() const;
+    void setRegionPropertyResultType( RiaDefines::ResultCatType resultCatType, const QString& resultVariable );
 
     void detachAllCurves() override;
     void reattachAllCurves() override;
@@ -266,6 +269,7 @@ private:
 
     void updateRegionAnnotationsOnPlot();
     void updateFormationNamesOnPlot();
+    void updateResultPropertyNamesOnPlot();
     void updateCurveDataRegionsOnPlot();
     void updateWellPathAttributesOnPlot();
     void removeRegionAnnotations();
@@ -275,7 +279,7 @@ private:
 
     void updateWellPathAttributesCollection();
 
-    RimWellLogPlot* parentWellLogPlot() const;
+    RimDepthTrackPlot* parentWellLogPlot() const;
 
     void handleWheelEvent( QWheelEvent* event ) override;
     void doUpdateLayout() override;
@@ -324,6 +328,7 @@ private:
     caf::PdmField<bool>                                                m_wellPathCompletionsInLegend;
     caf::PdmPtrField<RimWellPath*>                                     m_wellPathComponentSource;
     caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
+    caf::PdmChildField<RimEclipseResultDefinition*>                    m_resultDefinition;
 
     caf::PdmField<bool> m_showFormations_OBSOLETE;
     caf::PdmField<bool> m_show_OBSOLETE;

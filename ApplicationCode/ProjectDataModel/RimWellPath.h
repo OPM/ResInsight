@@ -47,6 +47,7 @@ class RimProject;
 class RimWellLogFile;
 class RimFractureTemplateCollection;
 class RimFishboneWellPathCollection;
+class RimFractureModelCollection;
 
 class RimFishbonesCollection;
 class RimPerforationCollection;
@@ -113,6 +114,8 @@ public:
     const RimPerforationCollection*       perforationIntervalCollection() const;
     RimWellPathFractureCollection*        fractureCollection();
     const RimWellPathFractureCollection*  fractureCollection() const;
+    RimFractureModelCollection*           fractureModelCollection();
+    const RimFractureModelCollection*     fractureModelCollection() const;
     RimWellPathAttributeCollection*       attributeCollection();
     const RimWellPathAttributeCollection* attributeCollection() const;
 

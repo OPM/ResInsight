@@ -22,7 +22,7 @@
 #include "RiaCurveDataTools.h"
 #include "RigWellLogCurveData.h"
 
-#include "RimWellLogPlot.h"
+#include "RimDepthTrackPlot.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuQwtPlotCurve.h"
@@ -98,7 +98,7 @@ bool RimWellLogCurve::yValueRangeInData( double* minimumValue, double* maximumVa
         return false;
     }
 
-    RimWellLogPlot* wellLogPlot = nullptr;
+    RimDepthTrackPlot* wellLogPlot = nullptr;
     firstAncestorOrThisOfTypeAsserted( wellLogPlot );
     auto depthType   = wellLogPlot->depthType();
     auto displayUnit = wellLogPlot->depthUnit();
@@ -193,7 +193,7 @@ void RimWellLogCurve::updateZoomInParentPlot()
     {
         wellLogTrack->setAutoScaleXIfNecessary();
 
-        RimWellLogPlot* wellLogPlot;
+        RimDepthTrackPlot* wellLogPlot;
         wellLogTrack->firstAncestorOrThisOfType( wellLogPlot );
 
         if ( wellLogPlot )
