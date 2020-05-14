@@ -280,7 +280,7 @@ void RimFaultInViewCollection::syncronizeFaults()
             {
                 size_t             gridLocalCellIndex;
                 const RigGridBase* hostGrid =
-                    mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( nncConnections[connIndex].m_c1GlobIdx,
+                    mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( nncConnections[connIndex].c1GlobIdx(),
                                                                     &gridLocalCellIndex );
 
                 size_t i, j, k;
@@ -303,7 +303,7 @@ void RimFaultInViewCollection::syncronizeFaults()
             {
                 size_t             gridLocalCellIndex;
                 const RigGridBase* hostGrid =
-                    mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( nncConnections[connIndex].m_c2GlobIdx,
+                    mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( nncConnections[connIndex].c2GlobIdx(),
                                                                     &gridLocalCellIndex );
 
                 size_t i, j, k;
