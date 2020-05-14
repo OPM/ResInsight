@@ -73,6 +73,15 @@ public:
     cvf::Collection<RigFault>&       faults();
     void                             calculateFaults( const RigActiveCellInfo* activeCellInfo );
 
+    void addUnNamedFaultFaces( int                               gcIdx,
+                               const RigActiveCellInfo*          activeCellInfo,
+                               const std::vector<cvf::Vec3d>&    vxs,
+                               int                               unNamedFaultIdx,
+                               int                               unNamedFaultWithInactiveIdx,
+                               std::vector<RigFault::FaultFace>& unNamedFaultFaces,
+                               std::vector<RigFault::FaultFace>& unNamedFaultFacesInactive,
+                               RigFaultsPrCellAccumulator*       faultsPrCellAcc ) const;
+
     void distributeNNCsToFaults();
 
     const RigFault* findFaultFromCellIndexAndCellFace( size_t                             reservoirCellIndex,
