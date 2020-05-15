@@ -32,7 +32,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RivNNCGeometryGenerator::RivNNCGeometryGenerator( bool                      includeAllan,
-                                                  const RigNNCData*         nncData,
+                                                  RigNNCData*               nncData,
                                                   const cvf::Vec3d&         offset,
                                                   const cvf::Array<size_t>* nncIndexes )
     : m_includeAllanDiagramGeometry( includeAllan )

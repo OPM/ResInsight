@@ -558,7 +558,7 @@ void RigReservoirBuilderMock::addFaults( RigEclipseCaseData* eclipseCase )
         addNnc( grid, i1, j1, k1, i2, j2, k2, nncConnections );
     }
 
-    grid->nncData()->setConnections( nncConnections );
+    grid->nncData()->setNativeConnections( nncConnections );
 
     std::vector<double>& tranVals =
         grid->nncData()->makeStaticConnectionScalarResult( RiaDefines::propertyNameCombTrans() );

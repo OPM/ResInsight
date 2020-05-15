@@ -555,10 +555,6 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
             }
         }
     }
-
-    this->nncData()->computeCompleteSetOfNncs( this, activeCellInfo );
-
-    distributeNNCsToFaults();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -566,6 +562,8 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::distributeNNCsToFaults()
 {
+    if ( m_faultsPrCellAcc.isNull() ) return;
+
     const RigConnectionContainer& nncs = this->nncData()->connections();
     for ( size_t nncIdx = 0; nncIdx < nncs.size(); ++nncIdx )
     {
@@ -652,7 +650,7 @@ bool RigMainGrid::isFaceNormalsOutwards() const
 const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace( size_t                             reservoirCellIndex,
                                                                 cvf::StructGridInterface::FaceType face ) const
 {
-    CVF_TIGHT_ASSERT( m_faultsPrCellAcc.notNull() );
+    if ( m_faultsPrCellAcc.isNull() ) return nullptr;
 
     if ( face == cvf::StructGridInterface::NO_FACE ) return nullptr;
 

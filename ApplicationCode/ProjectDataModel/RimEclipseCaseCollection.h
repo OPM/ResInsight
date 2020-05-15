@@ -58,6 +58,6 @@ public:
     void recomputeStatisticsForAllCaseGroups();
 
 private:
-    RigMainGrid*             registerCaseInGridCollection( RigEclipseCaseData* rigEclipseCase );
+    RigMainGrid*             registerCaseInGridCollection( RimEclipseCase* rimEclipseCase );
     cvf::ref<RigGridManager> m_gridCollection;
 };

@@ -89,15 +89,6 @@ RimFaultInViewCollection::RimFaultInViewCollection()
                        "",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &noCommonAreaNnncCollection,
-                                "NoCommonAreaNnncCollection",
-                                "NNCs With No Common Area",
-                                "",
-                                "",
-                                "" );
-    noCommonAreaNnncCollection = new RimNoCommonAreaNncCollection;
-    noCommonAreaNnncCollection.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &faults, "Faults", "Faults", "", "", "" );
     faults.uiCapability()->setUiHidden( true );
 }
@@ -108,8 +99,6 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 RimFaultInViewCollection::~RimFaultInViewCollection()
 {
     faults.deleteAllChildObjects();
-
-    delete noCommonAreaNnncCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,73 +251,6 @@ void RimFaultInViewCollection::syncronizeFaults()
 
     QString toolTip = QString( "Fault count (%1)" ).arg( newFaults.size() );
     setUiToolTip( toolTip );
-
-    // NNCs
-    this->noCommonAreaNnncCollection()->noCommonAreaNncs().deleteAllChildObjects();
-
-    RigMainGrid*                  mainGrid       = parentView()->mainGrid();
-    const RigConnectionContainer& nncConnections = mainGrid->nncData()->connections();
-    for ( size_t connIndex = 0; connIndex < nncConnections.size(); connIndex++ )
-    {
-        if ( !nncConnections[connIndex].hasCommonArea() )
-        {
-            RimNoCommonAreaNNC* noCommonAreaNnc = new RimNoCommonAreaNNC();
-
-            QString firstConnectionText;
-            QString secondConnectionText;
-
-            {
-                size_t             gridLocalCellIndex;
-                const RigGridBase* hostGrid =
-                    mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( nncConnections[connIndex].c1GlobIdx(),
-                                                                    &gridLocalCellIndex );
-
-                size_t i, j, k;
-                if ( hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )
-                {
-                    // Adjust to 1-based Eclipse indexing
-                    i++;
-                    j++;
-                    k++;
-
-                    if ( !hostGrid->isMainGrid() )
-                    {
-                        QString gridName    = QString::fromStdString( hostGrid->gridName() );
-                        firstConnectionText = gridName + " ";
-                    }
-                    firstConnectionText += QString( "[%1 %2 %3] - " ).arg( i ).arg( j ).arg( k );
-                }
-            }
-
-            {
-                size_t             gridLocalCellIndex;
-                const RigGridBase* hostGrid =
-                    mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( nncConnections[connIndex].c2GlobIdx(),
-                                                                    &gridLocalCellIndex );
-
-                size_t i, j, k;
-                if ( hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )
-                {
-                    // Adjust to 1-based Eclipse indexing
-                    i++;
-                    j++;
-                    k++;
-
-                    if ( !hostGrid->isMainGrid() )
-                    {
-                        QString gridName     = QString::fromStdString( hostGrid->gridName() );
-                        secondConnectionText = gridName + " ";
-                    }
-                    secondConnectionText += QString( "[%1 %2 %3]" ).arg( i ).arg( j ).arg( k );
-                }
-            }
-
-            noCommonAreaNnc->name = firstConnectionText + secondConnectionText;
-            this->noCommonAreaNnncCollection()->noCommonAreaNncs().push_back( noCommonAreaNnc );
-        }
-
-        this->noCommonAreaNnncCollection()->updateName();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

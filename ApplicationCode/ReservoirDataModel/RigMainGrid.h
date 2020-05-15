@@ -66,7 +66,8 @@ public:
 
     size_t totalTemporaryGridCellCount() const;
 
-    RigNNCData*                      nncData();
+    RigNNCData* nncData();
+
     void                             setFaults( const cvf::Collection<RigFault>& faults );
     const cvf::Collection<RigFault>& faults() const;
     cvf::Collection<RigFault>&       faults();

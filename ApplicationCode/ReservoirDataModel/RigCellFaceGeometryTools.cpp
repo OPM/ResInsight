@@ -43,7 +43,7 @@ cvf::StructGridInterface::FaceType
 {
     // Try to find the shared face
 
-    bool isPossibleNeighborInDirection[6] = { true, true, true, true, true, true };
+    bool isPossibleNeighborInDirection[6] = {true, true, true, true, true, true};
 
     if ( c1.hostGrid() == c2.hostGrid() )
     {
@@ -132,7 +132,8 @@ void assignThreadConnections( RigConnectionContainer& allConnections, RigConnect
 //--------------------------------------------------------------------------------------------------
 RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMainGrid*            mainGrid,
                                                                    const RigConnectionContainer& nativeConnections,
-                                                                   const RigActiveCellInfo*      activeCellInfo )
+                                                                   const RigActiveCellInfo*      activeCellInfo,
+                                                                   bool                          includeInactiveCells )
 {
     // Compute Non-Neighbor Connections (NNC) not reported by Eclipse. NNCs with zero transmissibility are not reported
     // by Eclipse. Use faults as basis for subset of cells to find NNC connection for. The imported connections from
@@ -173,7 +174,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
             const RigFault::FaultFace& f = faultFaces[faceIdx];
 
             bool atLeastOneCellActive = true;
-            if ( activeCellInfo && activeCellInfo->reservoirActiveCellCount() > 0u )
+            if ( !includeInactiveCells && activeCellInfo && activeCellInfo->reservoirActiveCellCount() > 0u )
             {
                 atLeastOneCellActive = activeCellInfo->isActive( f.m_nativeReservoirCellIndex ) ||
                                        activeCellInfo->isActive( f.m_oppositeReservoirCellIndex );

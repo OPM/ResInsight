@@ -21,6 +21,9 @@
 #include "RimEclipseCaseCollection.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferences.h"
+
+#include "RifReaderSettings.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
@@ -75,8 +78,7 @@ RimIdenticalGridCaseGroup* RimEclipseCaseCollection::createIdenticalCaseGroupFro
 {
     CVF_ASSERT( mainCase );
 
-    RigEclipseCaseData* rigEclipseCase = mainCase->eclipseCaseData();
-    RigMainGrid*        equalGrid      = registerCaseInGridCollection( rigEclipseCase );
+    RigMainGrid* equalGrid = registerCaseInGridCollection( mainCase );
     CVF_ASSERT( equalGrid );
 
     RimIdenticalGridCaseGroup* group = new RimIdenticalGridCaseGroup;
@@ -113,9 +115,10 @@ void RimEclipseCaseCollection::removeCaseFromAllGroups( RimEclipseCase* reservoi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RigEclipseCaseData* rigEclipseCase )
+RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RimEclipseCase* rimEclipseCase )
 {
-    CVF_ASSERT( rigEclipseCase );
+    CVF_ASSERT( rimEclipseCase && rimEclipseCase->eclipseCaseData() );
+    RigEclipseCaseData* rigEclipseCase = rimEclipseCase->eclipseCaseData();
 
     RigMainGrid* equalGrid = m_gridCollection->findEqualGrid( rigEclipseCase->mainGrid() );
 
@@ -129,7 +132,7 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection( RigEclipseC
         // This is the first insertion of this grid, compute cached data
         rigEclipseCase->mainGrid()->computeCachedData();
 
-        rigEclipseCase->mainGrid()->calculateFaults( rigEclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL ) );
+        rimEclipseCase->ensureFaultDataIsComputed();
 
         equalGrid = rigEclipseCase->mainGrid();
     }
@@ -146,8 +149,7 @@ void RimEclipseCaseCollection::insertCaseInCaseGroup( RimIdenticalGridCaseGroup*
 {
     CVF_ASSERT( rimReservoir );
 
-    RigEclipseCaseData* rigEclipseCase = rimReservoir->eclipseCaseData();
-    registerCaseInGridCollection( rigEclipseCase );
+    registerCaseInGridCollection( rimReservoir );
 
     caseGroup->addCase( rimReservoir );
 }
