@@ -555,13 +555,6 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo, bool
             }
         }
     }
-
-    if ( computeNncs )
-    {
-        this->nncData()->computeCompleteSetOfNncs( this, activeCellInfo, includeInactiveCells );
-    }
-
-    distributeNNCsToFaults();
 }
 
 //--------------------------------------------------------------------------------------------------
