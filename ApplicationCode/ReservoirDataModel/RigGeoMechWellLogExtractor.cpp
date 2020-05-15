@@ -237,7 +237,8 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         return finalSourcesPerSegment;
     }
 
-    bool isPPresult = parameter == RigWbsParameter::PP_Reservoir() || parameter == RigWbsParameter::PP_NonReservoir();
+    bool isPPResResult = parameter == RigWbsParameter::PP_Reservoir();
+    bool isPPresult    = isPPResResult || parameter == RigWbsParameter::PP_NonReservoir();
 
     std::vector<WbsParameterSource> allSources = parameter.sources();
     auto                            primary_it = std::find( allSources.begin(), allSources.end(), primarySource );
@@ -315,9 +316,11 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
             {
                 if ( !lasFileValues.empty() )
                 {
-                    double lasValue = getWellLogIntersectionValue( intersectionIdx, lasFileValues );
-                    if ( lasValue != std::numeric_limits<double>::infinity() && intersectionIdx < gridValues.size() &&
-                         gridValues[intersectionIdx] != std::numeric_limits<double>::infinity() )
+                    double lasValue         = getWellLogIntersectionValue( intersectionIdx, lasFileValues );
+		    // Only accept las-values for reservoir if the result is PP Reservoir
+                    bool   invalidLasRegion = isPPResResult && intersectionIdx < gridValues.size() &&
+                                            gridValues[intersectionIdx] != std::numeric_limits<double>::infinity();
+                    if ( lasValue != std::numeric_limits<double>::infinity() && !invalidLasRegion )
                     {
                         unscaledValues[intersectionIdx]         = lasValue;
                         finalSourcesPerSegment[intersectionIdx] = RigWbsParameter::LAS_FILE;
