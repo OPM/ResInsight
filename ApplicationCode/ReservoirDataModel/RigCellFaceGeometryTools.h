@@ -48,7 +48,8 @@ public:
 
     static RigConnectionContainer computeOtherNncs( const RigMainGrid*            mainGrid,
                                                     const RigConnectionContainer& nativeConnections,
-                                                    const RigActiveCellInfo*      activeCellInfo );
+                                                    const RigActiveCellInfo*      activeCellInfo,
+                                                    bool                          includeInactiveCells );
 
     static void                    extractConnectionsForFace( const RigFault::FaultFace&                     face,
                                                               const RigMainGrid*                             mainGrid,

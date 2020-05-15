@@ -608,7 +608,8 @@ void RimEclipseCase::computeCachedData()
 
         {
             auto task = pInf.task( "Calculating faults", 17 );
-            rigEclipseCase->mainGrid()->calculateFaults( rigEclipseCase->activeCellInfo( RiaDefines::MATRIX_MODEL ) );
+
+            ensureFaultDataIsComputed();
         }
 
         {
@@ -687,6 +688,23 @@ void RimEclipseCase::loadAndSyncronizeInputProperties( bool includeGridFileName 
     if ( includeGridFileName ) filenames.push_back( gridFileName() );
 
     RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(), eclipseCaseData(), filenames );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::ensureFaultDataIsComputed()
+{
+    RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
+    if ( rigEclipseCase )
+    {
+        bool computeFaults = RiaApplication::instance()->preferences()->readerSettings()->importFaults();
+        if ( computeFaults )
+        {
+            RigActiveCellInfo* actCellInfo = rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            rigEclipseCase->mainGrid()->calculateFaults( actCellInfo );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

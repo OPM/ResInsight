@@ -16,14 +16,10 @@ def test_10kSync(rips_instance, initialize_test):
     case = rips_instance.project.load_case(path=casePath)
 
     properties = case.available_nnc_properties()
-    assert(len(properties) == 3)
+    assert(len(properties) == 1)
 
     assert("TRAN" == properties[0].name)
     assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_STATIC') == properties[0].property_type)
-    assert("Binary Formation Allan" == properties[1].name)
-    assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_GENERATED') == properties[1].property_type)
-    assert("Formation Allan" == properties[2].name)
-    assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_GENERATED') == properties[2].property_type)
 
     nnc_connections = case.nnc_connections()
     assert(len(nnc_connections) == 3416)
@@ -39,12 +35,6 @@ def test_10kSync(rips_instance, initialize_test):
 
     for t in tran_vals:
         assert(isinstance(t, float))
-
-    allan_vals = case.nnc_connections_generated_values("Formation Allan", 0)
-    assert(len(allan_vals) == len(nnc_connections))
-
-    for a in allan_vals:
-        assert(isinstance(a, float))
 
     # Generate some data
     new_data = []

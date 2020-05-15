@@ -36,6 +36,15 @@ RifReaderSettings::RifReaderSettings()
     CAF_PDM_InitField( &importNNCs, "importSimulationNNCs", true, "Import NNCs", "", "", "" );
     importNNCs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
+    CAF_PDM_InitField( &includeInactiveCellsInFaultGeometry,
+                       "includeInactiveCellsInFaultGeometry",
+                       false,
+                       "Include Inactive Cells",
+                       "",
+                       "",
+                       "" );
+    includeInactiveCellsInFaultGeometry.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     CAF_PDM_InitField( &importAdvancedMswData, "importAdvancedMswData", false, "Import Advanced MSW Data", "", "", "" );
     importAdvancedMswData.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
@@ -73,7 +82,7 @@ void RifReaderSettings::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &importFaults || field == &importAdvancedMswData || field == &importNNCs ||
-         field == &useResultIndexFile || field == &skipWellData )
+         field == &useResultIndexFile || field == &skipWellData || field == &includeInactiveCellsInFaultGeometry )
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
         if ( myAttr )
@@ -89,6 +98,7 @@ void RifReaderSettings::defineEditorAttribute( const caf::PdmFieldHandle* field,
 void RifReaderSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &importFaults );
+    uiOrdering.add( &includeInactiveCellsInFaultGeometry );
 #ifdef WIN32
     uiOrdering.add( &includeFileAbsolutePathPrefix );
 #endif
@@ -96,4 +106,10 @@ void RifReaderSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     uiOrdering.add( &importAdvancedMswData );
     uiOrdering.add( &useResultIndexFile );
     uiOrdering.add( &skipWellData );
+
+    bool setFaultImportSettingsReadOnly = !importFaults();
+
+    includeInactiveCellsInFaultGeometry.uiCapability()->setUiReadOnly( setFaultImportSettingsReadOnly );
+    includeFileAbsolutePathPrefix.uiCapability()->setUiReadOnly( setFaultImportSettingsReadOnly );
+    importNNCs.uiCapability()->setUiReadOnly( setFaultImportSettingsReadOnly );
 }

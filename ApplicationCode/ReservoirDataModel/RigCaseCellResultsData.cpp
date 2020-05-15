@@ -1230,7 +1230,12 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
         else if ( resultName == RiaDefines::formationAllanResultName() ||
                   resultName == RiaDefines::formationBinaryAllanResultName() )
         {
-            computeAllanResults( this, m_ownerMainGrid );
+            bool includeInactiveCells = false;
+            if ( m_readerInterface.notNull() )
+            {
+                includeInactiveCells = m_readerInterface->includeInactiveCellsInFaultGeometry();
+            }
+            computeAllanResults( this, m_ownerMainGrid, includeInactiveCells );
         }
     }
     else if ( type == RiaDefines::DYNAMIC_NATIVE )
@@ -1369,6 +1374,18 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     {
         computeCellVolumes();
         computeOilVolumes();
+    }
+
+    // Allan results
+    if ( resultName == RiaDefines::formationAllanResultName() || resultName == RiaDefines::formationBinaryAllanResultName() )
+    {
+        bool includeInactiveCells = false;
+        if ( m_readerInterface.notNull() )
+        {
+            includeInactiveCells = m_readerInterface->includeInactiveCellsInFaultGeometry();
+        }
+
+        computeAllanResults( this, m_ownerMainGrid, includeInactiveCells );
     }
 
     // Handle SourSimRL reading
@@ -2895,7 +2912,11 @@ void RigCaseCellResultsData::setActiveFormationNames( RigFormationNames* activeF
         }
     }
 
-    computeAllanResults( this, m_ownerMainGrid );
+    // As the Allan formation diagram is depending on formation results, we need to clear the data set
+    // Will be recomputed when required
+    auto fnNamesResAddr =
+        RigEclipseResultAddress( RiaDefines::ResultCatType::ALLAN_DIAGRAMS, RiaDefines::formationAllanResultName() );
+    clearScalarResult( fnNamesResAddr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3007,17 +3028,18 @@ RigStatisticsDataCache* RigCaseCellResultsData::statistics( const RigEclipseResu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::computeAllanResults( RigCaseCellResultsData* cellResultsData, RigMainGrid* mainGrid )
+void RigCaseCellResultsData::computeAllanResults( RigCaseCellResultsData* cellResultsData,
+                                                  RigMainGrid*            mainGrid,
+                                                  bool                    includeInactiveCells )
 {
     CVF_ASSERT( mainGrid );
     CVF_ASSERT( cellResultsData );
 
-    auto fnNamesResAddr =
-        RigEclipseResultAddress( RiaDefines::FORMATION_NAMES, RiaDefines::activeFormationNamesResultName() );
-    bool hasFormationData = cellResultsData->hasResultEntry( fnNamesResAddr );
-
-    if ( hasFormationData )
+    if ( cellResultsData && cellResultsData->activeFormationNames() &&
+         !cellResultsData->activeFormationNames()->formationNames().empty() )
     {
+        auto fnNamesResAddr = RigEclipseResultAddress( RiaDefines::ResultCatType::FORMATION_NAMES,
+                                                       RiaDefines::activeFormationNamesResultName() );
         auto fnAllanResultResAddr =
             RigEclipseResultAddress( RiaDefines::ALLAN_DIAGRAMS, RiaDefines::formationAllanResultName() );
         auto fnBinAllanResAddr =

@@ -446,23 +446,27 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
         if ( isNNCsEnabled() )
         {
             caf::ProgressInfo nncProgress( 10, "" );
+            RigMainGrid*      mainGrid = eclipseCase->mainGrid();
 
             {
                 auto subNncTask = nncProgress.task( "Reading static NNC data" );
-                transferStaticNNCData( mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid() );
+                transferStaticNNCData( mainEclGrid, m_ecl_init_file, mainGrid );
             }
 
             // This test should probably be improved to test more directly for presence of NNC data
             if ( m_eclipseCase->results( RiaDefines::MATRIX_MODEL )->hasFlowDiagUsableFluxes() )
             {
                 auto subNncTask = nncProgress.task( "Reading dynamic NNC data" );
-                transferDynamicNNCData( mainEclGrid, eclipseCase->mainGrid() );
+                transferDynamicNNCData( mainEclGrid, mainGrid );
             }
 
-            {
-                auto subNncTask = nncProgress.task( "Processing connections", 8 );
-                eclipseCase->mainGrid()->nncData()->processNativeConnections( *( eclipseCase->mainGrid() ) );
-            }
+            RigActiveCellInfo* activeCellInfo =
+                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+            bool includeInactiveCells =
+                RiaApplication::instance()->preferences()->readerSettings()->includeInactiveCellsInFaultGeometry;
+
+            mainGrid->nncData()->setSourceDataForProcessing( mainGrid, activeCellInfo, includeInactiveCells );
         }
     }
 
@@ -741,11 +745,9 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
                     transmissibilityValuesTemp.push_back( transValues[nIdx] );
                 }
 
-                mainGrid->nncData()->setConnections( nncConnections );
-
-                std::vector<double>& transmissibilityValues =
-                    mainGrid->nncData()->makeStaticConnectionScalarResult( RiaDefines::propertyNameCombTrans() );
-                transmissibilityValues = transmissibilityValuesTemp;
+                mainGrid->nncData()->setNativeConnections( nncConnections );
+                mainGrid->nncData()->makeScalarResultAndSetValues( RiaDefines::propertyNameCombTrans(),
+                                                                   transmissibilityValuesTemp );
             }
 
             ecl_nnc_data_free( tran_data );

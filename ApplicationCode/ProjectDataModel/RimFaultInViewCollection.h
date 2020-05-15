@@ -77,8 +77,6 @@ public:
     caf::PdmChildArrayField<RimFaultInView*> faults;
     RimFaultInView*                          findFaultByName( QString name );
 
-    caf::PdmChildField<RimNoCommonAreaNncCollection*> noCommonAreaNnncCollection;
-
     void uiOrderingFaults( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
 private:
