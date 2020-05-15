@@ -461,13 +461,6 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
                               unNamedFaultFacesInactive,
                               m_faultsPrCellAcc.p() );
     }
-
-    if ( computeNncs )
-    {
-        this->nncData()->computeCompleteSetOfNncs( this, activeCellInfo, includeInactiveCells );
-    }
-
-    distributeNNCsToFaults();
 }
 
 //--------------------------------------------------------------------------------------------------
