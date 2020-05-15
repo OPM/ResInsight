@@ -36,6 +36,7 @@ class RigActiveCellInfo;
 class RigMainGrid;
 class RigCell;
 class RigEclipseResultAddress;
+class QStringList;
 
 class RigNNCData : public cvf::Object
 {
@@ -96,6 +97,8 @@ private:
     void computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
                                    const RigActiveCellInfo* activeCellInfo,
                                    bool                     includeInactiveCells );
+
+    size_t connectionsWithNoCommonArea( QStringList& connectionTextFirstItems, size_t maxItemCount );
 
 private:
     RigConnectionContainer                              m_connections;

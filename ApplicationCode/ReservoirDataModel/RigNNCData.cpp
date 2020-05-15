@@ -114,6 +114,78 @@ void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+size_t RigNNCData::connectionsWithNoCommonArea( QStringList& connectionTextFirstItems, size_t maxItemCount )
+{
+    size_t connectionWithNoCommonAreaCount = 0;
+
+    for ( size_t connIndex = 0; connIndex < m_connections.size(); connIndex++ )
+    {
+        if ( !m_connections[connIndex].hasCommonArea() )
+        {
+            connectionWithNoCommonAreaCount++;
+
+            if ( connectionTextFirstItems.size() < maxItemCount )
+            {
+                QString firstConnectionText;
+                QString secondConnectionText;
+
+                {
+                    size_t             gridLocalCellIndex;
+                    const RigGridBase* hostGrid =
+                        m_mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( m_connections[connIndex].c1GlobIdx(),
+                                                                          &gridLocalCellIndex );
+
+                    size_t i, j, k;
+                    if ( hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )
+                    {
+                        // Adjust to 1-based Eclipse indexing
+                        i++;
+                        j++;
+                        k++;
+
+                        if ( !hostGrid->isMainGrid() )
+                        {
+                            QString gridName    = QString::fromStdString( hostGrid->gridName() );
+                            firstConnectionText = gridName + " ";
+                        }
+                        firstConnectionText += QString( "[%1 %2 %3] - " ).arg( i ).arg( j ).arg( k );
+                    }
+                }
+
+                {
+                    size_t             gridLocalCellIndex;
+                    const RigGridBase* hostGrid =
+                        m_mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( m_connections[connIndex].c2GlobIdx(),
+                                                                          &gridLocalCellIndex );
+
+                    size_t i, j, k;
+                    if ( hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )
+                    {
+                        // Adjust to 1-based Eclipse indexing
+                        i++;
+                        j++;
+                        k++;
+
+                        if ( !hostGrid->isMainGrid() )
+                        {
+                            QString gridName     = QString::fromStdString( hostGrid->gridName() );
+                            secondConnectionText = gridName + " ";
+                        }
+                        secondConnectionText += QString( "[%1 %2 %3]" ).arg( i ).arg( j ).arg( k );
+                    }
+                }
+
+                connectionTextFirstItems.push_back( firstConnectionText + secondConnectionText );
+            }
+        }
+    }
+
+    return connectionWithNoCommonAreaCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigNNCData::ensureConnectionDataIsProcecced()
 {
     if ( m_connectionsAreProcessed ) return;
@@ -134,10 +206,27 @@ void RigNNCData::ensureConnectionDataIsProcecced()
 
         m_mainGrid->distributeNNCsToFaults();
 
+        QStringList  noCommonAreaText;
+        const size_t maxItemCount = 20;
+
+        size_t noCommonAreaCount = connectionsWithNoCommonArea( noCommonAreaText, maxItemCount );
+
         RiaLogging::info( "NNC geometry computation - completed process" );
 
         RiaLogging::info( QString( "Native NNC count : %1" ).arg( nativeConnectionCount() ) );
-        RiaLogging::info( QString( "Computed NNC count : %2" ).arg( m_connections.size() ) );
+        RiaLogging::info( QString( "Computed NNC count : %1" ).arg( m_connections.size() ) );
+
+        RiaLogging::info( QString( "NNCs with no common area count : %1" ).arg( noCommonAreaCount ) );
+
+        if ( !noCommonAreaText.isEmpty() )
+        {
+            RiaLogging::info( QString( "Listing first %1 NNCs with no common area " ).arg( noCommonAreaText.size() ) );
+
+            for ( const auto& s : noCommonAreaText )
+            {
+                RiaLogging::info( s );
+            }
+        }
     }
 }
 
