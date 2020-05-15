@@ -243,7 +243,7 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
         size_t i;
         size_t j;
         size_t k;
-        mainGrid->ijkFromCellIndexNonGuarded( sourceReservoirCellIndex, &i, &j, &k );
+        mainGrid->ijkFromCellIndexUnguarded( sourceReservoirCellIndex, &i, &j, &k );
 
         mainGrid->neighborIJKAtCellFace( i, j, k, sourceCellFace, &ni, &nj, &nk );
 
@@ -280,7 +280,7 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
             size_t ci = std::numeric_limits<size_t>::max();
             size_t cj = std::numeric_limits<size_t>::max();
             size_t ck = std::numeric_limits<size_t>::max();
-            mainGrid->ijkFromCellIndexNonGuarded( candidateCellIndex, &ci, &cj, &ck );
+            mainGrid->ijkFromCellIndexUnguarded( candidateCellIndex, &ci, &cj, &ck );
 
             auto gridAxis = cvf::StructGridInterface::gridAxisFromFace( sourceCellFace );
             if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_I )

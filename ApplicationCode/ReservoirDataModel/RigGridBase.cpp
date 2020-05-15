@@ -220,13 +220,12 @@ bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size
 /// This version does no if-guarding. Check that all dimensions of the grid are non-zero before using.
 /// Useful for running in a loop after doing the sanity check once.
 //--------------------------------------------------------------------------------------------------
-void RigGridBase::ijkFromCellIndexNonGuarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
+void RigGridBase::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t* j, size_t* k ) const
 {
     size_t index = cellIndex;
 
     size_t cellCountI = m_gridPointDimensions[0] - 1;
     size_t cellCountJ = m_gridPointDimensions[1] - 1;
-    size_t cellCountK = m_gridPointDimensions[2] - 1;
 
     *k = index / ( cellCountI * cellCountJ );
     index -= ( *k ) * ( cellCountI * cellCountJ );
