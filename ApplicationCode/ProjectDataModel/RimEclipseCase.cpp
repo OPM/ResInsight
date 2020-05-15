@@ -701,14 +701,8 @@ void RimEclipseCase::ensureFaultDataIsComputed()
         bool computeFaults = RiaApplication::instance()->preferences()->readerSettings()->importFaults();
         if ( computeFaults )
         {
-            bool computeNncs = RiaApplication::instance()->preferences()->readerSettings()->importNNCs();
-            bool includeInactiveCells =
-                RiaApplication::instance()->preferences()->readerSettings()->includeInactiveCellsInFaultGeometry();
-
-            rigEclipseCase->mainGrid()->calculateFaults( rigEclipseCase->activeCellInfo(
-                                                             RiaDefines::PorosityModelType::MATRIX_MODEL ),
-                                                         computeNncs,
-                                                         includeInactiveCells );
+            RigActiveCellInfo* actCellInfo = rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            rigEclipseCase->mainGrid()->calculateFaults( actCellInfo );
         }
     }
 }

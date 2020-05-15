@@ -71,7 +71,7 @@ public:
     void                             setFaults( const cvf::Collection<RigFault>& faults );
     const cvf::Collection<RigFault>& faults() const;
     cvf::Collection<RigFault>&       faults();
-    void calculateFaults( const RigActiveCellInfo* activeCellInfo, bool computeNncs, bool includeInactiveCells );
+    void                             calculateFaults( const RigActiveCellInfo* activeCellInfo );
 
     void distributeNNCsToFaults();
 
