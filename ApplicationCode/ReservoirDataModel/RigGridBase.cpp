@@ -26,6 +26,8 @@
 
 #include "cvfAssert.h"
 
+#include <cstdlib>
+
 RigGridBase::RigGridBase( RigMainGrid* mainGrid )
     : m_gridPointDimensions( 0, 0, 0 )
     , m_indexToStartOfCells( 0 )
@@ -202,16 +204,18 @@ bool RigGridBase::ijkFromCellIndex( size_t cellIndex, size_t* i, size_t* j, size
 
     size_t index = cellIndex;
 
-    if ( cellCountI() <= 0 || cellCountJ() <= 0 )
+    if ( m_gridPointDimensions[0] <= 1u || m_gridPointDimensions[1] <= 1u )
     {
         return false;
     }
 
-    *k = index / ( cellCountI() * cellCountJ() );
-    index -= ( *k ) * ( cellCountI() * cellCountJ() );
-    *j = index / cellCountI();
-    index -= ( *j ) * cellCountI();
-    *i = index;
+    const size_t cellCountI = m_gridPointDimensions[0] - 1u;
+    const size_t cellCountJ = m_gridPointDimensions[1] - 1u;
+
+    *i = index % cellCountI;
+    index /= cellCountI;
+    *j = index % cellCountJ;
+    *k = index / cellCountJ;
 
     return true;
 }
@@ -224,14 +228,13 @@ void RigGridBase::ijkFromCellIndexUnguarded( size_t cellIndex, size_t* i, size_t
 {
     size_t index = cellIndex;
 
-    size_t cellCountI = m_gridPointDimensions[0] - 1;
-    size_t cellCountJ = m_gridPointDimensions[1] - 1;
+    const size_t cellCountI = m_gridPointDimensions[0] - 1u;
+    const size_t cellCountJ = m_gridPointDimensions[1] - 1u;
 
-    *k = index / ( cellCountI * cellCountJ );
-    index -= ( *k ) * ( cellCountI * cellCountJ );
-    *j = index / cellCountI;
-    index -= ( *j ) * cellCountI;
-    *i = index;
+    *i = index % cellCountI;
+    index /= cellCountI;
+    *j = index % cellCountJ;
+    *k = index / cellCountJ;
 }
 
 //--------------------------------------------------------------------------------------------------
