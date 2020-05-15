@@ -23,13 +23,37 @@
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
+#include "RiaLogging.h"
+
+#include "cafProgressInfo.h"
+
 #include "cvfGeometryTools.h"
+
+#include <QString>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RigNNCData::RigNNCData()
+    : m_connectionsAreProcessed( false )
+    , m_mainGrid( nullptr )
+    , m_activeCellInfo( nullptr )
+    , m_computeNncForInactiveCells( false )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigNNCData::setSourceDataForProcessing( RigMainGrid*             mainGrid,
+                                             const RigActiveCellInfo* activeCellInfo,
+                                             bool                     includeInactiveCells )
+{
+    m_mainGrid                   = mainGrid;
+    m_activeCellInfo             = activeCellInfo;
+    m_computeNncForInactiveCells = includeInactiveCells;
+
+    m_connectionsAreProcessed = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +91,6 @@ void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
                                            const RigActiveCellInfo* activeCellInfo,
                                            bool                     includeInactiveCells )
 {
-    m_nativeConnectionCount = m_connections.size();
     RigConnectionContainer otherConnections =
         RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections, activeCellInfo, includeInactiveCells );
 
@@ -91,9 +114,42 @@ void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::setConnections( RigConnectionContainer& connections )
+void RigNNCData::ensureConnectionDataIsProcecced()
 {
-    m_connections = connections;
+    if ( m_connectionsAreProcessed ) return;
+
+    if ( m_mainGrid )
+    {
+        caf::ProgressInfo progressInfo( 3, "Computing NNC Data" );
+
+        RiaLogging::info( "NNC geometry computation - starting process" );
+
+        processNativeConnections( *m_mainGrid );
+        progressInfo.incrementProgress();
+
+        computeCompleteSetOfNncs( m_mainGrid, m_activeCellInfo, m_computeNncForInactiveCells );
+        progressInfo.incrementProgress();
+
+        m_connectionsAreProcessed = true;
+
+        m_mainGrid->distributeNNCsToFaults();
+
+        RiaLogging::info( "NNC geometry computation - completed process" );
+
+        RiaLogging::info( QString( "Native NNC count : %1" ).arg( nativeConnectionCount() ) );
+        RiaLogging::info( QString( "Computed NNC count : %2" ).arg( m_connections.size() ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigNNCData::setNativeConnections( RigConnectionContainer& connections )
+{
+    m_connections           = connections;
+    m_nativeConnectionCount = m_connections.size();
+
+    m_connectionsAreProcessed = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,8 +163,10 @@ size_t RigNNCData::nativeConnectionCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigConnectionContainer& RigNNCData::connections() const
+RigConnectionContainer& RigNNCData::connections()
 {
+    ensureConnectionDataIsProcecced();
+
     return m_connections;
 }
 
@@ -117,10 +175,22 @@ const RigConnectionContainer& RigNNCData::connections() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double>& RigNNCData::makeStaticConnectionScalarResult( QString nncDataType )
 {
+    ensureConnectionDataIsProcecced();
+
     std::vector<std::vector<double>>& results = m_connectionResults[nncDataType];
     results.resize( 1 );
     results[0].resize( m_connections.size(), HUGE_VAL );
     return results[0];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigNNCData::makeScalarResultAndSetValues( const QString& nncDataType, const std::vector<double>& values )
+{
+    std::vector<std::vector<double>>& results = m_connectionResults[nncDataType];
+    results.resize( 1 );
+    results[0] = values;
 }
 
 //--------------------------------------------------------------------------------------------------

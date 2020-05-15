@@ -201,6 +201,9 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
 
                 if ( showNncs )
                 {
+                    RigMainGrid* mainGrid = m_reservoirView->mainGrid();
+                    mainGrid->nncData()->ensureConnectionDataIsProcecced();
+
                     if ( showCompleteNncGeo )
                     {
                         rivFaultPart->appendCompleteNNCFacesToModel( &parts );
