@@ -187,9 +187,9 @@ size_t RigNNCData::connectionsWithNoCommonArea( QStringList& connectionTextFirst
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::ensureConnectionDataIsProcecced()
+bool RigNNCData::ensureConnectionDataIsProcecced()
 {
-    if ( m_connectionsAreProcessed ) return;
+    if ( m_connectionsAreProcessed ) return false;
 
     if ( m_mainGrid )
     {
@@ -229,6 +229,8 @@ void RigNNCData::ensureConnectionDataIsProcecced()
             }
         }
     }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

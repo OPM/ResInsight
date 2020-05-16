@@ -50,7 +50,7 @@ public:
 
     RigNNCData();
 
-    void ensureConnectionDataIsProcecced();
+    bool ensureConnectionDataIsProcecced();
     void setSourceDataForProcessing( RigMainGrid*             mainGrid,
                                      const RigActiveCellInfo* activeCellInfo,
                                      bool                     includeInactiveCells );

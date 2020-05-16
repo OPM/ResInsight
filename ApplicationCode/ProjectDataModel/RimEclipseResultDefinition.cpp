@@ -22,6 +22,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
+#include "RiaNncDefines.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RicfCommandObject.h"
@@ -1148,6 +1149,19 @@ void RimEclipseResultDefinition::loadResult()
         if ( isTimeDiffResult() || isCaseDiffResult() )
         {
             gridCellResults->createResultEntry( this->eclipseResultAddress(), false );
+        }
+
+        QString           resultName                    = m_resultVariable();
+        std::set<QString> eclipseResultNamesWithNncData = RiaDefines::nncResultNames();
+        if ( eclipseResultNamesWithNncData.find( resultName ) != eclipseResultNamesWithNncData.end() )
+        {
+            eclipseCase()->ensureFaultDataIsComputed();
+
+            bool dataWasComputed = eclipseCase()->ensureNncDataIsComputed();
+            if ( dataWasComputed )
+            {
+                eclipseCase()->createDisplayModelAndUpdateAllViews();
+            }
         }
 
         gridCellResults->ensureKnownResultLoaded( this->eclipseResultAddress() );

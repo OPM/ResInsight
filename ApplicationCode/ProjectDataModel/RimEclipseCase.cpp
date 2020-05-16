@@ -710,6 +710,38 @@ void RimEclipseCase::ensureFaultDataIsComputed()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseCase::ensureNncDataIsComputed()
+{
+    bool                computedData   = false;
+    RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
+    if ( rigEclipseCase && rigEclipseCase->mainGrid() )
+    {
+        computedData = rigEclipseCase->mainGrid()->nncData()->ensureConnectionDataIsProcecced();
+    }
+
+    return computedData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::createDisplayModelAndUpdateAllViews()
+{
+    for ( const auto& v : views() )
+    {
+        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( v );
+        if ( eclipseView )
+        {
+            eclipseView->scheduleReservoirGridGeometryRegen();
+        }
+
+        v->loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseCase::setReservoirData( RigEclipseCaseData* eclipseCase )
 {
     m_rigEclipseCase = eclipseCase;
