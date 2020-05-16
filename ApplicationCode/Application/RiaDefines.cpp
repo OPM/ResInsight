@@ -389,6 +389,22 @@ QString RiaDefines::formationAllanResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<QString> RiaDefines::nncResultNames()
+{
+    return {combinedTransmissibilityResultName(),
+            formationAllanResultName(),
+            formationBinaryAllanResultName(),
+            combinedWaterFluxResultName(),
+            combinedGasFluxResultName(),
+            combinedOilFluxResultName(),
+            combinedRiAreaNormTranResultName(),
+            combinedRiMultResultName(),
+            combinedRiTranResultName()};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaDefines::mockModelBasic()
 {
     return "Result Mock Debug Model Simple";

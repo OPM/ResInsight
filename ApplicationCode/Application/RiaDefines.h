@@ -21,6 +21,7 @@
 #pragma once
 
 #include <QString>
+#include <set>
 #include <vector>
 
 namespace RiaDefines
@@ -106,8 +107,9 @@ QString mobilePoreVolumeName();
 QString completionTypeResultName();
 
 // Fault results
-QString formationBinaryAllanResultName();
-QString formationAllanResultName();
+QString           formationBinaryAllanResultName();
+QString           formationAllanResultName();
+std::set<QString> nncResultNames();
 
 // Mock model text identifiers
 QString mockModelBasic();

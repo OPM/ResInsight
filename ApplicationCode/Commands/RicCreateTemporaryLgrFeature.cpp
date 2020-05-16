@@ -124,16 +124,7 @@ void RicCreateTemporaryLgrFeature::updateViews( RimEclipseCase* eclipseCase )
 
     RiaApplication::instance()->project()->mainPlotCollection()->wellLogPlotCollection()->reloadAllPlots();
 
-    for ( const auto& v : eclipseCase->views() )
-    {
-        RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( v );
-        if ( eclipseView )
-        {
-            eclipseView->scheduleReservoirGridGeometryRegen();
-        }
-
-        v->loadDataAndUpdate();
-    }
+    eclipseCase->createDisplayModelAndUpdateAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
