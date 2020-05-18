@@ -205,12 +205,11 @@ namespace cvf {
 
         AABBTreeNode* m_pRoot;
 
-        std::deque<AABBTreeNodeInternal>  m_nodePool;
-        std::deque<AABBTreeNodeLeaf>      m_leafPool;
-        size_t                            m_nextNodeIndex;
+        std::vector<AABBTreeNodeInternal>  m_nodePool;
+        std::vector<AABBTreeNodeLeaf>      m_leafPool;
+        size_t                             m_nextNodeIndex;
 
-        std::deque<InternalNodeAndRange> m_previousLevelNodes;
-        std::deque<InternalNodeAndRange> m_currentLevelNodes;
+        std::vector<InternalNodeAndRange> m_previousLevelNodes;
     };
 
     class BoundingBoxTreeImpl : public AABBTree
@@ -463,7 +462,7 @@ bool AABBTree::buildTree()
 
 	if (m_iNumLeaves == 0) return true;
 
-    m_nodePool.resize(m_iNumLeaves);
+    m_nodePool.resize(m_iNumLeaves - 1);
 
 	// Then find the bounding box of all items in the tree
 	cvf::BoundingBox box = leafBoundingBoxParallel(0, m_iNumLeaves - 1);
@@ -479,7 +478,7 @@ bool AABBTree::buildTree()
     m_pRoot = createNode();
 	m_pRoot->setBoundingBox(box);
 		
-    bool bRes = buildTree((AABBTreeNodeInternal*)m_pRoot, 0, m_iNumLeaves - 1, 0, 3);
+    bool bRes = buildTree((AABBTreeNodeInternal*)m_pRoot, 0, m_iNumLeaves - 1, 0, 4);
 
 #pragma omp parallel
     {
@@ -487,29 +486,13 @@ bool AABBTree::buildTree()
 #pragma omp for
         for (int i = 0; i < m_previousLevelNodes.size(); ++i)
         {
-            bThreadRes = bThreadRes && buildTree(m_previousLevelNodes[i].node, m_previousLevelNodes[i].fromIdx, m_previousLevelNodes[i].toIdx, 3, 6);
+            bThreadRes = bThreadRes && buildTree(m_previousLevelNodes[i].node, m_previousLevelNodes[i].fromIdx, m_previousLevelNodes[i].toIdx, 4);
         }
 #pragma omp critical
 		{
 			bRes = bRes && bThreadRes;
 		}
     }
-    m_previousLevelNodes.swap(m_currentLevelNodes);
-
-#pragma omp parallel
-    {
-        bool bThreadRes = bRes;
-#pragma omp for schedule(guided)
-        for (int i = 0; i < m_previousLevelNodes.size(); ++i)
-        {
-            bThreadRes = bThreadRes && buildTree(m_previousLevelNodes[i].node, m_previousLevelNodes[i].fromIdx, m_previousLevelNodes[i].toIdx, 6);
-        }
-#pragma omp critical
-		{
-			bRes = bRes && bThreadRes;
-		}
-    }
-    CVF_ASSERT(m_currentLevelNodes.empty());
     m_previousLevelNodes.clear();
 
     return bRes;
@@ -526,7 +509,7 @@ bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iT
     {
 #pragma omp critical
         {
-            m_currentLevelNodes.emplace_back(pNode, iFromIdx, iToIdx);
+            m_previousLevelNodes.emplace_back(pNode, iFromIdx, iToIdx);
         }
         return true;
     }
@@ -626,7 +609,6 @@ void AABBTree::freeThis()
     m_leafPool.clear();
 
     m_previousLevelNodes.clear();
-    m_currentLevelNodes.clear();
 
     m_iNumLeaves    = 0;
     m_nextNodeIndex = 0;
