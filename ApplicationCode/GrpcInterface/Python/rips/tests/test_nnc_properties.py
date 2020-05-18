@@ -22,7 +22,7 @@ def test_10kSync(rips_instance, initialize_test):
     assert(NNCProperties_pb2.NNCPropertyType.Value('NNC_STATIC') == properties[0].property_type)
 
     nnc_connections = case.nnc_connections()
-    assert(len(nnc_connections) == 3416)
+    assert(len(nnc_connections) == 3627)
 
     connection = nnc_connections[0]
     assert(connection.cell1.i == 33)
