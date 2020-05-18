@@ -392,6 +392,10 @@ endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch")
+    # Treat warnings as errors on new gcc versions
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.2)
+          set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch -Werror")
+    endif()
 endif()
 
 
