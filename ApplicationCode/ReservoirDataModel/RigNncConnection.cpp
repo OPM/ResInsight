@@ -42,6 +42,14 @@ RigConnection::RigConnection( unsigned                           c1GlobIdx,
     , m_c1Face( static_cast<unsigned char>( c1Face ) )
     , m_polygon( polygon )
 {
+    if ( c1GlobIdx >= c2GlobIdx )
+    {
+        // Ensure the smallest cell index is the first index
+        // TODO : The face type is related to cell 1, so face should be changed to opposite face
+        // This causes visual artifacts for some models, so this change will require more investigation
+        m_c1GlobIdx = c2GlobIdx;
+        m_c2GlobIdx = c1GlobIdx;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,6 +65,15 @@ RigConnection::RigConnection( size_t                             c1GlobIdx,
     , m_polygon( polygon )
 {
     CVF_ASSERT( c1GlobIdx < std::numeric_limits<unsigned>::max() && c2GlobIdx < std::numeric_limits<unsigned>::max() );
+
+    if ( c1GlobIdx >= c2GlobIdx )
+    {
+        // Ensure the smallest cell index is the first index
+        // TODO : The face type is related to cell 1, so face should be changed to opposite face
+        // This causes visual artifacts for some models, so this change will require more investigation
+        m_c1GlobIdx = static_cast<unsigned>( c2GlobIdx );
+        m_c2GlobIdx = static_cast<unsigned>( c1GlobIdx );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
