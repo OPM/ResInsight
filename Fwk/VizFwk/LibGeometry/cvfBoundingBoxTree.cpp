@@ -88,6 +88,7 @@ namespace cvf {
 
         const cvf::BoundingBox& boundingBox() const;
         void                    setBoundingBox(const cvf::BoundingBox bb);
+        const cvf::Vec3d&       boundingBoxCenter() const;
 
         NodeType                type() const;
 
@@ -96,6 +97,7 @@ namespace cvf {
 
     private:
         cvf::BoundingBox        m_boundingBox;
+        cvf::Vec3d              m_boundingBoxCenter;
     };
 
 
@@ -329,8 +331,17 @@ NodeType AABBTreeNode::type() const
 void AABBTreeNode::setBoundingBox(const cvf::BoundingBox bb)
 {
     m_boundingBox = bb;
+    m_boundingBoxCenter = m_boundingBox.center();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const cvf::Vec3d& AABBTreeNode::boundingBoxCenter() const
+{
+    return m_boundingBoxCenter;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -546,7 +557,7 @@ bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iT
 
 	int iLongestAxis = largestComponent(pNode->boundingBox().extent());
 
-	double splitValue = pNode->boundingBox().center()[iLongestAxis];
+	double splitValue = pNode->boundingBoxCenter()[iLongestAxis];
 	size_t i = iFromIdx;
 	size_t iMid = iToIdx;
 
@@ -558,7 +569,7 @@ bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iT
 	// Order the leaves according to the position of the center of each BB in comparison with longest axis of the BB
 	while (i < iMid)
 	{
-		if (!(m_ppLeaves[i]->boundingBox().isValid()) || m_ppLeaves[i]->boundingBox().center()[iLongestAxis] < splitValue)
+		if (!(m_ppLeaves[i]->boundingBox().isValid()) || m_ppLeaves[i]->boundingBoxCenter()[iLongestAxis] < splitValue)
 		{
 			// Ok, move on
 			i++;
