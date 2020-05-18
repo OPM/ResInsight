@@ -75,6 +75,8 @@ RimIntersectionResultDefinition::RimIntersectionResultDefinition()
     m_ternaryLegendConfig.uiCapability()->setUiHidden( true );
     m_ternaryLegendConfig.uiCapability()->setUiTreeChildrenHidden( false );
     m_ternaryLegendConfig = new RimTernaryLegendConfig;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

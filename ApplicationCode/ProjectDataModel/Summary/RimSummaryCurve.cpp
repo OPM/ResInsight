@@ -138,6 +138,8 @@ RimSummaryCurve::RimSummaryCurve()
     m_xValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
     m_xValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_xValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

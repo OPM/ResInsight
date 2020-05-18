@@ -107,6 +107,8 @@ RimGeoMechView::RimGeoMechView( void )
     nameConfig()->hideAggregationTypeField( true );
     nameConfig()->hidePropertyField( false );
     nameConfig()->hideSampleSpacingField( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

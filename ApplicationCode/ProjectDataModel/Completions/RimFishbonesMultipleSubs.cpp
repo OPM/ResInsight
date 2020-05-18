@@ -155,6 +155,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     m_pipeProperties = new RimFishbonesPipeProperties;
 
     m_rigFishbonesGeometry = std::unique_ptr<RigFisbonesGeometry>( new RigFisbonesGeometry( this ) );
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

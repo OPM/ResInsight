@@ -107,6 +107,7 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 
     this->m_showWindow = false;
     setAsPlotMdiWindow();
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

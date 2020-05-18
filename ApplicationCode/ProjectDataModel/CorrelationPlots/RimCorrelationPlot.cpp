@@ -71,6 +71,8 @@ RimCorrelationPlot::RimCorrelationPlot()
     m_correlationFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

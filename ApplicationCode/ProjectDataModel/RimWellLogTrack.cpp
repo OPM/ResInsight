@@ -21,6 +21,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaExtractionTools.h"
+#include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaSimWellBranchTools.h"
 
@@ -73,12 +74,12 @@
 
 #include "RiuMainWindow.h"
 #include "RiuPlotAnnotationTool.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
+#include "RiuQwtLinearScaleEngine.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellLogTrack.h"
 #include "RiuWellPathComponentPlotItem.h"
-
-#include "RiuQwtLinearScaleEngine.h"
 
 #include "cafPdmUiSliderEditor.h"
 #include "cafSelectionManager.h"
@@ -2796,4 +2797,16 @@ void RimWellLogTrack::removeRegionAnnotations()
 void RimWellLogTrack::doUpdateLayout()
 {
     m_plotWidget->scheduleReplot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                      std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    setAutoScaleXEnabled( true );
+    updateZoomInQwt();
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+    mainPlotWindow->updateWellLogPlotToolBar();
 }

@@ -853,3 +853,18 @@ Rim2dIntersectionView* corresponding2dIntersectionView( RimSimWellInView* simWel
     }
     return nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSimWellInView::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                       std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimEclipseView* view = nullptr;
+    this->firstAncestorOrThisOfType( view );
+
+    if ( view )
+    {
+        view->scheduleCreateDisplayModelAndRedraw();
+    }
+}

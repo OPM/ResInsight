@@ -133,6 +133,15 @@ void RimCellRangeFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCellRangeFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    updateDisplayModeNotifyManagedViews( nullptr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews( RimCellRangeFilter* changedRangeFilter )
 {
     Rim3dView* view = nullptr;

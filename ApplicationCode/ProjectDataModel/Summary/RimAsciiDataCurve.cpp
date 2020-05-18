@@ -53,6 +53,8 @@ RimAsciiDataCurve::RimAsciiDataCurve()
 
     m_symbolSkipPixelDistance = 10.0f;
     m_curveThickness          = 2;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

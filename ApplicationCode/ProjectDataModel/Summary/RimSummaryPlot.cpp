@@ -2052,6 +2052,16 @@ size_t RimSummaryPlot::curveCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::isDeletable() const
+{
+    RimMultiPlot* plotWindow = nullptr;
+    firstAncestorOrThisOfType( plotWindow );
+    return plotWindow == nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves, CurvesData* curvesData )
 {
     CVF_ASSERT( curvesData );

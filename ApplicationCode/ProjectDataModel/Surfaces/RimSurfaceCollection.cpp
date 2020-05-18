@@ -233,3 +233,12 @@ void RimSurfaceCollection::updateViews()
         view->scheduleCreateDisplayModelAndRedraw();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                           std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    updateViews();
+}

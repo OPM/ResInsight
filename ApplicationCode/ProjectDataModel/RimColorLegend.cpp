@@ -32,6 +32,8 @@ RimColorLegend::RimColorLegend()
 
     CAF_PDM_InitFieldNoDefault( &m_colorLegendItems, "ColorLegendItems", "", "", "", "" );
     m_colorLegendItems.uiCapability()->setUiHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,6 +65,7 @@ void RimColorLegend::setColorLegendName( const QString& colorLegendName )
 void RimColorLegend::setReadOnly( bool doReadOnly )
 {
     m_colorLegendName.uiCapability()->setUiReadOnly( true );
+    setDeletable( !doReadOnly );
 
     for ( auto colorLegendItem : m_colorLegendItems )
     {

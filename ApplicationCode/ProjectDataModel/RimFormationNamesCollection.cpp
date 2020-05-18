@@ -18,6 +18,7 @@
 
 #include "RimFormationNamesCollection.h"
 
+#include "RimCase.h"
 #include "RimFormationNames.h"
 
 #include <QMessageBox>
@@ -33,6 +34,8 @@ RimFormationNamesCollection::RimFormationNamesCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_formationNamesList, "FormationNamesList", "Formations", "", "", "" );
     m_formationNamesList.uiCapability()->setUiHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,5 +130,18 @@ void RimFormationNamesCollection::updateFilePathsFromProjectPath( const QString&
     for ( RimFormationNames* fmNames : m_formationNamesList )
     {
         fmNames->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFormationNamesCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                  std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    for ( caf::PdmObjectHandle* reffingObj : referringObjects )
+    {
+        RimCase* aCase = dynamic_cast<RimCase*>( reffingObj );
+        if ( aCase ) aCase->updateFormationNamesData();
     }
 }

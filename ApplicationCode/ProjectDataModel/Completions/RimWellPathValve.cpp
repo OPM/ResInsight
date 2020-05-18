@@ -62,6 +62,8 @@ RimWellPathValve::RimWellPathValve()
     m_createValveTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
 
     nameField()->uiCapability()->setUiReadOnly( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

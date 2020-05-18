@@ -165,6 +165,8 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiHidden( true );
     m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

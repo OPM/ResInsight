@@ -4,10 +4,20 @@
 #include "cafAssert.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObjectCapability.h"
+#include "cafPdmChildArrayField.h"
 
 
 namespace caf
 {
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmObjectHandle::PdmObjectHandle()
+{
+    m_parentField = nullptr;
+    m_isDeletable = false;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -172,6 +182,30 @@ PdmFieldHandle* PdmObjectHandle::findField(const QString& keyword) const
 PdmFieldHandle* PdmObjectHandle::parentField() const
 {
     return m_parentField;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::setDeletable(bool isDeletable)
+{
+    m_isDeletable = isDeletable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmObjectHandle::isDeletable() const
+{
+    return m_isDeletable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmObjectHandle::onChildDeleted(PdmChildArrayFieldHandle* childArray,
+                                     std::vector<caf::PdmObjectHandle*>& referringObjects)
+{
 }
 
 // These two functions can be used when PdmCore is used standalone without PdmUi/PdmXml

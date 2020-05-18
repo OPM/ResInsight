@@ -903,3 +903,12 @@ bool RimWellPath::isAssociatedWithSimulationWell() const
 {
     return !m_simWellName().isEmpty();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                  std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    updateConnectedEditors();
+}

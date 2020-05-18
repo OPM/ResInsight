@@ -40,6 +40,8 @@ public:
     caf::PdmField<bool>                isActive;
     caf::PdmChildField<RimViewLinker*> viewLinker;
 
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects );
+
 protected:
     caf::PdmFieldHandle* objectToggleField() override { return &isActive; }
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;

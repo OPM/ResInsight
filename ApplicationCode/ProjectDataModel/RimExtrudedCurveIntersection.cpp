@@ -126,6 +126,8 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     inputTwoAzimuthPointsFromViewerEnabled = false;
 
     uiCapability()->setUiTreeChildrenHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

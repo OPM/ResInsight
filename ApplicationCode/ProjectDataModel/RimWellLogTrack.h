@@ -208,6 +208,8 @@ public:
                         bool                        forceChange = false ) override;
 
     void onAxisSelected( int axis, bool toggle ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void updateAxes() override;
 

@@ -42,6 +42,9 @@ public:
     void updateViews();
     void updateViews( const std::vector<RimSurface*>& surfsToReload );
 
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
 private:
     caf::PdmChildArrayField<RimSurface*> m_surfaces;
 };

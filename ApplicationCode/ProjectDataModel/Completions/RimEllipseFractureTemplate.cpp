@@ -63,6 +63,8 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate()
     createFractureGridAndAssignConductivities();
 
     // clang-format on
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

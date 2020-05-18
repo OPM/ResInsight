@@ -64,6 +64,8 @@ RimEclipseInputProperty::RimEclipseInputProperty()
     resolvedState.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     fileName.uiCapability()->setUiReadOnly( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

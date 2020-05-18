@@ -37,6 +37,8 @@ public:
     std::vector<RimIntersectionResultDefinition*> intersectionResultsDefinitions() const;
 
     void appendIntersectionResultDefinition( RimIntersectionResultDefinition* interResDef );
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 protected:
     caf::PdmFieldHandle* objectToggleField() override;

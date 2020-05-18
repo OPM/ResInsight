@@ -665,7 +665,6 @@ RiaEclipseUnitTools::UnitSystemType RimWellPathCollection::findUnitSystemForWell
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 RimWellMeasurementCollection* RimWellPathCollection::measurementCollection()
 {
     return m_wellMeasurements;
@@ -674,8 +673,17 @@ RimWellMeasurementCollection* RimWellPathCollection::measurementCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 const RimWellMeasurementCollection* RimWellPathCollection::measurementCollection() const
 {
     return m_wellMeasurements;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                            std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    scheduleRedrawAffectedViews();
+    uiCapability()->updateConnectedEditors();
 }

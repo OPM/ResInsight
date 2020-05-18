@@ -285,3 +285,12 @@ void RimAnnotationCollection::loadDataAndUpdate()
 {
     reloadPolylinesFromFile( polylinesFromFileAnnotations() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                              std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    onAnnotationDeleted();
+}
