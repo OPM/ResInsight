@@ -488,7 +488,7 @@ bool AABBTree::buildTree()
     {
         bool bThreadRes = bRes;
 #pragma omp for
-        for (int i = 0; i < m_previousLevelNodes.size(); ++i)
+        for (int i = 0; i < static_cast<int>(m_previousLevelNodes.size()); ++i)
         {
             bThreadRes = bThreadRes && buildTree(m_previousLevelNodes[i].node, m_previousLevelNodes[i].fromIdx, m_previousLevelNodes[i].toIdx, 4);
         }
