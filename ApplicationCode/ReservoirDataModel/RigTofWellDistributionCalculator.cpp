@@ -126,7 +126,6 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
 
         for ( const auto& mapElement : tofToCellIndicesMap )
         {
-            const double               tofValue       = mapElement.first;
             const std::vector<size_t>& cellIndicesArr = mapElement.second;
 
             for ( size_t cellIndex : cellIndicesArr )

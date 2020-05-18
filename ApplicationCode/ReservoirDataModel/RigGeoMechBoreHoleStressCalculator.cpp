@@ -83,7 +83,6 @@ double RigGeoMechBoreHoleStressCalculator::solveBisection( double minPw, double 
     minPw               = largestNegativeValue.first;
     double minPwFuncVal = largestNegativeValue.second;
     maxPw               = smallestPositiveValue.first;
-    double maxPwFuncVal = smallestPositiveValue.second;
 
     double range = std::abs( maxPw - minPw );
 
@@ -94,8 +93,7 @@ double RigGeoMechBoreHoleStressCalculator::solveBisection( double minPw, double 
         double midPwFuncVal = ( this->*fn )( midPw, &theta );
         if ( midPwFuncVal * minPwFuncVal < 0.0 )
         {
-            maxPw        = midPw;
-            maxPwFuncVal = midPwFuncVal;
+            maxPw = midPw;
         }
         else
         {

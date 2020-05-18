@@ -867,10 +867,8 @@ void RiuQwtPlotWidget::recalculateAxisExtents( QwtPlot::Axis axis )
 //--------------------------------------------------------------------------------------------------
 caf::UiStyleSheet RiuQwtPlotWidget::createPlotStyleSheet() const
 {
-    QColor backgroundColor       = QColor( "white" );
-    QColor highlightColor        = QApplication::palette().highlight().color();
-    QColor blendedHighlightColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 20 );
-    QColor nearlyBackgroundColor = RiaColorTools::blendQColors( highlightColor, backgroundColor, 1, 40 );
+    QColor backgroundColor = QColor( "white" );
+    QColor highlightColor  = QApplication::palette().highlight().color();
 
     caf::UiStyleSheet styleSheet;
     styleSheet.set( "background-color", backgroundColor.name() );

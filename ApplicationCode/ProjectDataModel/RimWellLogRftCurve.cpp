@@ -375,16 +375,13 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    RiaDefines::DepthTypeEnum depthType       = RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH;
-    DerivedMDSource           derivedMDSource = NO_SOURCE;
+    DerivedMDSource derivedMDSource = NO_SOURCE;
 
     if ( isCurveVisible() )
     {
         RimWellLogPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );
         CVF_ASSERT( wellLogPlot );
-
-        depthType = wellLogPlot->depthType();
 
         RimWellRftPlot* rftPlot                     = dynamic_cast<RimWellRftPlot*>( wellLogPlot );
         bool            showErrorBarsInObservedData = rftPlot ? rftPlot->showErrorBarsForObservedData() : false;

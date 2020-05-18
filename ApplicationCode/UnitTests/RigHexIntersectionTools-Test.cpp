@@ -97,5 +97,5 @@ TEST( RigHexIntersectionTools, DISABLED_planeHexCellIntersectionPerformanceTest 
         qDebug() << "Time rim elapsed: " << timeLocal.elapsed();
     }
 
-    qDebug() << "Time total elapsed: " << timeTotal.elapsed();
+    qDebug() << "Time total elapsed: " << timeTotal.elapsed() << " intersected: " << static_cast<int>( isCellIntersected );
 }

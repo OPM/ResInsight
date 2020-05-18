@@ -809,7 +809,6 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
         {
             const auto wellPath =
                 RicWellPathExportCompletionsFileTools::findWellPathFromExportName( completion.wellName() );
-            auto item = wellPathToLgrNameMap.find( wellPath );
             wellPathToLgrNameMap[wellPath].insert( completionsForLgr.first );
         }
     }

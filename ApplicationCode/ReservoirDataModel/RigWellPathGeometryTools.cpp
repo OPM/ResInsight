@@ -278,8 +278,6 @@ double RigWellPathGeometryTools::solveForX( const QwtSpline& spline, double minX
     double c = b - ( b - a ) / phi;
     double d = a + ( b - a ) / phi;
 
-    double fa = spline.value( a ) - y;
-    double fb = spline.value( b ) - y;
     double fc = spline.value( c ) - y;
     double fd = spline.value( d ) - y;
 
@@ -293,7 +291,6 @@ double RigWellPathGeometryTools::solveForX( const QwtSpline& spline, double minX
         if ( std::fabs( fc ) < std::fabs( fd ) )
         {
             b  = d;
-            fb = fd;
             d  = c;
             fd = fc;
             c  = b - ( b - a ) / phi;
@@ -302,7 +299,6 @@ double RigWellPathGeometryTools::solveForX( const QwtSpline& spline, double minX
         else
         {
             a  = c;
-            fa = fc;
             c  = d;
             fc = fd;
             d  = a + ( b - a ) / phi;

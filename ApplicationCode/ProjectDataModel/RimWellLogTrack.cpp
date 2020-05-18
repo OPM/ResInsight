@@ -2484,11 +2484,6 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
     RimDepthTrackPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
 
-    RimMainPlotCollection* mainPlotCollection;
-    this->firstAncestorOrThisOfTypeAsserted( mainPlotCollection );
-
-    RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
-
     RigEclipseWellLogExtractor* eclWellLogExtractor =
         RiaExtractionTools::wellLogExtractorEclipseCase( m_formationWellPathForSourceCase,
                                                          dynamic_cast<RimEclipseCase*>( m_formationCase() ) );

@@ -200,12 +200,6 @@ TEST( RifEclipseInputFileToolsTest, EquilData )
                                                                                    &isStopParsingKeywordDetected,
                                                                                    includeStatementAbsolutePathPrefix );
         EXPECT_EQ( (int)10, keywordContent.size() );
-
-        for ( const auto& s : keywordContent )
-        {
-            RigEquil equilRec = RigEquil::parseString( s );
-            // qDebug() << s;
-        }
     }
 }
 

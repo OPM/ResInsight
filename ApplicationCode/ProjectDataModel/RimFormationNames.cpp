@@ -120,7 +120,6 @@ void RimFormationNames::updateConnectedViews()
     std::vector<RimCase*> objects;
     this->objectsWithReferringPtrFieldsOfType( objects );
 
-    bool updatedTracks = false;
     for ( RimCase* caseObj : objects )
     {
         if ( caseObj )
@@ -135,7 +134,6 @@ void RimFormationNames::updateConnectedViews()
                 if ( track->formationNamesCase() == caseObj )
                 {
                     track->loadDataAndUpdate();
-                    updatedTracks = true;
                 }
             }
         }
