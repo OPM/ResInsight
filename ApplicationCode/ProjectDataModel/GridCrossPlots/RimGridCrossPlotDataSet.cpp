@@ -133,6 +133,7 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     m_plotCellFilterCollection = new RimPlotCellFilterCollection;
 
     setDefaults();
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

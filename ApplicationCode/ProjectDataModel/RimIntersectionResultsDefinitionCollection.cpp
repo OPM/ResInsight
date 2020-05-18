@@ -112,3 +112,18 @@ void RimIntersectionResultsDefinitionCollection::initAfterRead()
 {
     this->updateUiIconFromToggleField();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionResultsDefinitionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                                 std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimGridView* gridView = nullptr;
+    this->firstAncestorOrThisOfType( gridView );
+    if ( gridView )
+    {
+        gridView->scheduleCreateDisplayModelAndRedraw();
+        gridView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+    }
+}

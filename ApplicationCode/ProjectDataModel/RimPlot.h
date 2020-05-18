@@ -88,6 +88,9 @@ public:
     virtual void            detachAllCurves()                                            = 0;
     virtual caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const = 0;
 
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

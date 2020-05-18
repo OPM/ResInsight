@@ -207,6 +207,8 @@ RimEclipseView::RimEclipseView()
     nameConfig()->hideAggregationTypeField( true );
     nameConfig()->hidePropertyField( false );
     nameConfig()->hideSampleSpacingField( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2250,7 +2252,7 @@ bool RimEclipseView::isUsingFormationNames() const
 {
     if ( cellResult()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES ) return true;
 
-        return true;
+    return true;
 
     return eclipsePropertyFilterCollection()->isUsingFormationNames();
 }

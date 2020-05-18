@@ -120,6 +120,9 @@ public:
     QString asciiDataForPlotExport() const;
     void    handleKeyPressEvent( QKeyEvent* keyEvent );
 
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
 protected:
     QImage snapshotWindowContent() override;
 

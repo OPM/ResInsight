@@ -181,6 +181,8 @@ public:
     void deleteViewWidget() override;
     void initAfterRead() override;
 
+    bool isDeletable() const override;
+
 private:
     RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 

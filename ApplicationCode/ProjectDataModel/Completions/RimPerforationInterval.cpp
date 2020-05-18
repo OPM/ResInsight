@@ -64,6 +64,8 @@ RimPerforationInterval::RimPerforationInterval()
     m_startMD.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     m_endMD.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     // clang-format on
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

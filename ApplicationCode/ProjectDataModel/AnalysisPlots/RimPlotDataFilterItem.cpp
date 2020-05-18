@@ -114,6 +114,8 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
     CAF_PDM_InitFieldNoDefault( &m_explicitlySelectedTimeSteps, "ExplicitlySelectedTimeSteps", "TimeSteps", "", "", "" );
     m_explicitlySelectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_explicitlySelectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

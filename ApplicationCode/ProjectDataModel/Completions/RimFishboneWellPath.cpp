@@ -45,6 +45,8 @@ RimFishboneWellPath::RimFishboneWellPath()
     m_displayCoordinates.uiCapability()->setUiReadOnly( true );
     m_displayCoordinates.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_displayCoordinates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

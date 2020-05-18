@@ -76,6 +76,8 @@ RimGridCrossPlot::RimGridCrossPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_crossPlotDataSets, "CrossPlotCurve", "Cross Plot Data Set", "", "", "" );
     m_crossPlotDataSets.uiCapability()->setUiHidden( true );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1078,6 +1080,16 @@ void RimGridCrossPlot::cleanupBeforeClose()
         delete m_plotWidget;
         m_plotWidget = nullptr;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCrossPlot::isDeletable() const
+{
+    RimMultiPlot* plotWindow = nullptr;
+    firstAncestorOrThisOfType( plotWindow );
+    return plotWindow == nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

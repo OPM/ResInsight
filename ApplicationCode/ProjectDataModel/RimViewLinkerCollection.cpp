@@ -19,6 +19,7 @@
 
 #include "RimViewLinkerCollection.h"
 
+#include "RimProject.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 
@@ -91,4 +92,22 @@ void RimViewLinkerCollection::fieldChangedByUi( const caf::PdmFieldHandle* chang
 void RimViewLinkerCollection::initAfterRead()
 {
     this->updateUiIconFromToggleField();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewLinkerCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                              std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    uiCapability()->updateConnectedEditors();
+
+    RimProject* project = nullptr;
+    firstAncestorOrThisOfType( project );
+    if ( project )
+    {
+        // Update visibility of top level Linked Views item in the project tree
+        // Not visible if no views are linked
+        project->uiCapability()->updateConnectedEditors();
+    }
 }

@@ -111,6 +111,9 @@ public:
 
     cvf::BoundingBox boundingBoxInDomainCoords() const override;
 
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

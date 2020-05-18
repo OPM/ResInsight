@@ -53,6 +53,9 @@ private:
 
     caf::PdmFieldHandle* objectToggleField() override;
 
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
 private:
     caf::PdmField<bool>                              m_active;
     caf::PdmChildArrayField<RimEnsembleCurveFilter*> m_filters;

@@ -77,6 +77,8 @@ RimMultiPlot::RimMultiPlot()
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count", "", "", "" );
 
     m_viewer = nullptr;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

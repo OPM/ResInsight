@@ -41,6 +41,8 @@ RimSurface::RimSurface()
     CAF_PDM_InitField( &m_color, "SurfaceColor", cvf::Color3f( 0.5f, 0.3f, 0.2f ), "Color", "", "", "" );
 
     CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

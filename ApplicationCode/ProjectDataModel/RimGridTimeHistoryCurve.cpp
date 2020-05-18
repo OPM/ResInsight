@@ -77,6 +77,8 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
                        "",
                        "",
                        "" );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

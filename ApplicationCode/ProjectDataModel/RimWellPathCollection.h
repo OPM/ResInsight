@@ -115,6 +115,9 @@ public:
     RimWellMeasurementCollection*       measurementCollection();
     const RimWellMeasurementCollection* measurementCollection() const;
 
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 

@@ -42,6 +42,8 @@ RimColorLegendItem::RimColorLegendItem()
     m_nameProxy.registerGetMethod( this, &RimColorLegendItem::extractColorItemName );
     m_nameProxy.uiCapability()->setUiHidden( true );
     m_nameProxy.xmlCapability()->disableIO();
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,6 +71,7 @@ void RimColorLegendItem::setReadOnly( bool doReadOnly )
     m_categoryName.uiCapability()->setUiReadOnly( true );
     m_categoryValue.uiCapability()->setUiReadOnly( true );
     m_color.uiCapability()->setUiReadOnly( true );
+    setDeletable( !doReadOnly );
 }
 
 //--------------------------------------------------------------------------------------------------

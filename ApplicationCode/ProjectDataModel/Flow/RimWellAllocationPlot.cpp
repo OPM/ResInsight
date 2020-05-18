@@ -130,6 +130,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot->setCommonDataSourceEnabled( false );
 
     m_showWindow = false;
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

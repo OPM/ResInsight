@@ -85,8 +85,9 @@ RimViewController::RimViewController()
 
     CAF_PDM_InitField(&m_syncRangeFilters,    "SyncRangeFilters", false,   "Range Filters", "", "", "");
     CAF_PDM_InitField(&m_syncPropertyFilters, "SyncPropertyFilters", false,"Property Filters", "", "", "");
-
     // clang-format on
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

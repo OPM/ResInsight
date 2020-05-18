@@ -91,6 +91,8 @@ RimDerivedEnsembleCaseCollection::RimDerivedEnsembleCaseCollection()
 
     setNameAsReadOnly();
     setName( "Delta Ensemble" );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

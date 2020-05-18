@@ -90,6 +90,8 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 
     m_unionOfMatrixActiveCells   = new RigActiveCellInfo;
     m_unionOfFractureActiveCells = new RigActiveCellInfo;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

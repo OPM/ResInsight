@@ -89,6 +89,8 @@ RimBoxIntersection::RimBoxIntersection()
     CAF_PDM_InitFieldNoDefault( &m_show3DManipulator, "show3DManipulator", "", "", "", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_show3DManipulator );
     m_show3DManipulator = false;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

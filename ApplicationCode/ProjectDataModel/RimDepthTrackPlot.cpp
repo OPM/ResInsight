@@ -19,6 +19,8 @@
 
 #include "RimDepthTrackPlot.h"
 
+#include "RiaGuiApplication.h"
+
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
@@ -1052,4 +1054,13 @@ void RimDepthTrackPlot::setDepthUnit( RiaDefines::DepthUnitType depthUnit )
     m_depthUnit = depthUnit;
 
     updateLayout();
+}
+
+void RimDepthTrackPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                        std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    calculateAvailableDepthRange();
+    updateZoom();
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+    mainPlotWindow->updateWellLogPlotToolBar();
 }

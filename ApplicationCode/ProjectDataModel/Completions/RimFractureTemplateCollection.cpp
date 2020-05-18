@@ -436,3 +436,27 @@ int RimFractureTemplateCollection::nextFractureTemplateId()
 
     return newId;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplateCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                    std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimProject* proj = nullptr;
+    firstAncestorOrThisOfType( proj );
+    if ( proj )
+    {
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
+    }
+
+    std::vector<Rim3dView*> views;
+    proj->allVisibleViews( views );
+    for ( Rim3dView* visibleView : views )
+    {
+        if ( dynamic_cast<RimEclipseView*>( visibleView ) )
+        {
+            visibleView->updateConnectedEditors();
+        }
+    }
+}

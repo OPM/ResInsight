@@ -445,3 +445,12 @@ void RimAnnotationInViewCollection::deleteGlobalAnnotation( const caf::PdmObject
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnnotationInViewCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                    std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    onAnnotationDeleted();
+}

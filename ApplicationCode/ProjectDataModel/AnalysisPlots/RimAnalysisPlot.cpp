@@ -164,6 +164,8 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitFieldNoDefault( &m_plotDataFilterCollection, "PlotDataFilterCollection", "PlotDataFilterCollection", "", "", "" );
     m_plotDataFilterCollection.uiCapability()->setUiTreeHidden( true );
     m_plotDataFilterCollection = new RimPlotDataFilterCollection;
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

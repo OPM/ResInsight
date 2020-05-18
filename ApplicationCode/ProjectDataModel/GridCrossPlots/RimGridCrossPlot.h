@@ -112,6 +112,8 @@ public:
     caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
     void            onAxisSelected( int axis, bool toggle ) override;
 
+    bool isDeletable() const override;
+
 protected:
     void deleteViewWidget() override;
     void onLoadDataAndUpdate() override;

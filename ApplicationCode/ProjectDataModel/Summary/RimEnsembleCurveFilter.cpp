@@ -63,6 +63,8 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter()
     m_deleteButton = false;
     m_deleteButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_deleteButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

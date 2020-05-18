@@ -88,6 +88,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
     m_readError    = false;
 
     // clang-format on
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------

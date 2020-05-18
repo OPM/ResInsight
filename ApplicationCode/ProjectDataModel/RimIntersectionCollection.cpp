@@ -342,6 +342,22 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    syncronize2dIntersectionViews();
+
+    Rim3dView* rimView = nullptr;
+    firstAncestorOrThisOfType( rimView );
+    if ( rimView )
+    {
+        rimView->scheduleCreateDisplayModelAndRedraw();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell( const RimSimWellInView* simWell ) const
 {
     if ( !isActive() ) return false;

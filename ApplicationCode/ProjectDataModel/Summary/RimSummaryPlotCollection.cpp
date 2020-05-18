@@ -18,6 +18,9 @@
 
 #include "RimSummaryPlotCollection.h"
 
+#include "RiaGuiApplication.h"
+#include "RiuPlotMainWindow.h"
+
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
 
@@ -102,4 +105,15 @@ void RimSummaryPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionItemInf
 void RimSummaryPlotCollection::removeSummaryPlot( RimSummaryPlot* summaryPlot )
 {
     summaryPlots.removeChildObject( summaryPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                               std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    updateSummaryNameHasChanged();
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+    mainPlotWindow->updateSummaryPlotToolBar();
 }

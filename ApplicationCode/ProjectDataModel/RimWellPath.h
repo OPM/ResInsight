@@ -138,6 +138,9 @@ public:
     double                            startMD() const override;
     double                            endMD() const override;
 
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
 protected:
     // Override PdmObject
 
