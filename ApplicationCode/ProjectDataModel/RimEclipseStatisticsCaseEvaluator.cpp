@@ -298,9 +298,9 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     std::vector<size_t>    histogram;
                                     RigHistogramCalculator histCalc( statParams[MIN], statParams[MAX], 100, &histogram );
                                     histCalc.addData( values );
-                                    statParams[PMIN] = histCalc.calculatePercentil( m_statisticsConfig.m_pMinPos );
-                                    statParams[PMID] = histCalc.calculatePercentil( m_statisticsConfig.m_pMidPos );
-                                    statParams[PMAX] = histCalc.calculatePercentil( m_statisticsConfig.m_pMaxPos );
+                                    statParams[PMIN] = histCalc.calculatePercentil( m_statisticsConfig.m_pMinPos / 100.0 );
+                                    statParams[PMID] = histCalc.calculatePercentil( m_statisticsConfig.m_pMidPos / 100.0 );
+                                    statParams[PMAX] = histCalc.calculatePercentil( m_statisticsConfig.m_pMaxPos / 100.0 );
                                 }
                                 else if ( m_statisticsConfig.m_pValMethod ==
                                           RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION )
