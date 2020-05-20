@@ -316,16 +316,16 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
             {
                 if ( !lasFileValues.empty() )
                 {
-                    double lasValue         = getWellLogIntersectionValue( intersectionIdx, lasFileValues );
-		            // Only accept las-values for PP_reservoir if the grid result is valid
-                    bool   validLasRegion = true;
-                    if (isPPResResult)
+                    double lasValue = getWellLogIntersectionValue( intersectionIdx, lasFileValues );
+                    // Only accept las-values for PP_reservoir if the grid result is valid
+                    bool validLasRegion = true;
+                    if ( isPPResResult )
                     {
-                        validLasRegion = intersectionIdx < gridValues.size() &&
+                        validLasRegion = intersectionIdx < static_cast<int64_t>( gridValues.size() ) &&
                                          gridValues[intersectionIdx] != std::numeric_limits<double>::infinity();
                     }
 
-                    if ( validLasRegion && lasValue != std::numeric_limits<double>::infinity())
+                    if ( validLasRegion && lasValue != std::numeric_limits<double>::infinity() )
                     {
                         unscaledValues[intersectionIdx]         = lasValue;
                         finalSourcesPerSegment[intersectionIdx] = RigWbsParameter::LAS_FILE;

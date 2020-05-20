@@ -347,7 +347,6 @@ void Riv3dWellLogCurveGeometryGenerator::createNewVerticesAlongSegment( const cv
                                                                         const std::vector<cvf::Vec3d>& drawSurfaceVertices,
                                                                         std::vector<cvf::Vec3d>*       extraVertices )
 {
-    cvf::Vec3d fullSegmentVector = ptEnd - ptStart;
     extraVertices->push_back( ptStart );
 
     // Find segments that intersects the triangle edges

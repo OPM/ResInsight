@@ -1236,7 +1236,7 @@ void Rim3dView::updateDisplayModelVisibility()
 
     // Initialize the mask to show everything except the the bits controlled here
     unsigned int mask = 0xffffffff & ~uintSurfaceBit & ~uintFaultBit & ~uintMeshSurfaceBit & ~uintMeshFaultBit &
-                        ~intersectionCellFaceBit & ~intersectionCellMeshBit & ~intersectionFaultMeshBit;
+                        ~uintIntersectionCellFaceBit & ~uintIntersectionCellMeshBit & ~uintIntersectionFaultMeshBit;
 
     // Then turn the appropriate bits on according to the user settings
 

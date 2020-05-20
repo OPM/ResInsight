@@ -93,8 +93,6 @@ void RivContourMapProjectionPartMgr::appendPickPointVisToModel( cvf::ModelBasicL
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Vec2fArray> RivContourMapProjectionPartMgr::createTextureCoords( const std::vector<double>& values ) const
 {
-    cvf::Vec2ui patchSize = m_contourMapProjection->numberOfVerticesIJ();
-
     cvf::ref<cvf::Vec2fArray> textureCoords = new cvf::Vec2fArray( values.size() );
 
 #pragma omp parallel for

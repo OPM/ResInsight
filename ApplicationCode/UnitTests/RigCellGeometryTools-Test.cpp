@@ -65,7 +65,6 @@ TEST( RigCellGeometryTools, calculateCellVolumeTest )
         corner.x() += 0.5 * bbox.extent().x();
         tetrahedronBBox.add( corner );
     }
-    overlapVertices;
     RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices,
                                                              tetrahedronBBox,
                                                              &overlapVertices,

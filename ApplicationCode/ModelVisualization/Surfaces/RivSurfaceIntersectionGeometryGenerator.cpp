@@ -147,10 +147,6 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 
     MeshLinesAccumulator meshAcc( m_hexGrid.p() );
 
-    cvf::BoundingBox    gridBBox = m_hexGrid->boundingBox();
-    std::vector<size_t> cellDummy;
-    m_hexGrid->findIntersectingCells( cvf::BoundingBox( cvf::Vec3d::ZERO, cvf::Vec3d::ZERO ), &cellDummy );
-
     m_usedSurfaceData = m_surfaceInView->surface()->surfaceData();
 
     const std::vector<cvf::Vec3d>& nativeVertices        = m_usedSurfaceData->vertices();

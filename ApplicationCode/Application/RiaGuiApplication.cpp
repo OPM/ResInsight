@@ -1729,7 +1729,8 @@ void RiaGuiApplication::runIdleProcessing()
         }
         else
         {
-            idleIterationCount = std::min( ++idleIterationCount, 500 );
+            ++idleIterationCount;
+            idleIterationCount = std::min( idleIterationCount, 500 );
             if ( idleIterationCount == 500 )
             {
                 iterationInterval = 5;

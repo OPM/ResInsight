@@ -56,7 +56,6 @@ double RiuQwtScalePicker::axisValueAtPosition( const QwtScaleWidget* scale, cons
         // translate the position in a value on the scale
 
         double value = 0.0;
-        int    axis  = -1;
 
         const QwtScaleDraw* sd = scale->scaleDraw();
         switch ( scale->alignment() )
@@ -64,25 +63,21 @@ double RiuQwtScalePicker::axisValueAtPosition( const QwtScaleWidget* scale, cons
             case QwtScaleDraw::LeftScale:
             {
                 value = sd->scaleMap().invTransform( pos.y() );
-                axis  = QwtPlot::yLeft;
                 break;
             }
             case QwtScaleDraw::RightScale:
             {
                 value = sd->scaleMap().invTransform( pos.y() );
-                axis  = QwtPlot::yRight;
                 break;
             }
             case QwtScaleDraw::BottomScale:
             {
                 value = sd->scaleMap().invTransform( pos.x() );
-                axis  = QwtPlot::xBottom;
                 break;
             }
             case QwtScaleDraw::TopScale:
             {
                 value = sd->scaleMap().invTransform( pos.x() );
-                axis  = QwtPlot::xTop;
                 break;
             }
         }
