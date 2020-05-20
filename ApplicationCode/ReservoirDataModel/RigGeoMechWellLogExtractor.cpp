@@ -321,7 +321,7 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
                     bool   validLasRegion = true;
                     if (isPPResResult)
                     {
-                        validLasRegion = intersectionIdx < gridValues.size() &&
+                        validLasRegion = intersectionIdx < (int64_t) gridValues.size() &&
                                          gridValues[intersectionIdx] != std::numeric_limits<double>::infinity();
                     }
 
