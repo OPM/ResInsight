@@ -627,7 +627,7 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
     // Determine which curves (phase) to actually plot based on selection in GUI
     const int                                         currComboIdx = m_phaseComboBox->currentIndex();
     const RigFlowDiagSolverInterface::PvtCurve::Phase phaseToPlot =
-        static_cast<const RigFlowDiagSolverInterface::PvtCurve::Phase>( m_phaseComboBox->itemData( currComboIdx ).toInt() );
+        static_cast<RigFlowDiagSolverInterface::PvtCurve::Phase>( m_phaseComboBox->itemData( currComboIdx ).toInt() );
 
     QString phaseString = "";
     if ( phaseToPlot == RigFlowDiagSolverInterface::PvtCurve::GAS )
