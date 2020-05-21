@@ -211,7 +211,6 @@ if(buildcache_program)
     endif()
 
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Z7")
   endif()
 else()
     message( STATUS "No buildcache found" )
