@@ -157,6 +157,12 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
     m_triVxToCellCornerWeights.reserve( nativeTriangleIndices.size() * 24 );
     outputTriangleVertices.reserve( nativeTriangleIndices.size() * 24 );
 
+    // Ensure AABB search tree is constructed outside parallel loop
+    {
+        std::vector<size_t> triIntersectedCellCandidates;
+        m_hexGrid->findIntersectingCells( cvf::BoundingBox(), &triIntersectedCellCandidates );
+    }
+
 #pragma omp parallel num_threads( 6 ) // More threads have nearly no effect
     {
         // Loop local memory allocation.
