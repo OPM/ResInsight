@@ -18,9 +18,6 @@
 
 #include "RiuPlotAnnotationTool.h"
 
-#include "RiaColorTables.h"
-#include "RiaColorTools.h"
-
 #include "cafCategoryMapper.h"
 #include "cvfMath.h"
 

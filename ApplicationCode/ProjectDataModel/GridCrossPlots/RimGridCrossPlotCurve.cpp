@@ -17,8 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimGridCrossPlotCurve.h"
 
-#include "RiaColorTables.h"
-
 #include "RigCaseCellResultCalculator.h"
 #include "RiuQwtSymbol.h"
 

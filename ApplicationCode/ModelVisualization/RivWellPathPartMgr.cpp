@@ -20,7 +20,6 @@
 
 #include "RivWellPathPartMgr.h"
 
-#include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 
 #include "RigEclipseCaseData.h"

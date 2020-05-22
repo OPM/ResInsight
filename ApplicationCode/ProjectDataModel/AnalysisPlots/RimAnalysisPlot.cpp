@@ -18,7 +18,6 @@
 
 #include "RimAnalysisPlot.h"
 
-#include "RiaColorTables.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryQwtPlot.h"

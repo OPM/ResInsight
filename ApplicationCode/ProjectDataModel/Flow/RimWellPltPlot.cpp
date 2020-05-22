@@ -18,7 +18,6 @@
 
 #include "RimWellPltPlot.h"
 
-#include "RiaColorTables.h"
 #include "RiaDateStringParser.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaWellNameComparer.h"

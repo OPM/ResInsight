@@ -26,8 +26,7 @@
 #include "RimGridView.h"
 #include "RimProject.h"
 
-#include "QMessageBox"
-#include "RiaColorTables.h"
+#include <QMessageBox>
 #include <QString>
 
 CAF_PDM_SOURCE_INIT( RimAnnotationGroupCollection, "RimAnnotationGroupCollection" );

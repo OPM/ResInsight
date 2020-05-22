@@ -19,7 +19,6 @@
 
 #include "RiuViewerCommands.h"
 
-#include "RiaColorTables.h"
 #include "RiaDefines.h"
 
 #include "MeasurementCommands/RicMeasurementPickEventHandler.h"

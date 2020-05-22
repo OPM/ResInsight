@@ -21,7 +21,6 @@
 #include "RimSimWellInViewCollection.h"
 
 #include "RiaApplication.h"
-#include "RiaColorTables.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaPreferences.h"
 
