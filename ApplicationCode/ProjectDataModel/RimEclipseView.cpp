@@ -634,6 +634,11 @@ void RimEclipseView::onCreateDisplayModel()
         onUpdateLegends();
     }
 
+    if ( m_faultResultSettings && m_faultResultSettings->hasValidCustomResult() )
+    {
+        updateFaultColors();
+    }
+
     std::vector<RimFlowCharacteristicsPlot*> characteristicsPlots;
     this->objectsWithReferringPtrFieldsOfType( characteristicsPlots );
     for ( auto plot : characteristicsPlots )
