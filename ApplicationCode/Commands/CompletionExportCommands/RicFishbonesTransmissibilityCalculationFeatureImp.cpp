@@ -349,7 +349,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
 
     for ( const auto& cellIntersectionInfo : intersectedCellsIntersectionInfo )
     {
-        QString                  completionMetaData = wellPath->name() + " main bore";
+        QString                  completionMetaData = wellPath->completions()->wellNameForExport() + " main bore";
         WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc( cellIntersectionInfo.intersectionLengthsInCellCS,
                                                                           holeRadius,
                                                                           skinFactor,
