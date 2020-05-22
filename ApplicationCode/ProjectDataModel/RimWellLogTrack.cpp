@@ -2520,19 +2520,10 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
              m_formationCase == nullptr )
             return;
 
-        RimProject*                  proj                  = RimProject::current();
-        RimColorLegendCollection*    colorLegendCollection = proj->colorLegendCollection;
-        std::vector<RimColorLegend*> legends               = colorLegendCollection->customColorLegends();
-        if ( legends.empty() )
-        {
-            RiaLogging::error( "No color legend found." );
-            return;
-        }
-
         // TODO: let the user select the color legend instead of just picking the first one...
         std::vector<cvf::Color3ub> colors;
         std::vector<QString>       namesVector;
-        for ( RimColorLegendItem* legendItem : legends[0]->colorLegendItems() )
+        for ( RimColorLegendItem* legendItem : m_colorShadingLegend()->colorLegendItems() )
         {
             namesVector.push_back( legendItem->categoryName() );
         }
@@ -2545,7 +2536,7 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
         // Need to map colors to names (since a category can be used several times)
         for ( QString nameToPlot : namesToPlot )
         {
-            for ( RimColorLegendItem* legendItem : legends[0]->colorLegendItems() )
+            for ( RimColorLegendItem* legendItem : m_colorShadingLegend()->colorLegendItems() )
             {
                 if ( legendItem->categoryName() == nameToPlot )
                     colors.push_back( cvf::Color3ub( legendItem->color() ) );
