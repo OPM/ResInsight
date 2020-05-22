@@ -139,7 +139,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapProjection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.h
-${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.h
 ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
@@ -302,7 +301,6 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapProjection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimGeoMechContourMapViewCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimViewNameConfig.cpp
-${CMAKE_CURRENT_LIST_DIR}/RimScaleLegendConfig.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimReloadCaseTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.cpp
