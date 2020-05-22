@@ -152,7 +152,7 @@ void RimWellPathCollection::loadDataAndUpdate()
             if ( !fWPath->filePath().isEmpty() )
             {
                 QString errorMessage;
-                if ( !fWPath->readWellPathFile( &errorMessage, m_wellPathImporter ) )
+                if ( !fWPath->readWellPathFile( &errorMessage, m_wellPathImporter, false ) )
                 {
                     RiaLogging::warning( errorMessage );
                 }
@@ -260,7 +260,7 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
     for ( size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++ )
     {
         RimFileWellPath* wellPath = wellPathArray[wpIdx];
-        wellPath->readWellPathFile( nullptr, m_wellPathImporter );
+        wellPath->readWellPathFile( nullptr, m_wellPathImporter, true );
 
         progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );
 
@@ -270,7 +270,7 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
         {
             existingWellPath->setFilepath( wellPath->filePath() );
             existingWellPath->setWellPathIndexInFile( wellPath->wellPathIndexInFile() );
-            existingWellPath->readWellPathFile( nullptr, m_wellPathImporter );
+            existingWellPath->readWellPathFile( nullptr, m_wellPathImporter, true );
 
             // Let name from well path file override name from well log file
             existingWellPath->setName( wellPath->name() );
