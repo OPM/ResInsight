@@ -28,7 +28,6 @@
 #include "RimGeoMechContourMapProjection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGridCollection.h"
-#include "RimScaleLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimViewNameConfig.h"
 
