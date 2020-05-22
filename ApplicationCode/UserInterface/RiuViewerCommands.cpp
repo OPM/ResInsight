@@ -690,6 +690,10 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
             }
         }
     }
+    else
+    {
+        Riu3dSelectionManager::instance()->deleteAllItems();
+    }
 
     // Old pick handling. Todo: Encapsulate in pickEventHandlers
     {
