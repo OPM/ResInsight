@@ -828,6 +828,13 @@ bool RifEclipseSummaryAddress::hasAccumulatedData() const
     }
 
     QString qBaseName = baseQuantityName( quantityForInspection );
+
+    if ( qBaseName.endsWith( "WCT" ) || qBaseName.endsWith( "WCTH" ) )
+    {
+        // https://github.com/OPM/ResInsight/issues/5808
+        return false;
+    }
+
     return qBaseName.endsWith( "T" ) || qBaseName.endsWith( "TH" );
 }
 
