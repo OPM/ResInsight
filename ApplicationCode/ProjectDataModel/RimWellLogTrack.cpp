@@ -201,8 +201,13 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault( &m_regionAnnotationType, "AnnotationType", "Region Annotations", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_regionAnnotationDisplay, "RegionDisplay", "Region Display", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_colorShadingPalette, "ColorShadingPalette", "Colors", "", "", "" );
-    m_colorShadingPalette = RimRegularLegendConfig::CATEGORY;
+    CAF_PDM_InitFieldNoDefault( &m_colorShadingPalette_OBSOLETE, "ColorShadingPalette", "Colors", "", "", "" );
+    m_colorShadingPalette_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_colorShadingPalette_OBSOLETE = RimRegularLegendConfig::UNDEFINED;
+    m_colorShadingPalette_OBSOLETE.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_colorShadingLegend, "ColorShadingLegend", "Colors", "", "", "" );
+    m_colorShadingLegend = RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::NORMAL );
 
     CAF_PDM_InitField( &m_colorShadingTransparency, "ColorShadingTransparency", 50, "Color Transparency", "", "", "" );
     m_colorShadingTransparency.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
@@ -583,7 +588,7 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_regionAnnotationType || changedField == &m_regionAnnotationDisplay ||
               changedField == &m_formationSource || changedField == &m_colorShadingTransparency ||
-              changedField == &m_colorShadingPalette )
+              changedField == &m_colorShadingPalette_OBSOLETE || changedField == &m_colorShadingLegend )
     {
         if ( changedField == &m_formationSource && m_formationSource == WELL_PICK_FILTER )
         {
@@ -1029,24 +1034,15 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
         RimTools::wellPathOptionItems( &options );
         options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
-    else if ( fieldNeedingOptions == &m_colorShadingPalette )
+    else if ( fieldNeedingOptions == &m_colorShadingLegend )
     {
-        std::vector<RimRegularLegendConfig::ColorRangesType> rangeTypes;
-        rangeTypes.push_back( RimRegularLegendConfig::NORMAL );
-        rangeTypes.push_back( RimRegularLegendConfig::OPPOSITE_NORMAL );
-        rangeTypes.push_back( RimRegularLegendConfig::WHITE_PINK );
-        rangeTypes.push_back( RimRegularLegendConfig::PINK_WHITE );
-        rangeTypes.push_back( RimRegularLegendConfig::BLUE_WHITE_RED );
-        rangeTypes.push_back( RimRegularLegendConfig::RED_WHITE_BLUE );
-        rangeTypes.push_back( RimRegularLegendConfig::WHITE_BLACK );
-        rangeTypes.push_back( RimRegularLegendConfig::BLACK_WHITE );
-        rangeTypes.push_back( RimRegularLegendConfig::ANGULAR );
-        rangeTypes.push_back( RimRegularLegendConfig::CATEGORY );
+        RimProject*                  project               = RimProject::current();
+        RimColorLegendCollection*    colorLegendCollection = project->colorLegendCollection();
+        std::vector<RimColorLegend*> colorLegends          = colorLegendCollection->customColorLegends();
 
-        for ( RimRegularLegendConfig::ColorRangesType colType : rangeTypes )
+        for ( RimColorLegend* colorLegend : colorLegends )
         {
-            options.push_back(
-                caf::PdmOptionItemInfo( RimRegularLegendConfig::ColorRangeEnum::uiText( colType ), colType ) );
+            options.push_back( caf::PdmOptionItemInfo( colorLegend->colorLegendName(), colorLegend ) );
         }
     }
 
@@ -1732,7 +1728,7 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     if ( m_regionAnnotationDisplay() & RiuPlotAnnotationTool::COLOR_SHADING ||
          m_regionAnnotationDisplay() & RiuPlotAnnotationTool::COLORED_LINES )
     {
-        annotationGroup->add( &m_colorShadingPalette );
+        annotationGroup->add( &m_colorShadingLegend );
         if ( m_regionAnnotationDisplay() & RiuPlotAnnotationTool::COLOR_SHADING )
         {
             annotationGroup->add( &m_colorShadingTransparency );
@@ -1828,6 +1824,11 @@ void RimWellLogTrack::initAfterRead()
     if ( m_show_OBSOLETE )
     {
         m_showWindow = true;
+    }
+
+    if ( m_colorShadingPalette_OBSOLETE() != RimRegularLegendConfig::UNDEFINED )
+    {
+        m_colorShadingLegend = RimRegularLegendConfig::mapToColorLegend( m_colorShadingPalette_OBSOLETE() );
     }
 }
 
@@ -2298,7 +2299,8 @@ void RimWellLogTrack::setFormationFieldsUiReadOnly( bool readOnly /*= true*/ )
     m_formationLevel.uiCapability()->setUiReadOnly( readOnly );
     m_showformationFluids.uiCapability()->setUiReadOnly( readOnly );
     m_colorShadingTransparency.uiCapability()->setUiReadOnly( readOnly );
-    m_colorShadingPalette.uiCapability()->setUiReadOnly( readOnly );
+    m_colorShadingPalette_OBSOLETE.uiCapability()->setUiReadOnly( readOnly );
+    m_colorShadingLegend.uiCapability()->setUiReadOnly( readOnly );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2463,8 +2465,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                     &formationNamesToPlot,
                                                     &yValues );
 
-            caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
-
+            caf::ColorTable colorTable( m_colorShadingLegend->colorArray() );
             m_annotationTool->attachNamedRegions( m_plotWidget,
                                                   formationNamesToPlot,
                                                   xRange,
@@ -2609,7 +2610,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
             std::vector<double> ucsSourceRegions     = geoMechWellLogExtractor->ucsSourceRegions( timeStep );
 
             {
-                caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
+                caf::ColorTable colorTable( m_colorShadingLegend->colorArray() );
 
                 std::vector<QString> sourceNames =
                     RigWbsParameter::PP_Reservoir().allSourceUiLabels( "\n",
@@ -2635,7 +2636,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                       RiuPlotAnnotationTool::TrackSpan::LEFT_COLUMN );
             }
             {
-                caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
+                caf::ColorTable colorTable( m_colorShadingLegend->colorArray() );
 
                 std::vector<QString> sourceNames =
                     RigWbsParameter::poissonRatio().allSourceUiLabels( "\n",
@@ -2661,7 +2662,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                                                       RiuPlotAnnotationTool::TrackSpan::CENTRE_COLUMN );
             }
             {
-                caf::ColorTable colorTable( RimRegularLegendConfig::colorArrayFromColorType( m_colorShadingPalette() ) );
+                caf::ColorTable colorTable( m_colorShadingLegend->colorArray() );
 
                 std::vector<QString> sourceNames =
                     RigWbsParameter::UCS().allSourceUiLabels( "\n", wbsPlot->userDefinedValue( RigWbsParameter::UCS() ) );

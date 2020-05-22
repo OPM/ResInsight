@@ -22,6 +22,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "cvfArray.h"
+
 class RimColorLegendItem;
 
 namespace caf
@@ -51,6 +53,8 @@ public:
     void appendColorLegendItem( RimColorLegendItem* colorLegendItem );
 
     std::vector<RimColorLegendItem*> colorLegendItems() const;
+
+    cvf::Color3ubArray colorArray() const;
 
 public:
     caf::PdmFieldHandle* userDescriptionField() override;

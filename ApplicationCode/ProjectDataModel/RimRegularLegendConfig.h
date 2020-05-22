@@ -25,6 +25,8 @@
 #include "cvfArray.h"
 #include "cvfObject.h"
 
+#include "cafPdmPtrField.h"
+
 #include <tuple>
 
 namespace cvf
@@ -49,6 +51,7 @@ class OverlayScalarMapperLegend;
 class Rim3dView;
 class RimEnsembleCurveSet;
 class RiuAbstractLegendFrame;
+class RimColorLegend;
 
 //==================================================================================================
 ///
@@ -82,7 +85,8 @@ public:
         BLUE_MAGENTA,
         RED_LIGHT_DARK,
         GREEN_LIGHT_DARK,
-        BLUE_LIGHT_DARK
+        BLUE_LIGHT_DARK,
+        UNDEFINED
     };
 
     typedef caf::AppEnum<ColorRangesType> ColorRangeEnum;
@@ -106,7 +110,9 @@ public:
     void                              recreateLegend();
 
     void            setColorRange( ColorRangesType colorMode );
-    ColorRangesType colorRange() { return m_colorRangeMode(); }
+    ColorRangesType colorRange() { return m_colorRangeMode_OBSOLETE(); }
+    void            setColorLegend( RimColorLegend* colorLegend );
+    RimColorLegend* colorLegend() const;
     void            setMappingMode( MappingType mappingType );
     MappingType     mappingMode() { return m_mappingMode(); }
     void            setTickNumberFormat( NumberFormatType numberFormat );
@@ -141,6 +147,7 @@ public:
 
     RangeModeType             rangeMode() const;
     static cvf::Color3ubArray colorArrayFromColorType( ColorRangesType colorType );
+    static RimColorLegend*    mapToColorLegend( ColorRangesType colorType );
 
 private:
     void                 setNamedCategories( const std::vector<QString>& categoryNames, bool inverse );
@@ -194,8 +201,9 @@ private:
     caf::PdmField<RangeModeEnum>                  m_rangeMode;
     caf::PdmField<double>                         m_userDefinedMaxValue;
     caf::PdmField<double>                         m_userDefinedMinValue;
-    caf::PdmField<caf::AppEnum<ColorRangesType>>  m_colorRangeMode;
+    caf::PdmField<caf::AppEnum<ColorRangesType>>  m_colorRangeMode_OBSOLETE;
     caf::PdmField<caf::AppEnum<MappingType>>      m_mappingMode;
+    caf::PdmPtrField<RimColorLegend*>             m_colorLegend;
 
     QString m_title;
     int     m_significantDigitsInData;

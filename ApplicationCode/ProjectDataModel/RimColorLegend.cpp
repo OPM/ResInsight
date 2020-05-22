@@ -105,3 +105,17 @@ void RimColorLegend::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                        const QVariant&            newValue )
 {
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3ubArray RimColorLegend::colorArray() const
+{
+    std::vector<RimColorLegendItem*> legendItems = colorLegendItems();
+    cvf::Color3ubArray               colorArray( legendItems.size() );
+    for ( size_t i = 0; i < legendItems.size(); i++ )
+    {
+        colorArray.set( i, cvf::Color3ub( legendItems[i]->color() ) );
+    }
+    return colorArray;
+}

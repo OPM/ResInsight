@@ -56,6 +56,7 @@ class RigResultAccessor;
 class RigFemResultAddress;
 class RigWellLogExtractor;
 class RimEclipseResultDefinition;
+class RimColorLegend;
 
 class QwtPlotCurve;
 
@@ -309,7 +310,7 @@ private:
 
     caf::PdmField<RegionAnnotationTypeEnum>                            m_regionAnnotationType;
     caf::PdmField<RegionAnnotationDisplayEnum>                         m_regionAnnotationDisplay;
-    caf::PdmField<RimRegularLegendConfig::ColorRangeEnum>              m_colorShadingPalette;
+    caf::PdmPtrField<RimColorLegend*>                                  m_colorShadingLegend;
     caf::PdmField<int>                                                 m_colorShadingTransparency;
     caf::PdmField<bool>                                                m_showRegionLabels;
     caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;
@@ -332,8 +333,9 @@ private:
     caf::PdmPtrField<RimWellPathAttributeCollection*>                  m_wellPathAttributeCollection;
     caf::PdmChildField<RimEclipseResultDefinition*>                    m_resultDefinition;
 
-    caf::PdmField<bool> m_showFormations_OBSOLETE;
-    caf::PdmField<bool> m_show_OBSOLETE;
+    caf::PdmField<bool>                                   m_showFormations_OBSOLETE;
+    caf::PdmField<bool>                                   m_show_OBSOLETE;
+    caf::PdmField<RimRegularLegendConfig::ColorRangeEnum> m_colorShadingPalette_OBSOLETE;
 
     std::vector<std::unique_ptr<RiuWellPathComponentPlotItem>> m_wellPathAttributePlotObjects;
 

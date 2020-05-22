@@ -53,6 +53,8 @@ public:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
+    RimColorLegend* findByName( const QString& name ) const;
+
 private:
     caf::PdmChildArrayField<RimColorLegend*> m_standardColorLegends; // ResInsight standard (built-in) legends
     caf::PdmChildArrayField<RimColorLegend*> m_customColorLegends; // user specified legends

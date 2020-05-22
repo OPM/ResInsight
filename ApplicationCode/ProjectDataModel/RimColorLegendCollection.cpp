@@ -88,26 +88,29 @@ void RimColorLegendCollection::createStandardColorLegends()
 
     for ( size_t typeIdx = 0; typeIdx < ColorRangeEnum::size(); typeIdx++ )
     {
-        QString            legendName = ColorRangeEnum::uiTextFromIndex( typeIdx );
-        cvf::Color3ubArray colorArray =
-            RimRegularLegendConfig::colorArrayFromColorType( ColorRangeEnum::fromIndex( typeIdx ) );
-
-        RimColorLegend* colorLegend = new RimColorLegend;
-        colorLegend->setColorLegendName( legendName );
-
-        for ( int i = (int)colorArray.size() - 1; i > -1; i-- ) // reverse to assign last color to top of legend
+        if ( ColorRangeEnum::fromIndex( typeIdx ) != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
         {
-            cvf::Color3f color3f( colorArray[i] );
-            QColor       colorQ( colorArray[i].r(), colorArray[i].g(), colorArray[i].b() );
+            QString            legendName = ColorRangeEnum::uiTextFromIndex( typeIdx );
+            cvf::Color3ubArray colorArray =
+                RimRegularLegendConfig::colorArrayFromColorType( ColorRangeEnum::fromIndex( typeIdx ) );
 
-            RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
-            colorLegendItem->setValues( colorQ.name(), i, color3f );
+            RimColorLegend* colorLegend = new RimColorLegend;
+            colorLegend->setColorLegendName( legendName );
 
-            colorLegend->appendColorLegendItem( colorLegendItem );
-            colorLegend->setReadOnly( true );
+            for ( int i = (int)colorArray.size() - 1; i > -1; i-- ) // reverse to assign last color to top of legend
+            {
+                cvf::Color3f color3f( colorArray[i] );
+                QColor       colorQ( colorArray[i].r(), colorArray[i].g(), colorArray[i].b() );
+
+                RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
+                colorLegendItem->setValues( colorQ.name(), i, color3f );
+
+                colorLegend->appendColorLegendItem( colorLegendItem );
+                colorLegend->setReadOnly( true );
+            }
+
+            m_standardColorLegends.push_back( colorLegend );
         }
-
-        m_standardColorLegends.push_back( colorLegend );
     }
 
     this->updateConnectedEditors();
@@ -142,4 +145,21 @@ void RimColorLegendCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
                                                  const QVariant&            oldValue,
                                                  const QVariant&            newValue )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimColorLegendCollection::findByName( const QString& name ) const
+{
+    std::vector<RimColorLegend*> allLegends = customColorLegends();
+    for ( auto legend : allLegends )
+    {
+        if ( legend->colorLegendName() == name )
+        {
+            return legend;
+        }
+    }
+
+    return nullptr;
 }
