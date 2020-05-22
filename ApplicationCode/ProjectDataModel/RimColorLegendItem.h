@@ -42,6 +42,7 @@ public:
     ~RimColorLegendItem() override;
 
     void setValues( const QString& categoryName, int categoryValue, const cvf::Color3f& color );
+    void setCategoryValue( int categoryValue );
     void setReadOnly( bool doReadOnly );
 
     const cvf::Color3f& color() const;
