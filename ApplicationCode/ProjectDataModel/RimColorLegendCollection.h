@@ -23,6 +23,7 @@
 #include "cafPdmObject.h"
 
 class RimColorLegend;
+class RimColorLegendItem;
 
 namespace caf
 {
@@ -56,6 +57,9 @@ public:
     RimColorLegend* findByName( const QString& name ) const;
 
 private:
+    RimColorLegendItem* createColorLegendItem( const QString& name, int r, int g, int b ) const;
+    RimColorLegend*     createRockTypeColorLegend() const;
+
     caf::PdmChildArrayField<RimColorLegend*> m_standardColorLegends; // ResInsight standard (built-in) legends
     caf::PdmChildArrayField<RimColorLegend*> m_customColorLegends; // user specified legends
 };

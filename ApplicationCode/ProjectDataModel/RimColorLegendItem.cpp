@@ -66,6 +66,14 @@ void RimColorLegendItem::setValues( const QString& categoryName, int categoryVal
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimColorLegendItem::setCategoryValue( int categoryValue )
+{
+    m_categoryValue = categoryValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimColorLegendItem::setReadOnly( bool doReadOnly )
 {
     m_categoryName.uiCapability()->setUiReadOnly( true );

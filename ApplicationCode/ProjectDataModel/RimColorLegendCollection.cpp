@@ -114,6 +114,8 @@ void RimColorLegendCollection::createStandardColorLegends()
         }
     }
 
+    m_standardColorLegends.push_back( createRockTypeColorLegend() );
+
     this->updateConnectedEditors();
 }
 
@@ -163,4 +165,80 @@ RimColorLegend* RimColorLegendCollection::findByName( const QString& name ) cons
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegendItem* RimColorLegendCollection::createColorLegendItem( const QString& name, int r, int g, int b ) const
+{
+    RimColorLegendItem* item = new RimColorLegendItem;
+    item->setValues( name, 0, cvf::Color3f::fromByteColor( r, g, b ) );
+    return item;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimColorLegendCollection::createRockTypeColorLegend() const
+{
+    RimColorLegend* colorLegend = new RimColorLegend;
+    colorLegend->setColorLegendName( "Rock Types" );
+
+    // Rock types colors taken from "Equinor GeoStandard - May 2020" document.
+    // 6.3.1 Epiclastic rocks
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Conglomerate", 255, 193, 0 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Sedimentary breccia", 255, 193, 0 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Sandstone", 255, 247, 143 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Siltstone", 179, 212, 84 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Mudstone", 31, 180, 108 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Claystone", 101, 167, 64 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Fissile siltstone", 179, 212, 84 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Fissil mudstone", 31, 180, 108 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Shale", 136, 112, 0 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Grey silty clay", 197, 179, 115 ) );
+
+    // 6.3.2 Carbonate rocks
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Limestone", 0, 165, 203 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Dolomitic limestone", 0, 155, 219 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Dolostone", 54, 17, 99 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Calcareous dolostone", 115, 173, 222 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Chalk", 0, 181, 214 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Marl", 98, 200, 206 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Spiculities", 214, 133, 137 ) );
+
+    // 6.3.3 Evaporitic rocks
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Gypsum", 241, 119, 170 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Anhydrite", 241, 119, 170 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Gypsum / Anhydrite", 241, 119, 170 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Halite", 246, 160, 169 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Salt", 246, 160, 169 ) );
+
+    // 6.3.4 Coal
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Coal", 0, 0, 0 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Brown coal", 76, 75, 57 ) );
+
+    // 6.3.5 Magmatic rocks
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Volcanic rocks", 255, 50, 50 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Intrusive (plutonic) rocks", 251, 184, 141 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Silicic plutonic rocks", 240, 81, 70 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Mafic plutonic rocks", 128, 69, 0 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Ooze", 119, 110, 85 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Dykes and sills", 75, 57, 0 ) );
+
+    // 6.3.6 Metamorphic rocks
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Metamorphic rocks", 245, 127, 51 ) );
+
+    // 6.3.6 Combined symbols
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Tuffitt", 211, 128, 181 ) );
+    colorLegend->appendColorLegendItem( createColorLegendItem( "Bitumenious", 235, 220, 175 ) );
+
+    int index = 0;
+    for ( auto item : colorLegend->colorLegendItems() )
+    {
+        item->setCategoryValue( index );
+        index++;
+    }
+
+    return colorLegend;
 }
