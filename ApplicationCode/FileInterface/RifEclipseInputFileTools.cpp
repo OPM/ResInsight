@@ -1320,17 +1320,17 @@ QString RifEclipseInputFileTools::faultFaceText( cvf::StructGridInterface::FaceT
     switch ( faceType )
     {
         case cvf::StructGridInterface::POS_I:
-            return QString( " I" );
+            return QString( "I " );
         case cvf::StructGridInterface::NEG_I:
-            return QString( "-I" );
+            return QString( "I-" );
         case cvf::StructGridInterface::POS_J:
-            return QString( " J" );
+            return QString( "J " );
         case cvf::StructGridInterface::NEG_J:
-            return QString( "-J" );
+            return QString( "J-" );
         case cvf::StructGridInterface::POS_K:
-            return QString( " K" );
+            return QString( "K " );
         case cvf::StructGridInterface::NEG_K:
-            return QString( "-K" );
+            return QString( "K-" );
         default:
             CVF_ASSERT( false );
     }
