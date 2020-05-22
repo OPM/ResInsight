@@ -20,7 +20,6 @@
 
 #include "RimEclipseCellColors.h"
 
-#include "RiaColorTables.h"
 #include "RicfCommandObject.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"

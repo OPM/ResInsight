@@ -22,7 +22,6 @@
 
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
-#include "RiaColorTables.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"

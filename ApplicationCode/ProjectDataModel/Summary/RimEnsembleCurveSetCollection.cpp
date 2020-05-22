@@ -18,7 +18,6 @@
 
 #include "RimEnsembleCurveSetCollection.h"
 
-#include "RiaColorTables.h"
 #include "RiaStdStringTools.h"
 
 #include "RifReaderEclipseSummary.h"
