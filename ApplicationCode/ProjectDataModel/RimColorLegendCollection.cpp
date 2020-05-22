@@ -97,7 +97,7 @@ void RimColorLegendCollection::createStandardColorLegends()
             RimColorLegend* colorLegend = new RimColorLegend;
             colorLegend->setColorLegendName( legendName );
 
-            for ( int i = (int)colorArray.size() - 1; i > -1; i-- ) // reverse to assign last color to top of legend
+            for ( size_t i = 0; i < colorArray.size(); i++ )
             {
                 cvf::Color3f color3f( colorArray[i] );
                 QColor       colorQ( colorArray[i].r(), colorArray[i].g(), colorArray[i].b() );
