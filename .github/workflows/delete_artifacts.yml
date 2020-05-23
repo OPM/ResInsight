@@ -17,4 +17,5 @@ jobs:
       - name: Remove old artifacts
         run: |
           cd .github/workflows
+          python pip install urllib
           python delete_artifacts.py ${{ secrets.GITHUB_TOKEN }}
