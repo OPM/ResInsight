@@ -12,10 +12,5 @@ jobs:
         uses: actions/checkout@v1
       - name: Remove old artifacts
         run: |
-          pwd
-          dir
           cd .github/workflows
-          #cd scripts/githubAction
-          dir
-          #pwd
-          #python delete_artifacts.py ${{ secrets.GITHUB_TOKEN }}
+          python delete_artifacts.py ${{ secrets.GITHUB_TOKEN }}
