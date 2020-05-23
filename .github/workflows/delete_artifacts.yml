@@ -14,7 +14,8 @@ jobs:
         run: |
           pwd
           dir
-          cd scripts/githubAction
+          cd .github/workflows
+          #cd scripts/githubAction
           dir
           #pwd
           #python delete_artifacts.py ${{ secrets.GITHUB_TOKEN }}
