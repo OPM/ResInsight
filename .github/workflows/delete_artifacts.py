@@ -9,7 +9,7 @@ repo_name = "ResInsight"
 keep_artifacts = 20
 
 def get_all_artifacts(repo_name: str, headers: dict) -> []:
-    amount_items_per_page = 10
+    amount_items_per_page = 50
     page = 1
 
     ref = "https://api.github.com/repos/" + org_name + "/" + repo_name + "/actions/artifacts" + "?per_page=" + str(amount_items_per_page)
