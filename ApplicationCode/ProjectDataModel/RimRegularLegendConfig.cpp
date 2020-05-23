@@ -607,11 +607,18 @@ void RimRegularLegendConfig::updateFieldVisibility()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::setColorRange( ColorRangesType colorMode )
+void RimRegularLegendConfig::setColorLegend( RimColorLegend* colorLegend )
 {
-    m_colorRangeMode_OBSOLETE = colorMode;
-    m_colorLegend             = mapToColorLegend( colorMode );
+    m_colorLegend = colorLegend;
     updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimRegularLegendConfig::colorLegend() const
+{
+    return m_colorLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

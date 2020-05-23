@@ -171,7 +171,8 @@ void RimGridCrossPlotDataSet::setCellFilterView( RimGridView* cellFilterView )
             if ( eclipseView->eclipseCase() && eclipseView->eclipseCase()->activeFormationNames() )
             {
                 m_grouping = GROUP_BY_FORMATION;
-                m_groupingProperty->legendConfig()->setColorRange( RimRegularLegendConfig::CATEGORY );
+                m_groupingProperty->legendConfig()->setColorLegend(
+                    RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CATEGORY ) );
             }
 
             RimGridCrossPlot* parentPlot = nullptr;
@@ -867,17 +868,17 @@ void RimGridCrossPlotDataSet::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         if ( m_grouping == GROUP_BY_TIME )
         {
-            legendConfig()->setColorRange( RimRegularLegendConfig::NORMAL );
+            legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::NORMAL ) );
             legendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
         }
         else if ( groupingByCategoryResult() )
         {
-            legendConfig()->setColorRange( RimRegularLegendConfig::CATEGORY );
+            legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CATEGORY ) );
             legendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
         }
         else
         {
-            legendConfig()->setColorRange( RimRegularLegendConfig::NORMAL );
+            legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::NORMAL ) );
             legendConfig()->setMappingMode( RimRegularLegendConfig::LINEAR_DISCRETE );
         }
 
@@ -1308,7 +1309,8 @@ void RimGridCrossPlotDataSet::setDefaults()
             if ( eclipseCase->activeFormationNames() )
             {
                 m_grouping = GROUP_BY_FORMATION;
-                m_groupingProperty->legendConfig()->setColorRange( RimRegularLegendConfig::CATEGORY );
+                m_groupingProperty->legendConfig()->setColorLegend(
+                    RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CATEGORY ) );
             }
         }
     }

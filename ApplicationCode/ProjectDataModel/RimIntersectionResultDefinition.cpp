@@ -240,7 +240,8 @@ void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( const
          ( !this->isEclipseResultDefinition() && m_geomResultDefinition()->hasCategoryResult() ) )
     {
         regularLegendConfig()->setMappingMode( RimRegularLegendConfig::CATEGORY_INTEGER );
-        regularLegendConfig()->setColorRange( RimRegularLegendConfig::CATEGORY );
+        regularLegendConfig()->setColorLegend(
+            RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CATEGORY ) );
     }
     else
     {
@@ -249,9 +250,11 @@ void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( const
             regularLegendConfig()->setMappingMode( RimRegularLegendConfig::LINEAR_CONTINUOUS );
         }
 
-        if ( regularLegendConfig()->colorRange() == RimRegularLegendConfig::CATEGORY )
+        if ( regularLegendConfig()->colorLegend() ==
+             RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CATEGORY ) )
         {
-            regularLegendConfig()->setColorRange( RimRegularLegendConfig::NORMAL );
+            regularLegendConfig()->setColorLegend(
+                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::NORMAL ) );
         }
     }
 
