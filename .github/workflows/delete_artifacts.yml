@@ -10,6 +10,8 @@ jobs:
     steps:
     - name: Remove old artifacts
       run: |
+        pwd
+        ls
         cd .github/workflows
         pwd
         python delete_artifacts.py ${{ secrets.GITHUB_TOKEN }}
