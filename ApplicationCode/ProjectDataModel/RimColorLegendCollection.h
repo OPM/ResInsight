@@ -50,7 +50,7 @@ public:
 
     void deleteCustomColorLegends();
 
-    std::vector<RimColorLegend*> customColorLegends() const;
+    std::vector<RimColorLegend*> allColorLegends() const;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 

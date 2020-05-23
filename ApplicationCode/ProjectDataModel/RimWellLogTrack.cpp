@@ -1038,7 +1038,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
     {
         RimProject*                  project               = RimProject::current();
         RimColorLegendCollection*    colorLegendCollection = project->colorLegendCollection();
-        std::vector<RimColorLegend*> colorLegends          = colorLegendCollection->customColorLegends();
+        std::vector<RimColorLegend*> colorLegends          = colorLegendCollection->allColorLegends();
 
         for ( RimColorLegend* colorLegend : colorLegends )
         {
