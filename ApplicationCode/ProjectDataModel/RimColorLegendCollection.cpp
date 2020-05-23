@@ -122,7 +122,7 @@ void RimColorLegendCollection::createStandardColorLegends()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimColorLegend*> RimColorLegendCollection::customColorLegends() const
+std::vector<RimColorLegend*> RimColorLegendCollection::allColorLegends() const
 {
     std::vector<RimColorLegend*> allLegends;
 
@@ -155,7 +155,7 @@ void RimColorLegendCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 RimColorLegend* RimColorLegendCollection::findByName( const QString& name ) const
 {
-    std::vector<RimColorLegend*> allLegends = customColorLegends();
+    std::vector<RimColorLegend*> allLegends = allColorLegends();
     for ( auto legend : allLegends )
     {
         if ( legend->colorLegendName() == name )
