@@ -109,8 +109,6 @@ public:
     typedef caf::AppEnum<MappingType> MappingEnum;
     void                              recreateLegend();
 
-    void            setColorRange( ColorRangesType colorMode );
-    ColorRangesType colorRange() { return m_colorRangeMode_OBSOLETE(); }
     void            setColorLegend( RimColorLegend* colorLegend );
     RimColorLegend* colorLegend() const;
     void            setMappingMode( MappingType mappingType );

@@ -56,7 +56,8 @@ RimWellRftEnsembleCurveSet::RimWellRftEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleLegendConfig, "LegendConfig", "", "", "", "" );
     m_ensembleLegendConfig = new RimRegularLegendConfig();
-    m_ensembleLegendConfig->setColorRange( RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE );
+    m_ensembleLegendConfig->setColorLegend(
+        RimRegularLegendConfig::mapToColorLegend( RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE ) );
 }
 
 //--------------------------------------------------------------------------------------------------

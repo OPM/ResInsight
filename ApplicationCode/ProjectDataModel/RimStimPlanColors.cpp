@@ -148,7 +148,7 @@ void RimStimPlanColors::loadDataAndUpdate()
             RimRegularLegendConfig* legendConfig = new RimRegularLegendConfig();
             legendConfig->resultVariableName     = resultNameUnitString;
             legendConfig->setMappingMode( RimRegularLegendConfig::LINEAR_DISCRETE );
-            legendConfig->setColorRange( RimRegularLegendConfig::STIMPLAN );
+            legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::STIMPLAN ) );
 
             m_legendConfigurations.push_back( legendConfig );
         }
