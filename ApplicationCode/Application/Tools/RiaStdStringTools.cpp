@@ -154,8 +154,8 @@ int RiaStdStringTools::computeEditDistance( const std::string& x, const std::str
 {
     // for all i and j, T[i,j] will hold the Levenshtein distance between
     // the first i characters of x and the first j characters of y
-    size_t m = x.length();
-    size_t n = y.length();
+    int m = static_cast<int>( x.length() );
+    int n = static_cast<int>( y.length() );
 
     std::vector<std::vector<int>> T( m + 1, std::vector<int>( n + 1, 0 ) );
 
