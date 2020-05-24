@@ -20,6 +20,12 @@
 
 #include "cafCmdFeature.h"
 
+class RimColorLegend;
+namespace cvf
+{
+class Color3f;
+}
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -31,4 +37,8 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    int  computeEditDistance( const QString& a, const QString& b );
+    bool matchByName( const QString name, RimColorLegend* colorLegend, cvf::Color3f& color );
 };
