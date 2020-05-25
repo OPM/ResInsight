@@ -97,7 +97,10 @@ QString createResultNameRange( const QString& resultName )
 }
 QString createResultNamePVal( const QString& resultName, double pValPos )
 {
-    return resultName + "_P_" + QString::number( pValPos );
+    // Invert the number for display text
+    double valueForDisplay = 100.0 - pValPos;
+
+    return resultName + "_P" + QString::number( valueForDisplay );
 }
 
 //--------------------------------------------------------------------------------------------------
