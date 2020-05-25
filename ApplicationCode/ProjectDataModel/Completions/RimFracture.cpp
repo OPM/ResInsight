@@ -401,9 +401,10 @@ double RimFracture::wellFractureAzimuthDiff() const
     double angle1 = wellAzimuthAtFracturePosition();
     double angle2 = m_azimuth;
 
-    double smallestDiffDegrees = getAbsoluteDiff2Angles( angle1, angle2, 180.0 );
+    double diffDegrees        = getAbsoluteDiff2Angles( angle1, angle2, 180.0 );
+    double smallesDiffDegrees = std::min( 180.0 - diffDegrees, diffDegrees );
 
-    return smallestDiffDegrees;
+    return smallesDiffDegrees;
 }
 
 //--------------------------------------------------------------------------------------------------
