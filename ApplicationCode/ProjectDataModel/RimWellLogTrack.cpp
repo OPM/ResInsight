@@ -139,7 +139,6 @@ void AppEnum<RiuPlotAnnotationTool::RegionAnnotationType>::setUp()
 {
     addItem( RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS, "NO_ANNOTATIONS", "No Annotations" );
     addItem( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS, "FORMATIONS", "Formations" );
-    addItem( RiuPlotAnnotationTool::RegionAnnotationType::CURVE_ANNOTATIONS, "CURVE_DATA", "Curve Data Annotations" );
     addItem( RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS, "RESULT_PROPERTY", "Result Property" );
     setDefault( RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS );
 }
@@ -959,28 +958,6 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_regionAnnotationType )
-    {
-        options.push_back( caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText(
-                                                       RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS ),
-                                                   RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS ) );
-        options.push_back( caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText(
-                                                       RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS ),
-                                                   RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS ) );
-        RimWellBoreStabilityPlot* wellBoreStabilityPlot = nullptr;
-        this->firstAncestorOrThisOfType( wellBoreStabilityPlot );
-        if ( wellBoreStabilityPlot )
-        {
-            options.push_back( caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText(
-                                                           RiuPlotAnnotationTool::RegionAnnotationType::CURVE_ANNOTATIONS ),
-                                                       RiuPlotAnnotationTool::RegionAnnotationType::CURVE_ANNOTATIONS ) );
-        }
-
-        options.push_back(
-            caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText(
-                                        RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS ),
-                                    RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS ) );
-    }
     if ( fieldNeedingOptions == &m_formationWellPathForSourceCase )
     {
         RimTools::wellPathOptionItems( &options );

@@ -231,7 +231,6 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
     plotTrack->setAutoScaleXEnabled( true );
     plotTrack->setTickIntervals( 1.0, 0.2 );
     plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
-    plotTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::CURVE_ANNOTATIONS );
     plotTrack->setShowRegionLabels( true );
     plotTrack->setShowWindow( true );
 
