@@ -382,12 +382,28 @@ double RimFracture::endMD() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// https://stackoverflow.com/a/52432897
+//--------------------------------------------------------------------------------------------------
+double getAbsoluteDiff2Angles( const double x, const double y, const double c )
+{
+    // c can be PI (for radians) or 180.0 (for degrees);
+    return c - fabs( fmod( fabs( x - y ), 2 * c ) - c );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 double RimFracture::wellFractureAzimuthDiff() const
 {
-    double wellDifference = fabs( wellAzimuthAtFracturePosition() - m_azimuth );
-    return wellDifference;
+    // Compute the relative difference between two lines
+    // See https://github.com/OPM/ResInsight/issues/5899
+
+    double angle1 = wellAzimuthAtFracturePosition();
+    double angle2 = m_azimuth;
+
+    double smallestDiffDegrees = getAbsoluteDiff2Angles( angle1, angle2, 180.0 );
+
+    return smallestDiffDegrees;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -399,6 +415,9 @@ QString RimFracture::wellFractureAzimuthDiffText() const
     return QString::number( wellDifference, 'f', 2 );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimFracture::wellAzimuthAtFracturePositionText() const
 {
     double wellAzimuth = wellAzimuthAtFracturePosition();
