@@ -519,11 +519,11 @@ bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iT
     size_t i = iFromIdx;
     size_t iMid = iToIdx;
 
-//=================================================================================================================================
-//
-// Geometric split tree - best!
-//
-//=================================================================================================================================
+    //=================================================================================================================================
+    //
+    // Geometric split tree - best!
+    //
+    //=================================================================================================================================
     // Order the leaves according to the position of the center of each BB in comparison with longest axis of the BB
     while (i < iMid)
     {
@@ -546,6 +546,21 @@ bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iT
     if ((iMid == iFromIdx) || (iMid == iToIdx))
     {
         iMid = (iToIdx + iFromIdx)/2;
+    }
+    else
+    {
+        const size_t maxInbalance = 1000u;
+        size_t rangeA = iMid - iFromIdx;
+        size_t rangeB = iToIdx - iMid;
+        if (rangeA > maxInbalance * rangeB || rangeB > maxInbalance * rangeA)
+        {
+            // Extremely imbalanced tree. Sort leaves and chose iMid as the median of the centres.
+            std::sort(m_ppLeaves.begin() + iFromIdx, m_ppLeaves.begin() + iToIdx, [=](const AABBTreeNodeLeaf* lhs, const AABBTreeNodeLeaf* rhs)
+            {
+                return lhs->boundingBoxCenter()[iLongestAxis] < rhs->boundingBoxCenter()[iLongestAxis];
+            });
+            iMid = (iToIdx + iFromIdx)/2;
+        }
     }
 
     // Create the left tree
