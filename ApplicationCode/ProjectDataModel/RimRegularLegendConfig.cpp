@@ -884,6 +884,7 @@ void RimRegularLegendConfig::setUiValuesFromLegendConfig( const RimRegularLegend
 {
     QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
     this->readObjectFromXmlString( serializedObjectString, caf::PdmDefaultObjectFactory::instance() );
+    this->resolveReferencesRecursively();
     this->updateLegend();
 }
 
