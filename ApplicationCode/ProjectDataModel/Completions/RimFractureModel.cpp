@@ -34,6 +34,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
+#include "RimFaciesProperties.h"
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -103,6 +104,8 @@ RimFractureModel::RimFractureModel()
 
     CAF_PDM_InitField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal", "", "", "" );
     CAF_PDM_InitField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_faciesProperties, "FaciesProperties", "Facies Properties", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -356,6 +359,7 @@ cvf::Vec3d RimFractureModel::calculateTSTDirection() const
 void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_thicknessDirectionWellPath.uiCapability()->setUiHidden( true );
+    m_faciesProperties.uiCapability()->setUiHidden( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -449,4 +453,20 @@ void RimFractureModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::
     cvf::Vec3d belowPlane = position + ( direction * 10000.0 );
     bottomPlane.intersect( position, belowPlane, &bottomPosition );
     RiaLogging::info( QString( "Bottom: %1" ).arg( RimFractureModel::vecToString( bottomPosition ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFaciesProperties* RimFractureModel::faciesProperties() const
+{
+    return m_faciesProperties;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::setFaciesProperties( RimFaciesProperties* faciesProperties )
+{
+    m_faciesProperties = faciesProperties;
 }
