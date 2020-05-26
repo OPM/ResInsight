@@ -53,6 +53,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.h
+${CMAKE_CURRENT_LIST_DIR}/RifFaciesPropertiesReader.h
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.h
@@ -110,6 +111,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifFaciesPropertiesReader.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.cpp
