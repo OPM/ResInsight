@@ -158,6 +158,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlot.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.h
 )
 
 
@@ -320,6 +321,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlot.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimFaciesProperties.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

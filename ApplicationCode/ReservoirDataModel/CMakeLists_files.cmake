@@ -79,6 +79,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigCellFaceGeometryTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RigNncConnection.h
 ${CMAKE_CURRENT_LIST_DIR}/RigWellDiskData.h
 ${CMAKE_CURRENT_LIST_DIR}/RigGocadData.h
+${CMAKE_CURRENT_LIST_DIR}/RigFaciesProperties.h
 )
 
 
@@ -155,6 +156,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigCellFaceGeometryTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigNncConnection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigWellDiskData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RigGocadData.cpp
+${CMAKE_CURRENT_LIST_DIR}/RigFaciesProperties.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
