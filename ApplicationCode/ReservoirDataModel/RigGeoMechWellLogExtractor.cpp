@@ -103,7 +103,7 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
 
     if ( !mds->empty() && !values->empty() )
     {
-        std::vector<std::vector<double>*> dependentValues = { tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl };
+        std::vector<std::vector<double>*> dependentValues = {tvds, &interfaceShValuesDbl, &interfacePorePressuresDbl};
 
         std::vector<unsigned char> smoothOrFilterSegments = determineFilteringOrSmoothing( interfacePorePressuresDbl );
 
@@ -296,7 +296,6 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
 
     double waterDensityGCM3 = m_userDefinedValues[RigWbsParameter::waterDensity()];
 
-#pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
     {
         // Loop from primary source and out for each value
@@ -1171,6 +1170,21 @@ double RigGeoMechWellLogExtractor::getWellLogIntersectionValue( size_t intersect
             }
         }
     }
+
+    // If we found no match, check first and last value within a threshold.
+    if ( !wellLogValues.empty() )
+    {
+        const double relativeEps = 1.0e-3 * std::max( 1.0, intersection_md );
+        if ( std::abs( wellLogValues.front().first - intersection_md ) < relativeEps )
+        {
+            return wellLogValues.front().second;
+        }
+        else if ( std::abs( wellLogValues.back().first - intersection_md ) < relativeEps )
+        {
+            return wellLogValues.back().second;
+        }
+    }
+
     return std::numeric_limits<double>::infinity();
 }
 
