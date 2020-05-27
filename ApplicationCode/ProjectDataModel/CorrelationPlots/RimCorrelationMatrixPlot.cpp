@@ -141,6 +141,13 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByValues, "CorrelationSorting", true, "Sort Matrix by Values", "", "", "" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
+    CAF_PDM_InitField( &m_removeRowsAndColumnsWithZeroCorrelation,
+                       "RemoveZeroCorrelation",
+                       false,
+                       "Remove rows/columns with zero correlation",
+                       "",
+                       "",
+                       "" );
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
     m_legendConfig = new RimRegularLegendConfig();
@@ -191,8 +198,8 @@ void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* chan
                                                  const QVariant&            newValue )
 {
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
-    if ( changedField == &m_correlationFactor || changedField == &m_showAbsoluteValues ||
-         changedField == &m_sortByValues || changedField == &m_sortByAbsoluteValues )
+    if ( changedField == &m_correlationFactor || changedField == &m_showAbsoluteValues || changedField == &m_sortByValues ||
+         changedField == &m_sortByAbsoluteValues || changedField == &m_removeRowsAndColumnsWithZeroCorrelation )
     {
         this->updateLegend();
         this->loadDataAndUpdate();
@@ -213,6 +220,7 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     {
         correlationGroup->add( &m_sortByAbsoluteValues );
     }
+    correlationGroup->add( &m_removeRowsAndColumnsWithZeroCorrelation );
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
     m_selectedVarsUiField           = selectedVarsText();
@@ -344,12 +352,14 @@ void RimCorrelationMatrixPlot::updateAxes()
 }
 
 template <typename KeyType, typename ValueType>
-void eraseInvalidEntries( std::vector<CorrelationMatrixRowOrColumn<KeyType, ValueType>>& matrix )
+void eraseInvalidEntries( std::vector<CorrelationMatrixRowOrColumn<KeyType, ValueType>>& matrix, bool zeroIsInvalid )
 {
     matrix.erase( std::remove_if( matrix.begin(),
                                   matrix.end(),
-                                  []( const CorrelationMatrixRowOrColumn<KeyType, ValueType>& entry ) {
-                                      return !RiaCurveDataTools::isValidValue( entry.m_correlationSum, false );
+                                  [=]( const CorrelationMatrixRowOrColumn<KeyType, ValueType>& entry ) {
+                                      bool isValid = RiaCurveDataTools::isValidValue( entry.m_correlationSum, false );
+                                      if ( zeroIsInvalid ) isValid = isValid && entry.m_correlationAbsSum > 1.0e-8;
+                                      return !isValid;
                                   } ),
                   matrix.end() );
 }
@@ -465,7 +475,12 @@ void RimCorrelationMatrixPlot::createMatrix()
                         correlation = RiaStatisticsTools::spearmanCorrelation( parameterValues, caseValuesAtTimestep );
                     }
 
-                    if ( RiaCurveDataTools::isValidValue( correlation, false ) )
+                    bool validResult = RiaCurveDataTools::isValidValue( correlation, false );
+                    if ( m_removeRowsAndColumnsWithZeroCorrelation() )
+                    {
+                        validResult = validResult && std::abs( correlation ) > 1.0e-8;
+                    }
+                    if ( validResult )
                     {
                         if ( m_showAbsoluteValues() ) correlation = std::abs( correlation );
                         anyValidResults = true;
@@ -481,12 +496,12 @@ void RimCorrelationMatrixPlot::createMatrix()
         }
     }
 
-    eraseInvalidEntries( correlationMatrixColumns );
+    eraseInvalidEntries( correlationMatrixColumns, m_removeRowsAndColumnsWithZeroCorrelation() );
     if ( m_sortByValues() ) sortEntries( correlationMatrixColumns, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
 
     auto correlationMatrixRows = transpose( correlationMatrixColumns );
 
-    eraseInvalidEntries( correlationMatrixRows );
+    eraseInvalidEntries( correlationMatrixRows, m_removeRowsAndColumnsWithZeroCorrelation() );
     if ( m_sortByValues() ) sortEntries( correlationMatrixRows, m_sortByAbsoluteValues() || m_showAbsoluteValues() );
 
     for ( size_t rowIdx = 0u; rowIdx < correlationMatrixRows.size(); ++rowIdx )
