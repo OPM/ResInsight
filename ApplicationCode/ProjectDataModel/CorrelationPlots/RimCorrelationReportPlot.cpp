@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimCorrelationReportPlot.h"
 
+#include "RiaPreferences.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RimCorrelationMatrixPlot.h"
@@ -54,10 +55,22 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     CAF_PDM_InitFieldNoDefault( &m_correlationPlot, "CorrelationPlot", "Correlation Plot", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_parameterResultCrossPlot, "CrossPlot", "Cross Plot", "", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Sub Plot Title Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_labelFontSize, "LabelFontSize", "Label Font Size", "", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size", "", "", "" );
+
     setAsPlotMdiWindow();
 
     m_showWindow      = true;
     m_showPlotLegends = false;
+
+    m_titleFontSize     = caf::FontTools::RelativeSize::XLarge;
+    m_subTitleFontSize  = caf::FontTools::RelativeSize::Large;
+    m_labelFontSize     = caf::FontTools::RelativeSize::XSmall;
+    m_axisTitleFontSize = caf::FontTools::RelativeSize::Small;
+    m_axisValueFontSize = caf::FontTools::RelativeSize::XSmall;
 
     m_correlationMatrixPlot = new RimCorrelationMatrixPlot;
     m_correlationMatrixPlot->setLegendsVisible( false );
@@ -169,6 +182,30 @@ int RimCorrelationReportPlot::columnCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimCorrelationReportPlot::subTitleFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_subTitleFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimCorrelationReportPlot::axisTitleFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimCorrelationReportPlot::axisValueFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimCorrelationReportPlot::createPlotWindowTitle() const
 {
     QStringList ensembles;
@@ -263,6 +300,18 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
         // m_correlationPlot->setCurveDefinitions( curveDefs );
         // m_parameterResultCrossPlot->setCurveDefinitions( curveDefs );
 
+        m_correlationMatrixPlot->setLabelFontSize( m_labelFontSize() );
+        m_correlationMatrixPlot->setAxisTitleFontSize( m_axisTitleFontSize() );
+        m_correlationMatrixPlot->setAxisValueFontSize( m_axisValueFontSize() );
+
+        m_correlationPlot->setLabelFontSize( m_labelFontSize() );
+        m_correlationPlot->setAxisTitleFontSize( m_axisTitleFontSize() );
+        m_correlationPlot->setAxisValueFontSize( m_axisValueFontSize() );
+
+        m_parameterResultCrossPlot->setLabelFontSize( m_labelFontSize() );
+        m_parameterResultCrossPlot->setAxisTitleFontSize( m_axisTitleFontSize() );
+        m_parameterResultCrossPlot->setAxisValueFontSize( m_axisValueFontSize() );
+
         m_correlationPlot->setCorrelationFactor( m_correlationMatrixPlot->correlationFactor() );
         m_correlationPlot->setShowAbsoluteValues( m_correlationMatrixPlot->showAbsoluteValues() );
         m_correlationPlot->setSortByAbsoluteValues( m_correlationMatrixPlot->sortByAbsoluteValues() );
@@ -280,6 +329,12 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
 void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_correlationMatrixPlot->uiOrdering( "report", uiOrdering );
+    auto plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
+    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotGroup );
+    plotGroup->add( &m_subTitleFontSize );
+    plotGroup->add( &m_labelFontSize );
+    plotGroup->add( &m_axisTitleFontSize );
+    plotGroup->add( &m_axisValueFontSize );
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -313,12 +368,45 @@ void RimCorrelationReportPlot::childFieldChangedByUi( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimCorrelationReportPlot::doUpdateLayout()
+{
+    if ( m_showWindow && m_viewer )
+    {
+        m_viewer->setTitleFontSizes( titleFontSize(), subTitleFontSize() );
+        m_viewer->setLegendFontSize( legendFontSize() );
+        m_viewer->setAxisFontSizes( axisTitleFontSize(), axisValueFontSize() );
+        m_viewer->setSubTitlesVisible( true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo>
+    RimCorrelationReportPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+
+    if ( fieldNeedingOptions == &m_subTitleFontSize || fieldNeedingOptions == &m_labelFontSize ||
+         fieldNeedingOptions == &m_axisTitleFontSize || fieldNeedingOptions == &m_axisValueFontSize )
+    {
+        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
+    }
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCorrelationReportPlot::onDataSelection( const EnsembleParameter& param, const RiaSummaryCurveDefinition& curveDef )
 {
-    m_correlationPlot->setCurveDefinitions( { curveDef } );
+    m_correlationPlot->setCurveDefinitions( {curveDef} );
     m_correlationPlot->loadDataAndUpdate();
-    m_parameterResultCrossPlot->setCurveDefinitions( { curveDef } );
+    m_parameterResultCrossPlot->setCurveDefinitions( {curveDef} );
     m_parameterResultCrossPlot->setEnsembleParameter( param.name );
     m_parameterResultCrossPlot->loadDataAndUpdate();
-    //    m_viewer->scheduleUpdate();
+    if ( m_viewer )
+    {
+        m_viewer->scheduleUpdate();
+    }
 }

@@ -36,6 +36,7 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlotAxisFormatter.h"
 
+#include "cafFontTools.h"
 #include "cafPdmUiComboBoxEditor.h"
 
 #include "qwt_plot_barchart.h"
@@ -125,6 +126,8 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     plotGroup->add( &m_useAutoPlotTitle );
     plotGroup->add( &m_description );
     RimPlot::defineUiOrdering( uiConfigName, *plotGroup );
+    plotGroup->add( &m_axisTitleFontSize );
+    plotGroup->add( &m_axisValueFontSize );
 
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
     uiOrdering.skipRemainingFields( true );
@@ -184,11 +187,11 @@ void RimCorrelationPlot::updateAxes()
 
     m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Parameter" );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, 10, 10, false, Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
 
     m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient" );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, 10, 10, false, Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
     if ( m_showAbsoluteValues )
     {
         m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient ABS" );
@@ -294,8 +297,12 @@ void RimCorrelationPlot::updatePlotTitle()
         m_description = QString( "%1 for %2" ).arg( m_correlationFactor().uiText() ).arg( m_selectedVarsUiField );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
-    m_plotWidget->setPlotTitleFontSize( isMdiWindow() ? 8 : 10 );
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+
+    if ( isMdiWindow() )
+    {
+        m_plotWidget->setPlotTitleFontSize( titleFontSize() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

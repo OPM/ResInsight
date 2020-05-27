@@ -72,10 +72,14 @@ public:
     int  axisTitleFontSize( QwtPlot::Axis axis ) const;
     int  axisValueFontSize( QwtPlot::Axis axis ) const;
     void setAxisFontsAndAlignment( QwtPlot::Axis,
-                                   int  titleFontPixelSize,
-                                   int  valueFontPixelSize,
+                                   int  titleFontSize,
+                                   int  valueFontSize,
                                    bool titleBold = false,
-                                   int  alignment = (int)Qt::AlignRight );
+                                   int  alignment = (int)Qt::AlignCenter );
+    void setAxesFontsAndAlignment( int  titleFontSize,
+                                   int  valueFontSize,
+                                   bool titleBold = false,
+                                   int  alignment = (int)Qt::AlignCenter );
 
     void setAxisTitleText( QwtPlot::Axis axis, const QString& title );
     void setAxisTitleEnabled( QwtPlot::Axis axis, bool enable );

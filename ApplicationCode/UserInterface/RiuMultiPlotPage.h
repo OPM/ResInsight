@@ -146,8 +146,8 @@ protected:
     int m_titleFontPixelSize;
     int m_subTitleFontPixelSize;
     int m_legendFontPixelSize;
-    int m_axisTitleFontPixelSize;
-    int m_axisValueFontPixelSize;
+    int m_axisTitleFontSize;
+    int m_axisValueFontSize;
 
     bool m_previewMode;
     bool m_showSubTitles;

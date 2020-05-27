@@ -71,8 +71,8 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
     , m_titleFontPixelSize( 12 )
     , m_subTitleFontPixelSize( 11 )
     , m_legendFontPixelSize( 8 )
-    , m_axisTitleFontPixelSize( 10 )
-    , m_axisValueFontPixelSize( 10 )
+    , m_axisTitleFontSize( 8 )
+    , m_axisValueFontSize( 8 )
 
 {
     CAF_ASSERT( m_plotDefinition );
@@ -284,8 +284,8 @@ void RiuMultiPlotPage::setLegendFontSize( int legendFontSize )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::setAxisFontSizes( int axisTitleFontSize, int axisValueFontSize )
 {
-    m_axisTitleFontPixelSize = caf::FontTools::pointSizeToPixelSize( axisTitleFontSize );
-    m_axisValueFontPixelSize = caf::FontTools::pointSizeToPixelSize( axisValueFontSize );
+    m_axisTitleFontSize = axisTitleFontSize;
+    m_axisValueFontSize = axisValueFontSize;
 
     scheduleUpdate();
 }
@@ -636,9 +636,7 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
                                                                      showYAxis( row, column ),
                                                                      showYAxis( row, column ) );
             plotWidgets[visibleIndex]->setAxisTitleEnabled( QwtPlot::yLeft, showYAxis( row, column ) );
-            plotWidgets[visibleIndex]->setAxisFontsAndAlignment( QwtPlot::yLeft,
-                                                                 m_axisTitleFontPixelSize,
-                                                                 m_axisValueFontPixelSize );
+            plotWidgets[visibleIndex]->setAxesFontsAndAlignment( m_axisTitleFontSize, m_axisValueFontSize );
 
             plotWidgets[visibleIndex]->show();
 
@@ -784,6 +782,7 @@ QList<QPointer<QLabel>> RiuMultiPlotPage::subTitlesForVisiblePlots() const
     {
         if ( m_plotWidgets[i]->isChecked() )
         {
+            m_subTitles[i]->setText( m_plotWidgets[i]->plotTitle() );
             subTitles.push_back( m_subTitles[i] );
         }
     }

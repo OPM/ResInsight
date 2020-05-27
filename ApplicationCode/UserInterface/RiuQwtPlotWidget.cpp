@@ -165,11 +165,14 @@ int RiuQwtPlotWidget::axisValueFontSize( QwtPlot::Axis axis ) const
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis axis,
-                                                 int           titleFontPixelSize,
-                                                 int           valueFontPixelSize,
+                                                 int           titleFontSize,
+                                                 int           valueFontSize,
                                                  bool          titleBold,
                                                  int           alignment )
 {
+    int titleFontPixelSize = caf::FontTools::pointSizeToPixelSize( titleFontSize );
+    int valueFontPixelSize = caf::FontTools::pointSizeToPixelSize( valueFontSize );
+
     // Axis number font
     QFont axisFont = this->axisFont( axis );
     axisFont.setPixelSize( valueFontPixelSize );
@@ -186,6 +189,17 @@ void RiuQwtPlotWidget::setAxisFontsAndAlignment( QwtPlot::Axis axis,
 
     setAxisTitle( axis, axisTitle );
     applyAxisTitleToQwt( axis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setAxesFontsAndAlignment( int titleFontSize, int valueFontSize, bool titleBold, int alignment )
+{
+    for ( auto axisTitlePair : m_axisTitles )
+    {
+        setAxisFontsAndAlignment( axisTitlePair.first, titleFontSize, valueFontSize, titleBold, alignment );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -983,7 +997,7 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
             bool horizontal = barChart->orientation() == Qt::Horizontal;
             for ( size_t i = 0; i < barChart->dataSize(); ++i )
             {
-                QPointF samplePoint = barChart->sample( i );
+                QPointF samplePoint = barChart->sample( (int)i );
                 double  dist        = horizontal ? std::abs( samplePoint.x() - scalePos.y() )
                                          : std::abs( samplePoint.x() - scalePos.x() );
                 if ( dist < distMin )

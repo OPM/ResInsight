@@ -21,6 +21,7 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RimAbstractCorrelationPlot.h"
 #include "RimSummaryCaseCollection.h"
+
 #include "cafAppEnum.h"
 
 #include <QDateTime>
