@@ -168,6 +168,7 @@ std::vector<double> RigWellLogCurveData::depths( RiaDefines::DepthTypeEnum depth
         }
         return tvds;
     }
+
     return std::vector<double>();
 }
 
