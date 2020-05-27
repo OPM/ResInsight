@@ -42,8 +42,8 @@ class RigEclipseResultAddress;
 class RivNNCGeometryGenerator : public cvf::Object
 {
 public:
-    RivNNCGeometryGenerator( bool                      includeAllen,
-                             const RigNNCData*         nncData,
+    RivNNCGeometryGenerator( bool                      includeAllan,
+                             RigNNCData*               nncData,
                              const cvf::Vec3d&         offset,
                              const cvf::Array<size_t>* nncIndexes );
 
@@ -67,10 +67,10 @@ private:
     void computeArrays();
 
 private:
-    bool m_includeAllenDiagramGeometry;
+    bool m_includeAllanDiagramGeometry;
 
     // Input
-    cvf::cref<RigNNCData>         m_nncData;
+    cvf::ref<RigNNCData>          m_nncData;
     cvf::cref<cvf::Array<size_t>> m_nncIndexes;
     cvf::cref<cvf::UByteArray>    m_cellVisibility;
     cvf::cref<RigGridBase>        m_grid;

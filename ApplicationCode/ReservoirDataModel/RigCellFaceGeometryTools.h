@@ -18,15 +18,21 @@
 
 #pragma once
 
+#include "RigFault.h"
+#include "RigNncConnection.h"
+
 #include "cvfCollection.h"
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"
 
+#include <deque>
+#include <set>
+#include <utility>
 #include <vector>
 
+class RigActiveCellInfo;
 class RigCell;
 class RigMainGrid;
-class RigConnection;
 
 //==================================================================================================
 ///
@@ -40,10 +46,16 @@ public:
                                                                         std::vector<size_t>*     connectionPolygon,
                                                                         std::vector<cvf::Vec3d>* connectionIntersections );
 
-    static std::vector<RigConnection> computeOtherNncs( const RigMainGrid*                mainGrid,
-                                                        const std::vector<RigConnection>& nativeConnections );
+    static RigConnectionContainer computeOtherNncs( const RigMainGrid*            mainGrid,
+                                                    const RigConnectionContainer& nativeConnections,
+                                                    const RigActiveCellInfo*      activeCellInfo,
+                                                    bool                          includeInactiveCells );
 
-    static std::vector<cvf::Vec3d> extractPolygon( const std::vector<cvf::Vec3d>& nativeNodes,
+    static void                    extractConnectionsForFace( const RigFault::FaultFace&                     face,
+                                                              const RigMainGrid*                             mainGrid,
+                                                              const std::set<std::pair<unsigned, unsigned>>& nativeCellPairs,
+                                                              RigConnectionContainer&                        connections );
+    static std::vector<cvf::Vec3f> extractPolygon( const std::vector<cvf::Vec3d>& nativeNodes,
                                                    const std::vector<size_t>&     connectionPolygon,
                                                    const std::vector<cvf::Vec3d>& connectionIntersections );
 };

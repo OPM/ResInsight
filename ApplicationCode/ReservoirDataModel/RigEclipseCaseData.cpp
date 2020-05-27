@@ -728,9 +728,9 @@ const std::vector<QString> RigEclipseCaseData::formationNames() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigAllenDiagramData* RigEclipseCaseData::allenDiagramData()
+RigAllanDiagramData* RigEclipseCaseData::allanDiagramData()
 {
-    return m_matrixModelResults->allenDiagramData();
+    return m_matrixModelResults->allanDiagramData();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -446,23 +446,27 @@ bool RifReaderEclipseOutput::open( const QString& fileName, RigEclipseCaseData* 
         if ( isNNCsEnabled() )
         {
             caf::ProgressInfo nncProgress( 10, "" );
+            RigMainGrid*      mainGrid = eclipseCase->mainGrid();
 
             {
                 auto subNncTask = nncProgress.task( "Reading static NNC data" );
-                transferStaticNNCData( mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid() );
+                transferStaticNNCData( mainEclGrid, m_ecl_init_file, mainGrid );
             }
 
             // This test should probably be improved to test more directly for presence of NNC data
             if ( m_eclipseCase->results( RiaDefines::MATRIX_MODEL )->hasFlowDiagUsableFluxes() )
             {
                 auto subNncTask = nncProgress.task( "Reading dynamic NNC data" );
-                transferDynamicNNCData( mainEclGrid, eclipseCase->mainGrid() );
+                transferDynamicNNCData( mainEclGrid, mainGrid );
             }
 
-            {
-                auto subNncTask = nncProgress.task( "Processing connections", 8 );
-                eclipseCase->mainGrid()->nncData()->processNativeConnections( *( eclipseCase->mainGrid() ) );
-            }
+            RigActiveCellInfo* activeCellInfo =
+                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+
+            bool includeInactiveCells =
+                RiaApplication::instance()->preferences()->readerSettings()->includeInactiveCellsInFaultGeometry;
+
+            mainGrid->nncData()->setSourceDataForProcessing( mainGrid, activeCellInfo, includeInactiveCells );
         }
     }
 
@@ -722,8 +726,8 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
             if ( numNNC > 0 )
             {
                 // Transform to our own data structures
-                std::vector<RigConnection> nncConnections;
-                std::vector<double>        transmissibilityValuesTemp;
+                RigConnectionContainer nncConnections;
+                std::vector<double>    transmissibilityValuesTemp;
 
                 const double* transValues = ecl_nnc_data_get_values( tran_data );
 
@@ -733,20 +737,17 @@ void RifReaderEclipseOutput::transferStaticNNCData( const ecl_grid_type* mainEcl
                     RigGridBase*             grid1         = mainGrid->gridByIndex( geometry_pair->grid_nr1 );
                     RigGridBase*             grid2         = mainGrid->gridByIndex( geometry_pair->grid_nr2 );
 
-                    RigConnection nncConnection;
-                    nncConnection.m_c1GlobIdx = grid1->reservoirCellIndex( geometry_pair->global_index1 );
-                    nncConnection.m_c2GlobIdx = grid2->reservoirCellIndex( geometry_pair->global_index2 );
+                    RigConnection nncConnection( grid1->reservoirCellIndex( geometry_pair->global_index1 ),
+                                                 grid2->reservoirCellIndex( geometry_pair->global_index2 ) );
 
                     nncConnections.push_back( nncConnection );
 
                     transmissibilityValuesTemp.push_back( transValues[nIdx] );
                 }
 
-                mainGrid->nncData()->setConnections( nncConnections );
-
-                std::vector<double>& transmissibilityValues =
-                    mainGrid->nncData()->makeStaticConnectionScalarResult( RiaDefines::propertyNameCombTrans() );
-                transmissibilityValues = transmissibilityValuesTemp;
+                mainGrid->nncData()->setNativeConnections( nncConnections );
+                mainGrid->nncData()->makeScalarResultAndSetValues( RiaDefines::propertyNameCombTrans(),
+                                                                   transmissibilityValuesTemp );
             }
 
             ecl_nnc_data_free( tran_data );
@@ -1287,7 +1288,7 @@ size_t localGridCellIndexFromErtConnection( const RigGridBase*    grid,
         cellK = 0;
     }
 
-    // Introduced based on discussion with Håkon Høgstøl 08.09.2016
+    // Introduced based on discussion with Hï¿½kon Hï¿½gstï¿½l 08.09.2016
     if ( cellK >= static_cast<int>( grid->cellCountK() ) )
     {
         int maxCellK = static_cast<int>( grid->cellCountK() );

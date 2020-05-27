@@ -74,6 +74,7 @@ public:
 
     QString name() const;
     void    setName( const QString& name );
+    void    setNameNoUpdateOfExportName( const QString& name );
 
     const QString associatedSimulationWellName() const;
     int           associatedSimulationWellBranch() const;

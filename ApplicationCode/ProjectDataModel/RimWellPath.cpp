@@ -440,8 +440,17 @@ QString RimWellPath::name() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::setName( const QString& name )
 {
-    m_name = name;
+    setNameNoUpdateOfExportName( name );
+
     m_completions->setWellNameForExport( name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::setNameNoUpdateOfExportName( const QString& name )
+{
+    m_name = name;
     tryAssociateWithSimulationWell();
 }
 

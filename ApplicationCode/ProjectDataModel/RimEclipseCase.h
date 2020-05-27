@@ -115,6 +115,10 @@ public:
 
     void loadAndSyncronizeInputProperties( bool includeGridFileName );
 
+    void ensureFaultDataIsComputed();
+    bool ensureNncDataIsComputed();
+    void createDisplayModelAndUpdateAllViews();
+
 protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

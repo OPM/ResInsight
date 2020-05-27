@@ -41,6 +41,7 @@
 #include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
@@ -253,7 +254,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createWellFileLocationText( co
             auto fileWellPath = dynamic_cast<RimFileWellPath*>( wellPath );
             if ( fileWellPath )
             {
-                formatter.add( wellPath->name() );
+                formatter.add( wellPath->completions()->wellNameForExport() );
                 formatter.add( fileWellPath->filePath() );
                 formatter.rowCompleted();
             }
@@ -564,7 +565,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         fracture->firstAncestorOrThisOfType( wellPath );
         if ( wellPath )
         {
-            wellName = wellPath->name();
+            wellName = wellPath->completions()->wellNameForExport();
         }
 
         formatter.add( wellName );

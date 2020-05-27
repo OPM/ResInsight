@@ -139,7 +139,7 @@ void RimFileWellPath::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 /// Read JSON or ascii file containing well path data
 //--------------------------------------------------------------------------------------------------
-bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter )
+bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter, bool setWellNameForExport )
 {
     if ( caf::Utils::fileExists( this->filePath() ) )
     {
@@ -150,7 +150,15 @@ bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImport
             wellPathImporter->readWellMetaData( this->filePath(), m_wellPathIndexInFile() );
         // General well info
 
-        setName( wellData.m_name );
+        if ( setWellNameForExport )
+        {
+            setName( wellData.m_name );
+        }
+        else
+        {
+            setNameNoUpdateOfExportName( wellData.m_name );
+        }
+
         id           = wellMetaData.m_id;
         sourceSystem = wellMetaData.m_sourceSystem;
         utmZone      = wellMetaData.m_utmZone;
@@ -260,19 +268,10 @@ bool RimFileWellPath::isStoredInCache() const
 //--------------------------------------------------------------------------------------------------
 void RimFileWellPath::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
-    // RimWellPath::updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
+    QString newCacheFileName = getCacheFileName();
 
-    if ( isStoredInCache() )
+    if ( caf::Utils::fileExists( newCacheFileName ) )
     {
-        QString newCacheFileName = getCacheFileName();
-
-        if ( caf::Utils::fileExists( newCacheFileName ) )
-        {
-            m_filePathInCache = newCacheFileName;
-        }
+        m_filePathInCache = newCacheFileName;
     }
-    // else
-    // {
-    //     m_filepath = RimTools::relocateFile( m_filepath(), newProjectPath, oldProjectPath, nullptr, nullptr );
-    // }
 }

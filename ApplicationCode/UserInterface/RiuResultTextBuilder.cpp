@@ -40,7 +40,7 @@
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
-#include "RigAllenDiagramData.h"
+#include "RigAllanDiagramData.h"
 #include "RimIntersectionResultDefinition.h"
 #include "cafDisplayCoordTransform.h"
 
@@ -323,7 +323,7 @@ QString RiuResultTextBuilder::faultResultDetails()
             if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->faultResultSettings()->hasValidCustomResult() )
             {
                 if ( m_viewWithFaultsSettings->faultResultSettings()->customFaultResult()->resultType() !=
-                     RiaDefines::ALLEN_DIAGRAMS )
+                     RiaDefines::ALLAN_DIAGRAMS )
                 {
                     text += "Fault result data:\n";
                     this->appendTextFromResultColors( eclipseCaseData,
@@ -446,7 +446,7 @@ QString RiuResultTextBuilder::nncResultText()
             {
                 const RigConnection& conn = nncData->connections()[m_nncIndex];
 
-                cvf::StructGridInterface::FaceEnum face( conn.m_c1Face );
+                cvf::StructGridInterface::FaceEnum face( conn.face() );
 
                 if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->currentFaultResultColors() )
                 {
@@ -478,16 +478,16 @@ QString RiuResultTextBuilder::nncResultText()
                         text = QString( "%1 : %2" ).arg( resultVar ).arg( scalarValue );
                     }
 
-                    if ( resultType == RiaDefines::ALLEN_DIAGRAMS )
+                    if ( resultType == RiaDefines::ALLAN_DIAGRAMS )
                     {
                         nncValues = nncData->staticConnectionScalarResult( eclipseResultAddress );
                         QString resultValueText;
 
                         if ( m_viewWithFaultsSettings->currentFaultResultColors()->resultVariable() ==
-                             RiaDefines::formationAllenResultName() )
+                             RiaDefines::formationAllanResultName() )
                         {
                             std::pair<int, int> fmIndexPair =
-                                eclipseCase->allenDiagramData()->formationIndexCombinationFromCategory(
+                                eclipseCase->allanDiagramData()->formationIndexCombinationFromCategory(
                                     ( *nncValues )[m_nncIndex] );
 
                             std::vector<QString> fmNames = eclipseCase->formationNames();
@@ -503,7 +503,7 @@ QString RiuResultTextBuilder::nncResultText()
                             // clang-format on
                         }
                         else if ( m_viewWithFaultsSettings->currentFaultResultColors()->resultVariable() ==
-                                  RiaDefines::formationBinaryAllenResultName() )
+                                  RiaDefines::formationBinaryAllanResultName() )
                         {
                             resultValueText = ( *nncValues )[m_nncIndex] == 0 ? "Same formation" : "Different formation";
                         }
@@ -801,12 +801,12 @@ QString RiuResultTextBuilder::nncDetails()
                 text += "-- NNC details --\n";
                 {
                     const RigConnection&               conn = nncData->connections()[m_nncIndex];
-                    cvf::StructGridInterface::FaceEnum face( conn.m_c1Face );
+                    cvf::StructGridInterface::FaceEnum face( conn.face() );
 
                     // First cell of NNC
                     {
-                        CVF_ASSERT( conn.m_c1GlobIdx < grid->globalCellArray().size() );
-                        const RigCell& cell = grid->globalCellArray()[conn.m_c1GlobIdx];
+                        CVF_ASSERT( conn.c1GlobIdx() < grid->globalCellArray().size() );
+                        const RigCell& cell = grid->globalCellArray()[conn.c1GlobIdx()];
 
                         RigGridBase* hostGrid           = cell.hostGrid();
                         size_t       gridLocalCellIndex = cell.gridLocalCellIndex();
@@ -831,8 +831,8 @@ QString RiuResultTextBuilder::nncDetails()
 
                     // Second cell of NNC
                     {
-                        CVF_ASSERT( conn.m_c2GlobIdx < grid->globalCellArray().size() );
-                        const RigCell& cell = grid->globalCellArray()[conn.m_c2GlobIdx];
+                        CVF_ASSERT( conn.c2GlobIdx() < grid->globalCellArray().size() );
+                        const RigCell& cell = grid->globalCellArray()[conn.c2GlobIdx()];
 
                         RigGridBase* hostGrid           = cell.hostGrid();
                         size_t       gridLocalCellIndex = cell.gridLocalCellIndex();

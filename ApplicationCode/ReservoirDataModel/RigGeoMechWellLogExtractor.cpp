@@ -237,14 +237,16 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         return finalSourcesPerSegment;
     }
 
-    bool isPPresult = parameter == RigWbsParameter::PP_Reservoir() || parameter == RigWbsParameter::PP_NonReservoir();
+    bool isPPResResult = parameter == RigWbsParameter::PP_Reservoir();
+    bool isPPresult    = isPPResResult || parameter == RigWbsParameter::PP_NonReservoir();
 
     std::vector<WbsParameterSource> allSources = parameter.sources();
     auto                            primary_it = std::find( allSources.begin(), allSources.end(), primarySource );
     CVF_ASSERT( primary_it != allSources.end() );
 
     std::vector<double> gridValues;
-    if ( std::find( allSources.begin(), allSources.end(), RigWbsParameter::GRID ) != allSources.end() )
+    if ( std::find( allSources.begin(), allSources.end(), RigWbsParameter::GRID ) != allSources.end() ||
+         parameter == RigWbsParameter::PP_Reservoir() )
     {
         RigFemResultAddress nativeAddr = parameter.femAddress( RigWbsParameter::GRID );
 
@@ -294,7 +296,6 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
 
     double waterDensityGCM3 = m_userDefinedValues[RigWbsParameter::waterDensity()];
 
-#pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < (int64_t)m_intersections.size(); ++intersectionIdx )
     {
         // Loop from primary source and out for each value
@@ -314,8 +315,16 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
             {
                 if ( !lasFileValues.empty() )
                 {
-                    double lasValue = getWellLogIntersectionValue( intersectionIdx, lasFileValues );
-                    if ( lasValue != std::numeric_limits<double>::infinity() )
+                    double lasValue         = getWellLogIntersectionValue( intersectionIdx, lasFileValues );
+		            // Only accept las-values for PP_reservoir if the grid result is valid
+                    bool   validLasRegion = true;
+                    if (isPPResResult)
+                    {
+                        validLasRegion = intersectionIdx < (int64_t) gridValues.size() &&
+                                         gridValues[intersectionIdx] != std::numeric_limits<double>::infinity();
+                    }
+
+                    if ( validLasRegion && lasValue != std::numeric_limits<double>::infinity())
                     {
                         unscaledValues[intersectionIdx]         = lasValue;
                         finalSourcesPerSegment[intersectionIdx] = RigWbsParameter::LAS_FILE;
@@ -486,7 +495,8 @@ void RigGeoMechWellLogExtractor::wellPathAngles( const RigFemResultAddress& resA
 std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
     RigGeoMechWellLogExtractor::wellPathScaledCurveData( const RigFemResultAddress& resAddr,
                                                          int                        frameIndex,
-                                                         std::vector<double>*       values )
+                                                         std::vector<double>*       values,
+                                                         bool forceGridSourceForPPReservoir /*=false*/ )
 {
     CVF_ASSERT( values );
 
@@ -499,8 +509,21 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
         std::vector<double> ppSandValues( m_intersections.size(), std::numeric_limits<double>::infinity() );
         std::vector<double> ppShaleValues( m_intersections.size(), std::numeric_limits<double>::infinity() );
 
-        std::vector<WbsParameterSource> ppSandSources =
-            calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(), frameIndex, &ppSandValues, true );
+        std::vector<WbsParameterSource> ppSandSources;
+        if ( forceGridSourceForPPReservoir )
+        {
+            ppSandSources = calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(),
+                                                                 RigWbsParameter::GRID,
+                                                                 frameIndex,
+                                                                 &ppSandValues,
+                                                                 true );
+        }
+        else
+        {
+            ppSandSources =
+                calculateWbsParameterForAllSegments( RigWbsParameter::PP_Reservoir(), frameIndex, &ppSandValues, true );
+        }
+
         std::vector<WbsParameterSource> ppShaleSources =
             calculateWbsParameterForAllSegments( RigWbsParameter::PP_NonReservoir(), 0, &ppShaleValues, true );
 
@@ -662,8 +685,7 @@ void RigGeoMechWellLogExtractor::wellBoreFGShale( int frameIndex, std::vector<do
         std::vector<double> K0_FG, OBG0; // parameters
 
         RigFemResultAddress ppAddr( RIG_WELLPATH_DERIVED, RiaDefines::wbsPPResult().toStdString(), "" );
-
-        curveData( ppAddr, 0, &PP0 );
+        wellPathScaledCurveData( ppAddr, 0, &PP0, true );
 
         calculateWbsParameterForAllSegments( RigWbsParameter::K0_FG(), frameIndex, &K0_FG, true );
         calculateWbsParameterForAllSegments( RigWbsParameter::OBG0(), 0, &OBG0, true );
@@ -1148,6 +1170,21 @@ double RigGeoMechWellLogExtractor::getWellLogIntersectionValue( size_t intersect
             }
         }
     }
+
+    // If we found no match, check first and last value within a threshold.
+    if ( !wellLogValues.empty() )
+    {
+        const double relativeEps = 1.0e-3 * std::max( 1.0, intersection_md );
+        if ( std::abs( wellLogValues.front().first - intersection_md ) < relativeEps )
+        {
+            return wellLogValues.front().second;
+        }
+        else if ( std::abs( wellLogValues.back().first - intersection_md ) < relativeEps )
+        {
+            return wellLogValues.back().second;
+        }
+    }
+
     return std::numeric_limits<double>::infinity();
 }
 

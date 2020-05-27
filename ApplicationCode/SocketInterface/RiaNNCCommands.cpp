@@ -70,10 +70,12 @@ public:
 
         socketStream << (quint64)connectionCount;
 
-        for ( const RigConnection& connection : mainGrid->nncData()->connections() )
+        for ( size_t i = 0; i < mainGrid->nncData()->connections().size(); ++i )
         {
-            const RigCell& cell1 = mainGrid->globalCellArray()[connection.m_c1GlobIdx];
-            const RigCell& cell2 = mainGrid->globalCellArray()[connection.m_c2GlobIdx];
+            RigConnection connection = mainGrid->nncData()->connections()[i];
+
+            const RigCell& cell1 = mainGrid->globalCellArray()[connection.c1GlobIdx()];
+            const RigCell& cell2 = mainGrid->globalCellArray()[connection.c2GlobIdx()];
 
             sendCellInfo( socketStream, cell1 );
             sendCellInfo( socketStream, cell2 );

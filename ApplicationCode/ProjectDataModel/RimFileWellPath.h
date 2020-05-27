@@ -28,7 +28,7 @@ public:
 
     QString filePath() const;
     void    setFilepath( const QString& path );
-    bool    readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter );
+    bool    readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter, bool setWellNameForExport );
     int     wellPathIndexInFile() const; // -1 means none.
     void    setWellPathIndexInFile( int index );
     void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;

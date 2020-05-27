@@ -132,10 +132,9 @@ void AppEnum<RigWellPathFormations::FormationLevel>::setUp()
 template <>
 void AppEnum<RiuPlotAnnotationTool::RegionAnnotationType>::setUp()
 {
-    addItem( RiuPlotAnnotationTool::NO_ANNOTATIONS, "NO_ANNOTATIONS", "No Annotations" );
-    addItem( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS, "FORMATIONS", "Formations" );
-    addItem( RiuPlotAnnotationTool::CURVE_ANNOTATIONS, "CURVE_DATA", "Curve Data Annotations" );
-    setDefault( RiuPlotAnnotationTool::NO_ANNOTATIONS );
+    addItem( RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS, "NO_ANNOTATIONS", "No Annotations" );
+    addItem( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS, "FORMATIONS", "Formations" );
+    setDefault( RiuPlotAnnotationTool::RegionAnnotationType::NO_ANNOTATIONS );
 }
 
 template <>
@@ -943,22 +942,6 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_regionAnnotationType )
-    {
-        options.push_back( caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::NO_ANNOTATIONS ),
-                                                   RiuPlotAnnotationTool::NO_ANNOTATIONS ) );
-        options.push_back(
-            caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::FORMATION_ANNOTATIONS ),
-                                    RiuPlotAnnotationTool::FORMATION_ANNOTATIONS ) );
-        RimWellBoreStabilityPlot* wellBoreStabilityPlot = nullptr;
-        this->firstAncestorOrThisOfType( wellBoreStabilityPlot );
-        if ( wellBoreStabilityPlot )
-        {
-            options.push_back(
-                caf::PdmOptionItemInfo( RegionAnnotationTypeEnum::uiText( RiuPlotAnnotationTool::CURVE_ANNOTATIONS ),
-                                        RiuPlotAnnotationTool::CURVE_ANNOTATIONS ) );
-        }
-    }
     if ( fieldNeedingOptions == &m_formationWellPathForSourceCase )
     {
         RimTools::wellPathOptionItems( &options );

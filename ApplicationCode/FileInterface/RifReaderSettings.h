@@ -37,6 +37,7 @@ public:
 
     caf::PdmField<bool>    importFaults;
     caf::PdmField<bool>    importNNCs;
+    caf::PdmField<bool>    includeInactiveCellsInFaultGeometry;
     caf::PdmField<bool>    importAdvancedMswData;
     caf::PdmField<QString> includeFileAbsolutePathPrefix;
     caf::PdmField<bool>    useResultIndexFile;

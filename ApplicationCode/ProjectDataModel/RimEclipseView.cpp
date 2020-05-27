@@ -616,6 +616,11 @@ void RimEclipseView::onCreateDisplayModel()
         onUpdateLegends();
     }
 
+    if ( m_faultResultSettings && m_faultResultSettings->hasValidCustomResult() )
+    {
+        updateFaultColors();
+    }
+
     std::vector<RimFlowCharacteristicsPlot*> characteristicsPlots;
     this->objectsWithReferringPtrFieldsOfType( characteristicsPlots );
     for ( auto plot : characteristicsPlots )
@@ -652,7 +657,7 @@ void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 
     updateVisibleGeometriesAndCellColors();
 
-    wellCollection()->updateWellDisks();
+    wellCollection()->scaleWellDisks();
 
     appendWellsAndFracturesToModel();
 
@@ -945,7 +950,7 @@ void RimEclipseView::onLoadDataAndUpdate()
 
     this->faultCollection()->syncronizeFaults();
 
-    this->m_wellCollection->updateWellDisks();
+    this->m_wellCollection->scaleWellDisks();
 
     scheduleReservoirGridGeometryRegen();
     m_simWellsPartManager->clearGeometryCache();
@@ -2192,7 +2197,7 @@ bool RimEclipseView::isUsingFormationNames() const
 {
     if ( cellResult()->resultType() == RiaDefines::FORMATION_NAMES ) return true;
 
-    if ( faultResultSettings()->customFaultResult()->resultType() == RiaDefines::ALLEN_DIAGRAMS ) return true;
+    if ( faultResultSettings()->customFaultResult()->resultType() == RiaDefines::ALLAN_DIAGRAMS ) return true;
 
     return eclipsePropertyFilterCollection()->isUsingFormationNames();
 }

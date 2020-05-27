@@ -40,7 +40,7 @@ class RigStatisticsDataCache;
 class RigEclipseTimeStepInfo;
 class RigEclipseCaseData;
 class RigFormationNames;
-class RigAllenDiagramData;
+class RigAllanDiagramData;
 
 class RimEclipseCase;
 
@@ -59,7 +59,7 @@ public:
     void                      setHdf5Filename( const QString& hdf5SourSimFilename );
     void                      setActiveFormationNames( RigFormationNames* activeFormationNames );
     const RigFormationNames*  activeFormationNames() const;
-    RigAllenDiagramData*      allenDiagramData();
+    RigAllanDiagramData*      allanDiagramData();
 
     void                     setMainGrid( RigMainGrid* ownerGrid );
     void                     setActiveCellInfo( RigActiveCellInfo* activeCellInfo );
@@ -190,12 +190,13 @@ private:
 
     RigStatisticsDataCache* statistics( const RigEclipseResultAddress& resVarAddr );
 
-    static void computeAllenResults( RigCaseCellResultsData* cellResultsData, RigMainGrid* mainGrid );
+    static void
+        computeAllanResults( RigCaseCellResultsData* cellResultsData, RigMainGrid* mainGrid, bool includeInactiveCells );
 
 private:
     cvf::ref<RifReaderInterface>  m_readerInterface;
     cvf::cref<RigFormationNames>  m_activeFormationNamesData;
-    cvf::ref<RigAllenDiagramData> m_allenDiagramData;
+    cvf::ref<RigAllanDiagramData> m_allanDiagramData;
 
     std::vector<std::vector<std::vector<double>>> m_cellScalarResults; ///< Scalar results on the complete reservoir for
                                                                        ///< each Result index (ResultVariable) and timestep

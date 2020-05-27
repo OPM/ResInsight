@@ -259,7 +259,6 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     paramCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     paramCurvesTrack->setFormationWellPath( wellPath );
     paramCurvesTrack->setFormationCase( geoMechCase );
-    paramCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::CURVE_ANNOTATIONS );
     paramCurvesTrack->setShowRegionLabels( true );
     paramCurvesTrack->setShowWindow( false );
     std::set<RigWbsParameter> parameters = RigWbsParameter::allParameters();

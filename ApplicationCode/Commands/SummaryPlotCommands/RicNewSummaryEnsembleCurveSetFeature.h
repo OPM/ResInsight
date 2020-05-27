@@ -43,7 +43,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimEnsembleCurveSet* addDefaultCurveSet( RimSummaryPlot* plot, RimSummaryCaseCollection* ensemble );
+    static std::vector<RimEnsembleCurveSet*> addDefaultCurveSets( RimSummaryPlot* plot, RimSummaryCaseCollection* ensemble );
 
 private:
     RimSummaryPlot* selectedSummaryPlot() const;

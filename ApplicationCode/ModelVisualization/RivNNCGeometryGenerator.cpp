@@ -31,11 +31,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivNNCGeometryGenerator::RivNNCGeometryGenerator( bool                      includeAllen,
-                                                  const RigNNCData*         nncData,
+RivNNCGeometryGenerator::RivNNCGeometryGenerator( bool                      includeAllan,
+                                                  RigNNCData*               nncData,
                                                   const cvf::Vec3d&         offset,
                                                   const cvf::Array<size_t>* nncIndexes )
-    : m_includeAllenDiagramGeometry( includeAllen )
+    : m_includeAllanDiagramGeometry( includeAllan )
     , m_nncData( nncData )
     , m_nncIndexes( nncIndexes )
     , m_offset( offset )
@@ -74,7 +74,7 @@ void RivNNCGeometryGenerator::computeArrays()
     std::vector<cvf::Vec3f> vertices;
     std::vector<size_t>     triangleToNNC;
 
-    const cvf::Vec3d offset = m_offset;
+    const cvf::Vec3f offset( m_offset );
     long long        numConnections =
         static_cast<long long>( m_nncIndexes.isNull() ? m_nncData->connections().size() : m_nncIndexes->size() );
 
@@ -90,14 +90,14 @@ void RivNNCGeometryGenerator::computeArrays()
     {
         size_t conIdx = m_nncIndexes.isNull() ? nIdx : ( *m_nncIndexes )[nIdx];
 
-        if ( !m_includeAllenDiagramGeometry && conIdx >= m_nncData->nativeConnectionCount() )
+        if ( !m_includeAllanDiagramGeometry && conIdx >= m_nncData->nativeConnectionCount() )
         {
             continue;
         }
 
         const RigConnection& conn = m_nncData->connections()[conIdx];
 
-        if ( conn.m_polygon.size() )
+        if ( conn.polygon().size() )
         {
             bool isVisible = true;
             if ( isVisibilityCalcActive )
@@ -105,15 +105,15 @@ void RivNNCGeometryGenerator::computeArrays()
                 bool cell1Visible = false;
                 bool cell2Visible = false;
 
-                if ( ( *allCells )[conn.m_c1GlobIdx].hostGrid() == m_grid.p() )
+                if ( ( *allCells )[conn.c1GlobIdx()].hostGrid() == m_grid.p() )
                 {
-                    size_t cell1GridLocalIdx = ( *allCells )[conn.m_c1GlobIdx].gridLocalCellIndex();
+                    size_t cell1GridLocalIdx = ( *allCells )[conn.c1GlobIdx()].gridLocalCellIndex();
                     cell1Visible             = ( *m_cellVisibility )[cell1GridLocalIdx];
                 }
 
-                if ( ( *allCells )[conn.m_c2GlobIdx].hostGrid() == m_grid.p() )
+                if ( ( *allCells )[conn.c2GlobIdx()].hostGrid() == m_grid.p() )
                 {
-                    size_t cell2GridLocalIdx = ( *allCells )[conn.m_c2GlobIdx].gridLocalCellIndex();
+                    size_t cell2GridLocalIdx = ( *allCells )[conn.c2GlobIdx()].gridLocalCellIndex();
                     cell2Visible             = ( *m_cellVisibility )[cell2GridLocalIdx];
                 }
 
@@ -122,14 +122,14 @@ void RivNNCGeometryGenerator::computeArrays()
 
             if ( isVisible )
             {
-                cvf::Vec3f vx1 = cvf::Vec3f( conn.m_polygon[0] - offset );
+                cvf::Vec3f vx1 = conn.polygon()[0] - offset;
                 cvf::Vec3f vx2;
-                cvf::Vec3f vx3 = cvf::Vec3f( conn.m_polygon[1] - offset );
+                cvf::Vec3f vx3 = conn.polygon()[1] - offset;
 
-                for ( size_t vxIdx = 2; vxIdx < conn.m_polygon.size(); ++vxIdx )
+                for ( size_t vxIdx = 2; vxIdx < conn.polygon().size(); ++vxIdx )
                 {
                     vx2 = vx3;
-                    vx3 = cvf::Vec3f( conn.m_polygon[vxIdx] - offset );
+                    vx3 = conn.polygon()[vxIdx] - offset;
 #pragma omp critical( critical_section_RivNNCGeometryGenerator_computeArrays )
                     {
                         vertices.push_back( vx1 );
@@ -164,7 +164,7 @@ void RivNNCGeometryGenerator::textureCoordinates( cvf::Vec2fArray*              
     cvf::Vec2f*                rawPtr        = textureCoords->ptr();
     const std::vector<double>* nncResultVals = nullptr;
     if ( resultType == RiaDefines::STATIC_NATIVE || resultType == RiaDefines::FORMATION_NAMES ||
-         resultType == RiaDefines::ALLEN_DIAGRAMS )
+         resultType == RiaDefines::ALLAN_DIAGRAMS )
     {
         nncResultVals = m_nncData->staticConnectionScalarResult( resVarAddr );
     }

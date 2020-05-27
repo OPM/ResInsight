@@ -18,6 +18,7 @@
 
 #include "RigCellFaceGeometryTools.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCell.h"
 #include "RigMainGrid.h"
 #include "RigNncConnection.h"
@@ -27,6 +28,8 @@
 #include "cafAssert.h"
 
 #include <QDebug>
+
+#include <omp.h>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -116,55 +119,32 @@ cvf::StructGridInterface::FaceType
     return cvf::StructGridInterface::NO_FACE;
 }
 
+void assignThreadConnections( RigConnectionContainer& allConnections, RigConnectionContainer& threadConnections )
+{
+#pragma omp critical
+    {
+        allConnections.push_back( threadConnections );
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const RigMainGrid*                mainGrid,
-                                                                       const std::vector<RigConnection>& nativeConnections )
+RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMainGrid*            mainGrid,
+                                                                   const RigConnectionContainer& nativeConnections,
+                                                                   const RigActiveCellInfo*      activeCellInfo,
+                                                                   bool                          includeInactiveCells )
 {
     // Compute Non-Neighbor Connections (NNC) not reported by Eclipse. NNCs with zero transmissibility are not reported
     // by Eclipse. Use faults as basis for subset of cells to find NNC connection for. The imported connections from
     // Eclipse are located at the beginning of the connections vector.
 
-    std::vector<RigConnection> otherConnections;
+    std::set<std::pair<unsigned, unsigned>> nativeCellPairs;
 
-    class CellPair
+    for ( size_t i = 0; i < nativeConnections.size(); ++i )
     {
-    public:
-        CellPair( size_t globalIdx1, size_t globalIdx2 )
-        {
-            if ( globalIdx1 < globalIdx2 )
-            {
-                m_globalCellIdx1 = globalIdx1;
-                m_globalCellIdx2 = globalIdx2;
-            }
-            else
-            {
-                m_globalCellIdx1 = globalIdx2;
-                m_globalCellIdx2 = globalIdx1;
-            }
-        }
-
-        bool operator<( const CellPair& other ) const
-        {
-            if ( m_globalCellIdx1 != other.m_globalCellIdx1 )
-            {
-                return m_globalCellIdx1 < other.m_globalCellIdx1;
-            }
-
-            return ( m_globalCellIdx2 < other.m_globalCellIdx2 );
-        }
-
-    private:
-        size_t m_globalCellIdx1;
-        size_t m_globalCellIdx2;
-    };
-
-    std::set<CellPair> nativeCellPairs;
-
-    for ( const auto& c : nativeConnections )
-    {
-        nativeCellPairs.emplace( CellPair( c.m_c1GlobIdx, c.m_c2GlobIdx ) );
+        RigConnection c = nativeConnections[i];
+        nativeCellPairs.emplace( static_cast<unsigned>( c.c1GlobIdx() ), static_cast<unsigned>( c.c2GlobIdx() ) );
     }
 
     if ( nativeConnections.size() != nativeCellPairs.size() )
@@ -175,179 +155,207 @@ std::vector<RigConnection> RigCellFaceGeometryTools::computeOtherNncs( const Rig
         qDebug() << message;
     }
 
-    std::set<CellPair> otherCellPairs;
-
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
 
-    for ( size_t faultIdx = 0; faultIdx < faults.size(); faultIdx++ )
+    RigConnectionContainer otherConnections;
+
+    for ( int faultIdx = 0; faultIdx < (int)faults.size(); faultIdx++ )
     {
         const RigFault* fault = faults.at( faultIdx );
 
         const std::vector<RigFault::FaultFace>& faultFaces = fault->faultFaces();
 
-#pragma omp parallel for
-        for ( int faceIdx = 0; faceIdx < static_cast<int>( faultFaces.size() ); faceIdx++ )
+        // Build a vector of active face indices so we don't have to have this check inside the parallel loop.
+        // This makes the load balancing much better in the loop.
+        std::vector<size_t> activeFaceIndices;
+        activeFaceIndices.reserve( faultFaces.size() );
+        for ( size_t faceIdx = 0; faceIdx < faultFaces.size(); ++faceIdx )
         {
             const RigFault::FaultFace& f = faultFaces[faceIdx];
 
-            size_t                             sourceReservoirCellIndex = f.m_nativeReservoirCellIndex;
-            cvf::StructGridInterface::FaceType sourceCellFace           = f.m_nativeFace;
-
-            if ( sourceReservoirCellIndex >= mainGrid->cellCount() )
+            bool atLeastOneCellActive = true;
+            if ( !includeInactiveCells && activeCellInfo && activeCellInfo->reservoirActiveCellCount() > 0u )
             {
-                continue;
+                atLeastOneCellActive = activeCellInfo->isActive( f.m_nativeReservoirCellIndex ) ||
+                                       activeCellInfo->isActive( f.m_oppositeReservoirCellIndex );
             }
 
-            const std::vector<cvf::Vec3d>& mainGridNodes = mainGrid->nodes();
+            if ( atLeastOneCellActive ) activeFaceIndices.push_back( faceIdx );
+        }
 
-            cvf::BoundingBox      bb;
-            std::array<size_t, 4> sourceFaceIndices;
-            mainGrid->globalCellArray()[sourceReservoirCellIndex].faceIndices( sourceCellFace, &sourceFaceIndices );
-
-            bb.add( mainGridNodes[sourceFaceIndices[0]] );
-            bb.add( mainGridNodes[sourceFaceIndices[1]] );
-            bb.add( mainGridNodes[sourceFaceIndices[2]] );
-            bb.add( mainGridNodes[sourceFaceIndices[3]] );
-
-            std::vector<size_t> closeCells;
-            mainGrid->findIntersectingCells( bb, &closeCells );
-
-            cvf::StructGridInterface::FaceType candidateFace = cvf::StructGridInterface::oppositeFace( sourceCellFace );
-
-            size_t neighborCellIndex = std::numeric_limits<size_t>::max();
-            size_t ni                = std::numeric_limits<size_t>::max();
-            size_t nj                = std::numeric_limits<size_t>::max();
-            size_t nk                = std::numeric_limits<size_t>::max();
-
+        size_t totalNumberOfConnections = 0u;
+#pragma omp parallel
+        {
+            RigConnectionContainer threadConnections;
+#pragma omp for schedule( guided ) reduction( + : totalNumberOfConnections )
+            for ( int activeFaceIdx = 0; activeFaceIdx < static_cast<int>( activeFaceIndices.size() ); activeFaceIdx++ )
             {
-                size_t i;
-                size_t j;
-                size_t k;
-                mainGrid->ijkFromCellIndex( sourceReservoirCellIndex, &i, &j, &k );
-
-                mainGrid->neighborIJKAtCellFace( i, j, k, sourceCellFace, &ni, &nj, &nk );
-
-                if ( mainGrid->isCellValid( ni, nj, nk ) )
-                {
-                    neighborCellIndex = mainGrid->cellIndexFromIJK( ni, nj, nk );
-                }
+                size_t faceIdx = activeFaceIndices[activeFaceIdx];
+                extractConnectionsForFace( faultFaces[faceIdx], mainGrid, nativeCellPairs, threadConnections );
             }
+#pragma omp barrier
+            otherConnections.reserve( otherConnections.size() + totalNumberOfConnections );
 
-            for ( size_t candidateCellIndex : closeCells )
-            {
-                if ( candidateCellIndex == sourceReservoirCellIndex )
-                {
-                    // Exclude cellIndex for source cell
-                    continue;
-                }
+            // Merge together connections per thread
+            assignThreadConnections( otherConnections, threadConnections );
+        } // end parallel region
+    }
 
-                if ( candidateCellIndex == neighborCellIndex )
-                {
-                    // Exclude direct neighbor
-                    continue;
-                }
+    otherConnections.remove_duplicates();
+    return otherConnections;
+}
 
-                if ( candidateCellIndex >= mainGrid->cellCount() )
-                {
-                    continue;
-                }
+void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultFace&                     face,
+                                                          const RigMainGrid*                             mainGrid,
+                                                          const std::set<std::pair<unsigned, unsigned>>& nativeCellPairs,
+                                                          RigConnectionContainer&                        connections )
+{
+    size_t                             sourceReservoirCellIndex = face.m_nativeReservoirCellIndex;
+    cvf::StructGridInterface::FaceType sourceCellFace           = face.m_nativeFace;
 
-                if ( neighborCellIndex != std::numeric_limits<size_t>::max() )
-                {
-                    // Find target IJK index based on source cell and cell face
-                    // Exclude cells not matching destination target index
+    if ( sourceReservoirCellIndex >= mainGrid->cellCount() )
+    {
+        return;
+    }
 
-                    size_t ci = std::numeric_limits<size_t>::max();
-                    size_t cj = std::numeric_limits<size_t>::max();
-                    size_t ck = std::numeric_limits<size_t>::max();
-                    mainGrid->ijkFromCellIndex( candidateCellIndex, &ci, &cj, &ck );
+    const std::vector<cvf::Vec3d>& mainGridNodes = mainGrid->nodes();
 
-                    auto gridAxis = cvf::StructGridInterface::gridAxisFromFace( sourceCellFace );
-                    if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_I )
-                    {
-                        if ( ni != ci )
-                        {
-                            continue;
-                        }
-                    }
-                    else if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_J )
-                    {
-                        if ( nj != cj )
-                        {
-                            continue;
-                        }
-                    }
-                    else if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_K )
-                    {
-                        if ( nk != ck )
-                        {
-                            continue;
-                        }
-                    }
-                }
+    cvf::BoundingBox      bb;
+    std::array<size_t, 4> sourceFaceIndices;
+    mainGrid->globalCellArray()[sourceReservoirCellIndex].faceIndices( sourceCellFace, &sourceFaceIndices );
 
-                CellPair candidate( sourceReservoirCellIndex, candidateCellIndex );
+    bb.add( mainGridNodes[sourceFaceIndices[0]] );
+    bb.add( mainGridNodes[sourceFaceIndices[1]] );
+    bb.add( mainGridNodes[sourceFaceIndices[2]] );
+    bb.add( mainGridNodes[sourceFaceIndices[3]] );
 
-                if ( nativeCellPairs.count( candidate ) > 0 )
-                {
-                    continue;
-                }
+    std::vector<size_t> closeCells;
+    mainGrid->findIntersectingCells( bb, &closeCells );
 
-                std::vector<size_t>     polygon;
-                std::vector<cvf::Vec3d> intersections;
+    cvf::StructGridInterface::FaceType candidateFace = cvf::StructGridInterface::oppositeFace( sourceCellFace );
 
-                std::array<size_t, 4> candidateFaceIndices;
-                mainGrid->globalCellArray()[candidateCellIndex].faceIndices( candidateFace, &candidateFaceIndices );
+    size_t neighborCellIndex = std::numeric_limits<size_t>::max();
+    size_t ni                = std::numeric_limits<size_t>::max();
+    size_t nj                = std::numeric_limits<size_t>::max();
+    size_t nk                = std::numeric_limits<size_t>::max();
 
-                bool foundOverlap =
-                    cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
-                                                                           &intersections,
-                                                                           (cvf::EdgeIntersectStorage<size_t>*)nullptr,
-                                                                           cvf::wrapArrayConst( &mainGridNodes ),
-                                                                           sourceFaceIndices.data(),
-                                                                           candidateFaceIndices.data(),
-                                                                           1e-6 );
+    {
+        size_t i;
+        size_t j;
+        size_t k;
+        mainGrid->ijkFromCellIndex( sourceReservoirCellIndex, &i, &j, &k );
 
-                if ( foundOverlap )
-                {
-                    RigConnection conn;
-                    conn.m_c1GlobIdx = sourceReservoirCellIndex;
-                    conn.m_c1Face    = sourceCellFace;
-                    conn.m_c2GlobIdx = candidateCellIndex;
+        mainGrid->neighborIJKAtCellFace( i, j, k, sourceCellFace, &ni, &nj, &nk );
 
-                    conn.m_polygon = RigCellFaceGeometryTools::extractPolygon( mainGridNodes, polygon, intersections );
-
-#pragma omp critical( critical_section_nnc_computations )
-                    {
-                        auto itBoolPair = otherCellPairs.insert( candidate );
-                        if ( itBoolPair.second )
-                        {
-                            otherConnections.emplace_back( conn );
-                        }
-                    }
-                }
-            }
+        if ( mainGrid->isCellValid( ni, nj, nk ) )
+        {
+            neighborCellIndex = mainGrid->cellIndexFromIJK( ni, nj, nk );
         }
     }
 
-    return otherConnections;
+    for ( size_t candidateCellIndex : closeCells )
+    {
+        if ( candidateCellIndex == sourceReservoirCellIndex )
+        {
+            // Exclude cellIndex for source cell
+            continue;
+        }
+
+        if ( candidateCellIndex == neighborCellIndex )
+        {
+            // Exclude direct neighbor
+            continue;
+        }
+
+        if ( candidateCellIndex >= mainGrid->cellCount() )
+        {
+            continue;
+        }
+
+        if ( neighborCellIndex != std::numeric_limits<size_t>::max() )
+        {
+            // Find target IJK index based on source cell and cell face
+            // Exclude cells not matching destination target index
+
+            size_t ci = std::numeric_limits<size_t>::max();
+            size_t cj = std::numeric_limits<size_t>::max();
+            size_t ck = std::numeric_limits<size_t>::max();
+            mainGrid->ijkFromCellIndex( candidateCellIndex, &ci, &cj, &ck );
+
+            auto gridAxis = cvf::StructGridInterface::gridAxisFromFace( sourceCellFace );
+            if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_I )
+            {
+                if ( ni != ci )
+                {
+                    continue;
+                }
+            }
+            else if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_J )
+            {
+                if ( nj != cj )
+                {
+                    continue;
+                }
+            }
+            else if ( gridAxis == cvf::StructGridInterface::GridAxisType::AXIS_K )
+            {
+                if ( nk != ck )
+                {
+                    continue;
+                }
+            }
+        }
+
+        std::pair<unsigned, unsigned> candidate( static_cast<unsigned>( sourceReservoirCellIndex ),
+                                                 static_cast<unsigned>( candidateCellIndex ) );
+
+        if ( nativeCellPairs.count( candidate ) > 0 )
+        {
+            continue;
+        }
+
+        std::vector<size_t>     polygon;
+        std::vector<cvf::Vec3d> intersections;
+
+        std::array<size_t, 4> candidateFaceIndices;
+        mainGrid->globalCellArray()[candidateCellIndex].faceIndices( candidateFace, &candidateFaceIndices );
+
+        bool foundOverlap =
+            cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
+                                                                   &intersections,
+                                                                   (cvf::EdgeIntersectStorage<size_t>*)nullptr,
+                                                                   cvf::wrapArrayConst( &mainGridNodes ),
+                                                                   sourceFaceIndices.data(),
+                                                                   candidateFaceIndices.data(),
+                                                                   1e-6 );
+
+        if ( foundOverlap )
+        {
+            RigConnection conn( sourceReservoirCellIndex,
+                                candidateCellIndex,
+                                sourceCellFace,
+                                RigCellFaceGeometryTools::extractPolygon( mainGridNodes, polygon, intersections ) );
+
+            connections.push_back( conn );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigCellFaceGeometryTools::extractPolygon( const std::vector<cvf::Vec3d>& nativeNodes,
+std::vector<cvf::Vec3f> RigCellFaceGeometryTools::extractPolygon( const std::vector<cvf::Vec3d>& nativeNodes,
                                                                   const std::vector<size_t>&     connectionPolygon,
                                                                   const std::vector<cvf::Vec3d>& connectionIntersections )
 {
-    std::vector<cvf::Vec3d> allPolygonNodes;
+    std::vector<cvf::Vec3f> allPolygonNodes;
 
     for ( size_t polygonIndex : connectionPolygon )
     {
         if ( polygonIndex < nativeNodes.size() )
-            allPolygonNodes.push_back( nativeNodes[polygonIndex] );
+            allPolygonNodes.push_back( cvf::Vec3f( nativeNodes[polygonIndex] ) );
         else
-            allPolygonNodes.push_back( connectionIntersections[polygonIndex - nativeNodes.size()] );
+            allPolygonNodes.push_back( cvf::Vec3f( connectionIntersections[polygonIndex - nativeNodes.size()] ) );
     }
 
     return allPolygonNodes;

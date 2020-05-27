@@ -533,7 +533,7 @@ void RigReservoirBuilderMock::addFaults( RigEclipseCaseData* eclipseCase )
     grid->setFaults( faults );
 
     // NNCs
-    std::vector<RigConnection> nncConnections;
+    RigConnectionContainer nncConnections;
     {
         size_t i1 = 2;
         size_t j1 = 2;
@@ -558,7 +558,7 @@ void RigReservoirBuilderMock::addFaults( RigEclipseCaseData* eclipseCase )
         addNnc( grid, i1, j1, k1, i2, j2, k2, nncConnections );
     }
 
-    grid->nncData()->setConnections( nncConnections );
+    grid->nncData()->setNativeConnections( nncConnections );
 
     std::vector<double>& tranVals =
         grid->nncData()->makeStaticConnectionScalarResult( RiaDefines::propertyNameCombTrans() );
@@ -579,21 +579,19 @@ void RigReservoirBuilderMock::enableWellData( bool enableWellData )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::addNnc( RigMainGrid*                grid,
-                                      size_t                      i1,
-                                      size_t                      j1,
-                                      size_t                      k1,
-                                      size_t                      i2,
-                                      size_t                      j2,
-                                      size_t                      k2,
-                                      std::vector<RigConnection>& nncConnections )
+void RigReservoirBuilderMock::addNnc( RigMainGrid*            grid,
+                                      size_t                  i1,
+                                      size_t                  j1,
+                                      size_t                  k1,
+                                      size_t                  i2,
+                                      size_t                  j2,
+                                      size_t                  k2,
+                                      RigConnectionContainer& nncConnections )
 {
     size_t c1GlobalIndex = grid->cellIndexFromIJK( i1, j1, k1 );
     size_t c2GlobalIndex = grid->cellIndexFromIJK( i2, j2, k2 );
 
-    RigConnection conn;
-    conn.m_c1GlobIdx = c1GlobalIndex;
-    conn.m_c2GlobIdx = c2GlobalIndex;
+    RigConnection conn( c1GlobalIndex, c2GlobalIndex );
 
     nncConnections.push_back( conn );
 }

@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigEclipseAllenFaultsStatCalc.h"
+#include "RigEclipseAllanFaultsStatCalc.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseAllenFaultsStatCalc::RigEclipseAllenFaultsStatCalc( RigNNCData*                    cellResultsData,
+RigEclipseAllanFaultsStatCalc::RigEclipseAllanFaultsStatCalc( RigNNCData*                    cellResultsData,
                                                               const RigEclipseResultAddress& scalarResultIndex )
     : m_caseData( cellResultsData )
     , m_resultAddress( scalarResultIndex )
@@ -40,7 +40,7 @@ RigEclipseAllenFaultsStatCalc::RigEclipseAllenFaultsStatCalc( RigNNCData*       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseAllenFaultsStatCalc::minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max )
+void RigEclipseAllanFaultsStatCalc::minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max )
 {
     MinMaxAccumulator acc( min, max );
     traverseCells( acc, timeStepIndex );
@@ -51,7 +51,7 @@ void RigEclipseAllenFaultsStatCalc::minMaxCellScalarValues( size_t timeStepIndex
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseAllenFaultsStatCalc::posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg )
+void RigEclipseAllanFaultsStatCalc::posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg )
 {
     PosNegAccumulator acc( pos, neg );
     traverseCells( acc, timeStepIndex );
@@ -62,7 +62,7 @@ void RigEclipseAllenFaultsStatCalc::posNegClosestToZero( size_t timeStepIndex, d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseAllenFaultsStatCalc::valueSumAndSampleCount( size_t timeStepIndex, double& valueSum, size_t& sampleCount )
+void RigEclipseAllanFaultsStatCalc::valueSumAndSampleCount( size_t timeStepIndex, double& valueSum, size_t& sampleCount )
 {
     SumCountAccumulator acc( valueSum, sampleCount );
     traverseCells( acc, timeStepIndex );
@@ -73,7 +73,7 @@ void RigEclipseAllenFaultsStatCalc::valueSumAndSampleCount( size_t timeStepIndex
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseAllenFaultsStatCalc::addDataToHistogramCalculator( size_t                  timeStepIndex,
+void RigEclipseAllanFaultsStatCalc::addDataToHistogramCalculator( size_t                  timeStepIndex,
                                                                   RigHistogramCalculator& histogramCalculator )
 {
     traverseCells( histogramCalculator, timeStepIndex );
@@ -82,7 +82,7 @@ void RigEclipseAllenFaultsStatCalc::addDataToHistogramCalculator( size_t        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseAllenFaultsStatCalc::uniqueValues( size_t timeStepIndex, std::set<int>& values )
+void RigEclipseAllanFaultsStatCalc::uniqueValues( size_t timeStepIndex, std::set<int>& values )
 {
     UniqueValueAccumulator acc;
     traverseCells( acc, timeStepIndex );
@@ -92,7 +92,7 @@ void RigEclipseAllenFaultsStatCalc::uniqueValues( size_t timeStepIndex, std::set
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigEclipseAllenFaultsStatCalc::timeStepCount()
+size_t RigEclipseAllanFaultsStatCalc::timeStepCount()
 {
     return (size_t)1;
 }
@@ -100,6 +100,6 @@ size_t RigEclipseAllenFaultsStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseAllenFaultsStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, double& result )
+void RigEclipseAllanFaultsStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, double& result )
 {
 }

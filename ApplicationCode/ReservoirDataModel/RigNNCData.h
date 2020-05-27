@@ -28,12 +28,15 @@
 #include "cvfVector3.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
+#include <deque>
 #include <map>
 #include <vector>
 
+class RigActiveCellInfo;
 class RigMainGrid;
 class RigCell;
 class RigEclipseResultAddress;
+class QStringList;
 
 class RigNNCData : public cvf::Object
 {
@@ -47,17 +50,20 @@ public:
 
     RigNNCData();
 
-    void processNativeConnections( const RigMainGrid& mainGrid );
-    void computeCompleteSetOfNncs( const RigMainGrid* mainGrid );
+    bool ensureConnectionDataIsProcecced();
+    void setSourceDataForProcessing( RigMainGrid*             mainGrid,
+                                     const RigActiveCellInfo* activeCellInfo,
+                                     bool                     includeInactiveCells );
 
-    void   setConnections( std::vector<RigConnection>& connections );
+    void   setNativeConnections( RigConnectionContainer& connections );
     size_t nativeConnectionCount() const;
 
-    const std::vector<RigConnection>& connections() const;
+    RigConnectionContainer& connections();
 
     std::vector<double>&       makeStaticConnectionScalarResult( QString nncDataType );
     const std::vector<double>* staticConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const;
     const std::vector<double>* staticConnectionScalarResultByName( const QString& nncDataType ) const;
+    void makeScalarResultAndSetValues( const QString& nncDataType, const std::vector<double>& values );
 
     std::vector<std::vector<double>>& makeDynamicConnectionScalarResult( QString nncDataType, size_t timeStepCount );
     const std::vector<std::vector<double>>* dynamicConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const;
@@ -87,9 +93,21 @@ private:
     const QString getNNCDataTypeFromScalarResultIndex( const RigEclipseResultAddress& resVarAddr ) const;
     bool          isNative( QString nncDataType ) const;
 
+    void processNativeConnections( const RigMainGrid& mainGrid );
+    void computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
+                                   const RigActiveCellInfo* activeCellInfo,
+                                   bool                     includeInactiveCells );
+
+    size_t connectionsWithNoCommonArea( QStringList& connectionTextFirstItems, size_t maxItemCount );
+
 private:
-    std::vector<RigConnection>                          m_connections;
+    RigConnectionContainer                              m_connections;
     size_t                                              m_nativeConnectionCount;
     std::map<QString, std::vector<std::vector<double>>> m_connectionResults;
     std::map<RigEclipseResultAddress, QString>          m_resultAddrToNNCDataType;
+
+    bool                     m_connectionsAreProcessed;
+    RigMainGrid*             m_mainGrid;
+    const RigActiveCellInfo* m_activeCellInfo;
+    bool                     m_computeNncForInactiveCells;
 };

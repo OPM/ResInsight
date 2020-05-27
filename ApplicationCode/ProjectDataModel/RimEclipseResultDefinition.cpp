@@ -23,12 +23,13 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
+#include "RiaNncDefines.h"
 #include "RiaQDateTimeTools.h"
 
 #include "RicfCommandObject.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigAllenDiagramData.h"
+#include "RigAllanDiagramData.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultInfo.h"
@@ -693,7 +694,7 @@ QList<caf::PdmOptionItemInfo>
                 continue;
             }
 
-            if ( resType == RiaDefines::ALLEN_DIAGRAMS && !isSeparateFaultResult )
+            if ( resType == RiaDefines::ALLAN_DIAGRAMS && !isSeparateFaultResult )
             {
                 continue;
             }
@@ -1141,6 +1142,19 @@ void RimEclipseResultDefinition::loadResult()
             gridCellResults->createResultEntry( this->eclipseResultAddress(), false );
         }
 
+        QString           resultName                    = m_resultVariable();
+        std::set<QString> eclipseResultNamesWithNncData = RiaDefines::nncResultNames();
+        if ( eclipseResultNamesWithNncData.find( resultName ) != eclipseResultNamesWithNncData.end() )
+        {
+            eclipseCase()->ensureFaultDataIsComputed();
+
+            bool dataWasComputed = eclipseCase()->ensureNncDataIsComputed();
+            if ( dataWasComputed )
+            {
+                eclipseCase()->createDisplayModelAndUpdateAllViews();
+            }
+        }
+
         gridCellResults->ensureKnownResultLoaded( this->eclipseResultAddress() );
     }
 }
@@ -1232,6 +1246,17 @@ void RimEclipseResultDefinition::initAfterRead()
     if ( m_flowSolution() == nullptr )
     {
         assignFlowSolutionFromCase();
+    }
+
+    if ( m_resultVariable == "Formation Allen" )
+    {
+        m_resultVariable = RiaDefines::formationAllanResultName();
+        m_resultType     = RiaDefines::ResultCatType::ALLAN_DIAGRAMS;
+    }
+    else if ( m_resultVariable == "Binary Formation Allen" )
+    {
+        m_resultVariable = RiaDefines::formationBinaryAllanResultName();
+        m_resultType     = RiaDefines::ResultCatType::ALLAN_DIAGRAMS;
     }
 
     m_porosityModelUiField  = m_porosityModel;
@@ -1406,8 +1431,8 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
     if ( this->m_resultType() == RiaDefines::FLOW_DIAGNOSTICS && m_resultVariable() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
         return true;
 
-    if ( this->resultVariable() == RiaDefines::formationAllenResultName() ||
-         this->resultVariable() == RiaDefines::formationBinaryAllenResultName() )
+    if ( this->resultVariable() == RiaDefines::formationAllanResultName() ||
+         this->resultVariable() == RiaDefines::formationBinaryAllanResultName() )
     {
         return true;
     }
@@ -1891,9 +1916,9 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                     std::vector<QString> fnVector = eclipseCaseData->formationNames();
                     legendConfigToUpdate->setNamedCategoriesInverse( fnVector );
                 }
-                else if ( this->resultType() == RiaDefines::ALLEN_DIAGRAMS )
+                else if ( this->resultType() == RiaDefines::ALLAN_DIAGRAMS )
                 {
-                    if ( this->resultVariable() == RiaDefines::formationAllenResultName() )
+                    if ( this->resultVariable() == RiaDefines::formationAllanResultName() )
                     {
                         const std::vector<QString> fnVector = eclipseCaseData->formationNames();
                         std::vector<int>           fnameIdxes;
@@ -1907,7 +1932,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                         formationColorMapper->setInterpolateColors( legendBaseColors );
 
                         const std::map<std::pair<int, int>, int>& formationCombToCathegory =
-                            eclipseCaseData->allenDiagramData()->formationCombinationToCategory();
+                            eclipseCaseData->allanDiagramData()->formationCombinationToCategory();
 
                         std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
                         for ( int frmNameIdx : fnameIdxes )
@@ -1921,6 +1946,8 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                             int frmIdx1   = it->first.first;
                             int frmIdx2   = it->first.second;
                             int combIndex = it->second;
+
+                            if ( frmIdx1 >= fnVector.size() || frmIdx2 >= fnVector.size() ) continue;
 
                             QString frmName1 = fnVector[frmIdx1];
                             QString frmName2 = fnVector[frmIdx2];
@@ -1937,7 +1964,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
 
                         legendConfigToUpdate->setCategoryItems( categories );
                     }
-                    else if ( this->resultVariable() == RiaDefines::formationBinaryAllenResultName() )
+                    else if ( this->resultVariable() == RiaDefines::formationBinaryAllanResultName() )
                     {
                         std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
                         categories.emplace_back( std::make_tuple( "Same formation", 0, cvf::Color3ub::BROWN ) );

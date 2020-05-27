@@ -23,13 +23,37 @@
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 
+#include "RiaLogging.h"
+
+#include "cafProgressInfo.h"
+
 #include "cvfGeometryTools.h"
+
+#include <QString>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RigNNCData::RigNNCData()
+    : m_connectionsAreProcessed( false )
+    , m_mainGrid( nullptr )
+    , m_activeCellInfo( nullptr )
+    , m_computeNncForInactiveCells( false )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigNNCData::setSourceDataForProcessing( RigMainGrid*             mainGrid,
+                                             const RigActiveCellInfo* activeCellInfo,
+                                             bool                     includeInactiveCells )
+{
+    m_mainGrid                   = mainGrid;
+    m_activeCellInfo             = activeCellInfo;
+    m_computeNncForInactiveCells = includeInactiveCells;
+
+    m_connectionsAreProcessed = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -41,8 +65,8 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
 
     for ( size_t cnIdx = 0; cnIdx < m_connections.size(); ++cnIdx )
     {
-        const RigCell& c1 = mainGrid.globalCellArray()[m_connections[cnIdx].m_c1GlobIdx];
-        const RigCell& c2 = mainGrid.globalCellArray()[m_connections[cnIdx].m_c2GlobIdx];
+        const RigCell& c1 = mainGrid.globalCellArray()[m_connections[cnIdx].c1GlobIdx()];
+        const RigCell& c2 = mainGrid.globalCellArray()[m_connections[cnIdx].c2GlobIdx()];
 
         std::vector<size_t>                connectionPolygon;
         std::vector<cvf::Vec3d>            connectionIntersections;
@@ -53,21 +77,9 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
 
         if ( connectionFace != cvf::StructGridInterface::NO_FACE )
         {
-            // Found an overlap polygon. Store data about connection
-
-            m_connections[cnIdx].m_c1Face = connectionFace;
-
-            m_connections[cnIdx].m_polygon =
-                RigCellFaceGeometryTools::extractPolygon( mainGrid.nodes(), connectionPolygon, connectionIntersections );
-
-            // Add to search map, possibly not needed
-            // m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c1GlobIdx][connectionFace].push_back(cnIdx);
-            // m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c2GlobIdx][cvf::StructGridInterface::oppositeFace(connectionFace].push_back(cnIdx);
-        }
-        else
-        {
-            // cvf::Trace::show("NNC: No overlap found for : C1: " + cvf::String((int)m_connections[cnIdx].m_c1GlobIdx)
-            // + "C2: " + cvf::String((int)m_connections[cnIdx].m_c2GlobIdx));
+            m_connections[cnIdx].setFace( connectionFace );
+            m_connections[cnIdx].setPolygon(
+                RigCellFaceGeometryTools::extractPolygon( mainGrid.nodes(), connectionPolygon, connectionIntersections ) );
         }
     }
 }
@@ -75,15 +87,16 @@ void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid* mainGrid )
+void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
+                                           const RigActiveCellInfo* activeCellInfo,
+                                           bool                     includeInactiveCells )
 {
-    m_nativeConnectionCount = m_connections.size();
-
-    std::vector<RigConnection> otherConnections = RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections );
+    RigConnectionContainer otherConnections =
+        RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections, activeCellInfo, includeInactiveCells );
 
     if ( !otherConnections.empty() )
     {
-        m_connections.insert( m_connections.end(), otherConnections.begin(), otherConnections.end() );
+        m_connections.push_back( otherConnections );
 
         // Transmissibility values from Eclipse has been read into propertyNameCombTrans in
         // RifReaderEclipseOutput::transferStaticNNCData(). Initialize computed NNCs with zero transmissibility
@@ -101,9 +114,133 @@ void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid* mainGrid )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::setConnections( std::vector<RigConnection>& connections )
+size_t RigNNCData::connectionsWithNoCommonArea( QStringList& connectionTextFirstItems, size_t maxItemCount )
 {
-    m_connections = connections;
+    size_t connectionWithNoCommonAreaCount = 0;
+
+    for ( size_t connIndex = 0; connIndex < m_connections.size(); connIndex++ )
+    {
+        if ( !m_connections[connIndex].hasCommonArea() )
+        {
+            connectionWithNoCommonAreaCount++;
+
+            if ( connectionTextFirstItems.size() < maxItemCount )
+            {
+                QString firstConnectionText;
+                QString secondConnectionText;
+
+                {
+                    size_t             gridLocalCellIndex;
+                    const RigGridBase* hostGrid =
+                        m_mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( m_connections[connIndex].c1GlobIdx(),
+                                                                          &gridLocalCellIndex );
+
+                    size_t i, j, k;
+                    if ( hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )
+                    {
+                        // Adjust to 1-based Eclipse indexing
+                        i++;
+                        j++;
+                        k++;
+
+                        if ( !hostGrid->isMainGrid() )
+                        {
+                            QString gridName    = QString::fromStdString( hostGrid->gridName() );
+                            firstConnectionText = gridName + " ";
+                        }
+                        firstConnectionText += QString( "[%1 %2 %3] - " ).arg( i ).arg( j ).arg( k );
+                    }
+                }
+
+                {
+                    size_t             gridLocalCellIndex;
+                    const RigGridBase* hostGrid =
+                        m_mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( m_connections[connIndex].c2GlobIdx(),
+                                                                          &gridLocalCellIndex );
+
+                    size_t i, j, k;
+                    if ( hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )
+                    {
+                        // Adjust to 1-based Eclipse indexing
+                        i++;
+                        j++;
+                        k++;
+
+                        if ( !hostGrid->isMainGrid() )
+                        {
+                            QString gridName     = QString::fromStdString( hostGrid->gridName() );
+                            secondConnectionText = gridName + " ";
+                        }
+                        secondConnectionText += QString( "[%1 %2 %3]" ).arg( i ).arg( j ).arg( k );
+                    }
+                }
+
+                connectionTextFirstItems.push_back( firstConnectionText + secondConnectionText );
+            }
+        }
+    }
+
+    return connectionWithNoCommonAreaCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigNNCData::ensureConnectionDataIsProcecced()
+{
+    if ( m_connectionsAreProcessed ) return false;
+
+    if ( m_mainGrid )
+    {
+        caf::ProgressInfo progressInfo( 3, "Computing NNC Data" );
+
+        RiaLogging::info( "NNC geometry computation - starting process" );
+
+        processNativeConnections( *m_mainGrid );
+        progressInfo.incrementProgress();
+
+        computeCompleteSetOfNncs( m_mainGrid, m_activeCellInfo, m_computeNncForInactiveCells );
+        progressInfo.incrementProgress();
+
+        m_connectionsAreProcessed = true;
+
+        m_mainGrid->distributeNNCsToFaults();
+
+        QStringList  noCommonAreaText;
+        const size_t maxItemCount = 20;
+
+        size_t noCommonAreaCount = connectionsWithNoCommonArea( noCommonAreaText, maxItemCount );
+
+        RiaLogging::info( "NNC geometry computation - completed process" );
+
+        RiaLogging::info( QString( "Native NNC count : %1" ).arg( nativeConnectionCount() ) );
+        RiaLogging::info( QString( "Computed NNC count : %1" ).arg( m_connections.size() ) );
+
+        RiaLogging::info( QString( "NNCs with no common area count : %1" ).arg( noCommonAreaCount ) );
+
+        if ( !noCommonAreaText.isEmpty() )
+        {
+            RiaLogging::info( QString( "Listing first %1 NNCs with no common area " ).arg( noCommonAreaText.size() ) );
+
+            for ( const auto& s : noCommonAreaText )
+            {
+                RiaLogging::info( s );
+            }
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigNNCData::setNativeConnections( RigConnectionContainer& connections )
+{
+    m_connections           = connections;
+    m_nativeConnectionCount = m_connections.size();
+
+    m_connectionsAreProcessed = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,8 +254,10 @@ size_t RigNNCData::nativeConnectionCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RigConnection>& RigNNCData::connections() const
+RigConnectionContainer& RigNNCData::connections()
 {
+    ensureConnectionDataIsProcecced();
+
     return m_connections;
 }
 
@@ -127,10 +266,22 @@ const std::vector<RigConnection>& RigNNCData::connections() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double>& RigNNCData::makeStaticConnectionScalarResult( QString nncDataType )
 {
+    ensureConnectionDataIsProcecced();
+
     std::vector<std::vector<double>>& results = m_connectionResults[nncDataType];
     results.resize( 1 );
     results[0].resize( m_connections.size(), HUGE_VAL );
     return results[0];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigNNCData::makeScalarResultAndSetValues( const QString& nncDataType, const std::vector<double>& values )
+{
+    std::vector<std::vector<double>>& results = m_connectionResults[nncDataType];
+    results.resize( 1 );
+    results[0] = values;
 }
 
 //--------------------------------------------------------------------------------------------------

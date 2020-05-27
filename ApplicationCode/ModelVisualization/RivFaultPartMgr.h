@@ -71,6 +71,12 @@ public:
 
 private:
     void generatePartGeometry();
+
+    void generateNativeNncPartGeometry();
+    void generateAllNncPartGeometry();
+
+    void clearFlags();
+
     void updatePartEffect();
 
     void updateNNCColors( size_t timeStepIndex, RimEclipseCellColors* cellResultColors );
@@ -91,23 +97,27 @@ private:
 
     cvf::ref<cvf::UByteArray> m_cellVisibility;
 
+    bool                                m_isNativeFaultsGenerated;
     cvf::ref<RivFaultGeometryGenerator> m_nativeFaultGenerator;
     cvf::ref<cvf::Part>                 m_nativeFaultFaces;
     cvf::ref<cvf::Part>                 m_nativeFaultGridLines;
     cvf::ref<cvf::Vec2fArray>           m_nativeFaultFacesTextureCoords;
 
+    bool                                m_isOppositeFaultsGenerated;
     cvf::ref<RivFaultGeometryGenerator> m_oppositeFaultGenerator;
     cvf::ref<cvf::Part>                 m_oppositeFaultFaces;
     cvf::ref<cvf::Part>                 m_oppositeFaultGridLines;
     cvf::ref<cvf::Vec2fArray>           m_oppositeFaultFacesTextureCoords;
 
+    bool                              m_isNativeNncsGenerated;
     cvf::ref<RivNNCGeometryGenerator> m_NNCGenerator;
     cvf::ref<cvf::Part>               m_NNCFaces;
     cvf::ref<cvf::Vec2fArray>         m_NNCTextureCoords;
 
-    cvf::ref<RivNNCGeometryGenerator> m_allenNNCGenerator;
-    cvf::ref<cvf::Part>               m_allenNNCFaces;
-    cvf::ref<cvf::Vec2fArray>         m_allenNNCTextureCoords;
+    bool                              m_isAllNncsGenerated;
+    cvf::ref<RivNNCGeometryGenerator> m_allanNNCGenerator;
+    cvf::ref<cvf::Part>               m_allanNNCFaces;
+    cvf::ref<cvf::Vec2fArray>         m_allanNNCTextureCoords;
 
     cvf::ref<cvf::Part> m_faultLabelPart;
     cvf::ref<cvf::Part> m_faultLabelLinePart;

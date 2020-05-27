@@ -317,9 +317,10 @@ double RigHistogramCalculator::calculatePercentil( double pVal )
 {
     assert( m_histogram );
     assert( m_histogram->size() );
-    assert( 0.0 <= pVal && pVal <= 1.0 );
+    auto pValClamped = cvf::Math::clamp( pVal, 0.0, 1.0 );
+    assert( 0.0 <= pValClamped && pValClamped <= 1.0 );
 
-    double pValObservationCount = pVal * m_observationCount;
+    double pValObservationCount = pValClamped * m_observationCount;
     if ( pValObservationCount == 0.0 ) return m_min;
 
     size_t accObsCount = 0;
