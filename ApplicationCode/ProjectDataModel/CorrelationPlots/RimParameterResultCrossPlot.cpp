@@ -173,12 +173,12 @@ void RimParameterResultCrossPlot::updateAxes()
     m_plotWidget->setAxisTitleText( QwtPlot::yLeft, m_selectedVarsUiField );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
     m_plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, 10, 10, false, Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
 
     m_plotWidget->setAxisTitleText( QwtPlot::xBottom, m_ensembleParameter );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
     m_plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, 10, 10, false, Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,9 +253,13 @@ void RimParameterResultCrossPlot::updatePlotTitle()
 {
     if ( m_useAutoPlotTitle )
     {
-        m_description = QString( "Cross Plot %1 x %2" ).arg( m_ensembleParameter ).arg( m_selectedVarsUiField() );
+        m_description = QString( "Cross Plot %1 x %2" ).arg( m_ensembleParameter ).arg( m_selectedVarsUiField );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
-    m_plotWidget->setPlotTitleFontSize( isMdiWindow() ? 8 : 10 );
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+
+    if ( isMdiWindow() )
+    {
+        m_plotWidget->setPlotTitleFontSize( titleFontSize() );
+    }
 }

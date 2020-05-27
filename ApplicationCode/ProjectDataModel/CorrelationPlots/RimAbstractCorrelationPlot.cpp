@@ -51,6 +51,10 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_labelFontSize, "LabelFontSize", "Label Font Size", "", "", "" );
     m_labelFontSize = caf::FontTools::RelativeSize::XSmall;
+
+    CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size", "", "", "" );
+    m_axisValueFontSize = caf::FontTools::RelativeSize::XSmall;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,6 +132,11 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         this->updatePlotTitle();
     }
+    else if ( changedField == &m_labelFontSize || changedField == &m_axisTitleFontSize ||
+              changedField == &m_axisValueFontSize )
+    {
+        this->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,6 +178,11 @@ QList<caf::PdmOptionItemInfo>
             QString   timestepString = dateTime.toString( Qt::ISODate );
             options.push_back( caf::PdmOptionItemInfo( timestepString, dateTime ) );
         }
+    }
+    else if ( fieldNeedingOptions == &m_labelFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||
+              fieldNeedingOptions == &m_axisValueFontSize )
+    {
+        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
     }
     return options;
 }
@@ -358,6 +372,54 @@ void RimAbstractCorrelationPlot::detachAllCurves()
 QDateTime RimAbstractCorrelationPlot::timeStep() const
 {
     return m_timeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimAbstractCorrelationPlot::labelFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_labelFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimAbstractCorrelationPlot::axisTitleFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimAbstractCorrelationPlot::axisValueFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::setLabelFontSize( caf::FontTools::RelativeSize fontSize )
+{
+    m_labelFontSize = fontSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::setAxisTitleFontSize( caf::FontTools::RelativeSize fontSize )
+{
+    m_axisTitleFontSize = fontSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAbstractCorrelationPlot::setAxisValueFontSize( caf::FontTools::RelativeSize fontSize )
+{
+    m_axisValueFontSize = fontSize;
 }
 
 //--------------------------------------------------------------------------------------------------

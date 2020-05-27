@@ -48,6 +48,14 @@ public:
     void                                detachAllCurves() override;
     QDateTime                           timeStep() const;
 
+    int labelFontSize() const;
+    int axisTitleFontSize() const;
+    int axisValueFontSize() const;
+
+    void setLabelFontSize( caf::FontTools::RelativeSize fontSize );
+    void setAxisTitleFontSize( caf::FontTools::RelativeSize fontSize );
+    void setAxisValueFontSize( caf::FontTools::RelativeSize fontSize );
+
 protected:
     // Overridden PDM methods
 
@@ -116,4 +124,6 @@ protected:
     caf::PdmField<QString> m_description;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_labelFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
 };

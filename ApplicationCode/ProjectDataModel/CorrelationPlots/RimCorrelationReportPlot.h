@@ -58,6 +58,9 @@ public:
     RimParameterResultCrossPlot* crossPlot() const;
 
     int columnCount() const override;
+    int subTitleFontSize() const;
+    int axisTitleFontSize() const;
+    int axisValueFontSize() const;
 
 private:
     QString createPlotWindowTitle() const;
@@ -72,7 +75,10 @@ private:
     void     defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void     fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void     childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void     doUpdateLayout() override;
 
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
 private slots:
     void onDataSelection( const EnsembleParameter& param, const RiaSummaryCurveDefinition& curveDef );
 
@@ -82,6 +88,10 @@ private:
     caf::PdmChildField<RimCorrelationMatrixPlot*>    m_correlationMatrixPlot;
     caf::PdmChildField<RimCorrelationPlot*>          m_correlationPlot;
     caf::PdmChildField<RimParameterResultCrossPlot*> m_parameterResultCrossPlot;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum>  m_subTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum>  m_labelFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum>  m_axisTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum>  m_axisValueFontSize;
 
     QPointer<RiuMultiPlotPage> m_viewer;
 };

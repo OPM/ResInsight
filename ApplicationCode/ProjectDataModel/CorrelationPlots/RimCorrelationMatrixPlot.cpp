@@ -229,6 +229,9 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
         plotGroup->add( &m_description );
         m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
         RimPlot::defineUiOrdering( uiConfigName, *plotGroup );
+        plotGroup->add( &m_labelFontSize );
+        plotGroup->add( &m_axisTitleFontSize );
+        plotGroup->add( &m_axisValueFontSize );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -304,7 +307,7 @@ void RimCorrelationMatrixPlot::updateAxes()
     m_plotWidget->setAxisScaleEngine( QwtPlot::yLeft, new RiuQwtLinearScaleEngine );
     m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Result Vector" );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, 10, 6, false, Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
     m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, true, false );
     m_plotWidget->setAxisRange( QwtPlot::yLeft, 0.0, (double)m_resultLabels.size() + 1 );
     m_plotWidget->setMajorAndMinorTickIntervalsAndRange( QwtPlot::yLeft,
@@ -322,7 +325,11 @@ void RimCorrelationMatrixPlot::updateAxes()
     m_plotWidget->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
     m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Ensemble Parameter" );
     m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, 10, 6, false, Qt::AlignCenter | Qt::AlignTop );
+    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom,
+                                            axisTitleFontSize(),
+                                            axisValueFontSize(),
+                                            false,
+                                            Qt::AlignCenter | Qt::AlignTop );
     m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xBottom, true, false );
     m_plotWidget->setAxisRange( QwtPlot::xBottom, 0.0, (double)m_paramLabels.size() + 1 );
     m_plotWidget->setMajorAndMinorTickIntervalsAndRange( QwtPlot::xBottom,
@@ -502,7 +509,7 @@ void RimCorrelationMatrixPlot::createMatrix()
             cvf::Color3f contrastColor = RiaColorTools::contrastColor( cvf::Color3f( color ) );
             textLabel.setColor( RiaColorTools::toQColor( contrastColor ) );
             QFont font = textLabel.font();
-            font.setPixelSize( caf::FontTools::pointSizeToPixelSize( 7 ) );
+            font.setPixelSize( caf::FontTools::pointSizeToPixelSize( labelFontSize() ) );
             textLabel.setFont( font );
             QwtPlotMarker* marker = new QwtPlotMarker();
             marker->setLabel( textLabel );
@@ -526,8 +533,11 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
         m_description = QString( "%1 Matrix for Parameters vs Result Vectors" ).arg( m_correlationFactor().uiText() );
     }
     m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle );
-    m_plotWidget->setPlotTitleFontSize( isMdiWindow() ? 8 : 10 );
+    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+    if ( isMdiWindow() )
+    {
+        m_plotWidget->setPlotTitleFontSize( titleFontSize() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
