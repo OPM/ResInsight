@@ -61,7 +61,7 @@ Importing such a file will enable result type called SourSimRL as explained in E
       <description>Element property tables in ABQUS input file format can be imported into ResInsight and displayed as Element Results. This can be used to display material properties, or any scalar value on each element.
 To view the data as a Color Result select the Result Position: Element ( See Geomechanical Results )
 A couple of property names are recognized and treated specially:
- MODULUS &amp;ndash; Scaled by 1.0e-9 and shown as &amp;ldquo;Yong&amp;rsquo;s Modulus&amp;rdquo; in the user interface RATIO &amp;ndash; Shown as &amp;ldquo;Poisson&amp;rsquo;s Ratio&amp;rdquo; in the user interface  File Format A couple of examples on the file format are shown below.</description>
+ MODULUS &amp;ndash; Scaled by 1.0e-9 and shown as &amp;ldquo;Young&amp;rsquo;s Modulus&amp;rdquo; in the user interface RATIO &amp;ndash; Shown as &amp;ldquo;Poisson&amp;rsquo;s Ratio&amp;rdquo; in the user interface  File Format A couple of examples on the file format are shown below.</description>
     </item>
     
     <item>

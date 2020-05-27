@@ -77,6 +77,17 @@ Allan Diagrams Allan Diagrams displays the overlap of formations and layers acro
     </item>
     
     <item>
+      <title>What&#39;s New in 2020.04.1</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04_1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2020_04_1/</guid>
+      <description>ResInsight 2020.04.1 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for reservoir models and simulations. Version 2020.04.1 is a patch update with several critical fixes.
+Most important fixes
+ Performance improvements related to import and calculations of faults and NNCs Performance related to well disks and import of summary data Adjustments for well bore stability plots Completions : Use well name defined in project for export  Release notes for 2020.</description>
+    </item>
+    
+    <item>
       <title>What&#39;s New in 2018.11</title>
       <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
