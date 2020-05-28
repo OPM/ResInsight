@@ -534,25 +534,16 @@ endif (RESINSIGHT_PRIVATE_INSTALL)
 
 if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	  foreach (FILE_TO_COPY ${HDF5_LIBRARIES})
-        
-        # find all files containing the string "hdf"
-	    STRING( FIND ${FILE_TO_COPY} "hdf5" POS_IN_STRING ) 
-	    if(${POS_IN_STRING} GREATER -1)
-            get_filename_component(ABS_DIR ${FILE_TO_COPY} REALPATH)
-  		    message (STATUS "HDF5 bundle file - ${ABS_DIR}")
-
-            # as part of install, rename file with the extension ResInsight reports when running "ldd"
-            get_filename_component(FILE_NAME_WE ${FILE_TO_COPY} NAME_WE)
-            set(FILE_NAME_FOR_INSTALL "${FILE_NAME_WE}.so.6")
-  		    message (STATUS "HDF5 file FILE_NAME_FOR_INSTALL  - ${FILE_NAME_FOR_INSTALL}")
-      
-            install(FILES ${ABS_DIR} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} RENAME ${FILE_NAME_FOR_INSTALL} )
-		endif()
-	  endforeach()
-      
+        # find all file names with text hdf5
+        # use file globbing to also copy the symlinks to make sure the dependencies from ResInsight runtime is correct
+	    foreach (FILE_TO_COPY ${HDF5_LIBRARIES})
+	        STRING( FIND ${FILE_TO_COPY} "hdf5" POS_IN_STRING ) 
+	        if(${POS_IN_STRING} GREATER -1)
+                file(GLOB FILE_AND_SYMLINKS ${FILE_TO_COPY}*)
+                install(FILES ${FILE_AND_SYMLINKS} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
+		    endif()
+        endforeach()
     endif()
-    
 endif (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 
 
