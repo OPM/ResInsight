@@ -501,6 +501,22 @@ const caf::ColorTable& RiaColorTables::waterAndRockPaletteColors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const caf::ColorTable& RiaColorTables::correlationPaletteColors()
+{
+    static std::vector<cvf::Color3ub> colors{
+        cvf::Color3ub( 255, 25, 50 ), // Bluish red
+        cvf::Color3ub( 240, 240, 240 ), // Light Gray
+        cvf::Color3ub( 255, 100, 50 ), // Dark red Orange
+    };
+
+    static caf::ColorTable colorTable = caf::ColorTable( colors );
+
+    return colorTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3f RiaColorTables::undefinedCellColor()
 {
     return cvf::Color3::GRAY;

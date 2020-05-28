@@ -94,6 +94,7 @@ void RimRegularLegendConfig::ColorRangeEnum::setUp()
     addItem( RimRegularLegendConfig::BLUE_LIGHT_DARK, "BLUE_DARK_LIGHT", "Blue Light to Dark" );
     addItem( RimRegularLegendConfig::GREEN_RED, "GREEN_RED", "Green to Red" );
     addItem( RimRegularLegendConfig::BLUE_MAGENTA, "BLUE_MAGENTA", "Blue to Magenta" );
+    addItem( RimRegularLegendConfig::CORRELATION, "CORRELATION", "Correlation colors" );
     addItem( RimRegularLegendConfig::UNDEFINED, "UNDEFINED", "Undefined" );
     setDefault( RimRegularLegendConfig::UNDEFINED );
 }
@@ -927,6 +928,9 @@ cvf::Color3ubArray RimRegularLegendConfig::colorArrayFromColorType( ColorRangesT
             break;
         case RimRegularLegendConfig::STIMPLAN:
             return RiaColorTables::stimPlanPaletteColors().color3ubArray();
+            break;
+        case RimRegularLegendConfig::CORRELATION:
+            return RiaColorTables::correlationPaletteColors().color3ubArray();
             break;
         default:
             if ( ColorManager::isEnsembleColorRange( colorType ) )

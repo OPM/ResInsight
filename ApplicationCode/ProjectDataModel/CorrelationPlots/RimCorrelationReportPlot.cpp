@@ -22,6 +22,7 @@
 
 #include "RimCorrelationMatrixPlot.h"
 #include "RimParameterResultCrossPlot.h"
+#include "RimRegularLegendConfig.h"
 
 #include "RiuMultiPlotPage.h"
 
@@ -329,8 +330,8 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
 void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_correlationMatrixPlot->uiOrdering( "report", uiOrdering );
-    auto plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
-    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotGroup );
+    auto plotGroup = uiOrdering.addNewGroup( "Font Settings" );
+    plotGroup->add( &m_titleFontSize );
     plotGroup->add( &m_subTitleFontSize );
     plotGroup->add( &m_labelFontSize );
     plotGroup->add( &m_axisTitleFontSize );
@@ -344,6 +345,7 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 void RimCorrelationReportPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
                                                      QString                 uiConfigName /*= "" */ )
 {
+    uiTreeOrdering.add( m_correlationMatrixPlot->legendConfig() );
     uiTreeOrdering.skipRemainingChildren( true );
 }
 

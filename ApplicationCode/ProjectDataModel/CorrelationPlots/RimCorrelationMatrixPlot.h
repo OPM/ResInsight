@@ -44,9 +44,10 @@ public:
     RimCorrelationMatrixPlot();
     ~RimCorrelationMatrixPlot() override;
 
-    CorrelationFactor correlationFactor() const;
-    bool              showAbsoluteValues() const;
-    bool              sortByAbsoluteValues() const;
+    CorrelationFactor       correlationFactor() const;
+    bool                    showAbsoluteValues() const;
+    bool                    sortByAbsoluteValues() const;
+    RimRegularLegendConfig* legendConfig();
 
 signals:
     void matrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& );

@@ -60,6 +60,7 @@ public:
     static const caf::ColorTable& editableWellPathsPaletteColors();
     static const caf::ColorTable& wellPathsPaletteColors();
     static const caf::ColorTable& waterAndRockPaletteColors();
+    static const caf::ColorTable& correlationPaletteColors();
 
     static cvf::Color3f undefinedCellColor();
 
