@@ -152,6 +152,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setAutomaticRanges( -1.0, 1.0, -1.0, 1.0 );
+    m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CORRELATION ) );
 
     m_selectMultipleVectors = true;
 }
@@ -188,6 +189,14 @@ bool RimCorrelationMatrixPlot::showAbsoluteValues() const
 bool RimCorrelationMatrixPlot::sortByAbsoluteValues() const
 {
     return m_sortByAbsoluteValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimRegularLegendConfig* RimCorrelationMatrixPlot::legendConfig()
+{
+    return m_legendConfig();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,10 +284,10 @@ void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
         m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotScale );
         m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotItem );
 
+        updateLegend();
         createMatrix();
 
         m_plotWidget->insertLegend( nullptr );
-        m_plotWidget->updateLegend();
 
         this->updateAxes();
         this->updatePlotTitle();
@@ -547,11 +556,15 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
     {
         m_description = QString( "%1 Matrix for Parameters vs Result Vectors" ).arg( m_correlationFactor().uiText() );
     }
-    m_plotWidget->setPlotTitle( m_description );
-    m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
-    if ( isMdiWindow() )
+
+    if ( m_plotWidget )
     {
-        m_plotWidget->setPlotTitleFontSize( titleFontSize() );
+        m_plotWidget->setPlotTitle( m_description );
+        m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && isMdiWindow() );
+        if ( isMdiWindow() )
+        {
+            m_plotWidget->setPlotTitleFontSize( titleFontSize() );
+        }
     }
 }
 
@@ -560,14 +573,7 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationMatrixPlot::updateLegend()
 {
-    if ( m_showAbsoluteValues )
-    {
-        m_legendConfig->setAutomaticRanges( -1.0, 1.0, -1.0, 1.0 );
-    }
-    else
-    {
-        m_legendConfig->setAutomaticRanges( 0.0, 1.0, 0.0, 1.0 );
-    }
+    if ( m_plotWidget ) m_plotWidget->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

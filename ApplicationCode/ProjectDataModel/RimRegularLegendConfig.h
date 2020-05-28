@@ -86,6 +86,9 @@ public:
         RED_LIGHT_DARK,
         GREEN_LIGHT_DARK,
         BLUE_LIGHT_DARK,
+
+        CORRELATION,
+
         UNDEFINED
     };
 
