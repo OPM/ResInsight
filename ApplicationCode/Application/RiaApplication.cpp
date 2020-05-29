@@ -1373,9 +1373,14 @@ int RiaApplication::launchUnitTests()
 
     //
     // Use the gtest filter to execute a subset of tests
-    //::testing::GTEST_FLAG( filter ) = "*RifCaseRealizationParametersReaderTest*";
-    //
-    //
+    QString filterText = RiaPreferences::current()->gtestFilter();
+    if ( !filterText.isEmpty() )
+    {
+        ::testing::GTEST_FLAG( filter ) = filterText.toLatin1();
+
+        // Example on filter syntax
+        //::testing::GTEST_FLAG( filter ) = "*RifCaseRealizationParametersReaderTest*";
+    }
 
     // Use this macro in main() to run all tests.  It returns 0 if all
     // tests are successful, or 1 otherwise.

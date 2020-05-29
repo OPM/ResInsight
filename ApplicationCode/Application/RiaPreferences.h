@@ -91,6 +91,7 @@ public:
     QString holoLensExportFolder() const;
     bool    useShaders() const;
     bool    show3dInformation() const;
+    QString gtestFilter() const;
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
@@ -199,6 +200,7 @@ private:
     caf::PdmField<bool>    m_showSummaryTimeAsLongString;
     caf::PdmField<bool>    m_useMultipleThreadsWhenLoadingSummaryData;
     caf::PdmField<bool>    m_showProgressBar;
+    caf::PdmField<QString> m_gtestFilter;
 
     caf::PdmField<PageSizeEnum>        m_pageSize;
     caf::PdmField<PageOrientationEnum> m_pageOrientation;
