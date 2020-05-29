@@ -55,16 +55,18 @@ namespace caf
 class IconProvider
 {
 public:
-    IconProvider();
-    IconProvider(const QString& iconResourceString);
+    IconProvider(const QSize& preferredSize = QSize(16, 16));
+    IconProvider(const QString& iconResourceString, const QSize& preferredSize = QSize(16, 16));
     IconProvider(const QPixmap& pixmap);
     IconProvider(const IconProvider& rhs);
     IconProvider& operator=(const IconProvider& rhs);
     
     void setActive(bool active);
     bool valid() const;
+    void setPreferredSize(const QSize& size);
 
-    std::unique_ptr<QIcon> icon(const QSize& size = QSize(16, 16)) const;
+    std::unique_ptr<QIcon> icon() const;
+    std::unique_ptr<QIcon> icon(const QSize& size) const;
 
     void setIconResourceString(const QString& iconResourceString);
     void setOverlayResourceString(const QString& overlayResourceString);
@@ -84,7 +86,7 @@ private:
     QString                  m_iconResourceString;
     QString                  m_overlayResourceString;
     std::vector<QString>     m_backgroundColorStrings;
-
+    QSize                    m_preferredSize;
     std::unique_ptr<QPixmap> m_pixmap;
 };
 }

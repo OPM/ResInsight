@@ -135,7 +135,7 @@ caf::IconProvider RimColorLegend::paletteIconProvider() const
         QColor color = RiaColorTools::toQColor( legendItem->color() );
         colorNames.push_back( color.name() );
     }
-    caf::IconProvider iconProvider;
+    caf::IconProvider iconProvider( QSize( 24, 16 ) );
     iconProvider.setBackgroundColorGradient( colorNames );
     return iconProvider;
 }
