@@ -19,6 +19,7 @@
 #include "RimFileSurface.h"
 
 #include "RifSurfaceReader.h"
+#include "RigGocadData.h"
 #include "RigSurface.h"
 #include "RimSurfaceCollection.h"
 
@@ -92,7 +93,7 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
-        surfColl->updateViews( {this} );
+        surfColl->updateViews( { this } );
     }
 }
 
@@ -107,8 +108,8 @@ bool RimFileSurface::updateSurfaceDataFromFile()
         result = loadDataFromFile();
     }
 
-    std::vector<cvf::Vec3d> vertices{m_vertices};
-    std::vector<unsigned>   tringleIndices{m_tringleIndices};
+    std::vector<cvf::Vec3d> vertices{ m_vertices };
+    std::vector<unsigned>   tringleIndices{ m_tringleIndices };
 
     auto surface = new RigSurface;
     if ( !vertices.empty() && !tringleIndices.empty() )
@@ -137,29 +138,25 @@ void RimFileSurface::clearCachedNativeFileData()
 //--------------------------------------------------------------------------------------------------
 bool RimFileSurface::loadDataFromFile()
 {
-    std::vector<cvf::Vec3d> vertices;
-    std::vector<unsigned>   tringleIndices;
+    std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> surface;
 
     QString filePath = this->surfaceFilePath();
     if ( filePath.endsWith( "ptl", Qt::CaseInsensitive ) )
     {
-        auto surface = RifSurfaceReader::readPetrelFile( filePath );
-
-        vertices       = surface.first;
-        tringleIndices = surface.second;
+        surface = RifSurfaceReader::readPetrelFile( filePath );
     }
     else if ( filePath.endsWith( "ts", Qt::CaseInsensitive ) )
     {
-        auto surface = RifSurfaceReader::readGocadFile( filePath );
+        RigGocadData gocadData;
+        RifSurfaceReader::readGocadFile( filePath, &gocadData );
 
-        vertices       = surface.first;
-        tringleIndices = surface.second;
+        surface = gocadData.gocadGeometry();
     }
 
-    m_vertices       = vertices;
-    m_tringleIndices = tringleIndices;
+    m_vertices       = surface.first;
+    m_tringleIndices = surface.second;
 
-    if ( vertices.empty() || tringleIndices.empty() ) return false;
+    if ( m_vertices.empty() || m_tringleIndices.empty() ) return false;
 
     return true;
 }

@@ -17,13 +17,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifSurfaceReader.h"
+#include "RigGocadData.h"
 
 #include "cvfVector3.h"
 
+#include "QStringList"
 #include <fstream>
 #include <limits>
 #include <map>
 #include <sstream>
+#include <string>
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -31,11 +34,8 @@
 /// Import vertices and triangle IDs from the first TFACE section in the file
 /// Returns vertices with z-value as depth, z is increasing downwards
 ///
-///
-///
-///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceReader::readGocadFile( const QString& filename )
+void RifSurfaceReader::readGocadFile( const QString& filename, RigGocadData* gocadData )
 {
     enum class GocadZPositive
     {
@@ -47,6 +47,10 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceReader::read
     std::vector<cvf::Vec3d> vertices;
     std::map<int, unsigned> vertexIdToIndex;
     std::vector<unsigned>   trianglesByIds;
+
+    std::vector<QString>            propertyNames;
+    std::vector<std::vector<float>> propertyValues;
+    size_t                          propertyRow = 0;
 
     {
         std::ifstream stream( filename.toLatin1().data() );
@@ -66,72 +70,104 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceReader::read
             std::string firstToken;
             lineStream >> firstToken;
 
-            if ( lineStream.good() ) // If we can, assume this line is a surface point
+            if ( isInTfaceSection )
             {
-                if ( isInTfaceSection )
+                if ( firstToken.compare( "VRTX" ) == 0 )
                 {
-                    if ( firstToken.compare( "VRTX" ) == 0 )
+                    int         vertexId = -1;
+                    double      x{ std::numeric_limits<double>::infinity() };
+                    double      y{ std::numeric_limits<double>::infinity() };
+                    double      z{ std::numeric_limits<double>::infinity() };
+                    std::string endVertex;
+
+                    lineStream >> vertexId >> x >> y >> z >> endVertex;
+
+                    if ( vertexId > -1 )
                     {
-                        int         vertexId = -1;
-                        double      x{std::numeric_limits<double>::infinity()};
-                        double      y{std::numeric_limits<double>::infinity()};
-                        double      z{std::numeric_limits<double>::infinity()};
-                        std::string endVertex;
-
-                        lineStream >> vertexId >> x >> y >> z >> endVertex;
-
-                        if ( vertexId > -1 )
+                        if ( zDir == GocadZPositive::Depth )
                         {
-                            if ( zDir == GocadZPositive::Depth )
-                            {
-                                z = -z;
-                            }
-
-                            vertices.emplace_back( cvf::Vec3d( x, y, z ) );
-                            vertexIdToIndex[vertexId] = static_cast<unsigned>( vertices.size() - 1 );
+                            z = -z;
                         }
-                    }
-                    else if ( firstToken.compare( "TRGL" ) == 0 )
-                    {
-                        int id1{-1};
-                        int id2{-1};
-                        int id3{-1};
 
-                        lineStream >> id1 >> id2 >> id3;
-
-                        if ( id1 >= 0 && id2 >= 0 && id3 >= 0 )
-                        {
-                            trianglesByIds.emplace_back( static_cast<unsigned int>( id1 ) );
-                            trianglesByIds.emplace_back( static_cast<unsigned int>( id2 ) );
-                            trianglesByIds.emplace_back( static_cast<unsigned int>( id3 ) );
-                        }
-                    }
-                    else if ( firstToken.compare( "END" ) == 0 )
-                    {
-                        isInTfaceSection = false;
+                        vertices.emplace_back( cvf::Vec3d( x, y, z ) );
+                        vertexIdToIndex[vertexId] = static_cast<unsigned>( vertices.size() - 1 );
                     }
                 }
-                else if ( firstToken.compare( "TFACE" ) == 0 )
+                else if ( firstToken.compare( "PVRTX" ) == 0 )
                 {
-                    isInTfaceSection = true;
-                }
-                else if ( firstToken.compare( "ZPOSITIVE" ) == 0 )
-                {
-                    std::string secondToken;
-                    lineStream >> secondToken;
+                    int    vertexId = -1;
+                    double x{ std::numeric_limits<double>::infinity() };
+                    double y{ std::numeric_limits<double>::infinity() };
+                    double z{ std::numeric_limits<double>::infinity() };
 
-                    if ( secondToken == "DEPTH" )
+                    lineStream >> vertexId >> x >> y >> z;
+
+                    if ( vertexId > -1 )
                     {
-                        zDir = GocadZPositive::Depth;
+                        if ( zDir == GocadZPositive::Depth ) z = -z;
+
+                        vertices.emplace_back( cvf::Vec3d( x, y, z ) );
+                        vertexIdToIndex[vertexId] = static_cast<unsigned>( vertices.size() - 1 );
                     }
-                    else if ( secondToken == "ELEVATION" )
+
+                    propertyValues.push_back( std::vector<float>( propertyNames.size() ) );
+
+                    for ( size_t i = 0; i < propertyNames.size(); i++ )
                     {
-                        zDir = GocadZPositive::Elevation;
+                        lineStream >> propertyValues[propertyRow][i];
                     }
+                    propertyRow++;
+                }
+                else if ( firstToken.compare( "TRGL" ) == 0 )
+                {
+                    int id1{ -1 };
+                    int id2{ -1 };
+                    int id3{ -1 };
+
+                    lineStream >> id1 >> id2 >> id3;
+
+                    if ( id1 >= 0 && id2 >= 0 && id3 >= 0 )
+                    {
+                        trianglesByIds.emplace_back( static_cast<unsigned int>( id1 ) );
+                        trianglesByIds.emplace_back( static_cast<unsigned int>( id2 ) );
+                        trianglesByIds.emplace_back( static_cast<unsigned int>( id3 ) );
+                    }
+                }
+                else if ( firstToken.compare( "END" ) == 0 )
+                {
+                    isInTfaceSection = false;
                 }
             }
-            else // Probably a comment line, skip
+            else if ( firstToken.compare( "TFACE" ) == 0 )
             {
+                isInTfaceSection = true;
+            }
+            else if ( firstToken.compare( "PROPERTIES" ) == 0 )
+            {
+                QString qstringLine = QString::fromStdString( line );
+
+                qstringLine.remove( "PROPERTIES" );
+
+                QStringList words = qstringLine.split( " ", QString::SkipEmptyParts );
+
+                for ( auto w : words )
+                {
+                    propertyNames.push_back( w );
+                }
+            }
+            else if ( firstToken.compare( "ZPOSITIVE" ) == 0 )
+            {
+                std::string secondToken;
+                lineStream >> secondToken;
+
+                if ( secondToken == "DEPTH" )
+                {
+                    zDir = GocadZPositive::Depth;
+                }
+                else if ( secondToken == "ELEVATION" )
+                {
+                    zDir = GocadZPositive::Elevation;
+                }
             }
         }
     }
@@ -148,7 +184,8 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceReader::read
         }
     }
 
-    return std::make_pair( vertices, triangleIndices );
+    gocadData->setGeometryData( vertices, triangleIndices );
+    gocadData->addPropertyData( propertyNames, propertyValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,7 +243,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceReader::read
 
                 // Add point
 
-                surfaceDataPoints.push_back( {i, j, {x, y, z}, values} );
+                surfaceDataPoints.push_back( { i, j, { x, y, z }, values } );
 
                 minI = std::min( minI, i );
                 minJ = std::min( minJ, j );

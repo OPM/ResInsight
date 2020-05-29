@@ -25,10 +25,12 @@
 
 #include <QString>
 
+class RigGocadData;
+
 class RifSurfaceReader
 {
 public:
-    static std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> readGocadFile( const QString& filename );
+    static void readGocadFile( const QString& filename, RigGocadData* gocadData );
 
     static std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> readPetrelFile( const QString& filename );
 };

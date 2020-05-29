@@ -120,7 +120,7 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
 
     updateViews( surfacesToReload );
 
-    if ( !newFileNames.empty() )
+    if ( newSurfCount > 0 && !m_surfaces.empty() )
     {
         return m_surfaces[m_surfaces.size() - 1];
     }
