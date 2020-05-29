@@ -36,6 +36,7 @@
 #include "cafIconProvider.h"
 
 #include <QApplication>
+#include <QLinearGradient>
 #include <QPainter>
 
 using namespace caf;
@@ -74,7 +75,7 @@ IconProvider::IconProvider(const IconProvider& rhs)
     : m_active(rhs.m_active)
     , m_iconResourceString(rhs.m_iconResourceString)
     , m_overlayResourceString(rhs.m_overlayResourceString)
-    , m_backgroundColorString(rhs.m_backgroundColorString)
+    , m_backgroundColorStrings(rhs.m_backgroundColorStrings)
 {
     copyPixmap(rhs);
 }
@@ -87,7 +88,7 @@ IconProvider& IconProvider::operator=(const IconProvider& rhs)
     m_active                = rhs.m_active;
     m_iconResourceString    = rhs.m_iconResourceString;
     m_overlayResourceString = rhs.m_overlayResourceString;
-    m_backgroundColorString = rhs.m_backgroundColorString;
+    m_backgroundColorStrings = rhs.m_backgroundColorStrings;
     copyPixmap(rhs);
 
     return *this;
@@ -116,10 +117,33 @@ std::unique_ptr<QIcon> IconProvider::icon(const QSize& size /*= QSize(16, 16)*/)
     QPixmap pixmap(size);
 
     bool validIcon = false;
-    if (!m_backgroundColorString.isEmpty() && QColor::isValidColor(m_backgroundColorString))
-    {
-        pixmap.fill(QColor(m_backgroundColorString));
-        validIcon = true;
+    if (!m_backgroundColorStrings.empty())
+    {        
+        if (m_backgroundColorStrings.size() == 1u && QColor::isValidColor(m_backgroundColorStrings.front()))
+        {
+            pixmap.fill(QColor(m_backgroundColorStrings.front()));
+            validIcon = true;
+        }
+        else
+        {
+            validIcon = true;
+
+            QLinearGradient gradient (QPointF(0.0f, 0.0f), QPoint(size.width(), 0.0f));
+            for (size_t i = 0; i < m_backgroundColorStrings.size(); ++i)
+            {                
+                if (!QColor::isValidColor(m_backgroundColorStrings[i]))
+                {
+                    validIcon = false;
+                    break;
+                }
+                QColor color (m_backgroundColorStrings[i]);
+                float frac   = i / ((float) m_backgroundColorStrings.size() - 1.0);
+                gradient.setColorAt(frac, color);
+            }
+            QBrush gradientBrush(gradient);
+            QPainter painter (&pixmap);
+            painter.fillRect(0, 0, size.width(), size.height(), gradientBrush);
+        }
     }
     else pixmap.fill(Qt::transparent);
 
@@ -171,7 +195,15 @@ void IconProvider::setOverlayResourceString(const QString& overlayResourceString
 //--------------------------------------------------------------------------------------------------
 void IconProvider::setBackgroundColorString(const QString& colorName)
 {
-    m_backgroundColorString = colorName;
+    m_backgroundColorStrings = { colorName };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void IconProvider::setBackgroundColorGradient(const std::vector<QString>& colorNames) 
+{
+    m_backgroundColorStrings = colorNames;    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,7 +215,7 @@ bool caf::IconProvider::valid() const
     {
         if (m_pixmap && !m_pixmap->isNull()) return true;
 
-        if (!m_backgroundColorString.isEmpty() && QColor::isValidColor(m_backgroundColorString))
+        if (backgroundColorsAreValid())
         {
             return true;
         }
@@ -221,5 +253,26 @@ void IconProvider::copyPixmap(const IconProvider& rhs)
     {
         m_pixmap = std::unique_ptr<QPixmap>(new QPixmap(*rhs.m_pixmap));
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool IconProvider::backgroundColorsAreValid() const
+{
+    if (!m_backgroundColorStrings.empty())
+    {
+        bool validBackgroundColors = true;
+        for (QString colorName : m_backgroundColorStrings)
+        {
+            if (!QColor::isValidColor(colorName))
+            {
+                validBackgroundColors = false;
+                break;
+            }
+        }
+        return validBackgroundColors;
+    }
+    return false;
 }
 

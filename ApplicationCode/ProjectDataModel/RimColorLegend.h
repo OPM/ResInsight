@@ -56,6 +56,8 @@ public:
 
     cvf::Color3ubArray colorArray() const;
 
+    caf::IconProvider paletteIconProvider() const;
+
 public:
     caf::PdmFieldHandle* userDescriptionField() override;
 
