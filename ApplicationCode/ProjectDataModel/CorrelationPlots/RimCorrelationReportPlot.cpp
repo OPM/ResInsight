@@ -77,10 +77,14 @@ RimCorrelationReportPlot::RimCorrelationReportPlot()
     m_correlationMatrixPlot->setLegendsVisible( false );
     m_correlationMatrixPlot->setColSpan( RimPlot::TWO );
     m_correlationMatrixPlot->setRowSpan( RimPlot::TWO );
+
     m_correlationPlot = new RimCorrelationPlot;
     m_correlationPlot->setLegendsVisible( false );
+
     m_parameterResultCrossPlot = new RimParameterResultCrossPlot;
     m_parameterResultCrossPlot->setLegendsVisible( false );
+
+    this->uiCapability()->setUiTreeChildrenHidden( true );
 
     this->connect( m_correlationMatrixPlot(),
                    SIGNAL( matrixCellSelected( const EnsembleParameter&, const RiaSummaryCurveDefinition& ) ),
@@ -336,17 +340,8 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     plotGroup->add( &m_labelFontSize );
     plotGroup->add( &m_axisTitleFontSize );
     plotGroup->add( &m_axisValueFontSize );
+    m_correlationMatrixPlot->legendConfig()->uiOrdering( "ColorsOnly", *plotGroup );
     uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCorrelationReportPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                     QString                 uiConfigName /*= "" */ )
-{
-    uiTreeOrdering.add( m_correlationMatrixPlot->legendConfig() );
-    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------
