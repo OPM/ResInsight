@@ -334,7 +334,7 @@ bool RiaApplication::openFile( const QString& fileName )
     }
     else if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_ECLIPSE_FILE ) )
     {
-        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, true );
+        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{fileName}, true );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
     }
 
@@ -1812,8 +1812,10 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
                 out << "+++ \n";
 
                 out << "# Introduction\n\n";
-                out << "As the Python interface is growing release by release, we are investigating how to automate "
-                       "the building of reference documentation. This document is not complete, but will improve as "
+                out << "As the Python interface is growing release by release, we are investigating how to "
+                       "automate "
+                       "the building of reference documentation. This document is not complete, but will improve "
+                       "as "
                        "the automation "
                        "moves forward.\n";
 
@@ -1825,7 +1827,7 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 
             std::vector<std::shared_ptr<const caf::PdmObject>> commandObjects;
 
-            QStringList excludedClassNames{ "TestCommand1", "TC2" }; // See RifCommandCore-Text.cpp
+            QStringList excludedClassNames{"TestCommand1", "TC2"}; // See RifCommandCore-Text.cpp
 
             auto allObjects = caf::PdmMarkdownBuilder::createAllObjects( caf::PdmDefaultObjectFactory::instance() );
             for ( auto classObject : allObjects )
