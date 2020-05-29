@@ -29,6 +29,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
+#include "RimFaciesPropertiesCurve.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCurve.h"
 #include "RimFractureModelPlot.h"
@@ -87,6 +88,21 @@ RimFractureModelPlot*
         for ( auto result : results )
         {
             createParametersTrack( plot, fractureModel, eclipseCase, timeStep, result.first, result.second );
+        }
+    }
+
+    {
+        auto task = progInfo.task( "Creating facies properties track", 15 );
+
+        std::vector<RimFaciesPropertiesCurve::PropertyType> results =
+            { RimFaciesPropertiesCurve::PropertyType::YOUNGS_MODULUS,
+              RimFaciesPropertiesCurve::PropertyType::POISSONS_RATIO,
+              RimFaciesPropertiesCurve::PropertyType::K_IC,
+              RimFaciesPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT };
+
+        for ( auto result : results )
+        {
+            createFaciesPropertiesTrack( plot, fractureModel, eclipseCase, timeStep, result );
         }
     }
 
@@ -248,6 +264,58 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
     curve->setLineStyle( lineStyles[0] );
     curve->setLineThickness( 2 );
     curve->setAutoNameComponents( false, true, false, false, false );
+
+    plotTrack->addCurve( curve );
+    plotTrack->setAutoScaleXEnabled( true );
+    curve->loadDataAndUpdate( true );
+
+    curve->updateConnectedEditors();
+    plotTrack->updateConnectedEditors();
+    plot->updateConnectedEditors();
+
+    RiaApplication::instance()->project()->updateConnectedEditors();
+
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
+    RiuPlotMainWindowTools::showPlotMainWindow();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewFractureModelPlotFeature::createFaciesPropertiesTrack( RimFractureModelPlot*                  plot,
+                                                                  RimFractureModel*                      fractureModel,
+                                                                  RimEclipseCase*                        eclipseCase,
+                                                                  int                                    timeStep,
+                                                                  RimFaciesPropertiesCurve::PropertyType propertyType )
+{
+    QString          trackName = caf::AppEnum<RimFaciesPropertiesCurve::PropertyType>::uiText( propertyType );
+    RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackName, plot );
+    plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
+    plotTrack->setColSpan( RimPlot::TWO );
+    plotTrack->setVisibleXRange( 0.0, 2.0 );
+    plotTrack->setAutoScaleXEnabled( true );
+    plotTrack->setTickIntervals( 1.0, 0.2 );
+    plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
+    plotTrack->setShowRegionLabels( true );
+    plotTrack->setShowWindow( true );
+
+    caf::ColorTable                             colors     = RiaColorTables::contrastCategoryPaletteColors();
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = { RiuQwtPlotCurve::STYLE_SOLID,
+                                                               RiuQwtPlotCurve::STYLE_DASH,
+                                                               RiuQwtPlotCurve::STYLE_DASH_DOT };
+
+    RimFaciesPropertiesCurve* curve = new RimFaciesPropertiesCurve;
+    curve->setPropertyType( propertyType );
+    curve->setFractureModel( fractureModel );
+    curve->setCase( eclipseCase );
+    // curve->setEclipseResultVariable( resultVariable );
+    // curve->setEclipseResultCategory( resultCategoryType );
+    curve->setColor( colors.cycledColor3f( 0 ) );
+    curve->setLineStyle( lineStyles[0] );
+    curve->setLineThickness( 2 );
+    curve->setUiName( trackName );
+    curve->setAutoNameComponents( false, false, false, false, false );
 
     plotTrack->addCurve( curve );
     plotTrack->setAutoScaleXEnabled( true );

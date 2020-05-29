@@ -18,6 +18,8 @@
 
 #include "RigFaciesProperties.h"
 
+#include "RiaInterpolationTools.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +115,7 @@ void RigFaciesProperties::appendValues( double porosity,
 //--------------------------------------------------------------------------------------------------
 double RigFaciesProperties::getYoungsModulus( double porosity ) const
 {
-    return -1.0;
+    return RiaInterpolationTools::linear( m_porosity, m_youngsModulus, porosity );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,7 +123,7 @@ double RigFaciesProperties::getYoungsModulus( double porosity ) const
 //--------------------------------------------------------------------------------------------------
 double RigFaciesProperties::getPoissonsRatio( double porosity ) const
 {
-    return -1.0;
+    return RiaInterpolationTools::linear( m_porosity, m_poissonsRatio, porosity );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,7 +131,7 @@ double RigFaciesProperties::getPoissonsRatio( double porosity ) const
 //--------------------------------------------------------------------------------------------------
 double RigFaciesProperties::getK_Ic( double porosity ) const
 {
-    return -1.0;
+    return RiaInterpolationTools::linear( m_porosity, m_K_Ic, porosity );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,5 +139,5 @@ double RigFaciesProperties::getK_Ic( double porosity ) const
 //--------------------------------------------------------------------------------------------------
 double RigFaciesProperties::getProppantEmbedment( double porosity ) const
 {
-    return -1.0;
+    return RiaInterpolationTools::linear( m_porosity, m_proppantEmbedment, porosity );
 }

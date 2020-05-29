@@ -44,7 +44,9 @@ public:
     QString filePath() const;
     void    setFilePath( const QString& filePath );
 
-    void setPropertiesForFacies( FaciesKey& key, const RigFaciesProperties& properties );
+    void                       setPropertiesForFacies( FaciesKey& key, const RigFaciesProperties& properties );
+    bool                       hasPropertiesForFacies( FaciesKey& key ) const;
+    const RigFaciesProperties& propertiesForFacies( FaciesKey& key ) const;
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
