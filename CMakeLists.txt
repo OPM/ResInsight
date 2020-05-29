@@ -168,6 +168,14 @@ endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 # restore buildcache when libecl has been configured
 set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 
+######################################
+# Go through required git submodules #
+######################################
+list(APPEND THIRD_PARTY_SUBMODULES qwt)
+option(GSL_ENABLE "Enable the GNU Scientific Library for Statistics" OFF)
+if(GSL_ENABLE)
+    list(APPEND THIRD_PARTY_SUBMODULES gsl)
+endif(GSL_ENABLE)
 ###############################################
 # Init GIT submodules if they haven't already #
 ###############################################
@@ -176,14 +184,16 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
 	# Update submodules as needed
     option(GIT_SUBMODULE "Check submodules during build" ON)
     if(GIT_SUBMODULE)
-		set (SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty/${SUBMODULE}")
-		message(STATUS "Initializing GIT submodules")
-		execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-						WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-						RESULT_VARIABLE GIT_SUBMOD_RESULT)
-		if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-			message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
-		endif()
+        foreach (SUBMODULE ${THIRD_PARTY_SUBMODULES})
+		    set (SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty/${SUBMODULE}")
+		    message(STATUS "Initializing GIT submodules")
+		    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive -- ${SUBDIR}
+                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                            RESULT_VARIABLE GIT_SUBMOD_RESULT)
+		    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+			    message(FATAL_ERROR "git submodule update --init failed for ${SUBMODULE} with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+		    endif()
+        endforeach()
     endif()
 endif()
 
@@ -317,7 +327,6 @@ list(APPEND THIRD_PARTY_LIBRARIES
     qwt
 )
 
-
 ################################################################################
 # Nightcharts
 ################################################################################
@@ -359,7 +368,6 @@ set_property(TARGET
 ################################################################################
 # GNU GSL
 ################################################################################
-
 option(GSL_ENABLE "Enable the GNU Scientific Library for Statistics" OFF)
 if(GSL_ENABLE)
 	if (NOT EXISTS "${PROJECT_SOURCE_DIR}/ThirdParty/gsl/CMakeLists.txt")
@@ -369,7 +377,7 @@ if(GSL_ENABLE)
 	add_subdirectory(ThirdParty/gsl)
 	add_definitions(-DUSE_GSL)
 	list(APPEND THIRD_PARTY_LIBRARIES gsl)
-
+    
     # set this property manually for all GSL projects, as they are put into a separate folder
     set_property(TARGET  
         gsl
