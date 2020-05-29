@@ -230,7 +230,7 @@ RigFemScalarResultFrames*
                             if ( deltaPorePressure != 0.0 && porosity != 0.0 )
                             {
                                 poreCompressibility =
-                                    ( biotCoefficient * evData[elmNodResIdx] ) / ( deltaPorePressure * porosity );
+                                    -( biotCoefficient * evData[elmNodResIdx] ) / ( deltaPorePressure * porosity );
                                 // Guard against divide by zero: second term can be ignored when bulk modulus is zero,
                                 // which can happens when biot coefficient is 1.0
                                 if ( biotCoefficient != 1.0 && porosity != 1.0 )
