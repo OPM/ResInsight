@@ -22,6 +22,8 @@
 
 #include "RiaDefines.h"
 
+#include "RimFaciesPropertiesCurve.h"
+
 class RimEclipseCase;
 class RimFractureModelPlot;
 class RimFractureModelPlotCollection;
@@ -54,6 +56,12 @@ private:
                                        int                       timeStep,
                                        const QString&            resultVariable,
                                        RiaDefines::ResultCatType resultCategoryType );
+
+    static void createFaciesPropertiesTrack( RimFractureModelPlot*                  plot,
+                                             RimFractureModel*                      fractureModel,
+                                             RimEclipseCase*                        eclipseCase,
+                                             int                                    timeStep,
+                                             RimFaciesPropertiesCurve::PropertyType propertyType );
 
     static RimFractureModelPlot* createFractureModelPlot( bool showAfterCreation, const QString& plotDescription );
 

@@ -208,6 +208,19 @@ public:
 
     void updateAxes() override;
 
+    static CurveSamplingPointData curveSamplingPointData( RigEclipseWellLogExtractor* extractor,
+                                                          RigResultAccessor*          resultAccessor );
+    static CurveSamplingPointData curveSamplingPointData( RigGeoMechWellLogExtractor* extractor,
+                                                          const RigFemResultAddress&  resultAddress );
+
+    static void findRegionNamesToPlot( const CurveSamplingPointData&           curveData,
+                                       const std::vector<QString>&             formationNamesVector,
+                                       RimWellLogPlot::DepthTypeEnum           depthType,
+                                       std::vector<QString>*                   formationNamesToPlot,
+                                       std::vector<std::pair<double, double>>* yValues );
+
+    static std::vector<QString> formationNamesVector( RimCase* rimCase );
+
 protected:
     // RimViewWindow overrides
     void deleteViewWidget() override;
@@ -250,19 +263,6 @@ private:
                                                                const QString&            simWellName,
                                                                int                       branchIndex,
                                                                bool                      useBranchDetection );
-
-    static CurveSamplingPointData curveSamplingPointData( RigEclipseWellLogExtractor* extractor,
-                                                          RigResultAccessor*          resultAccessor );
-    static CurveSamplingPointData curveSamplingPointData( RigGeoMechWellLogExtractor* extractor,
-                                                          const RigFemResultAddress&  resultAddress );
-
-    static void findRegionNamesToPlot( const CurveSamplingPointData&           curveData,
-                                       const std::vector<QString>&             formationNamesVector,
-                                       RimWellLogPlot::DepthTypeEnum           depthType,
-                                       std::vector<QString>*                   formationNamesToPlot,
-                                       std::vector<std::pair<double, double>>* yValues );
-
-    static std::vector<QString> formationNamesVector( RimCase* rimCase );
 
     void setFormationFieldsUiReadOnly( bool readOnly = true );
 

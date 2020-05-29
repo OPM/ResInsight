@@ -75,6 +75,23 @@ void RimFaciesProperties::setPropertiesForFacies( FaciesKey& key, const RigFacie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimFaciesProperties::hasPropertiesForFacies( FaciesKey& key ) const
+{
+    return m_properties.find( key ) != m_properties.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigFaciesProperties& RimFaciesProperties::propertiesForFacies( FaciesKey& key ) const
+{
+    assert( hasPropertiesForFacies( key ) );
+    return m_properties.find( key )->second;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFaciesProperties::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                  QString                    uiConfigName,
                                                  caf::PdmUiEditorAttribute* attribute )
@@ -95,7 +112,6 @@ void RimFaciesProperties::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 //--------------------------------------------------------------------------------------------------
 QString RimFaciesProperties::generatePropertiesTable()
 {
-
     QString header( "<table border=1>"
                     "  <thead>"
                     "    <tr bgcolor=lightblue>"
