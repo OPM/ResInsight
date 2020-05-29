@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimColorLegend.h"
+
+#include "RiaColorTools.h"
+
 #include "RimColorLegendItem.h"
 
 CAF_PDM_SOURCE_INIT( RimColorLegend, "ColorLegend" );
@@ -118,4 +121,21 @@ cvf::Color3ubArray RimColorLegend::colorArray() const
         colorArray.set( i, cvf::Color3ub( legendItems[i]->color() ) );
     }
     return colorArray;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::IconProvider RimColorLegend::paletteIconProvider() const
+{
+    std::vector<QString>             colorNames;
+    std::vector<RimColorLegendItem*> legendItems = colorLegendItems();
+    for ( auto legendItem : legendItems )
+    {
+        QColor color = RiaColorTools::toQColor( legendItem->color() );
+        colorNames.push_back( color.name() );
+    }
+    caf::IconProvider iconProvider;
+    iconProvider.setBackgroundColorGradient( colorNames );
+    return iconProvider;
 }

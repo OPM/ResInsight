@@ -1091,7 +1091,10 @@ QList<caf::PdmOptionItemInfo>
 
         for ( RimColorLegend* colorLegend : colorLegends )
         {
-            options.push_back( caf::PdmOptionItemInfo( colorLegend->colorLegendName(), colorLegend ) );
+            options.push_back( caf::PdmOptionItemInfo( colorLegend->colorLegendName(),
+                                                       colorLegend,
+                                                       false,
+                                                       colorLegend->paletteIconProvider() ) );
         }
     }
     else if ( fieldNeedingOptions == &m_rangeMode )

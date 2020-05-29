@@ -41,6 +41,7 @@
 #include <QString>
 
 #include <memory>
+#include <vector>
 
 class QIcon;
 class QPixmap;
@@ -68,18 +69,21 @@ public:
     void setIconResourceString(const QString& iconResourceString);
     void setOverlayResourceString(const QString& overlayResourceString);
     void setBackgroundColorString(const QString& colorName);
+    void setBackgroundColorGradient(const std::vector<QString>& colorNames);
 
     void setPixmap(const QPixmap& pixmap);
 
 private:
     static bool isGuiApplication();
     void copyPixmap(const IconProvider& rhs);
+
+    bool backgroundColorsAreValid() const;
 private:
     bool m_active;
 
     QString                  m_iconResourceString;
     QString                  m_overlayResourceString;
-    QString                  m_backgroundColorString;
+    std::vector<QString>     m_backgroundColorStrings;
 
     std::unique_ptr<QPixmap> m_pixmap;
 };
