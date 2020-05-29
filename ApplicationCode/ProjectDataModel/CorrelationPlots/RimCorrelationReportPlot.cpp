@@ -334,7 +334,7 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
 void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_correlationMatrixPlot->uiOrdering( "report", uiOrdering );
-    auto plotGroup = uiOrdering.addNewGroup( "Font Settings" );
+    auto plotGroup = uiOrdering.addNewGroup( "Plot Settings" );
     plotGroup->add( &m_titleFontSize );
     plotGroup->add( &m_subTitleFontSize );
     plotGroup->add( &m_labelFontSize );
