@@ -16,6 +16,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaQDateTimeTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaWellNameComparer.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaStdStringTools.h
+${CMAKE_CURRENT_LIST_DIR}/RiaInterpolationTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveAnalyzer.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaSimWellBranchTools.h
 ${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileVersionTools.h
@@ -62,6 +63,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RiaQDateTimeTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaWellNameComparer.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaStdStringTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RiaInterpolationTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveAnalyzer.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaSimWellBranchTools.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaProjectFileVersionTools.cpp
