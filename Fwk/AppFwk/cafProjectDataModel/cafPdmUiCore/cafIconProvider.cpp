@@ -44,8 +44,9 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-IconProvider::IconProvider()
+IconProvider::IconProvider(const QSize& preferredSize)
     : m_active(true)
+    , m_preferredSize(preferredSize)
 {
 }
 
@@ -53,9 +54,10 @@ IconProvider::IconProvider()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-IconProvider::IconProvider(const QString& iconResourceString)
+IconProvider::IconProvider(const QString& iconResourceString, const QSize& preferredSize)
     : m_active(true)
     , m_iconResourceString(iconResourceString)
+    , m_preferredSize(preferredSize)
 {
 }
 
@@ -65,6 +67,7 @@ IconProvider::IconProvider(const QString& iconResourceString)
 caf::IconProvider::IconProvider(const QPixmap& pixmap)
     : m_active(true)
     , m_pixmap(new QPixmap(pixmap))
+    , m_preferredSize(pixmap.size())
 {
 }
 
@@ -76,6 +79,7 @@ IconProvider::IconProvider(const IconProvider& rhs)
     , m_iconResourceString(rhs.m_iconResourceString)
     , m_overlayResourceString(rhs.m_overlayResourceString)
     , m_backgroundColorStrings(rhs.m_backgroundColorStrings)
+    , m_preferredSize(rhs.m_preferredSize)
 {
     copyPixmap(rhs);
 }
@@ -85,10 +89,11 @@ IconProvider::IconProvider(const IconProvider& rhs)
 //--------------------------------------------------------------------------------------------------
 IconProvider& IconProvider::operator=(const IconProvider& rhs)
 {
-    m_active                = rhs.m_active;
-    m_iconResourceString    = rhs.m_iconResourceString;
-    m_overlayResourceString = rhs.m_overlayResourceString;
+    m_active                 = rhs.m_active;
+    m_iconResourceString     = rhs.m_iconResourceString;
+    m_overlayResourceString  = rhs.m_overlayResourceString;
     m_backgroundColorStrings = rhs.m_backgroundColorStrings;
+    m_preferredSize          = rhs.m_preferredSize;
     copyPixmap(rhs);
 
     return *this;
@@ -105,7 +110,45 @@ void IconProvider::setActive(bool active)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<QIcon> IconProvider::icon(const QSize& size /*= QSize(16, 16)*/) const
+bool caf::IconProvider::valid() const
+{
+    if (isGuiApplication())
+    {
+        if (m_pixmap && !m_pixmap->isNull()) return true;
+
+        if (backgroundColorsAreValid())
+        {
+            return true;
+        }
+
+        if (!m_iconResourceString.isEmpty())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void IconProvider::setPreferredSize(const QSize& size) 
+{
+    m_preferredSize = size;    
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<QIcon> IconProvider::icon() const
+{
+    return this->icon(m_preferredSize);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<QIcon> IconProvider::icon(const QSize& size) const
 {
     if (!isGuiApplication())
     {
@@ -204,28 +247,6 @@ void IconProvider::setBackgroundColorString(const QString& colorName)
 void IconProvider::setBackgroundColorGradient(const std::vector<QString>& colorNames) 
 {
     m_backgroundColorStrings = colorNames;    
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool caf::IconProvider::valid() const
-{
-    if (isGuiApplication())
-    {
-        if (m_pixmap && !m_pixmap->isNull()) return true;
-
-        if (backgroundColorsAreValid())
-        {
-            return true;
-        }
-
-        if (!m_iconResourceString.isEmpty())
-        {
-            return true;
-        }
-    }
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
