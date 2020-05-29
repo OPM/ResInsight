@@ -140,6 +140,7 @@ jobs:
               -S .
               -B cmakebuild
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
+              -D GSL_ENABLE=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_ENABLE_GRPC=true
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=python
