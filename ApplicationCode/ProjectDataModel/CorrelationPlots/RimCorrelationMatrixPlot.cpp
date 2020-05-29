@@ -144,7 +144,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     CAF_PDM_InitField( &m_removeRowsAndColumnsWithZeroCorrelation,
                        "RemoveZeroCorrelation",
                        false,
-                       "Remove rows/columns with zero correlation",
+                       "Remove uncorrelated rows/columns",
                        "",
                        "",
                        "" );
@@ -154,6 +154,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     m_legendConfig->setAutomaticRanges( -1.0, 1.0, -1.0, 1.0 );
     m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::CORRELATION ) );
 
+    this->uiCapability()->setUiTreeChildrenHidden( true );
     m_selectMultipleVectors = true;
 }
 
@@ -249,6 +250,7 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
         plotGroup->add( &m_labelFontSize );
         plotGroup->add( &m_axisTitleFontSize );
         plotGroup->add( &m_axisValueFontSize );
+        m_legendConfig->uiOrdering( "ColorsOnly", *plotGroup );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -301,16 +303,6 @@ void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
 void RimCorrelationMatrixPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
     this->loadDataAndUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCorrelationMatrixPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                     QString                 uiConfigName /*= "" */ )
-{
-    uiTreeOrdering.add( m_legendConfig() );
-    uiTreeOrdering.skipRemainingChildren( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -573,7 +565,7 @@ void RimCorrelationMatrixPlot::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationMatrixPlot::updateLegend()
 {
-    if ( m_plotWidget ) m_plotWidget->updateLegend();
+    if ( m_legendConfig ) m_legendConfig->recreateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

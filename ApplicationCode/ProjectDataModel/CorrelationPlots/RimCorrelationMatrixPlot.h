@@ -64,7 +64,6 @@ private:
     void onLoadDataAndUpdate() override;
 
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     void updateAxes() override;
 

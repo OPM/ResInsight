@@ -978,6 +978,11 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         uiOrdering.add( &m_numLevels );
         uiOrdering.skipRemainingFields( true );
     }
+    else if ( uiConfigName == "ColorsOnly" )
+    {
+        uiOrdering.add( &m_colorLegend );
+        uiOrdering.skipRemainingFields( true );
+    }
     else
     {
         caf::PdmUiOrdering* formatGr = uiOrdering.addNewGroup( "Format" );
