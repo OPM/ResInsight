@@ -809,6 +809,10 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         updateFonts();
     }
+    else if ( changedField == &m_showPlotWindowTitle )
+    {
+        performAutoNameUpdate();
+    }
 
     updateConnectedEditors();
 }
