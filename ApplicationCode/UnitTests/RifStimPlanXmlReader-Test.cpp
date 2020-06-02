@@ -38,8 +38,8 @@ TEST( RifStimPlanXmlReaderTest, LoadFile )
 
     size_t xSamplesIncludingMirrorValues = 7;
     EXPECT_EQ( xSamplesIncludingMirrorValues, fractureData->xCount() );
-    EXPECT_EQ( 5, fractureData->yCount() );
-    EXPECT_EQ( 1, fractureData->timeSteps().size() );
+    EXPECT_EQ( size_t( 5 ), fractureData->yCount() );
+    EXPECT_EQ( size_t( 1 ), fractureData->timeSteps().size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,8 +73,8 @@ TEST( RifStimPlanXmlReaderTest, LoadFileNewFormat )
 
     size_t xSamplesIncludingMirrorValues = 49;
     EXPECT_EQ( xSamplesIncludingMirrorValues, fractureData->xCount() );
-    EXPECT_EQ( 23, fractureData->yCount() );
-    EXPECT_EQ( 1, fractureData->timeSteps().size() );
+    EXPECT_EQ( size_t( 23 ), fractureData->yCount() );
+    EXPECT_EQ( size_t( 1 ), fractureData->timeSteps().size() );
 
     EXPECT_DOUBLE_EQ( 2773.680, fractureData->topPerfTvd() );
     EXPECT_DOUBLE_EQ( 2773.680, fractureData->bottomPerfTvd() );
