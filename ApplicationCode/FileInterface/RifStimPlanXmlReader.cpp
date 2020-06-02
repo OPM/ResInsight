@@ -104,13 +104,18 @@ cvf::ref<RigStimPlanFractureDefinition>
     QString unit;
 
     RiaLogging::info( QString( "Properties available in file:" ) );
-    while ( !xmlStream2.atEnd() )
+    int propertiesElementCount = 0;
+    while ( !xmlStream2.atEnd() && propertiesElementCount < 2 )
     {
         xmlStream2.readNext();
 
         if ( xmlStream2.isStartElement() )
         {
-            if ( xmlStream2.name() == "property" )
+            if ( xmlStream2.name() == "properties" )
+            {
+                propertiesElementCount++;
+            }
+            else if ( xmlStream2.name() == "property" )
             {
                 unit      = getAttributeValueString( xmlStream2, "uom" );
                 parameter = getAttributeValueString( xmlStream2, "name" );
@@ -297,19 +302,30 @@ std::vector<std::vector<double>> RifStimPlanXmlReader::getAllDepthDataAtTimeStep
 
             xmlStream.readNext(); // read end depth token
             xmlStream.readNext(); // read cdata section with values
+
+            QString depthDataStr;
             if ( xmlStream.isCDATA() )
             {
-                QString     depthDataStr = xmlStream.text().toString();
-                QStringList splitted     = depthDataStr.split( ' ' );
-                for ( int i = 0; i < splitted.size(); i++ )
+                depthDataStr = xmlStream.text().toString();
+            }
+            else
+            {
+                QString gridValuesString = xmlStream.readElementText().replace( '\n', ' ' );
+                gridValuesString         = gridValuesString.replace( '[', ' ' ).replace( ']', ' ' );
+
+                depthDataStr = gridValuesString;
+            }
+
+            QStringList splitted = depthDataStr.split( ' ' );
+            for ( int i = 0; i < splitted.size(); i++ )
+            {
+                QString value = splitted[i];
+                if ( value != "" )
                 {
-                    QString value = splitted[i];
-                    if ( value != "" )
-                    {
-                        propertyValuesAtDepth.push_back( value.toDouble() );
-                    }
+                    propertyValuesAtDepth.push_back( value.toDouble() );
                 }
             }
+
             propertyValuesAtTimestep.push_back( propertyValuesAtDepth );
         }
     }
@@ -378,7 +394,9 @@ void RifStimPlanXmlReader::getGriddingValues( QXmlStreamReader&    xmlStream,
                                               size_t&              startNegValues )
 {
     QString gridValuesString = xmlStream.readElementText().replace( '\n', ' ' );
-    for ( QString value : gridValuesString.split( ' ' ) )
+    gridValuesString         = gridValuesString.replace( '[', ' ' ).replace( ']', ' ' );
+
+    for ( QString value : gridValuesString.split( ' ', QString::SkipEmptyParts ) )
     {
         if ( value.size() > 0 )
         {
