@@ -1050,9 +1050,8 @@ void RimSummaryPlot::updateTimeAxis()
         }
 
         m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom,
-                                                caf::FontTools::pointSizeToPixelSize( m_timeAxisProperties->titleFontSize() ),
-                                                caf::FontTools::pointSizeToPixelSize(
-                                                    m_timeAxisProperties->valuesFontSize() ),
+                                                m_timeAxisProperties->titleFontSize(),
+                                                m_timeAxisProperties->valuesFontSize(),
                                                 true,
                                                 alignment );
         m_plotWidget->setAxisTitleText( QwtPlot::xBottom, m_timeAxisProperties->title() );
