@@ -188,8 +188,15 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
 
     xmlStream.readNext();
 
+    double tvdToTopPerf = HUGE_VAL;
+    double tvdToBotPerf = HUGE_VAL;
+    double mdToTopPerf  = HUGE_VAL;
+    double mdToBotPerf  = HUGE_VAL;
+
+    int gridSectionCount = 0;
+
     // First, read time steps and grid to establish data structures for putting data into later.
-    while ( !xmlStream.atEnd() )
+    while ( !xmlStream.atEnd() && gridSectionCount < 2 )
     {
         xmlStream.readNext();
 
@@ -199,38 +206,65 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
 
             if ( xmlStream.name() == "grid" )
             {
-                gridunit = getAttributeValueString( xmlStream, "uom" );
-
-                if ( gridunit == "m" )
-                    stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
-                else if ( gridunit == "ft" )
-                    stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
-                else
-                    stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
-
-                if ( destinationUnit == RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+                // Support for one grid per file
+                if ( gridSectionCount < 1 )
                 {
-                    // Use file unit set if requested unit is unknown
-                    destinationUnit = stimPlanFileData->m_unitSet;
+                    gridunit = getAttributeValueString( xmlStream, "uom" );
+
+                    if ( gridunit == "m" )
+                        stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_METRIC;
+                    else if ( gridunit == "ft" )
+                        stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_FIELD;
+                    else
+                        stimPlanFileData->m_unitSet = RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN;
+
+                    if ( destinationUnit == RiaEclipseUnitTools::UnitSystem::UNITS_UNKNOWN )
+                    {
+                        // Use file unit set if requested unit is unknown
+                        destinationUnit = stimPlanFileData->m_unitSet;
+                    }
+
+                    double tvdToTopPerfFt = getAttributeValueDouble( xmlStream, "TVDToTopPerfFt" );
+                    double tvdToBotPerfFt = getAttributeValueDouble( xmlStream, "TVDToBottomPerfFt" );
+
+                    tvdToTopPerf =
+                        RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD,
+                                                                         destinationUnit,
+                                                                         tvdToTopPerfFt );
+                    tvdToBotPerf =
+                        RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD,
+                                                                         destinationUnit,
+                                                                         tvdToBotPerfFt );
                 }
 
-                double tvdToTopPerfFt = getAttributeValueDouble( xmlStream, "TVDToTopPerfFt" );
-                double tvdToBotPerfFt = getAttributeValueDouble( xmlStream, "TVDToBottomPerfFt" );
-
-                double tvdToTopPerfRequestedUnit =
-                    RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD,
-                                                                     destinationUnit,
-                                                                     tvdToTopPerfFt );
-                double tvdToBotPerfRequestedUnit =
-                    RifStimPlanXmlReader::valueInRequiredUnitSystem( RiaEclipseUnitTools::UnitSystem::UNITS_FIELD,
-                                                                     destinationUnit,
-                                                                     tvdToBotPerfFt );
-
-                stimPlanFileData->setTvdToTopPerf( tvdToTopPerfRequestedUnit );
-                stimPlanFileData->setTvdToBottomPerf( tvdToBotPerfRequestedUnit );
+                gridSectionCount++;
             }
-
-            if ( xmlStream.name() == "xs" )
+            else if ( xmlStream.name() == "perf" )
+            {
+                QString perfUnit = getAttributeValueString( xmlStream, "uom" );
+                QString fracName = getAttributeValueString( xmlStream, "frac" );
+            }
+            else if ( xmlStream.name() == "topTVD" )
+            {
+                auto valText = xmlStream.readElementText();
+                tvdToTopPerf = valText.toDouble();
+            }
+            else if ( xmlStream.name() == "bottomTVD" )
+            {
+                auto valText = xmlStream.readElementText();
+                tvdToBotPerf = valText.toDouble();
+            }
+            else if ( xmlStream.name() == "topMD" )
+            {
+                auto valText = xmlStream.readElementText();
+                mdToTopPerf  = valText.toDouble();
+            }
+            else if ( xmlStream.name() == "bottomMD" )
+            {
+                auto valText = xmlStream.readElementText();
+                mdToBotPerf  = valText.toDouble();
+            }
+            else if ( xmlStream.name() == "xs" )
             {
                 std::vector<double> gridValuesXs;
                 {
@@ -248,7 +282,6 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
                 stimPlanFileData->generateXsFromFileXs( mirrorMode == MIRROR_AUTO ? !hasNegativeValues( gridValuesXs )
                                                                                   : (bool)mirrorMode );
             }
-
             else if ( xmlStream.name() == "ys" )
             {
                 std::vector<double> gridValuesYs;
@@ -276,6 +309,26 @@ void RifStimPlanXmlReader::readStimplanGridAndTimesteps( QXmlStreamReader&      
                 stimPlanFileData->addTimeStep( timeStepValue );
             }
         }
+    }
+
+    if ( tvdToTopPerf != HUGE_VAL )
+    {
+        stimPlanFileData->setTvdToTopPerf( tvdToTopPerf );
+    }
+
+    if ( tvdToBotPerf != HUGE_VAL )
+    {
+        stimPlanFileData->setTvdToBottomPerf( tvdToBotPerf );
+    }
+
+    if ( mdToTopPerf != HUGE_VAL )
+    {
+        stimPlanFileData->setMdToTopPerf( mdToTopPerf );
+    }
+
+    if ( mdToBotPerf != HUGE_VAL )
+    {
+        stimPlanFileData->setMdToBottomPerf( mdToBotPerf );
     }
 
     if ( startNegValuesYs > 0 )

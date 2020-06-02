@@ -35,6 +35,11 @@ TEST( RifStimPlanXmlReaderTest, LoadFile )
 
     EXPECT_TRUE( errorMessage.isEmpty() );
     EXPECT_TRUE( m_stimPlanFractureDefinitionData.notNull() );
+
+    size_t xSamplesIncludingMirrorValues = 7;
+    EXPECT_EQ( xSamplesIncludingMirrorValues, m_stimPlanFractureDefinitionData->xCount() );
+    EXPECT_EQ( 5, m_stimPlanFractureDefinitionData->yCount() );
+    EXPECT_EQ( 1, m_stimPlanFractureDefinitionData->timeSteps().size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,4 +70,14 @@ TEST( RifStimPlanXmlReaderTest, LoadFileNewFormat )
 
     EXPECT_TRUE( errorMessage.isEmpty() );
     EXPECT_TRUE( m_stimPlanFractureDefinitionData.notNull() );
+
+    size_t xSamplesIncludingMirrorValues = 49;
+    EXPECT_EQ( xSamplesIncludingMirrorValues, m_stimPlanFractureDefinitionData->xCount() );
+    EXPECT_EQ( 23, m_stimPlanFractureDefinitionData->yCount() );
+    EXPECT_EQ( 1, m_stimPlanFractureDefinitionData->timeSteps().size() );
+
+    EXPECT_DOUBLE_EQ( 2773.680, m_stimPlanFractureDefinitionData->topPerfTvd() );
+    EXPECT_DOUBLE_EQ( 2773.680, m_stimPlanFractureDefinitionData->bottomPerfTvd() );
+    EXPECT_DOUBLE_EQ( 2804.160, m_stimPlanFractureDefinitionData->topPerfMd() );
+    EXPECT_DOUBLE_EQ( 2804.770, m_stimPlanFractureDefinitionData->bottomPerfMd() );
 }
