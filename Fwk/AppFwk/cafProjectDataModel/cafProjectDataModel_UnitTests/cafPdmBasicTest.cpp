@@ -463,9 +463,8 @@ TEST(BaseTest, PdmChildArrayField)
 }
 #endif
 
-template <>
-inline void GTestStreamToHelper<QString>(std::ostream* os, const QString& val) {
-    *os << val.toLatin1().data();
+void PrintTo(const QString& val, std::ostream* os) {
+  *os << val.toLatin1().data();
 }
 
 
@@ -889,12 +888,12 @@ TEST(BaseTest, PdmChildArrayFieldHandle)
     InheritedDemoObj* ihd1 = new InheritedDemoObj;
     caf::PdmChildArrayFieldHandle* listField = &(ihd1->m_simpleObjectsField);
 
-    EXPECT_EQ(0, listField->size());
+    EXPECT_EQ(0u, listField->size());
     EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
     EXPECT_TRUE(listField->empty());
 
     ihd1->m_simpleObjectsField.push_back(new SimpleObj);
-    EXPECT_EQ(1, listField->size());
+    EXPECT_EQ(1u, listField->size());
     EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
     EXPECT_FALSE(listField->empty());
 
@@ -902,17 +901,17 @@ TEST(BaseTest, PdmChildArrayFieldHandle)
     ihd1->m_simpleObjectsField.push_back(s2);
     ihd1->m_simpleObjectsField.push_back(s3);
 
-    EXPECT_EQ(4, listField->size());
+    EXPECT_EQ(4u, listField->size());
     EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
     EXPECT_FALSE(listField->empty());
     
     listField->erase(0);
-    EXPECT_EQ(3, listField->size());
+    EXPECT_EQ(3u, listField->size());
     EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
     EXPECT_FALSE(listField->empty());
 
     listField->deleteAllChildObjects();
-    EXPECT_EQ(0, listField->size());
+    EXPECT_EQ(0u, listField->size());
     EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
     EXPECT_TRUE(listField->empty());
 
