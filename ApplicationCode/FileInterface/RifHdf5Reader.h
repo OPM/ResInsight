@@ -32,7 +32,7 @@ class RifHdf5Reader : public RifHdf5ReaderInterface
 {
 public:
     explicit RifHdf5Reader( const QString& fileName );
-    virtual ~RifHdf5Reader();
+    ~RifHdf5Reader() override;
 
     std::vector<QDateTime> timeSteps() const override;
     QStringList            propertyNames() const override;
