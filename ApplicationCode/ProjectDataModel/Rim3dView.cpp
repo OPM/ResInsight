@@ -891,6 +891,7 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
             }
         }
         this->applyBackgroundColorAndFontChanges();
+        this->updateConnectedEditors();
     }
     else if ( changedField == &maximumFrameRate )
     {
@@ -1224,6 +1225,8 @@ void Rim3dView::applyBackgroundColorAndFontChanges()
     }
     updateGridBoxData();
     updateAnnotationItems();
+    updateConnectedEditors();
+
     onUpdateLegends();
     this->scheduleCreateDisplayModelAndRedraw();
 }
