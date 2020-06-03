@@ -38,6 +38,9 @@ RimFaciesProperties::RimFaciesProperties()
     m_propertiesTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_propertiesTable.uiCapability()->setUiReadOnly( true );
+    m_propertiesTable.xmlCapability()->disableIO();
+
+    setUiName( "Facies Properties" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,10 +122,10 @@ QString RimFaciesProperties::generatePropertiesTable()
                     "      <th>Formation</th>"
                     "      <th>Facies</th>"
                     "      <th>Porosity</th>"
-                    "      <th>Young's Modulus</th>"
-                    "      <th>Poisson's Ratio</th>"
+                    "      <th>Young's<br>Modulus</th>"
+                    "      <th>Poisson's<br>Ratio</th>"
                     "      <th>K-Ic</th>"
-                    "      <th>Proppant Embedment</th>"
+                    "      <th>Proppant<br>Embedment</th>"
                     "    </tr>"
                     "  </thead>"
                     "  <tbody>" );

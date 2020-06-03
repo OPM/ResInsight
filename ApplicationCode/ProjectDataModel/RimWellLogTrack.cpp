@@ -1499,6 +1499,14 @@ void RimWellLogTrack::setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setColorShadingLegend( RimColorLegend* colorLegend )
+{
+    m_colorShadingLegend = colorLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType annotationType )
 {
     m_regionAnnotationType = annotationType;

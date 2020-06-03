@@ -166,6 +166,7 @@ public:
     void setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType annotationType );
     void setAnnotationDisplay( RiuPlotAnnotationTool::RegionDisplay annotationDisplay );
     void setAnnotationTransparency( int percent );
+    void setColorShadingLegend( RimColorLegend* colorLegend );
 
     RiuPlotAnnotationTool::RegionAnnotationType annotationType() const;
     RiuPlotAnnotationTool::RegionDisplay        annotationDisplay() const;

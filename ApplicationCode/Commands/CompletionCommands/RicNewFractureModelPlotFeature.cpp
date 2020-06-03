@@ -27,6 +27,8 @@
 
 #include "RigWellPath.h"
 
+#include "RimColorLegend.h"
+#include "RimColorLegendCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFaciesPropertiesCurve.h"
@@ -115,8 +117,6 @@ RimFractureModelPlot*
         plot->setLegendsHorizontal( true );
         plot->setDepthType( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH );
         plot->setAutoScaleDepthEnabled( true );
-
-        // RicNewWellLogPlotFeatureImpl::updateAfterCreation( plot );
         plot->loadDataAndUpdate();
     }
 
@@ -197,6 +197,13 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     faciesTrack->setFormationCase( eclipseCase );
     faciesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS );
     faciesTrack->setRegionPropertyResultType( RiaDefines::ResultCatType::INPUT_PROPERTY, defaultProperty );
+
+    RimColorLegend* faciesColors = RimProject::current()->colorLegendCollection()->findByName( "Facies colors" );
+    if ( faciesColors )
+    {
+        faciesTrack->setColorShadingLegend( faciesColors );
+    }
+
     faciesTrack->setVisibleXRange( 0.0, 0.0 );
     faciesTrack->setColSpan( RimPlot::ONE );
 
@@ -246,9 +253,10 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
     plotTrack->setVisibleXRange( 0.0, 2.0 );
     plotTrack->setAutoScaleXEnabled( true );
     plotTrack->setTickIntervals( 1.0, 0.2 );
-    plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
+    plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
     plotTrack->setShowRegionLabels( true );
     plotTrack->setShowWindow( true );
+    plotTrack->setLogarithmicScale( false );
 
     caf::ColorTable                             colors     = RiaColorTables::contrastCategoryPaletteColors();
     std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = {RiuQwtPlotCurve::STYLE_SOLID,
@@ -296,10 +304,10 @@ void RicNewFractureModelPlotFeature::createFaciesPropertiesTrack( RimFractureMod
     plotTrack->setVisibleXRange( 0.0, 2.0 );
     plotTrack->setAutoScaleXEnabled( true );
     plotTrack->setTickIntervals( 1.0, 0.2 );
-    plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
+    plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
+    plotTrack->setLogarithmicScale( false );
     plotTrack->setShowRegionLabels( true );
     plotTrack->setShowWindow( true );
-
     caf::ColorTable                             colors     = RiaColorTables::contrastCategoryPaletteColors();
     std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = { RiuQwtPlotCurve::STYLE_SOLID,
                                                                RiuQwtPlotCurve::STYLE_DASH,
