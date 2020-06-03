@@ -74,7 +74,6 @@ jobs:
         with:
           path: ${{ env.BUILDCACHE_DIR }}
           key: ${{ matrix.config.name }}-cache-v01-${{ steps.cache_timestamp_string.outputs.timestamp }}
-          restore-keys: ${{ matrix.config.name }}-cache-v01-
       - name: Create Folder for buildcache
         run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force 
         shell: pwsh
