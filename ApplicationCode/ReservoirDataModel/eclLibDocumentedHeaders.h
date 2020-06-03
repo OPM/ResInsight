@@ -198,7 +198,7 @@ int             ecl_file_get_num_kw(        const ecl_file_type * ecl_fil );
 // Check if the keyword exists in the ecl_file structure
 bool            ecl_file_has_kw(            const ecl_file_type * ecl_file , const char * kw);
 
-// Access the list of keyword names occuring in the ecl_file structure
+// Access the list of keyword names occurring in the ecl_file structure
 int             ecl_file_get_num_distinct_kw( const ecl_file_type * ecl_file);
 const char    * ecl_file_iget_distinct_kw   ( const ecl_file_type * ecl_file , int index);
 
@@ -206,10 +206,10 @@ const char    * ecl_file_iget_distinct_kw   ( const ecl_file_type * ecl_file , i
 const char    * ecl_file_get_src_file(      const ecl_file_type * ecl_file );
 
 // Get the keyword at "globKWIndex" and return the position it has among the other keywords with same name
-int             ecl_file_iget_occurence(    const ecl_file_type * ecl_file , int globalKWindex);
+int             ecl_file_iget_occurrence(    const ecl_file_type * ecl_file , int globalKWindex);
 
 
-time_t           ecl_file_iget_restart_sim_date( const ecl_file_type * restart_file , int occurence );
+time_t           ecl_file_iget_restart_sim_date( const ecl_file_type * restart_file , int occurrence );
 ecl_version_enum ecl_file_get_ecl_version(  const ecl_file_type * file );
 
 int              ecl_file_get_restart_index(const ecl_file_type * restart_file , time_t sim_time);
@@ -230,8 +230,8 @@ ecl_file_type * ecl_file_fread_alloc_summary_section(fortio_type * fortio);
 ecl_file_type * ecl_file_fread_alloc_RFT_section(fortio_type *     fortio);
 
 // Manage ecl_kw instances in the ecl_file structure "manually"
-void            ecl_file_delete_kw( ecl_file_type * ecl_file , const char * name , int occurence );
-void            ecl_file_insert_kw( ecl_file_type * ecl_file , ecl_kw_type * ecl_kw , bool after , const char * neighbour_name , int neighbour_occurence );
+void            ecl_file_delete_kw( ecl_file_type * ecl_file , const char * name , int occurrence );
+void            ecl_file_insert_kw( ecl_file_type * ecl_file , ecl_kw_type * ecl_kw , bool after , const char * neighbour_name , int neighbour_occurrence );
 void            ecl_file_replace_kw( ecl_file_type * ecl_file , ecl_kw_type * old_kw , const ecl_kw_type * new_kw , bool insert_copy);
 
 bool            ecl_file_has_kw_ptr(const ecl_file_type * ecl_file , const ecl_kw_type * ecl_kw);

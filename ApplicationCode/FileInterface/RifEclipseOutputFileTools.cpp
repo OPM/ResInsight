@@ -676,7 +676,7 @@ void RifEclipseOutputFileTools::createReportStepsMetaData( std::vector<ecl_file_
                         reportStep.dateTime = reportDateTime;
                     }
 
-                    // Find number of keywords withing this report step
+                    // Find number of keywords within this report step
                     int numKeywords = ecl_file_get_num_distinct_kw( ecl_file );
                     for ( int iKey = 0; iKey < numKeywords; iKey++ )
                     {

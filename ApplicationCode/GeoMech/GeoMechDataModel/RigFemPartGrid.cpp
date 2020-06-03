@@ -90,7 +90,7 @@ void RigFemPartGrid::generateStructGridData()
         int posJFaceIdx = ijkMainFaceIndices[1];
         int posKFaceIdx = ijkMainFaceIndices[2];
 
-        m_elmentIJKCounts = cvf::Vec3st( 0, 0, 0 );
+        m_elementIJKCounts = cvf::Vec3st( 0, 0, 0 );
 
         int        elmIdxInK  = elmIdxForIJK_000;
         cvf::Vec3f posKNormal = m_femPart->faceNormal( elmIdxInK, posKFaceIdx );
@@ -131,7 +131,7 @@ void RigFemPartGrid::generateStructGridData()
 
                 // Scoped to show that nothing bleeds further to K-loop
                 {
-                    if ( iCoord > static_cast<int>( m_elmentIJKCounts[0] ) ) m_elmentIJKCounts[0] = iCoord;
+                    if ( iCoord > static_cast<int>( m_elementIJKCounts[0] ) ) m_elementIJKCounts[0] = iCoord;
 
                     ++jCoord;
 
@@ -154,7 +154,7 @@ void RigFemPartGrid::generateStructGridData()
             }
 
             {
-                if ( jCoord > static_cast<int>( m_elmentIJKCounts[1] ) ) m_elmentIJKCounts[1] = jCoord;
+                if ( jCoord > static_cast<int>( m_elementIJKCounts[1] ) ) m_elementIJKCounts[1] = jCoord;
 
                 ++kCoord;
 
@@ -177,10 +177,10 @@ void RigFemPartGrid::generateStructGridData()
             }
         }
 
-        if ( kCoord > static_cast<int>( m_elmentIJKCounts[2] ) ) m_elmentIJKCounts[2] = kCoord;
+        if ( kCoord > static_cast<int>( m_elementIJKCounts[2] ) ) m_elementIJKCounts[2] = kCoord;
     }
 
-    m_elmIdxPrIJK.resize( m_elmentIJKCounts[0], m_elmentIJKCounts[1], m_elmentIJKCounts[2] );
+    m_elmIdxPrIJK.resize( m_elementIJKCounts[0], m_elementIJKCounts[1], m_elementIJKCounts[2] );
 
     for ( int elmIdx = 0; elmIdx < m_femPart->elementCount(); ++elmIdx )
     {
@@ -247,7 +247,7 @@ cvf::Vec3i RigFemPartGrid::findMainIJKFaces( int elementIndex ) const
     cvf::Vec3i ijkMainFaceIndices = cvf::Vec3i( -1, -1, -1 );
 
     RigElementType          eType     = m_femPart->elementType( elementIndex );
-    int                     faceCount = RigFemTypes::elmentFaceCount( eType );
+    int                     faceCount = RigFemTypes::elementFaceCount( eType );
     std::vector<cvf::Vec3f> normals( faceCount );
     for ( int faceIdx = 0; faceIdx < faceCount; ++faceIdx )
     {
@@ -340,7 +340,7 @@ std::pair<cvf::Vec3st, cvf::Vec3st> RigFemPartGrid::reservoirIJKBoundingBox() co
 int RigFemPartGrid::perpendicularFaceInDirection( cvf::Vec3f direction, int perpFaceIdx, int elmIdx )
 {
     RigElementType eType     = m_femPart->elementType( elmIdx );
-    int            faceCount = RigFemTypes::elmentFaceCount( eType );
+    int            faceCount = RigFemTypes::elementFaceCount( eType );
 
     int oppFace = RigFemTypes::oppositeFace( eType, perpFaceIdx );
 
@@ -370,7 +370,7 @@ int RigFemPartGrid::perpendicularFaceInDirection( cvf::Vec3f direction, int perp
 //--------------------------------------------------------------------------------------------------
 size_t RigFemPartGrid::gridPointCountI() const
 {
-    return m_elmentIJKCounts[0] + 1;
+    return m_elementIJKCounts[0] + 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,7 +378,7 @@ size_t RigFemPartGrid::gridPointCountI() const
 //--------------------------------------------------------------------------------------------------
 size_t RigFemPartGrid::gridPointCountJ() const
 {
-    return m_elmentIJKCounts[1] + 1;
+    return m_elementIJKCounts[1] + 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -386,7 +386,7 @@ size_t RigFemPartGrid::gridPointCountJ() const
 //--------------------------------------------------------------------------------------------------
 size_t RigFemPartGrid::gridPointCountK() const
 {
-    return m_elmentIJKCounts[2] + 1;
+    return m_elementIJKCounts[2] + 1;
 }
 
 //--------------------------------------------------------------------------------------------------

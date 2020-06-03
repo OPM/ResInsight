@@ -396,7 +396,7 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
 
             int        nodeCount             = 0;
             const int* idBasedConnectivities = odbElm.connectivity( nodeCount );
-            CVF_TIGHT_ASSERT( nodeCount == RigFemTypes::elmentNodeCount( elmType ) );
+            CVF_TIGHT_ASSERT( nodeCount == RigFemTypes::elementNodeCount( elmType ) );
 
             indexBasedConnectivities.resize( nodeCount );
             for ( int lnIdx = 0; lnIdx < nodeCount; ++lnIdx )

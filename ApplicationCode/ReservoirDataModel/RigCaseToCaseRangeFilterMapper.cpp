@@ -89,7 +89,7 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilter( const RimCellRangeFilte
         src.StartJ = srcFilter->startIndexJ() - 1;
         src.StartK = srcFilter->startIndexK() - 1;
 
-        // Needs to subtract one more to have the end idx beeing
+        // Needs to subtract one more to have the end idx being
         // the last cell in the selection, not the first outside
         src.EndI = src.StartI + srcFilter->cellCountI() - 1;
         src.EndJ = src.StartJ + srcFilter->cellCountJ() - 1;

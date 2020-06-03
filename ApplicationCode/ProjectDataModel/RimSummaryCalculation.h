@@ -64,7 +64,7 @@ public:
 
     caf::PdmFieldHandle* userDescriptionField() override;
 
-    static QString findLeftHandSide( const QString& expresion );
+    static QString findLeftHandSide( const QString& expression );
     void           attachToWidget();
 
 private:

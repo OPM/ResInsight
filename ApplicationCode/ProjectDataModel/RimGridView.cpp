@@ -469,7 +469,7 @@ void RimGridView::onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridView::onClearReservoirCellVisibilitiesIfNeccessary()
+void RimGridView::onClearReservoirCellVisibilitiesIfNecessary()
 {
     if ( this->propertyFilterCollection() && this->propertyFilterCollection()->hasActiveDynamicFilters() )
     {

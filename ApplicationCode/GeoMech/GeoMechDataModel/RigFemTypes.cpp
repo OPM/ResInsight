@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RigFemTypes::elmentNodeCount( RigElementType elmType )
+int RigFemTypes::elementNodeCount( RigElementType elmType )
 {
     static int elementTypeCounts[3] = {8, 8, 4};
 
@@ -36,7 +36,7 @@ int RigFemTypes::elmentNodeCount( RigElementType elmType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RigFemTypes::elmentFaceCount( RigElementType elmType )
+int RigFemTypes::elementFaceCount( RigElementType elmType )
 {
     const static int elementFaceCounts[3] = {6, 6, 1};
 

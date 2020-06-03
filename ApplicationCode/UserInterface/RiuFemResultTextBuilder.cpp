@@ -283,14 +283,14 @@ void RiuFemResultTextBuilder::appendTextFromResultColors( RigGeoMechCaseData*   
             {
                 RigFemPart*    femPart         = geomData->femParts()->part( gridIndex );
                 RigElementType elmType         = femPart->elementType( cellIndex );
-                const int*     elmentConn      = femPart->connectivities( cellIndex );
-                int            elmNodeCount    = RigFemTypes::elmentNodeCount( elmType );
+                const int*     elementConn      = femPart->connectivities( cellIndex );
+                int            elmNodeCount    = RigFemTypes::elementNodeCount( elmType );
                 const int*     lElmNodeToIpMap = RigFemTypes::localElmNodeToIntegrationPointMapping( elmType );
 
                 for ( int lNodeIdx = 0; lNodeIdx < elmNodeCount; ++lNodeIdx )
                 {
                     float scalarValue = std::numeric_limits<float>::infinity();
-                    int   nodeIdx     = elmentConn[lNodeIdx];
+                    int   nodeIdx     = elementConn[lNodeIdx];
                     if ( resultDefinition->resultPositionType() == RIG_NODAL ||
                          ( resultDefinition->resultPositionType() == RIG_DIFFERENTIALS &&
                            resultDefinition->resultFieldName() == "POR-Bar" ) )

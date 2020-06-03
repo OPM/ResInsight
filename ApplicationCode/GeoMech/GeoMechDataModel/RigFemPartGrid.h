@@ -52,7 +52,7 @@ private:
     const RigFemPart* m_femPart;
 
     std::vector<cvf::Vec3i> m_ijkPrElement;
-    cvf::Vec3st             m_elmentIJKCounts;
+    cvf::Vec3st             m_elementIJKCounts;
 
 private: // Unused, Not implemented
     bool       isCellValid( size_t i, size_t j, size_t k ) const override;

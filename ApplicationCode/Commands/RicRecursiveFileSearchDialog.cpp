@@ -296,12 +296,12 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 {
     m_fileListWidget->clear();
 
-    int rootSearchPathLenght = rootDirWithEndSeparator().size();
+    int rootSearchPathLength = rootDirWithEndSeparator().size();
 
     for ( const auto& fileName : m_foundFiles )
     {
         QString itemText = fileName;
-        itemText.remove( 0, rootSearchPathLenght );
+        itemText.remove( 0, rootSearchPathLength );
         QListWidgetItem* item = new QListWidgetItem( QDir::toNativeSeparators( itemText ), m_fileListWidget );
         item->setFlags( item->flags() | Qt::ItemIsUserCheckable );
         item->setCheckState( Qt::Checked );

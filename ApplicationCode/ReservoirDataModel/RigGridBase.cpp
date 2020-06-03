@@ -147,7 +147,7 @@ void RigGridBase::initSubCellsMainGridCellIndex()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// For main grid, this will work with reservoirCellIndices retreiving the correct lgr cells as well.
+/// For main grid, this will work with reservoirCellIndices retrieving the correct lgr cells as well.
 /// the cell() call retreives correct cell, because main grid has offset of 0, and we access the global
 /// cell array in main grid.
 //--------------------------------------------------------------------------------------------------

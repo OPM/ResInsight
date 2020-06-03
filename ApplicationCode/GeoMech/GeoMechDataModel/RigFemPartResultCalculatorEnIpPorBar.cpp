@@ -52,7 +52,7 @@ bool RigFemPartResultCalculatorEnIpPorBar::isMatching( const RigFemResultAddress
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Convert POR NODAL result to POR-Bar Elment Nodal result
+/// Convert POR NODAL result to POR-Bar Element Nodal result
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorEnIpPorBar::calculate( int                        partIndex,
                                                                            const RigFemResultAddress& resVarAddr )
@@ -92,7 +92,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorEnIpPorBar::calculate( int  
 
             if ( elmType == HEX8P )
             {
-                int elmNodeCount = RigFemTypes::elmentNodeCount( elmType );
+                int elmNodeCount = RigFemTypes::elementNodeCount( elmType );
                 for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                 {
                     size_t elmNodResIdx        = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );

@@ -183,7 +183,7 @@ RigFemScalarResultFrames*
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
         {
             RigElementType elmType        = femPart->elementType( elmIdx );
-            int            faceCount      = RigFemTypes::elmentFaceCount( elmType );
+            int            faceCount      = RigFemTypes::elementFaceCount( elmType );
             const int*     elmNodeIndices = femPart->connectivities( elmIdx );
 
             int elmNodFaceResIdxElmStart = elmIdx * 24; // HACK should get from part
