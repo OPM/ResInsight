@@ -106,6 +106,8 @@ RimFractureModel::RimFractureModel()
     CAF_PDM_InitField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_faciesProperties, "FaciesProperties", "Facies Properties", "", "", "" );
+    m_faciesProperties.uiCapability()->setUiHidden( true );
+    m_faciesProperties.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------

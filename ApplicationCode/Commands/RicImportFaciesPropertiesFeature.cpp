@@ -59,16 +59,16 @@ void RicImportFaciesPropertiesFeature::onActionTriggered( bool isChecked )
 
     // Open dialog box to select files
     RiaApplication* app        = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory( "WELLPATH_DIR" );
-    QStringList     filePaths  = QFileDialog::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                           "Import Facies Properties",
-                                                           defaultDir,
-                                                           "Facies Properties (*.csv);;All Files (*.*)" );
+    QString         defaultDir = app->lastUsedDialogDirectory( "FACIES_DIR" );
+    QString         filePath   = QFileDialog::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(),
+                                                     "Import Facies Properties",
+                                                     defaultDir,
+                                                     "Facies Properties (*.csv);;All Files (*.*)" );
 
-    if ( filePaths.size() < 1 ) return;
+    if ( filePath.isNull() ) return;
 
     // Remember the path to next time
-    app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( filePaths.last() ).absolutePath() );
+    app->setLastUsedDialogDirectory( "FACIES_DIR", QFileInfo( filePath ).absolutePath() );
 
     typedef std::tuple<QString, QString, QString> FaciesKey;
 
@@ -76,6 +76,8 @@ void RicImportFaciesPropertiesFeature::onActionTriggered( bool isChecked )
     std::vector<RifFaciesProperties> rifFaciesProperties;
     try
     {
+        QStringList filePaths;
+        filePaths << filePath;
         RifFaciesPropertiesReader::readFaciesProperties( rifFaciesProperties, filePaths );
     }
     catch ( FileParseException& exception )
@@ -130,7 +132,9 @@ void RicImportFaciesPropertiesFeature::onActionTriggered( bool isChecked )
         rimFaciesProperties->setPropertiesForFacies( key, rigFaciesProperties );
     }
 
+    rimFaciesProperties->setFilePath( filePath );
     fractureModel->setFaciesProperties( rimFaciesProperties );
+    fractureModel->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
