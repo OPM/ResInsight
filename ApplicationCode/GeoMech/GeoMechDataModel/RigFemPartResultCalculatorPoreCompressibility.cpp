@@ -109,7 +109,7 @@ RigFemScalarResultFrames*
 
     RigFemScalarResultFrames* poissonRatioFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT, "RATIO", "" ) );
-    if ( youngsModuliFrames->frameData( 0 ).empty() )
+    if ( poissonRatioFrames->frameData( 0 ).empty() )
     {
         RiaLogging::error( "Missing Poisson Ratio element data (RATIO)." );
         return nullptr;
