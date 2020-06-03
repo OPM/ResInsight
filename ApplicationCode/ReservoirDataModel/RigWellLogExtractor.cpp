@@ -114,15 +114,15 @@ void RigWellLogExtractor::insertIntersectionsInMap( const std::vector<HexInterse
 {
     for ( size_t intIdx = 0; intIdx < intersections.size(); ++intIdx )
     {
-        double lenghtAlongLineSegment1 = ( intersections[intIdx].m_intersectionPoint - p1 ).length();
-        double lenghtAlongLineSegment2 = ( p2 - intersections[intIdx].m_intersectionPoint ).length();
+        double lengthAlongLineSegment1 = ( intersections[intIdx].m_intersectionPoint - p1 ).length();
+        double lengthAlongLineSegment2 = ( p2 - intersections[intIdx].m_intersectionPoint ).length();
         double measuredDepthDiff       = md2 - md1;
-        double lineLength              = lenghtAlongLineSegment1 + lenghtAlongLineSegment2;
+        double lineLength              = lengthAlongLineSegment1 + lengthAlongLineSegment2;
         double measuredDepthOfPoint    = 0.0;
 
         if ( lineLength > 0.00001 )
         {
-            measuredDepthOfPoint = md1 + measuredDepthDiff * lenghtAlongLineSegment1 / ( lineLength );
+            measuredDepthOfPoint = md1 + measuredDepthDiff * lengthAlongLineSegment1 / ( lineLength );
         }
         else
         {

@@ -1123,7 +1123,7 @@ cvf::Vec3f RigGeoMechWellLogExtractor::cellCentroid( size_t intersectionIdx ) co
 
     size_t         elmIdx           = m_intersectedCellsGlobIdx[intersectionIdx];
     RigElementType elmType          = femPart->elementType( elmIdx );
-    int            elementNodeCount = RigFemTypes::elmentNodeCount( elmType );
+    int            elementNodeCount = RigFemTypes::elementNodeCount( elmType );
 
     const int* elmNodeIndices = femPart->connectivities( elmIdx );
 

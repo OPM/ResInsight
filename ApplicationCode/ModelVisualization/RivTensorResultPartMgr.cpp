@@ -236,7 +236,7 @@ void RivTensorResultPartMgr::calculateElementTensors( const RigFemPart&         
 
     for ( int elmIdx = 0; elmIdx < static_cast<int>( elmCount ); elmIdx++ )
     {
-        if ( RigFemTypes::elmentNodeCount( part.elementType( elmIdx ) ) == 8 )
+        if ( RigFemTypes::elementNodeCount( part.elementType( elmIdx ) ) == 8 )
         {
             caf::Ten3f tensorSumOfElmNodes = vertexTensors[part.elementNodeResultIdx( elmIdx, 0 )];
             for ( int i = 1; i < 8; i++ )

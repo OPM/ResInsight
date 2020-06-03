@@ -60,7 +60,7 @@ void RigFemPart::appendElement( RigElementType elmType, int id, const int* conne
     m_elementTypes.push_back( elmType );
     m_elementConnectivityStartIndices.push_back( m_allElementConnectivities.size() );
 
-    int nodeCount = RigFemTypes::elmentNodeCount( elmType );
+    int nodeCount = RigFemTypes::elementNodeCount( elmType );
     for ( int lnIdx = 0; lnIdx < nodeCount; ++lnIdx )
     {
         m_allElementConnectivities.push_back( connectivities[lnIdx] );
@@ -102,7 +102,7 @@ void RigFemPart::calculateNodeToElmRefs()
 
     for ( int eIdx = 0; eIdx < static_cast<int>( m_elementId.size() ); ++eIdx )
     {
-        int        elmNodeCount = RigFemTypes::elmentNodeCount( elementType( eIdx ) );
+        int        elmNodeCount = RigFemTypes::elementNodeCount( elementType( eIdx ) );
         const int* elmNodes     = connectivities( eIdx );
         for ( int localIdx = 0; localIdx < elmNodeCount; ++localIdx )
         {
@@ -158,7 +158,7 @@ void RigFemPart::calculateElmNeighbors()
         RigElementType elmType  = this->elementType( eIdx );
         const int*     elmNodes = this->connectivities( eIdx );
 
-        int faceCount     = RigFemTypes::elmentFaceCount( elmType );
+        int faceCount     = RigFemTypes::elementFaceCount( elmType );
         int neighborCount = 0;
         for ( int faceIdx = 0; faceIdx < faceCount; ++faceIdx )
         {
@@ -225,7 +225,7 @@ void RigFemPart::calculateElmNeighbors()
                 RigElementType nbcElmType  = this->elementType( nbcElmIdx );
                 const int*     nbcElmNodes = this->connectivities( nbcElmIdx );
 
-                int  nbcFaceCount    = RigFemTypes::elmentFaceCount( nbcElmType );
+                int  nbcFaceCount    = RigFemTypes::elementFaceCount( nbcElmType );
                 bool isNeighborFound = false;
                 for ( int nbcFaceIdx = 0; nbcFaceIdx < nbcFaceCount; ++nbcFaceIdx )
                 {
@@ -307,11 +307,11 @@ float RigFemPart::characteristicElementSize() const
 
         if ( eType == HEX8P )
         {
-            const int* elmentConn = this->connectivities( elmIdx );
-            cvf::Vec3f nodePos0   = this->nodes().coordinates[elmentConn[0]];
-            cvf::Vec3f nodePos1   = this->nodes().coordinates[elmentConn[1]];
-            cvf::Vec3f nodePos3   = this->nodes().coordinates[elmentConn[3]];
-            cvf::Vec3f nodePos4   = this->nodes().coordinates[elmentConn[4]];
+            const int* elementConn = this->connectivities( elmIdx );
+            cvf::Vec3f nodePos0   = this->nodes().coordinates[elementConn[0]];
+            cvf::Vec3f nodePos1   = this->nodes().coordinates[elementConn[1]];
+            cvf::Vec3f nodePos3   = this->nodes().coordinates[elementConn[3]];
+            cvf::Vec3f nodePos4   = this->nodes().coordinates[elementConn[4]];
 
             float l1 = ( nodePos1 - nodePos0 ).length();
             float l3 = ( nodePos3 - nodePos0 ).length();
@@ -407,7 +407,7 @@ size_t RigFemPart::elementNodeResultCount() const
     int lastElmIdx = this->elementCount() - 1;
     if ( lastElmIdx < 0 ) return 0;
     RigElementType elmType          = this->elementType( lastElmIdx );
-    int            elmNodeCount     = RigFemTypes::elmentNodeCount( elmType );
+    int            elmNodeCount     = RigFemTypes::elementNodeCount( elmType );
     size_t         lastElmResultIdx = this->elementNodeResultIdx( lastElmIdx, elmNodeCount - 1 );
 
     return lastElmResultIdx + 1;

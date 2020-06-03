@@ -474,8 +474,8 @@ void RiuMultiPlotBook::createPages()
 
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
     {
-        int expextedColSpan = static_cast<int>( plotWidgets[visibleIndex]->colSpan() );
-        int colSpan         = std::min( expextedColSpan, rowAndColumnCount.second );
+        int expectedColSpan = static_cast<int>( plotWidgets[visibleIndex]->colSpan() );
+        int colSpan         = std::min( expectedColSpan, rowAndColumnCount.second );
 
         std::tie( row, column ) = page->findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
         if ( row >= rowsPerPage )

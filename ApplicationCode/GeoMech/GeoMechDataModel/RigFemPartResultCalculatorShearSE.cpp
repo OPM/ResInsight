@@ -92,7 +92,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorShearSE::calculate( int part
         {
             RigElementType elmType = femPart->elementType( elmIdx );
 
-            int elmNodeCount = RigFemTypes::elmentNodeCount( femPart->elementType( elmIdx ) );
+            int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
 
             if ( elmType == HEX8P )
             {

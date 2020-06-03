@@ -335,7 +335,7 @@ cvf::Vec3d RimFractureModel::calculateTSTDirection() const
 
         if ( !cell.isInvalid() )
         {
-            direction += cell.faceNormalWithAreaLenght( cvf::StructGridInterface::NEG_K ).getNormalized();
+            direction += cell.faceNormalWithAreaLength( cvf::StructGridInterface::NEG_K ).getNormalized();
             numContributingCells++;
         }
     }

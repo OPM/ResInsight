@@ -127,7 +127,7 @@ void RimMeasurement::removeAllPoints()
 //--------------------------------------------------------------------------------------------------
 QString RimMeasurement::label() const
 {
-    auto lengths = calculateLenghts();
+    auto lengths = calculateLengths();
 
     QString text;
 
@@ -156,7 +156,7 @@ QString RimMeasurement::label() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMeasurement::Lengths RimMeasurement::calculateLenghts() const
+RimMeasurement::Lengths RimMeasurement::calculateLengths() const
 {
     Lengths lengths;
 

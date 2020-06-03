@@ -149,7 +149,7 @@ TEST( RicfCommands, ErrorMessages )
     // Errors should be:
     // Line 1 : TesCommand1 does not exist
     // Line 2 : Unreadable value for argument IntArgument
-    // Line 3 : Can't find = after argument named TextA (space withing argument name)
+    // Line 3 : Can't find = after argument named TextA (space within argument name)
     // Line 4 : Can't find = after argument named DoubleArgument
     // Line 5 : Missing quotes around TextArgument value
 

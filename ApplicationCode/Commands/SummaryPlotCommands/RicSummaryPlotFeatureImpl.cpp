@@ -573,7 +573,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
             sumPlotColl->updateConnectedEditors();
 
             RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-            // Needed to avoid unneccessary activation of sub windows (plots)
+            // Needed to avoid unnecessary activation of sub windows (plots)
             // which results in population of property editor, and missing deleteLater because we are outside any event
             // loop when switching object. Results in stray widgets.
             mpw->setBlockViewSelectionOnSubWindowActivated( true );

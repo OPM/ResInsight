@@ -107,10 +107,10 @@ void RigFisbonesGeometry::computeLateralPositionAndOrientation( size_t      subI
         }
 
         {
-            double intialRotationAngle  = m_fishbonesSub->rotationAngle( subIndex );
+            double initialRotationAngle  = m_fishbonesSub->rotationAngle( subIndex );
             double lateralOffsetDegrees = 360.0 / m_fishbonesSub->lateralLengths().size();
 
-            double lateralOffsetRadians = cvf::Math::toRadians( intialRotationAngle + lateralOffsetDegrees * lateralIndex );
+            double lateralOffsetRadians = cvf::Math::toRadians( initialRotationAngle + lateralOffsetDegrees * lateralIndex );
 
             cvf::Mat4d lateralOffsetMatrix = cvf::Mat4d::fromRotation( alongWellPath, lateralOffsetRadians );
 

@@ -643,7 +643,7 @@ bool RigMainGrid::isFaceNormalsOutwards() const
         {
             cvf::Vec3d cellCenter = m_cells[gcIdx].center();
             cvf::Vec3d faceCenter = m_cells[gcIdx].faceCenter( StructGridInterface::POS_I );
-            cvf::Vec3d faceNormal = m_cells[gcIdx].faceNormalWithAreaLenght( StructGridInterface::POS_I );
+            cvf::Vec3d faceNormal = m_cells[gcIdx].faceNormalWithAreaLength( StructGridInterface::POS_I );
 
             double typicalIJCellSize = characteristicIJCellSize();
             double dummy, dummy2, typicalKSize;

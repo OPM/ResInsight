@@ -78,7 +78,7 @@ public:
     QString label() const;
 
 private:
-    Lengths calculateLenghts() const;
+    Lengths calculateLengths() const;
 
     void updateView() const;
 
