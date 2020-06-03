@@ -334,7 +334,7 @@ bool RiaApplication::openFile( const QString& fileName )
     }
     else if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_ECLIPSE_FILE ) )
     {
-        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, true );
+        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{fileName}, true );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
     }
 
@@ -1373,9 +1373,14 @@ int RiaApplication::launchUnitTests()
 
     //
     // Use the gtest filter to execute a subset of tests
-    //::testing::GTEST_FLAG( filter ) = "*RifCaseRealizationParametersReaderTest*";
-    //
-    //
+    QString filterText = RiaPreferences::current()->gtestFilter();
+    if ( !filterText.isEmpty() )
+    {
+        ::testing::GTEST_FLAG( filter ) = filterText.toLatin1();
+
+        // Example on filter syntax
+        //::testing::GTEST_FLAG( filter ) = "*RifCaseRealizationParametersReaderTest*";
+    }
 
     // Use this macro in main() to run all tests.  It returns 0 if all
     // tests are successful, or 1 otherwise.
@@ -1825,8 +1830,10 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
                 out << "+++ \n";
 
                 out << "# Introduction\n\n";
-                out << "As the Python interface is growing release by release, we are investigating how to automate "
-                       "the building of reference documentation. This document is not complete, but will improve as "
+                out << "As the Python interface is growing release by release, we are investigating how to "
+                       "automate "
+                       "the building of reference documentation. This document is not complete, but will improve "
+                       "as "
                        "the automation "
                        "moves forward.\n";
 
@@ -1838,7 +1845,7 @@ bool RiaApplication::generateCode( const QString& fileName, QString* errMsg )
 
             std::vector<std::shared_ptr<const caf::PdmObject>> commandObjects;
 
-            QStringList excludedClassNames{ "TestCommand1", "TC2" }; // See RifCommandCore-Text.cpp
+            QStringList excludedClassNames{"TestCommand1", "TC2"}; // See RifCommandCore-Text.cpp
 
             auto allObjects = caf::PdmMarkdownBuilder::createAllObjects( caf::PdmDefaultObjectFactory::instance() );
             for ( auto classObject : allObjects )

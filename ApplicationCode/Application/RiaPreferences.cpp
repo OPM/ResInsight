@@ -369,6 +369,8 @@ RiaPreferences::RiaPreferences( void )
 
     CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer", "", "", "" );
     m_openExportedPdfInViewer.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -566,6 +568,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             group->add( &m_showHud );
         }
 
+        uiOrdering.add( &m_gtestFilter );
         uiOrdering.add( &m_showProgressBar );
         uiOrdering.add( &m_showProjectChangedDialog );
         uiOrdering.add( &m_showTestToolbar );
@@ -831,6 +834,14 @@ bool RiaPreferences::useShaders() const
 bool RiaPreferences::show3dInformation() const
 {
     return RiaApplication::enableDevelopmentFeatures() && m_showHud();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaPreferences::gtestFilter() const
+{
+    return m_gtestFilter();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -64,10 +64,16 @@ public:
     size_t                          yCount() const;
     double                          minDepth() const;
     double                          maxDepth() const;
-    double                          topPerfTvd() const;
-    double                          bottomPerfTvd() const;
-    void                            setTvdToTopPerf( double topPerfTvd );
-    void                            setTvdToBottomPerf( double bottomPerfTvd );
+
+    double topPerfTvd() const;
+    double bottomPerfTvd() const;
+    void   setTvdToTopPerf( double topPerfTvd );
+    void   setTvdToBottomPerf( double bottomPerfTvd );
+
+    double topPerfMd() const;
+    double bottomPerfMd() const;
+    void   setMdToTopPerf( double topPerfMd );
+    void   setMdToBottomPerf( double bottomPerfMd );
 
     cvf::ref<RigFractureGrid> createFractureGrid( const QString&                  resultName,
                                                   int                             activeTimeStepIndex,
@@ -131,4 +137,6 @@ private:
 
     double m_topPerfTvd;
     double m_bottomPerfTvd;
+    double m_topPerfMd;
+    double m_bottomPerfMd;
 };
