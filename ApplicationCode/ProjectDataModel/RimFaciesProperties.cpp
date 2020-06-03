@@ -18,6 +18,10 @@
 
 #include "RimFaciesProperties.h"
 
+#include "RimFractureModel.h"
+
+#include "RicFaciesPropertiesImportTools.h"
+
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
 
@@ -169,4 +173,17 @@ QString RimFaciesProperties::generatePropertiesTable()
     QString footer( "</tbody></table>" );
 
     return header + body + footer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaciesProperties::loadDataAndUpdate()
+{
+    if ( !m_filePath().path().isEmpty() )
+    {
+        RimFractureModel* fractureModel;
+        firstAncestorOrThisOfType( fractureModel );
+        RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( m_filePath().path(), fractureModel );
+    }
 }
