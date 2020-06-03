@@ -207,7 +207,7 @@ protected:
     virtual void   onClampCurrentTimestep()   = 0;
     virtual size_t onTimeStepCountRequested() = 0;
 
-    virtual void onClearReservoirCellVisibilitiesIfNeccessary(){};
+    virtual void onClearReservoirCellVisibilitiesIfNecessary(){};
     virtual bool isTimeStepDependentDataVisible() const                                            = 0;
     virtual void defineAxisLabels( cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel ) = 0;
     virtual void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts )          = 0;

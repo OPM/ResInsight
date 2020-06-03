@@ -331,7 +331,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
     double                                                   holeRadius,
     double                                                   startMeasuredDepth,
     double                                                   endMeasuredDepth,
-    const RimFishbonesMultipleSubs*                          fishbonesDefintions )
+    const RimFishbonesMultipleSubs*                          fishbonesDefinitions )
 {
     if ( !wellPath ) return;
     if ( !wellPath->wellPathGeometry() ) return;
@@ -358,7 +358,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
 
         wellBorePart.intersectionWithWellMeasuredDepth = cellIntersectionInfo.startMD;
 
-        wellBorePart.setSourcePdmObject( fishbonesDefintions );
+        wellBorePart.setSourcePdmObject( fishbonesDefinitions );
         wellBorePartsInCells[cellIntersectionInfo.globCellIndex].push_back( wellBorePart );
     }
 }

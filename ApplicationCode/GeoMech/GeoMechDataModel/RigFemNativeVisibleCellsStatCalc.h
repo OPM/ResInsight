@@ -73,7 +73,7 @@ private:
                 {
                     if ( !( *m_cellVisibilities )[elmIdx] ) continue;
 
-                    int elmNodeCount = RigFemTypes::elmentNodeCount( part->elementType( elmIdx ) );
+                    int elmNodeCount = RigFemTypes::elementNodeCount( part->elementType( elmIdx ) );
                     for ( int elmLocIdx = 0; elmLocIdx < elmNodeCount; ++elmLocIdx )
                     {
                         size_t elmNodeResIdx      = part->elementNodeResultIdx( elmIdx, elmLocIdx );
@@ -119,7 +119,7 @@ private:
                 {
                     if ( !( *m_cellVisibilities )[elmIdx] ) continue;
 
-                    int elmNodeCount = RigFemTypes::elmentNodeCount( part->elementType( elmIdx ) );
+                    int elmNodeCount = RigFemTypes::elementNodeCount( part->elementType( elmIdx ) );
                     for ( int elmLocIdx = 0; elmLocIdx < elmNodeCount; ++elmLocIdx )
                     {
                         size_t elmNodeResIdx = part->elementNodeResultIdx( elmIdx, elmLocIdx );

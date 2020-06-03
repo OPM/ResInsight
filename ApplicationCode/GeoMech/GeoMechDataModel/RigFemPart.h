@@ -100,7 +100,7 @@ public:
 
     void ensureIntersectionSearchTreeIsBuilt() const;
 
-    cvf::Vec3f faceNormal( int elmentIndex, int faceIndex ) const;
+    cvf::Vec3f faceNormal( int elementIndex, int faceIndex ) const;
 
     const RigFemPartGrid*   getOrCreateStructGrid() const;
     const std::vector<int>& elementIdxToId() const { return m_elementId; }

@@ -51,18 +51,18 @@ void RifEclipseSummaryTools::findSummaryFiles( const QString& inputFile, QString
 
     char* myPath      = nullptr;
     char* myBase      = nullptr;
-    char* myExtention = nullptr;
+    char* myExtension = nullptr;
 
-    util_alloc_file_components( RiaStringEncodingTools::toNativeEncoded( inputFile ).data(), &myPath, &myBase, &myExtention );
+    util_alloc_file_components( RiaStringEncodingTools::toNativeEncoded( inputFile ).data(), &myPath, &myBase, &myExtension );
 
     QString path;
     if ( myPath ) path = RiaStringEncodingTools::fromNativeEncoded( myPath );
     QString base;
     if ( myBase ) base = RiaStringEncodingTools::fromNativeEncoded( myBase );
-    std::string extention;
-    if ( myExtention ) extention = myExtention;
+    std::string extension;
+    if ( myExtension ) extension = myExtension;
 
-    free( myExtention );
+    free( myExtension );
     free( myBase );
     free( myPath );
 
@@ -73,7 +73,7 @@ void RifEclipseSummaryTools::findSummaryFiles( const QString& inputFile, QString
 
     ecl_util_alloc_summary_files( RiaStringEncodingTools::toNativeEncoded( path ).data(),
                                   RiaStringEncodingTools::toNativeEncoded( base ).data(),
-                                  extention.data(),
+                                  extension.data(),
                                   &myHeaderFile,
                                   summary_file_list );
     if ( myHeaderFile )

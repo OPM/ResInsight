@@ -60,5 +60,5 @@ private:
                                          double                                                   holeRadius,
                                          double                                                   startMeasuredDepth,
                                          double                                                   endMeasuredDepth,
-                                         const RimFishbonesMultipleSubs*                          fishbonesDefintions );
+                                         const RimFishbonesMultipleSubs*                          fishbonesDefinitions );
 };

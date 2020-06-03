@@ -70,7 +70,7 @@ public:
 
     cvf::Vec3d center() const;
     cvf::Vec3d faceCenter( cvf::StructGridInterface::FaceType face ) const;
-    cvf::Vec3d faceNormalWithAreaLenght( cvf::StructGridInterface::FaceType face ) const;
+    cvf::Vec3d faceNormalWithAreaLength( cvf::StructGridInterface::FaceType face ) const;
     double     volume() const;
 
     int  firstIntersectionPoint( const cvf::Ray& ray, cvf::Vec3d* intersectionPoint ) const;

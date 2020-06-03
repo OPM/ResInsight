@@ -127,7 +127,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( i
                     std::array<cvf::Vec3d, 8> hexCorners;
                     std::array<double, 8>     cornerValues;
 
-                    int elmNodeCount = RigFemTypes::elmentNodeCount( elmType );
+                    int elmNodeCount = RigFemTypes::elementNodeCount( elmType );
                     for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {
                         size_t elmNodResIdx   = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );

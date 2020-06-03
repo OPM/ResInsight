@@ -133,7 +133,7 @@ public:
                 {
                     server->showErrorMessage(
                         RiaSocketServer::tr( "ResInsight SocketServer: riGetActiveCellProperty : \n" ) +
-                        RiaSocketServer::tr( "An error occured while interpreting the requested timesteps." ) );
+                        RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
                 }
             }
 
@@ -313,7 +313,7 @@ public:
             {
                 server->showErrorMessage(
                     RiaSocketServer::tr( "ResInsight SocketServer: riGetGridProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occured while interpreting the requested timesteps." ) );
+                    RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
             }
         }
 
@@ -505,7 +505,7 @@ public:
             {
                 server->showErrorMessage(
                     RiaSocketServer::tr( "ResInsight SocketServer: riGetActiveCellProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occured while interpreting the requested timesteps." ) );
+                    RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
             }
         }
 
@@ -580,7 +580,7 @@ public:
             return true;
         }
 
-        // Make sure the size of the retreiving container is correct.
+        // Make sure the size of the retrieving container is correct.
         // If it is, this is noops
         {
             size_t maxRequestedTimeStepIdx = cvf::UNDEFINED_SIZE_T;
@@ -903,7 +903,7 @@ public:
             {
                 server->showErrorMessage(
                     RiaSocketServer::tr( "ResInsight SocketServer: riGetActiveCellProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occured while interpreting the requested timesteps." ) );
+                    RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
                 return true;
             }
         }

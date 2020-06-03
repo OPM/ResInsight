@@ -88,7 +88,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorFormationIndices::calculate(
         for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
         {
             RigElementType elmType      = femPart->elementType( elmIdx );
-            int            elmNodeCount = RigFemTypes::elmentNodeCount( elmType );
+            int            elmNodeCount = RigFemTypes::elementNodeCount( elmType );
 
             size_t i, j, k;
             bool   validIndex = structGrid->ijkFromCellIndex( elmIdx, &i, &j, &k );

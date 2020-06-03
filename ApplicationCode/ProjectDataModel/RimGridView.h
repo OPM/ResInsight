@@ -73,7 +73,7 @@ public:
 
 protected:
     virtual void       updateViewFollowingRangeFilterUpdates();
-    void               onClearReservoirCellVisibilitiesIfNeccessary() override;
+    void               onClearReservoirCellVisibilitiesIfNecessary() override;
     virtual void       calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) = 0;
     void               selectOverlayInfoConfig() override;
     RimGridCollection* gridCollection() const;

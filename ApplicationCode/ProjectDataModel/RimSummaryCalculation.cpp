@@ -348,12 +348,12 @@ bool RimSummaryCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 /// Find the last assignment using := and interpret the text before the := as LHS
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCalculation::findLeftHandSide( const QString& expresion )
+QString RimSummaryCalculation::findLeftHandSide( const QString& expression )
 {
-    int index = expresion.lastIndexOf( ":=" );
+    int index = expression.lastIndexOf( ":=" );
     if ( index > 0 )
     {
-        QString s = expresion.left( index ).simplified();
+        QString s = expression.left( index ).simplified();
 
         QStringList words = s.split( " " );
 
