@@ -58,8 +58,29 @@ const QString RiaStatisticsTools::replacePercentileByPValueText( const QString& 
 double RiaStatisticsTools::pearsonCorrelation( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
 #ifdef USE_GSL
+    return pearsonCorrelationGSL( xValues, yValues );
+#else
+    return pearsonCorrelationOwn( xValues, yValues );
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaStatisticsTools::pearsonCorrelationGSL( const std::vector<double>& xValues, const std::vector<double>& yValues )
+{
+#ifdef USE_GSL
     return gsl_stats_correlation( xValues.data(), 1, yValues.data(), 1, xValues.size() );
 #else
+    return std::numeric_limits<double>::infinity();
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaStatisticsTools::pearsonCorrelationOwn( const std::vector<double>& xValues, const std::vector<double>& yValues )
+{
     const double eps = 1.0e-8;
     if ( xValues.size() != yValues.size() ) return 0.0;
     if ( xValues.empty() ) return 0.0;
@@ -90,7 +111,6 @@ double RiaStatisticsTools::pearsonCorrelation( const std::vector<double>& xValue
     if ( sumxDiffSquared < eps || sumyDiffSquared < eps ) return 0.0;
 
     return sumNumerator / ( std::sqrt( sumxDiffSquared ) * std::sqrt( sumyDiffSquared ) );
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
