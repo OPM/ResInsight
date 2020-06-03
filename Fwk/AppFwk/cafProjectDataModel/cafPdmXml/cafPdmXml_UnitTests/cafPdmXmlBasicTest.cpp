@@ -327,7 +327,7 @@ TEST(BaseTest, ChildArrayFieldSerializing)
 
     {
         InheritedDemoObj* ihd1 = new InheritedDemoObj;
-        ASSERT_EQ(0, ihd1->m_childArrayField.size());
+        ASSERT_EQ(0u, ihd1->m_childArrayField.size());
 
         QXmlStreamReader xmlStream(serializedString);
 
@@ -385,7 +385,7 @@ TEST(BaseTest, FilePathSerializing)
 
         ihd1->readObjectFromXmlString(serializedString, caf::PdmDefaultObjectFactory::instance());
 
-        EXPECT_EQ(2, ihd1->m_multipleFilePath.v().size());
+        EXPECT_EQ(2u, ihd1->m_multipleFilePath.v().size());
         EXPECT_EQ(newVal.toStdString(), ihd1->m_singleFilePath().path().toStdString());
     
         delete ihd1;
