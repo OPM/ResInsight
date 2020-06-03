@@ -1434,7 +1434,6 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
         bool existingViewsWithDifferentMeshLines = false;
         bool existingViewsWithCustomColors       = false;
         bool existingViewsWithCustomZScale       = false;
-        bool existingObjectsWithCustomFonts      = false;
         if ( oldPreferences )
         {
             for ( auto viewWindow : allViewWindows )
@@ -1481,14 +1480,12 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
         }
 
         bool applySettingsToAllViews = false;
-        if ( existingViewsWithCustomColors || existingViewsWithCustomZScale || existingViewsWithDifferentMeshLines ||
-             existingObjectsWithCustomFonts )
+        if ( existingViewsWithCustomColors || existingViewsWithCustomZScale || existingViewsWithDifferentMeshLines )
         {
             QStringList changedData;
             if ( existingViewsWithDifferentMeshLines ) changedData << "Mesh Visibility";
             if ( existingViewsWithCustomColors ) changedData << "Colors";
             if ( existingViewsWithCustomZScale ) changedData << "Z-Scale";
-            if ( existingObjectsWithCustomFonts ) changedData << "Fonts Sizes";
 
             QString listString = changedData.takeLast();
             if ( !changedData.empty() )
