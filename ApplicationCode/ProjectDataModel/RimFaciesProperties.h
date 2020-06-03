@@ -48,6 +48,8 @@ public:
     bool                       hasPropertiesForFacies( FaciesKey& key ) const;
     const RigFaciesProperties& propertiesForFacies( FaciesKey& key ) const;
 
+    void loadDataAndUpdate();
+
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,

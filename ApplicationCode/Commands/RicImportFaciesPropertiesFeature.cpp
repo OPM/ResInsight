@@ -19,14 +19,9 @@
 #include "RicImportFaciesPropertiesFeature.h"
 
 #include "RiaApplication.h"
-#include "RiaLogging.h"
 
-#include "RifFaciesPropertiesReader.h"
-#include "RifFileParseTools.h"
+#include "RicFaciesPropertiesImportTools.h"
 
-#include "RigFaciesProperties.h"
-
-#include "RimFaciesProperties.h"
 #include "RimFractureModel.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -35,9 +30,6 @@
 
 #include <QAction>
 #include <QFileDialog>
-
-#include <set>
-#include <vector>
 
 CAF_CMD_SOURCE_INIT( RicImportFaciesPropertiesFeature, "RicImportFaciesPropertiesFeature" );
 
@@ -70,71 +62,7 @@ void RicImportFaciesPropertiesFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "FACIES_DIR", QFileInfo( filePath ).absolutePath() );
 
-    typedef std::tuple<QString, QString, QString> FaciesKey;
-
-    // Read the facies properties from file
-    std::vector<RifFaciesProperties> rifFaciesProperties;
-    try
-    {
-        QStringList filePaths;
-        filePaths << filePath;
-        RifFaciesPropertiesReader::readFaciesProperties( rifFaciesProperties, filePaths );
-    }
-    catch ( FileParseException& exception )
-    {
-        RiaLogging::warning( QString( "Facies properties import failed: '%1'." ).arg( exception.message ) );
-        return;
-    }
-
-    // Find the unique facies keys (combination of field, formation and facies names)
-    std::set<FaciesKey> faciesKeys;
-    for ( RifFaciesProperties item : rifFaciesProperties )
-    {
-        FaciesKey faciesKey = std::make_tuple( item.fieldName, item.formationName, item.faciesName );
-        faciesKeys.insert( faciesKey );
-    }
-
-    RimFaciesProperties* rimFaciesProperties = new RimFaciesProperties;
-    //    rimFaciesProperties->setFilePath();
-    for ( FaciesKey key : faciesKeys )
-    {
-        std::vector<RifFaciesProperties> matchingFacies;
-
-        QString fieldName     = std::get<0>( key );
-        QString formationName = std::get<1>( key );
-        QString faciesName    = std::get<2>( key );
-
-        // Group the items with a given facies key
-        for ( RifFaciesProperties item : rifFaciesProperties )
-        {
-            if ( item.fieldName == fieldName && item.formationName == formationName && item.faciesName == faciesName )
-            {
-                matchingFacies.push_back( item );
-            }
-        }
-
-        // Sort the matching items by porosity
-        std::sort( matchingFacies.begin(),
-                   matchingFacies.end(),
-                   []( const RifFaciesProperties& a, const RifFaciesProperties& b ) { return a.porosity < b.porosity; } );
-
-        // Finally add the values
-        RigFaciesProperties rigFaciesProperties( fieldName, formationName, faciesName );
-        for ( RifFaciesProperties item : matchingFacies )
-        {
-            rigFaciesProperties.appendValues( item.porosity,
-                                              item.youngsModulus,
-                                              item.poissonsRatio,
-                                              item.K_Ic,
-                                              item.proppantEmbedment );
-        }
-
-        rimFaciesProperties->setPropertiesForFacies( key, rigFaciesProperties );
-    }
-
-    rimFaciesProperties->setFilePath( filePath );
-    fractureModel->setFaciesProperties( rimFaciesProperties );
-    fractureModel->updateConnectedEditors();
+    RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( filePath, fractureModel );
 }
 
 //--------------------------------------------------------------------------------------------------

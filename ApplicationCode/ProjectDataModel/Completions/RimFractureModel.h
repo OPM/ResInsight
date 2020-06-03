@@ -71,6 +71,8 @@ public:
 
     RimWellPath* wellPath() const;
 
+    void loadDataAndUpdate();
+
     RimModeledWellPath*  thicknessDirectionWellPath() const;
     void                 setThicknessDirectionWellPath( RimModeledWellPath* thicknessDirectionWellPath );
     void                 setFaciesProperties( RimFaciesProperties* faciesProperties );

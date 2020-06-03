@@ -472,3 +472,14 @@ void RimFractureModel::setFaciesProperties( RimFaciesProperties* faciesPropertie
 {
     m_faciesProperties = faciesProperties;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModel::loadDataAndUpdate()
+{
+    if ( m_faciesProperties )
+    {
+        m_faciesProperties->loadDataAndUpdate();
+    }
+}

@@ -52,6 +52,8 @@
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFractureModel.h"
+#include "RimFractureModelCollection.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
@@ -93,6 +95,7 @@
 #include "RimWellPathFracture.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
+#include "RimWellPath.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
@@ -514,6 +517,17 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
         {
             oilField->wellPathCollection->loadDataAndUpdate();
             oilField->wellPathCollection->readWellPathFormationFiles();
+            for ( RimWellPath* wellPath : oilField->wellPathCollection->wellPaths() )
+            {
+                RimFractureModelCollection* fractureModelCollection = wellPath->fractureModelCollection();
+                if ( fractureModelCollection )
+                {
+                    for ( RimFractureModel* fractureModel : fractureModelCollection->allFractureModels() )
+                    {
+                        fractureModel->loadDataAndUpdate();
+                    }
+                }
+            }
         }
     }
 
