@@ -19,9 +19,11 @@
 #include "RifSurfaceReader.h"
 #include "RigGocadData.h"
 
+#include "cvfAssert.h"
 #include "cvfVector3.h"
 
 #include "QStringList"
+
 #include <fstream>
 #include <limits>
 #include <map>
@@ -37,6 +39,8 @@
 //--------------------------------------------------------------------------------------------------
 void RifSurfaceReader::readGocadFile( const QString& filename, RigGocadData* gocadData )
 {
+    CVF_ASSERT( gocadData );
+
     enum class GocadZPositive
     {
         Elevation,
@@ -50,7 +54,6 @@ void RifSurfaceReader::readGocadFile( const QString& filename, RigGocadData* goc
 
     std::vector<QString>            propertyNames;
     std::vector<std::vector<float>> propertyValues;
-    size_t                          propertyRow = 0;
 
     {
         std::ifstream stream( filename.toLatin1().data() );
@@ -110,13 +113,14 @@ void RifSurfaceReader::readGocadFile( const QString& filename, RigGocadData* goc
                         vertexIdToIndex[vertexId] = static_cast<unsigned>( vertices.size() - 1 );
                     }
 
-                    propertyValues.push_back( std::vector<float>( propertyNames.size() ) );
-
                     for ( size_t i = 0; i < propertyNames.size(); i++ )
                     {
-                        lineStream >> propertyValues[propertyRow][i];
+                        float value = std::numeric_limits<double>::infinity();
+
+                        lineStream >> value;
+
+                        propertyValues[i].push_back( value );
                     }
-                    propertyRow++;
                 }
                 else if ( firstToken.compare( "TRGL" ) == 0 )
                 {
@@ -154,6 +158,8 @@ void RifSurfaceReader::readGocadFile( const QString& filename, RigGocadData* goc
                 {
                     propertyNames.push_back( w );
                 }
+
+                propertyValues.resize( propertyNames.size() );
             }
             else if ( firstToken.compare( "ZPOSITIVE" ) == 0 )
             {
@@ -184,8 +190,11 @@ void RifSurfaceReader::readGocadFile( const QString& filename, RigGocadData* goc
         }
     }
 
-    gocadData->setGeometryData( vertices, triangleIndices );
-    gocadData->addPropertyData( propertyNames, propertyValues );
+    if ( gocadData )
+    {
+        gocadData->setGeometryData( vertices, triangleIndices );
+        gocadData->addPropertyData( propertyNames, propertyValues );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
