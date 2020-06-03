@@ -91,6 +91,40 @@ TEST( RifSurfaceReader, GocadReadProperties )
     EXPECT_NEAR( 0.010476, SY_last, 1e-4 );
 }
 
+TEST( RifSurfaceReader, GocadReadNoProperty )
+{
+    QDir baseFolder( TEST_DATA_DIR );
+
+    QString filename( "RifSurfaceReader/tsurf_eks.ts" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    EXPECT_TRUE( QFile::exists( filePath ) );
+
+    RigGocadData gocadData;
+    RifSurfaceReader::readGocadFile( filePath, &gocadData );
+
+    std::vector<QString> propNames  = gocadData.propertyNames();
+    std::vector<float>   propValues = gocadData.propertyValues( "" );
+
+    EXPECT_TRUE( propNames.size() == 0 );
+    EXPECT_TRUE( propValues.size() == 0 );
+}
+
+TEST( RifSurfaceReader, GocadReadNonExistingProperty )
+{
+    QDir baseFolder( TEST_DATA_DIR );
+
+    QString filename( "RifSurfaceReader/geom_with_properties.ts" );
+    QString filePath = baseFolder.absoluteFilePath( filename );
+    EXPECT_TRUE( QFile::exists( filePath ) );
+
+    RigGocadData gocadData;
+    RifSurfaceReader::readGocadFile( filePath, &gocadData );
+
+    std::vector<float> propValues = gocadData.propertyValues( "NonExistingProperty" );
+
+    EXPECT_TRUE( propValues.size() == 0 );
+}
+
 TEST( RifSurfaceReader, ReadWrongFileType )
 {
     QDir baseFolder( TEST_DATA_DIR );

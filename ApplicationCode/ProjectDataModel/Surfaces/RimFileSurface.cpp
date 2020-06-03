@@ -38,6 +38,8 @@ RimFileSurface::RimFileSurface()
     CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceDefinitionFilePath, "SurfaceFilePath", "File", "", "", "" );
+
+    m_gocadData.reset( new RigGocadData );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,10 +149,9 @@ bool RimFileSurface::loadDataFromFile()
     }
     else if ( filePath.endsWith( "ts", Qt::CaseInsensitive ) )
     {
-        RigGocadData gocadData;
-        RifSurfaceReader::readGocadFile( filePath, &gocadData );
+        RifSurfaceReader::readGocadFile( filePath, m_gocadData.get() );
 
-        surface = gocadData.gocadGeometry();
+        surface = m_gocadData->gocadGeometry();
     }
 
     m_vertices       = surface.first;

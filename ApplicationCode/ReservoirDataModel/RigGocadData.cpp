@@ -53,23 +53,15 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RigGocadData::gocadGeo
 //--------------------------------------------------------------------------------------------------
 std::vector<float> RigGocadData::propertyValues( const QString& property )
 {
-    size_t propertyIdx = 0;
-
-    for ( propertyIdx = 0; propertyIdx < m_propertyNames.size(); propertyIdx++ )
+    for ( size_t propertyIdx = 0; propertyIdx < m_propertyNames.size(); propertyIdx++ )
     {
-        if ( m_propertyNames[propertyIdx] == property ) break;
+        if ( m_propertyNames[propertyIdx] == property )
+        {
+            return m_propertyValues[propertyIdx];
+        }
     }
 
-    std::vector<float> propValues;
-
-    propValues.reserve( m_propertyValues.size() );
-
-    for ( size_t i = 0; i < m_propertyValues.size(); i++ )
-    {
-        propValues.push_back( m_propertyValues[i][propertyIdx] );
-    }
-
-    return propValues;
+    return std::vector<float>(); // return empty vector in case property was not found
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,6 +20,10 @@
 
 #include "RimSurface.h"
 
+#include <memory>
+
+class RigGocadData;
+
 class RimFileSurface : public RimSurface
 {
     CAF_PDM_HEADER_INIT;
@@ -45,4 +49,6 @@ private:
 
     std::vector<unsigned>   m_tringleIndices;
     std::vector<cvf::Vec3d> m_vertices;
+
+    std::unique_ptr<RigGocadData> m_gocadData;
 };
