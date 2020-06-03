@@ -44,7 +44,8 @@
 
 #include <cmath>
 
-using namespace caf;
+namespace caf
+{
 
 template <>
 void FontTools::FontSizeEnum::setUp()
@@ -73,6 +74,9 @@ void FontTools::RelativeSizeEnum::setUp()
 
     setDefault(FontTools::RelativeSize::Medium);
 }
+}
+
+using namespace caf;
 
 //--------------------------------------------------------------------------------------------------
 ///
