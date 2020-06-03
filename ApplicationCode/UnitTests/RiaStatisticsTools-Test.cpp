@@ -104,8 +104,6 @@ TEST( RiaStatisticsTools, ComparisonGSLAndOwn )
     }
     double correlationGSL = RiaStatisticsTools::pearsonCorrelationGSL( a, b );
     double correlationOwn = RiaStatisticsTools::pearsonCorrelationOwn( a, b );
-    qDebug() << "GSL Correlation: " << correlationGSL << ", "
-             << "Own Correlation: " << correlationOwn;
     EXPECT_NEAR( correlationGSL, correlationOwn, 1.0e-3 );
 }
 #endif
