@@ -106,22 +106,22 @@ TEST( DISABLED_HDFTests, BasicFileRead )
 
     } // end of try block
 
-    catch ( H5::FileIException error ) // catch failure caused by the H5File operations
+    catch ( H5::FileIException& error ) // catch failure caused by the H5File operations
     {
         std::cout << error.getCDetailMsg();
     }
 
-    catch ( H5::DataSetIException error ) // catch failure caused by the DataSet operations
+    catch ( H5::DataSetIException& error ) // catch failure caused by the DataSet operations
     {
         std::cout << error.getCDetailMsg();
     }
 
-    catch ( H5::DataSpaceIException error ) // catch failure caused by the DataSpace operations
+    catch ( H5::DataSpaceIException& error ) // catch failure caused by the DataSpace operations
     {
         std::cout << error.getCDetailMsg();
     }
 
-    catch ( H5::DataTypeIException error ) // catch failure caused by the DataSpace operations
+    catch ( H5::DataTypeIException& error ) // catch failure caused by the DataSpace operations
     {
         std::cout << error.getCDetailMsg();
     }
