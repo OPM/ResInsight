@@ -28,6 +28,7 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     : m_selectMultipleVectors( false )
 {
     CAF_PDM_InitObject( "Abstract Correlation Plot", ":/CorrelationPlot16x16.png", "", "" );
+    this->setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "SelectedVariableDisplayVar", "Vector", "", "", "" );
     m_selectedVarsUiField.xmlCapability()->disableIO();

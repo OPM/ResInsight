@@ -48,6 +48,7 @@ CAF_PDM_SOURCE_INIT( RimCorrelationReportPlot, "CorrelationReportPlot" );
 RimCorrelationReportPlot::RimCorrelationReportPlot()
 {
     CAF_PDM_InitObject( "Correlation Report Plot", ":/CorrelationPlot16x16.png", "", "" );
+    this->setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_plotWindowTitle, "PlotWindowTitle", "Title", "", "", "" );
     m_plotWindowTitle.registerGetMethod( this, &RimCorrelationReportPlot::createPlotWindowTitle );
@@ -402,8 +403,4 @@ void RimCorrelationReportPlot::onDataSelection( const EnsembleParameter& param, 
     m_parameterResultCrossPlot->setCurveDefinitions( {curveDef} );
     m_parameterResultCrossPlot->setEnsembleParameter( param.name );
     m_parameterResultCrossPlot->loadDataAndUpdate();
-    if ( m_viewer )
-    {
-        m_viewer->scheduleUpdate();
-    }
 }
