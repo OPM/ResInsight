@@ -414,12 +414,12 @@ TEST(BaseTest, PdmChildArrayFieldHandle)
     InheritedDemoObj*              ihd1      = new InheritedDemoObj;
     caf::PdmChildArrayFieldHandle* listField = &(ihd1->m_childArrayField);
 
-    EXPECT_EQ(0, listField->size());
+    EXPECT_EQ(0u, listField->size());
     EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
     EXPECT_TRUE(listField->empty());
 
     listField->insertAt(0, s0);
-    EXPECT_EQ(1, listField->size());
+    EXPECT_EQ(1u, listField->size());
     EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
     EXPECT_FALSE(listField->empty());
 
@@ -427,17 +427,17 @@ TEST(BaseTest, PdmChildArrayFieldHandle)
     ihd1->m_childArrayField.push_back(s2);
     ihd1->m_childArrayField.push_back(s3);
 
-    EXPECT_EQ(4, listField->size());
+    EXPECT_EQ(4u, listField->size());
     EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
     EXPECT_FALSE(listField->empty());
 
     listField->erase(0);
-    EXPECT_EQ(3, listField->size());
+    EXPECT_EQ(3u, listField->size());
     EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
     EXPECT_FALSE(listField->empty());
 
     listField->deleteAllChildObjects();
-    EXPECT_EQ(0, listField->size());
+    EXPECT_EQ(0u, listField->size());
     EXPECT_TRUE(listField->hasSameFieldCountForAllObjects());
     EXPECT_TRUE(listField->empty());
 }
@@ -535,7 +535,7 @@ TEST(BaseTest, PdmPtrField)
     {
         std::vector<caf::PdmObjectHandle*> objects;
         ihd1->m_ptrField.ptrReferencedObjects(&objects);
-        EXPECT_EQ(1, objects.size());
+        EXPECT_EQ(1u, objects.size());
         EXPECT_EQ(ihd2, objects[0]);
     }
 
@@ -547,21 +547,21 @@ TEST(BaseTest, PdmPtrField)
     {
         std::vector<caf::PdmFieldHandle*> ptrFields;
         ihd2->referringPtrFields(ptrFields);
-        EXPECT_EQ(1, ptrFields.size());
+        EXPECT_EQ(1u, ptrFields.size());
         EXPECT_EQ(&(ihd1->m_ptrField), ptrFields[0]);
     }
 
     {
         std::vector<caf::PdmObjectHandle*> objects;
         ihd2->objectsWithReferringPtrFields(objects);
-        EXPECT_EQ(1, objects.size());
+        EXPECT_EQ(1u, objects.size());
         EXPECT_EQ(ihd1, objects[0]);
     }
 
     {
         std::vector<InheritedDemoObj*> reffingDemoObjects;
         ihd2->objectsWithReferringPtrFieldsOfType(reffingDemoObjects);
-        EXPECT_EQ(1, reffingDemoObjects.size());
+        EXPECT_EQ(1u, reffingDemoObjects.size());
     }
 
     delete ihd1;

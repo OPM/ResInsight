@@ -19,7 +19,6 @@ public:
     QString path() const;
     void    setPath(const QString& valueText);
 
-    void operator=(const FilePath& other);
     bool operator==(const FilePath& other) const;
 
 private:

@@ -22,6 +22,7 @@ find_package( OpenGL )
 
 option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
 option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE "Bundle the gRPC python modules into the install folder" OFF)
+option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors (stops build)" OFF)
 
 find_package(Qt5 COMPONENTS Core QUIET)
 
@@ -393,7 +394,7 @@ endif()
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch")
     # Treat warnings as errors on new gcc versions
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.2)
+    if (RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
           set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch -Werror")
     endif()
 endif()

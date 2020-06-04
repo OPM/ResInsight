@@ -1376,7 +1376,7 @@ int RiaApplication::launchUnitTests()
     QString filterText = RiaPreferences::current()->gtestFilter();
     if ( !filterText.isEmpty() )
     {
-        ::testing::GTEST_FLAG( filter ) = filterText.toLatin1();
+        ::testing::GTEST_FLAG( filter ) = filterText.toStdString();
 
         // Example on filter syntax
         //::testing::GTEST_FLAG( filter ) = "*RifCaseRealizationParametersReaderTest*";
