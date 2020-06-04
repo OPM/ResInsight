@@ -54,10 +54,11 @@ namespace caf
 class FontTools
 {
 public:
+    static const int MIN_FONT_SIZE;
+
     enum class FontSize
     {
         INVALID = -1,
-        MIN_FONT_SIZE = 8,
         FONT_SIZE_8 = 8,
         FONT_SIZE_10 = 10,
         FONT_SIZE_12 = 12,

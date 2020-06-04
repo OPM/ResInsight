@@ -47,6 +47,8 @@
 namespace caf
 {
 
+const int FontTools::MIN_FONT_SIZE = 6;
+
 template <>
 void FontTools::FontSizeEnum::setUp()
 {
@@ -132,8 +134,11 @@ QList<PdmOptionItemInfo> FontTools::relativeSizeValueOptions(FontSize normalPoin
         QString uiText        = RelativeSizeEnum::uiTextFromIndex(i);
         RelativeSize relSize  = RelativeSizeEnum::fromIndex(i);
         int absolutePointSize = FontTools::absolutePointSize(normalPointSize, relSize);
-        uiText += QString(" (%1 pt)").arg(absolutePointSize);
-        options.push_back(PdmOptionItemInfo(uiText, relSize));
+        if (absolutePointSize >= MIN_FONT_SIZE)
+        {
+            uiText += QString(" (%1 pt)").arg(absolutePointSize);
+            options.push_back(PdmOptionItemInfo(uiText, relSize));
+        }
     }
     return options;    
 }
