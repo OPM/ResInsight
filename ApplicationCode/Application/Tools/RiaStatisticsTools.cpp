@@ -22,7 +22,9 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#ifdef USE_GSL
 #include "gsl/statistics/gsl_statistics_double.h"
+#endif
 
 #include <QString>
 
