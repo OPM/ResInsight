@@ -38,8 +38,6 @@ RimFileSurface::RimFileSurface()
     CAF_PDM_InitObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceDefinitionFilePath, "SurfaceFilePath", "File", "", "", "" );
-
-    m_gocadData.reset( new RigGocadData );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,7 +93,7 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         RimSurfaceCollection* surfColl;
         this->firstAncestorOrThisOfTypeAsserted( surfColl );
-        surfColl->updateViews( { this } );
+        surfColl->updateViews( {this} );
     }
 }
 
@@ -110,8 +108,8 @@ bool RimFileSurface::updateSurfaceDataFromFile()
         result = loadDataFromFile();
     }
 
-    std::vector<cvf::Vec3d> vertices{ m_vertices };
-    std::vector<unsigned>   tringleIndices{ m_tringleIndices };
+    std::vector<cvf::Vec3d> vertices{m_vertices};
+    std::vector<unsigned>   tringleIndices{m_tringleIndices};
 
     auto surface = new RigSurface;
     if ( !vertices.empty() && !tringleIndices.empty() )
@@ -149,6 +147,8 @@ bool RimFileSurface::loadDataFromFile()
     }
     else if ( filePath.endsWith( "ts", Qt::CaseInsensitive ) )
     {
+        m_gocadData.reset( new RigGocadData );
+
         RifSurfaceReader::readGocadFile( filePath, m_gocadData.get() );
 
         surface = m_gocadData->gocadGeometry();
