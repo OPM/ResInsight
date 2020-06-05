@@ -35,7 +35,7 @@ class RimColorLegend;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimFaciesPropertiesCurve : public RimWellLogExtractionCurve
+class RimElasticPropertiesCurve : public RimWellLogExtractionCurve
 {
     CAF_PDM_HEADER_INIT;
 
@@ -48,8 +48,8 @@ public:
         PROPPANT_EMBEDMENT
     };
 
-    RimFaciesPropertiesCurve();
-    ~RimFaciesPropertiesCurve() override;
+    RimElasticPropertiesCurve();
+    ~RimElasticPropertiesCurve() override;
 
     void setFractureModel( RimFractureModel* fractureModel );
 

@@ -16,37 +16,36 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicFaciesPropertiesImportTools.h"
+#include "RicElasticPropertiesImportTools.h"
 
 #include "RiaLogging.h"
 
+#include "RimElasticProperties.h"
 #include "RimFractureModel.h"
-#include "RimFaciesProperties.h"
 
-#include "RifFaciesPropertiesReader.h"
+#include "RifElasticPropertiesReader.h"
 #include "RifFileParseTools.h"
 
-#include "RigFaciesProperties.h"
+#include "RigElasticProperties.h"
 
 #include <set>
 #include <vector>
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QString&    filePath,
-                                                                     RimFractureModel* fractureModel )
+void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QString&    filePath,
+                                                                       RimFractureModel* fractureModel )
 {
     typedef std::tuple<QString, QString, QString> FaciesKey;
 
     // Read the facies properties from file
-    std::vector<RifFaciesProperties> rifFaciesProperties;
+    std::vector<RifElasticProperties> rifElasticProperties;
     try
     {
         QStringList filePaths;
         filePaths << filePath;
-        RifFaciesPropertiesReader::readFaciesProperties( rifFaciesProperties, filePaths );
+        RifElasticPropertiesReader::readElasticProperties( rifElasticProperties, filePaths );
     }
     catch ( FileParseException& exception )
     {
@@ -54,27 +53,26 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
         return;
     }
 
-
     // Find the unique facies keys (combination of field, formation and facies names)
     std::set<FaciesKey> faciesKeys;
-    for ( RifFaciesProperties item : rifFaciesProperties )
+    for ( RifElasticProperties item : rifElasticProperties )
     {
         FaciesKey faciesKey = std::make_tuple( item.fieldName, item.formationName, item.faciesName );
         faciesKeys.insert( faciesKey );
     }
 
-    RimFaciesProperties* rimFaciesProperties = new RimFaciesProperties;
-    //    rimFaciesProperties->setFilePath();
+    RimElasticProperties* rimElasticProperties = new RimElasticProperties;
+    //    rimElasticProperties->setFilePath();
     for ( FaciesKey key : faciesKeys )
     {
-        std::vector<RifFaciesProperties> matchingFacies;
+        std::vector<RifElasticProperties> matchingFacies;
 
         QString fieldName     = std::get<0>( key );
         QString formationName = std::get<1>( key );
         QString faciesName    = std::get<2>( key );
 
         // Group the items with a given facies key
-        for ( RifFaciesProperties item : rifFaciesProperties )
+        for ( RifElasticProperties item : rifElasticProperties )
         {
             if ( item.fieldName == fieldName && item.formationName == formationName && item.faciesName == faciesName )
             {
@@ -85,23 +83,23 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
         // Sort the matching items by porosity
         std::sort( matchingFacies.begin(),
                    matchingFacies.end(),
-                   []( const RifFaciesProperties& a, const RifFaciesProperties& b ) { return a.porosity < b.porosity; } );
+                   []( const RifElasticProperties& a, const RifElasticProperties& b ) { return a.porosity < b.porosity; } );
 
         // Finally add the values
-        RigFaciesProperties rigFaciesProperties( fieldName, formationName, faciesName );
-        for ( RifFaciesProperties item : matchingFacies )
+        RigElasticProperties rigElasticProperties( fieldName, formationName, faciesName );
+        for ( RifElasticProperties item : matchingFacies )
         {
-            rigFaciesProperties.appendValues( item.porosity,
-                                              item.youngsModulus,
-                                              item.poissonsRatio,
-                                              item.K_Ic,
-                                              item.proppantEmbedment );
+            rigElasticProperties.appendValues( item.porosity,
+                                               item.youngsModulus,
+                                               item.poissonsRatio,
+                                               item.K_Ic,
+                                               item.proppantEmbedment );
         }
 
-        rimFaciesProperties->setPropertiesForFacies( key, rigFaciesProperties );
+        rimElasticProperties->setPropertiesForFacies( key, rigElasticProperties );
     }
 
-    rimFaciesProperties->setFilePath( filePath );
-    fractureModel->setFaciesProperties( rimFaciesProperties );
+    rimElasticProperties->setFilePath( filePath );
+    fractureModel->setElasticProperties( rimElasticProperties );
     fractureModel->updateConnectedEditors();
 }

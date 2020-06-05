@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifFaciesPropertiesReader.h"
+#include "RifElasticPropertiesReader.h"
 
 #include "RifFileParseTools.h"
 
@@ -26,19 +26,19 @@
 //==================================================================================================
 ///
 //==================================================================================================
-void RifFaciesPropertiesReader::readFaciesProperties( std::vector<RifFaciesProperties>& faciesProperties,
-                                                      const QStringList&                filePaths )
+void RifElasticPropertiesReader::readElasticProperties( std::vector<RifElasticProperties>& elasticProperties,
+                                                        const QStringList&                 filePaths )
 {
     for ( const QString& filePath : filePaths )
     {
         try
         {
-            readFaciesProperties( faciesProperties, filePath );
+            readElasticProperties( elasticProperties, filePath );
         }
         catch ( FileParseException& )
         {
             // Delete all facies properties and rethrow exception
-            faciesProperties.clear();
+            elasticProperties.clear();
             throw;
         }
     }
@@ -47,8 +47,8 @@ void RifFaciesPropertiesReader::readFaciesProperties( std::vector<RifFaciesPrope
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifFaciesPropertiesReader::readFaciesProperties( std::vector<RifFaciesProperties>& faciesProperties,
-                                                      const QString&                    filePath )
+void RifElasticPropertiesReader::readElasticProperties( std::vector<RifElasticProperties>& elasticProperties,
+                                                        const QString&                     filePath )
 {
     QFile file( filePath );
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
@@ -63,8 +63,8 @@ void RifFaciesPropertiesReader::readFaciesProperties( std::vector<RifFaciesPrope
         QString line = in.readLine();
         if ( !isEmptyLine( line ) && !isCommentLine( line ) )
         {
-            RifFaciesProperties faciesProp = parseFaciesProperties( line, lineNumber, filePath );
-            faciesProperties.push_back( faciesProp );
+            RifElasticProperties faciesProp = parseElasticProperties( line, lineNumber, filePath );
+            elasticProperties.push_back( faciesProp );
         }
 
         lineNumber++;
@@ -74,8 +74,8 @@ void RifFaciesPropertiesReader::readFaciesProperties( std::vector<RifFaciesPrope
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifFaciesProperties
-    RifFaciesPropertiesReader::parseFaciesProperties( const QString& line, int lineNumber, const QString& filePath )
+RifElasticProperties
+    RifElasticPropertiesReader::parseElasticProperties( const QString& line, int lineNumber, const QString& filePath )
 {
     QStringList tokens = tokenize( line, "," );
 
@@ -96,23 +96,23 @@ RifFaciesProperties
                          << "Proppant Embedment";
     verifyNonEmptyTokens( tokens, nameOfNonEmptyTokens, lineNumber, filePath );
 
-    RifFaciesProperties faciesProperties;
-    faciesProperties.fieldName         = tokens[0];
-    faciesProperties.formationName     = tokens[1];
-    faciesProperties.faciesName        = tokens[2];
-    faciesProperties.porosity          = parseDouble( tokens[3], "Porosity", lineNumber, filePath );
-    faciesProperties.youngsModulus     = parseDouble( tokens[4], "Young's Modulus", lineNumber, filePath );
-    faciesProperties.poissonsRatio     = parseDouble( tokens[5], "Poisson's Ratio", lineNumber, filePath );
-    faciesProperties.K_Ic              = parseDouble( tokens[6], "K-Ic", lineNumber, filePath );
-    faciesProperties.proppantEmbedment = parseDouble( tokens[7], "Proppant Embedment", lineNumber, filePath );
+    RifElasticProperties elasticProperties;
+    elasticProperties.fieldName         = tokens[0];
+    elasticProperties.formationName     = tokens[1];
+    elasticProperties.faciesName        = tokens[2];
+    elasticProperties.porosity          = parseDouble( tokens[3], "Porosity", lineNumber, filePath );
+    elasticProperties.youngsModulus     = parseDouble( tokens[4], "Young's Modulus", lineNumber, filePath );
+    elasticProperties.poissonsRatio     = parseDouble( tokens[5], "Poisson's Ratio", lineNumber, filePath );
+    elasticProperties.K_Ic              = parseDouble( tokens[6], "K-Ic", lineNumber, filePath );
+    elasticProperties.proppantEmbedment = parseDouble( tokens[7], "Proppant Embedment", lineNumber, filePath );
 
-    return faciesProperties;
+    return elasticProperties;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RifFaciesPropertiesReader::tokenize( const QString& line, const QString& separator )
+QStringList RifElasticPropertiesReader::tokenize( const QString& line, const QString& separator )
 {
     return RifFileParseTools::splitLineAndTrim( line, separator );
 }
@@ -120,10 +120,10 @@ QStringList RifFaciesPropertiesReader::tokenize( const QString& line, const QStr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RifFaciesPropertiesReader::parseDouble( const QString& token,
-                                               const QString& propertyName,
-                                               int            lineNumber,
-                                               const QString& filePath )
+double RifElasticPropertiesReader::parseDouble( const QString& token,
+                                                const QString& propertyName,
+                                                int            lineNumber,
+                                                const QString& filePath )
 {
     bool   isOk  = false;
     double value = token.toDouble( &isOk );
@@ -139,7 +139,7 @@ double RifFaciesPropertiesReader::parseDouble( const QString& token,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFaciesPropertiesReader::isEmptyLine( const QString& line )
+bool RifElasticPropertiesReader::isEmptyLine( const QString& line )
 {
     return line.trimmed().isEmpty();
 }
@@ -147,7 +147,7 @@ bool RifFaciesPropertiesReader::isEmptyLine( const QString& line )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifFaciesPropertiesReader::isCommentLine( const QString& line )
+bool RifElasticPropertiesReader::isCommentLine( const QString& line )
 {
     return line.trimmed().startsWith( "#" );
 }
@@ -155,10 +155,10 @@ bool RifFaciesPropertiesReader::isCommentLine( const QString& line )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifFaciesPropertiesReader::verifyNonEmptyTokens( const QStringList& tokens,
-                                                      const QStringList& nameOfNonEmptyTokens,
-                                                      int                lineNumber,
-                                                      const QString&     filePath )
+void RifElasticPropertiesReader::verifyNonEmptyTokens( const QStringList& tokens,
+                                                       const QStringList& nameOfNonEmptyTokens,
+                                                       int                lineNumber,
+                                                       const QString&     filePath )
 {
     for ( int i = 0; i < nameOfNonEmptyTokens.size(); ++i )
     {

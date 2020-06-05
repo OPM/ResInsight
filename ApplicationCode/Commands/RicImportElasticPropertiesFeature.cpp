@@ -16,11 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicImportFaciesPropertiesFeature.h"
+#include "RicImportElasticPropertiesFeature.h"
 
 #include "RiaApplication.h"
 
-#include "RicFaciesPropertiesImportTools.h"
+#include "RicElasticPropertiesImportTools.h"
 
 #include "RimFractureModel.h"
 
@@ -31,12 +31,12 @@
 #include <QAction>
 #include <QFileDialog>
 
-CAF_CMD_SOURCE_INIT( RicImportFaciesPropertiesFeature, "RicImportFaciesPropertiesFeature" );
+CAF_CMD_SOURCE_INIT( RicImportElasticPropertiesFeature, "RicImportElasticPropertiesFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportFaciesPropertiesFeature::isCommandEnabled()
+bool RicImportElasticPropertiesFeature::isCommandEnabled()
 {
     return true;
 }
@@ -44,7 +44,7 @@ bool RicImportFaciesPropertiesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportFaciesPropertiesFeature::onActionTriggered( bool isChecked )
+void RicImportElasticPropertiesFeature::onActionTriggered( bool isChecked )
 {
     RimFractureModel* fractureModel = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFractureModel>();
     if ( !fractureModel ) return;
@@ -53,24 +53,24 @@ void RicImportFaciesPropertiesFeature::onActionTriggered( bool isChecked )
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "FACIES_DIR" );
     QString         filePath   = QFileDialog::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(),
-                                                     "Import Facies Properties",
+                                                     "Import Elastic Properties",
                                                      defaultDir,
-                                                     "Facies Properties (*.csv);;All Files (*.*)" );
+                                                     "Elastic Properties (*.csv);;All Files (*.*)" );
 
     if ( filePath.isNull() ) return;
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "FACIES_DIR", QFileInfo( filePath ).absolutePath() );
 
-    RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( filePath, fractureModel );
+    RicElasticPropertiesImportTools::importElasticPropertiesFromFile( filePath, fractureModel );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportFaciesPropertiesFeature::setupActionLook( QAction* actionToSetup )
+void RicImportElasticPropertiesFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Import Facies Properties" );
+    actionToSetup->setText( "Import Elastic Properties" );
     // TODO: add icon?
-    // actionToSetup->setIcon( QIcon( ":/FaciesProperties16x16.png" ) );
+    // actionToSetup->setIcon( QIcon( ":/ElasticProperties16x16.png" ) );
 }

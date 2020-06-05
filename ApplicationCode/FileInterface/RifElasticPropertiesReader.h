@@ -22,7 +22,7 @@
 
 #include <QString>
 
-struct RifFaciesProperties
+struct RifElasticProperties
 {
     QString fieldName;
     QString formationName;
@@ -37,19 +37,19 @@ struct RifFaciesProperties
 //==================================================================================================
 ///
 //==================================================================================================
-class RifFaciesPropertiesReader
+class RifElasticPropertiesReader
 {
 public:
-    static void readFaciesProperties( std::vector<RifFaciesProperties>& faciesProperties, const QStringList& filePaths );
+    static void readElasticProperties( std::vector<RifElasticProperties>& elasticProperties, const QStringList& filePaths );
 
 private:
-    static void readFaciesProperties( std::vector<RifFaciesProperties>& faciesProperties, const QString& filePath );
-    static RifFaciesProperties parseFaciesProperties( const QString& line, int lineNumber, const QString& filePath );
-    static QStringList         tokenize( const QString& line, const QString& separator );
-    static void                verifyNonEmptyTokens( const QStringList& tokens,
-                                                     const QStringList& nameOfNonEmptyTokens,
-                                                     int                lineNumber,
-                                                     const QString&     filePath );
+    static void readElasticProperties( std::vector<RifElasticProperties>& elasticProperties, const QString& filePath );
+    static RifElasticProperties parseElasticProperties( const QString& line, int lineNumber, const QString& filePath );
+    static QStringList          tokenize( const QString& line, const QString& separator );
+    static void                 verifyNonEmptyTokens( const QStringList& tokens,
+                                                      const QStringList& nameOfNonEmptyTokens,
+                                                      int                lineNumber,
+                                                      const QString&     filePath );
 
     static double parseDouble( const QString& token, const QString& propertyName, int lineNumber, const QString& filePath );
 

@@ -16,11 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFaciesPropertiesCurve.h"
+#include "RimElasticPropertiesCurve.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
-#include "RigFaciesProperties.h"
+#include "RigElasticProperties.h"
 #include "RigResultAccessorFactory.h"
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
@@ -31,7 +31,7 @@
 #include "RimColorLegendItem.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimFaciesProperties.h"
+#include "RimElasticProperties.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelPlot.h"
 #include "RimModeledWellPath.h"
@@ -55,25 +55,25 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
-CAF_PDM_SOURCE_INIT( RimFaciesPropertiesCurve, "FaciesPropertiesCurve" );
+CAF_PDM_SOURCE_INIT( RimElasticPropertiesCurve, "ElasticPropertiesCurve" );
 
 namespace caf
 {
 template <>
-void AppEnum<RimFaciesPropertiesCurve::PropertyType>::setUp()
+void AppEnum<RimElasticPropertiesCurve::PropertyType>::setUp()
 {
-    addItem( RimFaciesPropertiesCurve::PropertyType::YOUNGS_MODULUS, "YOUNGS_MODULUS", "Young's Modulus" );
-    addItem( RimFaciesPropertiesCurve::PropertyType::POISSONS_RATIO, "POISSONS_RATIO", "Poisson's Ratio" );
-    addItem( RimFaciesPropertiesCurve::PropertyType::K_IC, "K_IC", "K-Ic" );
-    addItem( RimFaciesPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT, "PROPPANT_EMBEDMENT", "Proppant Embedment" );
-    setDefault( RimFaciesPropertiesCurve::PropertyType::YOUNGS_MODULUS );
+    addItem( RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS, "YOUNGS_MODULUS", "Young's Modulus" );
+    addItem( RimElasticPropertiesCurve::PropertyType::POISSONS_RATIO, "POISSONS_RATIO", "Poisson's Ratio" );
+    addItem( RimElasticPropertiesCurve::PropertyType::K_IC, "K_IC", "K-Ic" );
+    addItem( RimElasticPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT, "PROPPANT_EMBEDMENT", "Proppant Embedment" );
+    setDefault( RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS );
 }
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaciesPropertiesCurve::RimFaciesPropertiesCurve()
+RimElasticPropertiesCurve::RimElasticPropertiesCurve()
 {
     CAF_PDM_InitObject( "Fracture Model Curve", "", "", "" );
 
@@ -89,14 +89,14 @@ RimFaciesPropertiesCurve::RimFaciesPropertiesCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaciesPropertiesCurve::~RimFaciesPropertiesCurve()
+RimElasticPropertiesCurve::~RimElasticPropertiesCurve()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaciesPropertiesCurve::setFractureModel( RimFractureModel* fractureModel )
+void RimElasticPropertiesCurve::setFractureModel( RimFractureModel* fractureModel )
 {
     m_fractureModel = fractureModel;
     m_wellPath      = fractureModel->thicknessDirectionWellPath();
@@ -105,7 +105,7 @@ void RimFaciesPropertiesCurve::setFractureModel( RimFractureModel* fractureModel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaciesPropertiesCurve::setEclipseResultCategory( RiaDefines::ResultCatType catType )
+void RimElasticPropertiesCurve::setEclipseResultCategory( RiaDefines::ResultCatType catType )
 {
     m_eclipseResultDefinition->setResultType( catType );
 }
@@ -113,7 +113,7 @@ void RimFaciesPropertiesCurve::setEclipseResultCategory( RiaDefines::ResultCatTy
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaciesPropertiesCurve::setPropertyType( PropertyType propertyType )
+void RimElasticPropertiesCurve::setPropertyType( PropertyType propertyType )
 {
     m_propertyType = propertyType;
 }
@@ -121,7 +121,7 @@ void RimFaciesPropertiesCurve::setPropertyType( PropertyType propertyType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaciesPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength )
+void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength )
 {
     std::vector<double> values;
     std::vector<double> measuredDepthValues;
@@ -230,8 +230,8 @@ void RimFaciesPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength 
             return;
         }
 
-        RimFaciesProperties* faciesProperties = m_fractureModel->faciesProperties();
-        if ( !faciesProperties )
+        RimElasticProperties* elasticProperties = m_fractureModel->elasticProperties();
+        if ( !elasticProperties )
         {
             std::cerr << "No facies properties" << std::endl;
             return;
@@ -250,28 +250,28 @@ void RimFaciesPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength 
             //           << " formation: " << formationName.toStdString();
 
             FaciesKey faciesKey = std::make_tuple( fieldName, formationName, faciesName );
-            if ( faciesProperties->hasPropertiesForFacies( faciesKey ) )
+            if ( elasticProperties->hasPropertiesForFacies( faciesKey ) )
             {
-                const RigFaciesProperties& rigFaciesProperties = faciesProperties->propertiesForFacies( faciesKey );
+                const RigElasticProperties& rigElasticProperties = elasticProperties->propertiesForFacies( faciesKey );
 
                 if ( m_propertyType() == PropertyType::YOUNGS_MODULUS )
                 {
-                    double val = rigFaciesProperties.getYoungsModulus( porosity );
+                    double val = rigElasticProperties.getYoungsModulus( porosity );
                     values.push_back( val );
                 }
                 else if ( m_propertyType() == PropertyType::POISSONS_RATIO )
                 {
-                    double val = rigFaciesProperties.getPoissonsRatio( porosity );
+                    double val = rigElasticProperties.getPoissonsRatio( porosity );
                     values.push_back( val );
                 }
                 else if ( m_propertyType() == PropertyType::K_IC )
                 {
-                    double val = rigFaciesProperties.getK_Ic( porosity );
+                    double val = rigElasticProperties.getK_Ic( porosity );
                     values.push_back( val );
                 }
                 else if ( m_propertyType() == PropertyType::PROPPANT_EMBEDMENT )
                 {
-                    double val = rigFaciesProperties.getProppantEmbedment( porosity );
+                    double val = rigElasticProperties.getProppantEmbedment( porosity );
                     values.push_back( val );
                 }
             }
@@ -317,7 +317,7 @@ void RimFaciesPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength 
     }
 }
 
-QString RimFaciesPropertiesCurve::findFaciesName( const RimColorLegend& colorLegend, double value )
+QString RimElasticPropertiesCurve::findFaciesName( const RimColorLegend& colorLegend, double value )
 {
     for ( auto item : colorLegend.colorLegendItems() )
     {
@@ -327,9 +327,9 @@ QString RimFaciesPropertiesCurve::findFaciesName( const RimColorLegend& colorLeg
     return "not found";
 }
 
-QString RimFaciesPropertiesCurve::findFormationNameForDepth( const std::vector<QString>& formationNames,
-                                                             const std::vector<std::pair<double, double>>& depthRanges,
-                                                             double                                        depth )
+QString RimElasticPropertiesCurve::findFormationNameForDepth( const std::vector<QString>& formationNames,
+                                                              const std::vector<std::pair<double, double>>& depthRanges,
+                                                              double                                        depth )
 {
     //    assert(formationNames.size() == depthRanges.size());
     for ( size_t i = 0; i < formationNames.size(); i++ )
@@ -345,7 +345,7 @@ QString RimFaciesPropertiesCurve::findFormationNameForDepth( const std::vector<Q
     return "not found";
 }
 
-QString RimFaciesPropertiesCurve::createCurveAutoName()
+QString RimElasticPropertiesCurve::createCurveAutoName()
 {
-    return caf::AppEnum<RimFaciesPropertiesCurve::PropertyType>::uiText( m_propertyType() );
+    return caf::AppEnum<RimElasticPropertiesCurve::PropertyType>::uiText( m_propertyType() );
 }

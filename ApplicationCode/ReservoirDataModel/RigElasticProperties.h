@@ -25,10 +25,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RigFaciesProperties
+class RigElasticProperties
 {
 public:
-    RigFaciesProperties( const QString& fieldName, const QString& formationName, const QString& faciesName );
+    RigElasticProperties( const QString& fieldName, const QString& formationName, const QString& faciesName );
     const QString& fieldName() const;
     const QString& formationName() const;
     const QString& faciesName() const;

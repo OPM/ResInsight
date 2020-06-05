@@ -22,7 +22,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RigFaciesProperties.h"
+#include "RigElasticProperties.h"
 
 #include <QString>
 
@@ -33,20 +33,20 @@ typedef std::tuple<QString, QString, QString> FaciesKey;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimFaciesProperties : public caf::PdmObject
+class RimElasticProperties : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFaciesProperties();
-    ~RimFaciesProperties() override;
+    RimElasticProperties();
+    ~RimElasticProperties() override;
 
     QString filePath() const;
     void    setFilePath( const QString& filePath );
 
-    void                       setPropertiesForFacies( FaciesKey& key, const RigFaciesProperties& properties );
-    bool                       hasPropertiesForFacies( FaciesKey& key ) const;
-    const RigFaciesProperties& propertiesForFacies( FaciesKey& key ) const;
+    void                        setPropertiesForFacies( FaciesKey& key, const RigElasticProperties& properties );
+    bool                        hasPropertiesForFacies( FaciesKey& key ) const;
+    const RigElasticProperties& propertiesForFacies( FaciesKey& key ) const;
 
     void loadDataAndUpdate();
 
@@ -61,5 +61,5 @@ private:
     caf::PdmField<caf::FilePath> m_filePath;
     caf::PdmField<QString>       m_propertiesTable;
 
-    std::map<FaciesKey, RigFaciesProperties> m_properties;
+    std::map<FaciesKey, RigElasticProperties> m_properties;
 };
