@@ -39,7 +39,7 @@ double RiaInterpolationTools::linear( const std::vector<double>& x, const std::v
     int  lowerIndex = 0;
     for ( int i = 0; i < static_cast<int>( x.size() - 1 ); i++ )
     {
-        if ( x[i] < value && x[i + 1] > value )
+        if ( x[i] <= value && x[i + 1] >= value )
         {
             lowerIndex = i;
             found      = true;
