@@ -82,14 +82,26 @@ RimFractureModelPlot*
     {
         auto task = progInfo.task( "Creating parameters track", 15 );
 
-        std::vector<std::pair<QString, RiaDefines::ResultCatType>> results =
-            {std::make_pair( "PORO", RiaDefines::ResultCatType::STATIC_NATIVE ),
-             std::make_pair( "PRESSURE", RiaDefines::ResultCatType::DYNAMIC_NATIVE ),
-             std::make_pair( "PERMZ", RiaDefines::ResultCatType::STATIC_NATIVE )};
+        std::vector<std::tuple<QString, RiaDefines::ResultCatType, RimFractureModelCurve::MissingValueStrategy>> results =
+            {std::make_tuple( "PORO",
+                              RiaDefines::ResultCatType::STATIC_NATIVE,
+                              RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE ),
+             std::make_tuple( "PRESSURE",
+                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                              RimFractureModelCurve::MissingValueStrategy::LINEAR_INTERPOLATION ),
+             std::make_tuple( "PERMX",
+                              RiaDefines::ResultCatType::STATIC_NATIVE,
+                              RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE )};
 
         for ( auto result : results )
         {
-            createParametersTrack( plot, fractureModel, eclipseCase, timeStep, result.first, result.second );
+            createParametersTrack( plot,
+                                   fractureModel,
+                                   eclipseCase,
+                                   timeStep,
+                                   std::get<0>( result ),
+                                   std::get<1>( result ),
+                                   std::get<2>( result ) );
         }
     }
 
@@ -240,12 +252,14 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot*     plot,
-                                                            RimFractureModel*         fractureModel,
-                                                            RimEclipseCase*           eclipseCase,
-                                                            int                       timeStep,
-                                                            const QString&            resultVariable,
-                                                            RiaDefines::ResultCatType resultCategoryType )
+RimFractureModelCurve*
+    RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot*     plot,
+                                                           RimFractureModel*         fractureModel,
+                                                           RimEclipseCase*           eclipseCase,
+                                                           int                       timeStep,
+                                                           const QString&            resultVariable,
+                                                           RiaDefines::ResultCatType resultCategoryType,
+                                                           RimFractureModelCurve::MissingValueStrategy missingValueStrategy )
 {
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, resultVariable, plot );
     plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
@@ -268,6 +282,7 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
     curve->setCase( eclipseCase );
     curve->setEclipseResultVariable( resultVariable );
     curve->setEclipseResultCategory( resultCategoryType );
+    curve->setMissingValueStrategy( missingValueStrategy );
     curve->setColor( colors.cycledColor3f( 0 ) );
     curve->setLineStyle( lineStyles[0] );
     curve->setLineThickness( 2 );
@@ -286,6 +301,8 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
     RiuPlotMainWindowTools::showPlotMainWindow();
+
+    return curve;
 }
 
 //--------------------------------------------------------------------------------------------------

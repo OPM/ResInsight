@@ -29,6 +29,8 @@ class RimFractureModelPlot : public RimDepthTrackPlot
 public:
     RimFractureModelPlot();
 
+    void getPorosityValues( std::vector<double>& values ) const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 

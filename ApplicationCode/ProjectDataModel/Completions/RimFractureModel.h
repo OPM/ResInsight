@@ -60,6 +60,9 @@ public:
     void       fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     cvf::Vec3d fracturePosition() const;
 
+    double defaultPorosity() const;
+    double defaultPermeability() const;
+
     // RimWellPathCompletionsInterface overrides.
     RiaDefines::WellPathComponentType componentType() const override;
     QString                           componentLabel() const override;
@@ -77,6 +80,8 @@ public:
     void                  setThicknessDirectionWellPath( RimModeledWellPath* thicknessDirectionWellPath );
     void                  setElasticProperties( RimElasticProperties* elasticProperties );
     RimElasticProperties* elasticProperties() const;
+
+    double getDefaultForMissingValue( const QString& keyword ) const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -98,4 +103,6 @@ protected:
     caf::PdmField<double>                       m_boundingBoxHorizontal;
     caf::PdmPtrField<RimModeledWellPath*>       m_thicknessDirectionWellPath;
     caf::PdmChildField<RimElasticProperties*>   m_elasticProperties;
+    caf::PdmField<double>                       m_defaultPorosity;
+    caf::PdmField<double>                       m_defaultPermeability;
 };
