@@ -564,7 +564,7 @@ std::map<std::string, std::vector<std::string>>
 
             for ( auto& s : stressAnisotropyComponentNames )
             {
-                fieldCompNames["SE"].push_back( "SE" + s );
+                fieldCompNames["SE"].push_back( s );
             }
 
             fieldCompNames["SE"].push_back( "S1inc" );
@@ -584,7 +584,7 @@ std::map<std::string, std::vector<std::string>>
 
             for ( auto& s : stressAnisotropyComponentNames )
             {
-                fieldCompNames["ST"].push_back( "ST" + s );
+                fieldCompNames["ST"].push_back( s );
             }
 
             fieldCompNames["ST"].push_back( "S1inc" );
@@ -638,7 +638,7 @@ std::map<std::string, std::vector<std::string>>
 
             for ( auto& s : stressAnisotropyComponentNames )
             {
-                fieldCompNames["SE"].push_back( "SE" + s );
+                fieldCompNames["SE"].push_back( s );
             }
 
             fieldCompNames["SE"].push_back( "S1inc" );
@@ -663,7 +663,7 @@ std::map<std::string, std::vector<std::string>>
 
             for ( auto& s : stressAnisotropyComponentNames )
             {
-                fieldCompNames["ST"].push_back( "ST" + s );
+                fieldCompNames["ST"].push_back( s );
             }
 
             fieldCompNames["ST"].push_back( "S1inc" );
@@ -1411,7 +1411,7 @@ std::vector<std::string> RigFemPartResultsCollection::getStressComponentNames( b
 //--------------------------------------------------------------------------------------------------
 std::vector<std::string> RigFemPartResultsCollection::getStressAnisotropyComponentNames()
 {
-    return {"A12", "A13", "A23"};
+    return {"SA12", "SA13", "SA23"};
 }
 
 //--------------------------------------------------------------------------------------------------
