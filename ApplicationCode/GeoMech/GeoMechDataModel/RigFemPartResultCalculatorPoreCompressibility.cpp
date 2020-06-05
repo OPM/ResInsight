@@ -50,7 +50,7 @@ RigFemPartResultCalculatorPoreCompressibility::~RigFemPartResultCalculatorPoreCo
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorPoreCompressibility::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( resVarAddr.fieldName == "PORE-COMPRESSIBILITY" &&
+    return ( resVarAddr.fieldName == "COMPRESSIBILITY" &&
              ( resVarAddr.componentName == "PORE" || resVarAddr.componentName == "VERTICAL" ||
                resVarAddr.componentName == "VERTICAL-RATIO" ) );
 }

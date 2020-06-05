@@ -355,13 +355,11 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
         }
 
         deleteResult(
-            RigFemResultAddress( elementType, "PORE-COMPRESSIBILITY", "PORE", RigFemResultAddress::allTimeLapsesValue() ) );
+            RigFemResultAddress( elementType, "COMPRESSIBILITY", "PORE", RigFemResultAddress::allTimeLapsesValue() ) );
+        deleteResult(
+            RigFemResultAddress( elementType, "COMPRESSIBILITY", "VERTICAL", RigFemResultAddress::allTimeLapsesValue() ) );
         deleteResult( RigFemResultAddress( elementType,
-                                           "PORE-COMPRESSIBILITY",
-                                           "VERTICAL",
-                                           RigFemResultAddress::allTimeLapsesValue() ) );
-        deleteResult( RigFemResultAddress( elementType,
-                                           "PORE-COMPRESSIBILITY",
+                                           "COMPRESSIBILITY",
                                            "VERTICAL-RATIO",
                                            RigFemResultAddress::allTimeLapsesValue() ) );
 
@@ -615,9 +613,9 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["NE"].push_back( "E2" );
             fieldCompNames["NE"].push_back( "E3" );
 
-            fieldCompNames["PORE-COMPRESSIBILITY"].push_back( "PORE" );
-            fieldCompNames["PORE-COMPRESSIBILITY"].push_back( "VERTICAL" );
-            fieldCompNames["PORE-COMPRESSIBILITY"].push_back( "VERTICAL-RATIO" );
+            fieldCompNames["COMPRESSIBILITY"].push_back( "PORE" );
+            fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL" );
+            fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL-RATIO" );
         }
         else if ( resPos == RIG_INTEGRATION_POINT )
         {
@@ -694,9 +692,9 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["NE"].push_back( "E2" );
             fieldCompNames["NE"].push_back( "E3" );
 
-            fieldCompNames["PORE-COMPRESSIBILITY"].push_back( "PORE" );
-            fieldCompNames["PORE-COMPRESSIBILITY"].push_back( "VERTICAL" );
-            fieldCompNames["PORE-COMPRESSIBILITY"].push_back( "VERTICAL-RATIO" );
+            fieldCompNames["COMPRESSIBILITY"].push_back( "PORE" );
+            fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL" );
+            fieldCompNames["COMPRESSIBILITY"].push_back( "VERTICAL-RATIO" );
         }
         else if ( resPos == RIG_ELEMENT_NODAL_FACE )
         {
