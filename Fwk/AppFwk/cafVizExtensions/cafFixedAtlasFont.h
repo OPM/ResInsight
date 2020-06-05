@@ -63,6 +63,7 @@ class FixedAtlasFont : public cvf::Font
 public:
     enum FontSize
     {
+        POINT_SIZE_6,           // 6pt
         POINT_SIZE_8,           // 8pt
         POINT_SIZE_10,
         POINT_SIZE_12,
@@ -92,9 +93,9 @@ private:
 
 private:
     cvf::String             m_name;
-    size_t             m_numGlyphs;
-    std::vector<short> m_horizontalBearingsX;
-    std::vector<short> m_horizontalBearingsY;
+    size_t                  m_numGlyphs;
+    std::vector<short>      m_horizontalBearingsX;
+    std::vector<short>      m_horizontalBearingsY;
     std::vector<cvf::uint>  m_horizontalAdvances;
     std::vector<cvf::uint>  m_characterWidths;
     std::vector<cvf::uint>  m_characterHeights;
