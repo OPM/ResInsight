@@ -77,7 +77,9 @@ public:
     int  currentTimeStep() const;
     void setCurrentTimeStep( int timeStep );
 
-    void setEclipseResultVariable( const QString& resVarname );
+    void    setEclipseResultVariable( const QString& resVarname );
+    QString eclipseResultVariable() const;
+
     void setGeoMechResultAddress( const RigFemResultAddress& resAddr );
 
     void setTrajectoryType( TrajectoryType trajectoryType );

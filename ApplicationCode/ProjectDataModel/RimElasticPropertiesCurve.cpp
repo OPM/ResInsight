@@ -195,32 +195,17 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
         std::vector<double> faciesValues;
         eclExtractor.curveData( faciesResultAccessor.p(), &faciesValues );
 
-        // Extract porosity data
-        //        m_eclipseResultDefinition->setResultType();
-        cvf::ref<RigResultAccessor> poroResAcc =
-            RigResultAccessorFactory::createFromResultAddress( eclipseCase->eclipseCaseData(),
-                                                               0,
-                                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                               0,
-                                                               RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                        "PORO" ) );
-        if ( !poroResAcc.notNull() )
+        // Extract porosity data: get the porosity values from parent
+        RimFractureModelPlot* fractureModelPlot;
+        firstAncestorOrThisOfType( fractureModelPlot );
+        if ( !fractureModelPlot )
         {
-            std::cerr << "NO PORO RES ACCESSOR" << std::endl;
+            std::cerr << "NO PORO VALUES FOUND" << std::endl;
             return;
         }
 
         std::vector<double> poroValues;
-        eclExtractor.curveData( poroResAcc.p(), &poroValues );
-
-        std::cout << "Dims: FOrmation names to plot: " << formationNamesToPlot.size() << " Y: " << yValues.size()
-                  << " FACIES: " << faciesValues.size() << " PORO: " << poroValues.size() << std::endl;
-
-        for ( size_t i = 0; i < yValues.size(); i++ )
-        {
-            std::cout << i << ": " << yValues[i].first << "-" << yValues[i].second << " ==> "
-                      << formationNamesToPlot[i].toStdString() << std::endl;
-        }
+        fractureModelPlot->getPorosityValues( poroValues );
 
         // TODO: make this settable??
         RimColorLegend* colorLegend = RimProject::current()->colorLegendCollection()->findByName( "Facies colors" );
@@ -244,10 +229,6 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
             QString faciesName    = findFaciesName( *colorLegend, faciesValues[i] );
             QString formationName = findFormationNameForDepth( formationNamesToPlot, yValues, tvDepthValues[i] );
             double  porosity      = poroValues[i];
-
-            // std::cout << i << ": Depth: " << tvDepthValues[i] << " Poro: " << poroValues[i]
-            //           << " Facies: " << faciesValues[i] << " name: " << faciesName.toStdString()
-            //           << " formation: " << formationName.toStdString();
 
             FaciesKey faciesKey = std::make_tuple( fieldName, formationName, faciesName );
             if ( elasticProperties->hasPropertiesForFacies( faciesKey ) )

@@ -105,6 +105,9 @@ RimFractureModel::RimFractureModel()
     CAF_PDM_InitField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal", "", "", "" );
     CAF_PDM_InitField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical", "", "", "" );
 
+    CAF_PDM_InitField( &m_defaultPorosity, "DefaultPorosity", 0.0, "Default Porosity", "", "", "" );
+    CAF_PDM_InitField( &m_defaultPermeability, "DefaultPermeability", 10.0e-6, "Default Permeability", "", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
@@ -481,5 +484,41 @@ void RimFractureModel::loadDataAndUpdate()
     if ( m_elasticProperties )
     {
         m_elasticProperties->loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::defaultPorosity() const
+{
+    return m_defaultPorosity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::defaultPermeability() const
+{
+    return m_defaultPermeability();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::getDefaultForMissingValue( const QString& keyword ) const
+{
+    if ( keyword == QString( "PORO" ) )
+    {
+        return defaultPorosity();
+    }
+    else if ( keyword == QString( "PERMX" ) )
+    {
+        return defaultPermeability();
+    }
+    else
+    {
+        RiaLogging::error( QString( "Missing default value for %1." ).arg( keyword ) );
+        return std::numeric_limits<double>::infinity();
     }
 }
