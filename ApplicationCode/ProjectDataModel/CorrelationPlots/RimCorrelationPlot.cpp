@@ -66,7 +66,7 @@ CAF_PDM_SOURCE_INIT( RimCorrelationPlot, "CorrelationPlot" );
 RimCorrelationPlot::RimCorrelationPlot()
     : RimAbstractCorrelationPlot()
 {
-    CAF_PDM_InitObject( "Correlation Plot", ":/CorrelationPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Correlation Tornado Plot", ":/CorrelationPlot16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_correlationFactor, "CorrelationFactor", "Correlation Factor", "", "", "" );
     m_correlationFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
