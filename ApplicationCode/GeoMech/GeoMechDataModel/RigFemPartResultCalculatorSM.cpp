@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigFemPartResultCalculatorSTM.h"
+#include "RigFemPartResultCalculatorSM.h"
 
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
@@ -31,7 +31,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemPartResultCalculatorSTM::RigFemPartResultCalculatorSTM( RigFemPartResultsCollection& collection )
+RigFemPartResultCalculatorSM::RigFemPartResultCalculatorSM( RigFemPartResultsCollection& collection )
     : RigFemPartResultCalculator( collection )
 {
 }
@@ -39,24 +39,24 @@ RigFemPartResultCalculatorSTM::RigFemPartResultCalculatorSTM( RigFemPartResultsC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemPartResultCalculatorSTM::~RigFemPartResultCalculatorSTM()
+RigFemPartResultCalculatorSM::~RigFemPartResultCalculatorSM()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigFemPartResultCalculatorSTM::isMatching( const RigFemResultAddress& resVarAddr ) const
+bool RigFemPartResultCalculatorSM::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( resVarAddr.fieldName == "ST" && resVarAddr.componentName == "STM" );
+    return ( ( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" ) && resVarAddr.componentName == "SM" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorSTM::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorSM::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.fieldName == "ST" && resVarAddr.componentName == "STM" );
+    CVF_ASSERT( isMatching( resVarAddr ) );
 
     caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 4, "" );
     frameCountProgress.setProgressDescription(
@@ -65,17 +65,23 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSTM::calculate( int partInde
 
     RigFemScalarResultFrames* st11 =
         m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType, "ST", "S11" ) );
+                                                    RigFemResultAddress( resVarAddr.resultPosType,
+                                                                         resVarAddr.fieldName,
+                                                                         "S11" ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
     RigFemScalarResultFrames* st22 =
         m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType, "ST", "S22" ) );
+                                                    RigFemResultAddress( resVarAddr.resultPosType,
+                                                                         resVarAddr.fieldName,
+                                                                         "S22" ) );
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
     RigFemScalarResultFrames* st33 =
         m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType, "ST", "S33" ) );
+                                                    RigFemResultAddress( resVarAddr.resultPosType,
+                                                                         resVarAddr.fieldName,
+                                                                         "S33" ) );
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 

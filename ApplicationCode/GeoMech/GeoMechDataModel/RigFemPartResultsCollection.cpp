@@ -48,9 +48,8 @@
 #include "RigFemPartResultCalculatorPrincipalStrain.h"
 #include "RigFemPartResultCalculatorPrincipalStress.h"
 #include "RigFemPartResultCalculatorQ.h"
-#include "RigFemPartResultCalculatorSEM.h"
 #include "RigFemPartResultCalculatorSFI.h"
-#include "RigFemPartResultCalculatorSTM.h"
+#include "RigFemPartResultCalculatorSM.h"
 #include "RigFemPartResultCalculatorShearSE.h"
 #include "RigFemPartResultCalculatorShearST.h"
 #include "RigFemPartResultCalculatorStressAnisotropy.h"
@@ -139,10 +138,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEV( *this ) ) );
     m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSEM( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSM( *this ) ) );
     m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorQ( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSTM( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorStressGradients( *this ) ) );
     m_resultCalculators.push_back(
@@ -335,6 +332,7 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
     componentNames.push_back( "S2azi" );
     componentNames.push_back( "S3inc" );
     componentNames.push_back( "S3azi" );
+    componentNames.push_back( "SM" );
 
     for ( auto elementType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
     {
@@ -366,14 +364,12 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
         // SE only: depends on SE.S1 and SE.S3
         deleteResult( RigFemResultAddress( elementType, "SE", "SFI", RigFemResultAddress::allTimeLapsesValue() ) );
         deleteResult( RigFemResultAddress( elementType, "SE", "DSM", RigFemResultAddress::allTimeLapsesValue() ) );
-        deleteResult( RigFemResultAddress( elementType, "SE", "SEM", RigFemResultAddress::allTimeLapsesValue() ) );
 
         // SE only: depends on SE.DSM
         deleteResult( RigFemResultAddress( elementType, "SE", "FOS", RigFemResultAddress::allTimeLapsesValue() ) );
 
         // ST only: depends on ST.S1 and ST.S3
         deleteResult( RigFemResultAddress( elementType, "ST", "Q", RigFemResultAddress::allTimeLapsesValue() ) );
-        deleteResult( RigFemResultAddress( elementType, "ST", "STM", RigFemResultAddress::allTimeLapsesValue() ) );
     }
 
     for ( auto fieldName : {"SE", "ST"} )
@@ -552,7 +548,7 @@ std::map<std::string, std::vector<std::string>>
         {
             fieldCompNames = m_readerInterface->scalarElementNodeFieldAndComponentNames();
 
-            fieldCompNames["SE"].push_back( "SEM" );
+            fieldCompNames["SE"].push_back( "SM" );
             fieldCompNames["SE"].push_back( "SFI" );
             fieldCompNames["SE"].push_back( "DSM" );
             fieldCompNames["SE"].push_back( "FOS" );
@@ -574,7 +570,7 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["SE"].push_back( "S3inc" );
             fieldCompNames["SE"].push_back( "S3azi" );
 
-            fieldCompNames["ST"].push_back( "STM" );
+            fieldCompNames["ST"].push_back( "SM" );
             fieldCompNames["ST"].push_back( "Q" );
 
             for ( auto& s : stressComponentNames )
@@ -621,7 +617,7 @@ std::map<std::string, std::vector<std::string>>
         {
             fieldCompNames = m_readerInterface->scalarIntegrationPointFieldAndComponentNames();
 
-            fieldCompNames["SE"].push_back( "SEM" );
+            fieldCompNames["SE"].push_back( "SM" );
             fieldCompNames["SE"].push_back( "SFI" );
             fieldCompNames["SE"].push_back( "DSM" );
             fieldCompNames["SE"].push_back( "FOS" );
@@ -648,7 +644,7 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["SE"].push_back( "S3inc" );
             fieldCompNames["SE"].push_back( "S3azi" );
 
-            fieldCompNames["ST"].push_back( "STM" );
+            fieldCompNames["ST"].push_back( "SM" );
             fieldCompNames["ST"].push_back( "Q" );
 
             fieldCompNames["ST"].push_back( "S11" );
@@ -1160,7 +1156,7 @@ std::vector<RigFemResultAddress>
 std::set<RigFemResultAddress> RigFemPartResultsCollection::normalizedResults()
 {
     std::set<std::string> validFields     = {"SE", "ST"};
-    std::set<std::string> validComponents = {"S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3"};
+    std::set<std::string> validComponents = {"S11", "S22", "S33", "S12", "S13", "S23", "S1", "S2", "S3", "SM"};
 
     std::set<RigFemResultAddress> results;
     for ( auto field : validFields )
@@ -1171,10 +1167,6 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::normalizedResults()
                 RigFemResultAddress( RIG_ELEMENT_NODAL, field, component, RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
         }
     }
-    results.insert(
-        RigFemResultAddress( RIG_ELEMENT_NODAL, "SE", "SEM", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
-    results.insert(
-        RigFemResultAddress( RIG_ELEMENT_NODAL, "ST", "STM", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
     results.insert(
         RigFemResultAddress( RIG_ELEMENT_NODAL, "ST", "Q", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
 

@@ -27,11 +27,11 @@ class RigFemResultAddress;
 //==================================================================================================
 ///
 //==================================================================================================
-class RigFemPartResultCalculatorSEM : public RigFemPartResultCalculator
+class RigFemPartResultCalculatorSM : public RigFemPartResultCalculator
 {
 public:
-    explicit RigFemPartResultCalculatorSEM( RigFemPartResultsCollection& collection );
-    virtual ~RigFemPartResultCalculatorSEM();
+    explicit RigFemPartResultCalculatorSM( RigFemPartResultsCollection& collection );
+    virtual ~RigFemPartResultCalculatorSM();
     bool                      isMatching( const RigFemResultAddress& resVarAddr ) const override;
     RigFemScalarResultFrames* calculate( int partIndex, const RigFemResultAddress& resVarAddr ) override;
 };
