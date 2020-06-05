@@ -74,14 +74,12 @@ add_library( ${PROJECT_NAME}
 	RigFemPartResultCalculatorEV.cpp
 	RigFemPartResultCalculatorQ.h
 	RigFemPartResultCalculatorQ.cpp
-	RigFemPartResultCalculatorSTM.h
-	RigFemPartResultCalculatorSTM.cpp
+	RigFemPartResultCalculatorSM.h
+	RigFemPartResultCalculatorSM.cpp
 	RigFemPartResultCalculatorCompaction.h
 	RigFemPartResultCalculatorCompaction.cpp
 	RigFemPartResultCalculatorStressGradients.h
 	RigFemPartResultCalculatorStressGradients.cpp
-	RigFemPartResultCalculatorSEM.h
-	RigFemPartResultCalculatorSEM.cpp
 	RigFemPartResultCalculatorNE.h
 	RigFemPartResultCalculatorNE.cpp
 	RigFemPartResultCalculatorFormationIndices.h

@@ -48,11 +48,9 @@ RigFemPartResultCalculatorStressAnisotropy::~RigFemPartResultCalculatorStressAni
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorStressAnisotropy::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return (
-        ( ( resVarAddr.fieldName == "ST" ) && ( resVarAddr.componentName == "STA12" || resVarAddr.componentName == "STA13" ||
-                                                resVarAddr.componentName == "STA23" ) ) ||
-        ( ( resVarAddr.fieldName == "SE" ) && ( resVarAddr.componentName == "SEA12" || resVarAddr.componentName == "SEA13" ||
-                                                resVarAddr.componentName == "SEA23" ) ) );
+    return ( ( ( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" ) &&
+               ( resVarAddr.componentName == "SA12" || resVarAddr.componentName == "SA13" ||
+                 resVarAddr.componentName == "SA23" ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,19 +88,13 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressAnisotropy::calculate(
 
     RigFemScalarResultFrames* s12Frames =
         m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType,
-                                                                     resVarAddr.fieldName,
-                                                                     resVarAddr.fieldName + "A12" ) );
+                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "SA12" ) );
     RigFemScalarResultFrames* s13Frames =
         m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType,
-                                                                     resVarAddr.fieldName,
-                                                                     resVarAddr.fieldName + "A13" ) );
+                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "SA13" ) );
     RigFemScalarResultFrames* s23Frames =
         m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType,
-                                                                     resVarAddr.fieldName,
-                                                                     resVarAddr.fieldName + "A23" ) );
+                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "SA23" ) );
 
     frameCountProgress.incrementProgress();
     frameCountProgress.setNextProgressIncrement( 1u );
