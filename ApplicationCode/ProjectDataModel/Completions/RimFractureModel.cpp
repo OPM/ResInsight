@@ -33,8 +33,8 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimElasticProperties.h"
 #include "RimEllipseFractureTemplate.h"
-#include "RimFaciesProperties.h"
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -105,9 +105,9 @@ RimFractureModel::RimFractureModel()
     CAF_PDM_InitField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal", "", "", "" );
     CAF_PDM_InitField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical", "", "", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_faciesProperties, "FaciesProperties", "Facies Properties", "", "", "" );
-    m_faciesProperties.uiCapability()->setUiHidden( true );
-    m_faciesProperties.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
+    m_elasticProperties.uiCapability()->setUiHidden( true );
+    m_elasticProperties.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -361,7 +361,7 @@ cvf::Vec3d RimFractureModel::calculateTSTDirection() const
 void RimFractureModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     m_thicknessDirectionWellPath.uiCapability()->setUiHidden( true );
-    m_faciesProperties.uiCapability()->setUiHidden( false );
+    m_elasticProperties.uiCapability()->setUiHidden( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -460,17 +460,17 @@ void RimFractureModel::findThicknessTargetPoints( cvf::Vec3d& topPosition, cvf::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaciesProperties* RimFractureModel::faciesProperties() const
+RimElasticProperties* RimFractureModel::elasticProperties() const
 {
-    return m_faciesProperties;
+    return m_elasticProperties;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureModel::setFaciesProperties( RimFaciesProperties* faciesProperties )
+void RimFractureModel::setElasticProperties( RimElasticProperties* elasticProperties )
 {
-    m_faciesProperties = faciesProperties;
+    m_elasticProperties = elasticProperties;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -478,8 +478,8 @@ void RimFractureModel::setFaciesProperties( RimFaciesProperties* faciesPropertie
 //--------------------------------------------------------------------------------------------------
 void RimFractureModel::loadDataAndUpdate()
 {
-    if ( m_faciesProperties )
+    if ( m_elasticProperties )
     {
-        m_faciesProperties->loadDataAndUpdate();
+        m_elasticProperties->loadDataAndUpdate();
     }
 }

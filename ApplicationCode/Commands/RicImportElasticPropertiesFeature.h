@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicImportFaciesPropertiesFeature : public caf::CmdFeature
+class RicImportElasticPropertiesFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

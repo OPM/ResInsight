@@ -69,7 +69,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RigHexGradientTools-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader-Test.cpp
-${CMAKE_CURRENT_LIST_DIR}/RifFaciesPropertiesReader-Test.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools-Test.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader-Test.cpp
 )

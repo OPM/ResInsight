@@ -34,7 +34,7 @@
 class RimEclipseCase;
 class RimWellPath;
 class RimModeledWellPath;
-class RimFaciesProperties;
+class RimElasticProperties;
 
 //==================================================================================================
 ///
@@ -73,10 +73,10 @@ public:
 
     void loadDataAndUpdate();
 
-    RimModeledWellPath*  thicknessDirectionWellPath() const;
-    void                 setThicknessDirectionWellPath( RimModeledWellPath* thicknessDirectionWellPath );
-    void                 setFaciesProperties( RimFaciesProperties* faciesProperties );
-    RimFaciesProperties* faciesProperties() const;
+    RimModeledWellPath*   thicknessDirectionWellPath() const;
+    void                  setThicknessDirectionWellPath( RimModeledWellPath* thicknessDirectionWellPath );
+    void                  setElasticProperties( RimElasticProperties* elasticProperties );
+    RimElasticProperties* elasticProperties() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -97,5 +97,5 @@ protected:
     caf::PdmField<double>                       m_boundingBoxVertical;
     caf::PdmField<double>                       m_boundingBoxHorizontal;
     caf::PdmPtrField<RimModeledWellPath*>       m_thicknessDirectionWellPath;
-    caf::PdmChildField<RimFaciesProperties*>    m_faciesProperties;
+    caf::PdmChildField<RimElasticProperties*>   m_elasticProperties;
 };

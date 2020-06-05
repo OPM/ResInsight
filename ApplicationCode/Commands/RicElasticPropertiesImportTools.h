@@ -25,12 +25,12 @@ class RimFractureModel;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RicFaciesPropertiesImportTools
+class RicElasticPropertiesImportTools
 {
 public:
-    static void importFaciesPropertiesFromFile( const QString& filePath, RimFractureModel* fractureModel );
+    static void importElasticPropertiesFromFile( const QString& filePath, RimFractureModel* fractureModel );
 
 private:
     // Hidden to avoid instantiation
-    RicFaciesPropertiesImportTools();
+    RicElasticPropertiesImportTools();
 };

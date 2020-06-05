@@ -31,7 +31,7 @@
 #include "RimColorLegendCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimFaciesPropertiesCurve.h"
+#include "RimElasticPropertiesCurve.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCurve.h"
 #include "RimFractureModelPlot.h"
@@ -96,15 +96,15 @@ RimFractureModelPlot*
     {
         auto task = progInfo.task( "Creating facies properties track", 15 );
 
-        std::vector<RimFaciesPropertiesCurve::PropertyType> results =
-            { RimFaciesPropertiesCurve::PropertyType::YOUNGS_MODULUS,
-              RimFaciesPropertiesCurve::PropertyType::POISSONS_RATIO,
-              RimFaciesPropertiesCurve::PropertyType::K_IC,
-              RimFaciesPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT };
+        std::vector<RimElasticPropertiesCurve::PropertyType> results =
+            {RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS,
+             RimElasticPropertiesCurve::PropertyType::POISSONS_RATIO,
+             RimElasticPropertiesCurve::PropertyType::K_IC,
+             RimElasticPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT};
 
         for ( auto result : results )
         {
-            createFaciesPropertiesTrack( plot, fractureModel, eclipseCase, timeStep, result );
+            createElasticPropertiesTrack( plot, fractureModel, eclipseCase, timeStep, result );
         }
     }
 
@@ -291,13 +291,13 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewFractureModelPlotFeature::createFaciesPropertiesTrack( RimFractureModelPlot*                  plot,
-                                                                  RimFractureModel*                      fractureModel,
-                                                                  RimEclipseCase*                        eclipseCase,
-                                                                  int                                    timeStep,
-                                                                  RimFaciesPropertiesCurve::PropertyType propertyType )
+void RicNewFractureModelPlotFeature::createElasticPropertiesTrack( RimFractureModelPlot* plot,
+                                                                   RimFractureModel*     fractureModel,
+                                                                   RimEclipseCase*       eclipseCase,
+                                                                   int                   timeStep,
+                                                                   RimElasticPropertiesCurve::PropertyType propertyType )
 {
-    QString          trackName = caf::AppEnum<RimFaciesPropertiesCurve::PropertyType>::uiText( propertyType );
+    QString          trackName = caf::AppEnum<RimElasticPropertiesCurve::PropertyType>::uiText( propertyType );
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackName, plot );
     plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     plotTrack->setColSpan( RimPlot::TWO );
@@ -309,11 +309,11 @@ void RicNewFractureModelPlotFeature::createFaciesPropertiesTrack( RimFractureMod
     plotTrack->setShowRegionLabels( true );
     plotTrack->setShowWindow( true );
     caf::ColorTable                             colors     = RiaColorTables::contrastCategoryPaletteColors();
-    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = { RiuQwtPlotCurve::STYLE_SOLID,
-                                                               RiuQwtPlotCurve::STYLE_DASH,
-                                                               RiuQwtPlotCurve::STYLE_DASH_DOT };
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = {RiuQwtPlotCurve::STYLE_SOLID,
+                                                              RiuQwtPlotCurve::STYLE_DASH,
+                                                              RiuQwtPlotCurve::STYLE_DASH_DOT};
 
-    RimFaciesPropertiesCurve* curve = new RimFaciesPropertiesCurve;
+    RimElasticPropertiesCurve* curve = new RimElasticPropertiesCurve;
     curve->setPropertyType( propertyType );
     curve->setFractureModel( fractureModel );
     curve->setCase( eclipseCase );

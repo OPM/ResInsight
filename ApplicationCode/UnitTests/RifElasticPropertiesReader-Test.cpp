@@ -18,7 +18,7 @@
 
 #include "gtest/gtest.h"
 
-#include "RifFaciesPropertiesReader.h"
+#include "RifElasticPropertiesReader.h"
 #include "RifFileParseTools.h"
 
 #include <QStringList>
@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RifFaciesPropertiesReaderTest, ReadCorrectInputFile )
+TEST( RifElasticPropertiesReaderTest, ReadCorrectInputFile )
 {
     QTemporaryFile file;
     EXPECT_TRUE( file.open() );
@@ -44,53 +44,53 @@ TEST( RifFaciesPropertiesReaderTest, ReadCorrectInputFile )
     QStringList filePaths;
     filePaths.append( file.fileName() );
 
-    std::vector<RifFaciesProperties> faciesProperties;
-    RifFaciesPropertiesReader::readFaciesProperties( faciesProperties, filePaths );
+    std::vector<RifElasticProperties> elasticProperties;
+    RifElasticPropertiesReader::readElasticProperties( elasticProperties, filePaths );
 
-    ASSERT_EQ( 2u, faciesProperties.size() );
+    ASSERT_EQ( 2u, elasticProperties.size() );
 
-    ASSERT_EQ( "Norne", faciesProperties[0].fieldName.toStdString() );
-    ASSERT_EQ( "Norne", faciesProperties[1].fieldName.toStdString() );
+    ASSERT_EQ( "Norne", elasticProperties[0].fieldName.toStdString() );
+    ASSERT_EQ( "Norne", elasticProperties[1].fieldName.toStdString() );
 
-    ASSERT_EQ( "Not", faciesProperties[0].formationName.toStdString() );
-    ASSERT_EQ( "Not", faciesProperties[1].formationName.toStdString() );
+    ASSERT_EQ( "Not", elasticProperties[0].formationName.toStdString() );
+    ASSERT_EQ( "Not", elasticProperties[1].formationName.toStdString() );
 
-    ASSERT_EQ( "Sand", faciesProperties[0].faciesName.toStdString() );
-    ASSERT_EQ( "Sand", faciesProperties[1].faciesName.toStdString() );
+    ASSERT_EQ( "Sand", elasticProperties[0].faciesName.toStdString() );
+    ASSERT_EQ( "Sand", elasticProperties[1].faciesName.toStdString() );
 
-    ASSERT_DOUBLE_EQ( 0.0, faciesProperties[0].porosity );
-    ASSERT_DOUBLE_EQ( 0.1, faciesProperties[1].porosity );
+    ASSERT_DOUBLE_EQ( 0.0, elasticProperties[0].porosity );
+    ASSERT_DOUBLE_EQ( 0.1, elasticProperties[1].porosity );
 
-    ASSERT_DOUBLE_EQ( 25.0, faciesProperties[0].youngsModulus );
-    ASSERT_DOUBLE_EQ( 19.0, faciesProperties[1].youngsModulus );
+    ASSERT_DOUBLE_EQ( 25.0, elasticProperties[0].youngsModulus );
+    ASSERT_DOUBLE_EQ( 19.0, elasticProperties[1].youngsModulus );
 
-    ASSERT_DOUBLE_EQ( 0.25, faciesProperties[0].poissonsRatio );
-    ASSERT_DOUBLE_EQ( 0.27, faciesProperties[1].poissonsRatio );
+    ASSERT_DOUBLE_EQ( 0.25, elasticProperties[0].poissonsRatio );
+    ASSERT_DOUBLE_EQ( 0.27, elasticProperties[1].poissonsRatio );
 
-    ASSERT_DOUBLE_EQ( 2000.0, faciesProperties[0].K_Ic );
-    ASSERT_DOUBLE_EQ( 2099.0, faciesProperties[1].K_Ic );
+    ASSERT_DOUBLE_EQ( 2000.0, elasticProperties[0].K_Ic );
+    ASSERT_DOUBLE_EQ( 2099.0, elasticProperties[1].K_Ic );
 
-    ASSERT_DOUBLE_EQ( 0.2, faciesProperties[0].proppantEmbedment );
-    ASSERT_DOUBLE_EQ( 0.3, faciesProperties[1].proppantEmbedment );
+    ASSERT_DOUBLE_EQ( 0.2, elasticProperties[0].proppantEmbedment );
+    ASSERT_DOUBLE_EQ( 0.3, elasticProperties[1].proppantEmbedment );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Helper to check exception messages when reading invalid files
 //--------------------------------------------------------------------------------------------------
-::testing::AssertionResult readingFaciesPropertiesThrowsException( const QStringList& filePaths,
-                                                                   const QString&     expectedMessage )
+::testing::AssertionResult readingElasticPropertiesThrowsException( const QStringList& filePaths,
+                                                                    const QString&     expectedMessage )
 {
-    std::vector<RifFaciesProperties> faciesProperties;
+    std::vector<RifElasticProperties> elasticProperties;
     try
     {
-        RifFaciesPropertiesReader::readFaciesProperties( faciesProperties, filePaths );
+        RifElasticPropertiesReader::readElasticProperties( elasticProperties, filePaths );
         // No exception thrown: fail!
-        return ::testing::AssertionFailure() << "readFaciesProperties did not throw exception";
+        return ::testing::AssertionFailure() << "readElasticProperties did not throw exception";
     }
     catch ( FileParseException& error )
     {
         // Should always have cleaned up on failure
-        EXPECT_EQ( 0u, faciesProperties.size() );
+        EXPECT_EQ( 0u, elasticProperties.size() );
         // Check that we get the expected message
         EXPECT_EQ( expectedMessage.toStdString(), error.message.toStdString() );
         return ::testing::AssertionSuccess();
@@ -100,19 +100,19 @@ TEST( RifFaciesPropertiesReaderTest, ReadCorrectInputFile )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RifFaciesPropertiesReaderTest, ReadMissingFileThrows )
+TEST( RifElasticPropertiesReaderTest, ReadMissingFileThrows )
 {
     QStringList filePaths;
     QString     nonExistingFile( "this/is/a/file/which/does/not/exist.csv" );
     filePaths.append( nonExistingFile );
-    ASSERT_TRUE( readingFaciesPropertiesThrowsException( filePaths,
-                                                         QString( "Unable to open file: %1" ).arg( nonExistingFile ) ) );
+    ASSERT_TRUE( readingElasticPropertiesThrowsException( filePaths,
+                                                          QString( "Unable to open file: %1" ).arg( nonExistingFile ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RifFaciesPropertiesReaderTest, ReadShortLinesFileThrows )
+TEST( RifElasticPropertiesReaderTest, ReadShortLinesFileThrows )
 {
     QTemporaryFile file;
     EXPECT_TRUE( file.open() );
@@ -126,14 +126,14 @@ TEST( RifFaciesPropertiesReaderTest, ReadShortLinesFileThrows )
     QStringList filePaths;
     filePaths.append( file.fileName() );
     ASSERT_TRUE(
-        readingFaciesPropertiesThrowsException( filePaths,
-                                                QString( "Incomplete data on line 2: %1" ).arg( file.fileName() ) ) );
+        readingElasticPropertiesThrowsException( filePaths,
+                                                 QString( "Incomplete data on line 2: %1" ).arg( file.fileName() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RifFaciesPropertiesReaderTest, ReadEmptyFieldNameThrows )
+TEST( RifElasticPropertiesReaderTest, ReadEmptyFieldNameThrows )
 {
     QTemporaryFile file;
     EXPECT_TRUE( file.open() );
@@ -146,15 +146,15 @@ TEST( RifFaciesPropertiesReaderTest, ReadEmptyFieldNameThrows )
 
     QStringList filePaths;
     filePaths.append( file.fileName() );
-    ASSERT_TRUE( readingFaciesPropertiesThrowsException( filePaths,
-                                                         QString( "Unexpected empty 'Field Name' on line 2: %1" )
-                                                             .arg( file.fileName() ) ) );
+    ASSERT_TRUE( readingElasticPropertiesThrowsException( filePaths,
+                                                          QString( "Unexpected empty 'Field Name' on line 2: %1" )
+                                                              .arg( file.fileName() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RifFaciesPropertiesReaderTest, ReadInvalidMeasureDepthThrows )
+TEST( RifElasticPropertiesReaderTest, ReadInvalidMeasureDepthThrows )
 {
     QTemporaryFile file;
     EXPECT_TRUE( file.open() );
@@ -167,15 +167,15 @@ TEST( RifFaciesPropertiesReaderTest, ReadInvalidMeasureDepthThrows )
 
     QStringList filePaths;
     filePaths.append( file.fileName() );
-    ASSERT_TRUE( readingFaciesPropertiesThrowsException( filePaths,
-                                                         QString( "Invalid number for 'Porosity' on line 2: %1" )
-                                                             .arg( file.fileName() ) ) );
+    ASSERT_TRUE( readingElasticPropertiesThrowsException( filePaths,
+                                                          QString( "Invalid number for 'Porosity' on line 2: %1" )
+                                                              .arg( file.fileName() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( RifFaciesPropertiesReaderTest, CommentsAndEmptyLinesAreIgnored )
+TEST( RifElasticPropertiesReaderTest, CommentsAndEmptyLinesAreIgnored )
 {
     QTemporaryFile file;
     EXPECT_TRUE( file.open() );
@@ -205,12 +205,12 @@ TEST( RifFaciesPropertiesReaderTest, CommentsAndEmptyLinesAreIgnored )
 
     QStringList filePaths;
     filePaths.append( file.fileName() );
-    std::vector<RifFaciesProperties> faciesProperties;
-    RifFaciesPropertiesReader::readFaciesProperties( faciesProperties, filePaths );
+    std::vector<RifElasticProperties> elasticProperties;
+    RifElasticPropertiesReader::readElasticProperties( elasticProperties, filePaths );
 
-    ASSERT_EQ( 3u, faciesProperties.size() );
+    ASSERT_EQ( 3u, elasticProperties.size() );
 
-    ASSERT_EQ( "Sand", faciesProperties[0].faciesName.toStdString() );
-    ASSERT_EQ( "Silt", faciesProperties[1].faciesName.toStdString() );
-    ASSERT_EQ( "Shale", faciesProperties[2].faciesName.toStdString() );
+    ASSERT_EQ( "Sand", elasticProperties[0].faciesName.toStdString() );
+    ASSERT_EQ( "Silt", elasticProperties[1].faciesName.toStdString() );
+    ASSERT_EQ( "Shale", elasticProperties[2].faciesName.toStdString() );
 }

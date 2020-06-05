@@ -64,8 +64,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSummaryCaseCollectionFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellMeasurementFilePathFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicReloadWellMeasurementsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicWellMeasurementImportTools.h
-${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesPropertiesFeature.h
-${CMAKE_CURRENT_LIST_DIR}/RicFaciesPropertiesImportTools.h
+${CMAKE_CURRENT_LIST_DIR}/RicImportElasticPropertiesFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicElasticPropertiesImportTools.h
 
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseSourSimDataFeature.h
 
@@ -157,8 +157,8 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSummaryCaseCollectionFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicDeleteWellMeasurementFilePathFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicReloadWellMeasurementsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicWellMeasurementImportTools.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicImportFaciesPropertiesFeature.cpp
-${CMAKE_CURRENT_LIST_DIR}/RicFaciesPropertiesImportTools.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicImportElasticPropertiesFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicElasticPropertiesImportTools.cpp
 
 ${CMAKE_CURRENT_LIST_DIR}/RicCloseSourSimDataFeature.cpp
 

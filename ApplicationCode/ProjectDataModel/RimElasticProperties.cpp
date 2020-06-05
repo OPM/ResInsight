@@ -16,23 +16,23 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFaciesProperties.h"
+#include "RimElasticProperties.h"
 
 #include "RimFractureModel.h"
 
-#include "RicFaciesPropertiesImportTools.h"
+#include "RicElasticPropertiesImportTools.h"
 
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTextEditor.h"
 
-CAF_PDM_SOURCE_INIT( RimFaciesProperties, "FaciesProperties" );
+CAF_PDM_SOURCE_INIT( RimElasticProperties, "ElasticProperties" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaciesProperties::RimFaciesProperties()
+RimElasticProperties::RimElasticProperties()
 {
-    CAF_PDM_InitObject( "RimFaciesProperties", "", "", "" );
+    CAF_PDM_InitObject( "RimElasticProperties", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
     m_filePath.uiCapability()->setUiReadOnly( true );
@@ -44,20 +44,20 @@ RimFaciesProperties::RimFaciesProperties()
     m_propertiesTable.uiCapability()->setUiReadOnly( true );
     m_propertiesTable.xmlCapability()->disableIO();
 
-    setUiName( "Facies Properties" );
+    setUiName( "Elastic Properties" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaciesProperties::~RimFaciesProperties()
+RimElasticProperties::~RimElasticProperties()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaciesProperties::filePath() const
+QString RimElasticProperties::filePath() const
 {
     return m_filePath.v().path();
 }
@@ -65,7 +65,7 @@ QString RimFaciesProperties::filePath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaciesProperties::setFilePath( const QString& filePath )
+void RimElasticProperties::setFilePath( const QString& filePath )
 {
     m_filePath = filePath;
 }
@@ -73,16 +73,16 @@ void RimFaciesProperties::setFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaciesProperties::setPropertiesForFacies( FaciesKey& key, const RigFaciesProperties& properties )
+void RimElasticProperties::setPropertiesForFacies( FaciesKey& key, const RigElasticProperties& properties )
 {
-    m_properties.insert( std::pair<FaciesKey, RigFaciesProperties>( key, properties ) );
+    m_properties.insert( std::pair<FaciesKey, RigElasticProperties>( key, properties ) );
     m_propertiesTable = generatePropertiesTable();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimFaciesProperties::hasPropertiesForFacies( FaciesKey& key ) const
+bool RimElasticProperties::hasPropertiesForFacies( FaciesKey& key ) const
 {
     return m_properties.find( key ) != m_properties.end();
 }
@@ -90,7 +90,7 @@ bool RimFaciesProperties::hasPropertiesForFacies( FaciesKey& key ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigFaciesProperties& RimFaciesProperties::propertiesForFacies( FaciesKey& key ) const
+const RigElasticProperties& RimElasticProperties::propertiesForFacies( FaciesKey& key ) const
 {
     assert( hasPropertiesForFacies( key ) );
     return m_properties.find( key )->second;
@@ -99,9 +99,9 @@ const RigFaciesProperties& RimFaciesProperties::propertiesForFacies( FaciesKey& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaciesProperties::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                 QString                    uiConfigName,
-                                                 caf::PdmUiEditorAttribute* attribute )
+void RimElasticProperties::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                  QString                    uiConfigName,
+                                                  caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_propertiesTable )
     {
@@ -117,7 +117,7 @@ void RimFaciesProperties::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimFaciesProperties::generatePropertiesTable()
+QString RimElasticProperties::generatePropertiesTable()
 {
     QString header( "<table border=1>"
                     "  <thead>"
@@ -178,12 +178,12 @@ QString RimFaciesProperties::generatePropertiesTable()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaciesProperties::loadDataAndUpdate()
+void RimElasticProperties::loadDataAndUpdate()
 {
     if ( !m_filePath().path().isEmpty() )
     {
         RimFractureModel* fractureModel;
         firstAncestorOrThisOfType( fractureModel );
-        RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( m_filePath().path(), fractureModel );
+        RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_filePath().path(), fractureModel );
     }
 }

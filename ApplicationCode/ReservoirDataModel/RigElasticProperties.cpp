@@ -16,14 +16,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigFaciesProperties.h"
+#include "RigElasticProperties.h"
 
 #include "RiaInterpolationTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFaciesProperties::RigFaciesProperties( const QString& fieldName, const QString& formationName, const QString& faciesName )
+RigElasticProperties::RigElasticProperties( const QString& fieldName, const QString& formationName, const QString& faciesName )
     : m_fieldName( fieldName )
     , m_formationName( formationName )
     , m_faciesName( faciesName )
@@ -33,7 +33,7 @@ RigFaciesProperties::RigFaciesProperties( const QString& fieldName, const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RigFaciesProperties::fieldName() const
+const QString& RigElasticProperties::fieldName() const
 {
     return m_fieldName;
 }
@@ -41,7 +41,7 @@ const QString& RigFaciesProperties::fieldName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RigFaciesProperties::formationName() const
+const QString& RigElasticProperties::formationName() const
 {
     return m_formationName;
 }
@@ -49,7 +49,7 @@ const QString& RigFaciesProperties::formationName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RigFaciesProperties::faciesName() const
+const QString& RigElasticProperties::faciesName() const
 {
     return m_faciesName;
 }
@@ -57,7 +57,7 @@ const QString& RigFaciesProperties::faciesName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigFaciesProperties::porosity() const
+const std::vector<double>& RigElasticProperties::porosity() const
 {
     return m_porosity;
 }
@@ -65,7 +65,7 @@ const std::vector<double>& RigFaciesProperties::porosity() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigFaciesProperties::youngsModulus() const
+const std::vector<double>& RigElasticProperties::youngsModulus() const
 {
     return m_youngsModulus;
 }
@@ -73,7 +73,7 @@ const std::vector<double>& RigFaciesProperties::youngsModulus() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigFaciesProperties::poissonsRatio() const
+const std::vector<double>& RigElasticProperties::poissonsRatio() const
 {
     return m_poissonsRatio;
 }
@@ -81,7 +81,7 @@ const std::vector<double>& RigFaciesProperties::poissonsRatio() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigFaciesProperties::K_Ic() const
+const std::vector<double>& RigElasticProperties::K_Ic() const
 {
     return m_K_Ic;
 }
@@ -89,7 +89,7 @@ const std::vector<double>& RigFaciesProperties::K_Ic() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigFaciesProperties::proppantEmbedment() const
+const std::vector<double>& RigElasticProperties::proppantEmbedment() const
 {
     return m_proppantEmbedment;
 }
@@ -97,11 +97,11 @@ const std::vector<double>& RigFaciesProperties::proppantEmbedment() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFaciesProperties::appendValues( double porosity,
-                                        double youngsModulus,
-                                        double poissonsRatio,
-                                        double K_Ic,
-                                        double proppantEmbedment )
+void RigElasticProperties::appendValues( double porosity,
+                                         double youngsModulus,
+                                         double poissonsRatio,
+                                         double K_Ic,
+                                         double proppantEmbedment )
 {
     m_porosity.push_back( porosity );
     m_youngsModulus.push_back( youngsModulus );
@@ -113,7 +113,7 @@ void RigFaciesProperties::appendValues( double porosity,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigFaciesProperties::getYoungsModulus( double porosity ) const
+double RigElasticProperties::getYoungsModulus( double porosity ) const
 {
     return RiaInterpolationTools::linear( m_porosity, m_youngsModulus, porosity );
 }
@@ -121,7 +121,7 @@ double RigFaciesProperties::getYoungsModulus( double porosity ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigFaciesProperties::getPoissonsRatio( double porosity ) const
+double RigElasticProperties::getPoissonsRatio( double porosity ) const
 {
     return RiaInterpolationTools::linear( m_porosity, m_poissonsRatio, porosity );
 }
@@ -129,7 +129,7 @@ double RigFaciesProperties::getPoissonsRatio( double porosity ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigFaciesProperties::getK_Ic( double porosity ) const
+double RigElasticProperties::getK_Ic( double porosity ) const
 {
     return RiaInterpolationTools::linear( m_porosity, m_K_Ic, porosity );
 }
@@ -137,7 +137,7 @@ double RigFaciesProperties::getK_Ic( double porosity ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigFaciesProperties::getProppantEmbedment( double porosity ) const
+double RigElasticProperties::getProppantEmbedment( double porosity ) const
 {
     return RiaInterpolationTools::linear( m_porosity, m_proppantEmbedment, porosity );
 }
