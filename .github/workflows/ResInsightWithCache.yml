@@ -1,7 +1,11 @@
 name: ResInsight Build With Cache
 
-on: [push]
-
+on:
+  push:
+  schedule:
+    # Every day at 1am to make sure we have a build cache for the current data
+    # build cache is 
+    - cron: '0 1 * * * '
 env:
   NINJA_VERSION: 1.9.0
   BUILD_TYPE: Release
