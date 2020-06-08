@@ -84,8 +84,8 @@ TEST( RiaInterpolationToolsTest, ValidIntervalValueTooHigh )
 TEST( RiaInterpolationToolsTest, InterpolateMisssingValuesStraightLine )
 {
     double              inf = std::numeric_limits<double>::infinity();
-    std::vector<double> x   = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 };
-    std::vector<double> y   = { 0.0, 1.0, inf, inf, inf, 5.0 };
+    std::vector<double> x   = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0};
+    std::vector<double> y   = {0.0, 1.0, inf, inf, inf, 5.0};
 
     RiaInterpolationTools::interpolateMissingValues( x, y );
     EXPECT_DOUBLE_EQ( y[2], 2.0 );
@@ -99,8 +99,8 @@ TEST( RiaInterpolationToolsTest, InterpolateMisssingValuesStraightLine )
 TEST( RiaInterpolationToolsTest, InterpolateMissingValuesStraightLineExtrapolateStart )
 {
     double              inf = std::numeric_limits<double>::infinity();
-    std::vector<double> x   = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 };
-    std::vector<double> y   = { inf, inf, 2.0, inf, 4.0, 5.0 };
+    std::vector<double> x   = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0};
+    std::vector<double> y   = {inf, inf, 2.0, inf, 4.0, 5.0};
 
     RiaInterpolationTools::interpolateMissingValues( x, y );
     EXPECT_DOUBLE_EQ( y[0], 0.0 );
@@ -116,8 +116,8 @@ TEST( RiaInterpolationToolsTest, InterpolateMissingValuesStraightLineExtrapolate
 TEST( RiaInterpolationToolsTest, InterpolateMissingValuesStraightLineExtrapolateEnd )
 {
     double              inf = std::numeric_limits<double>::infinity();
-    std::vector<double> x   = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 };
-    std::vector<double> y   = { 0.0, inf, 2.0, inf, 4.0, inf };
+    std::vector<double> x   = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0};
+    std::vector<double> y   = {0.0, inf, 2.0, inf, 4.0, inf};
 
     RiaInterpolationTools::interpolateMissingValues( x, y );
     EXPECT_DOUBLE_EQ( y[0], 0.0 );
