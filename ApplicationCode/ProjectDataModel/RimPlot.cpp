@@ -66,10 +66,10 @@ QWidget* RimPlot::createViewWidget( QWidget* parent /*= nullptr */ )
 //--------------------------------------------------------------------------------------------------
 void RimPlot::updateFonts()
 {
-    if (viewer())
+    if ( viewer() )
     {
-        viewer()->setPlotTitleFontSize(titleFontSize());
-        viewer()->setLegendFontSize(legendFontSize());
+        viewer()->setPlotTitleFontSize( titleFontSize() );
+        viewer()->setLegendFontSize( legendFontSize() );
     }
 }
 

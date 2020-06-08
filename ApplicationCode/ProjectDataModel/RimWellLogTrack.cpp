@@ -505,7 +505,7 @@ void RimWellLogTrack::updateYZoom()
 //--------------------------------------------------------------------------------------------------
 int RimWellLogTrack::axisFontSize() const
 {
-    return caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultPlotFontSize(), m_axisFontSize());
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------

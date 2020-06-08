@@ -308,10 +308,10 @@ float RigFemPart::characteristicElementSize() const
         if ( eType == HEX8P )
         {
             const int* elementConn = this->connectivities( elmIdx );
-            cvf::Vec3f nodePos0   = this->nodes().coordinates[elementConn[0]];
-            cvf::Vec3f nodePos1   = this->nodes().coordinates[elementConn[1]];
-            cvf::Vec3f nodePos3   = this->nodes().coordinates[elementConn[3]];
-            cvf::Vec3f nodePos4   = this->nodes().coordinates[elementConn[4]];
+            cvf::Vec3f nodePos0    = this->nodes().coordinates[elementConn[0]];
+            cvf::Vec3f nodePos1    = this->nodes().coordinates[elementConn[1]];
+            cvf::Vec3f nodePos3    = this->nodes().coordinates[elementConn[3]];
+            cvf::Vec3f nodePos4    = this->nodes().coordinates[elementConn[4]];
 
             float l1 = ( nodePos1 - nodePos0 ).length();
             float l3 = ( nodePos3 - nodePos0 ).length();

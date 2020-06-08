@@ -99,11 +99,11 @@ public:
     void setHistogramPercentiles( double pmin, double pmax, double mean );
 
     void showGridBox( bool enable );
-    void updateGridBoxData( double scaleZ,
-                            const cvf::Vec3d& displayModelOffset,
-                            const cvf::Color3f& backgroundColor,
+    void updateGridBoxData( double                  scaleZ,
+                            const cvf::Vec3d&       displayModelOffset,
+                            const cvf::Color3f&     backgroundColor,
                             const cvf::BoundingBox& domainCoordBoundingBox,
-                            int fontPointSize );
+                            int                     fontPointSize );
     void showEdgeTickMarksXY( bool enable, bool showAxisLines = false );
     void showEdgeTickMarksXZ( bool enable, bool showAxisLines = false );
 
@@ -138,7 +138,7 @@ public:
     static void setHoverCursor( const QCursor& cursor );
     static void clearHoverCursor();
 
-    void updateFonts(int fontPointSize);
+    void updateFonts( int fontPointSize );
 
 public slots:
     void slotSetCurrentFrame( int frameIndex ) override;
