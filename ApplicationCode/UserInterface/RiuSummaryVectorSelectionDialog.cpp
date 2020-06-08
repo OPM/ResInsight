@@ -148,7 +148,7 @@ void RiuSummaryVectorSelectionDialog::enableMultiSelect( bool enable )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionDialog::enableIndividualEnsembleCaseSelection( bool enable )
 {

@@ -63,6 +63,7 @@ public:
     void updateFonts();
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -79,7 +80,7 @@ private:
     caf::PdmField<double> m_annotationPlaneDepth;
     caf::PdmField<bool>   m_snapAnnotations;
 
-    caf::PdmField<caf::FontTools::RelativeSizeEnum>       m_annotationFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum>   m_annotationFontSize;
     caf::PdmChildField<RimAnnotationGroupCollection*> m_globalTextAnnotations;
     caf::PdmChildField<RimAnnotationGroupCollection*> m_globalReachCircleAnnotations;
     caf::PdmChildField<RimAnnotationGroupCollection*> m_globalUserDefinedPolylineAnnotations;

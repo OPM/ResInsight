@@ -43,7 +43,7 @@ public:
 
     static std::vector<std::string> splitStringBySpace( const std::string& s );
 
-    static int computeEditDistance( const std::string& x, const std::string& y);
+    static int computeEditDistance( const std::string& x, const std::string& y );
 
 private:
     template <class Container>

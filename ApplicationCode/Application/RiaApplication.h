@@ -188,7 +188,7 @@ public:
     static std::vector<QString> readFileListFromTextFile( QString listFileName );
 
     cvf::Font* defaultSceneFont();
-    cvf::Font* sceneFont(int fontSize);
+    cvf::Font* sceneFont( int fontSize );
     cvf::Font* defaultAnnotationFont();
     cvf::Font* defaultWellLabelFont();
 

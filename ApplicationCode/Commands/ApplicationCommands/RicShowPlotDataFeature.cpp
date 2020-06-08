@@ -106,7 +106,9 @@ private:
     static std::vector<RiaQDateTimeTools::DateTimePeriod> tabs()
     {
         std::vector<RiaQDateTimeTools::DateTimePeriod> dateTimePeriods = RiaQDateTimeTools::dateTimePeriods();
-        dateTimePeriods.erase( std::remove( dateTimePeriods.begin(), dateTimePeriods.end(), RiaQDateTimeTools::DateTimePeriod::DECADE ),
+        dateTimePeriods.erase( std::remove( dateTimePeriods.begin(),
+                                            dateTimePeriods.end(),
+                                            RiaQDateTimeTools::DateTimePeriod::DECADE ),
                                dateTimePeriods.end() );
         return dateTimePeriods;
     }

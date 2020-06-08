@@ -283,7 +283,7 @@ void RiuFemResultTextBuilder::appendTextFromResultColors( RigGeoMechCaseData*   
             {
                 RigFemPart*    femPart         = geomData->femParts()->part( gridIndex );
                 RigElementType elmType         = femPart->elementType( cellIndex );
-                const int*     elementConn      = femPart->connectivities( cellIndex );
+                const int*     elementConn     = femPart->connectivities( cellIndex );
                 int            elmNodeCount    = RigFemTypes::elementNodeCount( elmType );
                 const int*     lElmNodeToIpMap = RigFemTypes::localElmNodeToIntegrationPointMapping( elmType );
 

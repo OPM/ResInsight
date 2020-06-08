@@ -42,7 +42,7 @@ public:
     using FontSize     = caf::FontTools::FontSize;
     using FontSizeEnum = caf::FontTools::FontSizeEnum;
 
-    static cvf::ref<caf::FixedAtlasFont> getFont(FontSize fontSize);
+    static cvf::ref<caf::FixedAtlasFont> getFont( FontSize fontSize );
     static cvf::ref<caf::FixedAtlasFont> getFont( int pointSize );
     static FontSize                      legacyEnumToPointSize( int enumValue );
     static void                          clear();

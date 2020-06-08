@@ -35,8 +35,8 @@ class RiuPlotAnnotationTool
 public:
     enum class RegionAnnotationType
     {
-        NO_ANNOTATIONS              = 0,
-        FORMATION_ANNOTATIONS       = 1,
+        NO_ANNOTATIONS        = 0,
+        FORMATION_ANNOTATIONS = 1,
         // Used to have Wbs-parameter coding as 2
         RESULT_PROPERTY_ANNOTATIONS = 3
     };

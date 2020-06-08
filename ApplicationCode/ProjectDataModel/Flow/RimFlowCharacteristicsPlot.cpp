@@ -248,7 +248,7 @@ void RimFlowCharacteristicsPlot::setAquiferCellThreshold( double aquiferCellThre
 //--------------------------------------------------------------------------------------------------
 int RimFlowCharacteristicsPlot::fontSize() const
 {
-    return caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultPlotFontSize());
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -821,7 +821,7 @@ QString RimFlowCharacteristicsPlot::curveDataAsText() const
 
     std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
 
-    std::vector<double> storageCapacitySamplingValues = { 0.08, 0.1, 0.2, 0.3, 0.4 };
+    std::vector<double> storageCapacitySamplingValues = {0.08, 0.1, 0.2, 0.3, 0.4};
     size_t              sampleCount                   = storageCapacitySamplingValues.size();
 
     for ( const auto& timeIndex : m_currentlyPlottedTimeSteps )
