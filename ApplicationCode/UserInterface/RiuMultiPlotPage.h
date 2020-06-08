@@ -90,6 +90,7 @@ public:
     void         scheduleUpdate();
     void         scheduleReplotOfAllPlots();
     virtual void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) {}
+    void         updateSubTitles();
 
     virtual void renderTo( QPaintDevice* paintDevice );
     void         renderTo( QPainter* painter, double scalingFactor );

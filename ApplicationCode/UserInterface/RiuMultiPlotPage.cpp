@@ -345,6 +345,20 @@ void RiuMultiPlotPage::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::updateSubTitles()
+{
+    for ( int i = 0; i < m_plotWidgets.size(); ++i )
+    {
+        if ( m_plotWidgets[i]->isChecked() )
+        {
+            m_subTitles[i]->setText( m_plotWidgets[i]->plotTitle() );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::renderTo( QPaintDevice* paintDevice )
 {
     int    resolution = paintDevice->logicalDpiX();
