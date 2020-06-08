@@ -650,21 +650,24 @@ if (RESINSIGHT_PRIVATE_INSTALL)
       mark_as_advanced(FORCE RESINSIGHT_QT5_BUNDLE_LIBRARIES) 
       if (RESINSIGHT_QT5_BUNDLE_LIBRARIES)
         message( STATUS "Bundling of Qt5 libraries is enabled" )
-        
-        foreach (qtlib ${QT_LIBRARIES})
-          get_target_property(FILE_NAME_FULL_PATH ${qtlib} LOCATION)
-          message (STATUS "${qtlib} location on disk - ${FILE_NAME_FULL_PATH}")
-          get_filename_component(FILE_NAME_WE ${FILE_NAME_FULL_PATH} NAME_WE)
-          set(FILE_NAME_FOR_INSTALL "${FILE_NAME_WE}.so.5")
-          message (STATUS "${qtlib} filename for install - ${FILE_NAME_FOR_INSTALL}")
-          
-          install(FILES ${FILE_NAME_FULL_PATH} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} RENAME ${FILE_NAME_FOR_INSTALL} )
-        endforeach()
 
         # Get root directory
         get_property(_filepath TARGET "Qt5::Core" PROPERTY LOCATION_RELEASE)
         get_filename_component(_dir ${_filepath} PATH)
         
+        foreach (qtlib ${QT_LIBRARIES})
+          get_target_property(FILE_NAME_FULL_PATH ${qtlib} LOCATION)
+          message (STATUS "${qtlib} location on disk - ${FILE_NAME_FULL_PATH}")
+          get_filename_component(FILE_NAME_WE ${FILE_NAME_FULL_PATH} NAME_WE)
+          message (STATUS "${FILE_NAME_WE} namw without  ext- ${FILE_NAME_WE}")
+          #set(FILE_NAME_FOR_INSTALL "${FILE_NAME_WE}.so.5")
+          #message (STATUS "${qtlib} filename for install - ${FILE_NAME_FOR_INSTALL}")
+
+          file(GLOB FILE_AND_SYMLINKS ${_dir}/${FILE_NAME_WE}.so*)
+          
+          install(FILES ${FILE_AND_SYMLINKS} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
+        endforeach()
+
         # XcbQpa
         file(GLOB FILE_AND_SYMLINKS ${_dir}/libQt5XcbQpa.so*)
         install(FILES ${FILE_AND_SYMLINKS} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
