@@ -403,4 +403,8 @@ void RimCorrelationReportPlot::onDataSelection( const EnsembleParameter& param, 
     m_parameterResultCrossPlot->setCurveDefinitions( {curveDef} );
     m_parameterResultCrossPlot->setEnsembleParameter( param.name );
     m_parameterResultCrossPlot->loadDataAndUpdate();
+    if ( m_viewer )
+    {
+        m_viewer->updateSubTitles();
+    }
 }
