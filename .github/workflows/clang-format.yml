@@ -6,7 +6,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - name: Install clang-format
+    - name: Install clang-format 6.0
       run: |
         sudo apt install clang-format-6.0
         clang-format-6.0 --version
