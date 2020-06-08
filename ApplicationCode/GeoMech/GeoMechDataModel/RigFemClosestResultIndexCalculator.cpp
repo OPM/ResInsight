@@ -37,7 +37,7 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator( RigFemPa
     if ( resultPosition != RIG_ELEMENT_NODAL_FACE || m_face == -1 )
     {
         RigElementType elmType      = femPart->elementType( elementIndex );
-        const int*     elementConn   = femPart->connectivities( elementIndex );
+        const int*     elementConn  = femPart->connectivities( elementIndex );
         int            elmNodeCount = RigFemTypes::elementNodeCount( elmType );
 
         // Find the closest node

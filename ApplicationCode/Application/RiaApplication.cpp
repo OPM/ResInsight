@@ -91,11 +91,11 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
-#include "RimWellPath.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuViewer.h"
@@ -1480,9 +1480,9 @@ cvf::Font* RiaApplication::defaultSceneFont()
 //--------------------------------------------------------------------------------------------------
 cvf::Font* RiaApplication::sceneFont( int fontSize )
 {
-    if (fontSize != caf::FontTools::absolutePointSize(m_preferences->defaultSceneFontSize()))
+    if ( fontSize != caf::FontTools::absolutePointSize( m_preferences->defaultSceneFontSize() ) )
     {
-        auto font = RiaFontCache::getFont(fontSize);
+        auto font = RiaFontCache::getFont( fontSize );
         return font.p();
     }
     return defaultSceneFont();

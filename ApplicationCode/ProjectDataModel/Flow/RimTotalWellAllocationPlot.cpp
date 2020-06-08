@@ -93,14 +93,14 @@ void RimTotalWellAllocationPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 int RimTotalWellAllocationPlot::fontSize() const
 {
-    return caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultPlotFontSize());
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimTotalWellAllocationPlot::updateFonts()
-{    
+{
 }
 
 //--------------------------------------------------------------------------------------------------

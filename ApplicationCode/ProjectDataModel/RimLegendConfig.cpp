@@ -55,8 +55,8 @@ RimLegendConfig::~RimLegendConfig()
 int RimLegendConfig::fontSize() const
 {
     caf::FontHolderInterface* parentFontHolder = nullptr;
-    this->firstAncestorOfType(parentFontHolder);
-    if (parentFontHolder) return parentFontHolder->fontSize();
+    this->firstAncestorOfType( parentFontHolder );
+    if ( parentFontHolder ) return parentFontHolder->fontSize();
 
-    return caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultSceneFontSize());
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultSceneFontSize() );
 }

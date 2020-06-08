@@ -53,7 +53,7 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryEnsembleCurveSetFeature, "RicNewSummaryEnsembl
 std::vector<RimEnsembleCurveSet*>
     RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSets( RimSummaryPlot* plot, RimSummaryCaseCollection* ensemble )
 {
-    CVF_ASSERT( plot && ensemble ); 
+    CVF_ASSERT( plot && ensemble );
 
     RimProject* project = RimProject::current();
     CVF_ASSERT( project );

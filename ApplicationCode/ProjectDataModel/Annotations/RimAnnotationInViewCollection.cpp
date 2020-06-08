@@ -106,7 +106,7 @@ RimAnnotationInViewCollection::RimAnnotationInViewCollection()
                                 "",
                                 "" );
 
-    CAF_PDM_InitFieldNoDefault(&m_annotationFontSize, "AnnotationFontSize", "Default Font Size", "", "", "");
+    CAF_PDM_InitFieldNoDefault( &m_annotationFontSize, "AnnotationFontSize", "Default Font Size", "", "", "" );
 
     m_globalTextAnnotations.uiCapability()->setUiHidden( true );
     m_globalReachCircleAnnotations.uiCapability()->setUiHidden( true );
@@ -250,7 +250,7 @@ void RimAnnotationInViewCollection::onGlobalCollectionChanged( const RimAnnotati
 //--------------------------------------------------------------------------------------------------
 int RimAnnotationInViewCollection::fontSize() const
 {
-    return caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultSceneFontSize(), m_annotationFontSize());
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultSceneFontSize(), m_annotationFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
