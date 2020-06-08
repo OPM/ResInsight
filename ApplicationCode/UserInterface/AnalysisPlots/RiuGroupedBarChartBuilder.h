@@ -47,6 +47,7 @@ public:
     void setLegendColorMap( const std::map<QString, QColor>& legendColors );
 
     void addBarChartToPlot( QwtPlot* plot, Qt::Orientation orientation, int maxBarCount = -1 );
+    void setLabelFontSize( int labelPointSize );
 
 private:
     double midPoint( double v1, double v2 ) { return v1 + 0.5 * ( v2 - 1.0 - v1 ); }
@@ -87,4 +88,5 @@ private:
     Qt::Orientation           m_orientation;
     std::map<QString, QColor> m_legendColors;
     bool                      m_isSortingByMaxValueInGroups;
+    int                       m_labelPointSize;
 };

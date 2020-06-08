@@ -126,6 +126,7 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     plotGroup->add( &m_useAutoPlotTitle );
     plotGroup->add( &m_description );
     RimPlot::defineUiOrdering( uiConfigName, *plotGroup );
+    plotGroup->add( &m_titleFontSize );
     plotGroup->add( &m_axisTitleFontSize );
     plotGroup->add( &m_axisValueFontSize );
 
@@ -168,6 +169,7 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
         addDataToChartBuilder( chartBuilder );
 
         chartBuilder.addBarChartToPlot( m_plotWidget, Qt::Horizontal );
+        chartBuilder.setLabelFontSize( labelFontSize() );
 
         m_plotWidget->insertLegend( nullptr );
         m_plotWidget->updateLegend();
@@ -275,7 +277,7 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
         correlationResults.push_back( std::make_pair( parameterValuesPair.first, correlation ) );
     }
 
-    QString timestepString = m_timeStep().toString( Qt::ISODate );
+    QString timestepString = m_timeStep().toString( RiaPreferences::current()->dateTimeFormat() );
 
     for ( auto parameterCorrPair : correlationResults )
     {

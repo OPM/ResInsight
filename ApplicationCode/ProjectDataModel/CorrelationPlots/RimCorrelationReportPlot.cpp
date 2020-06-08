@@ -315,6 +315,7 @@ void RimCorrelationReportPlot::onLoadDataAndUpdate()
         m_correlationPlot->setAxisValueFontSize( m_axisValueFontSize() );
 
         m_parameterResultCrossPlot->setLabelFontSize( m_labelFontSize() );
+        m_parameterResultCrossPlot->setLegendFontSize( m_legendFontSize() );
         m_parameterResultCrossPlot->setAxisTitleFontSize( m_axisTitleFontSize() );
         m_parameterResultCrossPlot->setAxisValueFontSize( m_axisValueFontSize() );
 
@@ -339,6 +340,7 @@ void RimCorrelationReportPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     plotGroup->add( &m_titleFontSize );
     plotGroup->add( &m_subTitleFontSize );
     plotGroup->add( &m_labelFontSize );
+    plotGroup->add( &m_legendFontSize );
     plotGroup->add( &m_axisTitleFontSize );
     plotGroup->add( &m_axisValueFontSize );
     m_correlationMatrixPlot->legendConfig()->uiOrdering( "ColorsOnly", *plotGroup );

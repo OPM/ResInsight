@@ -19,6 +19,9 @@
 #include "RiuGroupedBarChartBuilder.h"
 
 #include "RiaColorTables.h"
+#include "RiaPreferences.h"
+
+#include "cafFontTools.h"
 
 #include "qwt_column_symbol.h"
 #include "qwt_legend.h"
@@ -89,8 +92,10 @@ public:
 class RiuBarChartScaleDraw : public QwtScaleDraw
 {
 public:
-    RiuBarChartScaleDraw( const std::map<double, std::pair<QwtScaleDiv::TickType, QString>>& posTickTypeAndTexts )
+    RiuBarChartScaleDraw( const std::map<double, std::pair<QwtScaleDiv::TickType, QString>>& posTickTypeAndTexts,
+                          int                                                                labelFontPointSize )
         : m_posTickTypeAndTexts( posTickTypeAndTexts )
+        , m_labelFontPointSize( labelFontPointSize )
     {
         this->setTickLength( QwtScaleDiv::MajorTick, 0 );
         this->setTickLength( QwtScaleDiv::MediumTick, 0 );
@@ -122,6 +127,14 @@ public:
         m_majSpacing = m_medSpacing + QString().fill( ' ', 2 * medTickMaxTextSize );
     }
 
+    QwtText createLabelFromString( const QString& string ) const
+    {
+        QwtText text( string );
+        QFont   font = text.font();
+        font.setPixelSize( caf::FontTools::pointSizeToPixelSize( m_labelFontPointSize ) );
+        text.setFont( font );
+        return text;
+    }
     /// Override to add new lines to the labels according to the tick level
 
     QwtText label( double v ) const override
@@ -133,36 +146,36 @@ public:
             {
                 if ( posTypeTextPairIt->second.first == QwtScaleDiv::MediumTick )
                 {
-                    return m_medLineBreak + posTypeTextPairIt->second.second;
+                    return createLabelFromString( m_medLineBreak + posTypeTextPairIt->second.second );
                 }
                 else if ( posTypeTextPairIt->second.first == QwtScaleDiv::MajorTick )
                 {
-                    return m_majLineBreak + posTypeTextPairIt->second.second;
+                    return createLabelFromString( m_majLineBreak + posTypeTextPairIt->second.second );
                 }
                 else
                 {
-                    return posTypeTextPairIt->second.second;
+                    return createLabelFromString( posTypeTextPairIt->second.second );
                 }
             }
             else if ( this->alignment() == LeftScale )
             {
                 if ( posTypeTextPairIt->second.first == QwtScaleDiv::MediumTick )
                 {
-                    return posTypeTextPairIt->second.second + m_medSpacing;
+                    return createLabelFromString( posTypeTextPairIt->second.second + m_medSpacing );
                 }
                 else if ( posTypeTextPairIt->second.first == QwtScaleDiv::MajorTick )
                 {
-                    return posTypeTextPairIt->second.second + m_majSpacing;
+                    return createLabelFromString( posTypeTextPairIt->second.second + m_majSpacing );
                 }
 
                 else
                 {
-                    return posTypeTextPairIt->second.second;
+                    return createLabelFromString( posTypeTextPairIt->second.second );
                 }
             }
             else
             {
-                return posTypeTextPairIt->second.second;
+                return createLabelFromString( posTypeTextPairIt->second.second );
             }
         }
         else
@@ -212,6 +225,8 @@ private:
     QString m_majLineBreak;
     QString m_medSpacing;
     QString m_majSpacing;
+
+    int m_labelFontPointSize;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -220,6 +235,8 @@ private:
 RiuGroupedBarChartBuilder::RiuGroupedBarChartBuilder( bool sortGroupsByMaxValueInGroup )
     : m_isSortingByMaxValueInGroups( sortGroupsByMaxValueInGroup )
 {
+    m_labelPointSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
+                                                          caf::FontTools::RelativeSize::Small );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -575,7 +592,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
             }
         }
 
-        RiuBarChartScaleDraw* scaleDrawer = new RiuBarChartScaleDraw( groupPositionedAxisTexts );
+        RiuBarChartScaleDraw* scaleDrawer = new RiuBarChartScaleDraw( groupPositionedAxisTexts, m_labelPointSize );
 
         plot->setAxisScaleDraw( axis, scaleDrawer );
         plot->setAxisScaleDiv( axis, groupAxisScaleDiv );
@@ -700,7 +717,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
             }
         }
 
-        RiuBarChartScaleDraw* barTextScaleDrawer = new RiuBarChartScaleDraw( positionedBarLabels );
+        RiuBarChartScaleDraw* barTextScaleDrawer = new RiuBarChartScaleDraw( positionedBarLabels, m_labelPointSize );
         barTextScaleDrawer->setAlignment( alignment );
         barTextScaleDrawer->setLabelRotation( labelRotation );
         barTextScaleDrawer->setLabelAlignment( labelAlignment );
@@ -711,6 +728,14 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
         barTextScale->attach( plot );
         barTextScale->setZ( 1000 );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuGroupedBarChartBuilder::setLabelFontSize( int labelPointSize )
+{
+    m_labelPointSize = labelPointSize;
 }
 
 //--------------------------------------------------------------------------------------------------

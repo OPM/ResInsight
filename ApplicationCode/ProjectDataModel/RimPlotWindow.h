@@ -62,6 +62,8 @@ public:
     int titleFontSize() const;
     int legendFontSize() const;
 
+    void setLegendFontSize( caf::FontTools::RelativeSize fontSize );
+
     void updateLayout();
     void updateParentLayout();
 
