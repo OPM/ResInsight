@@ -140,7 +140,7 @@ size_t RimTofAccumulatedPhaseFractionsPlot::timeStep()
 //--------------------------------------------------------------------------------------------------
 int RimTofAccumulatedPhaseFractionsPlot::fontSize() const
 {
-    return caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultPlotFontSize());
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------

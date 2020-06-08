@@ -125,9 +125,9 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     this->setAsPlotMdiWindow();
 
     m_accumulatedWellFlowPlot->setAvailableDepthUnits( {} );
-    m_accumulatedWellFlowPlot->setAvailableDepthTypes( { RiaDefines::DepthTypeEnum::CONNECTION_NUMBER,
-                                                         RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
-                                                         RiaDefines::DepthTypeEnum::PSEUDO_LENGTH } );
+    m_accumulatedWellFlowPlot->setAvailableDepthTypes( {RiaDefines::DepthTypeEnum::CONNECTION_NUMBER,
+                                                        RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
+                                                        RiaDefines::DepthTypeEnum::PSEUDO_LENGTH} );
 
     m_accumulatedWellFlowPlot->setCommonDataSourceEnabled( false );
 
@@ -800,7 +800,7 @@ void RimWellAllocationPlot::showPlotLegend( bool doShow )
 //--------------------------------------------------------------------------------------------------
 int RimWellAllocationPlot::fontSize() const
 {
-    return caf::FontTools::absolutePointSize(RiaPreferences::current()->defaultPlotFontSize());
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------

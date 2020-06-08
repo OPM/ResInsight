@@ -49,7 +49,7 @@ std::vector<caf::FontHolderInterface*> findFontObjects()
     for ( auto fontObject : allFontObjects )
     {
         defaultFontObjects.push_back( fontObject );
-        }
+    }
     return defaultFontObjects;
 }
 
