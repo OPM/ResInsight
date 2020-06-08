@@ -47,7 +47,7 @@ CAF_PDM_SOURCE_INIT( RimCorrelationReportPlot, "CorrelationReportPlot" );
 //--------------------------------------------------------------------------------------------------
 RimCorrelationReportPlot::RimCorrelationReportPlot()
 {
-    CAF_PDM_InitObject( "Correlation Report Plot", ":/CorrelationPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Correlation Report Plot", ":/CorrelationReportPlot16x16.png", "", "" );
     this->setDeletable( true );
 
     CAF_PDM_InitFieldNoDefault( &m_plotWindowTitle, "PlotWindowTitle", "Title", "", "", "" );

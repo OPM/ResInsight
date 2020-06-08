@@ -77,5 +77,5 @@ void RicNewParameterResultCrossPlotFeature::onActionTriggered( bool isChecked )
 void RicNewParameterResultCrossPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Parameter vs Result Cross Plot" );
-    actionToSetup->setIcon( QIcon( ":/AnalysisPlot16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/CorrelationCrossPlot16x16.png" ) );
 }

@@ -77,5 +77,5 @@ void RicNewCorrelationPlotFeature::onActionTriggered( bool isChecked )
 void RicNewCorrelationPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Correlation Tornado Plot" );
-    actionToSetup->setIcon( QIcon( ":/AnalysisPlot16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/CorrelationTornadoPlot16x16.png" ) );
 }

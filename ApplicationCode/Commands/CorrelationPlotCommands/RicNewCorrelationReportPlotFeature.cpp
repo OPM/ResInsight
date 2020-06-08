@@ -77,5 +77,5 @@ void RicNewCorrelationReportPlotFeature::onActionTriggered( bool isChecked )
 void RicNewCorrelationReportPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Correlation Report Plot" );
-    actionToSetup->setIcon( QIcon( ":/AnalysisPlot16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/CorrelationReportPlot16x16.png" ) );
 }

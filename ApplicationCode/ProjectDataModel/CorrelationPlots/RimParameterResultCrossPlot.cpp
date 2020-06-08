@@ -57,7 +57,7 @@ CAF_PDM_SOURCE_INIT( RimParameterResultCrossPlot, "ParameterResultCrossPlot" );
 RimParameterResultCrossPlot::RimParameterResultCrossPlot()
     : RimAbstractCorrelationPlot()
 {
-    CAF_PDM_InitObject( "ParameterResultCross Plot", ":/ParameterResultCrossPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "ParameterResultCross Plot", ":/CorrelationCrossPlot16x16.png", "", "" );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
