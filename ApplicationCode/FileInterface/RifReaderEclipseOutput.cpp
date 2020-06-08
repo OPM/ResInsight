@@ -106,7 +106,7 @@
 //  vertex indices
 //
 
-static const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
+static const size_t cellMappingECLRi[8] = {0, 1, 3, 2, 4, 5, 7, 6};
 
 //**************************************************************************************************
 // Static functions

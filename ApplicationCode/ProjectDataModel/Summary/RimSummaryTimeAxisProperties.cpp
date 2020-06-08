@@ -349,7 +349,7 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
     *useOptionsOnly = true;
-  
+
     if ( fieldNeedingOptions == &m_dateFormat )
     {
         for ( auto dateFormat : RiaQDateTimeTools::supportedDateFormats() )

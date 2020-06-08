@@ -91,9 +91,10 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
             if ( QColor::isValidColor( colorWord ) )
                 numberString.remove( colorWord ); // remove color if present as last word on line
 
-            QStringList numberWords =
-                numberString.split( QRegExp( "-" ), QString::SkipEmptyParts ); // extract words containing formation
-                                                                               // number(s)
+            QStringList numberWords = numberString.split( QRegExp( "-" ), QString::SkipEmptyParts ); // extract words
+                                                                                                     // containing
+                                                                                                     // formation
+                                                                                                     // number(s)
 
             if ( numberWords.size() == 2 ) // formation range with or without color at end of line
             {

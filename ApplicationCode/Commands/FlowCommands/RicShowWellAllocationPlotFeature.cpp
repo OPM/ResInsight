@@ -105,8 +105,7 @@ void RicShowWellAllocationPlotFeature::onActionTriggered( bool isChecked )
 
     if ( RimProject::current() )
     {
-        RimFlowPlotCollection* flowPlotColl =
-            RimProject::current()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             flowPlotColl->defaultWellAllocPlot()->setFromSimulationWell( simWell );

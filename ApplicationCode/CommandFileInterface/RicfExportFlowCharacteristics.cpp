@@ -88,8 +88,7 @@ caf::PdmScriptResponse RicfExportFlowCharacteristics::execute()
             exportFileName = exportFolder + "/" + fi.fileName();
         }
 
-        RimFlowPlotCollection* flowPlotColl =
-            RimProject::current()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimFlowCharacteristicsPlot* plot = flowPlotColl->defaultFlowCharacteristicsPlot();

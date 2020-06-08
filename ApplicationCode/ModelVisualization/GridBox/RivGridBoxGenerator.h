@@ -48,7 +48,7 @@ public:
     void updateFromBackgroundColor( const cvf::Color3f& backgroundColor );
 
     void createGridBoxParts();
-    void setGridLabelFontSize(int fontSize);
+    void setGridLabelFontSize( int fontSize );
     void updateFromCamera( const cvf::Camera* camera );
 
     cvf::Model* model();
@@ -124,7 +124,7 @@ private:
 
     cvf::Color3f m_gridColor;
     cvf::Color3f m_gridLegendColor;
-    int          m_fontPointSize;    
+    int          m_fontPointSize;
 
     bool m_needsRegeneration;
 };

@@ -75,6 +75,7 @@ public:
 
     int  fontSize() const override;
     void updateFonts() override;
+
 protected:
     // RimViewWindow overrides
     void   assignIdIfNecessary() final;

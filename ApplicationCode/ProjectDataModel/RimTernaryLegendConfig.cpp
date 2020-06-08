@@ -245,9 +245,9 @@ void RimTernaryLegendConfig::recreateLegend()
     // has been removed, (and thus the opengl resources has been deleted) The text in
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
-    int fontSize    = this->fontSize();
-    cvf::Font* font = RiaApplication::instance()->sceneFont(fontSize);
-    m_legend                = new RivTernarySaturationOverlayItem( font );
+    int        fontSize = this->fontSize();
+    cvf::Font* font     = RiaApplication::instance()->sceneFont( fontSize );
+    m_legend            = new RivTernarySaturationOverlayItem( font );
     m_legend->setLayout( cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT );
 
     updateLegend();

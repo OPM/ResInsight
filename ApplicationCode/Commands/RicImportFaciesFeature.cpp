@@ -152,7 +152,7 @@ bool RicImportFaciesFeature::matchByName( const QString name, RimColorLegend* co
 int RicImportFaciesFeature::computeEditDistance( const QString& a, const QString& b )
 {
     // Remove common words from the domain which does not help in the matching
-    std::vector<QString> stopWords   = { "rocks", "rock", "stones", "stone" };
+    std::vector<QString> stopWords   = {"rocks", "rock", "stones", "stone"};
     QString              aSimplified = a.toLower();
     QString              bSimplified = b.toLower();
     for ( auto r : stopWords )
