@@ -660,15 +660,6 @@ if (RESINSIGHT_PRIVATE_INSTALL)
           
           install(FILES ${FILE_NAME_FULL_PATH} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} RENAME ${FILE_NAME_FOR_INSTALL} )
         endforeach()
-
-        # Get root directory
-        get_property(_filepath TARGET "Qt5::Core" PROPERTY LOCATION_RELEASE)
-        get_filename_component(_dir ${_filepath} PATH)
-        
-        # XcbQpa
-        file(GLOB FILE_AND_SYMLINKS ${_dir}/libQt5XcbQpa.so*)
-        install(FILES ${FILE_AND_SYMLINKS} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
-
       endif(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
 
     endif()
