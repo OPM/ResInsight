@@ -1,0 +1,23 @@
+name: clang-format (Ubuntu)
+
+on: [pull_request]
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install clang-format
+      run: |
+        sudo apt install clang-format-6.0
+        clang-format-6.0 --version
+    - uses: actions/checkout@v2
+    - name: clang-format with diff
+      run: |
+        cd ApplicationCode
+        find  -iname *.h -o -iname *.cpp | xargs clang-format-6.0 -i
+        git diff
+    - uses: peter-evans/create-pull-request@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'Fixes by clang-format'
+        title: 'Fixes by clang-format'
