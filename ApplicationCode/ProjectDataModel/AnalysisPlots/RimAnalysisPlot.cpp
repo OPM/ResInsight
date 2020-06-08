@@ -417,7 +417,6 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         dlg.enableIndividualEnsembleCaseSelection( true );
 
         dlg.setCurveSelection( this->curveDefinitionsWithoutEnsembleReference() );
-        dlg.setCaseAndAddress( nullptr, RifEclipseSummaryAddress() );
 
         if ( dlg.exec() == QDialog::Accepted )
         {

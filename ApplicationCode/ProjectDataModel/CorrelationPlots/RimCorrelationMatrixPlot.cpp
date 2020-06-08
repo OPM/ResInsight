@@ -246,6 +246,8 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
         plotGroup->add( &m_description );
         m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
         RimPlot::defineUiOrdering( uiConfigName, *plotGroup );
+
+        plotGroup->add( &m_titleFontSize );
         plotGroup->add( &m_labelFontSize );
         plotGroup->add( &m_axisTitleFontSize );
         plotGroup->add( &m_axisValueFontSize );

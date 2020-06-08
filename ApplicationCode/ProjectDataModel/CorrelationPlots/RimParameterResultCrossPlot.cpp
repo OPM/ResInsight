@@ -45,6 +45,8 @@
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
 
+#include <QStringList>
+
 #include <limits>
 #include <map>
 #include <set>
@@ -61,6 +63,10 @@ RimParameterResultCrossPlot::RimParameterResultCrossPlot()
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    m_selectMultipleVectors = true;
+
+    m_legendFontSize = caf::FontTools::RelativeSize::XSmall;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,6 +121,10 @@ void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::P
     plotGroup->add( &m_useAutoPlotTitle );
     plotGroup->add( &m_description );
     RimPlot::defineUiOrdering( uiConfigName, *plotGroup );
+    plotGroup->add( &m_titleFontSize );
+    plotGroup->add( &m_legendFontSize );
+    plotGroup->add( &m_axisTitleFontSize );
+    plotGroup->add( &m_axisValueFontSize );
 
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle() );
     uiOrdering.skipRemainingFields( true );
@@ -152,10 +162,11 @@ void RimParameterResultCrossPlot::onLoadDataAndUpdate()
 
     if ( m_plotWidget && m_analyserOfSelectedCurveDefs )
     {
-        m_plotWidget->insertLegend( nullptr );
-        m_plotWidget->updateLegend();
-
         createPoints();
+        QwtLegend* legend = new QwtLegend( m_plotWidget );
+        m_plotWidget->insertLegend( legend, QwtPlot::RightLegend );
+        m_plotWidget->setLegendFontSize( legendFontSize() );
+        m_plotWidget->updateLegend();
 
         this->updateAxes();
         this->updatePlotTitle();
@@ -195,54 +206,73 @@ void RimParameterResultCrossPlot::createPoints()
     if ( ensembles().empty() ) return;
     if ( addresses().empty() ) return;
 
-    auto              ensemble  = *ensembles().begin();
-    auto              address   = *addresses().begin();
-    EnsembleParameter parameter = ensembleParameter( m_ensembleParameter );
-    if ( !( parameter.isNumeric() && parameter.isValid() ) ) return;
+    bool showEnsembleName = ensembles().size() > 1u;
+    bool showAddressName  = addresses().size() > 1u;
 
-    for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
+    int ensembleIdx = 0;
+    for ( auto ensemble : ensembles() )
     {
-        std::vector<double> caseValuesAtTimestep;
-        std::vector<double> parameterValues;
-
-        auto summaryCase = ensemble->allSummaryCases()[caseIdx];
-
-        RifSummaryReaderInterface* reader = summaryCase->summaryReader();
-        if ( !reader ) continue;
-
-        if ( !summaryCase->caseRealizationParameters() ) continue;
-
-        std::vector<double> values;
-
-        double closestValue    = std::numeric_limits<double>::infinity();
-        time_t closestTimeStep = 0;
-        if ( reader->values( address, &values ) )
+        int addressIdx = 0;
+        for ( auto address : addresses() )
         {
-            const std::vector<time_t>& timeSteps = reader->timeSteps( address );
-            for ( size_t i = 0; i < timeSteps.size(); ++i )
+            EnsembleParameter parameter = ensembleParameter( m_ensembleParameter );
+            if ( !( parameter.isNumeric() && parameter.isValid() ) ) return;
+
+            for ( size_t caseIdx = 0u; caseIdx < ensemble->allSummaryCases().size(); ++caseIdx )
             {
-                if ( timeDiff( timeSteps[i], selectedTimestep ) < timeDiff( selectedTimestep, closestTimeStep ) )
+                std::vector<double> caseValuesAtTimestep;
+                std::vector<double> parameterValues;
+
+                auto summaryCase = ensemble->allSummaryCases()[caseIdx];
+
+                RifSummaryReaderInterface* reader = summaryCase->summaryReader();
+                if ( !reader ) continue;
+
+                if ( !summaryCase->caseRealizationParameters() ) continue;
+
+                std::vector<double> values;
+
+                double closestValue    = std::numeric_limits<double>::infinity();
+                time_t closestTimeStep = 0;
+                if ( reader->values( address, &values ) )
                 {
-                    closestValue    = values[i];
-                    closestTimeStep = timeSteps[i];
+                    const std::vector<time_t>& timeSteps = reader->timeSteps( address );
+                    for ( size_t i = 0; i < timeSteps.size(); ++i )
+                    {
+                        if ( timeDiff( timeSteps[i], selectedTimestep ) < timeDiff( selectedTimestep, closestTimeStep ) )
+                        {
+                            closestValue    = values[i];
+                            closestTimeStep = timeSteps[i];
+                        }
+                    }
+                }
+                if ( closestValue != std::numeric_limits<double>::infinity() )
+                {
+                    caseValuesAtTimestep.push_back( closestValue );
+                    double paramValue = parameter.values[caseIdx].toDouble();
+                    parameterValues.push_back( paramValue );
+
+                    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve;
+                    plotCurve->setSamples( parameterValues.data(), caseValuesAtTimestep.data(), (int)parameterValues.size() );
+                    plotCurve->setStyle( QwtPlotCurve::NoCurve );
+                    RiuQwtSymbol* symbol =
+                        new RiuQwtSymbol( RiuQwtSymbol::cycledSymbolStyle( ensembleIdx, addressIdx ), "" );
+                    symbol->setSize( legendFontSize(), legendFontSize() );
+                    symbol->setColor( colorTable.cycledQColor( caseIdx ) );
+                    plotCurve->setSymbol( symbol );
+                    QStringList curveName;
+                    if ( showEnsembleName ) curveName += ensemble->name();
+                    curveName += summaryCase->displayCaseName();
+                    if ( showAddressName ) curveName += QString::fromStdString( address.uiText() );
+
+                    plotCurve->setTitle( curveName.join( " - " ) );
+
+                    plotCurve->attach( m_plotWidget );
                 }
             }
+            addressIdx++;
         }
-        if ( closestValue != std::numeric_limits<double>::infinity() )
-        {
-            caseValuesAtTimestep.push_back( closestValue );
-            double paramValue = parameter.values[caseIdx].toDouble();
-            parameterValues.push_back( paramValue );
-
-            QwtPlotCurve* plotCurve = new QwtPlotCurve;
-            plotCurve->setSamples( parameterValues.data(), caseValuesAtTimestep.data(), (int)parameterValues.size() );
-            plotCurve->setStyle( QwtPlotCurve::NoCurve );
-            RiuQwtSymbol* symbol = new RiuQwtSymbol( RiuQwtSymbol::SYMBOL_DIAMOND, "" );
-            symbol->setSize( 12, 12 );
-            symbol->setColor( colorTable.cycledQColor( caseIdx ) );
-            plotCurve->setSymbol( symbol );
-            plotCurve->attach( m_plotWidget );
-        }
+        ensembleIdx++;
     }
 }
 

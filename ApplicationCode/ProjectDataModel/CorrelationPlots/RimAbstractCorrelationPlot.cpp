@@ -56,6 +56,8 @@ RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size", "", "", "" );
     m_axisValueFontSize = caf::FontTools::RelativeSize::XSmall;
+
+    m_legendFontSize = caf::FontTools::RelativeSize::XSmall;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,7 +103,6 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
             dlg.enableMultiSelect( true );
         }
 
-        dlg.setCaseAndAddress( nullptr, RifEclipseSummaryAddress() );
         dlg.setCurveSelection( curveDefinitions() );
 
         if ( dlg.exec() == QDialog::Accepted )
@@ -134,7 +135,7 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
         this->updatePlotTitle();
     }
     else if ( changedField == &m_labelFontSize || changedField == &m_axisTitleFontSize ||
-              changedField == &m_axisValueFontSize )
+              changedField == &m_axisValueFontSize || changedField == &m_legendFontSize || changedField == &m_titleFontSize )
     {
         this->loadDataAndUpdate();
     }
