@@ -3,7 +3,7 @@ name: clang-format
 on: [push, pull_request]
 
 jobs:
-  lint:
+  clang-format-job:
     runs-on: ubuntu-latest
     steps:
     - name: Install clang-format 6.0
