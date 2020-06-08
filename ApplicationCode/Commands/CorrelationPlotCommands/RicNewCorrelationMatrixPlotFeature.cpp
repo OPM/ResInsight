@@ -78,5 +78,5 @@ void RicNewCorrelationMatrixPlotFeature::onActionTriggered( bool isChecked )
 void RicNewCorrelationMatrixPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Correlation Matrix Plot" );
-    actionToSetup->setIcon( QIcon( ":/AnalysisPlot16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/CorrelationMatrixPlot16x16.png" ) );
 }
