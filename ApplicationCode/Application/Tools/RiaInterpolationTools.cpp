@@ -64,3 +64,128 @@ double RiaInterpolationTools::linear( const std::vector<double>& x, const std::v
 
     return lowerY + ( ( value - lowerX ) / deltaX ) * deltaY;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaInterpolationTools::extrapolate( const std::vector<double>& x, const std::vector<double>& y, double value )
+{
+    return y[0] + ( value - x[0] ) / ( x[1] - x[0] ) * ( y[1] - y[0] );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaInterpolationTools::findNextDataPoint( const std::vector<double>& values, int index )
+{
+    for ( size_t i = index; i < values.size(); i++ )
+    {
+        if ( values[i] != std::numeric_limits<double>::infinity() ) return static_cast<int>( i );
+    }
+
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaInterpolationTools::findPreviousDataPoint( const std::vector<double>& values, int index )
+{
+    assert( index >= 0 );
+
+    for ( int i = index; i >= 0; i-- )
+    {
+        if ( values[i] != std::numeric_limits<double>::infinity() ) return static_cast<int>( i );
+    }
+
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaInterpolationTools::extrapolateRange( int                        start,
+                                             int                        end,
+                                             int                        firstPoint,
+                                             int                        lastPoint,
+                                             const std::vector<double>& x,
+                                             std::vector<double>&       y )
+{
+    std::vector<double> xs = {x[firstPoint], x[lastPoint]};
+    std::vector<double> ys = {y[firstPoint], y[lastPoint]};
+    for ( int index = start; index < end; index++ )
+    {
+        y[index] = extrapolate( xs, ys, x[index] );
+    }
+
+    return end;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaInterpolationTools::interpolateRange( int                        start,
+                                             int                        end,
+                                             int                        firstPoint,
+                                             int                        lastPoint,
+                                             const std::vector<double>& x,
+                                             std::vector<double>&       y )
+{
+    assert( start <= end );
+
+    std::vector<double> xs = {x[firstPoint], x[lastPoint]};
+    std::vector<double> ys = {y[firstPoint], y[lastPoint]};
+    for ( int index = start; index < end; index++ )
+    {
+        y[index] = RiaInterpolationTools::linear( xs, ys, x[index] );
+    }
+
+    return end;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaInterpolationTools::interpolateMissingValues( const std::vector<double>& x, std::vector<double>& y )
+{
+    assert( x.size() == y.size() );
+
+    int index = 0;
+
+    // Previous index which is not inf
+    int prevSetIndex = -1;
+
+    while ( index < static_cast<int>( y.size() ) )
+    {
+        // Missing values are inf in the input data
+        if ( y[index] == std::numeric_limits<double>::infinity() )
+        {
+            // Find the next index with a value
+            int nextSetIndex = findNextDataPoint( y, index + 1 );
+
+            if ( prevSetIndex == -1 )
+            {
+                // The first value is inf: need to find next two valid points and extrapolate
+                int nextSetIndex2 = findNextDataPoint( y, nextSetIndex + 1 );
+                index             = extrapolateRange( index, nextSetIndex, nextSetIndex, nextSetIndex2, x, y );
+            }
+            else if ( nextSetIndex == -1 )
+            {
+                // The last value is inf: extrapolate from two last data points
+                int prevSetIndex2 = findPreviousDataPoint( y, prevSetIndex - 1 );
+                index             = extrapolateRange( index, y.size(), prevSetIndex2, prevSetIndex, x, y );
+            }
+            else if ( nextSetIndex != static_cast<int>( y.size() ) )
+            {
+                // The missing values somewhere between non-inf data: interpolate all the values
+                index = interpolateRange( index, nextSetIndex, prevSetIndex, nextSetIndex, x, y );
+            }
+        }
+        else
+        {
+            // Nothing to do for the values which are not missing
+            prevSetIndex = index;
+            ++index;
+        }
+    }
+}
