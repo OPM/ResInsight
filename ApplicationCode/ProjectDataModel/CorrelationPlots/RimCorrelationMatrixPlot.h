@@ -78,7 +78,8 @@ private:
     caf::PdmField<bool>                  m_showAbsoluteValues;
     caf::PdmField<bool>                  m_sortByValues;
     caf::PdmField<bool>                  m_sortByAbsoluteValues;
-    caf::PdmField<bool>                  m_removeRowsAndColumnsWithZeroCorrelation;
+    caf::PdmField<bool>                  m_showOnlyTopNCorrelations;
+    caf::PdmField<size_t>                m_topNFilterCount;
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 
