@@ -66,13 +66,13 @@ void FontTools::FontSizeEnum::setUp()
 template <>
 void FontTools::RelativeSizeEnum::setUp()
 {
-    addItem(FontTools::RelativeSize::XXSmall, "XX Small", "XX Small");
-    addItem(FontTools::RelativeSize::XSmall, "X Small", "X Small");
+    addItem(FontTools::RelativeSize::XXSmall, "XX_Small", "XX Small");
+    addItem(FontTools::RelativeSize::XSmall, "X_Small", "X Small");
     addItem(FontTools::RelativeSize::Small, "Small", "Small");
     addItem(FontTools::RelativeSize::Medium, "Medium", "Medium");
     addItem(FontTools::RelativeSize::Large, "Large", "Large");
-    addItem(FontTools::RelativeSize::XLarge, "X Large", "X Large");
-    addItem(FontTools::RelativeSize::XXLarge, "XX Large", "XX Large");
+    addItem(FontTools::RelativeSize::XLarge, "X_Large", "X Large");
+    addItem(FontTools::RelativeSize::XXLarge, "XX_Large", "XX Large");
 
     setDefault(FontTools::RelativeSize::Medium);
 }
