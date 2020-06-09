@@ -85,7 +85,7 @@ public:
     void setSubTitlesVisible( bool visible );
 
     bool previewModeEnabled() const;
-    void setPreviewModeEnabled( bool previewMode );
+    void setPagePreviewModeEnabled( bool previewMode );
 
     void         scheduleUpdate();
     void         scheduleReplotOfAllPlots();
@@ -126,7 +126,7 @@ protected:
 
     void stashWidgetStates();
     void restoreWidgetStates();
-
+    void applyLook();
 private slots:
     virtual void performUpdate();
     void         onLegendUpdated();

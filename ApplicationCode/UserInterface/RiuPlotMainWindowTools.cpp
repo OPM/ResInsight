@@ -96,6 +96,7 @@ void RiuPlotMainWindowTools::refreshToolbars()
         {
             mpw->updateSummaryPlotToolBar();
             mpw->updateWellLogPlotToolBar();
+            mpw->updateMultiPlotToolBar();
         }
     }
 }

@@ -79,8 +79,8 @@ public:
 
     int indexOfPlotWidget( RiuQwtPlotWidget* plotWidget );
 
-    bool previewModeEnabled() const;
-    void setPreviewModeEnabled( bool previewMode );
+    bool pagePreviewModeEnabled() const;
+    void setPagePreviewModeEnabled( bool previewMode );
 
     void scheduleUpdate();
     void scheduleReplotOfAllPlots();
@@ -93,7 +93,8 @@ protected:
     void showEvent( QShowEvent* event ) override;
     void resizeEvent( QResizeEvent* event ) override;
 
-    void setBookSize( int frameWidth );
+    void applyPagePreviewBookSize( int frameWidth );
+    void applyBookSize( int frameWidth, int frameHeight );
 
     std::pair<int, int> rowAndColumnCount( int plotWidgetCount ) const;
 
@@ -106,7 +107,7 @@ private:
     void                                     createPages();
     const QList<QPointer<RiuMultiPlotPage>>& pages() const;
     RiuMultiPlotPage*                        createPage();
-
+    void                                     applyLook();
 private slots:
     virtual void performUpdate();
 

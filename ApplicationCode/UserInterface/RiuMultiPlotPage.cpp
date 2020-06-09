@@ -96,34 +96,13 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
     m_gridLayout->setContentsMargins( 0, 0, 0, 0 );
     m_gridLayout->setSpacing( 1 );
 
-    QPalette newPalette( palette() );
-    newPalette.setColor( QPalette::Window, Qt::white );
-    setPalette( newPalette );
-
-    setAutoFillBackground( true );
-
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
-
-    if ( m_previewMode )
-    {
-        this->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
-    }
-    else
-    {
-        this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
-    }
 
     setFocusPolicy( Qt::StrongFocus );
 
     this->setObjectName( QString( "%1" ).arg( reinterpret_cast<uint64_t>( this ) ) );
 
-    this->setBackgroundRole( QPalette::Window );
-
-    QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( this );
-    dropShadowEffect->setOffset( 4.0, 4.0 );
-    dropShadowEffect->setBlurRadius( 4.0 );
-    dropShadowEffect->setColor( QColor( 40, 40, 40, 40 ) );
-    this->setGraphicsEffect( dropShadowEffect );
+    applyLook();
 
     updateMarginsFromPageLayout();
 }
@@ -309,7 +288,7 @@ bool RiuMultiPlotPage::previewModeEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::setPreviewModeEnabled( bool previewMode )
+void RiuMultiPlotPage::setPagePreviewModeEnabled( bool previewMode )
 {
     m_previewMode = previewMode;
 }
@@ -576,6 +555,7 @@ bool RiuMultiPlotPage::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::performUpdate()
 {
+    applyLook();
     updateMarginsFromPageLayout();
     reinsertPlotWidgets();
     alignCanvasTops();
@@ -858,5 +838,34 @@ void RiuMultiPlotPage::restoreWidgetStates()
     for ( RiuQwtPlotWidget* plotWidget : m_plotWidgets )
     {
         plotWidget->restoreWidgetStates();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::applyLook()
+{
+    QPalette newPalette( palette() );
+    newPalette.setColor( QPalette::Window, Qt::white );
+    setPalette( newPalette );
+
+    setAutoFillBackground( true );
+    setBackgroundRole( QPalette::Window );
+
+    if ( m_previewMode )
+    {
+        setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding );
+
+        QGraphicsDropShadowEffect* dropShadowEffect = new QGraphicsDropShadowEffect( this );
+        dropShadowEffect->setOffset( 4.0, 4.0 );
+        dropShadowEffect->setBlurRadius( 4.0 );
+        dropShadowEffect->setColor( QColor( 40, 40, 40, 40 ) );
+        setGraphicsEffect( dropShadowEffect );
+    }
+    else
+    {
+        setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+        setGraphicsEffect( nullptr );
     }
 }
