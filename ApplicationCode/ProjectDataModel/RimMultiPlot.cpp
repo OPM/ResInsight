@@ -28,6 +28,9 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
+#include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
+
 #include <QPaintDevice>
 #include <QRegularExpression>
 
@@ -80,6 +83,9 @@ RimMultiPlot::RimMultiPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Sub Plot Title Font Size", "", "", "" );
 
+    CAF_PDM_InitField( &m_pagePreviewMode, "PagePreviewMode", false, "Page Preview Mode", "", "", "" );
+    m_pagePreviewMode.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_pagePreviewMode.uiCapability()->setUiIconFromResourceString( ":/PagePreview16x16.png" );
     m_viewer = nullptr;
 
     setDeletable( true );
@@ -120,6 +126,7 @@ RimMultiPlot& RimMultiPlot::operator=( RimMultiPlot&& rhs )
     m_rowsPerPage              = rhs.m_rowsPerPage;
     m_showIndividualPlotTitles = rhs.m_showIndividualPlotTitles;
     m_subTitleFontSize         = rhs.m_subTitleFontSize;
+    m_pagePreviewMode          = rhs.m_pagePreviewMode;
 
     return *this;
 }
@@ -311,6 +318,7 @@ void RimMultiPlot::doUpdateLayout()
         m_viewer->setTitleFontSizes( titleFontSize(), subTitleFontSize() );
         m_viewer->setLegendFontSize( legendFontSize() );
         m_viewer->setAxisFontSizes( axisTitleFontSize(), axisValueFontSize() );
+        m_viewer->setPagePreviewModeEnabled( m_pagePreviewMode() );
 
         m_viewer->scheduleUpdate();
         m_viewer->adjustSize();
@@ -417,6 +425,14 @@ caf::PdmFieldHandle* RimMultiPlot::rowsPerPageField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimMultiPlot::pagePreviewField()
+{
+    return &m_pagePreviewMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimMultiPlot::showPlotTitles() const
 {
     return m_showIndividualPlotTitles;
@@ -470,7 +486,7 @@ bool RimMultiPlot::previewModeEnabled() const
 {
     if ( m_viewer )
     {
-        return m_viewer->previewModeEnabled();
+        return m_viewer->pagePreviewModeEnabled();
     }
     return false;
 }
@@ -566,7 +582,7 @@ void RimMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     {
         updateFonts();
     }
-    else if ( changedField == &m_columnCount || changedField == &m_rowsPerPage )
+    else if ( changedField == &m_columnCount || changedField == &m_rowsPerPage || changedField == &m_pagePreviewMode )
     {
         updateLayout();
         RiuPlotMainWindowTools::refreshToolbars();
@@ -600,6 +616,23 @@ void RimMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& u
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                          QString                    uiConfigName,
+                                          caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_rowsPerPage || field == &m_columnCount )
+    {
+        auto myattr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+        if ( myattr )
+        {
+            myattr->iconSize = QSize( 24, 16 );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMultiPlot::uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_showPlotWindowTitle );
@@ -610,6 +643,7 @@ void RimMultiPlot::uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_columnCount );
     uiOrdering.add( &m_rowsPerPage );
     uiOrdering.add( &m_majorTickmarkCount );
+    uiOrdering.add( &m_pagePreviewMode );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -631,7 +665,7 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
                 options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
                                                            enumVal,
                                                            false,
-                                                           caf::IconProvider( iconPath ) ) );
+                                                           caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
             }
             else
             {
@@ -639,7 +673,7 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
                 options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
                                                            enumVal,
                                                            false,
-                                                           caf::IconProvider( iconPath ) ) );
+                                                           caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
             }
         }
     }

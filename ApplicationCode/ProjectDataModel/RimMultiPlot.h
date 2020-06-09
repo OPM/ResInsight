@@ -90,6 +90,7 @@ public:
     int                  rowsPerPage() const;
     caf::PdmFieldHandle* columnCountField();
     caf::PdmFieldHandle* rowsPerPageField();
+    caf::PdmFieldHandle* pagePreviewField();
     bool                 showPlotTitles() const;
 
     void zoomAll() override;
@@ -112,7 +113,9 @@ protected:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
     void uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -142,6 +145,7 @@ protected:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_subTitleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
+    caf::PdmField<bool>                             m_pagePreviewMode;
 
     caf::PdmField<RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum> m_majorTickmarkCount;
 
