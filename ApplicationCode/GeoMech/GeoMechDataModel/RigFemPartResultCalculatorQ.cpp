@@ -77,8 +77,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorQ::calculate( int partIndex,
     frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
 
     RigFemScalarResultFrames* stm =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType, "ST", "STM" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "SM" ) );
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 

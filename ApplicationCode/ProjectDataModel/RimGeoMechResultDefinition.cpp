@@ -533,6 +533,8 @@ void RimGeoMechResultDefinition::initAfterRead()
         m_timeLapseBaseTimestep = RigFemResultAddress::noTimeLapseValue();
     }
 
+    if ( m_resultComponentName == "STM" || m_resultComponentName == "SEM" ) m_resultComponentName = "SM";
+
     m_resultPositionTypeUiField = m_resultPositionType;
     m_resultVariableUiField     = composeFieldCompString( m_resultFieldName(), m_resultComponentName() );
     m_compactionRefLayerUiField = m_compactionRefLayer;
