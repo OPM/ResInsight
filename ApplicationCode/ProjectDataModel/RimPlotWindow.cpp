@@ -59,7 +59,7 @@ RimPlotWindow::RimPlotWindow()
     CAF_PDM_InitFieldNoDefault( &m_titleFontSize, "TitleFontSize", "Title Font Size", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_legendFontSize, "LegendDeltaFontSize", "Legend Font Size", "", "", "" );
 
-    m_titleFontSize  = caf::FontTools::RelativeSize::XLarge;
+    m_titleFontSize  = caf::FontTools::RelativeSize::XXLarge;
     m_legendFontSize = caf::FontTools::RelativeSize::Small;
 }
 
