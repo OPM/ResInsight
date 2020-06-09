@@ -665,7 +665,7 @@ if (RESINSIGHT_PRIVATE_INSTALL)
         endforeach()
 
         # XcbQpa is used by libXcb.so required by platform plugin xcb
-        list( APPEND QT_INSTALL_FILES_WITHOUT_EXTENSION libQt5XcbQpa)
+        list( APPEND QT_INSTALL_FILES_WITHOUT_EXTENSION libQt5XcbQpa libQt5DBus)
 
         foreach (installfile ${QT_INSTALL_FILES_WITHOUT_EXTENSION})
           file(GLOB FILE_AND_SYMLINKS ${_dir}/${installfile}.so*)
