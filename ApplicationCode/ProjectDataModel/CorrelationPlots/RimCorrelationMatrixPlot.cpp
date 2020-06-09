@@ -384,7 +384,8 @@ std::vector<CorrelationMatrixRowOrColumn<ValueType, KeyType>>
     transpose( const std::vector<CorrelationMatrixRowOrColumn<KeyType, ValueType>>& matrix )
 {
     std::vector<CorrelationMatrixRowOrColumn<ValueType, KeyType>> transposedMatrix;
-    for ( size_t rowIdx = 0u; rowIdx < matrix[0].m_correlations.size(); ++rowIdx )
+
+    for ( size_t rowIdx = 0u; !matrix.empty() && rowIdx < matrix[0].m_correlations.size(); ++rowIdx )
     {
         ValueType            key = matrix[0].m_values[rowIdx];
         std::vector<double>  correlations;
