@@ -29,7 +29,7 @@
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafPdmUiComboBoxEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiToolButtonEditor.h"
 
 #include <QPaintDevice>
 #include <QRegularExpression>
@@ -82,9 +82,10 @@ RimMultiPlot::RimMultiPlot()
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count", "", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Sub Plot Title Font Size", "", "", "" );
+    m_subTitleFontSize = caf::FontTools::RelativeSize::Large;
 
     CAF_PDM_InitField( &m_pagePreviewMode, "PagePreviewMode", false, "Page Preview Mode", "", "", "" );
-    m_pagePreviewMode.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_pagePreviewMode.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_pagePreviewMode.uiCapability()->setUiIconFromResourceString( ":/PagePreview16x16.png" );
     m_viewer = nullptr;
 
@@ -643,7 +644,6 @@ void RimMultiPlot::uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_columnCount );
     uiOrdering.add( &m_rowsPerPage );
     uiOrdering.add( &m_majorTickmarkCount );
-    uiOrdering.add( &m_pagePreviewMode );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -658,23 +658,27 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
     {
         for ( size_t i = 0; i < ColumnCountEnum::size(); ++i )
         {
-            ColumnCount enumVal = ColumnCountEnum::fromIndex( i );
-            if ( enumVal == ColumnCount::COLUMNS_UNLIMITED )
-            {
-                QString iconPath( ":/ColumnsUnlimited.png" );
-                options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
-                                                           enumVal,
-                                                           false,
-                                                           caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
-            }
-            else
-            {
-                QString iconPath = QString( ":/Columns%1.png" ).arg( static_cast<int>( enumVal ) );
-                options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
-                                                           enumVal,
-                                                           false,
-                                                           caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
-            }
+            ColumnCount enumVal           = ColumnCountEnum::fromIndex( i );
+            QString     columnCountString = ( enumVal == ColumnCount::COLUMNS_UNLIMITED )
+                                            ? "Unlimited"
+                                            : QString( "%1" ).arg( static_cast<int>( enumVal ) );
+            QString iconPath = QString( ":/Columns%1.png" ).arg( columnCountString );
+            options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
+                                                       enumVal,
+                                                       false,
+                                                       caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
+        }
+    }
+    if ( fieldNeedingOptions == &m_rowsPerPage )
+    {
+        for ( size_t i = 0; i < RowCountEnum::size(); ++i )
+        {
+            RowCount enumVal  = RowCountEnum::fromIndex( i );
+            QString  iconPath = QString( ":/Rows%1.png" ).arg( static_cast<int>( enumVal ) );
+            options.push_back( caf::PdmOptionItemInfo( RowCountEnum::uiText( enumVal ),
+                                                       enumVal,
+                                                       false,
+                                                       caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
         }
     }
     else if ( fieldNeedingOptions == &m_subTitleFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||
