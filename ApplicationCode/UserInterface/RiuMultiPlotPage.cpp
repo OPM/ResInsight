@@ -79,7 +79,7 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
 
     m_layout = new QVBoxLayout( this );
     m_layout->setMargin( 0 );
-    m_layout->setSpacing( 2 );
+    m_layout->setSpacing( 4 );
 
     m_plotTitle = createTitleLabel();
     m_layout->addWidget( m_plotTitle );
@@ -94,7 +94,7 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
 
     m_gridLayout = new QGridLayout( m_plotWidgetFrame );
     m_gridLayout->setContentsMargins( 0, 0, 0, 0 );
-    m_gridLayout->setSpacing( 1 );
+    m_gridLayout->setSpacing( 5 );
 
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
 
