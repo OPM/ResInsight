@@ -671,6 +671,10 @@ if (RESINSIGHT_PRIVATE_INSTALL)
           file(GLOB FILE_AND_SYMLINKS ${_dir}/${installfile}.so*)
           install(FILES ${FILE_AND_SYMLINKS} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
         endforeach()
+
+        # include platform files
+        install(FILES ${_dir}/qt5/plugins/platforms/libqxcb.so DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms/ )
+
       endif(RESINSIGHT_QT5_BUNDLE_LIBRARIES)
 
     endif()
