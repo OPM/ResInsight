@@ -82,7 +82,7 @@ jobs:
           message("::set-output name=timestamp::${current_date}")
       - name: Cache Buildcache
         id: cache-buildcache
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ${{ env.BUILDCACHE_DIR }}
           key: ${{ matrix.config.name }}-cache-v01-${{ steps.cache_timestamp_string.outputs.timestamp }}
@@ -94,7 +94,7 @@ jobs:
 
       - name: Cache Qt
         id: cache-qt
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ../Qt
           key: ${{ runner.os }}-QtCache
@@ -113,7 +113,7 @@ jobs:
         if: "contains( matrix.config.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
       - name: Cache vcpkg artifacts
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/vcpkg/
           # Ensure the cache is invalidated any time vcpkg version changes, or a different set of packages is being used.
