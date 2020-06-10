@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
@@ -27,10 +28,13 @@
 #include "RimIntersection.h"
 
 class RimSurface;
-
+class RimSurfaceResultDefinition;
 class RivSurfacePartMgr;
 class RivIntersectionHexGridInterface;
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 class RimSurfaceInView : public RimIntersection
 {
     CAF_PDM_HEADER_INIT;
@@ -63,7 +67,8 @@ private:
     caf::PdmProxyValueField<QString> m_name;
     caf::PdmPtrField<RimSurface*>    m_surface;
 
-    caf::PdmField<double> m_depthOffset;
+    caf::PdmField<double>                           m_depthOffset;
+    caf::PdmChildField<RimSurfaceResultDefinition*> m_resultDefinition;
 
     cvf::ref<RivSurfacePartMgr> m_surfacePartMgr;
 };
