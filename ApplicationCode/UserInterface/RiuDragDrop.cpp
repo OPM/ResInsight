@@ -187,7 +187,8 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
             }
             else if ( dynamic_cast<RimMultiPlot*>( uiItem ) )
             {
-                if ( RiuTypedPdmObjects<RimPlot>::containsTypedObjects( m_dragItems ) )
+                if ( RiuTypedPdmObjects<RimPlot>::containsTypedObjects( m_dragItems ) &&
+                     !RiuTypedPdmObjects<RimWellLogTrack>::containsTypedObjects( m_dragItems ) )
                 {
                     itemflags |= Qt::ItemIsDropEnabled;
                 }
