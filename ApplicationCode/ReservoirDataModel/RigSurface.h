@@ -35,10 +35,13 @@ public:
     const std::vector<cvf::Vec3d>& vertices();
 
     void setTriangleData( const std::vector<unsigned>& tringleIndices, const std::vector<cvf::Vec3d>& vertices );
-    void addVerticeResult( const QString resultName, const std::vector<double>& resultValues );
+    void addVerticeResult( const QString resultName, const std::vector<float>& resultValues );
+
+    std::vector<float>   propertyValues( const QString& propertyName ) const;
+    std::vector<QString> propertyNames() const;
 
 private:
-    std::vector<unsigned>                  m_triangleIndices;
-    std::vector<cvf::Vec3d>                m_vertices;
-    std::map<QString, std::vector<double>> m_verticeResults;
+    std::vector<unsigned>                 m_triangleIndices;
+    std::vector<cvf::Vec3d>               m_vertices;
+    std::map<QString, std::vector<float>> m_verticeResults;
 };

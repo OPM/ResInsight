@@ -20,6 +20,7 @@
 
 #include "RimGridView.h"
 #include "RimSurface.h"
+#include "RimSurfaceResultDefinition.h"
 
 #include "RigFemPartCollection.h"
 #include "RimEclipseView.h"
@@ -47,6 +48,12 @@ RimSurfaceInView::RimSurfaceInView()
 
     CAF_PDM_InitField( &m_depthOffset, "DepthOffset", 0.0, "Depth Offset", "", "", "" );
     m_depthOffset.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
+    m_resultDefinition.uiCapability()->setUiHidden( true );
+    m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( false );
+    m_resultDefinition = new RimSurfaceResultDefinition;
+    m_resultDefinition->setSurfaceInView( this );
 }
 
 //--------------------------------------------------------------------------------------------------

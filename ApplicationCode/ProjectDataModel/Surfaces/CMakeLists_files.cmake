@@ -6,6 +6,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGridCaseSurface.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceInView.h
 ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceInViewCollection.h
+${CMAKE_CURRENT_LIST_DIR}/RimSurfaceResultDefinition.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -15,6 +16,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimGridCaseSurface.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceInView.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceInViewCollection.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimSurfaceResultDefinition.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

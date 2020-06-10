@@ -119,6 +119,16 @@ bool RimFileSurface::updateSurfaceDataFromFile()
         surface->setTriangleData( tringleIndices, vertices );
     }
 
+    if ( m_gocadData )
+    {
+        auto propertyNames = m_gocadData->propertyNames();
+        for ( const auto& name : propertyNames )
+        {
+            auto values = m_gocadData->propertyValues( name );
+            surface->addVerticeResult( name, values );
+        }
+    }
+
     setSurfaceData( surface );
 
     return result;
