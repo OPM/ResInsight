@@ -100,6 +100,20 @@ void RimPlotCurve::LabelPosition::setUp()
     setDefault( RiuQwtSymbol::LabelAboveSymbol );
 }
 
+template <>
+void RimPlotCurve::FillStyle::setUp()
+{
+    addItem( Qt::NoBrush, "NO_FILL", "No Fill" );
+    addItem( Qt::SolidPattern, "SOLID_FILL", "Solid Fill" );
+    addItem( Qt::Dense1Pattern, "DENSE_FILL", "Dense Pattern" );
+    addItem( Qt::Dense7Pattern, "SPARSE_FILL", "Sparse Pattern" );
+    addItem( Qt::HorPattern, "HOR_FILL", "Horizontal Lines" );
+    addItem( Qt::VerPattern, "VER_FILL", "Vertical Lines" );
+    addItem( Qt::BDiagPattern, "DIAG_FILL", "Diagonal Lines" );
+    addItem( Qt::CrossPattern, "CROSS_FILL", "Mesh" );
+    addItem( Qt::DiagCrossPattern, "DIAG_CROSS_FILL", "Diagonal Mesh" );
+}
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -128,6 +142,7 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_curveInterpolation, "CurveInterpolation", "Interpolation", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_lineStyle, "LineStyle", "Line Style", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fillStyle, "FillStyle", "Area Fill Style", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_pointSymbol, "PointSymbol", "Symbol", "", "", "" );
     CAF_PDM_InitField( &m_symbolEdgeColor, "SymbolEdgeColor", cvf::Color3f( cvf::Color3::BLACK ), "Symbol Edge Color", "", "", "" );
 
@@ -195,7 +210,8 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     }
     else if ( &m_curveColor == changedField || &m_curveThickness == changedField || &m_pointSymbol == changedField ||
               &m_lineStyle == changedField || &m_symbolSkipPixelDistance == changedField ||
-              &m_curveInterpolation == changedField || &m_symbolSize == changedField || &m_symbolEdgeColor == changedField )
+              &m_curveInterpolation == changedField || &m_symbolSize == changedField ||
+              &m_symbolEdgeColor == changedField || &m_fillStyle == changedField )
     {
         updateCurveAppearance();
 
@@ -606,6 +622,7 @@ void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
     uiOrdering.add( &m_symbolSize );
     uiOrdering.add( &m_symbolSkipPixelDistance );
     uiOrdering.add( &m_lineStyle );
+    uiOrdering.add( &m_fillStyle );
     uiOrdering.add( &m_curveThickness );
     uiOrdering.add( &m_curveInterpolation );
 }
@@ -728,7 +745,10 @@ void RimPlotCurve::updateCurveAppearance()
 
     if ( m_qwtPlotCurve )
     {
-        m_qwtPlotCurve->setAppearance( m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor );
+        QColor fillColor = curveColor;
+        fillColor.setAlpha( 130 );
+        QBrush fillBrush( fillColor, m_fillStyle() );
+        m_qwtPlotCurve->setAppearance( m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor, fillBrush );
         m_qwtPlotCurve->setSymbol( symbol );
         m_qwtPlotCurve->setSymbolSkipPixelDistance( m_symbolSkipPixelDistance() );
 
