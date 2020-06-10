@@ -19,7 +19,22 @@
 #include "RiaInterpolationTools.h"
 
 #include <cassert>
+#include <cmath>
 #include <limits>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool almostEqual( double a, double b, double maxRelDiff = std::numeric_limits<double>::epsilon() * 128 )
+{
+    // Calculate the difference.
+    double diff  = std::fabs( a - b );
+    double fabsa = std::fabs( a );
+    double fabsb = std::fabs( b );
+    // Find the largest
+    float largest = ( fabsb > fabsa ) ? fabsb : fabsa;
+    return ( diff <= largest * maxRelDiff );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -29,7 +44,7 @@ double RiaInterpolationTools::linear( const std::vector<double>& x, const std::v
     assert( x.size() == y.size() );
 
     // Handle cases with only one data point.
-    if ( x.size() == 1 )
+    if ( x.size() <= 1 )
     {
         return std::numeric_limits<double>::infinity();
     }
@@ -49,6 +64,11 @@ double RiaInterpolationTools::linear( const std::vector<double>& x, const std::v
     // Value is outside of the defined range
     if ( !found )
     {
+        // Check if we are just outside the boundaries
+        if ( almostEqual( value, x[0] ) )
+            return y[0];
+        else if ( almostEqual( value, x[x.size() - 1] ) )
+            return y[x.size() - 1];
         return std::numeric_limits<double>::infinity();
     }
 
