@@ -103,6 +103,7 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
             dlg.enableMultiSelect( true );
         }
 
+        dlg.hideSummaryCases();
         dlg.setCurveSelection( curveDefinitions() );
 
         if ( dlg.exec() == QDialog::Accepted )
