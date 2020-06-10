@@ -612,6 +612,7 @@ void RimMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& u
 {
     caf::PdmUiGroup* titleAndLegendsGroup = uiOrdering.addNewGroup( "Plot Layout" );
     uiOrderingForMultiPlotLayout( uiConfigName, *titleAndLegendsGroup );
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
