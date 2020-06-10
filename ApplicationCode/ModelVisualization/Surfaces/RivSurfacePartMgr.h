@@ -51,12 +51,6 @@ private:
     void generatePartGeometry();
 
     void generateNativePartGeometry();
-    void generateNativeVertexToCellIndexMap();
-
-    static void calculateVertexTextureCoordinates( cvf::Vec2fArray*           textureCoords,
-                                                   const std::vector<size_t>& vertexToCellIdxMap,
-                                                   const RigResultAccessor*   resultAccessor,
-                                                   const cvf::ScalarMapper*   mapper );
 
     cvf::ref<RivSurfaceIntersectionGeometryGenerator> m_intersectionGenerator;
 
@@ -71,10 +65,4 @@ private:
     cvf::ref<cvf::Part> m_intersectionFaultGridLines;
 
     cvf::ref<cvf::Vec2fArray> m_intersectionFacesTextureCoords;
-
-    std::vector<size_t> m_nativeVertexToCellIndexMap;
-};
-
-class RivReservoirSurfaceGeometryGenerator : public cvf::Object
-{
 };
