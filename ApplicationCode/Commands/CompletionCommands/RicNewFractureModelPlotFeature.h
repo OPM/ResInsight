@@ -23,6 +23,7 @@
 #include "RiaDefines.h"
 
 #include "RimElasticPropertiesCurve.h"
+#include "RimFractureModelCurve.h"
 
 class RimEclipseCase;
 class RimFractureModelPlot;
@@ -49,13 +50,14 @@ private:
     static void
         createFormationTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
     static void
-                createFaciesTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
-    static void createParametersTrack( RimFractureModelPlot*     plot,
-                                       RimFractureModel*         fractureModel,
-                                       RimEclipseCase*           eclipseCase,
-                                       int                       timeStep,
-                                       const QString&            resultVariable,
-                                       RiaDefines::ResultCatType resultCategoryType );
+                                  createFaciesTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
+    static RimFractureModelCurve* createParametersTrack( RimFractureModelPlot*                       plot,
+                                                         RimFractureModel*                           fractureModel,
+                                                         RimEclipseCase*                             eclipseCase,
+                                                         int                                         timeStep,
+                                                         const QString&                              resultVariable,
+                                                         RiaDefines::ResultCatType                   resultCategoryType,
+                                                         RimFractureModelCurve::MissingValueStrategy missingValueStrategy );
 
     static void createElasticPropertiesTrack( RimFractureModelPlot*                   plot,
                                               RimFractureModel*                       fractureModel,

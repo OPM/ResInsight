@@ -30,6 +30,9 @@
 class RimWellPath;
 class RimWellMeasurement;
 class RimFractureModel;
+class RimEclipseInputPropertyCollection;
+class RigEclipseCaseData;
+class RigResultAccessor;
 
 //==================================================================================================
 ///
@@ -39,6 +42,12 @@ class RimFractureModelCurve : public RimWellLogExtractionCurve
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class MissingValueStrategy
+    {
+        DEFAULT_VALUE,
+        LINEAR_INTERPOLATION
+    };
+
     RimFractureModelCurve();
     ~RimFractureModelCurve() override;
 
@@ -46,8 +55,20 @@ public:
 
     void setEclipseResultCategory( RiaDefines::ResultCatType catType );
 
+    void setMissingValueStrategy( MissingValueStrategy strategy );
+
 protected:
     void performDataExtraction( bool* isUsingPseudoLength ) override;
 
-    caf::PdmPtrField<RimFractureModel*> m_fractureModel;
+    static bool hasMissingValues( const std::vector<double>& values );
+    static void replaceMissingValues( std::vector<double>& values, double defaultValue );
+    static void replaceMissingValues( std::vector<double>& values, const std::vector<double>& replacementValues );
+    cvf::ref<RigResultAccessor> findMissingValuesAccessor( RigEclipseCaseData*                caseData,
+                                                           RimEclipseInputPropertyCollection* inputPropertyCollection,
+                                                           int                                gridIndex,
+                                                           int                                timeStepIndex,
+                                                           RimEclipseResultDefinition*        eclipseResultDefinition );
+
+    caf::PdmPtrField<RimFractureModel*>               m_fractureModel;
+    caf::PdmField<caf::AppEnum<MissingValueStrategy>> m_missingValueStrategy;
 };

@@ -22,6 +22,9 @@
 
 #include "RimEclipseCase.h"
 #include "RimFractureModel.h"
+#include "RimFractureModelCurve.h"
+
+#include "RigWellLogCurveData.h"
 
 #include "cafPdmBase.h"
 #include "cafPdmFieldIOScriptability.h"
@@ -69,4 +72,21 @@ void RimFractureModelPlot::onLoadDataAndUpdate()
 void RimFractureModelPlot::applyDataSource()
 {
     this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelPlot::getPorosityValues( std::vector<double>& values ) const
+{
+    std::vector<RimFractureModelCurve*> curves;
+    descendantsIncludingThisOfType( curves );
+
+    for ( RimFractureModelCurve* curve : curves )
+    {
+        if ( curve->eclipseResultVariable() == "PORO" )
+        {
+            values = curve->curveData()->xValues();
+        }
+    }
 }

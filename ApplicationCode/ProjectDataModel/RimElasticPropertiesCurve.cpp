@@ -48,6 +48,7 @@
 #include "RiuQwtPlotWidget.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 
 #include "cafPdmUiTreeOrdering.h"
@@ -154,12 +155,9 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
                                                               RiaDefines::activeFormationNamesResultName() ) );
         if ( !formationResultAccessor.notNull() )
         {
-            std::cerr << "NO FORMATION RES ACCEESOR" << std::endl;
+            RiaLogging::error( QString( "No formation result found." ) );
             return;
         }
-
-        // std::vector<double> formationValues;
-        // eclExtractor.curveData( formationResultAccessor.p(), &formationValues );
 
         CurveSamplingPointData curveData =
             RimWellLogTrack::curveSamplingPointData( &eclExtractor, formationResultAccessor.p() );
@@ -188,52 +186,39 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
 
         if ( !faciesResultAccessor.notNull() )
         {
-            std::cerr << "NO FACIES RES ACCESSOR" << std::endl;
+            RiaLogging::error( QString( "No facies result found." ) );
             return;
         }
 
         std::vector<double> faciesValues;
         eclExtractor.curveData( faciesResultAccessor.p(), &faciesValues );
 
-        // Extract porosity data
-        //        m_eclipseResultDefinition->setResultType();
-        cvf::ref<RigResultAccessor> poroResAcc =
-            RigResultAccessorFactory::createFromResultAddress( eclipseCase->eclipseCaseData(),
-                                                               0,
-                                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                               0,
-                                                               RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                        "PORO" ) );
-        if ( !poroResAcc.notNull() )
+        // Extract porosity data: get the porosity values from parent
+        RimFractureModelPlot* fractureModelPlot;
+        firstAncestorOrThisOfType( fractureModelPlot );
+        if ( !fractureModelPlot )
         {
-            std::cerr << "NO PORO RES ACCESSOR" << std::endl;
+            RiaLogging::error( QString( "No porosity data found when extracting elastic properties." ) );
             return;
         }
 
         std::vector<double> poroValues;
-        eclExtractor.curveData( poroResAcc.p(), &poroValues );
-
-        std::cout << "Dims: FOrmation names to plot: " << formationNamesToPlot.size() << " Y: " << yValues.size()
-                  << " FACIES: " << faciesValues.size() << " PORO: " << poroValues.size() << std::endl;
-
-        for ( size_t i = 0; i < yValues.size(); i++ )
-        {
-            std::cout << i << ": " << yValues[i].first << "-" << yValues[i].second << " ==> "
-                      << formationNamesToPlot[i].toStdString() << std::endl;
-        }
+        fractureModelPlot->getPorosityValues( poroValues );
 
         // TODO: make this settable??
-        RimColorLegend* colorLegend = RimProject::current()->colorLegendCollection()->findByName( "Facies colors" );
+        QString         colorLegendName = "Facies colors";
+        RimColorLegend* colorLegend     = RimProject::current()->colorLegendCollection()->findByName( colorLegendName );
         if ( !colorLegend )
         {
-            std::cerr << "NO COLOR LEGEND" << std::endl;
+            RiaLogging::error(
+                QString( "No color legend found when extracting elastic properties. Looked for '%1'" ).arg( colorLegendName ) );
             return;
         }
 
         RimElasticProperties* elasticProperties = m_fractureModel->elasticProperties();
         if ( !elasticProperties )
         {
-            std::cerr << "No facies properties" << std::endl;
+            RiaLogging::error( QString( "No elastic properties found" ) );
             return;
         }
 
@@ -244,10 +229,6 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
             QString faciesName    = findFaciesName( *colorLegend, faciesValues[i] );
             QString formationName = findFormationNameForDepth( formationNamesToPlot, yValues, tvDepthValues[i] );
             double  porosity      = poroValues[i];
-
-            // std::cout << i << ": Depth: " << tvDepthValues[i] << " Poro: " << poroValues[i]
-            //           << " Facies: " << faciesValues[i] << " name: " << faciesName.toStdString()
-            //           << " formation: " << formationName.toStdString();
 
             FaciesKey faciesKey = std::make_tuple( fieldName, formationName, faciesName );
             if ( elasticProperties->hasPropertiesForFacies( faciesKey ) )
@@ -277,7 +258,10 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
             }
             else
             {
-                std::cerr << "  Missing key" << std::endl;
+                RiaLogging::error( QString( "Missing elastic properties. Field='%1', formation='%2', facies='%3'" )
+                                       .arg( fieldName )
+                                       .arg( formationName )
+                                       .arg( faciesName ) );
                 return;
             }
         }
@@ -317,6 +301,9 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimElasticPropertiesCurve::findFaciesName( const RimColorLegend& colorLegend, double value )
 {
     for ( auto item : colorLegend.colorLegendItems() )
@@ -327,6 +314,9 @@ QString RimElasticPropertiesCurve::findFaciesName( const RimColorLegend& colorLe
     return "not found";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimElasticPropertiesCurve::findFormationNameForDepth( const std::vector<QString>& formationNames,
                                                               const std::vector<std::pair<double, double>>& depthRanges,
                                                               double                                        depth )
@@ -345,6 +335,9 @@ QString RimElasticPropertiesCurve::findFormationNameForDepth( const std::vector<
     return "not found";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimElasticPropertiesCurve::createCurveAutoName()
 {
     return caf::AppEnum<RimElasticPropertiesCurve::PropertyType>::uiText( m_propertyType() );
