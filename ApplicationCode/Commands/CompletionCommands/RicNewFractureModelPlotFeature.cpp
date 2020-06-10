@@ -36,6 +36,7 @@
 #include "RimFractureModelCurve.h"
 #include "RimFractureModelPlot.h"
 #include "RimFractureModelPlotCollection.h"
+#include "RimLayerCurve.h"
 #include "RimMainPlotCollection.h"
 #include "RimModeledWellPath.h"
 #include "RimProject.h"
@@ -77,6 +78,11 @@ RimFractureModelPlot*
     {
         auto task = progInfo.task( "Creating facies track", 2 );
         createFaciesTrack( plot, fractureModel, eclipseCase );
+    }
+
+    {
+        auto task = progInfo.task( "Creating layers track", 2 );
+        createLayersTrack( plot, fractureModel, eclipseCase );
     }
 
     {
@@ -229,6 +235,60 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     curve->setCase( eclipseCase );
     curve->setEclipseResultCategory( RiaDefines::ResultCatType::INPUT_PROPERTY );
     curve->setEclipseResultVariable( defaultProperty );
+    curve->setColor( colors.cycledColor3f( 0 ) );
+    curve->setLineStyle( lineStyles[0] );
+    curve->setLineThickness( 2 );
+    curve->setAutoNameComponents( false, true, false, false, false );
+
+    faciesTrack->addCurve( curve );
+    faciesTrack->setAutoScaleXEnabled( true );
+    curve->loadDataAndUpdate( true );
+
+    curve->updateConnectedEditors();
+    faciesTrack->updateConnectedEditors();
+    plot->updateConnectedEditors();
+
+    RiaApplication::instance()->project()->updateConnectedEditors();
+
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
+    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
+    RiuPlotMainWindowTools::showPlotMainWindow();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewFractureModelPlotFeature::createLayersTrack( RimFractureModelPlot* plot,
+                                                        RimFractureModel*     fractureModel,
+                                                        RimEclipseCase*       eclipseCase )
+{
+    QString defaultProperty = "OPERNUM_1";
+
+    RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Layers", plot );
+    faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
+    faciesTrack->setFormationCase( eclipseCase );
+    // faciesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS );
+    // faciesTrack->setRegionPropertyResultType( RiaDefines::ResultCatType::INPUT_PROPERTY, defaultProperty );
+
+    RimColorLegend* faciesColors = RimProject::current()->colorLegendCollection()->findByName( "Facies colors" );
+    if ( faciesColors )
+    {
+        faciesTrack->setColorShadingLegend( faciesColors );
+    }
+
+    faciesTrack->setVisibleXRange( 0.0, 0.0 );
+    faciesTrack->setColSpan( RimPlot::ONE );
+
+    caf::ColorTable                             colors     = RiaColorTables::contrastCategoryPaletteColors();
+    std::vector<RiuQwtPlotCurve::LineStyleEnum> lineStyles = {RiuQwtPlotCurve::STYLE_SOLID,
+                                                              RiuQwtPlotCurve::STYLE_DASH,
+                                                              RiuQwtPlotCurve::STYLE_DASH_DOT};
+
+    RimLayerCurve* curve = new RimLayerCurve;
+    curve->setFractureModel( fractureModel );
+    curve->setCase( eclipseCase );
+    //    curve->setEclipseResultCategory( RiaDefines::ResultCatType::INPUT_PROPERTY );
+    //    curve->setEclipseResultVariable( defaultProperty );
     curve->setColor( colors.cycledColor3f( 0 ) );
     curve->setLineStyle( lineStyles[0] );
     curve->setLineThickness( 2 );

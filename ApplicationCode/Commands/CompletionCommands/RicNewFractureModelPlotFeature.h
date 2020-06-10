@@ -50,7 +50,10 @@ private:
     static void
         createFormationTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
     static void
-                                  createFaciesTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
+        createFaciesTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
+    static void
+        createLayersTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
+
     static RimFractureModelCurve* createParametersTrack( RimFractureModelPlot*                       plot,
                                                          RimFractureModel*                           fractureModel,
                                                          RimEclipseCase*                             eclipseCase,

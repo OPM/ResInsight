@@ -160,6 +160,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlotCollection.h
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCurve.h
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticProperties.h
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertiesCurve.h
+${CMAKE_CURRENT_LIST_DIR}/RimLayerCurve.h
 )
 
 
@@ -324,6 +325,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelPlotCollection.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimFractureModelCurve.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticProperties.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RimElasticPropertiesCurve.cpp
+${CMAKE_CURRENT_LIST_DIR}/RimLayerCurve.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
