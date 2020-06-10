@@ -96,7 +96,8 @@ public:
     void setAppearance( LineStyleEnum          lineStyle,
                         CurveInterpolationEnum interpolationType,
                         int                    curveThickness,
-                        const QColor&          curveColor );
+                        const QColor&          curveColor,
+                        const QBrush&          fillBrush = QBrush( Qt::NoBrush ) );
 
     void       setBlackAndWhiteLegendIcon( bool blackAndWhite );
     QwtGraphic legendIcon( int index, const QSizeF& size ) const override;

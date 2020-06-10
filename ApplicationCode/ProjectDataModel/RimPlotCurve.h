@@ -29,6 +29,7 @@
 #include "cafPdmObject.h"
 
 #include <QPointer>
+#include <Qt>
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -47,6 +48,7 @@ public:
     typedef caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>          LineStyle;
     typedef caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>           PointSymbol;
     typedef caf::AppEnum<RiuQwtSymbol::LabelPosition>             LabelPosition;
+    typedef caf::AppEnum<Qt::BrushStyle>                          FillStyle;
 
 public:
     RimPlotCurve();
@@ -169,6 +171,7 @@ protected:
 
     caf::PdmField<PointSymbol>        m_pointSymbol;
     caf::PdmField<LineStyle>          m_lineStyle;
+    caf::PdmField<FillStyle>          m_fillStyle;
     caf::PdmField<CurveInterpolation> m_curveInterpolation;
     caf::PdmField<LabelPosition>      m_symbolLabelPosition;
     caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;
