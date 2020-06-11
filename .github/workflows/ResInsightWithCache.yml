@@ -211,8 +211,9 @@ jobs:
       - name: Create packages
         shell: bash
         run: |
-          cmake cmakebuild --target --package
-          rm -rf cmakebuild/packages/_CPack_Packages
+          cd cmakebuild
+          make package
+          rm -rf packages/_CPack_Packages
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
