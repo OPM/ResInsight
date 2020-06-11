@@ -41,7 +41,7 @@ class RivSurfacePartMgr : public cvf::Object
 public:
     explicit RivSurfacePartMgr( RimSurfaceInView* surface );
 
-    void applySingleColor();
+    void updateNativeSurfaceColors();
     void updateCellResultColor( size_t timeStepIndex );
     void appendIntersectionGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
@@ -65,4 +65,5 @@ private:
     cvf::ref<cvf::Part> m_intersectionFaultGridLines;
 
     cvf::ref<cvf::Vec2fArray> m_intersectionFacesTextureCoords;
+    cvf::ref<cvf::Vec2fArray> m_nativeTrianglesTextureCoords;
 };

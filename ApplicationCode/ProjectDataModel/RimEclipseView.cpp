@@ -586,6 +586,7 @@ void RimEclipseView::onCreateDisplayModel()
     m_surfaceVizModel->removeAllParts();
     if ( m_surfaceCollection )
     {
+        m_surfaceCollection->clearGeometry();
         m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
         nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
     }
@@ -669,6 +670,8 @@ void RimEclipseView::onCreateDisplayModel()
 void RimEclipseView::onUpdateDisplayModelForCurrentTimeStep()
 {
     clearReservoirCellVisibilities();
+
+    // m_surfaceCollection->clearGeometry();
 
     m_propertyFilterCollection()->updateFromCurrentTimeStep();
 
@@ -1434,6 +1437,11 @@ void RimEclipseView::onUpdateLegends()
                 wellMeasurement->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
             }
         }
+    }
+
+    if ( m_surfaceCollection && m_surfaceCollection->isChecked() )
+    {
+        m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
     }
 }
 

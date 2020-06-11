@@ -39,11 +39,10 @@ RimSurfaceInViewCollection::RimSurfaceInViewCollection()
 {
     CAF_PDM_InitObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
 
-    CAF_PDM_InitField( &m_isActive, "isActive", true, "Active", "", "", "" );
-    m_isActive.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &m_surfacesInView, "SurfacesInViewField", "SurfacesInViewField", "", "", "" );
     m_surfacesInView.uiCapability()->setUiTreeHidden( true );
+
+    setName( "Surfaces" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,10 +100,21 @@ void RimSurfaceInViewCollection::loadData()
 {
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
-        if ( surf->isActive() && surf->surface() )
+        if ( surf->isActive() )
         {
-            surf->surface()->loadDataIfRequired();
+            surf->loadDataAndUpdate();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::clearGeometry()
+{
+    for ( RimSurfaceInView* surf : m_surfacesInView )
+    {
+        surf->clearGeometry();
     }
 }
 
@@ -113,13 +123,12 @@ void RimSurfaceInViewCollection::loadData()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
-    if ( !m_isActive() ) return;
+    if ( !isChecked() ) return;
 
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
         if ( surf->isActive() )
         {
-            // surf->surfacePartMgr()->appendNativeGeometryPartsToModel( model, scaleTransform );
             surf->surfacePartMgr()->appendIntersectionGeometryPartsToModel( model, scaleTransform );
         }
     }
@@ -134,7 +143,7 @@ void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
                                                    const QVariant&            oldValue,
                                                    const QVariant&            newValue )
 {
-    if ( changedField == &m_isActive )
+    if ( changedField == &m_isChecked )
     {
         RimGridView* ownerView;
         this->firstAncestorOrThisOfTypeAsserted( ownerView );
@@ -161,33 +170,37 @@ bool RimSurfaceInViewCollection::hasSurfaceInViewForSurface( const RimSurface* s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimSurfaceInViewCollection::objectToggleField()
-{
-    return &m_isActive;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResult, size_t timeStepIndex )
 {
-    if ( !this->m_isActive() ) return;
+    if ( !this->isChecked() ) return;
 
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
         if ( surf->isActive() )
         {
-            bool showResults = surf->activeSeparateResultDefinition()
-                                   ? surf->activeSeparateResultDefinition()->hasResult()
-                                   : hasGeneralCellResult;
+            bool useNativeSurfaceColors = false;
 
-            if ( showResults )
+            if ( surf->isNativeSurfaceResultsActive() ) useNativeSurfaceColors = true;
+
+            if ( !useNativeSurfaceColors )
             {
-                surf->surfacePartMgr()->updateCellResultColor( timeStepIndex );
+                bool showResults = surf->activeSeparateResultDefinition()
+                                       ? surf->activeSeparateResultDefinition()->hasResult()
+                                       : hasGeneralCellResult;
+
+                if ( showResults )
+                {
+                    surf->surfacePartMgr()->updateCellResultColor( timeStepIndex );
+                }
+                else
+                {
+                    useNativeSurfaceColors = true;
+                }
             }
-            else
+
+            if ( useNativeSurfaceColors )
             {
-                surf->surfacePartMgr()->applySingleColor();
+                surf->surfacePartMgr()->updateNativeSurfaceColors();
             }
         }
     }
@@ -198,13 +211,13 @@ void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResul
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::applySingleColorEffect()
 {
-    if ( !this->m_isActive() ) return;
+    if ( !this->isChecked() ) return;
 
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
         if ( surf->isActive() )
         {
-            surf->surfacePartMgr()->applySingleColor();
+            surf->surfacePartMgr()->updateNativeSurfaceColors();
         }
     }
 }
@@ -214,7 +227,7 @@ void RimSurfaceInViewCollection::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 bool RimSurfaceInViewCollection::hasAnyActiveSeparateResults()
 {
-    if ( !this->m_isActive() ) return false;
+    if ( !this->isChecked() ) return false;
 
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
@@ -226,4 +239,16 @@ bool RimSurfaceInViewCollection::hasAnyActiveSeparateResults()
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer,
+                                                                      bool       isUsingOverrideViewer )
+{
+    for ( RimSurfaceInView* surf : m_surfacesInView )
+    {
+        surf->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer, isUsingOverrideViewer );
+    }
 }

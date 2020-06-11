@@ -18,13 +18,18 @@
 
 #include "RimSurfaceInView.h"
 
+#include "RigFemPartCollection.h"
+#include "RigSurface.h"
+
+#include "RimEclipseView.h"
+#include "RimGeoMechView.h"
 #include "RimGridView.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSurface.h"
 #include "RimSurfaceResultDefinition.h"
 
-#include "RigFemPartCollection.h"
-#include "RimEclipseView.h"
-#include "RimGeoMechView.h"
+#include "RiuViewer.h"
+
 #include "RivHexGridIntersectionTools.h"
 #include "RivSurfacePartMgr.h"
 
@@ -51,8 +56,9 @@ RimSurfaceInView::RimSurfaceInView()
 
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
     m_resultDefinition.uiCapability()->setUiHidden( true );
-    m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( false );
+    m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_resultDefinition = new RimSurfaceResultDefinition;
+    m_resultDefinition->setCheckState( false );
     m_resultDefinition->setSurfaceInView( this );
 }
 
@@ -87,6 +93,36 @@ RimSurface* RimSurfaceInView::surface() const
 void RimSurfaceInView::setSurface( RimSurface* surf )
 {
     m_surface = surf;
+
+    if ( surface()->surfaceData() && surface()->surfaceData()->propertyNames().empty() )
+    {
+        m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
+        m_resultDefinition->setCheckState( false );
+    }
+    else
+    {
+        m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( false );
+        m_resultDefinition->setCheckState( true );
+
+        m_resultDefinition->assignDefaultProperty();
+        m_resultDefinition->updateMinMaxValues();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSurfaceInView::isNativeSurfaceResultsActive() const
+{
+    return m_resultDefinition->isChecked();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceResultDefinition* RimSurfaceInView::surfaceResultDefinition()
+{
+    return m_resultDefinition();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,6 +149,39 @@ RivSurfacePartMgr* RimSurfaceInView::surfacePartMgr()
     if ( m_surfacePartMgr.isNull() ) m_surfacePartMgr = new RivSurfacePartMgr( this );
 
     return m_surfacePartMgr.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::loadDataAndUpdate()
+{
+    if ( surface() )
+    {
+        surface()->loadDataIfRequired();
+
+        m_resultDefinition->updateMinMaxValues();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceInView::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer )
+{
+    if ( m_resultDefinition->legendConfig() )
+    {
+        RimRegularLegendConfig* legendConfig = m_resultDefinition->legendConfig();
+
+        legendConfig->setTitle(
+            QString( "Surface : \n%1\n%2" ).arg( this->name() ).arg( m_resultDefinition->propertyName() ) );
+
+        if ( this->isActive() && m_resultDefinition->isChecked() && legendConfig->showLegend() )
+        {
+            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( legendConfig->titledOverlayFrame(),
+                                                                      isUsingOverrideViewer );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

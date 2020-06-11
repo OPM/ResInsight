@@ -23,6 +23,7 @@
 #include "RigStatisticsMath.h"
 #include "RigSurface.h"
 
+#include "Rim3dView.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSurface.h"
 #include "RimSurfaceInView.h"
@@ -43,7 +44,7 @@ RimSurfaceResultDefinition::RimSurfaceResultDefinition()
     m_legendConfig.uiCapability()->setUiTreeChildrenHidden( false );
     m_legendConfig = new RimRegularLegendConfig;
 
-    setName( "Result Definition" );
+    setName( "Result Property" );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceInView, "SurfaceInView", "Surface In View", "", "", "" );
     m_surfaceInView.uiCapability()->setUiHidden( true );
@@ -63,6 +64,16 @@ RimSurfaceResultDefinition::~RimSurfaceResultDefinition()
 void RimSurfaceResultDefinition::setSurfaceInView( RimSurfaceInView* surfaceInView )
 {
     m_surfaceInView = surfaceInView;
+
+    assignDefaultProperty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSurfaceResultDefinition::propertyName() const
+{
+    return m_propertyName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,41 +87,72 @@ RimRegularLegendConfig* RimSurfaceResultDefinition::legendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSurfaceResultDefinition::updateMinMaxValues()
+{
+    RigSurface* surfData = surfaceData();
+    if ( surfData )
+    {
+        double globalMin              = 0.0;
+        double globalMax              = 0.0;
+        double globalPosClosestToZero = 0.0;
+        double globalNegClosestToZero = 0.0;
+
+        {
+            MinMaxAccumulator minMaxAccumulator;
+            PosNegAccumulator posNegAccumulator;
+
+            auto values = surfData->propertyValues( m_propertyName );
+            minMaxAccumulator.addData( values );
+            posNegAccumulator.addData( values );
+
+            globalPosClosestToZero = posNegAccumulator.pos;
+            globalNegClosestToZero = posNegAccumulator.neg;
+            globalMin              = minMaxAccumulator.min;
+            globalMax              = minMaxAccumulator.max;
+        }
+
+        m_legendConfig->setClosestToZeroValues( globalPosClosestToZero,
+                                                globalNegClosestToZero,
+                                                globalPosClosestToZero,
+                                                globalNegClosestToZero );
+
+        m_legendConfig->setAutomaticRanges( globalMin, globalMax, globalMin, globalMax );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSurfaceResultDefinition::assignDefaultProperty()
+{
+    if ( m_surfaceInView->surface() && m_surfaceInView->surface()->surfaceData() )
+    {
+        auto propNames = m_surfaceInView->surface()->surfaceData()->propertyNames();
+        if ( !propNames.empty() )
+        {
+            m_propertyName = m_surfaceInView->surface()->surfaceData()->propertyNames().front();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSurfaceResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                    const QVariant&            oldValue,
                                                    const QVariant&            newValue )
 {
-    if ( changedField == &m_propertyName && m_propertyName != RiaDefines::undefinedResultName() )
+    if ( changedField == &m_propertyName )
     {
-        RigSurface* surfData = surfaceData();
-        if ( surfData )
-        {
-            double globalMin              = 0.0;
-            double globalMax              = 0.0;
-            double globalPosClosestToZero = 0.0;
-            double globalNegClosestToZero = 0.0;
+        updateMinMaxValues();
+    }
 
-            {
-                MinMaxAccumulator minMaxAccumulator;
-                PosNegAccumulator posNegAccumulator;
+    Rim3dView* view = nullptr;
+    this->firstAncestorOrThisOfType( view );
 
-                auto values = surfData->propertyValues( m_propertyName );
-                minMaxAccumulator.addData( values );
-                posNegAccumulator.addData( values );
-
-                globalPosClosestToZero = posNegAccumulator.pos;
-                globalNegClosestToZero = posNegAccumulator.neg;
-                globalMin              = minMaxAccumulator.min;
-                globalMax              = minMaxAccumulator.max;
-            }
-
-            m_legendConfig->setClosestToZeroValues( globalPosClosestToZero,
-                                                    globalNegClosestToZero,
-                                                    globalPosClosestToZero,
-                                                    globalNegClosestToZero );
-
-            m_legendConfig->setAutomaticRanges( globalMin, globalMax, globalMin, globalMax );
-        }
+    if ( view )
+    {
+        view->scheduleCreateDisplayModelAndRedraw();
     }
 }
 
@@ -120,6 +162,8 @@ void RimSurfaceResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 void RimSurfaceResultDefinition::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_propertyName );
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
