@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimCheckableNamedObject.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -30,8 +32,9 @@ class ScalarMapper;
 
 class RimSurfaceInView;
 class RimSurface;
+class RiuViewer;
 
-class RimSurfaceInViewCollection : public caf::PdmObject
+class RimSurfaceInViewCollection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -41,19 +44,19 @@ public:
 
     void updateFromSurfaceCollection();
     void loadData();
+    void clearGeometry();
 
     void appendPartsToModel( cvf::ModelBasicList* surfaceVizModel, cvf::Transform* scaleTransform );
     void updateCellResultColor( bool hasGeneralCellResult, size_t timeStepIndex );
     void applySingleColorEffect();
 
     bool hasAnyActiveSeparateResults();
+    void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
 private:
-    caf::PdmFieldHandle* objectToggleField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     bool hasSurfaceInViewForSurface( const RimSurface* surf ) const;
 
-    caf::PdmField<bool>                        m_isActive;
     caf::PdmChildArrayField<RimSurfaceInView*> m_surfacesInView;
 };

@@ -31,6 +31,7 @@ class RimSurface;
 class RimSurfaceResultDefinition;
 class RivSurfacePartMgr;
 class RivIntersectionHexGridInterface;
+class RiuViewer;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -47,10 +48,17 @@ public:
     RimSurface* surface() const;
     void        setSurface( RimSurface* surf );
 
+    bool                        isNativeSurfaceResultsActive() const;
+    RimSurfaceResultDefinition* surfaceResultDefinition();
+
     double depthOffset() const;
 
     void               clearGeometry();
     RivSurfacePartMgr* surfacePartMgr();
+
+    void loadDataAndUpdate();
+
+    void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,

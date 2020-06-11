@@ -217,7 +217,7 @@ bool HexGridIntersectionTools::planeTriangleIntersection(const cvf::Plane& plane
         CVF_ASSERT(false);
     }
 
-    CVF_TIGHT_ASSERT(ok1 && ok2);
+    //CVF_TIGHT_ASSERT(ok1 && ok2);
 
     return true;
 }

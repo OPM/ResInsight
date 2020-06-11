@@ -24,13 +24,16 @@
 #include "ProjectDataModel/RimCase.h"
 #include "RigSurface.h"
 #include "Rim3dView.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSurface.h"
 #include "RimSurfaceInView.h"
+#include "RimSurfaceResultDefinition.h"
 
 #include "RivIntersectionResultsColoringTools.h"
 #include "RivMeshLinesSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivReservoirSurfaceIntersectionSourceInfo.h"
+#include "RivScalarMapperUtils.h"
 #include "RivSurfaceIntersectionGeometryGenerator.h"
 
 #include "cafEffectGenerator.h"
@@ -40,6 +43,8 @@
 #include "cvfPart.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 
+#include <limits>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -48,10 +53,11 @@ RivSurfacePartMgr::RivSurfacePartMgr( RimSurfaceInView* surface )
 {
     CVF_ASSERT( surface );
 
-    m_intersectionFacesTextureCoords = new cvf::Vec2fArray;
-
     cvf::ref<RivIntersectionHexGridInterface> hexGrid = m_surfaceInView->createHexGridInterface();
     m_intersectionGenerator = new RivSurfaceIntersectionGeometryGenerator( m_surfaceInView, hexGrid.p() );
+
+    m_intersectionFacesTextureCoords = new cvf::Vec2fArray;
+    m_nativeTrianglesTextureCoords   = new cvf::Vec2fArray;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +73,7 @@ void RivSurfacePartMgr::appendNativeGeometryPartsToModel( cvf::ModelBasicList* m
     if ( m_nativeTrianglesPart.notNull() )
     {
         m_nativeTrianglesPart->setTransform( scaleTransform );
-        this->applySingleColor();
+        this->updateNativeSurfaceColors();
 
         model->addPart( m_nativeTrianglesPart.p() );
 
@@ -102,34 +108,37 @@ void RivSurfacePartMgr::updateCellResultColor( size_t timeStepIndex )
 //--------------------------------------------------------------------------------------------------
 void RivSurfacePartMgr::appendIntersectionGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
-    if ( m_intersectionFaces.isNull() )
+    if ( !m_surfaceInView->surfaceResultDefinition()->isChecked() )
     {
-        generatePartGeometry();
-    }
+        if ( m_intersectionFaces.isNull() )
+        {
+            generatePartGeometry();
+        }
 
-    if ( m_intersectionFaces.notNull() )
-    {
-        m_intersectionFaces->setTransform( scaleTransform );
-        model->addPart( m_intersectionFaces.p() );
-    }
+        if ( m_intersectionFaces.notNull() )
+        {
+            m_intersectionFaces->setTransform( scaleTransform );
+            model->addPart( m_intersectionFaces.p() );
+        }
 
-    // Mesh Lines
+        // Mesh Lines
 
-    if ( m_intersectionGridLines.isNull() )
-    {
-        generatePartGeometry();
-    }
+        if ( m_intersectionGridLines.isNull() )
+        {
+            generatePartGeometry();
+        }
 
-    if ( m_intersectionGridLines.notNull() )
-    {
-        m_intersectionGridLines->setTransform( scaleTransform );
-        model->addPart( m_intersectionGridLines.p() );
-    }
+        if ( m_intersectionGridLines.notNull() )
+        {
+            m_intersectionGridLines->setTransform( scaleTransform );
+            model->addPart( m_intersectionGridLines.p() );
+        }
 
-    if ( m_intersectionFaultGridLines.notNull() )
-    {
-        m_intersectionFaultGridLines->setTransform( scaleTransform );
-        model->addPart( m_intersectionFaultGridLines.p() );
+        if ( m_intersectionFaultGridLines.notNull() )
+        {
+            m_intersectionFaultGridLines->setTransform( scaleTransform );
+            model->addPart( m_intersectionFaultGridLines.p() );
+        }
     }
 
     appendNativeGeometryPartsToModel( model, scaleTransform );
@@ -138,25 +147,67 @@ void RivSurfacePartMgr::appendIntersectionGeometryPartsToModel( cvf::ModelBasicL
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivSurfacePartMgr::applySingleColor()
+void RivSurfacePartMgr::updateNativeSurfaceColors()
 {
+    if ( m_surfaceInView->surfaceResultDefinition()->isChecked() )
     {
-        caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( m_surfaceInView->surface()->color() ), caf::PO_1 );
-        cvf::ref<cvf::Effect>       eff = surfaceGen.generateCachedEffect();
+        if ( m_usedSurfaceData.isNull() ) generateNativePartGeometry();
 
+        auto mapper = m_surfaceInView->surfaceResultDefinition()->legendConfig()->scalarMapper();
+
+        {
+            QString propertyName = m_surfaceInView->surfaceResultDefinition()->propertyName();
+            auto    values       = m_usedSurfaceData->propertyValues( propertyName );
+
+            const std::vector<cvf::Vec3d>& vertices = m_usedSurfaceData->vertices();
+
+            m_nativeTrianglesTextureCoords->resize( vertices.size() );
+            m_nativeTrianglesTextureCoords->setAll( cvf::Vec2f( 0.5f, 1.0f ) );
+            for ( size_t i = 0; i < values.size(); i++ )
+            {
+                const double val = values[i];
+                if ( val < std::numeric_limits<double>::infinity() && val == val )
+                {
+                    m_nativeTrianglesTextureCoords->set( i, mapper->mapToTextureCoord( val ) );
+                }
+            }
+
+            float effectiveOpacityLevel = 1.0;
+            bool  disableLighting       = false;
+
+            Rim3dView* view = nullptr;
+            m_surfaceInView->firstAncestorOfType( view );
+            if ( view )
+            {
+                disableLighting = view->isLightingDisabled();
+            }
+
+            RivScalarMapperUtils::applyTextureResultsToPart( m_nativeTrianglesPart.p(),
+                                                             m_nativeTrianglesTextureCoords.p(),
+                                                             mapper,
+                                                             effectiveOpacityLevel,
+                                                             caf::FC_NONE,
+                                                             disableLighting );
+        }
+    }
+    else
+    {
         caf::SurfaceEffectGenerator surfaceGenBehind( cvf::Color4f( m_surfaceInView->surface()->color() ),
                                                       caf::PO_POS_LARGE );
-        cvf::ref<cvf::Effect>       effBehind = surfaceGenBehind.generateCachedEffect();
 
+        cvf::ref<cvf::Effect> effBehind = surfaceGenBehind.generateCachedEffect();
         if ( m_nativeTrianglesPart.notNull() )
         {
             m_nativeTrianglesPart->setEffect( effBehind.p() );
         }
+    }
 
-        if ( m_intersectionFaces.notNull() )
-        {
-            m_intersectionFaces->setEffect( eff.p() );
-        }
+    if ( m_intersectionFaces.notNull() )
+    {
+        caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( m_surfaceInView->surface()->color() ), caf::PO_1 );
+        cvf::ref<cvf::Effect>       eff = surfaceGen.generateCachedEffect();
+
+        m_intersectionFaces->setEffect( eff.p() );
     }
 
     // Update mesh colors as well, in case of change
@@ -267,7 +318,7 @@ void RivSurfacePartMgr::generatePartGeometry()
         }
     }
 
-    applySingleColor();
+    updateNativeSurfaceColors();
 }
 
 //--------------------------------------------------------------------------------------------------

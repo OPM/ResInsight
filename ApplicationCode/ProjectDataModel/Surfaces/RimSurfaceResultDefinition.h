@@ -41,9 +41,13 @@ public:
     RimSurfaceResultDefinition();
     ~RimSurfaceResultDefinition() override;
 
-    void setSurfaceInView( RimSurfaceInView* surfaceInView );
+    void    setSurfaceInView( RimSurfaceInView* surfaceInView );
+    QString propertyName() const;
 
     RimRegularLegendConfig* legendConfig();
+
+    void updateMinMaxValues();
+    void assignDefaultProperty();
 
 private:
     void         fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
