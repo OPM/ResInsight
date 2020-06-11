@@ -97,7 +97,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ../Qt
-          key: ${{ runner.os }}-QtCache-v2
+          key: ${{ matrix.config.os }}-QtCache-v2
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
