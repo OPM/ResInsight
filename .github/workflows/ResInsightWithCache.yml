@@ -151,6 +151,7 @@ jobs:
               -S .
               -B cmakebuild
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
+              -D CMAKE_INSTALL_PREFIX=install
               -D GSL_ENABLE=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
@@ -212,10 +213,9 @@ jobs:
         shell: bash
         run: |
           cd cmakebuild
-          make package
-          rm -rf packages/_CPack_Packages
+          ninja install
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: ResInsight
-          path: ${{ runner.workspace }}/ResInsight/cmakebuild/packages
+          path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
