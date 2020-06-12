@@ -92,6 +92,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextFeature.h
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextUi.h
 ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPlotFeature.h
+${CMAKE_CURRENT_LIST_DIR}/RicExportFractureModelPlotToFileFeature.h
 )
 
 
@@ -182,6 +183,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextFeature.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextUi.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPlotFeature.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicExportFractureModelPlotToFileFeature.cpp
 )
 
 

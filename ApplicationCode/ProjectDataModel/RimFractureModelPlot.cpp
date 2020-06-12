@@ -23,6 +23,7 @@
 #include "RimEclipseCase.h"
 #include "RimFractureModel.h"
 #include "RimFractureModelCurve.h"
+#include "RimLayerCurve.h"
 
 #include "RigWellLogCurveData.h"
 
@@ -89,4 +90,219 @@ void RimFractureModelPlot::getPorosityValues( std::vector<double>& values ) cons
             values = curve->curveData()->xValues();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelPlot::calculateLayers( std::vector<std::pair<double, double>>& layerBoundaryDepths,
+                                            std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes ) const
+{
+    std::vector<RimLayerCurve*> curves;
+    descendantsIncludingThisOfType( curves );
+
+    if ( curves.empty() )
+    {
+        return;
+    }
+
+    // Expect to have only one of these
+    RimLayerCurve* layerCurve = curves[0];
+
+    const RigWellLogCurveData* curveData = layerCurve->curveData();
+
+    // Find
+    std::vector<double> depths      = curveData->depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH );
+    std::vector<double> layerValues = curveData->xValues();
+
+    size_t startIndex = 0;
+    for ( size_t i = 0; i < depths.size(); i++ )
+    {
+        if ( startIndex != i && ( layerValues[startIndex] != layerValues[i] || i == depths.size() - 1 ) )
+        {
+            layerBoundaryDepths.push_back( std::make_pair( depths[startIndex], depths[i] ) );
+            layerBoundaryIndexes.push_back( std::make_pair( startIndex, i ) );
+            startIndex = i + 1;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelPlot::computeAverageByLayer( const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                                  const std::vector<double>&                    inputVector,
+                                                  std::vector<double>&                          result )
+{
+    for ( auto boundaryIndex : layerBoundaryIndexes )
+    {
+        double sum     = 0.0;
+        int    nValues = 0;
+        for ( size_t i = boundaryIndex.first; i < boundaryIndex.second; i++ )
+        {
+            sum += inputVector[i];
+            nValues++;
+        }
+        result.push_back( sum / nValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogExtractionCurve* RimFractureModelPlot::findCurveByName( const QString& curveName ) const
+{
+    std::vector<RimWellLogExtractionCurve*> curves;
+    descendantsIncludingThisOfType( curves );
+
+    for ( auto curve : curves )
+    {
+        // TODO: This will not work if the user has changed the name of the curve: do something smarter.
+        if ( curve->curveName() == curveName )
+        {
+            return curve;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateTrueVerticalDepth() const
+{
+    std::vector<std::pair<double, double>> layerBoundaryDepths;
+    std::vector<std::pair<size_t, size_t>> layerBoundaryIndexes;
+
+    calculateLayers( layerBoundaryDepths, layerBoundaryIndexes );
+
+    std::vector<double> tvdTopZone;
+    for ( auto p : layerBoundaryDepths )
+    {
+        std::cout << "Layer boundaries: " << p.first << " - " << p.second << std::endl;
+        tvdTopZone.push_back( p.first );
+    }
+
+    // TODO: convert to feet!!!!
+    return tvdTopZone;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::findCurveAndComputeLayeredAverage( const QString& curveName ) const
+{
+    RimWellLogExtractionCurve* curve = findCurveByName( curveName );
+    if ( !curve )
+    {
+        std::cerr << "NO " << curveName.toStdString() << " FOUND!!!" << std::endl;
+        return std::vector<double>();
+    }
+
+    std::vector<std::pair<double, double>> layerBoundaryDepths;
+    std::vector<std::pair<size_t, size_t>> layerBoundaryIndexes;
+    calculateLayers( layerBoundaryDepths, layerBoundaryIndexes );
+
+    const RigWellLogCurveData* curveData = curve->curveData();
+    std::vector<double>        values    = curveData->xValues();
+    std::vector<double>        result;
+    computeAverageByLayer( layerBoundaryIndexes, values, result );
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculatePorosity() const
+{
+    return findCurveAndComputeLayeredAverage( "PORO" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateReservoirPressure() const
+{
+    return findCurveAndComputeLayeredAverage( "PRESSURE" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateHorizontalPermeability() const
+{
+    return findCurveAndComputeLayeredAverage( "PERMX" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateVerticalPermeability() const
+{
+    return findCurveAndComputeLayeredAverage( "PERMZ" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateStress() const
+{
+    return std::vector<double>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateStressGradient() const
+{
+    return std::vector<double>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateYoungsModulus() const
+{
+    return findCurveAndComputeLayeredAverage( "Young's Modulus" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculatePoissonsRatio() const
+{
+    return findCurveAndComputeLayeredAverage( "Poisson's Ratio" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateKIc() const
+{
+    return findCurveAndComputeLayeredAverage( "K-Ic" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateFluidLossCoefficient() const
+{
+    return std::vector<double>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateSpurtLoss() const
+{
+    return std::vector<double>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimFractureModelPlot::calculateProppandEmbedment() const
+{
+    return findCurveAndComputeLayeredAverage( "Proppant Embedment" );
 }

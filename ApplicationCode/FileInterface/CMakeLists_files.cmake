@@ -54,6 +54,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.h
 ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.h
 ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader.h
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelPlotExporter.h
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.h
@@ -112,6 +113,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader.cpp
+${CMAKE_CURRENT_LIST_DIR}/RifFractureModelPlotExporter.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CMAKE_CURRENT_LIST_DIR}/RifHdf5Reader.cpp
