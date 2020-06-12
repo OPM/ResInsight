@@ -97,6 +97,9 @@ RimFractureModelPlot*
                               RimFractureModelCurve::MissingValueStrategy::LINEAR_INTERPOLATION ),
              std::make_tuple( "PERMX",
                               RiaDefines::ResultCatType::STATIC_NATIVE,
+                              RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE ),
+             std::make_tuple( "PERMZ",
+                              RiaDefines::ResultCatType::STATIC_NATIVE,
                               RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE )};
 
         for ( auto result : results )

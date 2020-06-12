@@ -512,7 +512,7 @@ double RimFractureModel::getDefaultForMissingValue( const QString& keyword ) con
     {
         return defaultPorosity();
     }
-    else if ( keyword == QString( "PERMX" ) )
+    else if ( keyword == QString( "PERMX" ) || keyword == QString( "PERMZ" ) )
     {
         return defaultPermeability();
     }
