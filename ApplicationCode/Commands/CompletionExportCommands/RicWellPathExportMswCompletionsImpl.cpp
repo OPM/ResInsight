@@ -958,6 +958,21 @@ RicMswExportInfo
                 break;
             }
         }
+
+        double startOfFirstCompletion = std::numeric_limits<double>::infinity();
+        {
+            for ( auto* fracture : fractures )
+            {
+                if ( fracture->isEnabled() && fracture->startMD() < startOfFirstCompletion )
+                {
+                    startOfFirstCompletion = fracture->startMD();
+                }
+            }
+        }
+
+        // Initial MD is the lowest MD based on grid intersection and start of fracture completions
+        // https://github.com/OPM/ResInsight/issues/6071
+        initialMD = std::min( initialMD, startOfFirstCompletion );
     }
 
     RicMswExportInfo exportInfo( wellPath,
@@ -1111,6 +1126,23 @@ std::vector<SubSegmentIntersectionInfo>
                 break;
             }
         }
+
+        double startOfFirstCompletion = std::numeric_limits<double>::infinity();
+        {
+            std::vector<const RimWellPathComponentInterface*> allCompletions = wellPath->completions()->allCompletions();
+
+            for ( const RimWellPathComponentInterface* completion : allCompletions )
+            {
+                if ( completion->isEnabled() && completion->startMD() < startOfFirstCompletion )
+                {
+                    startOfFirstCompletion = completion->startMD();
+                }
+            }
+        }
+
+        // Initial MD is the lowest MD based on grid intersection and start of fracture completions
+        // https://github.com/OPM/ResInsight/issues/6071
+        initialMD = std::min( initialMD, startOfFirstCompletion );
     }
 
     std::vector<WellPathCellIntersectionInfo> filteredIntersections =
