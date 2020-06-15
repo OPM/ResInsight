@@ -171,37 +171,41 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::buildCon
         {
             WellPathCellIntersectionInfo extraIntersection;
 
-            QString ijkTextCurrent;
+            bool showDebugInfo = false;
+            if ( showDebugInfo )
             {
-                size_t i = 0, j = 0, k = 0;
-                if ( grid )
+                QString ijkTextCurrent;
                 {
-                    grid->ijkFromCellIndex( current.globCellIndex, &i, &j, &k );
+                    size_t i = 0, j = 0, k = 0;
+                    if ( grid )
+                    {
+                        grid->ijkFromCellIndex( current.globCellIndex, &i, &j, &k );
+                    }
+                    ijkTextCurrent = QString( "(%1 %2 %3)" ).arg( i + 1 ).arg( j + 1 ).arg( k + 1 );
                 }
-                ijkTextCurrent = QString( "(%1 %2 %3)" ).arg( i + 1 ).arg( j + 1 ).arg( k + 1 );
-            }
-            QString ijkTextNext;
-            {
-                size_t i = 0, j = 0, k = 0;
-                if ( grid )
+                QString ijkTextNext;
                 {
-                    grid->ijkFromCellIndex( next.globCellIndex, &i, &j, &k );
+                    size_t i = 0, j = 0, k = 0;
+                    if ( grid )
+                    {
+                        grid->ijkFromCellIndex( next.globCellIndex, &i, &j, &k );
+                    }
+                    ijkTextNext = QString( "(%1 %2 %3)" ).arg( i + 1 ).arg( j + 1 ).arg( k + 1 );
                 }
-                ijkTextNext = QString( "(%1 %2 %3)" ).arg( i + 1 ).arg( j + 1 ).arg( k + 1 );
+
+                QString text = QString( "Gap detected : Distance diff : %1, epsilon = %2\n Global Cell Index 1 : %3, "
+                                        "IJK=%4, endMD : %5\n Global Cell Index 2 : %6, IJK=%7, startMD : %8" )
+                                   .arg( distance )
+                                   .arg( gapInGridThreshold )
+                                   .arg( current.globCellIndex )
+                                   .arg( ijkTextCurrent )
+                                   .arg( current.endMD )
+                                   .arg( next.globCellIndex )
+                                   .arg( ijkTextNext )
+                                   .arg( next.startMD );
+
+                RiaLogging::info( text );
             }
-
-            QString text = QString( "Gap detected : Distance diff : %1, epsilon = %2\n Global Cell Index 1 : %3, "
-                                    "IJK=%4, endMD : %5\n Global Cell Index 2 : %6, IJK=%7, startMD : %8" )
-                               .arg( distance )
-                               .arg( gapInGridThreshold )
-                               .arg( current.globCellIndex )
-                               .arg( ijkTextCurrent )
-                               .arg( current.endMD )
-                               .arg( next.globCellIndex )
-                               .arg( ijkTextNext )
-                               .arg( next.startMD );
-
-            RiaLogging::info( text );
 
             extraIntersection.globCellIndex = std::numeric_limits<size_t>::max();
             extraIntersection.startPoint    = current.endPoint;
