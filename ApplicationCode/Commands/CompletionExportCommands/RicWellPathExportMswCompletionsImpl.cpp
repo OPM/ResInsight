@@ -1108,8 +1108,12 @@ std::vector<SubSegmentIntersectionInfo>
     const std::vector<double>&     mds        = wellPathGeometry->measureDepths();
     CVF_ASSERT( !coords.empty() && !mds.empty() );
 
-    std::vector<WellPathCellIntersectionInfo> intersections =
+    std::vector<WellPathCellIntersectionInfo> intersectionsA =
         RigWellPathIntersectionTools::findCellIntersectionInfosAlongPath( eclipseCase->eclipseCaseData(), coords, mds );
+
+    const RigMainGrid*                        mainGrid = eclipseCase->mainGrid();
+    std::vector<WellPathCellIntersectionInfo> intersections =
+        RigWellPathIntersectionTools::buildContinuousIntersections( intersectionsA, mainGrid );
 
     if ( wellPath->perforationIntervalCollection()->mswParameters()->referenceMDType() ==
          RimMswCompletionParameters::MANUAL_REFERENCE_MD )
@@ -1219,11 +1223,19 @@ std::vector<WellPathCellIntersectionInfo>
 
             const RigMainGrid* grid = eclipseCase->mainGrid();
 
-            extraIntersection.intersectionLengthsInCellCS =
-                RigWellPathIntersectionTools::calculateLengthInCell( grid,
-                                                                     intersection.globCellIndex,
-                                                                     intersectionPoint,
-                                                                     intersection.endPoint );
+            if ( intersection.globCellIndex < grid->cellCount() )
+            {
+                extraIntersection.intersectionLengthsInCellCS =
+                    RigWellPathIntersectionTools::calculateLengthInCell( grid,
+                                                                         intersection.globCellIndex,
+                                                                         intersectionPoint,
+                                                                         intersection.endPoint );
+            }
+            else
+            {
+                extraIntersection.intersectionLengthsInCellCS = cvf::Vec3d::ZERO;
+            }
+
             filteredIntersections.push_back( extraIntersection );
         }
     }
