@@ -29,6 +29,11 @@ class RigEclipseCaseData;
 struct HexIntersectionInfo;
 struct WellPathCellIntersectionInfo;
 
+namespace cvf
+{
+class StructGridInterface;
+};
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -55,4 +60,9 @@ public:
                                              size_t             cellIndex,
                                              const cvf::Vec3d&  startPoint,
                                              const cvf::Vec3d&  endPoint );
+
+    // Insert dummy intersections used to represent gap in grid
+    static std::vector<WellPathCellIntersectionInfo>
+        buildContinuousIntersections( const std::vector<WellPathCellIntersectionInfo>& originalIntersections,
+                                      const cvf::StructGridInterface*                  grid );
 };
