@@ -254,6 +254,11 @@ std::pair<double, double> Rim3dWellLogExtractionCurve::findCurveValueRange()
             timeStepsToCheck.insert( m_timeStep() );
         }
 
+        if ( timeStepsToCheck.empty() )
+        {
+            timeStepsToCheck.insert( 0 );
+        }
+
         for ( int timeStep : timeStepsToCheck )
         {
             std::vector<double> values;
