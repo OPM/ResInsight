@@ -3,7 +3,7 @@ name: ResInsight Build With Cache
 on:
   push:
   schedule:
-    # Every day at 1am to make sure we have a build cache for the current data
+    # Every day at 1am to make sure we have a build cache for the current date
     # build cache is 
     - cron: '0 1 * * * '
 env:
@@ -97,7 +97,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ../Qt
-          key: ${{ runner.os }}-QtCache-v2
+          key: ${{ matrix.config.os }}-QtCache-v2
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
@@ -151,6 +151,7 @@ jobs:
               -S .
               -B cmakebuild
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
+              -D CMAKE_INSTALL_PREFIX=cmakebuild/install
               -D GSL_ENABLE=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
@@ -181,7 +182,7 @@ jobs:
             set(path_separator ";")
           endif()
           execute_process(
-            COMMAND cmake --build cmakebuild
+            COMMAND cmake --build cmakebuild --target install
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)
@@ -201,3 +202,15 @@ jobs:
         shell: bash
         run: |
           cmakebuild/ApplicationCode/ResInsight --unittest
+      - name: Run pytest
+        if: "contains( matrix.os, 'windows')" 
+        env:
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/Release/ResInsight.exe
+        run: |
+          cd ApplicationCode/GrpcInterface/Python/rips
+          pytest --console
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ResInsight-${{ matrix.config.name }}
+          path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
