@@ -151,7 +151,7 @@ jobs:
               -S .
               -B cmakebuild
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
-              -D CMAKE_INSTALL_PREFIX=install
+              -D CMAKE_INSTALL_PREFIX=cmakebuild/install
               -D GSL_ENABLE=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
