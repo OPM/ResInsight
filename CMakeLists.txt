@@ -20,7 +20,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_definitions(-DCVF_OSX)
 elseif(MSVC)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /std:c++14")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /std:c++14")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -114,7 +114,7 @@ if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
   )
 
   list(APPEND ERT_LIBRARIES
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so
+    ${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so
   )
   
 else()
@@ -157,7 +157,7 @@ else()
 
     set_property(TARGET  
       catch2
-	  PROPERTY FOLDER "Thirdparty"
+      PROPERTY FOLDER "Thirdparty"
     )
     
     # Restore original state
@@ -181,18 +181,18 @@ endif(GSL_ENABLE)
 ###############################################
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-	# Update submodules as needed
+    # Update submodules as needed
     option(GIT_SUBMODULE "Check submodules during build" ON)
     if(GIT_SUBMODULE)
         foreach (SUBMODULE ${THIRD_PARTY_SUBMODULES})
-		    set (SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty/${SUBMODULE}")
-		    message(STATUS "Initializing GIT submodules")
-		    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive -- ${SUBDIR}
+            set (SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty/${SUBMODULE}")
+            message(STATUS "Initializing GIT submodules")
+            execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive -- ${SUBDIR}
                             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                             RESULT_VARIABLE GIT_SUBMOD_RESULT)
-		    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-			    message(FATAL_ERROR "git submodule update --init failed for ${SUBMODULE} with ${GIT_SUBMOD_RESULT}, please checkout submodules")
-		    endif()
+            if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+                message(FATAL_ERROR "git submodule update --init failed for ${SUBMODULE} with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+            endif()
         endforeach()
     endif()
 endif()
@@ -235,31 +235,31 @@ endif()
 
 if(MSVC)
     if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
-	    list(APPEND EXTERNAL_LINK_LIBRARIES
+        list(APPEND EXTERNAL_LINK_LIBRARIES
             ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
             ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
-	    )
+        )
 
-	    set(RESINSIGHT_FOUND_HDF5 1)
-	    message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
+        set(RESINSIGHT_FOUND_HDF5 1)
+        message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
     else()
-	    message( WARNING "Use of HDF5 is enabled, but RESINSIGHT_HDF5_DIR is empty. Specify RESINSIGHT_HDF5_DIR to be able to use HDF5" )
+        message( WARNING "Use of HDF5 is enabled, but RESINSIGHT_HDF5_DIR is empty. Specify RESINSIGHT_HDF5_DIR to be able to use HDF5" )
     endif()
 else()
     find_package(HDF5 COMPONENTS CXX)
     if (HDF5_FOUND)
-		list(APPEND EXTERNAL_LINK_LIBRARIES
-		    ${HDF5_LIBRARIES}
-		)
+        list(APPEND EXTERNAL_LINK_LIBRARIES
+            ${HDF5_LIBRARIES}
+        )
 
-	    set(RESINSIGHT_FOUND_HDF5 1)
-	    message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
+        set(RESINSIGHT_FOUND_HDF5 1)
+        message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
 
-		option (RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
-		mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES) 
-	    if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
-		    message( STATUS "Bundling of HDF5 libraries is enabled" )
-	    endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
+        option (RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
+        mark_as_advanced(FORCE RESINSIGHT_HDF5_BUNDLE_LIBRARIES) 
+        if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
+            message( STATUS "Bundling of HDF5 libraries is enabled" )
+        endif() # RESINSIGHT_HDF5_BUNDLE_LIBRARIES
 
     else()
         message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
@@ -296,7 +296,7 @@ list(APPEND OPM_LIBRARIES
 
 set_property(TARGET  
     ${OPM_LIBRARIES}
-	PROPERTY FOLDER "Thirdparty/OPM"
+    PROPERTY FOLDER "Thirdparty/OPM"
 )
 
 ################################################################################
@@ -362,28 +362,28 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 set_property(TARGET  
     ${THIRD_PARTY_LIBRARIES}
-	PROPERTY FOLDER "Thirdparty"
+    PROPERTY FOLDER "Thirdparty"
 )
 
 ################################################################################
 # GNU GSL
 ################################################################################
 if(GSL_ENABLE)
-	if (NOT EXISTS "${PROJECT_SOURCE_DIR}/ThirdParty/gsl/CMakeLists.txt")
-		message(FATAL_ERROR "The GSL submodule was not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
-	endif()
-	option(GSL_DISABLE_TESTS "Disable the GSL tests" ON)
+    if (NOT EXISTS "${PROJECT_SOURCE_DIR}/ThirdParty/gsl/CMakeLists.txt")
+        message(FATAL_ERROR "The GSL submodule was not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+    endif()
+    option(GSL_DISABLE_TESTS "Disable the GSL tests" ON)
     set(GSL_INSTALL OFF)
-	add_subdirectory(ThirdParty/gsl)
-	add_definitions(-DUSE_GSL)
-	list(APPEND THIRD_PARTY_LIBRARIES gsl)
+    add_subdirectory(ThirdParty/gsl)
+    add_definitions(-DUSE_GSL)
+    list(APPEND THIRD_PARTY_LIBRARIES gsl)
     
     # set this property manually for all GSL projects, as they are put into a separate folder
     set_property(TARGET  
         gsl
         gslcblas
         copy-headers
-	    PROPERTY FOLDER "Thirdparty/GSL"
+        PROPERTY FOLDER "Thirdparty/GSL"
         )
 endif()
 
@@ -429,7 +429,7 @@ list(APPEND VIZ_FWK_LIBRARIES
 
 set_property(TARGET  
     ${VIZ_FWK_LIBRARIES}
-	PROPERTY FOLDER "VizFwk"
+    PROPERTY FOLDER "VizFwk"
 )
 
 
@@ -479,8 +479,8 @@ list(APPEND APP_FWK_LIBRARIES
 
 set_property(TARGET  
     ${APP_FWK_LIBRARIES}
-	cafHexInterpolator
-	PROPERTY FOLDER "AppFwk"
+    cafHexInterpolator
+    PROPERTY FOLDER "AppFwk"
 )
 
 option (RESINSIGHT_INCLUDE_APPFWK_TESTS "Enable AppFwk Tests" OFF)
@@ -543,12 +543,12 @@ if (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         # find all file names with text hdf5
         # use file globbing to also copy the symlinks to make sure the dependencies from ResInsight runtime is correct
-	    foreach (FILE_TO_COPY ${HDF5_LIBRARIES})
-	        STRING( FIND ${FILE_TO_COPY} "hdf5" POS_IN_STRING ) 
-	        if(${POS_IN_STRING} GREATER -1)
+        foreach (FILE_TO_COPY ${HDF5_LIBRARIES})
+            STRING( FIND ${FILE_TO_COPY} "hdf5" POS_IN_STRING ) 
+            if(${POS_IN_STRING} GREATER -1)
                 file(GLOB FILE_AND_SYMLINKS ${FILE_TO_COPY}*)
                 install(FILES ${FILE_AND_SYMLINKS} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
-		    endif()
+            endif()
         endforeach()
     endif()
 endif (RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
@@ -582,8 +582,8 @@ if(RESINSIGHT_BUILD_DOCUMENTATION)
                  ${PROJECT_BINARY_DIR}/Doxyfile  @ONLY IMMEDIATE)
   #-- Add a custom target to run Doxygen when ever the project is built
   add_custom_target (Docs 
-  					COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
-  					SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
+                    COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
+                    SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
   # IF you do NOT want the documentation to be generated EVERY time you build the project
   # then leave out the 'ALL' keyword from the above command.
 endif(RESINSIGHT_BUILD_DOCUMENTATION)
