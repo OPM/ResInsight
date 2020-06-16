@@ -205,7 +205,7 @@ jobs:
       - name: Run pytest
         if: contains( matrix.config.os, 'windows')  
         env:
-          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/Release/ResInsight.exe
+          RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/ResInsight.exe
         run: |
           cd ApplicationCode/GrpcInterface/Python/rips
           pytest --console
