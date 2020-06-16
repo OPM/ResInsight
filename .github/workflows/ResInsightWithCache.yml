@@ -203,7 +203,7 @@ jobs:
         run: |
           cmakebuild/ApplicationCode/ResInsight --unittest
       - name: Run pytest
-        if: "contains( matrix.os, 'windows')" 
+        if: contains( matrix.config.os, 'windows')  
         env:
           RESINSIGHT_EXECUTABLE: ${{ runner.workspace }}/ResInsight/cmakebuild/ApplicationCode/Release/ResInsight.exe
         run: |
