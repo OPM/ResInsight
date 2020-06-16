@@ -521,8 +521,7 @@ option (RESINSIGHT_PRIVATE_INSTALL "Linux only: Install the libecl shared librar
 mark_as_advanced(FORCE RESINSIGHT_PRIVATE_INSTALL)
 
 if (RESINSIGHT_PRIVATE_INSTALL)
-    set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
-    
+   
     ################################################################################
     # ERT shared library files
     # Install procedure will copy so-files from ERT into same install folder as ResInsight
