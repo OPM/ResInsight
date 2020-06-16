@@ -368,12 +368,12 @@ set_property(TARGET
 ################################################################################
 # GNU GSL
 ################################################################################
-option(GSL_ENABLE "Enable the GNU Scientific Library for Statistics" OFF)
 if(GSL_ENABLE)
 	if (NOT EXISTS "${PROJECT_SOURCE_DIR}/ThirdParty/gsl/CMakeLists.txt")
 		message(FATAL_ERROR "The GSL submodule was not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
 	endif()
 	option(GSL_DISABLE_TESTS "Disable the GSL tests" ON)
+    set(GSL_INSTALL OFF)
 	add_subdirectory(ThirdParty/gsl)
 	add_definitions(-DUSE_GSL)
 	list(APPEND THIRD_PARTY_LIBRARIES gsl)
