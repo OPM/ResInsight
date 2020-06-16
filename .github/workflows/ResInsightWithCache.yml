@@ -182,7 +182,7 @@ jobs:
             set(path_separator ";")
           endif()
           execute_process(
-            COMMAND cmake --build cmakebuild
+            COMMAND cmake --build cmakebuild --target install
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)
@@ -209,13 +209,8 @@ jobs:
         run: |
           cd ApplicationCode/GrpcInterface/Python/rips
           pytest --console
-      - name: Create packages
-        shell: bash
-        run: |
-          cd cmakebuild
-          ninja install
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: ResInsight
+          name: ResInsight-${{ matrix.config.name }}
           path: ${{ runner.workspace }}/ResInsight/cmakebuild/install
