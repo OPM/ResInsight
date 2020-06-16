@@ -45,7 +45,9 @@ public:
         YOUNGS_MODULUS,
         POISSONS_RATIO,
         K_IC,
-        PROPPANT_EMBEDMENT
+        PROPPANT_EMBEDMENT,
+        BIOT_COEFFICIENT,
+        K0
     };
 
     RimElasticPropertiesCurve();

@@ -69,6 +69,7 @@ RimFractureModelPlot*
     caf::ProgressInfo progInfo( 100, "Creating Fracture Model Plot" );
 
     RimFractureModelPlot* plot = createFractureModelPlot( true, "Fracture Model" );
+    plot->setFractureModel( fractureModel );
 
     {
         auto task = progInfo.task( "Creating formation track", 2 );
@@ -88,29 +89,34 @@ RimFractureModelPlot*
     {
         auto task = progInfo.task( "Creating parameters track", 15 );
 
-        std::vector<std::tuple<QString, RiaDefines::ResultCatType, RimFractureModelCurve::MissingValueStrategy>> results =
-            {std::make_tuple( "PORO",
-                              RiaDefines::ResultCatType::STATIC_NATIVE,
-                              RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE ),
-             std::make_tuple( "PRESSURE",
-                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                              RimFractureModelCurve::MissingValueStrategy::LINEAR_INTERPOLATION ),
-             std::make_tuple( "PERMX",
-                              RiaDefines::ResultCatType::STATIC_NATIVE,
-                              RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE ),
-             std::make_tuple( "PERMZ",
-                              RiaDefines::ResultCatType::STATIC_NATIVE,
-                              RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE )};
+        std::map<QString, PlotDefVector> plots;
 
-        for ( auto result : results )
+        plots["Porosity"] = {std::make_tuple( "PORO",
+                                              RiaDefines::ResultCatType::STATIC_NATIVE,
+                                              RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE,
+                                              false )};
+
+        plots["Pressure"] = {std::make_tuple( "PRESSURE",
+                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                              RimFractureModelCurve::MissingValueStrategy::LINEAR_INTERPOLATION,
+                                              false ),
+                             std::make_tuple( "PRESSURE",
+                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                              RimFractureModelCurve::MissingValueStrategy::LINEAR_INTERPOLATION,
+                                              true )};
+
+        plots["Permeability"] = {std::make_tuple( "PERMX",
+                                                  RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                  RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE,
+                                                  false ),
+                                 std::make_tuple( "PERMZ",
+                                                  RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                  RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE,
+                                                  false )};
+
+        for ( auto result : plots )
         {
-            createParametersTrack( plot,
-                                   fractureModel,
-                                   eclipseCase,
-                                   timeStep,
-                                   std::get<0>( result ),
-                                   std::get<1>( result ),
-                                   std::get<2>( result ) );
+            createParametersTrack( plot, fractureModel, eclipseCase, timeStep, result.first, result.second );
         }
     }
 
@@ -121,7 +127,9 @@ RimFractureModelPlot*
             {RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS,
              RimElasticPropertiesCurve::PropertyType::POISSONS_RATIO,
              RimElasticPropertiesCurve::PropertyType::K_IC,
-             RimElasticPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT};
+             RimElasticPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT,
+             RimElasticPropertiesCurve::PropertyType::BIOT_COEFFICIENT,
+             RimElasticPropertiesCurve::PropertyType::K0};
 
         for ( auto result : results )
         {
@@ -315,16 +323,14 @@ void RicNewFractureModelPlotFeature::createLayersTrack( RimFractureModelPlot* pl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFractureModelCurve*
-    RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot*     plot,
-                                                           RimFractureModel*         fractureModel,
-                                                           RimEclipseCase*           eclipseCase,
-                                                           int                       timeStep,
-                                                           const QString&            resultVariable,
-                                                           RiaDefines::ResultCatType resultCategoryType,
-                                                           RimFractureModelCurve::MissingValueStrategy missingValueStrategy )
+void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot* plot,
+                                                            RimFractureModel*     fractureModel,
+                                                            RimEclipseCase*       eclipseCase,
+                                                            int                   timeStep,
+                                                            const QString&        trackTitle,
+                                                            const PlotDefVector&  curveConfigurations )
 {
-    RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, resultVariable, plot );
+    RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackTitle, plot );
     plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     plotTrack->setColSpan( RimPlot::TWO );
     plotTrack->setVisibleXRange( 0.0, 2.0 );
@@ -340,32 +346,54 @@ RimFractureModelCurve*
                                                               RiuQwtPlotCurve::STYLE_DASH,
                                                               RiuQwtPlotCurve::STYLE_DASH_DOT};
 
-    RimFractureModelCurve* curve = new RimFractureModelCurve;
-    curve->setFractureModel( fractureModel );
-    curve->setCase( eclipseCase );
-    curve->setEclipseResultVariable( resultVariable );
-    curve->setEclipseResultCategory( resultCategoryType );
-    curve->setMissingValueStrategy( missingValueStrategy );
-    curve->setColor( colors.cycledColor3f( 0 ) );
-    curve->setLineStyle( lineStyles[0] );
-    curve->setLineThickness( 2 );
-    curve->setAutoNameComponents( false, true, false, false, false );
+    int colorIndex = 0;
+    for ( auto curveConfig : curveConfigurations )
+    {
+        QString                                     resultVariable       = std::get<0>( curveConfig );
+        RiaDefines::ResultCatType                   resultCategoryType   = std::get<1>( curveConfig );
+        RimFractureModelCurve::MissingValueStrategy missingValueStrategy = std::get<2>( curveConfig );
+        bool                                        fixedInitialTimeStep = std::get<3>( curveConfig );
 
-    plotTrack->addCurve( curve );
-    plotTrack->setAutoScaleXEnabled( true );
-    curve->loadDataAndUpdate( true );
+        RimFractureModelCurve* curve = new RimFractureModelCurve;
 
-    curve->updateConnectedEditors();
+        curve->setFractureModel( fractureModel );
+        curve->setCase( eclipseCase );
+        curve->setEclipseResultVariable( resultVariable );
+        curve->setEclipseResultCategory( resultCategoryType );
+        curve->setMissingValueStrategy( missingValueStrategy );
+        curve->setColor( colors.cycledColor3f( colorIndex ) );
+        curve->setLineStyle( lineStyles[0] );
+        curve->setLineThickness( 2 );
+
+        if ( fixedInitialTimeStep )
+        {
+            curve->setAutoNameComponents( false, false, false, false, false );
+            curve->setCustomName( QString( "INITIAL %1" ).arg( resultVariable ) );
+            curve->setCurrentTimeStep( 0 );
+        }
+        else
+        {
+            curve->setAutoNameComponents( false, true, false, false, false );
+            curve->setCurrentTimeStep( timeStep );
+        }
+
+        plotTrack->addCurve( curve );
+        plotTrack->setAutoScaleXEnabled( true );
+        curve->loadDataAndUpdate( true );
+
+        curve->updateConnectedEditors();
+
+        colorIndex++;
+    }
+
     plotTrack->updateConnectedEditors();
     plot->updateConnectedEditors();
 
     RiaApplication::instance()->project()->updateConnectedEditors();
 
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
+    // RiuPlotMainWindowTools::selectAsCurrentItem( curve );
     RiuPlotMainWindowTools::showPlotMainWindow();
-
-    return curve;
 }
 
 //--------------------------------------------------------------------------------------------------

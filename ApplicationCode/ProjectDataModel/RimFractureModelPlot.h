@@ -25,6 +25,7 @@
 #include <vector>
 
 class RimWellLogExtractionCurve;
+class RimFractureModel;
 
 class RimFractureModelPlot : public RimDepthTrackPlot
 {
@@ -32,6 +33,8 @@ class RimFractureModelPlot : public RimDepthTrackPlot
 
 public:
     RimFractureModelPlot();
+
+    void setFractureModel( RimFractureModel* fractureModel );
 
     void getPorosityValues( std::vector<double>& values ) const;
 
@@ -54,9 +57,17 @@ protected:
     void                       calculateLayers( std::vector<std::pair<double, double>>& layerBoundaryDepths,
                                                 std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes ) const;
     RimWellLogExtractionCurve* findCurveByName( const QString& curveName ) const;
-    static void computeAverageByLayer( const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
-                                       const std::vector<double>&                    inputVector,
-                                       std::vector<double>&                          result );
+    bool calculateStressWithGradients( std::vector<double>& stress, std::vector<double>& stressGradients ) const;
+
+    static double computeValueAtDepth( const std::vector<double>&              values,
+                                       std::vector<std::pair<double, double>>& layerBoundaryDepths,
+                                       double                                  depth );
+    static void   computeAverageByLayer( const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                         const std::vector<double>&                    inputVector,
+                                         std::vector<double>&                          result );
+    static double convertToPsiPerFeetFromBarPerMeter( double value );
+    static double convertToFeetFromMeter( double value );
+    static double convertToPsiFromBar( double value );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -64,4 +75,6 @@ protected:
 
 private:
     void applyDataSource();
+
+    caf::PdmPtrField<RimFractureModel*> m_fractureModel;
 };

@@ -79,7 +79,7 @@ RifElasticProperties
 {
     QStringList tokens = tokenize( line, "," );
 
-    if ( tokens.size() != 8 )
+    if ( tokens.size() != 10 )
     {
         throw FileParseException( QString( "Incomplete data on line %1: %2" ).arg( lineNumber ).arg( filePath ) );
     }
@@ -93,7 +93,9 @@ RifElasticProperties
                          << "Young's Modulus"
                          << "Poisson's Ratio"
                          << "K-Ic"
-                         << "Proppant Embedment";
+                         << "Proppant Embedment"
+                         << "Biot Coefficient"
+                         << "k0";
     verifyNonEmptyTokens( tokens, nameOfNonEmptyTokens, lineNumber, filePath );
 
     RifElasticProperties elasticProperties;
@@ -105,6 +107,8 @@ RifElasticProperties
     elasticProperties.poissonsRatio     = parseDouble( tokens[5], "Poisson's Ratio", lineNumber, filePath );
     elasticProperties.K_Ic              = parseDouble( tokens[6], "K-Ic", lineNumber, filePath );
     elasticProperties.proppantEmbedment = parseDouble( tokens[7], "Proppant Embedment", lineNumber, filePath );
+    elasticProperties.biotCoefficient   = parseDouble( tokens[8], "Biot Coefficient", lineNumber, filePath );
+    elasticProperties.k0                = parseDouble( tokens[9], "k0", lineNumber, filePath );
 
     return elasticProperties;
 }

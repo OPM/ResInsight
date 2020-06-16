@@ -130,6 +130,8 @@ QString RimElasticProperties::generatePropertiesTable()
                     "      <th>Poisson's<br>Ratio</th>"
                     "      <th>K-Ic</th>"
                     "      <th>Proppant<br>Embedment</th>"
+                    "      <th>Biot<br>Coefficient</th>"
+                    "      <th>k0</th>"
                     "    </tr>"
                     "  </thead>"
                     "  <tbody>" );
@@ -143,6 +145,8 @@ QString RimElasticProperties::generatePropertiesTable()
         const std::vector<double>& poissonsRatio     = prop.second.poissonsRatio();
         const std::vector<double>& K_Ic              = prop.second.K_Ic();
         const std::vector<double>& proppantEmbedment = prop.second.proppantEmbedment();
+        const std::vector<double>& biotCoefficient   = prop.second.biotCoefficient();
+        const std::vector<double>& k0                = prop.second.k0();
 
         for ( size_t i = 0; i < porosity.size(); i++ )
         {
@@ -155,6 +159,8 @@ QString RimElasticProperties::generatePropertiesTable()
                             "  <td align=right>%6</td>"
                             "  <td align=right>%7</td>"
                             "  <td align=right>%8</td>"
+                            "  <td align=right>%9</td>"
+                            "  <td align=right>%10</td>"
                             "</tr>" );
 
             QString line = format.arg( fieldName )
@@ -164,7 +170,9 @@ QString RimElasticProperties::generatePropertiesTable()
                                .arg( youngsModulus[i] )
                                .arg( poissonsRatio[i] )
                                .arg( K_Ic[i] )
-                               .arg( proppantEmbedment[i] );
+                               .arg( proppantEmbedment[i] )
+                               .arg( biotCoefficient[i] )
+                               .arg( k0[i] );
 
             body.append( line );
         }

@@ -30,6 +30,9 @@ class RimFractureModelPlot;
 class RimFractureModelPlotCollection;
 class RimFractureModel;
 
+typedef std::tuple<QString, RiaDefines::ResultCatType, RimFractureModelCurve::MissingValueStrategy, bool> PlotDef;
+typedef std::vector<PlotDef>                                                                              PlotDefVector;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -54,13 +57,12 @@ private:
     static void
         createLayersTrack( RimFractureModelPlot* plot, RimFractureModel* fractureModel, RimEclipseCase* eclipseCase );
 
-    static RimFractureModelCurve* createParametersTrack( RimFractureModelPlot*                       plot,
-                                                         RimFractureModel*                           fractureModel,
-                                                         RimEclipseCase*                             eclipseCase,
-                                                         int                                         timeStep,
-                                                         const QString&                              resultVariable,
-                                                         RiaDefines::ResultCatType                   resultCategoryType,
-                                                         RimFractureModelCurve::MissingValueStrategy missingValueStrategy );
+    static void createParametersTrack( RimFractureModelPlot* plot,
+                                       RimFractureModel*     fractureModel,
+                                       RimEclipseCase*       eclipseCase,
+                                       int                   timeStep,
+                                       const QString&        trackTitle,
+                                       const PlotDefVector&  curveConfiguration );
 
     static void createElasticPropertiesTrack( RimFractureModelPlot*                   plot,
                                               RimFractureModel*                       fractureModel,

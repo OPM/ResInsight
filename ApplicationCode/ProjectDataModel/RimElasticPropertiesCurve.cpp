@@ -67,6 +67,8 @@ void AppEnum<RimElasticPropertiesCurve::PropertyType>::setUp()
     addItem( RimElasticPropertiesCurve::PropertyType::POISSONS_RATIO, "POISSONS_RATIO", "Poisson's Ratio" );
     addItem( RimElasticPropertiesCurve::PropertyType::K_IC, "K_IC", "K-Ic" );
     addItem( RimElasticPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT, "PROPPANT_EMBEDMENT", "Proppant Embedment" );
+    addItem( RimElasticPropertiesCurve::PropertyType::BIOT_COEFFICIENT, "BIOT_COEFFICIENT", "Biot Coefficient" );
+    addItem( RimElasticPropertiesCurve::PropertyType::K0, "K0", "k0" );
     setDefault( RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS );
 }
 }; // namespace caf
@@ -253,6 +255,16 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
                 else if ( m_propertyType() == PropertyType::PROPPANT_EMBEDMENT )
                 {
                     double val = rigElasticProperties.getProppantEmbedment( porosity );
+                    values.push_back( val );
+                }
+                else if ( m_propertyType() == PropertyType::BIOT_COEFFICIENT )
+                {
+                    double val = rigElasticProperties.getBiotCoefficient( porosity );
+                    values.push_back( val );
+                }
+                else if ( m_propertyType() == PropertyType::K0 )
+                {
+                    double val = rigElasticProperties.getK0( porosity );
                     values.push_back( val );
                 }
             }

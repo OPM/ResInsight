@@ -33,17 +33,27 @@ public:
     const QString& formationName() const;
     const QString& faciesName() const;
 
-    void appendValues( double porosity, double youngsModulus, double poissonsRatio, double m_K_Ic, double proppantEmbedment );
+    void   appendValues( double porosity,
+                         double youngsModulus,
+                         double poissonsRatio,
+                         double m_K_Ic,
+                         double proppantEmbedment,
+                         double biotCoefficient,
+                         double k0 );
     double getYoungsModulus( double porosity ) const;
     double getPoissonsRatio( double porosity ) const;
     double getK_Ic( double porosity ) const;
     double getProppantEmbedment( double porosity ) const;
+    double getBiotCoefficient( double porosity ) const;
+    double getK0( double porosity ) const;
 
     const std::vector<double>& porosity() const;
     const std::vector<double>& youngsModulus() const;
     const std::vector<double>& poissonsRatio() const;
     const std::vector<double>& K_Ic() const;
     const std::vector<double>& proppantEmbedment() const;
+    const std::vector<double>& biotCoefficient() const;
+    const std::vector<double>& k0() const;
 
 private:
     QString m_fieldName;
@@ -55,4 +65,6 @@ private:
     std::vector<double> m_poissonsRatio;
     std::vector<double> m_K_Ic;
     std::vector<double> m_proppantEmbedment;
+    std::vector<double> m_biotCoefficient;
+    std::vector<double> m_k0;
 };
