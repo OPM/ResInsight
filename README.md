@@ -38,4 +38,4 @@ Release branches that might pop up are dedicated bug fix branches for the releas
 
 ### Building ResInsight
 
-See [ Build Instructions ](http://resinsight.org/docs/buildinstructions/)
+See [ Build Instructions ](https://resinsight.org/getting-started/download-and-install/buildinstructions/)
