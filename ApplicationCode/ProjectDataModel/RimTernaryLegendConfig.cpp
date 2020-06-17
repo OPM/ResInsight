@@ -239,7 +239,7 @@ void RimTernaryLegendConfig::setAutomaticRanges( TernaryArrayIndex ternaryIndex,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTernaryLegendConfig::recreateLegend()
+void RimTernaryLegendConfig::onRecreateLegend()
 {
     // Due to possible visualization bug, we need to recreate the legend if the last viewer
     // has been removed, (and thus the opengl resources has been deleted) The text in

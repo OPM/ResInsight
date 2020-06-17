@@ -2032,29 +2032,12 @@ void RimEclipseView::setCurrentCellResultData( const std::vector<double>& values
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::onResetLegendsInViewer()
 {
-    RimRegularLegendConfig* cellResultNormalLegendConfig = this->cellResult()->legendConfig();
-    if ( cellResultNormalLegendConfig ) cellResultNormalLegendConfig->recreateLegend();
-
-    this->cellResult()->ternaryLegendConfig()->recreateLegend();
-    this->cellEdgeResult()->legendConfig()->recreateLegend();
-
-    for ( RimIntersectionResultDefinition* sepInterResDef :
-          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    for ( auto legendConfig : legendConfigs() )
     {
-        sepInterResDef->regularLegendConfig()->recreateLegend();
-        sepInterResDef->ternaryLegendConfig()->recreateLegend();
-    }
-
-    for ( RimIntersectionResultDefinition* sepInterResDef :
-          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
-    {
-        sepInterResDef->regularLegendConfig()->recreateLegend();
-        sepInterResDef->ternaryLegendConfig()->recreateLegend();
-    }
-
-    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
-    {
-        wellMeasurement->legendConfig()->recreateLegend();
+        if ( legendConfig )
+        {
+            legendConfig->recreateLegend();
+        }
     }
 
     nativeOrOverrideViewer()->removeAllColorLegends();
@@ -2221,6 +2204,11 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
     for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
     {
         absLegends.push_back( wellMeasurement->legendConfig() );
+    }
+
+    for ( auto legendConfig : m_surfaceCollection->legendConfigs() )
+    {
+        absLegends.push_back( legendConfig );
     }
 
     return absLegends;

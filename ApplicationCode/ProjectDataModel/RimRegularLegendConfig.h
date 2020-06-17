@@ -110,7 +110,7 @@ public:
     };
 
     typedef caf::AppEnum<MappingType> MappingEnum;
-    void                              recreateLegend();
+    void                              onRecreateLegend();
 
     void            setColorLegend( RimColorLegend* colorLegend );
     RimColorLegend* colorLegend() const;

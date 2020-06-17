@@ -60,3 +60,11 @@ int RimLegendConfig::fontSize() const
 
     return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultSceneFontSize() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::recreateLegend()
+{
+    onRecreateLegend();
+}
