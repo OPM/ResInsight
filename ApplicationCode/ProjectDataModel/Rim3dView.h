@@ -159,6 +159,7 @@ public:
     void createMeasurementDisplayModelAndRedraw();
     void updateGridBoxData();
     void updateAnnotationItems();
+    void resetLegends();
 
     void setScaleZAndUpdate( double scaleZ );
     void updateScaling();

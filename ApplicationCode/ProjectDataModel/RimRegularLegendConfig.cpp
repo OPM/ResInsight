@@ -634,7 +634,7 @@ void RimRegularLegendConfig::setMappingMode( MappingType mappingType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::recreateLegend()
+void RimRegularLegendConfig::onRecreateLegend()
 {
     // Due to possible visualization bug, we need to recreate the legend if the last viewer
     // has been removed, (and thus the opengl resources has been deleted) The text in

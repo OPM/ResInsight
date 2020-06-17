@@ -32,6 +32,7 @@ class ScalarMapper;
 
 class RimSurfaceInView;
 class RimSurface;
+class RimRegularLegendConfig;
 class RiuViewer;
 
 class RimSurfaceInViewCollection : public RimCheckableNamedObject
@@ -52,6 +53,8 @@ public:
 
     bool hasAnyActiveSeparateResults();
     void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
+
+    std::vector<RimRegularLegendConfig*> legendConfigs();
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimColorLegendItem.h"
+#include "RimColorLegend.h"
 
 #include "cvfColor3.h"
 
@@ -113,6 +114,12 @@ void RimColorLegendItem::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
                                            const QVariant&            oldValue,
                                            const QVariant&            newValue )
 {
+    RimColorLegend* colorLegend = nullptr;
+    this->firstAncestorOrThisOfType( colorLegend );
+    if ( colorLegend )
+    {
+        colorLegend->onColorLegendItemHasChanged();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

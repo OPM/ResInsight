@@ -52,4 +52,9 @@ public:
     virtual caf::TitledOverlayFrame*       titledOverlayFrame()       = 0;
 
     virtual int fontSize() const override;
+
+    void recreateLegend();
+
+protected:
+    virtual void onRecreateLegend() = 0;
 };

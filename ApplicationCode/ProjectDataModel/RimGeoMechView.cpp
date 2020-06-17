@@ -445,25 +445,12 @@ void RimGeoMechView::setGeoMechCase( RimGeoMechCase* gmCase )
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::onResetLegendsInViewer()
 {
-    this->cellResult()->legendConfig->recreateLegend();
-
-    for ( RimIntersectionResultDefinition* sepInterResDef :
-          this->separateIntersectionResultsCollection()->intersectionResultsDefinitions() )
+    for ( auto legendConfig : legendConfigs() )
     {
-        sepInterResDef->regularLegendConfig()->recreateLegend();
-        sepInterResDef->ternaryLegendConfig()->recreateLegend();
-    }
-
-    for ( RimIntersectionResultDefinition* sepInterResDef :
-          this->separateSurfaceResultsCollection()->intersectionResultsDefinitions() )
-    {
-        sepInterResDef->regularLegendConfig()->recreateLegend();
-        sepInterResDef->ternaryLegendConfig()->recreateLegend();
-    }
-
-    for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
-    {
-        wellMeasurement->legendConfig()->recreateLegend();
+        if ( legendConfig )
+        {
+            legendConfig->recreateLegend();
+        }
     }
 
     nativeOrOverrideViewer()->removeAllColorLegends();

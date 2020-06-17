@@ -44,19 +44,18 @@ public:
     ~RimColorLegend() override;
 
 public:
+    void    setColorLegendName( const QString& colorLegendName );
     QString colorLegendName();
-
-    void setColorLegendName( const QString& colorLegendName );
 
     void setReadOnly( bool doReadOnly );
 
-    void appendColorLegendItem( RimColorLegendItem* colorLegendItem );
-
+    void                             appendColorLegendItem( RimColorLegendItem* colorLegendItem );
     std::vector<RimColorLegendItem*> colorLegendItems() const;
 
     cvf::Color3ubArray colorArray() const;
+    caf::IconProvider  paletteIconProvider() const;
 
-    caf::IconProvider paletteIconProvider() const;
+    void onColorLegendItemHasChanged();
 
 public:
     caf::PdmFieldHandle* userDescriptionField() override;

@@ -25,6 +25,7 @@
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 #include "RimSurfaceInView.h"
+#include "RimSurfaceResultDefinition.h"
 
 #include "RivSurfacePartMgr.h"
 
@@ -251,4 +252,22 @@ void RimSurfaceInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer*
     {
         surf->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer, isUsingOverrideViewer );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimRegularLegendConfig*> RimSurfaceInViewCollection::legendConfigs()
+{
+    std::vector<RimRegularLegendConfig*> configs;
+
+    for ( RimSurfaceInView* surf : m_surfacesInView )
+    {
+        if ( surf->surfaceResultDefinition() )
+        {
+            configs.push_back( surf->surfaceResultDefinition()->legendConfig() );
+        }
+    }
+
+    return configs;
 }

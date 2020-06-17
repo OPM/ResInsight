@@ -20,6 +20,7 @@
 
 #include "RiaColorTools.h"
 
+#include "Rim3dView.h"
 #include "RimColorLegendItem.h"
 
 CAF_PDM_SOURCE_INIT( RimColorLegend, "ColorLegend" );
@@ -146,4 +147,28 @@ caf::IconProvider RimColorLegend::paletteIconProvider() const
     caf::IconProvider iconProvider( QSize( 24, 16 ) );
     iconProvider.setBackgroundColorGradient( colorNames );
     return iconProvider;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegend::onColorLegendItemHasChanged()
+{
+    this->updateConnectedEditors();
+
+    std::vector<caf::PdmObjectHandle*> referringObjects;
+    this->objectsWithReferringPtrFields( referringObjects );
+
+    for ( auto o : referringObjects )
+    {
+        o->uiCapability()->updateConnectedEditors();
+
+        Rim3dView* view = nullptr;
+        o->firstAncestorOrThisOfType( view );
+        if ( view )
+        {
+            view->resetLegends();
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
 }
