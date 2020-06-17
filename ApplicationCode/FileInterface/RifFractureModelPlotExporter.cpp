@@ -42,7 +42,7 @@ bool RifFractureModelPlotExporter::writeToFile( RimFractureModelPlot* plot, cons
     labels.push_back( "elyr" );
 
     // Poisson's Ratio
-    labels.push_back( "poissonnr" );
+    labels.push_back( "poissonr" );
 
     // K-Ic (psi*sqrt(in)
     labels.push_back( "tuflyr" );
@@ -56,25 +56,29 @@ bool RifFractureModelPlotExporter::writeToFile( RimFractureModelPlot* plot, cons
     // Proppand Embedmeent (lb/ft^2)
     labels.push_back( "pembed" );
 
-    // B2 Detailed Loss
-    // Reservoir Pressur (psi)
-    labels.push_back( "zoneResPres" );
+    bool useDetailedLoss = false;
+    if ( useDetailedLoss )
+    {
+        // B2 Detailed Loss
+        // Reservoir Pressure (psi)
+        labels.push_back( "zoneResPres" );
 
-    // Porosity (fraction)
-    labels.push_back( "zonePorosity" );
+        // Porosity (fraction)
+        labels.push_back( "zonePorosity" );
 
-    // Horizontal Perm (md)
-    labels.push_back( "zoneHorizPerm" );
+        // Horizontal Perm (md)
+        labels.push_back( "zoneHorizPerm" );
 
-    // Vertical Perm (md)
-    labels.push_back( "zoneVertPerm" );
+        // Vertical Perm (md)
+        labels.push_back( "zoneVertPerm" );
+    }
 
     std::map<QString, std::vector<double>> values;
     values["dpthlyr"]       = plot->calculateTrueVerticalDepth();
     values["strs"]          = plot->calculateStress();
     values["strsg"]         = plot->calculateStressGradient();
     values["elyr"]          = plot->calculateYoungsModulus();
-    values["poissonnr"]     = plot->calculatePoissonsRatio();
+    values["poissonr"]      = plot->calculatePoissonsRatio();
     values["tuflyr"]        = plot->calculateKIc();
     values["clyrc"]         = plot->calculateFluidLossCoefficient();
     values["clyrs"]         = plot->calculateSpurtLoss();
