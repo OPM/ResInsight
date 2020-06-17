@@ -171,21 +171,34 @@ std::unique_ptr<QIcon> IconProvider::icon(const QSize& size) const
         {
             validIcon = true;
 
-            QLinearGradient gradient (QPointF(0.0f, 0.0f), QPoint(size.width(), 0.0f));
-            for (size_t i = 0; i < m_backgroundColorStrings.size(); ++i)
-            {                
-                if (!QColor::isValidColor(m_backgroundColorStrings[i]))
-                {
-                    validIcon = false;
-                    break;
+            {
+                // Draw color gradient based on background colors
+
+                QLinearGradient gradient (QPointF(0.0f, 0.0f), QPoint(size.width(), 0.0f));
+                for (size_t i = 0; i < m_backgroundColorStrings.size(); ++i)
+                {                
+                    if (!QColor::isValidColor(m_backgroundColorStrings[i]))
+                    {
+                        validIcon = false;
+                        break;
+                    }
+                    QColor color (m_backgroundColorStrings[i]);
+                    float frac   = i / ((float) m_backgroundColorStrings.size() - 1.0);
+                    gradient.setColorAt(frac, color);
                 }
-                QColor color (m_backgroundColorStrings[i]);
-                float frac   = i / ((float) m_backgroundColorStrings.size() - 1.0);
-                gradient.setColorAt(frac, color);
+                QBrush gradientBrush(gradient);
+                QPainter painter (&pixmap);
+                painter.fillRect(0, 0, size.width(), size.height(), gradientBrush);
             }
-            QBrush gradientBrush(gradient);
-            QPainter painter (&pixmap);
-            painter.fillRect(0, 0, size.width(), size.height(), gradientBrush);
+
+            {
+                // Draw border
+
+                QPainter painter2(&pixmap);
+                painter2.setRenderHint(QPainter::Antialiasing);
+                painter2.setPen(QPen(Qt::black, 1));
+                painter2.drawRect(QRectF(0, 0, size.width(), size.height()));
+            }
         }
     }
     else pixmap.fill(Qt::transparent);
