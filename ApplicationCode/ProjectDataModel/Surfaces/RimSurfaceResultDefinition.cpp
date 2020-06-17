@@ -44,7 +44,7 @@ RimSurfaceResultDefinition::RimSurfaceResultDefinition()
     m_legendConfig.uiCapability()->setUiTreeChildrenHidden( false );
     m_legendConfig = new RimRegularLegendConfig;
 
-    setName( "Result Property" );
+    setName( "Surface Result" );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaceInView, "SurfaceInView", "Surface In View", "", "", "" );
     m_surfaceInView.uiCapability()->setUiHidden( true );

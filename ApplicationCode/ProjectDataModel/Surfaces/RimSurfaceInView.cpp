@@ -105,8 +105,9 @@ void RimSurfaceInView::setSurface( RimSurface* surf )
         m_resultDefinition->setCheckState( true );
 
         m_resultDefinition->assignDefaultProperty();
-        m_resultDefinition->updateMinMaxValues();
     }
+
+    m_resultDefinition->updateMinMaxValues();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,6 +160,17 @@ void RimSurfaceInView::loadDataAndUpdate()
     if ( surface() )
     {
         surface()->loadDataIfRequired();
+
+        if ( surface()->surfaceData() && surface()->surfaceData()->propertyNames().empty() )
+        {
+            m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
+            m_resultDefinition->setCheckState( false );
+        }
+        else
+        {
+            m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( false );
+            m_resultDefinition->setCheckState( true );
+        }
 
         m_resultDefinition->updateMinMaxValues();
     }
