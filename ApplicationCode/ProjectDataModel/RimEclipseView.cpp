@@ -2206,9 +2206,12 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
         absLegends.push_back( wellMeasurement->legendConfig() );
     }
 
-    for ( auto legendConfig : m_surfaceCollection->legendConfigs() )
+    if ( m_surfaceCollection )
     {
-        absLegends.push_back( legendConfig );
+        for ( auto legendConfig : m_surfaceCollection->legendConfigs() )
+        {
+            absLegends.push_back( legendConfig );
+        }
     }
 
     return absLegends;
