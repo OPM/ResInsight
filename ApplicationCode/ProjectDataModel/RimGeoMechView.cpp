@@ -525,6 +525,11 @@ void RimGeoMechView::onUpdateLegends()
                 }
             }
         }
+
+        if ( m_surfaceCollection && m_surfaceCollection->isChecked() )
+        {
+            m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+        }
     }
 }
 
@@ -632,6 +637,14 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
     for ( RimWellMeasurementInView* wellMeasurement : m_wellMeasurementCollection->measurements() )
     {
         absLegendConfigs.push_back( wellMeasurement->legendConfig() );
+    }
+
+    if ( m_surfaceCollection )
+    {
+        for ( auto legendConfig : m_surfaceCollection->legendConfigs() )
+        {
+            absLegendConfigs.push_back( legendConfig );
+        }
     }
 
     return absLegendConfigs;
