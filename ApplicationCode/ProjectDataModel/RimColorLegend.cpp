@@ -112,6 +112,14 @@ void RimColorLegend::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimColorLegend::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+{
+    this->setUiIcon( paletteIconProvider() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Color3ubArray RimColorLegend::colorArray() const
 {
     std::vector<RimColorLegendItem*> legendItems = colorLegendItems();

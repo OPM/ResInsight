@@ -62,6 +62,7 @@ public:
     caf::PdmFieldHandle* userDescriptionField() override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
 private:
     caf::PdmField<QString>                       m_colorLegendName;
