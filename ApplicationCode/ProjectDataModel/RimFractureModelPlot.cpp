@@ -455,7 +455,14 @@ std::vector<double> RimFractureModelPlot::calculateStressGradient() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateYoungsModulus() const
 {
-    return findCurveAndComputeLayeredAverage( "Young's Modulus" );
+    std::vector<double> valuesGPa = findCurveAndComputeLayeredAverage( "Young's Modulus" );
+    std::vector<double> valuesMMpsi;
+    for ( auto value : valuesGPa )
+    {
+        valuesMMpsi.push_back( value * 0.000145037737 );
+    }
+
+    return valuesMMpsi;
 }
 
 //--------------------------------------------------------------------------------------------------
