@@ -479,7 +479,7 @@ std::vector<double> RimFractureModelPlot::calculateKIc() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateFluidLossCoefficient() const
 {
-    return std::vector<double>();
+    return findCurveAndComputeLayeredAverage( "Fluid Loss Coefficient" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -487,7 +487,7 @@ std::vector<double> RimFractureModelPlot::calculateFluidLossCoefficient() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimFractureModelPlot::calculateSpurtLoss() const
 {
-    return std::vector<double>();
+    return findCurveAndComputeLayeredAverage( "Spurt Loss" );
 }
 
 //--------------------------------------------------------------------------------------------------

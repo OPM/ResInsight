@@ -34,6 +34,8 @@ struct RifElasticProperties
     double  proppantEmbedment;
     double  biotCoefficient;
     double  k0;
+    double  fluidLossCoefficient;
+    double  spurtLoss;
 };
 
 //==================================================================================================

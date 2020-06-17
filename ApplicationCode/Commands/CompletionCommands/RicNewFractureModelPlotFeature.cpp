@@ -129,7 +129,9 @@ RimFractureModelPlot*
              RimElasticPropertiesCurve::PropertyType::K_IC,
              RimElasticPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT,
              RimElasticPropertiesCurve::PropertyType::BIOT_COEFFICIENT,
-             RimElasticPropertiesCurve::PropertyType::K0};
+             RimElasticPropertiesCurve::PropertyType::K0,
+             RimElasticPropertiesCurve::PropertyType::FLUID_LOSS_COEFFICIENT,
+             RimElasticPropertiesCurve::PropertyType::SPURT_LOSS};
 
         for ( auto result : results )
         {

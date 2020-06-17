@@ -69,6 +69,10 @@ void AppEnum<RimElasticPropertiesCurve::PropertyType>::setUp()
     addItem( RimElasticPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT, "PROPPANT_EMBEDMENT", "Proppant Embedment" );
     addItem( RimElasticPropertiesCurve::PropertyType::BIOT_COEFFICIENT, "BIOT_COEFFICIENT", "Biot Coefficient" );
     addItem( RimElasticPropertiesCurve::PropertyType::K0, "K0", "k0" );
+    addItem( RimElasticPropertiesCurve::PropertyType::FLUID_LOSS_COEFFICIENT,
+             "FLUID_LOSS_COEFFICIENT",
+             "Fluid Loss Coefficient" );
+    addItem( RimElasticPropertiesCurve::PropertyType::SPURT_LOSS, "SPURT_LOSS", "Spurt Loss" );
     setDefault( RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS );
 }
 }; // namespace caf
@@ -265,6 +269,16 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
                 else if ( m_propertyType() == PropertyType::K0 )
                 {
                     double val = rigElasticProperties.getK0( porosity );
+                    values.push_back( val );
+                }
+                else if ( m_propertyType() == PropertyType::FLUID_LOSS_COEFFICIENT )
+                {
+                    double val = rigElasticProperties.getFluidLossCoefficient( porosity );
+                    values.push_back( val );
+                }
+                else if ( m_propertyType() == PropertyType::SPURT_LOSS )
+                {
+                    double val = rigElasticProperties.getSpurtLoss( porosity );
                     values.push_back( val );
                 }
             }

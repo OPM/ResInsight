@@ -39,13 +39,17 @@ public:
                          double m_K_Ic,
                          double proppantEmbedment,
                          double biotCoefficient,
-                         double k0 );
+                         double k0,
+                         double fluidLossCoefficient,
+                         double spurtLoss );
     double getYoungsModulus( double porosity ) const;
     double getPoissonsRatio( double porosity ) const;
     double getK_Ic( double porosity ) const;
     double getProppantEmbedment( double porosity ) const;
     double getBiotCoefficient( double porosity ) const;
     double getK0( double porosity ) const;
+    double getFluidLossCoefficient( double porosity ) const;
+    double getSpurtLoss( double porosity ) const;
 
     const std::vector<double>& porosity() const;
     const std::vector<double>& youngsModulus() const;
@@ -54,6 +58,8 @@ public:
     const std::vector<double>& proppantEmbedment() const;
     const std::vector<double>& biotCoefficient() const;
     const std::vector<double>& k0() const;
+    const std::vector<double>& fluidLossCoefficient() const;
+    const std::vector<double>& spurtLoss() const;
 
 private:
     QString m_fieldName;
@@ -67,4 +73,6 @@ private:
     std::vector<double> m_proppantEmbedment;
     std::vector<double> m_biotCoefficient;
     std::vector<double> m_k0;
+    std::vector<double> m_fluidLossCoefficient;
+    std::vector<double> m_spurtLoss;
 };

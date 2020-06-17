@@ -79,7 +79,7 @@ RifElasticProperties
 {
     QStringList tokens = tokenize( line, "," );
 
-    if ( tokens.size() != 10 )
+    if ( tokens.size() != 12 )
     {
         throw FileParseException( QString( "Incomplete data on line %1: %2" ).arg( lineNumber ).arg( filePath ) );
     }
@@ -95,20 +95,24 @@ RifElasticProperties
                          << "K-Ic"
                          << "Proppant Embedment"
                          << "Biot Coefficient"
-                         << "k0";
+                         << "k0"
+                         << "Fluid Loss Coefficient"
+                         << "Spurt Loss";
     verifyNonEmptyTokens( tokens, nameOfNonEmptyTokens, lineNumber, filePath );
 
     RifElasticProperties elasticProperties;
-    elasticProperties.fieldName         = tokens[0];
-    elasticProperties.formationName     = tokens[1];
-    elasticProperties.faciesName        = tokens[2];
-    elasticProperties.porosity          = parseDouble( tokens[3], "Porosity", lineNumber, filePath );
-    elasticProperties.youngsModulus     = parseDouble( tokens[4], "Young's Modulus", lineNumber, filePath );
-    elasticProperties.poissonsRatio     = parseDouble( tokens[5], "Poisson's Ratio", lineNumber, filePath );
-    elasticProperties.K_Ic              = parseDouble( tokens[6], "K-Ic", lineNumber, filePath );
-    elasticProperties.proppantEmbedment = parseDouble( tokens[7], "Proppant Embedment", lineNumber, filePath );
-    elasticProperties.biotCoefficient   = parseDouble( tokens[8], "Biot Coefficient", lineNumber, filePath );
-    elasticProperties.k0                = parseDouble( tokens[9], "k0", lineNumber, filePath );
+    elasticProperties.fieldName            = tokens[0];
+    elasticProperties.formationName        = tokens[1];
+    elasticProperties.faciesName           = tokens[2];
+    elasticProperties.porosity             = parseDouble( tokens[3], "Porosity", lineNumber, filePath );
+    elasticProperties.youngsModulus        = parseDouble( tokens[4], "Young's Modulus", lineNumber, filePath );
+    elasticProperties.poissonsRatio        = parseDouble( tokens[5], "Poisson's Ratio", lineNumber, filePath );
+    elasticProperties.K_Ic                 = parseDouble( tokens[6], "K-Ic", lineNumber, filePath );
+    elasticProperties.proppantEmbedment    = parseDouble( tokens[7], "Proppant Embedment", lineNumber, filePath );
+    elasticProperties.biotCoefficient      = parseDouble( tokens[8], "Biot Coefficient", lineNumber, filePath );
+    elasticProperties.k0                   = parseDouble( tokens[9], "k0", lineNumber, filePath );
+    elasticProperties.fluidLossCoefficient = parseDouble( tokens[10], "Fluid Loss Coefficient", lineNumber, filePath );
+    elasticProperties.spurtLoss            = parseDouble( tokens[11], "Spurt Loss", lineNumber, filePath );
 
     return elasticProperties;
 }

@@ -47,7 +47,9 @@ public:
         K_IC,
         PROPPANT_EMBEDMENT,
         BIOT_COEFFICIENT,
-        K0
+        K0,
+        FLUID_LOSS_COEFFICIENT,
+        SPURT_LOSS
     };
 
     RimElasticPropertiesCurve();

@@ -132,6 +132,8 @@ QString RimElasticProperties::generatePropertiesTable()
                     "      <th>Proppant<br>Embedment</th>"
                     "      <th>Biot<br>Coefficient</th>"
                     "      <th>k0</th>"
+                    "      <th>Fluid Loss<br>Coefficient</th>"
+                    "      <th>Spurt Loss</th>"
                     "    </tr>"
                     "  </thead>"
                     "  <tbody>" );
@@ -139,14 +141,16 @@ QString RimElasticProperties::generatePropertiesTable()
     QString body;
     for ( auto prop : m_properties )
     {
-        const QString&             fieldName         = prop.second.fieldName();
-        const std::vector<double>& porosity          = prop.second.porosity();
-        const std::vector<double>& youngsModulus     = prop.second.youngsModulus();
-        const std::vector<double>& poissonsRatio     = prop.second.poissonsRatio();
-        const std::vector<double>& K_Ic              = prop.second.K_Ic();
-        const std::vector<double>& proppantEmbedment = prop.second.proppantEmbedment();
-        const std::vector<double>& biotCoefficient   = prop.second.biotCoefficient();
-        const std::vector<double>& k0                = prop.second.k0();
+        const QString&             fieldName            = prop.second.fieldName();
+        const std::vector<double>& porosity             = prop.second.porosity();
+        const std::vector<double>& youngsModulus        = prop.second.youngsModulus();
+        const std::vector<double>& poissonsRatio        = prop.second.poissonsRatio();
+        const std::vector<double>& K_Ic                 = prop.second.K_Ic();
+        const std::vector<double>& proppantEmbedment    = prop.second.proppantEmbedment();
+        const std::vector<double>& biotCoefficient      = prop.second.biotCoefficient();
+        const std::vector<double>& k0                   = prop.second.k0();
+        const std::vector<double>& fluidLossCoefficient = prop.second.fluidLossCoefficient();
+        const std::vector<double>& spurtLoss            = prop.second.spurtLoss();
 
         for ( size_t i = 0; i < porosity.size(); i++ )
         {
@@ -161,6 +165,8 @@ QString RimElasticProperties::generatePropertiesTable()
                             "  <td align=right>%8</td>"
                             "  <td align=right>%9</td>"
                             "  <td align=right>%10</td>"
+                            "  <td align=right>%11</td>"
+                            "  <td align=right>%12</td>"
                             "</tr>" );
 
             QString line = format.arg( fieldName )
@@ -172,7 +178,9 @@ QString RimElasticProperties::generatePropertiesTable()
                                .arg( K_Ic[i] )
                                .arg( proppantEmbedment[i] )
                                .arg( biotCoefficient[i] )
-                               .arg( k0[i] );
+                               .arg( k0[i] )
+                               .arg( fluidLossCoefficient[i] )
+                               .arg( spurtLoss[i] );
 
             body.append( line );
         }

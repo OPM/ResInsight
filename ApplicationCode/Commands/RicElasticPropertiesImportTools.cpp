@@ -94,7 +94,9 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
                                                item.K_Ic,
                                                item.proppantEmbedment,
                                                item.biotCoefficient,
-                                               item.k0 );
+                                               item.k0,
+                                               item.fluidLossCoefficient,
+                                               item.spurtLoss );
         }
 
         rimElasticProperties->setPropertiesForFacies( key, rigElasticProperties );
