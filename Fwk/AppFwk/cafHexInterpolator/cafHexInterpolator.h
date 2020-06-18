@@ -58,7 +58,7 @@ the {} means that the elment list are a standing vector, but written as a row fo
 Normalized coordinates i, j, k
 Normalized origo in center of element
 Normalized cell corners NCn in :
- 
+ 
 
 
 
@@ -135,7 +135,7 @@ The Jacobian is the partially derived x, y, z with respect to i, j, k as follows
     | dx/di dy/di dz/di |
 J = | dx/dj dy/dj dz/dj |
     | dx/dk dy/dk dz/dk |
-    
+    
 
 
 
