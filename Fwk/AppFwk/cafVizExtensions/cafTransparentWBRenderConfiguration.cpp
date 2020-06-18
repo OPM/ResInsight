@@ -1,3 +1,4 @@
+// clang-format off
 
 #include "cafTransparentWBRenderConfiguration.h"
 
@@ -671,3 +672,5 @@ WBTransparencySurfaceEffectGenerator::~WBTransparencySurfaceEffectGenerator()
 }
 
 } // namespace caf
+
+// clang-format off

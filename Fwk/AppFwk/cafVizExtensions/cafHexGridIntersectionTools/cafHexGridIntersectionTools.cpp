@@ -1,3 +1,4 @@
+// clang-format off
 
 #include "cafHexGridIntersectionTools.h"
 
@@ -1276,7 +1277,7 @@ are stacked together to a chain, the mesh of each cube must be rotated by an ang
 
    The tessellation makes sure opposite faces are divided along the same line
    See figure http://www.ics.uci.edu/~eppstein/projects/tetra/
-   
+   
 
 
 
@@ -1590,3 +1591,5 @@ cvf::uint HexGridIntersectionTools::planeMcTetIntersection( const cvf::Plane&   
 }
 
 } // namespace caf
+
+// clang-format on

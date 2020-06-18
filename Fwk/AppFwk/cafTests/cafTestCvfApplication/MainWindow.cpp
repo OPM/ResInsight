@@ -1,3 +1,5 @@
+// clang-format off
+
 #include "MainWindow.h"
 
 #include "WidgetLayoutTest.h"
@@ -351,3 +353,5 @@ void MainWindow::slotShowTableView()
         listField->uiCapability()->updateConnectedEditors();
     }
 }
+
+// clang-format on

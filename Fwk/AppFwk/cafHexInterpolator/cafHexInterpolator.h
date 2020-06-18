@@ -1,3 +1,6 @@
+// clang-format off
+
+
 //##################################################################################################
 //
 //   Custom Visualization Core library
@@ -405,3 +408,5 @@ private:
 };
 
 } // namespace caf
+
+// clang-format on
