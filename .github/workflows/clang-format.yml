@@ -15,8 +15,7 @@ jobs:
       run: |
         cd Fwk
         cd AppFwk
-        find -name "*.h" -o -name "*.cpp" -o -name "*.inl" | xargs clang-format-6.0 -i
-        git diff
+        find -name "*.h" -o -name "*.cpp" -o -name "*.inl" 
     - uses: peter-evans/create-pull-request@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
