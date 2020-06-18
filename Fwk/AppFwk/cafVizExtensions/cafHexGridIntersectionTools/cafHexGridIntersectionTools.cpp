@@ -1278,10 +1278,6 @@ are stacked together to a chain, the mesh of each cube must be rotated by an ang
    The tessellation makes sure opposite faces are divided along the same line
    See figure http://www.ics.uci.edu/~eppstein/projects/tetra/
    
-
-
-
-
    4, 5, 6, 0
    0, 1, 5, 6
    0, 2, 1, 6
