@@ -38,7 +38,10 @@ using namespace cvf;
         Discarding all transparent fragments  with alpha < opaqueThreshold
         Opaque fragments rendered normally, also write to depth to DepthbufferToPeel
         If (opaqueThreshold < alpha < 1.0) discard color, write depth to DepthBufferToPeel
-        
+        
+
+
+
     P1 Peel Pass (TB: DepthBufferToPeel) ==> PeeledDepthBuffer
         Discarding all transparent fragments  with alpha < opaqueThreshold
         Discard all fragments with depth <= DepthBufferToPeel,
@@ -63,18 +66,30 @@ using namespace cvf;
         {
             m_renderConf = new caf::TransparentWBRenderConfiguration;
             m_renderConf->setUpRenderSequence(m_renderingSequence.p());
-        
+        
+
+
+
             // Cerate overlay item if needed
             cvf::OverlayItem* overlayItem; // = new someTtem
             m_renderConf->overlayRendering()->addOverlayItem(overlayItem);
         }
-    
+    
+
+
+
         ~MyViewer();
-    
+    
+
+
+
         virtual void optimizeClippingPlanes()
         {
             // ... Do ordinary clipplane adjustments
-    
+    
+
+
+
             m_renderConf->prepareForRendering();
         }
         virtual void resizeGL(int width, int height)
@@ -82,7 +97,10 @@ using namespace cvf;
             m_renderConf->resize(width, height);
             caf::Viewer::resizeGL(width, height);
         }
-    
+    
+
+
+
     private:
         cvf::ref<caf::TransparentWBRenderConfiguration> m_renderConf;
     };
@@ -90,7 +108,10 @@ using namespace cvf;
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    
+    
+
+
+
     ref<Part> createFacePartFromDrawableGeo(cvf::DrawableGeo* geo,
                                             const Color3f& color,
                                             float opacity,
@@ -98,20 +119,35 @@ using namespace cvf;
     {
         ref<Part> part = new Part;
         part->setDrawable(geo);
-    
+    
+
+
+
         cvf::Color4f colorWithAlpha(color);
         colorWithAlpha.a() = opacity;
-    
+    
+
+
+
         caf::WBTransparencySurfaceEffectGenerator effGen(colorWithAlpha, caf::PO_NONE, useSpecularReflection);
         ref<Effect> eff = effGen.generateEffectFromCache();
-    
+    
+
+
+
         if (opacity < 1.0)
         {
             part->setPriority(100);
         }
-    
+    
+
+
+
         part->setEffect(eff.p());
-    
+    
+
+
+
         return part;
     }
 
