@@ -181,6 +181,8 @@ void RimGeoMechView::onLoadDataAndUpdate()
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
     m_wellMeasurementCollection->syncWithChangesInWellMeasurementCollection();
 
+    if ( this->m_surfaceCollection ) this->m_surfaceCollection->loadData();
+
     this->scheduleCreateDisplayModelAndRedraw();
 
     progress.incrementProgress();
