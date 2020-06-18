@@ -36,12 +36,12 @@
 
 #pragma once
 
-namespace caf {
-
+namespace caf
+{
 class ProgressState
 {
-public: 
+public:
     static bool isActive();
 };
 
-}
+} // namespace caf

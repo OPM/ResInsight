@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
@@ -47,11 +46,8 @@
 
 class QGridLayout;
 
-namespace caf 
+namespace caf
 {
-
-
-
 //==================================================================================================
 /// An editor to show (and possibly edit?) formatted larger portions of text
 //==================================================================================================
@@ -61,17 +57,16 @@ class PdmUiLabelEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiLabelEditor(); 
-    ~PdmUiLabelEditor() override; 
+    PdmUiLabelEditor();
+    ~PdmUiLabelEditor() override;
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 private:
     QPointer<QShortenedLabel> m_label;
 };
-
 
 } // end namespace caf

@@ -34,31 +34,25 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QWidget>
 #include <QPointer>
 #include <QToolButton>
+#include <QWidget>
 
-namespace caf 
+namespace caf
 {
-
 class PdmUiToolButtonEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    PdmUiToolButtonEditorAttribute()
-    {
-        m_checkable = true;
-    }
+    PdmUiToolButtonEditorAttribute() { m_checkable = true; }
 
 public:
-    bool m_checkable;
+    bool        m_checkable;
     QSizePolicy m_sizePolicy;
 };
-
 
 class PdmUiToolButtonEditor : public PdmUiFieldEditorHandle
 {
@@ -66,20 +60,19 @@ class PdmUiToolButtonEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiToolButtonEditor()          {} 
-    ~PdmUiToolButtonEditor() override {} 
+    PdmUiToolButtonEditor() {}
+    ~PdmUiToolButtonEditor() override {}
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 protected slots:
-    void        slotClicked(bool checked);
+    void slotClicked( bool checked );
 
 private:
     QPointer<QToolButton> m_toolButton;
 };
-
 
 } // end namespace caf

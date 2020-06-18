@@ -41,5 +41,5 @@
 
 class QTextStream;
 
-QTextStream& operator >> (QTextStream& str, cvf::Vec3d& value);
-QTextStream& operator << (QTextStream& str, const cvf::Vec3d& value);
+QTextStream& operator>>( QTextStream& str, cvf::Vec3d& value );
+QTextStream& operator<<( QTextStream& str, const cvf::Vec3d& value );

@@ -48,9 +48,8 @@
 
 class QLabel;
 
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
 /// Macros helping in development of PDM UI editors
 //==================================================================================================
@@ -59,22 +58,25 @@ namespace caf
 /// Place this in the header file inside the class definition of your PdmUiEditor
 
 #define CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT \
-public: \
+public:                                     \
     static QString uiEditorTypeName()
 
-/// CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT implements editorTypeName() and registers the field editor in the field editor factory
-/// Place this in the cpp file, preferably above the constructor
+/// CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT implements editorTypeName() and registers the field editor in the field editor
+/// factory Place this in the cpp file, preferably above the constructor
 
-#define CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(EditorClassName) \
+#define CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( EditorClassName )               \
     QString EditorClassName::uiEditorTypeName() { return #EditorClassName; } \
-    CAF_FACTORY_REGISTER(caf::PdmUiFieldEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName())
+    CAF_FACTORY_REGISTER( caf::PdmUiFieldEditorHandle, EditorClassName, QString, EditorClassName::uiEditorTypeName() )
 
-/// CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR registers what default editor to use with a field of a certain type 
+/// CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR registers what default editor to use with a field of a certain type
 /// Place this in the cpp file, preferably above the constructor
 
-#define CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(EditorClassName, TypeName) \
-    CAF_FACTORY_REGISTER(caf::PdmUiFieldEditorHandle, EditorClassName, QString, qStringTypeName(caf::PdmField<TypeName>)); \
-    CAF_FACTORY_REGISTER2(caf::PdmUiFieldEditorHandle, EditorClassName, QString, qStringTypeName(caf::PdmProxyValueField<TypeName>) )
+#define CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( EditorClassName, TypeName )                                                  \
+    CAF_FACTORY_REGISTER( caf::PdmUiFieldEditorHandle, EditorClassName, QString, qStringTypeName( caf::PdmField<TypeName> ) ); \
+    CAF_FACTORY_REGISTER2( caf::PdmUiFieldEditorHandle,                                                                        \
+                           EditorClassName,                                                                                    \
+                           QString,                                                                                            \
+                           qStringTypeName( caf::PdmProxyValueField<TypeName> ) )
 
 class PdmUiGroup;
 class PdmUiFieldHandle;
@@ -87,43 +89,43 @@ class PdmUiFieldEditorHandle : public PdmUiEditorHandle
 {
     Q_OBJECT
 public:
-
     PdmUiFieldEditorHandle();
     ~PdmUiFieldEditorHandle() override;
 
-    PdmUiFieldHandle*   uiField(); 
-    void                setUiField(PdmUiFieldHandle* uiFieldHandle);
+    PdmUiFieldHandle* uiField();
+    void              setUiField( PdmUiFieldHandle* uiFieldHandle );
 
-    void                createWidgets(QWidget * parent);
-    QWidget*            combinedWidget()                        { return m_combinedWidget; }
-    QWidget*            editorWidget()                          { return m_editorWidget; }
-    QWidget*            labelWidget()                           { return m_labelWidget; }
-    QMargins            labelContentMargins() const;
-    int                 rowStretchFactor() const;
+    void     createWidgets( QWidget* parent );
+    QWidget* combinedWidget() { return m_combinedWidget; }
+    QWidget* editorWidget() { return m_editorWidget; }
+    QWidget* labelWidget() { return m_labelWidget; }
+    QMargins labelContentMargins() const;
+    int      rowStretchFactor() const;
+
 protected: // Virtual interface to override
-    /// Implement one of these, or both editor and label. The widgets will be used in the parent layout according to 
-    /// being "Label" Editor" or a single combined widget. 
+    /// Implement one of these, or both editor and label. The widgets will be used in the parent layout according to
+    /// being "Label" Editor" or a single combined widget.
 
-    virtual QWidget*    createCombinedWidget(QWidget * parent) { return nullptr; }
-    virtual QWidget*    createEditorWidget(QWidget * parent)   { return nullptr; }
-    virtual QWidget*    createLabelWidget(QWidget * parent)    { return nullptr; }
+    virtual QWidget* createCombinedWidget( QWidget* parent ) { return nullptr; }
+    virtual QWidget* createEditorWidget( QWidget* parent ) { return nullptr; }
+    virtual QWidget* createLabelWidget( QWidget* parent ) { return nullptr; }
 
-    void                setValueToField(const QVariant& value);
+    void setValueToField( const QVariant& value );
 
-    void                updateLabelFromField(QShortenedLabel* label, const QString& uiConfigName = "") const;
-    virtual QMargins    calculateLabelContentMargins() const;
-    virtual bool        isMultiRowEditor() const;
+    void             updateLabelFromField( QShortenedLabel* label, const QString& uiConfigName = "" ) const;
+    virtual QMargins calculateLabelContentMargins() const;
+    virtual bool     isMultiRowEditor() const;
 
 private:
-    void                updateContextMenuPolicy();
+    void updateContextMenuPolicy();
 
 private slots:
-    void                customMenuRequested(QPoint pos);
+    void customMenuRequested( QPoint pos );
 
 private:
-    QPointer<QWidget>   m_combinedWidget;
-    QPointer<QWidget>   m_editorWidget;
-    QPointer<QWidget>   m_labelWidget;
+    QPointer<QWidget> m_combinedWidget;
+    QPointer<QWidget> m_editorWidget;
+    QPointer<QWidget> m_labelWidget;
 };
 
 //==================================================================================================
@@ -134,9 +136,7 @@ class PdmUiEditorAttribute
 {
 public:
     PdmUiEditorAttribute() {}
-    virtual ~PdmUiEditorAttribute() {} 
+    virtual ~PdmUiEditorAttribute() {}
 };
 
-
 } // End of namespace caf
-

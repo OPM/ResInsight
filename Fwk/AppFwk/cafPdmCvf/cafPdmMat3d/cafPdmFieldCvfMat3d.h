@@ -37,5 +37,5 @@
 #pragma once
 
 #include "cafPdmCoreMat3d.h"
-#include "cafPdmXmlMat3d.h"
 #include "cafPdmUiCoreMat3d.h"
+#include "cafPdmXmlMat3d.h"

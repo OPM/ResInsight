@@ -38,12 +38,12 @@
 
 #include "cafViewer.h"
 #include "cvfCamera.h"
-#include "cvfScene.h"
-#include "cvfModel.h"
-#include "cvfViewport.h"
 #include "cvfHitItemCollection.h"
-#include "cvfRay.h"
 #include "cvfManipulatorTrackball.h"
+#include "cvfModel.h"
+#include "cvfRay.h"
+#include "cvfScene.h"
+#include "cvfViewport.h"
 
 #include <QDebug>
 #include <QInputEvent>
@@ -51,74 +51,70 @@
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-caf::TrackBallBasedNavigation::TrackBallBasedNavigation() : 
-    m_isRotCenterInitialized(false),
-    m_isNavigating(false),
-    m_hasMovedMouseDuringNavigation(false),
-    m_isZooming(false),
-    m_lastPosX(0),
-    m_lastPosY(0),
-    m_lastWheelZoomPosX(-1),
-    m_lastWheelZoomPosY(-1),
-    m_consumeEvents(false)
+caf::TrackBallBasedNavigation::TrackBallBasedNavigation()
+    : m_isRotCenterInitialized( false )
+    , m_isNavigating( false )
+    , m_hasMovedMouseDuringNavigation( false )
+    , m_isZooming( false )
+    , m_lastPosX( 0 )
+    , m_lastPosY( 0 )
+    , m_lastWheelZoomPosX( -1 )
+    , m_lastWheelZoomPosY( -1 )
+    , m_consumeEvents( false )
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 caf::TrackBallBasedNavigation::~TrackBallBasedNavigation()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void caf::TrackBallBasedNavigation::init()
 {
     m_trackball = new cvf::ManipulatorTrackball;
-    m_trackball->setCamera(m_viewer->mainCamera());
-    m_isRotCenterInitialized = false;
-    m_isRotationEnabled = true;
+    m_trackball->setCamera( m_viewer->mainCamera() );
+    m_isRotCenterInitialized        = false;
+    m_isRotationEnabled             = true;
     m_hasMovedMouseDuringNavigation = false;
-    m_isNavigating = false;
-    m_isZooming = false;
-    m_lastPosX = 0;
-    m_lastPosY = 0;
-    m_lastWheelZoomPosX = -1;
-    m_lastWheelZoomPosY = -1;
+    m_isNavigating                  = false;
+    m_isZooming                     = false;
+    m_lastPosX                      = 0;
+    m_lastPosY                      = 0;
+    m_lastWheelZoomPosX             = -1;
+    m_lastWheelZoomPosY             = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void caf::TrackBallBasedNavigation::initializeRotationCenter()
 {
-    if (m_isRotCenterInitialized
-        || m_trackball.isNull()
-        || !m_viewer->currentScene()
-        || !m_viewer->currentScene()->boundingBox().isValid())
+    if ( m_isRotCenterInitialized || m_trackball.isNull() || !m_viewer->currentScene() ||
+         !m_viewer->currentScene()->boundingBox().isValid() )
     {
         return;
     }
 
-   cvf::Vec3d pointOfInterest = m_viewer->currentScene()->boundingBox().center();
+    cvf::Vec3d pointOfInterest = m_viewer->currentScene()->boundingBox().center();
 
-   this->setPointOfInterest(pointOfInterest);
+    this->setPointOfInterest( pointOfInterest );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Repositions and orients the camera to view the rotation point along the 
+/// Repositions and orients the camera to view the rotation point along the
 /// direction "alongDirection". The distance to the rotation point is maintained.
 ///
 //--------------------------------------------------------------------------------------------------
 void caf::TrackBallBasedNavigation::setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection )
 {
-    m_trackball->setView(alongDirection, upDirection);
+    m_trackball->setView( alongDirection, upDirection );
     /*
     if (m_camera.isNull()) return;
 
@@ -137,43 +133,43 @@ void caf::TrackBallBasedNavigation::setView( const cvf::Vec3d& alongDirection, c
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d caf::TrackBallBasedNavigation::pointOfInterest()
 {
-   initializeRotationCenter();     
-   return m_pointOfInterest;
+    initializeRotationCenter();
+    return m_pointOfInterest;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void caf::TrackBallBasedNavigation::setPointOfInterest(cvf::Vec3d poi)
+void caf::TrackBallBasedNavigation::setPointOfInterest( cvf::Vec3d poi )
 {
     m_pointOfInterest = poi;
-    m_trackball->setRotationPoint(poi);
+    m_trackball->setRotationPoint( poi );
     m_isRotCenterInitialized = true;
-    m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove(m_pointOfInterest);
+    m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove( m_pointOfInterest );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void caf::TrackBallBasedNavigation::pickAndSetPointOfInterest(int winPosX, int winPosY)
+void caf::TrackBallBasedNavigation::pickAndSetPointOfInterest( int winPosX, int winPosY )
 {
     cvf::HitItemCollection hic;
-    bool hitSomething = m_viewer->rayPick( winPosX, winPosY, &hic);
+    bool                   hitSomething = m_viewer->rayPick( winPosX, winPosY, &hic );
 
-    if (hitSomething)
-    { 
+    if ( hitSomething )
+    {
         cvf::Vec3d pointOfInterest = hic.firstItem()->intersectionPoint();
 
-        if (m_viewer->isMousePosWithinComparisonView( winPosX, winPosY ))
+        if ( m_viewer->isMousePosWithinComparisonView( winPosX, winPosY ) )
         {
             pointOfInterest -= m_viewer->comparisonViewEyePointOffset();
         }
 
-        this->setPointOfInterest(pointOfInterest);
+        this->setPointOfInterest( pointOfInterest );
     }
     else
     {
@@ -184,12 +180,12 @@ void caf::TrackBallBasedNavigation::pickAndSetPointOfInterest(int winPosX, int w
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::TrackBallBasedNavigation::updatePointOfInterestDuringZoomIfNecessary(int winPosX, int winPosY)
+void caf::TrackBallBasedNavigation::updatePointOfInterestDuringZoomIfNecessary( int winPosX, int winPosY )
 {
-    if (shouldRaytraceForNewPoiDuringWheelZoom(winPosX, winPosY))
+    if ( shouldRaytraceForNewPoiDuringWheelZoom( winPosX, winPosY ) )
     {
-        this->pickAndSetPointOfInterest(winPosX, winPosY);
-        updateWheelZoomPosition(winPosX, winPosY);
+        this->pickAndSetPointOfInterest( winPosX, winPosY );
+        updateWheelZoomPosition( winPosX, winPosY );
     }
     else
     {
@@ -207,42 +203,42 @@ void caf::TrackBallBasedNavigation::forcePointOfInterestUpdateDuringNextWheelZoo
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void caf::TrackBallBasedNavigation::zoomAlongRay(cvf::Ray* ray, int delta)
+void caf::TrackBallBasedNavigation::zoomAlongRay( cvf::Ray* ray, int delta )
 {
-    if (ray && abs(delta) > 0)
+    if ( ray && abs( delta ) > 0 )
     {
         cvf::Vec3d pos, vrp, up;
-        m_viewer->mainCamera()->toLookAt(&pos, &vrp, &up);
+        m_viewer->mainCamera()->toLookAt( &pos, &vrp, &up );
 
-        double scale = delta/8.0 * 1.0/150 * (pos - m_pointOfInterest).length();
-        cvf::Vec3d trans = scale * ray->direction();
+        double     scale  = delta / 8.0 * 1.0 / 150 * ( pos - m_pointOfInterest ).length();
+        cvf::Vec3d trans  = scale * ray->direction();
         cvf::Vec3d newPos = pos + trans;
         cvf::Vec3d newVrp = vrp + trans;
 
-        m_viewer->mainCamera()->setFromLookAt(newPos, newVrp, up );
-        m_viewer->updateParallelProjectionHeightFromMoveZoom(m_pointOfInterest);
-        m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove(m_pointOfInterest);
+        m_viewer->mainCamera()->setFromLookAt( newPos, newVrp, up );
+        m_viewer->updateParallelProjectionHeightFromMoveZoom( m_pointOfInterest );
+        m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove( m_pointOfInterest );
 
         // Ceeviz Workaround for #3697:
         // Ceeviz may create a singular projection*view matrix internally. In which case we need to revert.
         cvf::Mat4d projectionMatrix = m_viewer->mainCamera()->projectionMatrix();
         cvf::Mat4d viewMatrix       = m_viewer->mainCamera()->viewMatrix();
         cvf::Mat4d multMatrix       = projectionMatrix * viewMatrix;
-        double     determinant      = std::fabs(multMatrix.determinant());
+        double     determinant      = std::fabs( multMatrix.determinant() );
 
-        if (determinant < 1.0e-15)
+        if ( determinant < 1.0e-15 )
         {
-            m_viewer->mainCamera()->setFromLookAt(pos, vrp, up);
-            m_viewer->updateParallelProjectionHeightFromMoveZoom(m_pointOfInterest);
-            m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove(m_pointOfInterest);
+            m_viewer->mainCamera()->setFromLookAt( pos, vrp, up );
+            m_viewer->updateParallelProjectionHeightFromMoveZoom( m_pointOfInterest );
+            m_viewer->updateParallelProjectionCameraPosFromPointOfInterestMove( m_pointOfInterest );
 #ifndef NDEBUG
             projectionMatrix = m_viewer->mainCamera()->projectionMatrix();
             viewMatrix       = m_viewer->mainCamera()->viewMatrix();
             multMatrix       = projectionMatrix * viewMatrix;
-            determinant      = std::fabs(multMatrix.determinant());
-            CVF_ASSERT(determinant > 1.0e-15);
+            determinant      = std::fabs( multMatrix.determinant() );
+            CVF_ASSERT( determinant > 1.0e-15 );
 #endif
         }
 
@@ -251,34 +247,34 @@ void caf::TrackBallBasedNavigation::zoomAlongRay(cvf::Ray* ray, int delta)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void caf::TrackBallBasedNavigation::cvfEventPos(int qtX, int qtY, int* cvfX, int* cvfY)
+void caf::TrackBallBasedNavigation::cvfEventPos( int qtX, int qtY, int* cvfX, int* cvfY )
 {
     *cvfX = qtX;
     *cvfY = m_viewer->height() - qtY;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Ray> caf::TrackBallBasedNavigation::createZoomRay(int cvfXPos, int cvfYPos)
+cvf::ref<cvf::Ray> caf::TrackBallBasedNavigation::createZoomRay( int cvfXPos, int cvfYPos )
 {
     cvf::ref<cvf::Ray> ray;
-    cvf::Camera* cam = m_viewer->mainCamera();
-    ray = cam->rayFromWindowCoordinates(cvfXPos, cvfYPos);
+    cvf::Camera*       cam = m_viewer->mainCamera();
+    ray                    = cam->rayFromWindowCoordinates( cvfXPos, cvfYPos );
 
-    if (ray.notNull() && cam->projection() == cvf::Camera::ORTHO)
+    if ( ray.notNull() && cam->projection() == cvf::Camera::ORTHO )
     {
         cvf::Vec3d camDir = cam->direction();
         cvf::Plane focusPlane;
-        focusPlane.setFromPointAndNormal(m_pointOfInterest, -camDir);
+        focusPlane.setFromPointAndNormal( m_pointOfInterest, -camDir );
         cvf::Vec3d intersectionPoint;
-        ray->planeIntersect(focusPlane, &intersectionPoint);
+        ray->planeIntersect( focusPlane, &intersectionPoint );
 
         cvf::ref<cvf::Ray> orthoZoomRay = new cvf::Ray();
-        orthoZoomRay->setOrigin(cam->position());
-        orthoZoomRay->setDirection((intersectionPoint - cam->position()).getNormalized());
+        orthoZoomRay->setOrigin( cam->position() );
+        orthoZoomRay->setDirection( ( intersectionPoint - cam->position() ).getNormalized() );
         ray = orthoZoomRay;
     }
 
@@ -288,7 +284,7 @@ cvf::ref<cvf::Ray> caf::TrackBallBasedNavigation::createZoomRay(int cvfXPos, int
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::TrackBallBasedNavigation::updateWheelZoomPosition(int winPosX, int winPosY)
+void caf::TrackBallBasedNavigation::updateWheelZoomPosition( int winPosX, int winPosY )
 {
     m_lastWheelZoomPosX = winPosX;
     m_lastWheelZoomPosY = winPosY;
@@ -297,10 +293,10 @@ void caf::TrackBallBasedNavigation::updateWheelZoomPosition(int winPosX, int win
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool caf::TrackBallBasedNavigation::shouldRaytraceForNewPoiDuringWheelZoom(int winPosX, int winPosY) const
+bool caf::TrackBallBasedNavigation::shouldRaytraceForNewPoiDuringWheelZoom( int winPosX, int winPosY ) const
 {
     // Raytrace if the last zoom position isn't set
-    if (m_lastWheelZoomPosX == -1 || m_lastWheelZoomPosY == -1)
+    if ( m_lastWheelZoomPosX == -1 || m_lastWheelZoomPosY == -1 )
     {
         return true;
     }
@@ -308,7 +304,7 @@ bool caf::TrackBallBasedNavigation::shouldRaytraceForNewPoiDuringWheelZoom(int w
     int diffY = winPosY - m_lastWheelZoomPosY;
 
     const int pixelThreshold = 5;
-    if (diffX * diffX + diffY * diffY > pixelThreshold * pixelThreshold)
+    if ( diffX * diffX + diffY * diffY > pixelThreshold * pixelThreshold )
     {
         return true;
     }
@@ -320,7 +316,7 @@ bool caf::TrackBallBasedNavigation::shouldRaytraceForNewPoiDuringWheelZoom(int w
 //#include <windows.h>
 //
 //#pragma warning(disable:4996)
-//void openDebugWindow()
+// void openDebugWindow()
 //{
 //    AllocConsole();
 //    freopen("conin$", "r", stdin);
@@ -331,9 +327,9 @@ bool caf::TrackBallBasedNavigation::shouldRaytraceForNewPoiDuringWheelZoom(int w
 //#include <iostream>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void caf::RotationSensitivityCalculator::init(QMouseEvent* eventAtRotationStart)
+void caf::RotationSensitivityCalculator::init( QMouseEvent* eventAtRotationStart )
 {
     m_lastPosX = eventAtRotationStart->x();
     m_lastPosY = eventAtRotationStart->y();
@@ -344,9 +340,9 @@ void caf::RotationSensitivityCalculator::init(QMouseEvent* eventAtRotationStart)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-double caf::RotationSensitivityCalculator::calculateSensitivity(QMouseEvent* eventWhenRotating )
+double caf::RotationSensitivityCalculator::calculateSensitivity( QMouseEvent* eventWhenRotating )
 {
     double sensitivity = 1.0;
 
@@ -354,36 +350,38 @@ double caf::RotationSensitivityCalculator::calculateSensitivity(QMouseEvent* eve
     {
         if ( m_fixedSensitivity == std::numeric_limits<double>::infinity() )
         {
-            #if QT_VERSION >= 0x050000
-            auto presentTime = eventWhenRotating->timestamp();
+#if QT_VERSION >= 0x050000
+            auto          presentTime   = eventWhenRotating->timestamp();
             unsigned long timeSinceLast = presentTime - m_lastTime;
-            if ( timeSinceLast == 0 ) timeSinceLast = 1; // one millisecond 
+            if ( timeSinceLast == 0 ) timeSinceLast = 1; // one millisecond
 
             int deltaX = eventWhenRotating->x() - m_lastPosX;
             int deltaY = eventWhenRotating->y() - m_lastPosY;
 
-            cvf::Vec2d mouseVelocity(deltaX, deltaY);
-            mouseVelocity /= 1.0e-3*timeSinceLast;
+            cvf::Vec2d mouseVelocity( deltaX, deltaY );
+            mouseVelocity /= 1.0e-3 * timeSinceLast;
 
-            double mouseVelocityLength = mouseVelocity.length();
-            double mouseVelocityLengthCorr = 0.1*mouseVelocityLength + 0.9*m_lastMouseVelocityLenght;
+            double mouseVelocityLength     = mouseVelocity.length();
+            double mouseVelocityLengthCorr = 0.1 * mouseVelocityLength + 0.9 * m_lastMouseVelocityLenght;
 
             double slowLimit = 170.0;
 
-            if ( mouseVelocityLengthCorr < slowLimit ) sensitivity = mouseVelocityLengthCorr*mouseVelocityLengthCorr/(slowLimit*slowLimit);
+            if ( mouseVelocityLengthCorr < slowLimit )
+                sensitivity = mouseVelocityLengthCorr * mouseVelocityLengthCorr / ( slowLimit * slowLimit );
 
             m_lastPosX                = eventWhenRotating->x();
             m_lastPosY                = eventWhenRotating->y();
             m_lastTime                = eventWhenRotating->timestamp();
-            m_lastMouseVelocityLenght = 0.8*mouseVelocityLength + 0.2*m_lastMouseVelocityLenght;
+            m_lastMouseVelocityLenght = 0.8 * mouseVelocityLength + 0.2 * m_lastMouseVelocityLenght;
 
-            //openDebugWindow();
-            //std::cout  << sensitivity << " Speed: Raw: " << mouseVelocityLength << " Smooth: " << mouseVelocityLengthCorr << " \tDelta " << deltaX << ", " << deltaY << " "<< timeSinceLast  << std::endl;
-            #endif
+// openDebugWindow();
+// std::cout  << sensitivity << " Speed: Raw: " << mouseVelocityLength << " Smooth: " << mouseVelocityLengthCorr << "
+// \tDelta " << deltaX << ", " << deltaY << " "<< timeSinceLast  << std::endl;
+#endif
         }
         else
         {
-            sensitivity =  m_fixedSensitivity;
+            sensitivity = m_fixedSensitivity;
         }
     }
 

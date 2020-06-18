@@ -6,15 +6,14 @@ namespace caf
 ///  PdmObjectFactory implementations
 //--------------------------------------------------------------------------------------------------
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmObjectHandle * PdmDefaultObjectFactory::create(const QString& classNameKeyword)
+PdmObjectHandle* PdmDefaultObjectFactory::create( const QString& classNameKeyword )
 {
     std::map<QString, PdmObjectCreatorBase*>::iterator entryIt;
-    entryIt = m_factoryMap.find(classNameKeyword);
-    if (entryIt != m_factoryMap.end())
+    entryIt = m_factoryMap.find( classNameKeyword );
+    if ( entryIt != m_factoryMap.end() )
     {
         return entryIt->second->create();
     }
@@ -25,24 +24,24 @@ PdmObjectHandle * PdmDefaultObjectFactory::create(const QString& classNameKeywor
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> PdmDefaultObjectFactory::classKeywords() const
 {
     std::vector<QString> names;
 
-    for (const auto& entry : m_factoryMap)
+    for ( const auto& entry : m_factoryMap )
     {
-        names.push_back(entry.first);
+        names.push_back( entry.first );
     }
 
     return names;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmDefaultObjectFactory * PdmDefaultObjectFactory::instance()
+PdmDefaultObjectFactory* PdmDefaultObjectFactory::instance()
 {
     static PdmDefaultObjectFactory* fact = new PdmDefaultObjectFactory;
     return fact;

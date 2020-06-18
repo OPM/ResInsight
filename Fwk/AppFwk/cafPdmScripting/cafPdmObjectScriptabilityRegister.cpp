@@ -46,22 +46,22 @@ std::map<QString, QString> PdmObjectScriptabilityRegister::s_scriptClassComments
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmObjectScriptabilityRegister::registerScriptClassNameAndComment(const QString& classKeyword,
-    const QString& scriptClassName,
-    const QString& scriptClassComment)
+void PdmObjectScriptabilityRegister::registerScriptClassNameAndComment( const QString& classKeyword,
+                                                                        const QString& scriptClassName,
+                                                                        const QString& scriptClassComment )
 {
-    s_classKeywordToScriptClassName[classKeyword] = scriptClassName;
+    s_classKeywordToScriptClassName[classKeyword]    = scriptClassName;
     s_scriptClassNameToClassKeyword[scriptClassName] = classKeyword;
-    s_scriptClassComments[classKeyword] = scriptClassComment;
+    s_scriptClassComments[classKeyword]              = scriptClassComment;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword(const QString& classKeyword)
+QString PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword( const QString& classKeyword )
 {
-    auto it = s_classKeywordToScriptClassName.find(classKeyword);
-    if (it != s_classKeywordToScriptClassName.end())
+    auto it = s_classKeywordToScriptClassName.find( classKeyword );
+    if ( it != s_classKeywordToScriptClassName.end() )
     {
         return it->second;
     }
@@ -71,10 +71,10 @@ QString PdmObjectScriptabilityRegister::scriptClassNameFromClassKeyword(const QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmObjectScriptabilityRegister::classKeywordFromScriptClassName(const QString& scriptClassName)
+QString PdmObjectScriptabilityRegister::classKeywordFromScriptClassName( const QString& scriptClassName )
 {
-    auto it = s_scriptClassNameToClassKeyword.find(scriptClassName);
-    if (it != s_scriptClassNameToClassKeyword.end())
+    auto it = s_scriptClassNameToClassKeyword.find( scriptClassName );
+    if ( it != s_scriptClassNameToClassKeyword.end() )
     {
         return it->second;
     }
@@ -84,10 +84,10 @@ QString PdmObjectScriptabilityRegister::classKeywordFromScriptClassName(const QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString PdmObjectScriptabilityRegister::scriptClassComment(const QString& classKeyword)
+QString PdmObjectScriptabilityRegister::scriptClassComment( const QString& classKeyword )
 {
-    auto it = s_scriptClassComments.find(classKeyword);
-    if (it != s_scriptClassComments.end())
+    auto it = s_scriptClassComments.find( classKeyword );
+    if ( it != s_scriptClassComments.end() )
     {
         return it->second;
     }
@@ -97,7 +97,7 @@ QString PdmObjectScriptabilityRegister::scriptClassComment(const QString& classK
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmObjectScriptabilityRegister::isScriptable(const caf::PdmObject* object)
+bool PdmObjectScriptabilityRegister::isScriptable( const caf::PdmObject* object )
 {
-    return s_classKeywordToScriptClassName.find(object->classKeyword()) != s_classKeywordToScriptClassName.end();
+    return s_classKeywordToScriptClassName.find( object->classKeyword() ) != s_classKeywordToScriptClassName.end();
 }

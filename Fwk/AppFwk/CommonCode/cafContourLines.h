@@ -38,26 +38,29 @@ class ContourLines
 {
 public:
     typedef std::pair<cvf::Vec3d, cvf::Vec3d> LineSegment;
-    typedef std::list<LineSegment> ListOfLineSegments;
+    typedef std::list<LineSegment>            ListOfLineSegments;
 
-    static std::vector<ListOfLineSegments> create(const std::vector<double>&            dataXY,
-                                                  const std::vector<double>&            xPositions,
-                                                  const std::vector<double>&            yPositions,
-                                                  const std::vector<double>&            contourLevels);
-    
+    static std::vector<ListOfLineSegments> create( const std::vector<double>& dataXY,
+                                                   const std::vector<double>& xPositions,
+                                                   const std::vector<double>& yPositions,
+                                                   const std::vector<double>& contourLevels );
+
 private:
-    static void create(const std::vector<double>& dataXY,
-                       const std::vector<double>& xPositions,
-                       const std::vector<double>& yPositions,
-                       const std::vector<double>& contourLevels,
-                       std::vector<std::vector<cvf::Vec2d>>* polygons);
-    static double contourRange(const std::vector<double>& contourLevels);
-    static double invalidValue(const std::vector<double>& contourLevels);
-    static double saneValue(int index, const std::vector<double>& dataXY, const std::vector<double>& contourLevels);
-    static double xsect(int p1, int p2, const std::vector<double>& h, const std::vector<double>& xh, const std::vector<double>& yh);
-    static double ysect(int p1, int p2, const std::vector<double>& h, const std::vector<double>& xh, const std::vector<double>& yh);
-    static int    gridIndex1d(int i, int j, int nx);
+    static void   create( const std::vector<double>&            dataXY,
+                          const std::vector<double>&            xPositions,
+                          const std::vector<double>&            yPositions,
+                          const std::vector<double>&            contourLevels,
+                          std::vector<std::vector<cvf::Vec2d>>* polygons );
+    static double contourRange( const std::vector<double>& contourLevels );
+    static double invalidValue( const std::vector<double>& contourLevels );
+    static double saneValue( int index, const std::vector<double>& dataXY, const std::vector<double>& contourLevels );
+    static double
+        xsect( int p1, int p2, const std::vector<double>& h, const std::vector<double>& xh, const std::vector<double>& yh );
+    static double
+               ysect( int p1, int p2, const std::vector<double>& h, const std::vector<double>& xh, const std::vector<double>& yh );
+    static int gridIndex1d( int i, int j, int nx );
+
 private:
     static const int s_castab[3][3][3];
 };
-}
+} // namespace caf

@@ -45,15 +45,15 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUniqueIdValidator::PdmUniqueIdValidator(const std::set<int>& usedIds,
-                                           bool                 multipleSelectionOfSameFieldsSelected,
-                                           const QString&       errorMessage,
-                                           QObject*             parent)
-    : QValidator(parent)
-    , m_usedIds(usedIds)
-    , m_nextValidValue(0)
-    , m_multipleSelectionOfSameFieldsSelected(multipleSelectionOfSameFieldsSelected)
-    , m_errorMessage(errorMessage)
+PdmUniqueIdValidator::PdmUniqueIdValidator( const std::set<int>& usedIds,
+                                            bool                 multipleSelectionOfSameFieldsSelected,
+                                            const QString&       errorMessage,
+                                            QObject*             parent )
+    : QValidator( parent )
+    , m_usedIds( usedIds )
+    , m_nextValidValue( 0 )
+    , m_multipleSelectionOfSameFieldsSelected( multipleSelectionOfSameFieldsSelected )
+    , m_errorMessage( errorMessage )
 {
     computeNextValidId();
 }
@@ -61,41 +61,41 @@ PdmUniqueIdValidator::PdmUniqueIdValidator(const std::set<int>& usedIds,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QValidator::State PdmUniqueIdValidator::validate(QString& currentString, int&) const
+QValidator::State PdmUniqueIdValidator::validate( QString& currentString, int& ) const
 {
-    if (m_multipleSelectionOfSameFieldsSelected)
+    if ( m_multipleSelectionOfSameFieldsSelected )
     {
         return QValidator::Invalid;
     }
 
-    if (currentString.isEmpty())
+    if ( currentString.isEmpty() )
     {
         return QValidator::Intermediate;
     }
 
     bool isValidInteger = false;
-    int  currentValue   = currentString.toInt(&isValidInteger);
+    int  currentValue   = currentString.toInt( &isValidInteger );
 
-    if (!isValidInteger)
+    if ( !isValidInteger )
     {
         return QValidator::Invalid;
     }
 
-    if (currentValue < 0)
+    if ( currentValue < 0 )
     {
         return QValidator::Invalid;
     }
 
-    if (m_usedIds.find(currentValue) != m_usedIds.end())
+    if ( m_usedIds.find( currentValue ) != m_usedIds.end() )
     {
-        foreach (QWidget* widget, QApplication::topLevelWidgets())
+        foreach ( QWidget* widget, QApplication::topLevelWidgets() )
         {
-            if (widget->inherits("QMainWindow"))
+            if ( widget->inherits( "QMainWindow" ) )
             {
-                QMainWindow* mainWindow = qobject_cast<QMainWindow*>(widget);
-                if (mainWindow && mainWindow->statusBar())
+                QMainWindow* mainWindow = qobject_cast<QMainWindow*>( widget );
+                if ( mainWindow && mainWindow->statusBar() )
                 {
-                    mainWindow->statusBar()->showMessage(m_errorMessage, 3000);
+                    mainWindow->statusBar()->showMessage( m_errorMessage, 3000 );
                 }
             }
         }
@@ -109,9 +109,9 @@ QValidator::State PdmUniqueIdValidator::validate(QString& currentString, int&) c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUniqueIdValidator::fixup(QString& editorText) const
+void PdmUniqueIdValidator::fixup( QString& editorText ) const
 {
-    editorText = QString::number(m_nextValidValue);
+    editorText = QString::number( m_nextValidValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ void PdmUniqueIdValidator::fixup(QString& editorText) const
 //--------------------------------------------------------------------------------------------------
 int PdmUniqueIdValidator::computeNextValidId()
 {
-    if (!m_usedIds.empty())
+    if ( !m_usedIds.empty() )
     {
         m_nextValidValue = *m_usedIds.rbegin();
     }

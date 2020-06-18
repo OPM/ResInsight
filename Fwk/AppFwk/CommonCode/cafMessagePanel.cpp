@@ -34,132 +34,124 @@
 //
 //##################################################################################################
 
-
 #include "cafMessagePanel.h"
 
-#include <QWidget>
+#include <QBoxLayout>
 #include <QDockWidget>
 #include <QTextEdit>
-#include <QBoxLayout>
+#include <QWidget>
 
-namespace caf {
-
-
+namespace caf
+{
 MessagePanel* MessagePanel::sm_messagePanelInstance = nullptr;
 
 //==================================================================================================
 ///
 /// \class MessagePanel
 ///
-/// 
+///
 ///
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-MessagePanel::MessagePanel(QDockWidget* parent)
-:   QWidget(parent)
+MessagePanel::MessagePanel( QDockWidget* parent )
+    : QWidget( parent )
 {
-    m_textEdit = new QTextEdit(this);
-    m_textEdit->setReadOnly(true);
-    m_textEdit->setLineWrapMode(QTextEdit::NoWrap);
+    m_textEdit = new QTextEdit( this );
+    m_textEdit->setReadOnly( true );
+    m_textEdit->setLineWrapMode( QTextEdit::NoWrap );
 
     QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(m_textEdit);
-    setLayout(layout);
+    layout->addWidget( m_textEdit );
+    setLayout( layout );
 
     sm_messagePanelInstance = this;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void MessagePanel::showInfo(QString info)
+void MessagePanel::showInfo( QString info )
 {
-    convertStringToHTML(&info);
+    convertStringToHTML( &info );
 
     QString str = "<font color='green'>";
     str += info;
     str += "</font>";
 
-    m_textEdit->append(str);
+    m_textEdit->append( str );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void MessagePanel::showWarning(QString warn)
+void MessagePanel::showWarning( QString warn )
 {
-    convertStringToHTML(&warn);
+    convertStringToHTML( &warn );
 
     QString str = "<font color='maroon'>";
     str += warn;
     str += "</font>";
-    
-    m_textEdit->append(str);
+
+    m_textEdit->append( str );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void MessagePanel::showError(QString error)
+void MessagePanel::showError( QString error )
 {
-    convertStringToHTML(&error);
+    convertStringToHTML( &error );
 
     QString str = "<b><font color='red'>";
     str += error;
     str += "</font></b>";
 
-    m_textEdit->append(str);
+    m_textEdit->append( str );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void MessagePanel::convertStringToHTML(QString* str)
+void MessagePanel::convertStringToHTML( QString* str )
 {
-    str->replace("\n", "<br>");
-    str->replace(" ", "&nbsp;");
+    str->replace( "\n", "<br>" );
+    str->replace( " ", "&nbsp;" );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QSize MessagePanel::sizeHint () const
+QSize MessagePanel::sizeHint() const
 {
     // As small as possible fow now
-    return QSize(20, 20);
+    return QSize( 20, 20 );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool MessagePanel::isVisibleToUser()
 {
-    if (!isVisible()) return false;
+    if ( !isVisible() ) return false;
 
-    if (!m_textEdit) return false;
-    if (!m_textEdit->isVisible()) return false;
+    if ( !m_textEdit ) return false;
+    if ( !m_textEdit->isVisible() ) return false;
 
     QRegion rgn = m_textEdit->visibleRegion();
-    if (rgn.isEmpty()) return false;
+    if ( rgn.isEmpty() ) return false;
 
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 MessagePanel* MessagePanel::instance()
 {
     return sm_messagePanelInstance;
 }
 
-}
+} // namespace caf

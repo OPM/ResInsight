@@ -40,9 +40,8 @@
 #include <QPointer>
 #include <QWidget>
 
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
 /// Abstract class to handle widget based editors for complete PdmObjects
 //==================================================================================================
@@ -52,19 +51,16 @@ class PdmUiWidgetObjectEditorHandle : public PdmUiObjectEditorHandle
 public:
     PdmUiWidgetObjectEditorHandle();
     ~PdmUiWidgetObjectEditorHandle() override;
-   
-    QWidget*                getOrCreateWidget(QWidget* parent);
-    QWidget*                widget() const;
- 
+
+    QWidget* getOrCreateWidget( QWidget* parent );
+    QWidget* widget() const;
+
 protected:
-    /// Supposed to create the top level widget of the editor with a suitable QLayout 
-    virtual QWidget*        createWidget(QWidget* parent) = 0;
+    /// Supposed to create the top level widget of the editor with a suitable QLayout
+    virtual QWidget* createWidget( QWidget* parent ) = 0;
 
 private:
-    QPointer<QWidget>       m_widget;
+    QPointer<QWidget> m_widget;
 };
 
-
-
 } // End of namespace caf
-

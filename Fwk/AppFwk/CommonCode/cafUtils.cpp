@@ -34,11 +34,10 @@
 //
 //##################################################################################################
 
-
 #include "cafUtils.h"
 
-#include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 
 #include <QLineEdit>
 
@@ -47,20 +46,19 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-namespace caf {
-
-
-    //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double Utils::editToDouble(QLineEdit* lineEdit, double defaultVal)
+namespace caf
 {
-    if (!lineEdit) return false;
-//    CVF_ASSERT(lineEdit);
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double Utils::editToDouble( QLineEdit* lineEdit, double defaultVal )
+{
+    if ( !lineEdit ) return false;
+    //    CVF_ASSERT(lineEdit);
 
-    bool ok = false;
-    double val = lineEdit->text().toDouble(&ok);
-    if (ok)
+    bool   ok  = false;
+    double val = lineEdit->text().toDouble( &ok );
+    if ( ok )
     {
         return val;
     }
@@ -70,184 +68,176 @@ double Utils::editToDouble(QLineEdit* lineEdit, double defaultVal)
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString Utils::absoluteFileName(const QString& fileName)
+QString Utils::absoluteFileName( const QString& fileName )
 {
-    QFileInfo fi(fileName);
-    return QDir::toNativeSeparators(fi.absoluteFilePath());
+    QFileInfo fi( fileName );
+    return QDir::toNativeSeparators( fi.absoluteFilePath() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList Utils::getFilesInDirectory(const QString& dirPath,
-                                       const QString& nameFilter,
-                                       bool getAbsoluteFileNames)
+QStringList Utils::getFilesInDirectory( const QString& dirPath, const QString& nameFilter, bool getAbsoluteFileNames )
 {
-    QStringList nameFilters; nameFilters << nameFilter;
-    return getFilesInDirectory(dirPath, nameFilters, getAbsoluteFileNames);
+    QStringList nameFilters;
+    nameFilters << nameFilter;
+    return getFilesInDirectory( dirPath, nameFilters, getAbsoluteFileNames );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QStringList Utils::getFilesInDirectory(const QString& dirPath, const QStringList& nameFilters, bool getAbsoluteFileNames)
+QStringList Utils::getFilesInDirectory( const QString& dirPath, const QStringList& nameFilters, bool getAbsoluteFileNames )
 {
-    QDir::SortFlags sortFlags = QDir::SortFlags(QDir::Name | QDir::IgnoreCase);
+    QDir::SortFlags sortFlags = QDir::SortFlags( QDir::Name | QDir::IgnoreCase );
 
     // Only get files
     QDir::Filters typeFilter = QDir::Files;
 
-    QDir dir(dirPath);
-    dir.setFilter(typeFilter);
-    dir.setNameFilters(nameFilters);
-    dir.setSorting(sortFlags);
+    QDir dir( dirPath );
+    dir.setFilter( typeFilter );
+    dir.setNameFilters( nameFilters );
+    dir.setSorting( sortFlags );
 
     QFileInfoList fileInfoList = dir.entryInfoList();
-    
+
     QStringList retFileNames;
 
-    QListIterator<QFileInfo> it(fileInfoList);
-    while (it.hasNext())
+    QListIterator<QFileInfo> it( fileInfoList );
+    while ( it.hasNext() )
     {
-        QFileInfo fi = it.next();
-        QString entry = getAbsoluteFileNames ? fi.absoluteFilePath() : fi.fileName();
+        QFileInfo fi    = it.next();
+        QString   entry = getAbsoluteFileNames ? fi.absoluteFilePath() : fi.fileName();
 
-        entry = QDir::toNativeSeparators(entry);
-        retFileNames.push_back(entry);
+        entry = QDir::toNativeSeparators( entry );
+        retFileNames.push_back( entry );
     }
 
     return retFileNames;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString Utils::constructFullFileName(const QString& folder, const QString& baseFileName, const QString& extension)
+QString Utils::constructFullFileName( const QString& folder, const QString& baseFileName, const QString& extension )
 {
-    QFileInfo fi(folder, baseFileName + extension);
-    QString fullFileName = fi.filePath();
-    fullFileName = QDir::toNativeSeparators(fullFileName);
+    QFileInfo fi( folder, baseFileName + extension );
+    QString   fullFileName = fi.filePath();
+    fullFileName           = QDir::toNativeSeparators( fullFileName );
 
     return fullFileName;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString Utils::makeValidFileBasename(const QString& fileBasenameCandidate)
+QString Utils::makeValidFileBasename( const QString& fileBasenameCandidate )
 {
     QString cleanBasename = fileBasenameCandidate.trimmed();
-    cleanBasename.replace(".", "_");
-    cleanBasename.replace(",", "_");
-    cleanBasename.replace(":", "_");
-    cleanBasename.replace(";", "_");
-    cleanBasename.replace(" ", "_");
-    cleanBasename.replace("/", "_");
-    cleanBasename.replace("\\", "_");
-    cleanBasename.replace("<", "_");
-    cleanBasename.replace(">", "_");
-    cleanBasename.replace("\"", "_");
-    cleanBasename.replace("|", "_");
-    cleanBasename.replace("?", "_");
-    cleanBasename.replace("*", "_");
-    cleanBasename.replace("\n", "_");
+    cleanBasename.replace( ".", "_" );
+    cleanBasename.replace( ",", "_" );
+    cleanBasename.replace( ":", "_" );
+    cleanBasename.replace( ";", "_" );
+    cleanBasename.replace( " ", "_" );
+    cleanBasename.replace( "/", "_" );
+    cleanBasename.replace( "\\", "_" );
+    cleanBasename.replace( "<", "_" );
+    cleanBasename.replace( ">", "_" );
+    cleanBasename.replace( "\"", "_" );
+    cleanBasename.replace( "|", "_" );
+    cleanBasename.replace( "?", "_" );
+    cleanBasename.replace( "*", "_" );
+    cleanBasename.replace( "\n", "_" );
 
+    cleanBasename.replace( QRegExp( "_+" ), "_" );
 
-    cleanBasename.replace(QRegExp("_+"), "_");
-
-    return cleanBasename;  
+    return cleanBasename;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString Utils::indentString(int numSpacesToIndent, const QString& str)
+QString Utils::indentString( int numSpacesToIndent, const QString& str )
 {
     QString indentString;
-    indentString.fill(' ', numSpacesToIndent);
+    indentString.fill( ' ', numSpacesToIndent );
 
-    QStringList strList = str.split("\n");
+    QStringList strList = str.split( "\n" );
 
-    QString retStr = indentString + strList.join("\n" + indentString);
+    QString retStr = indentString + strList.join( "\n" + indentString );
     return retStr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool Utils::getSaveDirectoryAndCheckOverwriteFiles(const QString& defaultDir, std::vector<QString> fileNames, QString* saveDir)
+bool Utils::getSaveDirectoryAndCheckOverwriteFiles( const QString& defaultDir, std::vector<QString> fileNames, QString* saveDir )
 {
     bool overWriteFiles = false;
-    (*saveDir) = QFileDialog::getExistingDirectory(nullptr, "Select save directory", defaultDir);
+    ( *saveDir )        = QFileDialog::getExistingDirectory( nullptr, "Select save directory", defaultDir );
 
     std::vector<QString> filesToOverwrite;
-    for (QString fileName : fileNames)
+    for ( QString fileName : fileNames )
     {
-        QFileInfo fileInfo((*saveDir) + "/" +fileName);
-        if (fileInfo.exists())
+        QFileInfo fileInfo( ( *saveDir ) + "/" + fileName );
+        if ( fileInfo.exists() )
         {
-            filesToOverwrite.push_back(fileName);
+            filesToOverwrite.push_back( fileName );
         }
     }
 
-    if (filesToOverwrite.size() == 0)
+    if ( filesToOverwrite.size() == 0 )
     {
         overWriteFiles = true;
         return overWriteFiles;
     }
-    else if (filesToOverwrite.size() > 0)
+    else if ( filesToOverwrite.size() > 0 )
     {
         QMessageBox msgBox;
 
         QString message = "The following files will be overwritten in the export:";
-        for (QString fileName : filesToOverwrite)
+        for ( QString fileName : filesToOverwrite )
         {
-            message += "\n" + (*saveDir) + "/" + fileName;
+            message += "\n" + ( *saveDir ) + "/" + fileName;
         }
-        msgBox.setText(message);
+        msgBox.setText( message );
 
-
-        msgBox.setInformativeText("Do you want to continue?");
-        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        msgBox.setDefaultButton(QMessageBox::Ok);
+        msgBox.setInformativeText( "Do you want to continue?" );
+        msgBox.setStandardButtons( QMessageBox::Ok | QMessageBox::Cancel );
+        msgBox.setDefaultButton( QMessageBox::Ok );
         int ret = msgBox.exec();
 
-        switch (ret)
+        switch ( ret )
         {
-        case QMessageBox::Ok:
-            overWriteFiles = true;
-            break;
-        case QMessageBox::Cancel:
-            overWriteFiles = false;
-            break;
-        default:
-            // should never be reached
-            break;
+            case QMessageBox::Ok:
+                overWriteFiles = true;
+                break;
+            case QMessageBox::Cancel:
+                overWriteFiles = false;
+                break;
+            default:
+                // should never be reached
+                break;
         }
-
     }
 
     return overWriteFiles;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool Utils::fileExists(const QString& fileName)
+bool Utils::fileExists( const QString& fileName )
 {
-    QFileInfo fi(fileName);
+    QFileInfo fi( fileName );
 
     // QFileInfo::exists returns true for both files and folders
     // Also check if the path points to a file
 
-    if (fi.exists() && fi.isFile())
+    if ( fi.exists() && fi.isFile() )
     {
         return true;
     }
@@ -256,74 +246,77 @@ bool Utils::fileExists(const QString& fileName)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QString Utils::fileExtension(const QString & fileName)
+QString Utils::fileExtension( const QString& fileName )
 {
-    QFileInfo fi(fileName);
+    QFileInfo fi( fileName );
 
     return fi.suffix();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool Utils::isFolderWritable(const QString& folderName)
+bool Utils::isFolderWritable( const QString& folderName )
 {
     // See platform issues here
     // http://doc.qt.io/qt-4.8/qfile.html#platform-specific-issues
 
-    QFileInfo dir(folderName);
-    
+    QFileInfo dir( folderName );
+
     return dir.isWritable();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool Utils::isStringMatch(const QString& filterString, const QString& value)
-{
-    if (filterString.isEmpty()) return true;
-    if (filterString.trimmed() == "*")
-    {
-        if (!value.isEmpty()) return true;
-        else return false;
-    }
-
-    QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
-    return searcher.exactMatch(value);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Utils::removeDirectoryAndFilesRecursively(const QString& dirName)
+bool Utils::isStringMatch( const QString& filterString, const QString& value )
+{
+    if ( filterString.isEmpty() ) return true;
+    if ( filterString.trimmed() == "*" )
+    {
+        if ( !value.isEmpty() )
+            return true;
+        else
+            return false;
+    }
+
+    QRegExp searcher( filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
+    return searcher.exactMatch( value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool Utils::removeDirectoryAndFilesRecursively( const QString& dirName )
 {
     bool result = true;
-    QDir dir(dirName);
+    QDir dir( dirName );
 
-    if (dir.exists())
+    if ( dir.exists() )
     {
         QFileInfoList fileInfoList =
-            dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files, QDir::DirsFirst);
-        for (const auto& fileInfo : fileInfoList)
+            dir.entryInfoList( QDir::NoDotAndDotDot | QDir::System | QDir::Hidden | QDir::AllDirs | QDir::Files,
+                               QDir::DirsFirst );
+        for ( const auto& fileInfo : fileInfoList )
         {
-            if (fileInfo.isDir())
+            if ( fileInfo.isDir() )
             {
-                result = removeDirectoryAndFilesRecursively(fileInfo.absoluteFilePath());
+                result = removeDirectoryAndFilesRecursively( fileInfo.absoluteFilePath() );
             }
             else
             {
-                result = QFile::remove(fileInfo.absoluteFilePath());
+                result = QFile::remove( fileInfo.absoluteFilePath() );
             }
 
-            if (!result)
+            if ( !result )
             {
                 return result;
             }
         }
 
-        result = QDir().rmdir(dirName);
+        result = QDir().rmdir( dirName );
     }
 
     return result;

@@ -3,7 +3,7 @@
 
 Child::Child()
 {
-    this->addField(&m_testObj, "Numbers");
+    this->addField( &m_testObj, "Numbers" );
 }
 
 Child::~Child()

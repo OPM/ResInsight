@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
@@ -46,33 +45,31 @@ class QModelIndex;
 class QStringList;
 class QStringListModel;
 
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiListEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     PdmUiListEditorAttribute()
-        : m_heightHint(2000)
-        , m_allowHorizontalScrollBar(true)
+        : m_heightHint( 2000 )
+        , m_allowHorizontalScrollBar( true )
     {
         QPalette myPalette;
 
-        m_baseColor = myPalette.color(QPalette::Active, QPalette::Base);
+        m_baseColor = myPalette.color( QPalette::Active, QPalette::Base );
     }
 
 public:
-    QColor  m_baseColor;
-    int     m_heightHint;
-    bool    m_allowHorizontalScrollBar;
+    QColor m_baseColor;
+    int    m_heightHint;
+    bool   m_allowHorizontalScrollBar;
 };
 
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiListEditor : public PdmUiFieldEditorHandle
 {
@@ -80,27 +77,26 @@ class PdmUiListEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiListEditor(); 
-    ~PdmUiListEditor() override; 
-
+    PdmUiListEditor();
+    ~PdmUiListEditor() override;
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
-    bool        eventFilter ( QObject * listView, QEvent * event ) override; // To catch delete key press in list view.
-    bool        isMultiRowEditor() const override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    bool     eventFilter( QObject* listView, QEvent* event ) override; // To catch delete key press in list view.
+    bool     isMultiRowEditor() const override;
 
 protected slots:
-    void        slotSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
-    void        slotListItemEdited(const QModelIndex&, const QModelIndex&);
-    void        slotScrollToSelectedItem() const;
+    void slotSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected );
+    void slotListItemEdited( const QModelIndex&, const QModelIndex& );
+    void slotScrollToSelectedItem() const;
 
 private:
-    QString     contentAsString() const;
-    void        pasteFromString(const QString& content);
-    
-    void        trimAndSetValuesToField(const QStringList& stringList);
+    QString contentAsString() const;
+    void    pasteFromString( const QString& content );
+
+    void trimAndSetValuesToField( const QStringList& stringList );
 
 private:
     QPointer<QListViewHeightHint> m_listView;
@@ -111,6 +107,5 @@ private:
     int  m_optionItemCount;
     bool m_isScrollToItemAllowed;
 };
-
 
 } // end namespace caf

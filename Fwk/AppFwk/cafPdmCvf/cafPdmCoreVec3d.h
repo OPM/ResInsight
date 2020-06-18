@@ -43,42 +43,39 @@
 
 #include "cafPdmXmlVec3d.h"
 
-Q_DECLARE_METATYPE(cvf::Vec3d);
+Q_DECLARE_METATYPE( cvf::Vec3d );
 
-namespace caf 
+namespace caf
 {
-
 template <>
-class PdmValueFieldSpecialization < cvf::Vec3d >
+class PdmValueFieldSpecialization<cvf::Vec3d>
 {
 public:
     /// Convert the field value into a QVariant
-    static QVariant convert(const cvf::Vec3d& value)
+    static QVariant convert( const cvf::Vec3d& value )
     {
         QString str;
 
-        QTextStream textStream(&str);
+        QTextStream textStream( &str );
         textStream << value;
 
-        return QVariant(str);
+        return QVariant( str );
     }
 
     /// Set the field value from a QVariant
-    static void setFromVariant(const QVariant& variantValue, cvf::Vec3d& value)
+    static void setFromVariant( const QVariant& variantValue, cvf::Vec3d& value )
     {
         QString str = variantValue.toString();
-        
-        QTextStream textStream(&str);
+
+        QTextStream textStream( &str );
 
         textStream >> value;
     }
 
-    static bool isEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
         return variantValue == variantValue2;
     }
-
 };
-
 
 } // end namespace caf

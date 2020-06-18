@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiDateEditor.h"
 
 #include "cafFactory.h"
@@ -43,8 +42,8 @@
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
-#include "cafSelectionManager.h"
 #include "cafQShortenedLabel.h"
+#include "cafSelectionManager.h"
 
 #include <QApplication>
 #include <QDate>
@@ -58,66 +57,62 @@
 #include <QStatusBar>
 #include <QString>
 
-
 namespace caf
 {
-
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiDateEditor);
-
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiDateEditor );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiDateEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmUiDateEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    CAF_ASSERT(!m_dateEdit.isNull());
+    CAF_ASSERT( !m_dateEdit.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
+    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
-    m_dateEdit->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_dateEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-    if (uiObject)
+    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
     {
-        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
     }
 
-    if (!m_attributes.dateFormat.isEmpty())
+    if ( !m_attributes.dateFormat.isEmpty() )
     {
-        m_dateEdit->setDisplayFormat(m_attributes.dateFormat);
+        m_dateEdit->setDisplayFormat( m_attributes.dateFormat );
     }
 
-    m_dateEdit->setDate(uiField()->uiValue().toDate());
-	m_dateEdit->setTime(uiField()->uiValue().toTime());
+    m_dateEdit->setDate( uiField()->uiValue().toDate() );
+    m_dateEdit->setTime( uiField()->uiValue().toTime() );
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDateEditor::createEditorWidget(QWidget* parent)
+QWidget* PdmUiDateEditor::createEditorWidget( QWidget* parent )
 {
-    m_dateEdit = new QDateTimeEdit(parent);
-    m_dateEdit->setCalendarPopup(true);
-    connect(m_dateEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
+    m_dateEdit = new QDateTimeEdit( parent );
+    m_dateEdit->setCalendarPopup( true );
+    connect( m_dateEdit, SIGNAL( editingFinished() ), this, SLOT( slotEditingFinished() ) );
     return m_dateEdit;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDateEditor::createLabelWidget(QWidget* parent)
+QWidget* PdmUiDateEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel(parent);
+    m_label = new QShortenedLabel( parent );
     return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiDateEditor::slotEditingFinished()
 {
-    this->setValueToField(m_dateEdit->dateTime());
+    this->setValueToField( m_dateEdit->dateTime() );
 }
 
 } // end namespace caf

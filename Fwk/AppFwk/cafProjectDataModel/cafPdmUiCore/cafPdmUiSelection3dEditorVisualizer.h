@@ -35,8 +35,8 @@
 //##################################################################################################
 #pragma once
 
-#include "cafSelectionChangedReceiver.h"
 #include "cafPdmUi3dObjectEditorHandle.h"
+#include "cafSelectionChangedReceiver.h"
 
 #include <QObject>
 #include <QPointer>
@@ -46,9 +46,8 @@
 
 namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 ///
 ///
 //==================================================================================================
@@ -58,20 +57,19 @@ class PdmUiSelection3dEditorVisualizer : public QObject, caf::SelectionChangedRe
 {
     Q_OBJECT
 public:
-    PdmUiSelection3dEditorVisualizer(QWidget* ownerViewer);
-    ~PdmUiSelection3dEditorVisualizer() override; 
+    PdmUiSelection3dEditorVisualizer( QWidget* ownerViewer );
+    ~PdmUiSelection3dEditorVisualizer() override;
 
-    void setConfigName(const QString& configName) { m_configName = configName; }
+    void setConfigName( const QString& configName ) { m_configName = configName; }
 
     void updateVisibleEditors();
 
 private:
     void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
-    std::vector< QPointer<PdmUi3dObjectEditorHandle> > m_active3DEditors;
-    QPointer<QWidget>                                  m_ownerViewer;
-    QString                                            m_configName;
+    std::vector<QPointer<PdmUi3dObjectEditorHandle>> m_active3DEditors;
+    QPointer<QWidget>                                m_ownerViewer;
+    QString                                          m_configName;
 };
 
-
-}
+} // namespace caf

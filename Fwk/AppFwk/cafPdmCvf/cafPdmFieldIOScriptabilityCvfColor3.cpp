@@ -42,36 +42,33 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldScriptabilityIOHandler<cvf::Color3f>::writeToField(cvf::Color3f&             fieldValue,
-    QTextStream&              inputStream,
-    caf::PdmScriptIOMessages* errorMessageContainer,
-    bool                      stringsAreQuoted)
+void PdmFieldScriptabilityIOHandler<cvf::Color3f>::writeToField( cvf::Color3f&             fieldValue,
+                                                                 QTextStream&              inputStream,
+                                                                 caf::PdmScriptIOMessages* errorMessageContainer,
+                                                                 bool                      stringsAreQuoted )
 {
     QString fieldStringValue;
-    PdmFieldScriptabilityIOHandler<QString>::writeToField(fieldStringValue,
-        inputStream,
-        errorMessageContainer,
-        stringsAreQuoted);
+    PdmFieldScriptabilityIOHandler<QString>::writeToField( fieldStringValue,
+                                                           inputStream,
+                                                           errorMessageContainer,
+                                                           stringsAreQuoted );
 
-    QColor qColor(fieldStringValue);
-    if (qColor.isValid())
+    QColor qColor( fieldStringValue );
+    if ( qColor.isValid() )
     {
-        fieldValue = cvf::Color3f(qColor.redF(), qColor.greenF(), qColor.blueF());
+        fieldValue = cvf::Color3f( qColor.redF(), qColor.greenF(), qColor.blueF() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldScriptabilityIOHandler<cvf::Color3f>::readFromField(const cvf::Color3f& fieldValue,
-    QTextStream&        outputStream,
-    bool                quoteStrings,
-    bool                quoteNonBuiltin)
+void PdmFieldScriptabilityIOHandler<cvf::Color3f>::readFromField( const cvf::Color3f& fieldValue,
+                                                                  QTextStream&        outputStream,
+                                                                  bool                quoteStrings,
+                                                                  bool                quoteNonBuiltin )
 {
-    QColor  qColor(fieldValue.rByte(), fieldValue.gByte(), fieldValue.bByte());
+    QColor  qColor( fieldValue.rByte(), fieldValue.gByte(), fieldValue.bByte() );
     QString fieldStringValue = qColor.name();
-    PdmFieldScriptabilityIOHandler<QString>::readFromField(fieldStringValue, outputStream, quoteStrings);
+    PdmFieldScriptabilityIOHandler<QString>::readFromField( fieldStringValue, outputStream, quoteStrings );
 }
-
-
-
