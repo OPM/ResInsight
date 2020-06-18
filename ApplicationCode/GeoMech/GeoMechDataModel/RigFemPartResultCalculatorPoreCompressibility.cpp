@@ -214,9 +214,10 @@ RigFemScalarResultFrames*
 
                             int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
 
-                            // Calculate bulk modulus for solids (grains)
+                            // Calculate bulk modulus for solids (grains).
+                            // Incoming unit for Young's Modulus is GPa: convert to Pa.
                             double poissonRatio     = poissonRatioData[elmIdx];
-                            double youngsModuli     = youngsModuliData[elmIdx];
+                            double youngsModuli     = youngsModuliData[elmIdx] * 1.0e9;
                             double bulkModulusFrame = youngsModuli / ( 3.0 * ( 1.0 - 2.0 * poissonRatio ) );
                             double bulkModulus      = bulkModulusFrame / ( 1.0 - biotCoefficient );
 
@@ -224,10 +225,11 @@ RigFemScalarResultFrames*
                             double voidr    = voidRatioData[elmNodResIdx];
                             double porosity = voidr / ( 1.0 + voidr );
 
-                            // Calculate difference in pore pressure between reference state and this state
+                            // Calculate difference in pore pressure between reference state and this state,
+                            // and convert unit from Bar to Pascal.
                             double referencePorePressure = referencePorFrameData[nodeIdx];
                             double framePorePressure     = porFrameData[nodeIdx];
-                            double deltaPorePressure     = framePorePressure - referencePorePressure;
+                            double deltaPorePressure     = ( framePorePressure - referencePorePressure ) * 100000.0;
 
                             // Calculate pore compressibility
                             double poreCompressibility = inf;
@@ -242,7 +244,8 @@ RigFemScalarResultFrames*
                                     poreCompressibility += ( 1.0 / bulkModulus ) * ( biotCoefficient / porosity - 1.0 );
                                 }
                             }
-                            poreCompressibilityFrameData[elmNodResIdx] = poreCompressibility;
+                            // Convert from 1/Pa to 1/GPa
+                            poreCompressibilityFrameData[elmNodResIdx] = poreCompressibility * 1.0e9;
 
                             double verticalCompressibility      = inf;
                             double verticalCompressibilityRatio = inf;
@@ -252,7 +255,7 @@ RigFemScalarResultFrames*
                                 double deltaStrain = verticalStrainData[elmNodResIdx] -
                                                      referenceVerticalStrainData[elmNodResIdx];
 
-                                // Calculate vertical compressibility
+                                // Calculate vertical compressibility (unit: 1/Pa)
                                 verticalCompressibility = -deltaStrain / ( biotCoefficient * deltaPorePressure );
 
                                 // Calculate vertical compressibility ratio
@@ -261,7 +264,8 @@ RigFemScalarResultFrames*
                                     ( ( 1.0 + poissonRatio ) * ( 1.0 - 2.0 * poissonRatio ) );
                             }
 
-                            verticalCompressibilityFrameData[elmNodResIdx]      = verticalCompressibility;
+                            // Convert from 1/Pa to 1/GPa
+                            verticalCompressibilityFrameData[elmNodResIdx]      = verticalCompressibility * 1.0e9;
                             verticalCompressibilityRatioFrameData[elmNodResIdx] = verticalCompressibilityRatio;
                         }
                     }

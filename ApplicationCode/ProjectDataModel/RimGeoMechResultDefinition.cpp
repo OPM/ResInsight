@@ -823,6 +823,11 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
     {
         return "GPa";
     }
+    else if ( this->resultFieldName() == "COMPRESSIBILITY" &&
+              ( this->resultComponentName() == "PORE" || this->resultComponentName() == "VERTICAL" ) )
+    {
+        return "1/GPa";
+    }
     else
     {
         for ( auto resultName : RiaDefines::wbsDerivedResultNames() )
