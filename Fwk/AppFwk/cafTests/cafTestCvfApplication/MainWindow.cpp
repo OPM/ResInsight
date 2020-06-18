@@ -231,7 +231,8 @@ void MainWindow::slotInsert()
             caf::PdmChildArrayField< caf::PdmObjectHandle*> * field = NULL;
 
             if (uiFh) field = dynamic_cast<caf::PdmChildArrayField< caf::PdmObjectHandle*> *>(uiFh->fieldHandle());
-            
+            
+
 
 
 
