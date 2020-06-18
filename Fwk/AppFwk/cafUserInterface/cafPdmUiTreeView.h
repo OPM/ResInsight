@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 #include <QString>
 #include <QWidget>
@@ -47,61 +46,57 @@ class QModelIndex;
 
 namespace caf
 {
-
 class PdmUiItem;
 class PdmUiTreeViewEditor;
 class PdmUiDragDropInterface;
 class PdmObjectHandle;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 
 class PdmUiTreeView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiTreeView(QWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
+    PdmUiTreeView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
     ~PdmUiTreeView() override;
 
-    void        enableDefaultContextMenu(bool enable);
-    void        enableSelectionManagerUpdating(bool enable); // TODO: rename
-    void        enableAppendOfClassNameToUiItemText(bool enable);
+    void enableDefaultContextMenu( bool enable );
+    void enableSelectionManagerUpdating( bool enable ); // TODO: rename
+    void enableAppendOfClassNameToUiItemText( bool enable );
 
-    void        setUiConfigurationName(QString uiConfigName);
-    void        setPdmItem(caf::PdmUiItem* object);
+    void setUiConfigurationName( QString uiConfigName );
+    void setPdmItem( caf::PdmUiItem* object );
 
-    QTreeView*  treeView();
-    bool        isTreeItemEditWidgetActive() const;
+    QTreeView* treeView();
+    bool       isTreeItemEditWidgetActive() const;
 
-    void        selectedUiItems(std::vector<PdmUiItem*>& objects); // TODO: rename
-    void        selectAsCurrentItem(const PdmUiItem* uiItem);
-    void        selectItems(const std::vector<const PdmUiItem*>& uiItems);
-    void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const ;
+    void selectedUiItems( std::vector<PdmUiItem*>& objects ); // TODO: rename
+    void selectAsCurrentItem( const PdmUiItem* uiItem );
+    void selectItems( const std::vector<const PdmUiItem*>& uiItems );
+    void setExpanded( const PdmUiItem* uiItem, bool doExpand ) const;
 
     // QModelIndex access
-    // Use this translation only when it is inconvenient to traverse 
+    // Use this translation only when it is inconvenient to traverse
     // the Pdm model directly.
-    PdmUiItem*  uiItemFromModelIndex(const QModelIndex& index) const;
-    QModelIndex findModelIndex(const PdmUiItem* object) const;
+    PdmUiItem*  uiItemFromModelIndex( const QModelIndex& index ) const;
+    QModelIndex findModelIndex( const PdmUiItem* object ) const;
 
-    void        setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
+    void setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
 
 signals:
-    void        selectionChanged();
+    void selectionChanged();
     // Convenience signal for use with PdmUiPropertyView
-    void        selectedObjectChanged(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
+    void selectedObjectChanged( caf::PdmObjectHandle* object ); // Signal/Slot system needs caf:: prefix in some cases
 
 private slots:
-    void        slotOnSelectionChanged();
+    void slotOnSelectionChanged();
 
 private:
-    PdmUiTreeViewEditor*    m_treeViewEditor; 
-    QString                 m_uiConfigName;
-    QVBoxLayout*            m_layout;
+    PdmUiTreeViewEditor* m_treeViewEditor;
+    QString              m_uiConfigName;
+    QVBoxLayout*         m_layout;
 };
 
-
-
 } // End of namespace caf
-

@@ -48,7 +48,7 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiPickableLineEditor::~PdmUiPickableLineEditor()
 {
-    if (m_attribute.pickEventHandler)
+    if ( m_attribute.pickEventHandler )
     {
         m_attribute.pickEventHandler->unregisterAsPickEventHandler();
     }
@@ -57,35 +57,36 @@ caf::PdmUiPickableLineEditor::~PdmUiPickableLineEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiPickableLineEditor::configureAndUpdateUi(const QString& uiConfigName)
+void caf::PdmUiPickableLineEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    PdmUiLineEditor::configureAndUpdateUi(uiConfigName);
+    PdmUiLineEditor::configureAndUpdateUi( uiConfigName );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-    if (uiObject)
+    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
     {
-        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attribute);
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attribute );
     }
 
-    if (m_attribute.pickEventHandler)
+    if ( m_attribute.pickEventHandler )
     {
-        if (m_attribute.enablePicking)
+        if ( m_attribute.enablePicking )
         {
             m_attribute.pickEventHandler->registerAsPickEventHandler();
-            m_lineEdit->setStyleSheet("QLineEdit {"
-                                      "color: #000000;"
-                                      "background-color: #FFDCFF;}");            
+            m_lineEdit->setStyleSheet( "QLineEdit {"
+                                       "color: #000000;"
+                                       "background-color: #FFDCFF;}" );
         }
         else
         {
             m_attribute.pickEventHandler->unregisterAsPickEventHandler();
-            m_lineEdit->setStyleSheet("");
+            m_lineEdit->setStyleSheet( "" );
         }
     }
 
-    m_lineEdit->setToolTip(uiField()->uiToolTip(uiConfigName));
+    m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 }
 
-// Define at this location to avoid duplicate symbol definitions in 'cafPdmUiDefaultObjectEditor.cpp' in a cotire build. The
-// variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same line number.
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiPickableLineEditor);
+// Define at this location to avoid duplicate symbol definitions in 'cafPdmUiDefaultObjectEditor.cpp' in a cotire build.
+// The variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same
+// line number.
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiPickableLineEditor );

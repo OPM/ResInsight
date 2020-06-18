@@ -34,15 +34,14 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiActionPushButtonEditor.h"
 
 #include "cafPdmUiDefaultObjectEditor.h"
 
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
-#include "cafPdmField.h"
 
 #include "cafFactory.h"
 
@@ -50,16 +49,12 @@
 
 #include <cmath>
 
-
-
 namespace caf
 {
-
 CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiActionPushButtonEditor );
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiActionPushButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
@@ -69,13 +64,13 @@ void PdmUiActionPushButtonEditor::configureAndUpdateUi( const QString& uiConfigN
     m_pushButton->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_pushButton->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    m_buttonLayout->setAlignment(Qt::AlignRight);
+    m_buttonLayout->setAlignment( Qt::AlignRight );
 
-    auto icon = uiField()->uiIcon(uiConfigName);
-    if( icon )
+    auto icon = uiField()->uiIcon( uiConfigName );
+    if ( icon )
     {
         m_pushButton->setIcon( *icon );
-        m_pushButton->setMaximumWidth(m_pushButton->sizeHint().width());
+        m_pushButton->setMaximumWidth( m_pushButton->sizeHint().width() );
     }
     else
     {
@@ -86,21 +81,21 @@ void PdmUiActionPushButtonEditor::configureAndUpdateUi( const QString& uiConfigN
 
     QVariant variantFieldValue = uiField()->uiValue();
 
-    if( variantFieldValue.type() == QVariant::Bool )
+    if ( variantFieldValue.type() == QVariant::Bool )
     {
         m_pushButton->setChecked( uiField()->uiValue().toBool() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiActionPushButtonEditor::configureEditorForField( PdmFieldHandle* fieldHandle )
 {
     CAF_ASSERT( fieldHandle );
     CAF_ASSERT( fieldHandle->uiCapability() );
 
-    if( fieldHandle->xmlCapability() )
+    if ( fieldHandle->xmlCapability() )
     {
         fieldHandle->xmlCapability()->disableIO();
     }
@@ -110,36 +105,35 @@ void PdmUiActionPushButtonEditor::configureEditorForField( PdmFieldHandle* field
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiActionPushButtonEditor::createEditorWidget( QWidget * parent )
+QWidget* PdmUiActionPushButtonEditor::createEditorWidget( QWidget* parent )
 {
     QWidget* containerWidget = new QWidget( parent );
 
-    m_pushButton = new QPushButton(containerWidget);
-    connect(m_pushButton, SIGNAL(clicked(bool)), this, SLOT(slotClicked(bool)));
+    m_pushButton = new QPushButton( containerWidget );
+    connect( m_pushButton, SIGNAL( clicked( bool ) ), this, SLOT( slotClicked( bool ) ) );
 
-    m_buttonLayout = new QHBoxLayout(containerWidget);
-    m_buttonLayout->addWidget(m_pushButton);
-    m_buttonLayout->setMargin(0);
-    m_buttonLayout->setSpacing(0);
-    containerWidget->setLayout(m_buttonLayout);
+    m_buttonLayout = new QHBoxLayout( containerWidget );
+    m_buttonLayout->addWidget( m_pushButton );
+    m_buttonLayout->setMargin( 0 );
+    m_buttonLayout->setSpacing( 0 );
+    containerWidget->setLayout( m_buttonLayout );
 
     return containerWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiActionPushButtonEditor::slotClicked( bool checked )
 {
-    if( uiField() && dynamic_cast<PdmField<bool> *> (uiField()->fieldHandle()) )
+    if ( uiField() && dynamic_cast<PdmField<bool>*>( uiField()->fieldHandle() ) )
     {
         QVariant v;
         v = checked;
         this->setValueToField( v );
     }
 }
-
 
 } // end namespace caf

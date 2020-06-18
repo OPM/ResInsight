@@ -34,13 +34,10 @@
 //
 //##################################################################################################
 
-
 #include "cafCmdAddItemExecData.h"
-
 
 namespace caf
 {
-
-CAF_PDM_SOURCE_INIT(CmdAddItemExecData, "CmdAddItemExecData");
+CAF_PDM_SOURCE_INIT( CmdAddItemExecData, "CmdAddItemExecData" );
 
 } // end namespace caf

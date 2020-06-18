@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <QPointer>
@@ -53,61 +52,61 @@ namespace caf
 class PopupMenuButton;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class AnimationToolBar : public QToolBar
 {
     Q_OBJECT
 
 public:
-    explicit AnimationToolBar(QWidget *parent = nullptr);
-    AnimationToolBar(const QString &title, QWidget *parent = nullptr);
+    explicit AnimationToolBar( QWidget* parent = nullptr );
+    AnimationToolBar( const QString& title, QWidget* parent = nullptr );
 
-    void connectAnimationControl(caf::FrameAnimationControl* animationControl);
+    void connectAnimationControl( caf::FrameAnimationControl* animationControl );
 
-    void setTimeStepStrings(const QStringList& timeStepStrings);
+    void setTimeStepStrings( const QStringList& timeStepStrings );
 
-    void setFrameRate(double frameRate);
-    void setSlowFrameRate(float frameRate);
-    void setFastFrameRate(float frameRate);
+    void setFrameRate( double frameRate );
+    void setSlowFrameRate( float frameRate );
+    void setFastFrameRate( float frameRate );
 
-    void setCurrentTimeStepIndex(int index);
+    void setCurrentTimeStepIndex( int index );
 
 public slots:
-    void slotUpdateTimestepList(int frameCount);
+    void slotUpdateTimestepList( int frameCount );
     void playPauseChanged();
 
 private slots:
-    void slotFrameRateSliderChanged(int value);
-    void slotUpdateAnimationGuiFromFrameIndex(int value);
+    void slotFrameRateSliderChanged( int value );
+    void slotUpdateAnimationGuiFromFrameIndex( int value );
 
 private:
     void init();
     void updateAnimationButtons();
+
 private:
     QAction*     m_animSkipToStartAction;
     QAction*     m_animStepBackwardAction;
     QToolButton* m_animPlayPauseButton;
     QAction*     m_animPauseAction;
     QAction*     m_animPlayAction;
-    QAction*     m_animStepForwardAction;  
+    QAction*     m_animStepForwardAction;
     QAction*     m_animSkipToEndAction;
 
-    QAction*     m_animRepeatFromStartAction;
+    QAction* m_animRepeatFromStartAction;
 
     PopupMenuButton* m_animSpeedButton;
-    QLabel*      m_frameRateFastLabel;
-    QLabel*      m_frameRateSlowLabel;
-    QSlider*     m_frameRateSlider;
+    QLabel*          m_frameRateFastLabel;
+    QLabel*          m_frameRateSlowLabel;
+    QSlider*         m_frameRateSlider;
 
-    QComboBox*   m_timestepCombo;
-    
+    QComboBox* m_timestepCombo;
+
     QPointer<caf::FrameAnimationControl> m_activeAnimationControl;
 
-    float       m_slowFrameRate;
-    float       m_fastFrameRate;
-    bool        m_hasAutoTimeStepStrings;
+    float m_slowFrameRate;
+    float m_fastFrameRate;
+    bool  m_hasAutoTimeStepStrings;
 };
-
 
 } // End namespace caf

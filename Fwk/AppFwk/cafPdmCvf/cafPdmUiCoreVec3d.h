@@ -45,45 +45,40 @@
 #include "cvfBase.h"
 #include "cvfVector3.h"
 
-
-namespace caf 
+namespace caf
 {
-
 template <>
-class PdmUiFieldSpecialization < cvf::Vec3d >
+class PdmUiFieldSpecialization<cvf::Vec3d>
 {
 public:
     /// Convert the field value into a QVariant
-    static QVariant convert(const cvf::Vec3d& value)
+    static QVariant convert( const cvf::Vec3d& value )
     {
-        return PdmValueFieldSpecialization< cvf::Vec3d >::convert(value);
+        return PdmValueFieldSpecialization<cvf::Vec3d>::convert( value );
     }
 
     /// Set the field value from a QVariant
-    static void setFromVariant(const QVariant& variantValue, cvf::Vec3d& value)
+    static void setFromVariant( const QVariant& variantValue, cvf::Vec3d& value )
     {
-        PdmValueFieldSpecialization< cvf::Vec3d >::setFromVariant(variantValue, value);
+        PdmValueFieldSpecialization<cvf::Vec3d>::setFromVariant( variantValue, value );
     }
 
-    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
-        return PdmValueFieldSpecialization< cvf::Vec3d >::isEqual(variantValue, variantValue2);
+        return PdmValueFieldSpecialization<cvf::Vec3d>::isEqual( variantValue, variantValue2 );
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
-    static QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly, const cvf::Vec3d&)
+    static QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly, const cvf::Vec3d& )
     {
         return QList<PdmOptionItemInfo>();
     }
 
     /// Methods to retrieve the possible PdmObject pointed to by a field
-    static void childObjects(const PdmDataValueField< cvf::Vec3d >&, std::vector<PdmObjectHandle*>*)
-    { }
+    static void childObjects( const PdmDataValueField<cvf::Vec3d>&, std::vector<PdmObjectHandle*>* ) {}
 };
 
 } // end namespace caf
-
-
 
 //--------------------------------------------------------------------------------------------------
 // If the macro for registering the editor is put as the single statement

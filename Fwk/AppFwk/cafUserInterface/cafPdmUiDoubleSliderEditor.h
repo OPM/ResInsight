@@ -34,47 +34,43 @@
 //
 //##################################################################################################
 
-
 #pragma once
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QString>
 #include <QLabel>
-#include <QWidget>
-#include <QPointer>
 #include <QLineEdit>
+#include <QPointer>
 #include <QSlider>
+#include <QString>
+#include <QWidget>
 
-
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiDoubleSliderEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     PdmUiDoubleSliderEditorAttribute()
     {
-        m_minimum = 0;
-        m_maximum = 10;
-        m_decimals = 6;
-        m_sliderTickCount = 2000;
+        m_minimum                       = 0;
+        m_maximum                       = 10;
+        m_decimals                      = 6;
+        m_sliderTickCount               = 2000;
         m_delaySliderUpdateUntilRelease = false;
     }
 
 public:
-    double  m_minimum;
-    double  m_maximum;
-    int     m_decimals;
-    int     m_sliderTickCount;
-    bool    m_delaySliderUpdateUntilRelease;
+    double m_minimum;
+    double m_maximum;
+    int    m_decimals;
+    int    m_sliderTickCount;
+    bool   m_delaySliderUpdateUntilRelease;
 };
 
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiDoubleSliderEditor : public PdmUiFieldEditorHandle
 {
@@ -82,25 +78,25 @@ class PdmUiDoubleSliderEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiDoubleSliderEditor()          {} 
-    ~PdmUiDoubleSliderEditor() override {} 
+    PdmUiDoubleSliderEditor() {}
+    ~PdmUiDoubleSliderEditor() override {}
 
 protected:
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
 
 protected slots:
-    void        slotEditingFinished();
-    void        slotSliderValueChanged(int value);
-    void        slotSliderReleased();
+    void slotEditingFinished();
+    void slotSliderValueChanged( int value );
+    void slotSliderReleased();
 
 private:
-    void        updateSliderPosition(double value);
-    void        writeValueToField(double value);
+    void updateSliderPosition( double value );
+    void writeValueToField( double value );
 
-    int         convertToSliderValue(double value);
-    double      convertFromSliderValue(int sliderValue);
+    int    convertToSliderValue( double value );
+    double convertFromSliderValue( int sliderValue );
 
 private:
     QPointer<QLineEdit>       m_lineEdit;
@@ -110,6 +106,5 @@ private:
 
     PdmUiDoubleSliderEditorAttribute m_attributes;
 };
-
 
 } // end namespace caf

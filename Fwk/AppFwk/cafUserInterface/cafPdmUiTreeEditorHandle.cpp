@@ -34,41 +34,37 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiTreeEditorHandle.h"
 #include "cafPdmObject.h"
 
 namespace caf
 {
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTreeEditorHandle::getOrCreateWidget(QWidget* parent)
+QWidget* PdmUiTreeEditorHandle::getOrCreateWidget( QWidget* parent )
 {
-    if (m_widget.isNull()) 
+    if ( m_widget.isNull() )
     {
-        m_widget = this->createWidget(parent);
+        m_widget = this->createWidget( parent );
     }
     return m_widget;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeEditorHandle::setPdmItemRoot(PdmUiItem* root)
+void PdmUiTreeEditorHandle::setPdmItemRoot( PdmUiItem* root )
 {
-    this->bindToPdmItem(root);
+    this->bindToPdmItem( root );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiItem* PdmUiTreeEditorHandle::pdmItemRoot()
 {
     return this->pdmItem();
 }
 
-} //End of namespace caf
-
+} // End of namespace caf

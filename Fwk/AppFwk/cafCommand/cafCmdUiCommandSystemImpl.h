@@ -34,15 +34,13 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafInternalPdmUiCommandSystemInterface.h"
 #include <vector>
 
-namespace caf 
+namespace caf
 {
-
 class PdmFieldHandle;
 
 class CmdUiCommandSystemImpl : public PdmUiCommandSystemInterface
@@ -50,12 +48,12 @@ class CmdUiCommandSystemImpl : public PdmUiCommandSystemInterface
 public:
     CmdUiCommandSystemImpl();
 
-    void fieldChangedCommand(const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue) override;
-    void setCurrentContextMenuTargetWidget(QWidget* targetWidget) override;
-    void populateMenuWithDefaultCommands(const QString& uiConfigName, QMenu* menu) override;
-    
+    void fieldChangedCommand( const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue ) override;
+    void setCurrentContextMenuTargetWidget( QWidget* targetWidget ) override;
+    void populateMenuWithDefaultCommands( const QString& uiConfigName, QMenu* menu ) override;
+
     bool isUndoEnabled();
-    void enableUndoFeature(bool enable);
+    void enableUndoFeature( bool enable );
 
     bool disableUndoForFieldChange();
 
@@ -63,6 +61,5 @@ private:
     bool m_undoFeatureEnabled;
     bool m_disableUndoForFieldChange;
 };
-
 
 } // end namespace caf

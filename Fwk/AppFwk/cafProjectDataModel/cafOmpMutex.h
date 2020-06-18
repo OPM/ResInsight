@@ -34,14 +34,12 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <omp.h>
 
 namespace caf
 {
-
 //==================================================================================================
 /// OpenMP mutex definition
 /// Taken from http://bisqwit.iki.fi/story/howto/openmp/
@@ -49,18 +47,17 @@ namespace caf
 class MutexType
 {
 public:
-    MutexType()     { omp_init_lock(&m_lock); }
-    ~MutexType()    { omp_destroy_lock(&m_lock); }
-    void lock()     { omp_set_lock(&m_lock); }
-    void unlock()   { omp_unset_lock(&m_lock); }
-   
-    MutexType(const MutexType& )                { omp_init_lock(&m_lock); }
-    MutexType& operator= (const MutexType& )    { return *this; }
+    MutexType() { omp_init_lock( &m_lock ); }
+    ~MutexType() { omp_destroy_lock( &m_lock ); }
+    void lock() { omp_set_lock( &m_lock ); }
+    void unlock() { omp_unset_lock( &m_lock ); }
+
+    MutexType( const MutexType& ) { omp_init_lock( &m_lock ); }
+    MutexType& operator=( const MutexType& ) { return *this; }
 
 private:
     omp_lock_t m_lock;
 };
-
 
 //==================================================================================================
 /// OpenMP scoped lock on a mutex
@@ -69,37 +66,36 @@ private:
 class ScopedLock
 {
 public:
-    explicit ScopedLock(MutexType& m) : m_mutex(m), m_locked(true)
+    explicit ScopedLock( MutexType& m )
+        : m_mutex( m )
+        , m_locked( true )
     {
         m_mutex.lock();
     }
 
-    ~ScopedLock()
-    {
-        unlock();
-    }
-    
+    ~ScopedLock() { unlock(); }
+
     void unlock()
     {
-        if(!m_locked) return;
+        if ( !m_locked ) return;
         m_locked = false;
         m_mutex.unlock();
     }
 
     void lockAgain()
     {
-        if (m_locked) return;
+        if ( m_locked ) return;
         m_mutex.lock();
         m_locked = true;
     }
-    
+
 private:
-    MutexType&  m_mutex;
-    bool        m_locked;
- 
+    MutexType& m_mutex;
+    bool       m_locked;
+
 private: // prevent copying the scoped lock.
-    void operator=(const ScopedLock&);
-    ScopedLock(const ScopedLock&);
+    void operator=( const ScopedLock& );
+    ScopedLock( const ScopedLock& );
 };
 
-}
+} // namespace caf

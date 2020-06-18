@@ -34,19 +34,16 @@
 //
 //##################################################################################################
 
-
 #include "cafCmdSelectionChangeExec.h"
 #include "cafPdmReferenceHelper.h"
 #include "cafSelectionManager.h"
 
-
 namespace caf
 {
-
-CAF_PDM_SOURCE_INIT(CmdSelectionChangeExecData, "CmdSelectionChangeExecData");
+CAF_PDM_SOURCE_INIT( CmdSelectionChangeExecData, "CmdSelectionChangeExecData" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString CmdSelectionChangeExec::name()
 {
@@ -54,41 +51,41 @@ QString CmdSelectionChangeExec::name()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdSelectionChangeExec::redo()
 {
-    SelectionManager::instance()->setSelectionAtLevelFromReferences(m_commandData->m_newSelection.v(), m_commandData->m_selectionLevel.v());
+    SelectionManager::instance()->setSelectionAtLevelFromReferences( m_commandData->m_newSelection.v(),
+                                                                     m_commandData->m_selectionLevel.v() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdSelectionChangeExec::undo()
 {
-    SelectionManager::instance()->setSelectionAtLevelFromReferences(m_commandData->m_previousSelection.v(), m_commandData->m_selectionLevel.v());
+    SelectionManager::instance()->setSelectionAtLevelFromReferences( m_commandData->m_previousSelection.v(),
+                                                                     m_commandData->m_selectionLevel.v() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CmdSelectionChangeExec::CmdSelectionChangeExec(NotificationCenter* notificationCenter)
-    : CmdExecuteCommand(notificationCenter)
+CmdSelectionChangeExec::CmdSelectionChangeExec( NotificationCenter* notificationCenter )
+    : CmdExecuteCommand( notificationCenter )
 {
     m_commandData = new CmdSelectionChangeExecData;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdSelectionChangeExec::~CmdSelectionChangeExec()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdSelectionChangeExecData* CmdSelectionChangeExec::commandData()
 {

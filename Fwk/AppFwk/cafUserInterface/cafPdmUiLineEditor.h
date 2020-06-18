@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
@@ -50,11 +49,10 @@ class QGridLayout;
 class QCompleter;
 class QStringListModel;
 
-namespace caf 
+namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiLineEditorAttribute : public PdmUiEditorAttribute
 {
@@ -71,46 +69,47 @@ public:
 
 public:
     bool                 avoidSendingEnterEventToParentWidget;
-    QPointer<QValidator> validator;    
+    QPointer<QValidator> validator;
 
     // Completer setup
-    Qt::CaseSensitivity  completerCaseSensitivity;
-    Qt::MatchFlags       completerFilterMode;
-    int                  maximumWidth;
-    bool                 selectAllOnFocusEvent;
-    QString              placeholderText;
+    Qt::CaseSensitivity completerCaseSensitivity;
+    Qt::MatchFlags      completerFilterMode;
+    int                 maximumWidth;
+    bool                selectAllOnFocusEvent;
+    QString             placeholderText;
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiLineEditorAttributeUiDisplayString : public PdmUiEditorAttribute
 {
 public:
-    PdmUiLineEditorAttributeUiDisplayString()
-    {}
+    PdmUiLineEditorAttributeUiDisplayString() {}
 
 public:
     QString m_displayString;
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiLineEdit : public QLineEdit
 {
     Q_OBJECT
 public:
-    PdmUiLineEdit(QWidget* parent);
-    void setAvoidSendingEnterEventToParentWidget(bool avoidSendingEnter);
+    PdmUiLineEdit( QWidget* parent );
+    void setAvoidSendingEnterEventToParentWidget( bool avoidSendingEnter );
+
 protected:
-    void keyPressEvent(QKeyEvent* event) override;
+    void keyPressEvent( QKeyEvent* event ) override;
+
 private:
     bool m_avoidSendingEnterEvent;
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiLineEditor : public PdmUiFieldEditorHandle
 {
@@ -118,35 +117,37 @@ class PdmUiLineEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiLineEditor() : m_ignoreCompleterActivated(false)         {} 
-    ~PdmUiLineEditor() override {} 
+    PdmUiLineEditor()
+        : m_ignoreCompleterActivated( false )
+    {
+    }
+    ~PdmUiLineEditor() override {}
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
-    QMargins    calculateLabelContentMargins() const override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    QMargins calculateLabelContentMargins() const override;
 
-    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+    virtual bool eventFilter( QObject* watched, QEvent* event ) override;
 
 protected slots:
-    void        slotEditingFinished();
-    void        slotCompleterActivated(const QModelIndex& index);
+    void slotEditingFinished();
+    void slotCompleterActivated( const QModelIndex& index );
 
 private:
-    bool        isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* editorField) const;
+    bool isMultipleFieldsWithSameKeywordSelected( PdmFieldHandle* editorField ) const;
 
 protected:
-    QPointer<PdmUiLineEdit>    m_lineEdit;
-    QPointer<QShortenedLabel>  m_label;
-    
-    QPointer<QCompleter>       m_completer; 
+    QPointer<PdmUiLineEdit>   m_lineEdit;
+    QPointer<QShortenedLabel> m_label;
+
+    QPointer<QCompleter>       m_completer;
     QPointer<QStringListModel> m_completerTextList;
     QList<PdmOptionItemInfo>   m_optionCache;
     bool                       m_ignoreCompleterActivated;
 
-    int findIndexToOption(const QString& uiText);
+    int findIndexToOption( const QString& uiText );
 };
-
 
 } // end namespace caf

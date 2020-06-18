@@ -34,41 +34,38 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfEffect.h"
-#include "cvfScalarMapper.h"
-#include "cvfTextureImage.h"
 #include "cvfCollection.h"
-#include "cvfString.h"
+#include "cvfEffect.h"
+#include "cvfObject.h"
 #include "cvfRenderStatePolygonOffset.h"
+#include "cvfScalarMapper.h"
+#include "cvfString.h"
+#include "cvfTextureImage.h"
 
 namespace cvf
 {
-    class RenderStatePolygonOffset;
+class RenderStatePolygonOffset;
 }
 
-namespace caf {
-
+namespace caf
+{
 class CommonShaderSources
 {
 public:
     static cvf::String light_AmbientDiffuse();
-
 };
-
 
 // Enumerates different levels of polygon offsetting
 enum PolygonOffset
 {
-    PO_NONE,        // No polygon offset
-    PO_1,           // 'Normal' positive polygon offset, equal to configurePolygonPositiveOffset(), ie factor=unit=1.0
-    PO_2,           // More positive offset
-    PO_POS_LARGE,   // Super high poly offset for special circumstances
-    PO_NEG_LARGE    // Currently, a large negative offset
+    PO_NONE, // No polygon offset
+    PO_1, // 'Normal' positive polygon offset, equal to configurePolygonPositiveOffset(), ie factor=unit=1.0
+    PO_2, // More positive offset
+    PO_POS_LARGE, // Super high poly offset for special circumstances
+    PO_NEG_LARGE // Currently, a large negative offset
 };
 
 // Enumerates face culling
@@ -80,48 +77,49 @@ enum FaceCulling
     FC_NONE
 };
 
-
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class EffectGenerator
 {
 public:
-    enum RenderingModeType      { FIXED_FUNCTION, SHADER_BASED };
+    enum RenderingModeType
+    {
+        FIXED_FUNCTION,
+        SHADER_BASED
+    };
 
-    EffectGenerator()           {}
-    virtual ~EffectGenerator()  {}
+    EffectGenerator() {}
+    virtual ~EffectGenerator() {}
 
-    cvf::ref<cvf::Effect>       generateUnCachedEffect() const;
-    cvf::ref<cvf::Effect>       generateCachedEffect() const;
-    void                        updateEffect(cvf::Effect* effect) const;
+    cvf::ref<cvf::Effect> generateUnCachedEffect() const;
+    cvf::ref<cvf::Effect> generateCachedEffect() const;
+    void                  updateEffect( cvf::Effect* effect ) const;
 
-    static void                 setRenderingMode(RenderingModeType effectType);
-    static RenderingModeType    renderingMode();
+    static void              setRenderingMode( RenderingModeType effectType );
+    static RenderingModeType renderingMode();
 
-    static void                 clearEffectCache();
-    static void                 releaseUnreferencedEffects();
+    static void clearEffectCache();
+    static void releaseUnreferencedEffects();
 
-    static cvf::ref<cvf::RenderStatePolygonOffset> createAndConfigurePolygonOffsetRenderState(caf::PolygonOffset polygonOffset);
+    static cvf::ref<cvf::RenderStatePolygonOffset>
+        createAndConfigurePolygonOffsetRenderState( caf::PolygonOffset polygonOffset );
 
 protected:
-
     // Interface that must be implemented in base classes
-    virtual bool                isEqual(const EffectGenerator* other) const = 0;
-    virtual EffectGenerator*    copy() const = 0;
+    virtual bool             isEqual( const EffectGenerator* other ) const = 0;
+    virtual EffectGenerator* copy() const                                  = 0;
     friend class EffectCache;
 
     // When these are called, the effect is already cleared by updateEffect()
-    virtual void                updateForShaderBasedRendering(cvf::Effect* effect) const = 0;
-    virtual void                updateForFixedFunctionRendering(cvf::Effect* effect) const = 0;
+    virtual void updateForShaderBasedRendering( cvf::Effect* effect ) const   = 0;
+    virtual void updateForFixedFunctionRendering( cvf::Effect* effect ) const = 0;
 
 private:
-    static RenderingModeType   sm_renderingMode;
+    static RenderingModeType sm_renderingMode;
 };
-
-
 
 //==================================================================================================
 //
@@ -131,36 +129,35 @@ private:
 class SurfaceEffectGenerator : public EffectGenerator
 {
 public:
-    SurfaceEffectGenerator(const cvf::Color4f& color, PolygonOffset polygonOffset);
-    SurfaceEffectGenerator(const cvf::Color3f& color, PolygonOffset polygonOffset);
+    SurfaceEffectGenerator( const cvf::Color4f& color, PolygonOffset polygonOffset );
+    SurfaceEffectGenerator( const cvf::Color3f& color, PolygonOffset polygonOffset );
 
-    void                            setCullBackfaces(FaceCulling cullBackFaces) { m_cullBackfaces = cullBackFaces; }
+    void setCullBackfaces( FaceCulling cullBackFaces ) { m_cullBackfaces = cullBackFaces; }
 
-    void                            enableColorMask(bool enableColors)          { m_enableColorMask = enableColors; }
-    void                            enableDepthTest(bool enableTest)            { m_enableDepthTest = enableTest; }
-    void                            enableDepthWrite(bool enableWrite)          { m_enableDepthWrite = enableWrite; }
-    void                            enableLighting(bool enableLighting)         { m_enableLighting = enableLighting; }
+    void enableColorMask( bool enableColors ) { m_enableColorMask = enableColors; }
+    void enableDepthTest( bool enableTest ) { m_enableDepthTest = enableTest; }
+    void enableDepthWrite( bool enableWrite ) { m_enableDepthWrite = enableWrite; }
+    void enableLighting( bool enableLighting ) { m_enableLighting = enableLighting; }
 
 protected:
-    bool                    isEqual(const EffectGenerator* other) const override;
-    EffectGenerator*        copy() const override;
+    bool             isEqual( const EffectGenerator* other ) const override;
+    EffectGenerator* copy() const override;
 
-    void                    updateForShaderBasedRendering(cvf::Effect* effect) const override;
-    void                    updateForFixedFunctionRendering(cvf::Effect* effect) const override;
-
-private:
-    void                            updateCommonEffect(cvf::Effect* effect) const;
+    void updateForShaderBasedRendering( cvf::Effect* effect ) const override;
+    void updateForFixedFunctionRendering( cvf::Effect* effect ) const override;
 
 private:
-    cvf::Color4f    m_color;
-    PolygonOffset   m_polygonOffset;
-    FaceCulling     m_cullBackfaces;
-    bool            m_enableColorMask;
-    bool            m_enableDepthTest;
-    bool            m_enableDepthWrite;
-    bool            m_enableLighting;
+    void updateCommonEffect( cvf::Effect* effect ) const;
+
+private:
+    cvf::Color4f  m_color;
+    PolygonOffset m_polygonOffset;
+    FaceCulling   m_cullBackfaces;
+    bool          m_enableColorMask;
+    bool          m_enableDepthTest;
+    bool          m_enableDepthWrite;
+    bool          m_enableLighting;
 };
-
 
 //==================================================================================================
 //
@@ -170,41 +167,42 @@ private:
 class ScalarMapperEffectGenerator : public EffectGenerator
 {
 public:
-    ScalarMapperEffectGenerator(const cvf::ScalarMapper* scalarMapper, PolygonOffset polygonOffset);
+    ScalarMapperEffectGenerator( const cvf::ScalarMapper* scalarMapper, PolygonOffset polygonOffset );
 
-    void                            setOpacityLevel(float opacity)          { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
-    void                            setUndefinedColor(cvf::Color3f color)   { m_undefinedColor = color; }
-    void                            setFaceCulling(FaceCulling faceCulling) { m_faceCulling = faceCulling; }
-    void                            enableDepthWrite(bool enableWrite)      { m_enableDepthWrite = enableWrite; }
-    void                            disableLighting(bool disable)           { m_disableLighting = disable; }
-    void                            discardTransparentFragments(bool discard) { m_discardTransparentFragments = discard; }
+    void setOpacityLevel( float opacity ) { m_opacityLevel = cvf::Math::clamp( opacity, 0.0f, 1.0f ); }
+    void setUndefinedColor( cvf::Color3f color ) { m_undefinedColor = color; }
+    void setFaceCulling( FaceCulling faceCulling ) { m_faceCulling = faceCulling; }
+    void enableDepthWrite( bool enableWrite ) { m_enableDepthWrite = enableWrite; }
+    void disableLighting( bool disable ) { m_disableLighting = disable; }
+    void discardTransparentFragments( bool discard ) { m_discardTransparentFragments = discard; }
 
-public: 
-    static cvf::ref<cvf::TextureImage> addAlphaAndUndefStripes(const cvf::TextureImage* texImg, const cvf::Color3f& undefScalarColor, float opacityLevel);
-    static bool                     isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2);
+public:
+    static cvf::ref<cvf::TextureImage> addAlphaAndUndefStripes( const cvf::TextureImage* texImg,
+                                                                const cvf::Color3f&      undefScalarColor,
+                                                                float                    opacityLevel );
+    static bool isImagesEqual( const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2 );
 
 protected:
-    bool                    isEqual(const EffectGenerator* other) const override;
-    EffectGenerator*        copy() const override;
+    bool             isEqual( const EffectGenerator* other ) const override;
+    EffectGenerator* copy() const override;
 
-    void                    updateForShaderBasedRendering(cvf::Effect* effect) const override;
-    void                    updateForFixedFunctionRendering(cvf::Effect* effect) const override;
-
-private:
-    void                            updateCommonEffect(cvf::Effect* effect) const;
+    void updateForShaderBasedRendering( cvf::Effect* effect ) const override;
+    void updateForFixedFunctionRendering( cvf::Effect* effect ) const override;
 
 private:
-    cvf::cref<cvf::ScalarMapper>    m_scalarMapper;
-    mutable cvf::ref<cvf::TextureImage>     m_textureImage;
-    PolygonOffset                   m_polygonOffset;
-    float                           m_opacityLevel;
-    cvf::Color3f                    m_undefinedColor;
-    FaceCulling                     m_faceCulling;
-    bool                            m_enableDepthWrite;
-    bool                            m_disableLighting;
-    bool                            m_discardTransparentFragments;
+    void updateCommonEffect( cvf::Effect* effect ) const;
+
+private:
+    cvf::cref<cvf::ScalarMapper>        m_scalarMapper;
+    mutable cvf::ref<cvf::TextureImage> m_textureImage;
+    PolygonOffset                       m_polygonOffset;
+    float                               m_opacityLevel;
+    cvf::Color3f                        m_undefinedColor;
+    FaceCulling                         m_faceCulling;
+    bool                                m_enableDepthWrite;
+    bool                                m_disableLighting;
+    bool                                m_discardTransparentFragments;
 };
-
 
 //==================================================================================================
 //
@@ -214,28 +212,27 @@ private:
 class ScalarMapperMeshEffectGenerator : public EffectGenerator
 {
 public:
-    explicit ScalarMapperMeshEffectGenerator(const cvf::ScalarMapper* scalarMapper);
+    explicit ScalarMapperMeshEffectGenerator( const cvf::ScalarMapper* scalarMapper );
 
-    void                            setOpacityLevel(float opacity)        { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
-    void                            setUndefinedColor(cvf::Color3f color) { m_undefinedColor = color; }
+    void setOpacityLevel( float opacity ) { m_opacityLevel = cvf::Math::clamp( opacity, 0.0f, 1.0f ); }
+    void setUndefinedColor( cvf::Color3f color ) { m_undefinedColor = color; }
 
 protected:
-    bool                    isEqual(const EffectGenerator* other) const override;
-    EffectGenerator*        copy() const override;
+    bool             isEqual( const EffectGenerator* other ) const override;
+    EffectGenerator* copy() const override;
 
-    void                    updateForShaderBasedRendering(cvf::Effect* effect) const override;
-    void                    updateForFixedFunctionRendering(cvf::Effect* effect) const override;
-
-private:
-    void                            updateCommonEffect(cvf::Effect* effect) const;
+    void updateForShaderBasedRendering( cvf::Effect* effect ) const override;
+    void updateForFixedFunctionRendering( cvf::Effect* effect ) const override;
 
 private:
-    cvf::cref<cvf::ScalarMapper>    m_scalarMapper;
-    mutable cvf::ref<cvf::TextureImage>     m_textureImage;
-    float                           m_opacityLevel;
-    cvf::Color3f                    m_undefinedColor;
+    void updateCommonEffect( cvf::Effect* effect ) const;
+
+private:
+    cvf::cref<cvf::ScalarMapper>        m_scalarMapper;
+    mutable cvf::ref<cvf::TextureImage> m_textureImage;
+    float                               m_opacityLevel;
+    cvf::Color3f                        m_undefinedColor;
 };
-
 
 //==================================================================================================
 //
@@ -245,23 +242,22 @@ private:
 class MeshEffectGenerator : public EffectGenerator
 {
 public:
-    explicit MeshEffectGenerator(const cvf::Color3f& color);
-    void setLineStipple(bool enable) { m_lineStipple = enable; }
-    void setLineWidth(float lineWidth);
+    explicit MeshEffectGenerator( const cvf::Color3f& color );
+    void setLineStipple( bool enable ) { m_lineStipple = enable; }
+    void setLineWidth( float lineWidth );
 
 protected:
-    bool                    isEqual(const EffectGenerator* other) const override;
-    EffectGenerator*        copy() const override;
+    bool             isEqual( const EffectGenerator* other ) const override;
+    EffectGenerator* copy() const override;
 
-    void                    updateForShaderBasedRendering(cvf::Effect* effect) const override;
-    void                    updateForFixedFunctionRendering(cvf::Effect* effect) const override;
+    void updateForShaderBasedRendering( cvf::Effect* effect ) const override;
+    void updateForFixedFunctionRendering( cvf::Effect* effect ) const override;
 
 private:
     cvf::Color3f m_color;
     bool         m_lineStipple;
     float        m_lineWidth;
 };
-
 
 //==================================================================================================
 //
@@ -274,13 +270,12 @@ public:
     TextEffectGenerator();
 
 protected:
-    bool                    isEqual(const EffectGenerator* other) const override;
-    EffectGenerator*        copy() const override;
+    bool             isEqual( const EffectGenerator* other ) const override;
+    EffectGenerator* copy() const override;
 
-    void                    updateForShaderBasedRendering(cvf::Effect* effect) const override;
-    void                    updateForFixedFunctionRendering(cvf::Effect* effect) const override;
+    void updateForShaderBasedRendering( cvf::Effect* effect ) const override;
+    void updateForFixedFunctionRendering( cvf::Effect* effect ) const override;
 };
-
 
 //==================================================================================================
 //
@@ -293,10 +288,10 @@ public:
     VectorEffectGenerator();
 
 protected:
-    bool             isEqual(const EffectGenerator* other) const override;
+    bool             isEqual( const EffectGenerator* other ) const override;
     EffectGenerator* copy() const override;
 
-    void updateForShaderBasedRendering(cvf::Effect* effect) const override;
-    void updateForFixedFunctionRendering(cvf::Effect* effect) const override;
+    void updateForShaderBasedRendering( cvf::Effect* effect ) const override;
+    void updateForFixedFunctionRendering( cvf::Effect* effect ) const override;
 };
-}
+} // namespace caf

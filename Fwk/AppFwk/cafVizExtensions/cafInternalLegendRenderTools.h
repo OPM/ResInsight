@@ -36,37 +36,35 @@
 #pragma once
 
 #include "cvfBase.h"
-#include "cvfOpenGLContext.h"
-#include "cvfMatrixState.h"
 #include "cvfColor4.h"
-
+#include "cvfMatrixState.h"
+#include "cvfOpenGLContext.h"
 
 //==================================================================================================
 //
 // Tools to render legend stuff
 //
 //==================================================================================================
-namespace caf {
-
-
+namespace caf
+{
 class InternalLegendRenderTools
 {
     using OpenGLContext = cvf::OpenGLContext;
-    using Color4f = cvf::Color4f;
-    using String = cvf::String;
-    using MatrixState = cvf::MatrixState;
-    using Vec2f = cvf::Vec2f;
+    using Color4f       = cvf::Color4f;
+    using String        = cvf::String;
+    using MatrixState   = cvf::MatrixState;
+    using Vec2f         = cvf::Vec2f;
+
 public:
-    static void  renderBackgroundUsingShaders(OpenGLContext* oglContext,
+    static void renderBackgroundUsingShaders( OpenGLContext*     oglContext,
                                               const MatrixState& matrixState,
-                                              const Vec2f& size,
-                                              const Color4f& backgroundColor,
-                                              const Color4f& backgroundFrameColor);
-    static void  renderBackgroundImmediateMode(OpenGLContext* oglContext, 
-                                               const Vec2f& size,
+                                              const Vec2f&       size,
+                                              const Color4f&     backgroundColor,
+                                              const Color4f&     backgroundFrameColor );
+    static void renderBackgroundImmediateMode( OpenGLContext* oglContext,
+                                               const Vec2f&   size,
                                                const Color4f& backgroundColor,
-                                               const Color4f& backgroundFrameColor);
+                                               const Color4f& backgroundFrameColor );
 };
 
-}
-
+} // namespace caf

@@ -34,86 +34,80 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiToolButtonEditor.h"
 
-#include "cafPdmUiFieldHandle.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
-
 
 namespace caf
 {
-
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiToolButtonEditor);
-
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiToolButtonEditor );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiToolButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmUiToolButtonEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    CAF_ASSERT(!m_toolButton.isNull());
+    CAF_ASSERT( !m_toolButton.isNull() );
 
-    auto ic = uiField()->uiIcon(uiConfigName);
-    if (ic)
+    auto ic = uiField()->uiIcon( uiConfigName );
+    if ( ic )
     {
-        m_toolButton->setIcon(*ic);
+        m_toolButton->setIcon( *ic );
     }
 
-    QString buttonText = uiField()->uiName(uiConfigName);
-    m_toolButton->setText(buttonText);
+    QString buttonText = uiField()->uiName( uiConfigName );
+    m_toolButton->setText( buttonText );
 
-    m_toolButton->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
-    m_toolButton->setToolTip(uiField()->uiToolTip(uiConfigName));
+    m_toolButton->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+    m_toolButton->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
     PdmUiToolButtonEditorAttribute attributes;
-    
-    PdmUiObjectHandle* pdmUiOjectHandle = uiObj(uiField()->fieldHandle()->ownerObject());
-    if (pdmUiOjectHandle)
+
+    PdmUiObjectHandle* pdmUiOjectHandle = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( pdmUiOjectHandle )
     {
-        pdmUiOjectHandle->editorAttribute(uiField()->fieldHandle(), uiConfigName, &attributes);
+        pdmUiOjectHandle->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
     }
     bool isCheckable = attributes.m_checkable;
-    m_toolButton->setCheckable(isCheckable);
-    m_toolButton->setSizePolicy(attributes.m_sizePolicy);
+    m_toolButton->setCheckable( isCheckable );
+    m_toolButton->setSizePolicy( attributes.m_sizePolicy );
 
     QVariant variantFieldValue = uiField()->uiValue();
-    if (isCheckable)
+    if ( isCheckable )
     {
-        m_toolButton->setChecked(uiField()->uiValue().toBool());
+        m_toolButton->setChecked( uiField()->uiValue().toBool() );
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiToolButtonEditor::createEditorWidget(QWidget * parent)
+QWidget* PdmUiToolButtonEditor::createEditorWidget( QWidget* parent )
 {
-    m_toolButton = new QToolButton(parent);
-    connect(m_toolButton, SIGNAL(clicked(bool)), this, SLOT(slotClicked(bool)));
+    m_toolButton = new QToolButton( parent );
+    connect( m_toolButton, SIGNAL( clicked( bool ) ), this, SLOT( slotClicked( bool ) ) );
     return m_toolButton;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiToolButtonEditor::createLabelWidget(QWidget * parent)
+QWidget* PdmUiToolButtonEditor::createLabelWidget( QWidget* parent )
 {
     return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiToolButtonEditor::slotClicked(bool checked)
+void PdmUiToolButtonEditor::slotClicked( bool checked )
 {
     QVariant v;
     v = checked;
-    this->setValueToField(v);
+    this->setValueToField( v );
 }
-
 
 } // end namespace caf

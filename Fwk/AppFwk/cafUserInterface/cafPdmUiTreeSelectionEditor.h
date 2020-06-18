@@ -33,7 +33,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
@@ -54,7 +53,7 @@ namespace caf
 class PdmUiTreeSelectionQModel;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiTreeSelectionEditorAttribute : public PdmUiEditorAttribute
 {
@@ -65,7 +64,7 @@ public:
     bool setCurrentIndexWhenItemIsChecked;
 
     /// currentIndexFieldHandle is used to communicate the value of current item in the tree view
-    /// This is useful when displaying a list of appEnums, and a dependent view is displaying content based on 
+    /// This is useful when displaying a list of appEnums, and a dependent view is displaying content based on
     /// the current item in the tree view
     /// Make sure the type of the receiving field is of the same type as the field used in PdmUiTreeSelectionEditor
     caf::PdmFieldHandle* currentIndexFieldHandle;
@@ -73,9 +72,9 @@ public:
 public:
     PdmUiTreeSelectionEditorAttribute()
     {
-        showTextFilter = true;
-        showToggleAllCheckbox = true;
-        singleSelectionMode = false;
+        showTextFilter                   = true;
+        showToggleAllCheckbox            = true;
+        singleSelectionMode              = false;
         setCurrentIndexWhenItemIsChecked = false;
 
         currentIndexFieldHandle = nullptr;
@@ -83,7 +82,7 @@ public:
 };
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiTreeSelectionEditor : public PdmUiFieldEditorHandle
 {
@@ -95,48 +94,47 @@ public:
     ~PdmUiTreeSelectionEditor() override;
 
 protected:
-    void                configureAndUpdateUi(const QString& uiConfigName) override;
-    QWidget*            createEditorWidget(QWidget* parent) override;
-    QWidget*            createLabelWidget(QWidget* parent) override;
-    QMargins            calculateLabelContentMargins() const override;
-    bool                isMultiRowEditor() const override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    QMargins calculateLabelContentMargins() const override;
+    bool     isMultiRowEditor() const override;
 
 private slots:
-    void                customMenuRequested(const QPoint& pos);
+    void customMenuRequested( const QPoint& pos );
 
-    void                slotSetSelectedOn();
-    void                slotSetSelectedOff();
-    void                slotSetSubItemsOn();
-    void                slotSetSubItemsOff();
+    void slotSetSelectedOn();
+    void slotSetSelectedOff();
+    void slotSetSubItemsOn();
+    void slotSetSubItemsOff();
 
-    void                slotToggleAll();
+    void slotToggleAll();
 
-    void                slotTextFilterChanged();
+    void slotTextFilterChanged();
 
-    void                slotClicked(const QModelIndex& index);
+    void slotClicked( const QModelIndex& index );
 
-    void                slotScrollToFirstCheckedItem();
-
-private:
-    void                currentChanged(const QModelIndex& current);
-
-    void                setCheckedStateOfSelected(bool checked);
-    void                setCheckedStateForSubItemsOfSelected(bool checked);
-    void                checkAllItems();
-    void                unCheckAllItems();
-
-    QModelIndexList     allVisibleSourceModelIndices() const;
-    void                recursiveAppendVisibleSourceModelIndices(const QModelIndex& parent,
-                                                                 QModelIndexList* sourceModelIndices) const;
+    void slotScrollToFirstCheckedItem();
 
 private:
-    QPointer<QTreeView>         m_treeView;
-    QPointer<QShortenedLabel>   m_label;
-    QPointer<QCheckBox>         m_toggleAllCheckBox;
-    QPointer<QLineEdit>         m_textFilterLineEdit;
+    void currentChanged( const QModelIndex& current );
 
-    PdmUiTreeSelectionQModel*   m_model;
-    QSortFilterProxyModel*      m_proxyModel;
+    void setCheckedStateOfSelected( bool checked );
+    void setCheckedStateForSubItemsOfSelected( bool checked );
+    void checkAllItems();
+    void unCheckAllItems();
+
+    QModelIndexList allVisibleSourceModelIndices() const;
+    void recursiveAppendVisibleSourceModelIndices( const QModelIndex& parent, QModelIndexList* sourceModelIndices ) const;
+
+private:
+    QPointer<QTreeView>       m_treeView;
+    QPointer<QShortenedLabel> m_label;
+    QPointer<QCheckBox>       m_toggleAllCheckBox;
+    QPointer<QLineEdit>       m_textFilterLineEdit;
+
+    PdmUiTreeSelectionQModel* m_model;
+    QSortFilterProxyModel*    m_proxyModel;
 
     PdmUiTreeSelectionEditorAttribute m_attributes;
 };

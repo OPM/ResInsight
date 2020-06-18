@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiListViewEditor.h"
 
 #include "cafPdmField.h"
@@ -46,46 +45,42 @@
 #include <QTableView>
 #include <QWidget>
 
-
-
-
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-UiListViewModelPdm::UiListViewModelPdm(QObject* parent)
-    : QAbstractTableModel(parent)
+UiListViewModelPdm::UiListViewModelPdm( QObject* parent )
+    : QAbstractTableModel( parent )
 {
-    m_columnCount = 0;
+    m_columnCount    = 0;
     m_pdmObjectGroup = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-int UiListViewModelPdm::rowCount(const QModelIndex &parent /*= QModelIndex( ) */) const
+int UiListViewModelPdm::rowCount( const QModelIndex& parent /*= QModelIndex( ) */ ) const
 {
-    if (!m_pdmObjectGroup)
+    if ( !m_pdmObjectGroup )
     {
         return 0;
     }
 
-    return static_cast<int>(m_pdmObjectGroup->objects.size());
+    return static_cast<int>( m_pdmObjectGroup->objects.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-int UiListViewModelPdm::columnCount(const QModelIndex &parent /*= QModelIndex( ) */) const
+int UiListViewModelPdm::columnCount( const QModelIndex& parent /*= QModelIndex( ) */ ) const
 {
-    if (!m_pdmObjectGroup)
+    if ( !m_pdmObjectGroup )
     {
         return 0;
     }
 
-    if (m_columnCount < 0)
+    if ( m_columnCount < 0 )
     {
         return 0;
     }
@@ -94,65 +89,65 @@ int UiListViewModelPdm::columnCount(const QModelIndex &parent /*= QModelIndex( )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void UiListViewModelPdm::computeColumnCount()
 {
-    if (m_editorAttribute.fieldNames.size() > 0)
+    if ( m_editorAttribute.fieldNames.size() > 0 )
     {
         m_columnCount = m_editorAttribute.fieldNames.size();
     }
-    else if (m_pdmObjectGroup)
+    else if ( m_pdmObjectGroup )
     {
         m_columnCount = 0;
 
         // Loop over all objects and find the object with largest number of fields
-        for (size_t i = 0; i < m_pdmObjectGroup->objects.size(); i++)
+        for ( size_t i = 0; i < m_pdmObjectGroup->objects.size(); i++ )
         {
             std::vector<PdmFieldHandle*> fields;
-            m_pdmObjectGroup->objects[i]->fields(fields);
+            m_pdmObjectGroup->objects[i]->fields( fields );
 
-            if (m_columnCount < static_cast<int>(fields.size()))
+            if ( m_columnCount < static_cast<int>( fields.size() ) )
             {
-                m_columnCount = static_cast<int>(fields.size());
+                m_columnCount = static_cast<int>( fields.size() );
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QVariant UiListViewModelPdm::headerData(int section, Qt::Orientation orientation, int role /*= Qt::DisplayRole */) const
+QVariant UiListViewModelPdm::headerData( int section, Qt::Orientation orientation, int role /*= Qt::DisplayRole */ ) const
 {
-    return QVariant(QString("Header %1").arg(section));
+    return QVariant( QString( "Header %1" ).arg( section ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QVariant caf::UiListViewModelPdm::data(const QModelIndex &index, int role /*= Qt::DisplayRole */) const
+QVariant caf::UiListViewModelPdm::data( const QModelIndex& index, int role /*= Qt::DisplayRole */ ) const
 {
-    if (m_pdmObjectGroup && (role == Qt::DisplayRole || role == Qt::EditRole))
+    if ( m_pdmObjectGroup && ( role == Qt::DisplayRole || role == Qt::EditRole ) )
     {
-        if (index.row() < static_cast<int>(m_pdmObjectGroup->objects.size()))
+        if ( index.row() < static_cast<int>( m_pdmObjectGroup->objects.size() ) )
         {
             PdmObjectHandle* pdmObject = m_pdmObjectGroup->objects[index.row()];
-            if (pdmObject)
+            if ( pdmObject )
             {
                 std::vector<PdmFieldHandle*> fields;
-                pdmObject->fields(fields);
+                pdmObject->fields( fields );
 
-                if (index.column() < static_cast<int>(fields.size()))
+                if ( index.column() < static_cast<int>( fields.size() ) )
                 {
                     size_t fieldIndex = 0;
 
-                    if (m_editorAttribute.fieldNames.size() > 0)
+                    if ( m_editorAttribute.fieldNames.size() > 0 )
                     {
                         QString fieldName = m_editorAttribute.fieldNames[index.column()];
-                        for (size_t i = 0; i < fields.size(); i++)
+                        for ( size_t i = 0; i < fields.size(); i++ )
                         {
-                            if (fields[i]->keyword() == fieldName)
+                            if ( fields[i]->keyword() == fieldName )
                             {
                                 fieldIndex = i;
                                 break;
@@ -165,7 +160,7 @@ QVariant caf::UiListViewModelPdm::data(const QModelIndex &index, int role /*= Qt
                     }
 
                     PdmUiFieldHandle* uiFieldHandle = fields[fieldIndex]->uiCapability();
-                    if (uiFieldHandle)
+                    if ( uiFieldHandle )
                     {
                         return uiFieldHandle->uiValue();
                     }
@@ -181,21 +176,20 @@ QVariant caf::UiListViewModelPdm::data(const QModelIndex &index, int role /*= Qt
     return QVariant();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void caf::UiListViewModelPdm::setPdmData(PdmObjectCollection* objectGroup, const QString& configName)
+void caf::UiListViewModelPdm::setPdmData( PdmObjectCollection* objectGroup, const QString& configName )
 {
     m_pdmObjectGroup = objectGroup;
-    m_configName = configName;
+    m_configName     = configName;
 
-    if (m_pdmObjectGroup)
+    if ( m_pdmObjectGroup )
     {
-        caf::PdmUiObjectHandle* uiObject = uiObj(m_pdmObjectGroup);
-        if (uiObject)
+        caf::PdmUiObjectHandle* uiObject = uiObj( m_pdmObjectGroup );
+        if ( uiObject )
         {
-            uiObject->objectEditorAttribute(m_configName, &m_editorAttribute);
+            uiObject->objectEditorAttribute( m_configName, &m_editorAttribute );
         }
     }
 
@@ -204,58 +198,53 @@ void caf::UiListViewModelPdm::setPdmData(PdmObjectCollection* objectGroup, const
     endResetModel();
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiListViewEditor::PdmUiListViewEditor()
-    : 
-    m_tableView(nullptr),
-    m_tableModelPdm(nullptr)
+    : m_tableView( nullptr )
+    , m_tableModelPdm( nullptr )
 {
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiListViewEditor::~PdmUiListViewEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiListViewEditor::createWidget(QWidget* parent)
+QWidget* PdmUiListViewEditor::createWidget( QWidget* parent )
 {
-    CAF_ASSERT(parent);
+    CAF_ASSERT( parent );
 
-    QWidget* mainWidget = new QWidget(parent);
-    QVBoxLayout* layout = new QVBoxLayout();
-    mainWidget->setLayout(layout);
+    QWidget*     mainWidget = new QWidget( parent );
+    QVBoxLayout* layout     = new QVBoxLayout();
+    mainWidget->setLayout( layout );
 
-    m_tableModelPdm = new UiListViewModelPdm(mainWidget);
+    m_tableModelPdm = new UiListViewModelPdm( mainWidget );
 
-    m_tableView = new QTableView(mainWidget);
-    m_tableView->setShowGrid(false);
-    m_tableView->setModel(m_tableModelPdm);
+    m_tableView = new QTableView( mainWidget );
+    m_tableView->setShowGrid( false );
+    m_tableView->setModel( m_tableModelPdm );
 
-    layout->addWidget(m_tableView);
+    layout->addWidget( m_tableView );
 
     return mainWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListViewEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmUiListViewEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    PdmObjectCollection* objectGroup = dynamic_cast<PdmObjectCollection*>(pdmObject());
-    m_tableModelPdm->setPdmData(objectGroup, uiConfigName);
+    PdmObjectCollection* objectGroup = dynamic_cast<PdmObjectCollection*>( pdmObject() );
+    m_tableModelPdm->setPdmData( objectGroup, uiConfigName );
 
     m_tableView->resizeColumnsToContents();
 }
 
-
 } // end namespace caf
-

@@ -34,78 +34,75 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <QObject>
 
 class QTimer;
 
-
 namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class FrameAnimationControl : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit FrameAnimationControl(QObject* parent = nullptr);
+    explicit FrameAnimationControl( QObject* parent = nullptr );
 
-    void    setNumFrames(int numFrames);
-    int     numFrames() const;
-    int     currentFrame() const;
-    void    setCurrentFrameOnly(int frameIndex);
+    void setNumFrames( int numFrames );
+    int  numFrames() const;
+    int  currentFrame() const;
+    void setCurrentFrameOnly( int frameIndex );
 
-    bool    isActive() const;
+    bool isActive() const;
 
-    void    setTimeout(int milliSeconds);
-    int     timeout() const;
+    void setTimeout( int milliSeconds );
+    int  timeout() const;
 
-    bool    isRepeatingFromStart() const;
-    bool    isRepeatingFwdBwd() const;
+    bool isRepeatingFromStart() const;
+    bool isRepeatingFwdBwd() const;
 
 public slots:
-    void    slotPlayFwd();
-    void    slotPlayBwd();
-    void    slotStop();
-    void    slotPause();
-    void    slotStepForward();
-    void    slotStepBackward();
-    void    setCurrentFrame(int frameIndex);
-    void    slotSkipToEnd();
-    void    slotSkipToStart();
-    void    slotRepeatFromStart(bool turnRepeatOn);
-    void    slotRepeatFwdBwd(bool turnRepeatOn);
+    void slotPlayFwd();
+    void slotPlayBwd();
+    void slotStop();
+    void slotPause();
+    void slotStepForward();
+    void slotStepBackward();
+    void setCurrentFrame( int frameIndex );
+    void slotSkipToEnd();
+    void slotSkipToStart();
+    void slotRepeatFromStart( bool turnRepeatOn );
+    void slotRepeatFwdBwd( bool turnRepeatOn );
 
 signals:
-    void    changeFrame(int frameIndex);
-    void    endAnimation();
-    void    frameCountChanged(int frameCount);
+    void changeFrame( int frameIndex );
+    void endAnimation();
+    void frameCountChanged( int frameCount );
 
 private slots:
-    void    slotTimerTriggered();
+    void slotTimerTriggered();
 
 private:
-    void    start();
-    void    stop();
-    void    pause();
-    void    stepForward();
-    void    stepBackward();
-    void    skipToEnd();
-    void    skipToStart();
+    void start();
+    void stop();
+    void pause();
+    void stepForward();
+    void stepBackward();
+    void skipToEnd();
+    void skipToStart();
 
-    void    setForward(bool forward);
-    bool    forward() const;
+    void setForward( bool forward );
+    bool forward() const;
 
-    void    setRepeatFromStart(bool repeat);
+    void setRepeatFromStart( bool repeat );
 
-    void    setRepeatFwdBwd(bool repeat);
+    void setRepeatFwdBwd( bool repeat );
 
-    void    setDefault();
+    void setDefault();
 
 private:
     QTimer* m_timer;
@@ -118,6 +115,5 @@ private:
     bool    m_repeatFromStart;
     bool    m_repeatFwdBwd;
 };
-
 
 } // End namespace caf

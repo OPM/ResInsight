@@ -34,24 +34,21 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QString>
-#include <QWidget>
-#include <QPointer>
-#include <QLineEdit>
 #include <QLabel>
+#include <QLineEdit>
+#include <QPointer>
+#include <QString>
 #include <QToolButton>
+#include <QWidget>
 
-
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiColorEditorAttribute : public PdmUiEditorAttribute
 {
@@ -67,7 +64,6 @@ public:
     }
 };
 
-
 //==================================================================================================
 /// See cafPdmFieldCvfColor for conversion between cvf::Color3f and QColor
 //==================================================================================================
@@ -77,25 +73,25 @@ class PdmUiColorEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiColorEditor(); 
-    ~PdmUiColorEditor() override {} 
+    PdmUiColorEditor();
+    ~PdmUiColorEditor() override {}
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
-
-    QMargins    calculateLabelContentMargins() const override;
+    QMargins calculateLabelContentMargins() const override;
 
 protected slots:
-    void        colorSelectionClicked();
+    void colorSelectionClicked();
 
 private:
-    void        setColorOnWidget(const QColor& c);
-    QColor      getFontColor(const QColor& backgroundColor) const;
+    void   setColorOnWidget( const QColor& c );
+    QColor getFontColor( const QColor& backgroundColor ) const;
+
 private:
-    QPointer<QShortenedLabel>    m_label;
+    QPointer<QShortenedLabel> m_label;
 
     QColor                m_color;
     QPointer<QLabel>      m_colorTextLabel;
@@ -104,6 +100,5 @@ private:
 
     PdmUiColorEditorAttribute m_attributes;
 };
-
 
 } // end namespace caf
