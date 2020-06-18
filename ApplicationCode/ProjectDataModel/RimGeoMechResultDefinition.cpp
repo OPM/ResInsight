@@ -698,9 +698,15 @@ QString RimGeoMechResultDefinition::resultComponentName() const
 QString RimGeoMechResultDefinition::diffResultUiName() const
 {
     QString diffResultString;
-    if ( m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue() )
+    if ( m_geomCase->geoMechData() )
     {
-        if ( m_geomCase->geoMechData() )
+        if ( referenceCaseDependentResultSelected() )
+        {
+            std::vector<std::string> stepNames      = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
+            QString                  timeStepString = QString::fromStdString( stepNames[m_referenceTimeStep()] );
+            diffResultString += QString( "<b>Reference Time Step</b>: %1" ).arg( timeStepString );
+        }
+        else if ( m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue() )
         {
             std::vector<std::string> stepNames      = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
             QString                  timeStepString = QString::fromStdString( stepNames[m_timeLapseBaseTimestep()] );
@@ -716,9 +722,13 @@ QString RimGeoMechResultDefinition::diffResultUiName() const
 QString RimGeoMechResultDefinition::diffResultUiShortName() const
 {
     QString diffResultString;
-    if ( m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue() )
+    if ( m_geomCase->geoMechData() )
     {
-        if ( m_geomCase->geoMechData() )
+        if ( referenceCaseDependentResultSelected() )
+        {
+            diffResultString += QString( "Ref. Time: #%1" ).arg( m_referenceTimeStep() );
+        }
+        else if ( m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue() )
         {
             diffResultString += QString( "Base Time: #%1" ).arg( m_timeLapseBaseTimestep() );
         }
