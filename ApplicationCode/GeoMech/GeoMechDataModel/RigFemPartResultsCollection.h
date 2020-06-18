@@ -120,6 +120,8 @@ public:
                                                      double*                    globalPosClosestToZero,
                                                      double*                    globalNegClosestToZero );
 
+    static bool isResultInSet( const RigFemResultAddress& result, const std::set<RigFemResultAddress>& results );
+
     static std::vector<RigFemResultAddress> tensorComponentAddresses( const RigFemResultAddress& resVarAddr );
     static std::vector<RigFemResultAddress> tensorPrincipalComponentAdresses( const RigFemResultAddress& resVarAddr );
     static std::set<RigFemResultAddress>    normalizedResults();
@@ -127,6 +129,12 @@ public:
 
     void   setNormalizationAirGap( double normalizationAirGap );
     double normalizationAirGap() const;
+
+    void setReferenceTimeStep( int referenceTimeStep );
+    int  referenceTimeStep() const;
+
+    static std::set<RigFemResultAddress> referenceCaseDependentResults();
+    static bool                          isReferenceCaseDependentResult( const RigFemResultAddress& result );
 
     RigFemScalarResultFrames* findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
     RigFemScalarResultFrames* createScalarResult( int partIndex, const RigFemResultAddress& resVarAddr );
@@ -153,6 +161,8 @@ private:
 
     double  m_biotFixedFactor;
     QString m_biotResultAddress;
+
+    int m_referenceTimeStep;
 
     std::vector<std::unique_ptr<RigFemPartResultCalculator>> m_resultCalculators;
 

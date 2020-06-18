@@ -111,6 +111,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
     m_biotFixedFactor   = 1.0;
     m_biotResultAddress = "";
 
+    m_referenceTimeStep = 0;
+
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
     m_resultCalculators.push_back(
@@ -393,6 +395,28 @@ void RigFemPartResultsCollection::setBiotCoefficientParameters( double biotFixed
                                                RigFemResultAddress::allTimeLapsesValue() ) );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFemPartResultsCollection::setReferenceTimeStep( int referenceTimeStep )
+{
+    m_referenceTimeStep = referenceTimeStep;
+
+    std::set<RigFemResultAddress> results = referenceCaseDependentResults();
+    for ( auto result : results )
+    {
+        deleteResult( result );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigFemPartResultsCollection::referenceTimeStep() const
+{
+    return m_referenceTimeStep;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1153,6 +1177,23 @@ std::vector<RigFemResultAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigFemPartResultsCollection::isResultInSet( const RigFemResultAddress&           result,
+                                                 const std::set<RigFemResultAddress>& results )
+{
+    for ( auto res : results )
+    {
+        if ( res.resultPosType == result.resultPosType && res.fieldName == result.fieldName &&
+             res.componentName == result.componentName )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<RigFemResultAddress> RigFemPartResultsCollection::normalizedResults()
 {
     std::set<std::string> validFields     = {"SE", "ST"};
@@ -1182,15 +1223,36 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::normalizedResults()
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultsCollection::isNormalizableResult( const RigFemResultAddress& result )
 {
-    for ( auto normRes : normalizedResults() )
+    return isResultInSet( result, normalizedResults() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RigFemResultAddress> RigFemPartResultsCollection::referenceCaseDependentResults()
+{
+    std::set<RigFemResultAddress> results;
+    for ( auto elementType : {RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT} )
     {
-        if ( normRes.resultPosType == result.resultPosType && normRes.fieldName == result.fieldName &&
-             normRes.componentName == result.componentName )
-        {
-            return true;
-        }
+        results.insert(
+            RigFemResultAddress( elementType, "COMPRESSIBILITY", "PORE", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert(
+            RigFemResultAddress( elementType, "COMPRESSIBILITY", "VERTICAL", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType,
+                                             "COMPRESSIBILITY",
+                                             "VERTICAL-RATIO",
+                                             RigFemResultAddress::allTimeLapsesValue() ) );
     }
-    return false;
+
+    return results;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigFemPartResultsCollection::isReferenceCaseDependentResult( const RigFemResultAddress& result )
+{
+    return isResultInSet( result, referenceCaseDependentResults() );
 }
 
 //--------------------------------------------------------------------------------------------------
