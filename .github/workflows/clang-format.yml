@@ -13,7 +13,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Check format AppFwk
       run: |
-        cd Fwk/AppFwk
+        cd Fwk
+        cd AppFwk
         find -name "*.h" -o -name "*.cpp" -o -name "*.inl" | xargs clang-format-6.0 -i
         git diff
     - uses: peter-evans/create-pull-request@v2
