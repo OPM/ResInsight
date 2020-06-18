@@ -39,93 +39,82 @@
 #include <QApplication>
 #include <QMouseEvent>
 
-
 namespace caf
 {
-
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-PdmUiCheckBoxDelegate::PdmUiCheckBoxDelegate(QObject* pParent)
-    : QStyledItemDelegate(pParent)
+PdmUiCheckBoxDelegate::PdmUiCheckBoxDelegate( QObject* pParent )
+    : QStyledItemDelegate( pParent )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiCheckBoxDelegate::~PdmUiCheckBoxDelegate()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QRect adjustedPaintRect(const QStyleOptionViewItem &option)
+QRect adjustedPaintRect( const QStyleOptionViewItem& option )
 {
-    const int margin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
+    const int margin = QApplication::style()->pixelMetric( QStyle::PM_FocusFrameHMargin ) + 1;
 
-    QRect newRect = QStyle::alignedRect(option.direction, 
-                                        Qt::AlignCenter,
-                                        QSize(option.decorationSize.width() + margin, option.rect.height()),
-                                        QRect(option.rect.x(), 
-                                              option.rect.y(),
-                                              option.rect.width(), 
-                                              option.rect.height()));
+    QRect newRect =
+        QStyle::alignedRect( option.direction,
+                             Qt::AlignCenter,
+                             QSize( option.decorationSize.width() + margin, option.rect.height() ),
+                             QRect( option.rect.x(), option.rect.y(), option.rect.width(), option.rect.height() ) );
 
     return newRect;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiCheckBoxDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void PdmUiCheckBoxDelegate::paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const
 {
-    QStyleOptionViewItem viewItemOption(option);
-  
-    viewItemOption.rect = adjustedPaintRect(option);
+    QStyleOptionViewItem viewItemOption( option );
 
-    QStyledItemDelegate::paint(painter, viewItemOption, index);
+    viewItemOption.rect = adjustedPaintRect( option );
+
+    QStyledItemDelegate::paint( painter, viewItemOption, index );
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Returns true to avoid other factories to produce editors for a check box
 //--------------------------------------------------------------------------------------------------
-bool PdmUiCheckBoxDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, 
-                                        const QStyleOptionViewItem &option, 
-                                        const QModelIndex &index)
+bool PdmUiCheckBoxDelegate::editorEvent( QEvent*                     event,
+                                         QAbstractItemModel*         model,
+                                         const QStyleOptionViewItem& option,
+                                         const QModelIndex&          index )
 {
-    Q_ASSERT(event);
-    Q_ASSERT(model);
+    Q_ASSERT( event );
+    Q_ASSERT( model );
 
     // make sure that the item is checkable
-    Qt::ItemFlags flags = model->flags(index);
-    if (!(flags & Qt::ItemIsUserCheckable) || !(flags & Qt::ItemIsEnabled))
-        return false;
+    Qt::ItemFlags flags = model->flags( index );
+    if ( !( flags & Qt::ItemIsUserCheckable ) || !( flags & Qt::ItemIsEnabled ) ) return false;
 
     // make sure that we have a check state
-    QVariant value = index.data(Qt::CheckStateRole);
-    if (!value.isValid())
-        return false;
+    QVariant value = index.data( Qt::CheckStateRole );
+    if ( !value.isValid() ) return false;
 
     // make sure that we have the right event type
-    if (event->type() == QEvent::MouseButtonRelease)
+    if ( event->type() == QEvent::MouseButtonRelease )
     {
-        QRect paintRect = adjustedPaintRect(option);
-        QRect checkRect = QStyle::alignedRect(option.direction, 
-                                              Qt::AlignCenter,
-                                              option.decorationSize,
-                                              paintRect);
+        QRect paintRect = adjustedPaintRect( option );
+        QRect checkRect = QStyle::alignedRect( option.direction, Qt::AlignCenter, option.decorationSize, paintRect );
 
-
-        if (!checkRect.contains(static_cast<QMouseEvent*>(event)->pos()))
-            return true;
+        if ( !checkRect.contains( static_cast<QMouseEvent*>( event )->pos() ) ) return true;
     }
-    else if (event->type() == QEvent::KeyPress)
+    else if ( event->type() == QEvent::KeyPress )
     {
-        if (static_cast<QKeyEvent*>(event)->key() != Qt::Key_Space && static_cast<QKeyEvent*>(event)->key() != Qt::Key_Select)
+        if ( static_cast<QKeyEvent*>( event )->key() != Qt::Key_Space &&
+             static_cast<QKeyEvent*>( event )->key() != Qt::Key_Select )
             return true;
     }
     else
@@ -133,17 +122,16 @@ bool PdmUiCheckBoxDelegate::editorEvent(QEvent *event, QAbstractItemModel *model
         return false;
     }
 
-    Qt::CheckState state = (static_cast<Qt::CheckState>(value.toInt()) == Qt::Checked ? Qt::Unchecked : Qt::Checked);
-    return model->setData(index, state, Qt::CheckStateRole);
+    Qt::CheckState state = ( static_cast<Qt::CheckState>( value.toInt() ) == Qt::Checked ? Qt::Unchecked : Qt::Checked );
+    return model->setData( index, state, Qt::CheckStateRole );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QSize PdmUiCheckBoxDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+QSize PdmUiCheckBoxDelegate::sizeHint( const QStyleOptionViewItem& option, const QModelIndex& index ) const
 {
-    return QSize(option.decorationSize.width(), option.decorationSize.height());
+    return QSize( option.decorationSize.width(), option.decorationSize.height() );
 }
 
 } // end namespace caf
-

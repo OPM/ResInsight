@@ -50,9 +50,9 @@ caf::AsyncWorkerManager& caf::AsyncWorkerManager::instance()
 //--------------------------------------------------------------------------------------------------
 caf::AsyncWorkerManager::~AsyncWorkerManager()
 {
-    for (ThreadAndJoinAtExitPair& workerThreadAndJoinFlag : m_threads)
+    for ( ThreadAndJoinAtExitPair& workerThreadAndJoinFlag : m_threads )
     {
-        if (workerThreadAndJoinFlag.second && workerThreadAndJoinFlag.first.joinable())
+        if ( workerThreadAndJoinFlag.second && workerThreadAndJoinFlag.first.joinable() )
         {
             workerThreadAndJoinFlag.first.join();
         }
@@ -68,9 +68,9 @@ caf::AsyncWorkerManager::~AsyncWorkerManager()
 /// A flag can be provided to force the Worker manager to join the threads on exit.
 /// Set this to true if it is important that the thread finishes before the program exits.
 //--------------------------------------------------------------------------------------------------
-void caf::AsyncWorkerManager::takeThreadOwnership(std::thread& thread, bool joinAtExit)
+void caf::AsyncWorkerManager::takeThreadOwnership( std::thread& thread, bool joinAtExit )
 {
-    m_threads.push_back(std::make_pair(std::move(thread), joinAtExit));
+    m_threads.push_back( std::make_pair( std::move( thread ), joinAtExit ) );
 }
 
 //--------------------------------------------------------------------------------------------------

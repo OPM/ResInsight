@@ -42,36 +42,38 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStyledProgressBar::QStyledProgressBar(QString objectName, QWidget* parent /*= nullptr*/)
-    : QProgressBar(parent)
+QStyledProgressBar::QStyledProgressBar( QString objectName, QWidget* parent /*= nullptr*/ )
+    : QProgressBar( parent )
 {
-    setObjectName(objectName);
+    setObjectName( objectName );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QStyledProgressBar::setTextBackgroundAndProgressColor(QColor textColor, QColor backgroundColor, QColor backgroundFrameColor, QColor progressColor)
+void QStyledProgressBar::setTextBackgroundAndProgressColor( QColor textColor,
+                                                            QColor backgroundColor,
+                                                            QColor backgroundFrameColor,
+                                                            QColor progressColor )
 {
-    QString styleSheetTemplate =
-        "QProgressBar#%1::chunk"
-        "{"
-        "background-color: %2;"
-        "}";
-    QString progressColString = colorStringWithAlpha(progressColor);
+    QString styleSheetTemplate = "QProgressBar#%1::chunk"
+                                 "{"
+                                 "background-color: %2;"
+                                 "}";
+    QString progressColString = colorStringWithAlpha( progressColor );
 
     QString fullStyleSheet =
-        StyleSheetTools::createFrameStyleSheet("QProgressBar", objectName(), textColor, backgroundColor, backgroundFrameColor);
-    fullStyleSheet += styleSheetTemplate.arg(objectName()).arg(progressColString);
+        StyleSheetTools::createFrameStyleSheet( "QProgressBar", objectName(), textColor, backgroundColor, backgroundFrameColor );
+    fullStyleSheet += styleSheetTemplate.arg( objectName() ).arg( progressColString );
 
-    setStyleSheet(fullStyleSheet);
-    setAttribute(Qt::WA_TranslucentBackground);
+    setStyleSheet( fullStyleSheet );
+    setAttribute( Qt::WA_TranslucentBackground );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString QStyledProgressBar::colorStringWithAlpha(QColor color)
+QString QStyledProgressBar::colorStringWithAlpha( QColor color )
 {
-    return QString("rgba(%1, %2, %3, %4)").arg(color.red()).arg(color.green()).arg(color.blue()).arg(color.alpha());
+    return QString( "rgba(%1, %2, %3, %4)" ).arg( color.red() ).arg( color.green() ).arg( color.blue() ).arg( color.alpha() );
 }

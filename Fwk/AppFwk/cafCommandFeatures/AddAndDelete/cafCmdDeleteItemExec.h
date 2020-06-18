@@ -34,37 +34,32 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafCmdExecuteCommand.h"
 
-namespace caf 
+namespace caf
 {
-
 class PdmChildArrayFieldHandle;
 class CmdDeleteItemExecData;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class CmdDeleteItemExec : public CmdExecuteCommand
 {
 public:
-    explicit CmdDeleteItemExec(NotificationCenter* notificationCenter);
-    ~CmdDeleteItemExec() override {};
-
+    explicit CmdDeleteItemExec( NotificationCenter* notificationCenter );
+    ~CmdDeleteItemExec() override{};
 
     CmdDeleteItemExecData* commandData();
 
     QString name() override;
-    void redo() override;
-    void undo() override;
+    void    redo() override;
+    void    undo() override;
 
 private:
     CmdDeleteItemExecData* m_commandData;
 };
-
-
 
 } // end namespace caf

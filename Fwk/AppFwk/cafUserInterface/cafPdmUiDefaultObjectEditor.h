@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiFormLayoutObjectEditor.h"
@@ -44,13 +43,11 @@
 class QGridLayout;
 class QString;
 
-namespace caf 
+namespace caf
 {
-
 class PdmUiFieldEditorHandle;
 class PdmUiItem;
 class PdmUiGroup;
-
 
 //==================================================================================================
 /// The default editor for PdmObjects. Manages the field editors in a grid layout vertically
@@ -63,11 +60,9 @@ public:
     ~PdmUiDefaultObjectEditor() override;
 
 private:
-    QWidget* createWidget(QWidget* parent) override;
-    void     recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiItems,
-                                                                     const QString& uiConfigName) override;
-
+    QWidget* createWidget( QWidget* parent ) override;
+    void     recursivelyConfigureAndUpdateTopLevelUiOrdering( const PdmUiOrdering& topLevelUiItems,
+                                                              const QString&       uiConfigName ) override;
 };
-
 
 } // end namespace caf

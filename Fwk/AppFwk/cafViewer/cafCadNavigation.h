@@ -34,21 +34,20 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafTrackBallBasedNavigation.h"
 
 namespace caf
 {
-
 class CadNavigation : public TrackBallBasedNavigation
 {
 public:
     CadNavigation();
     ~CadNavigation() override;
+
 protected:
-    bool    handleInputEvent(QInputEvent* inputEvent) override;
+    bool handleInputEvent( QInputEvent* inputEvent ) override;
 };
 
 } // End namespace caf

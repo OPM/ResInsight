@@ -38,23 +38,23 @@
 
 #include "cafSelectionManager.h"
 
-namespace caf {
-
+namespace caf
+{
 //--------------------------------------------------------------------------------------------------
-/// Get the single selected object from selection manager. Then, starting at this object, find the 
+/// Get the single selected object from selection manager. Then, starting at this object, find the
 /// first object of given type searching upwards to root using firstAncestorOrThisOfType()
 //--------------------------------------------------------------------------------------------------
-template<typename T>
+template <typename T>
 T firstAncestorOfTypeFromSelectedObject()
 {
     T objToFind = nullptr;
 
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
 
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (objHandle)
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
+    if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType(objToFind);
+        objHandle->firstAncestorOrThisOfType( objToFind );
     }
 
     return objToFind;
@@ -63,14 +63,14 @@ T firstAncestorOfTypeFromSelectedObject()
 //--------------------------------------------------------------------------------------------------
 /// Return all objects of given type from the selection manager
 ///
-/// Consider replace SelectionManager::objectsByType with this function when all consumers 
+/// Consider replace SelectionManager::objectsByType with this function when all consumers
 /// have been updated to use this function instead of SelectionManager::objectsByType
 //--------------------------------------------------------------------------------------------------
-template<typename T>
+template <typename T>
 std::vector<T> selectedObjectsByType()
 {
     std::vector<T> objectByType;
-    caf::SelectionManager::instance()->objectsByType(&objectByType);
+    caf::SelectionManager::instance()->objectsByType( &objectByType );
 
     return objectByType;
 }
@@ -79,11 +79,11 @@ std::vector<T> selectedObjectsByType()
 /// Return all objects of given type from the selection manager.
 /// If objects of different type are selected, an empty list is returned.
 //--------------------------------------------------------------------------------------------------
-template<typename T>
+template <typename T>
 std::vector<T> selectedObjectsByTypeStrict()
 {
     std::vector<T> objectByType;
-    caf::SelectionManager::instance()->objectsByTypeStrict(&objectByType);
+    caf::SelectionManager::instance()->objectsByTypeStrict( &objectByType );
 
     return objectByType;
 }

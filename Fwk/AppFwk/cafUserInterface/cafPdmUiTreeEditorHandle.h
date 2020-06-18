@@ -34,49 +34,44 @@
 //
 //##################################################################################################
 
-
 #pragma once
-#include <vector>
+#include "cafPdmPointer.h"
+#include "cafPdmUiEditorHandle.h"
+#include <QPointer>
 #include <QString>
 #include <QWidget>
-#include <QPointer>
-#include "cafPdmUiEditorHandle.h"
-#include "cafPdmPointer.h"
+#include <vector>
 
-namespace caf 
+namespace caf
 {
-
 class PdmObjectHandle;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 
-class PdmUiTreeEditorHandle: public PdmUiEditorHandle
+class PdmUiTreeEditorHandle : public PdmUiEditorHandle
 {
 public:
     PdmUiTreeEditorHandle() {}
     ~PdmUiTreeEditorHandle() override {}
-   
-    QWidget*            getOrCreateWidget(QWidget* parent);
-    QWidget*            widget() { return m_widget; }
 
-    void                setPdmItemRoot(PdmUiItem* root);
-    PdmUiItem*          pdmItemRoot();
-    void                updateSubTree(PdmUiItem* root) { this->updateMySubTree(root); }
+    QWidget* getOrCreateWidget( QWidget* parent );
+    QWidget* widget() { return m_widget; }
+
+    void       setPdmItemRoot( PdmUiItem* root );
+    PdmUiItem* pdmItemRoot();
+    void       updateSubTree( PdmUiItem* root ) { this->updateMySubTree( root ); }
 
 protected:
-    virtual QWidget*    createWidget(QWidget* parent) = 0;
+    virtual QWidget* createWidget( QWidget* parent ) = 0;
 
     /// Supposed to update the representation of the tree from root and downwards, as gracefully as possible.
     /// Will be called when the content of root might have been changed
-    virtual void        updateMySubTree(PdmUiItem* root) = 0;
+    virtual void updateMySubTree( PdmUiItem* root ) = 0;
 
 protected:
-    QPointer<QWidget>           m_widget;
+    QPointer<QWidget> m_widget;
 };
 
-
-
 } // End of namespace caf
-

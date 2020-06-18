@@ -56,16 +56,16 @@ public:
             // Qt Pseudo-states applied automatically by Qt: https://doc.qt.io/qt-5/stylesheet-reference.html
             PseudoState,
             // State set by property syntax
-            PropertyState 
+            PropertyState
         };
-        State(const QString& stateTag, Type type);
+        State( const QString& stateTag, Type type );
         Type    type() const;
-        void    set(const QString& key, const QString& value);
-        QString get(const QString& key) const;
+        void    set( const QString& key, const QString& value );
+        QString get( const QString& key ) const;
 
     private:
         friend class UiStyleSheet;
-        QString fullText(const QString& className, const QString& objectName, bool applyToSubClasses) const;
+        QString fullText( const QString& className, const QString& objectName, bool applyToSubClasses ) const;
 
     private:
         Type                       m_type;
@@ -76,25 +76,25 @@ public:
 public:
     UiStyleSheet();
 
-    void    set(const QString& key, const QString& value);
-    QString get(const QString& key) const;
+    void    set( const QString& key, const QString& value );
+    QString get( const QString& key ) const;
 
-    State&  property(QString stateTag);
-    State&  pseudoState(QString stateTag);
+    State& property( QString stateTag );
+    State& pseudoState( QString stateTag );
 
-    void applyToWidget(QWidget* widget, bool applyToSubClasses = true) const;
-    void applyToWidgetAndChildren(QWidget* widget);
-    static void clearWidgetStates(QWidget* widget);
-    void setWidgetState(QWidget* widget, QString stateTag, bool on = true) const;
-    void stashWidgetStates();
-    void restoreWidgetStates();
+    void        applyToWidget( QWidget* widget, bool applyToSubClasses = true ) const;
+    void        applyToWidgetAndChildren( QWidget* widget );
+    static void clearWidgetStates( QWidget* widget );
+    void        setWidgetState( QWidget* widget, QString stateTag, bool on = true ) const;
+    void        stashWidgetStates();
+    void        restoreWidgetStates();
 
 private:
-    QString fullText(const QString& className, const QString& objectName, bool applyToSubClasses) const;
-    static void    refreshWidget(QWidget* widget);
+    QString     fullText( const QString& className, const QString& objectName, bool applyToSubClasses ) const;
+    static void refreshWidget( QWidget* widget );
 
 private:
     std::map<QString, State> m_states;
     std::map<QString, State> m_stashedStates;
 };
-}
+} // namespace caf

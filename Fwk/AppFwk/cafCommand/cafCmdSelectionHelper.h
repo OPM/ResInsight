@@ -34,12 +34,11 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <vector>
 
-namespace caf 
+namespace caf
 {
 class CmdSelectionChangeExec;
 class PdmObjectHandle;
@@ -47,10 +46,9 @@ class PdmObjectHandle;
 class CmdSelectionHelper
 {
 public:
-    static void executeSelectionCommand(const std::vector<PdmObjectHandle*>& selection, int selectionLevel);
-    static CmdSelectionChangeExec* createSelectionCommand(const std::vector<PdmObjectHandle*>& selection, int selectionLevel);
+    static void executeSelectionCommand( const std::vector<PdmObjectHandle*>& selection, int selectionLevel );
+    static CmdSelectionChangeExec* createSelectionCommand( const std::vector<PdmObjectHandle*>& selection,
+                                                           int                                  selectionLevel );
 };
-
-
 
 } // end namespace caf

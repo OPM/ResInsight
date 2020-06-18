@@ -34,34 +34,30 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 class QString;
 
-namespace caf {
-
-
+namespace caf
+{
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class Log
 {
 public:
-    //static void info(const char* formatStr, ...);
-    static void info(const QString& msg);
-    static void warning(const QString& msg);
-    static bool error(const QString& err);
+    // static void info(const char* formatStr, ...);
+    static void info( const QString& msg );
+    static void warning( const QString& msg );
+    static bool error( const QString& err );
 
-    static void infoMultiLine(const QString& line1, const QString& line2Etc);
-    static void warningMultiLine(const QString& line1, const QString& line2Etc);
-    static bool errorMultiLine(const QString& line1, const QString& line2Etc);
+    static void infoMultiLine( const QString& line1, const QString& line2Etc );
+    static void warningMultiLine( const QString& line1, const QString& line2Etc );
+    static bool errorMultiLine( const QString& line1, const QString& line2Etc );
 
-    static void    pumpMessages();
+    static void pumpMessages();
 };
 
-
-
-}
+} // namespace caf

@@ -34,29 +34,26 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafCmdFeature.h"
 
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
-class CmdDeleteItemFeature : public CmdFeature 
+class CmdDeleteItemFeature : public CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
 protected:
-    CmdExecuteCommand*  createExecuteCommand();
+    CmdExecuteCommand* createExecuteCommand();
 
     // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 };
-
-
 
 } // end namespace caf

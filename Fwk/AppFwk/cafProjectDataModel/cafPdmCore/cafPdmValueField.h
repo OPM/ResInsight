@@ -35,32 +35,25 @@
 //##################################################################################################
 #pragma once
 
-
 #include "cafPdmFieldHandle.h"
 
 class QVariant;
 
-namespace caf 
+namespace caf
 {
-
-
-
 class PdmValueField : public PdmFieldHandle
 {
 public:
-    virtual QVariant toQVariant() const = 0;
-    virtual void     setFromQVariant(const QVariant& variant) = 0;
-    virtual bool     isReadOnly() const = 0;
+    virtual QVariant toQVariant() const                         = 0;
+    virtual void     setFromQVariant( const QVariant& variant ) = 0;
+    virtual bool     isReadOnly() const                         = 0;
 };
-
-
 
 // class PdmProxyValueField : public PdmValueField
 // {
-//     DataType        value() const                      { CAF_ASSERT(m_valueGetter);  return m_valueGetter->getValue(); }
-//     void            setValue(const DataType& fieldValue)  { if (m_valueSetter)      m_valueSetter->setValue(fieldValue); }
+//     DataType        value() const                      { CAF_ASSERT(m_valueGetter);  return
+//     m_valueGetter->getValue(); } void            setValue(const DataType& fieldValue)  { if (m_valueSetter)
+//     m_valueSetter->setValue(fieldValue); }
 // }
-
-
 
 } // End of namespace caf

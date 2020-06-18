@@ -55,31 +55,32 @@ namespace caf
 class IconProvider
 {
 public:
-    IconProvider(const QSize& preferredSize = QSize(16, 16));
-    IconProvider(const QString& iconResourceString, const QSize& preferredSize = QSize(16, 16));
-    IconProvider(const QPixmap& pixmap);
-    IconProvider(const IconProvider& rhs);
-    IconProvider& operator=(const IconProvider& rhs);
-    
-    void setActive(bool active);
+    IconProvider( const QSize& preferredSize = QSize( 16, 16 ) );
+    IconProvider( const QString& iconResourceString, const QSize& preferredSize = QSize( 16, 16 ) );
+    IconProvider( const QPixmap& pixmap );
+    IconProvider( const IconProvider& rhs );
+    IconProvider& operator=( const IconProvider& rhs );
+
+    void setActive( bool active );
     bool valid() const;
-    void setPreferredSize(const QSize& size);
+    void setPreferredSize( const QSize& size );
 
     std::unique_ptr<QIcon> icon() const;
-    std::unique_ptr<QIcon> icon(const QSize& size) const;
+    std::unique_ptr<QIcon> icon( const QSize& size ) const;
 
-    void setIconResourceString(const QString& iconResourceString);
-    void setOverlayResourceString(const QString& overlayResourceString);
-    void setBackgroundColorString(const QString& colorName);
-    void setBackgroundColorGradient(const std::vector<QString>& colorNames);
+    void setIconResourceString( const QString& iconResourceString );
+    void setOverlayResourceString( const QString& overlayResourceString );
+    void setBackgroundColorString( const QString& colorName );
+    void setBackgroundColorGradient( const std::vector<QString>& colorNames );
 
-    void setPixmap(const QPixmap& pixmap);
+    void setPixmap( const QPixmap& pixmap );
 
 private:
     static bool isGuiApplication();
-    void copyPixmap(const IconProvider& rhs);
+    void        copyPixmap( const IconProvider& rhs );
 
     bool backgroundColorsAreValid() const;
+
 private:
     bool m_active;
 
@@ -89,4 +90,4 @@ private:
     QSize                    m_preferredSize;
     std::unique_ptr<QPixmap> m_pixmap;
 };
-}
+} // namespace caf
