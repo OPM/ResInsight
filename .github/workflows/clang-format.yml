@@ -15,7 +15,7 @@ jobs:
       run: |
         cd Fwk
         cd AppFwk
-        find -name "*.h" -o -name "*.cpp" -o -name "*.inl" 
+        find -name "*.h" -o -name "*.cpp" -o -name "*.inl" -not -name "*gtest*"
     - uses: peter-evans/create-pull-request@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
