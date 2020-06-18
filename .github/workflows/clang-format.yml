@@ -20,6 +20,7 @@ jobs:
       run: |
         cd Fwk/AppFwk
         find -name *.h -o -name *.cpp -o -name *.inl | grep -v gtest | xargs clang-format-6.0 -i
+        git diff
     - uses: peter-evans/create-pull-request@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
