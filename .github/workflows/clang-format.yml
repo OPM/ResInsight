@@ -11,11 +11,6 @@ jobs:
         sudo apt install clang-format-6.0
         clang-format-6.0 --version
     - uses: actions/checkout@v2
-    - name: Check format ApplicationCode
-      run: |
-        cd ApplicationCode
-        find -name "*.h" -o -name "*.cpp" -o -name "*.inl" | xargs clang-format-6.0 -i
-        git diff
     - name: Check format AppFwk
       run: |
         cd Fwk/AppFwk
