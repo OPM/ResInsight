@@ -92,30 +92,6 @@ void RimFractureModelPlot::applyDataSource()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFractureModelPlot::convertToPsiPerFeetFromBarPerMeter( double value )
-{
-    return value * 4.42075;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimFractureModelPlot::convertToFeetFromMeter( double value )
-{
-    return value * 3.28084;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimFractureModelPlot::convertToPsiFromBar( double value )
-{
-    return value * 14.5038;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimFractureModelPlot::getPorosityValues( std::vector<double>& values ) const
 {
     std::vector<RimFractureModelCurve*> curves;
@@ -237,7 +213,7 @@ std::vector<double> RimFractureModelPlot::calculateTrueVerticalDepth() const
     std::vector<double> tvdTopZone;
     for ( auto p : layerBoundaryDepths )
     {
-        double depthInFeet = convertToFeetFromMeter( p.first );
+        double depthInFeet = RiaEclipseUnitTools::meterToFeet( p.first );
         tvdTopZone.push_back( depthInFeet );
     }
 
@@ -401,7 +377,7 @@ bool RimFractureModelPlot::calculateStressWithGradients( std::vector<double>& st
                                        ( biot * pressureDiff );
 
         double depletionStress = Sh_init + deltaHorizontalStress;
-        stress.push_back( convertToPsiFromBar( depletionStress ) );
+        stress.push_back( RiaEclipseUnitTools::barToPsi( depletionStress ) );
 
         // Cache some results for the gradients calculation
         stressForGradients.push_back( Sv );
@@ -433,7 +409,7 @@ bool RimFractureModelPlot::calculateStressWithGradients( std::vector<double>& st
         double diffDepth    = depthForGradients[i + 1] - depthForGradients[i];
         double k0           = computeValueAtDepth( k0Data, layerBoundaryDepths, depthForGradients[i] );
         double gradient     = ( diffStress * k0 + diffPressure * ( 1.0 - k0 ) ) / diffDepth;
-        stressGradients.push_back( convertToPsiPerFeetFromBarPerMeter( gradient ) );
+        stressGradients.push_back( RiaEclipseUnitTools::barPerMeterToPsiPerFeet( gradient ) );
     }
 
     return true;

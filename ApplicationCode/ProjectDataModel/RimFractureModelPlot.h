@@ -65,9 +65,6 @@ protected:
     static void   computeAverageByLayer( const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
                                          const std::vector<double>&                    inputVector,
                                          std::vector<double>&                          result );
-    static double convertToPsiPerFeetFromBarPerMeter( double value );
-    static double convertToFeetFromMeter( double value );
-    static double convertToPsiFromBar( double value );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
