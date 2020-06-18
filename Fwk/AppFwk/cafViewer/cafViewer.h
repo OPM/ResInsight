@@ -40,12 +40,12 @@
 #include "cvfBase.h"
 #include "cvfCollection.h"
 #include "cvfObject.h"
+#include "cvfOpenGL.h"
 #include "cvfRect.h"
+#include "cvfRenderingScissor.h"
 #include "cvfVector3.h"
 
 #include "cafOpenGLWidget.h"
-#include "cvfOpenGL.h"
-#include "cvfRenderingScissor.h"
 
 namespace cvf
 {
