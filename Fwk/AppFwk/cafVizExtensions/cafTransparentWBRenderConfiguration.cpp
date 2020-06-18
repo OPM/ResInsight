@@ -38,7 +38,7 @@ using namespace cvf;
         Discarding all transparent fragments  with alpha < opaqueThreshold
         Opaque fragments rendered normally, also write to depth to DepthbufferToPeel
         If (opaqueThreshold < alpha < 1.0) discard color, write depth to DepthBufferToPeel
-        
+        
 
 
 
@@ -66,7 +66,7 @@ using namespace cvf;
         {
             m_renderConf = new caf::TransparentWBRenderConfiguration;
             m_renderConf->setUpRenderSequence(m_renderingSequence.p());
-        
+        
 
 
 
@@ -74,19 +74,19 @@ using namespace cvf;
             cvf::OverlayItem* overlayItem; // = new someTtem
             m_renderConf->overlayRendering()->addOverlayItem(overlayItem);
         }
-    
+    
 
 
 
         ~MyViewer();
-    
+    
 
 
 
         virtual void optimizeClippingPlanes()
         {
             // ... Do ordinary clipplane adjustments
-    
+    
 
 
 
@@ -97,7 +97,7 @@ using namespace cvf;
             m_renderConf->resize(width, height);
             caf::Viewer::resizeGL(width, height);
         }
-    
+    
 
 
 
@@ -108,7 +108,7 @@ using namespace cvf;
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    
+    
 
 
 
@@ -119,19 +119,19 @@ using namespace cvf;
     {
         ref<Part> part = new Part;
         part->setDrawable(geo);
-    
+    
 
 
 
         cvf::Color4f colorWithAlpha(color);
         colorWithAlpha.a() = opacity;
-    
+    
 
 
 
         caf::WBTransparencySurfaceEffectGenerator effGen(colorWithAlpha, caf::PO_NONE, useSpecularReflection);
         ref<Effect> eff = effGen.generateEffectFromCache();
-    
+    
 
 
 
@@ -139,12 +139,12 @@ using namespace cvf;
         {
             part->setPriority(100);
         }
-    
+    
 
 
 
         part->setEffect(eff.p());
-    
+    
 
 
 
