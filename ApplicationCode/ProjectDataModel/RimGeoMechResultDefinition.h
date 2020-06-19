@@ -112,6 +112,7 @@ private:
     static QString convertToUiResultFieldName( QString resultFieldName );
 
     bool normalizableResultSelected() const;
+    bool referenceCaseDependentResultSelected() const;
 
     // Data Fields
 
@@ -122,6 +123,7 @@ private:
     caf::PdmField<int>                               m_compactionRefLayer;
     caf::PdmField<bool>                              m_normalizeByHydrostaticPressure;
     caf::PdmField<double>                            m_normalizationAirGap;
+    caf::PdmField<int>                               m_referenceTimeStep;
 
     // UI Fields only
     friend class RimGeoMechPropertyFilter; // Property filter needs the ui fields
