@@ -11,13 +11,20 @@ jobs:
         sudo apt install clang-format-6.0
         clang-format-6.0 --version
     - uses: actions/checkout@v2
-    - name: Check format
+    - name: Check format - ApplicationCode
       run: |
         cd ApplicationCode
-        find -name "*.h" -o -name "*.cpp" -o -name "*.inl" | xargs clang-format-6.0 -i
+        find -name *.h -o -name *.cpp -o -name *.inl | xargs clang-format-6.0 -i
+        git diff
+    - name: Check format - AppFwk
+      run: |
+        cd Fwk/AppFwk
+        find -name *.h -o -name *.cpp -o -name *.inl | grep -v gtest | xargs clang-format-6.0 -i
         git diff
     - uses: peter-evans/create-pull-request@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         commit-message: 'Fixes by clang-format'
         title: 'Fixes by clang-format'
+
+        
