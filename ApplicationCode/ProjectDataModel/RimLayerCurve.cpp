@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimElasticPropertiesCurve.h"
+#include "RimLayerCurve.h"
 
 #include "RigEclipseCaseData.h"
 #include "RigEclipseWellLogExtractor.h"
@@ -56,31 +56,12 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
-CAF_PDM_SOURCE_INIT( RimElasticPropertiesCurve, "ElasticPropertiesCurve" );
-
-namespace caf
-{
-template <>
-void AppEnum<RimElasticPropertiesCurve::PropertyType>::setUp()
-{
-    addItem( RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS, "YOUNGS_MODULUS", "Young's Modulus" );
-    addItem( RimElasticPropertiesCurve::PropertyType::POISSONS_RATIO, "POISSONS_RATIO", "Poisson's Ratio" );
-    addItem( RimElasticPropertiesCurve::PropertyType::K_IC, "K_IC", "K-Ic" );
-    addItem( RimElasticPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT, "PROPPANT_EMBEDMENT", "Proppant Embedment" );
-    addItem( RimElasticPropertiesCurve::PropertyType::BIOT_COEFFICIENT, "BIOT_COEFFICIENT", "Biot Coefficient" );
-    addItem( RimElasticPropertiesCurve::PropertyType::K0, "K0", "k0" );
-    addItem( RimElasticPropertiesCurve::PropertyType::FLUID_LOSS_COEFFICIENT,
-             "FLUID_LOSS_COEFFICIENT",
-             "Fluid Loss Coefficient" );
-    addItem( RimElasticPropertiesCurve::PropertyType::SPURT_LOSS, "SPURT_LOSS", "Spurt Loss" );
-    setDefault( RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS );
-}
-}; // namespace caf
+CAF_PDM_SOURCE_INIT( RimLayerCurve, "LayerCurve" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimElasticPropertiesCurve::RimElasticPropertiesCurve()
+RimLayerCurve::RimLayerCurve()
 {
     CAF_PDM_InitObject( "Fracture Model Curve", "", "", "" );
 
@@ -88,22 +69,20 @@ RimElasticPropertiesCurve::RimElasticPropertiesCurve()
     m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_fractureModel.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_propertyType, "PropertyType", "Property Type", "", "", "" );
-
     m_wellPath = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimElasticPropertiesCurve::~RimElasticPropertiesCurve()
+RimLayerCurve::~RimLayerCurve()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimElasticPropertiesCurve::setFractureModel( RimFractureModel* fractureModel )
+void RimLayerCurve::setFractureModel( RimFractureModel* fractureModel )
 {
     m_fractureModel = fractureModel;
     m_wellPath      = fractureModel->thicknessDirectionWellPath();
@@ -112,23 +91,23 @@ void RimElasticPropertiesCurve::setFractureModel( RimFractureModel* fractureMode
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimElasticPropertiesCurve::setEclipseResultCategory( RiaDefines::ResultCatType catType )
-{
-    m_eclipseResultDefinition->setResultType( catType );
-}
+// void RimLayerCurve::setEclipseResultCategory( RiaDefines::ResultCatType catType )
+// {
+//     m_eclipseResultDefinition->setResultType( catType );
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimElasticPropertiesCurve::setPropertyType( PropertyType propertyType )
-{
-    m_propertyType = propertyType;
-}
+// void RimLayerCurve::setPropertyType( PropertyType propertyType )
+// {
+//     m_propertyType = propertyType;
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength )
+void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
 {
     std::vector<double> values;
     std::vector<double> measuredDepthValues;
@@ -199,97 +178,24 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
         std::vector<double> faciesValues;
         eclExtractor.curveData( faciesResultAccessor.p(), &faciesValues );
 
-        // Extract porosity data: get the porosity values from parent
-        RimFractureModelPlot* fractureModelPlot;
-        firstAncestorOrThisOfType( fractureModelPlot );
-        if ( !fractureModelPlot )
-        {
-            RiaLogging::error( QString( "No porosity data found when extracting elastic properties." ) );
-            return;
-        }
+        assert( faciesValues.size() == formationNamesToPlot.size() );
 
-        std::vector<double> poroValues;
-        fractureModelPlot->getPorosityValues( poroValues );
+        values.resize( faciesValues.size() ); // formationNamesToPlot.size() );
 
-        // TODO: make this settable??
-        QString         colorLegendName = "Facies colors";
-        RimColorLegend* colorLegend     = RimProject::current()->colorLegendCollection()->findByName( colorLegendName );
-        if ( !colorLegend )
+        int     layerNo               = 0;
+        QString previousFormationName = "";
+        double  previousFacies        = -1.0;
+        for ( size_t i = 0; i < faciesValues.size(); i++ )
         {
-            RiaLogging::error(
-                QString( "No color legend found when extracting elastic properties. Looked for '%1'" ).arg( colorLegendName ) );
-            return;
-        }
-
-        RimElasticProperties* elasticProperties = m_fractureModel->elasticProperties();
-        if ( !elasticProperties )
-        {
-            RiaLogging::error( QString( "No elastic properties found" ) );
-            return;
-        }
-
-        for ( size_t i = 0; i < tvDepthValues.size(); i++ )
-        {
-            // TODO: get from somewhere??
-            QString fieldName     = "Norne";
-            QString faciesName    = findFaciesName( *colorLegend, faciesValues[i] );
             QString formationName = findFormationNameForDepth( formationNamesToPlot, yValues, tvDepthValues[i] );
-            double  porosity      = poroValues[i];
-
-            FaciesKey faciesKey = std::make_tuple( fieldName, formationName, faciesName );
-            if ( elasticProperties->hasPropertiesForFacies( faciesKey ) )
+            if ( previousFormationName != formationName || previousFacies != faciesValues[i] )
             {
-                const RigElasticProperties& rigElasticProperties = elasticProperties->propertiesForFacies( faciesKey );
+                layerNo++;
+            }
 
-                if ( m_propertyType() == PropertyType::YOUNGS_MODULUS )
-                {
-                    double val = rigElasticProperties.getYoungsModulus( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_propertyType() == PropertyType::POISSONS_RATIO )
-                {
-                    double val = rigElasticProperties.getPoissonsRatio( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_propertyType() == PropertyType::K_IC )
-                {
-                    double val = rigElasticProperties.getK_Ic( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_propertyType() == PropertyType::PROPPANT_EMBEDMENT )
-                {
-                    double val = rigElasticProperties.getProppantEmbedment( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_propertyType() == PropertyType::BIOT_COEFFICIENT )
-                {
-                    double val = rigElasticProperties.getBiotCoefficient( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_propertyType() == PropertyType::K0 )
-                {
-                    double val = rigElasticProperties.getK0( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_propertyType() == PropertyType::FLUID_LOSS_COEFFICIENT )
-                {
-                    double val = rigElasticProperties.getFluidLossCoefficient( porosity );
-                    values.push_back( val );
-                }
-                else if ( m_propertyType() == PropertyType::SPURT_LOSS )
-                {
-                    double val = rigElasticProperties.getSpurtLoss( porosity );
-                    values.push_back( val );
-                }
-            }
-            else
-            {
-                RiaLogging::error( QString( "Missing elastic properties. Field='%1', formation='%2', facies='%3'" )
-                                       .arg( fieldName )
-                                       .arg( formationName )
-                                       .arg( faciesName ) );
-                return;
-            }
+            values[i]             = layerNo;
+            previousFormationName = formationName;
+            previousFacies        = faciesValues[i];
         }
 
         RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
@@ -330,22 +236,22 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimElasticPropertiesCurve::findFaciesName( const RimColorLegend& colorLegend, double value )
-{
-    for ( auto item : colorLegend.colorLegendItems() )
-    {
-        if ( item->categoryValue() == static_cast<int>( value ) ) return item->categoryName();
-    }
+// QString RimLayerCurve::findFaciesName( const RimColorLegend& colorLegend, double value )
+// {
+//     for ( auto item : colorLegend.colorLegendItems() )
+//     {
+//         if ( item->categoryValue() == static_cast<int>( value ) ) return item->categoryName();
+//     }
 
-    return "not found";
-}
+//     return "not found";
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimElasticPropertiesCurve::findFormationNameForDepth( const std::vector<QString>& formationNames,
-                                                              const std::vector<std::pair<double, double>>& depthRanges,
-                                                              double                                        depth )
+QString RimLayerCurve::findFormationNameForDepth( const std::vector<QString>&                   formationNames,
+                                                  const std::vector<std::pair<double, double>>& depthRanges,
+                                                  double                                        depth )
 {
     //    assert(formationNames.size() == depthRanges.size());
     for ( size_t i = 0; i < formationNames.size(); i++ )
@@ -364,7 +270,7 @@ QString RimElasticPropertiesCurve::findFormationNameForDepth( const std::vector<
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimElasticPropertiesCurve::createCurveAutoName()
+QString RimLayerCurve::createCurveAutoName()
 {
-    return caf::AppEnum<RimElasticPropertiesCurve::PropertyType>::uiText( m_propertyType() );
+    return "Layers";
 }

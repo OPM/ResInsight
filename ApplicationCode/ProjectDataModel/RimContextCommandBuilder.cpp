@@ -71,6 +71,7 @@
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureModel.h"
+#include "RimFractureModelPlot.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
@@ -432,6 +433,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewFractureModelPlotFeature";
             menuBuilder << "RicImportFaciesFeature";
             menuBuilder << "RicImportElasticPropertiesFeature";
+        }
+        else if ( dynamic_cast<RimFractureModelPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicExportFractureModelPlotToFileFeature";
         }
         else if ( dynamic_cast<Rim3dWellLogCurveCollection*>( firstUiItem ) ||
                   dynamic_cast<Rim3dWellLogExtractionCurve*>( firstUiItem ) ||

@@ -108,6 +108,13 @@ RimFractureModel::RimFractureModel()
     CAF_PDM_InitField( &m_defaultPorosity, "DefaultPorosity", 0.0, "Default Porosity", "", "", "" );
     CAF_PDM_InitField( &m_defaultPermeability, "DefaultPermeability", 10.0e-6, "Default Permeability", "", "", "" );
 
+    // Stress unit: bar
+    // Stress gradient unit: bar/m
+    // Depth is meter
+    CAF_PDM_InitField( &m_verticalStress, "VerticalStress", 879.0, "Vertical Stress", "", "", "" );
+    CAF_PDM_InitField( &m_verticalStressGradient, "VerticalStressGradient", 0.238, "Vertical Stress Gradient", "", "", "" );
+    CAF_PDM_InitField( &m_stressDepth, "StressDepth", 1000.0, "Stress Depth", "", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
@@ -512,7 +519,7 @@ double RimFractureModel::getDefaultForMissingValue( const QString& keyword ) con
     {
         return defaultPorosity();
     }
-    else if ( keyword == QString( "PERMX" ) )
+    else if ( keyword == QString( "PERMX" ) || keyword == QString( "PERMZ" ) )
     {
         return defaultPermeability();
     }
@@ -521,4 +528,28 @@ double RimFractureModel::getDefaultForMissingValue( const QString& keyword ) con
         RiaLogging::error( QString( "Missing default value for %1." ).arg( keyword ) );
         return std::numeric_limits<double>::infinity();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::verticalStress() const
+{
+    return m_verticalStress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::verticalStressGradient() const
+{
+    return m_verticalStressGradient;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::stressDepth() const
+{
+    return m_stressDepth;
 }

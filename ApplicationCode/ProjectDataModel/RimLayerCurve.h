@@ -20,57 +20,37 @@
 
 #include "RimWellLogExtractionCurve.h"
 
-#include "RiuQwtSymbol.h"
-
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
-#include <vector>
-
-class RimWellPath;
-class RimWellMeasurement;
 class RimFractureModel;
 class RimColorLegend;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RimElasticPropertiesCurve : public RimWellLogExtractionCurve
+class RimLayerCurve : public RimWellLogExtractionCurve
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class PropertyType
-    {
-        YOUNGS_MODULUS,
-        POISSONS_RATIO,
-        K_IC,
-        PROPPANT_EMBEDMENT,
-        BIOT_COEFFICIENT,
-        K0,
-        FLUID_LOSS_COEFFICIENT,
-        SPURT_LOSS
-    };
-
-    RimElasticPropertiesCurve();
-    ~RimElasticPropertiesCurve() override;
+    RimLayerCurve();
+    ~RimLayerCurve() override;
 
     void setFractureModel( RimFractureModel* fractureModel );
 
     void setEclipseResultCategory( RiaDefines::ResultCatType catType );
-
-    void setPropertyType( PropertyType propertyType );
 
 protected:
     QString createCurveAutoName() override;
 
     void performDataExtraction( bool* isUsingPseudoLength ) override;
 
-    static QString findFaciesName( const RimColorLegend& colorLegend, double value );
+    // static QString findFaciesName( const RimColorLegend& colorLegend, double value );
     static QString findFormationNameForDepth( const std::vector<QString>&                   formationNames,
                                               const std::vector<std::pair<double, double>>& depthRanges,
                                               double                                        depth );
 
-    caf::PdmPtrField<RimFractureModel*>       m_fractureModel;
-    caf::PdmField<caf::AppEnum<PropertyType>> m_propertyType;
+    caf::PdmPtrField<RimFractureModel*> m_fractureModel;
+    // caf::PdmField<caf::AppEnum<PropertyType>> m_propertyType;
 };

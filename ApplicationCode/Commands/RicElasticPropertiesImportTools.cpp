@@ -62,7 +62,6 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
     }
 
     RimElasticProperties* rimElasticProperties = new RimElasticProperties;
-    //    rimElasticProperties->setFilePath();
     for ( FaciesKey key : faciesKeys )
     {
         std::vector<RifElasticProperties> matchingFacies;
@@ -93,7 +92,11 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
                                                item.youngsModulus,
                                                item.poissonsRatio,
                                                item.K_Ic,
-                                               item.proppantEmbedment );
+                                               item.proppantEmbedment,
+                                               item.biotCoefficient,
+                                               item.k0,
+                                               item.fluidLossCoefficient,
+                                               item.spurtLoss );
         }
 
         rimElasticProperties->setPropertiesForFacies( key, rigElasticProperties );

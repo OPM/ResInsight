@@ -97,17 +97,57 @@ const std::vector<double>& RigElasticProperties::proppantEmbedment() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigElasticProperties::biotCoefficient() const
+{
+    return m_biotCoefficient;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigElasticProperties::k0() const
+{
+    return m_k0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigElasticProperties::fluidLossCoefficient() const
+{
+    return m_fluidLossCoefficient;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& RigElasticProperties::spurtLoss() const
+{
+    return m_spurtLoss;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigElasticProperties::appendValues( double porosity,
                                          double youngsModulus,
                                          double poissonsRatio,
                                          double K_Ic,
-                                         double proppantEmbedment )
+                                         double proppantEmbedment,
+                                         double biotCoefficient,
+                                         double k0,
+                                         double fluidLossCoefficient,
+                                         double spurtLoss )
 {
     m_porosity.push_back( porosity );
     m_youngsModulus.push_back( youngsModulus );
     m_poissonsRatio.push_back( poissonsRatio );
     m_K_Ic.push_back( K_Ic );
     m_proppantEmbedment.push_back( proppantEmbedment );
+    m_biotCoefficient.push_back( biotCoefficient );
+    m_k0.push_back( k0 );
+    m_fluidLossCoefficient.push_back( fluidLossCoefficient );
+    m_spurtLoss.push_back( spurtLoss );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,4 +180,36 @@ double RigElasticProperties::getK_Ic( double porosity ) const
 double RigElasticProperties::getProppantEmbedment( double porosity ) const
 {
     return RiaInterpolationTools::linear( m_porosity, m_proppantEmbedment, porosity );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigElasticProperties::getBiotCoefficient( double porosity ) const
+{
+    return RiaInterpolationTools::linear( m_porosity, m_biotCoefficient, porosity );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigElasticProperties::getK0( double porosity ) const
+{
+    return RiaInterpolationTools::linear( m_porosity, m_k0, porosity );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigElasticProperties::getFluidLossCoefficient( double porosity ) const
+{
+    return RiaInterpolationTools::linear( m_porosity, m_fluidLossCoefficient, porosity );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigElasticProperties::getSpurtLoss( double porosity ) const
+{
+    return RiaInterpolationTools::linear( m_porosity, m_spurtLoss, porosity );
 }

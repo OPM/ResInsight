@@ -45,6 +45,9 @@ public:
     static double mmToMeter( double mm ) { return mm / 1000.0; }
     static double meterToMm( double meter ) { return 1000.0 * meter; }
 
+    static double barToPsi( double bar ) { return bar * 14.5038; }
+    static double barPerMeterToPsiPerFeet( double barPerMeter ) { return barPerMeter * 4.42075; }
+
     static double darcysConstant( UnitSystem unitSystem );
 
     static RiaDefines::DepthUnitType depthUnit( UnitSystem unit );
