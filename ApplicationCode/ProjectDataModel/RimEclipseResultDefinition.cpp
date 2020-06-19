@@ -73,6 +73,8 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafUtils.h"
 
+#include <QRegularExpression>
+
 namespace caf
 {
 template <>
@@ -1303,6 +1305,27 @@ void RimEclipseResultDefinition::setResultVariable( const QString& val )
 {
     m_resultVariable        = val;
     m_resultVariableUiField = val;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return phase type if the current result is known to be of a particular
+/// fluid phase type. Otherwise the method will return PHASE_NOT_APPLICABLE.
+//--------------------------------------------------------------------------------------------------
+RiaDefines::PhaseType RimEclipseResultDefinition::resultPhaseType() const
+{
+    if ( QRegularExpression( "OIL" ).match( m_resultVariable() ).hasMatch() )
+    {
+        return RiaDefines::PhaseType::OIL_PHASE;
+    }
+    else if ( QRegularExpression( "GAS" ).match( m_resultVariable() ).hasMatch() )
+    {
+        return RiaDefines::PhaseType::GAS_PHASE;
+    }
+    else if ( QRegularExpression( "WAT" ).match( m_resultVariable() ).hasMatch() )
+    {
+        return RiaDefines::PhaseType::WATER_PHASE;
+    }
+    return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
 }
 
 //--------------------------------------------------------------------------------------------------
