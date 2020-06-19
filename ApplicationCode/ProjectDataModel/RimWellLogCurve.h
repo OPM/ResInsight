@@ -36,7 +36,6 @@ class RimWellLogCurve : public RimPlotCurve
     CAF_PDM_HEADER_INIT;
 
 public:
-public:
     RimWellLogCurve();
     ~RimWellLogCurve() override;
 
@@ -65,6 +64,8 @@ public:
                              const QString& xUnits = RiaWellLogUnitTools<double>::noUnitString() );
 
     const RigWellLogCurveData* curveData() const;
+
+    void updateCurveAppearance() override;
 
     virtual QString wellName() const             = 0;
     virtual QString wellLogChannelUiName() const = 0;
