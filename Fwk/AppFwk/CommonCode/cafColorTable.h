@@ -67,8 +67,11 @@ public:
 
     ColorTable inverted() const;
 
-    static cvf::Color3ub      fromQColor( const QColor& color );
-    static cvf::Color3ubArray interpolateColorArray( const cvf::Color3ubArray& colorArray, size_t targetColorCount );
+    bool contains(const cvf::Color3ub& color) const;
+    bool contains(const cvf::Color3f& color) const;
+
+    static cvf::Color3ub      fromQColor(const QColor& color);
+    static cvf::Color3ubArray interpolateColorArray(const cvf::Color3ubArray& colorArray, size_t targetColorCount);
 
 private:
     const std::vector<cvf::Color3ub> m_colors;
