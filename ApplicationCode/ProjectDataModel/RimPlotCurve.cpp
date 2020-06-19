@@ -136,6 +136,7 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name", "", "", "" );
 
     CAF_PDM_InitField( &m_curveColor, "Color", cvf::Color3f( cvf::Color3::BLACK ), "Color", "", "", "" );
+    CAF_PDM_InitField( &m_fillColor, "FillColor", cvf::Color3f( -1.0, -1.0, -1.0 ), "Fill Color", "", "", "" );
 
     CAF_PDM_InitField( &m_curveThickness, "Thickness", 1, "Line Thickness", "", "", "" );
     m_curveThickness.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
@@ -211,8 +212,13 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     else if ( &m_curveColor == changedField || &m_curveThickness == changedField || &m_pointSymbol == changedField ||
               &m_lineStyle == changedField || &m_symbolSkipPixelDistance == changedField ||
               &m_curveInterpolation == changedField || &m_symbolSize == changedField ||
-              &m_symbolEdgeColor == changedField || &m_fillStyle == changedField )
+              &m_symbolEdgeColor == changedField || &m_fillStyle == changedField || &m_fillColor == changedField )
     {
+        if ( &m_fillStyle == changedField )
+        {
+            checkAndApplyDefaultFillColor();
+        }
+
         updateCurveAppearance();
 
         if ( &m_pointSymbol == changedField )
@@ -309,6 +315,8 @@ void RimPlotCurve::initAfterRead()
     m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly( m_pointSymbol() == RiuQwtSymbol::SYMBOL_NONE );
     m_curveThickness.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE );
     m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE );
+
+    checkAndApplyDefaultFillColor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -376,6 +384,7 @@ caf::PdmFieldHandle* RimPlotCurve::userDescriptionField()
 void RimPlotCurve::setColor( const cvf::Color3f& color )
 {
     m_curveColor = color;
+    m_fillColor  = color;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -623,6 +632,10 @@ void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
     uiOrdering.add( &m_symbolSkipPixelDistance );
     uiOrdering.add( &m_lineStyle );
     uiOrdering.add( &m_fillStyle );
+    if ( m_fillStyle != Qt::BrushStyle::NoBrush )
+    {
+        uiOrdering.add( &m_fillColor );
+    }
     uiOrdering.add( &m_curveThickness );
     uiOrdering.add( &m_curveInterpolation );
 }
@@ -699,6 +712,17 @@ void RimPlotCurve::attachCurveAndErrorBars()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotCurve::checkAndApplyDefaultFillColor()
+{
+    if ( !m_fillColor().isValid() )
+    {
+        m_fillColor = m_curveColor;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveAppearance()
 {
     QColor     curveColor( m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte() );
@@ -745,7 +769,7 @@ void RimPlotCurve::updateCurveAppearance()
 
     if ( m_qwtPlotCurve )
     {
-        QColor fillColor = curveColor;
+        QColor fillColor( m_fillColor.value().rByte(), m_fillColor.value().gByte(), m_fillColor.value().bByte() );
         fillColor.setAlpha( 130 );
         QBrush fillBrush( fillColor, m_fillStyle() );
         m_qwtPlotCurve->setAppearance( m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor, fillBrush );
