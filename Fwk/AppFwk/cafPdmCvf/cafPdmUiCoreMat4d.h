@@ -45,41 +45,37 @@
 #include "cvfBase.h"
 #include "cvfMatrix4.h"
 
-namespace caf 
+namespace caf
 {
-
 template <>
-class PdmUiFieldSpecialization < cvf::Mat4d >
+class PdmUiFieldSpecialization<cvf::Mat4d>
 {
 public:
     /// Convert the field value into a QVariant
-    static QVariant convert(const cvf::Mat4d& value)
+    static QVariant convert( const cvf::Mat4d& value )
     {
-        return PdmValueFieldSpecialization< cvf::Mat4d >::convert(value);
+        return PdmValueFieldSpecialization<cvf::Mat4d>::convert( value );
     }
 
     /// Set the field value from a QVariant
-    static void setFromVariant(const QVariant& variantValue, cvf::Mat4d& value)
+    static void setFromVariant( const QVariant& variantValue, cvf::Mat4d& value )
     {
-        PdmValueFieldSpecialization< cvf::Mat4d >::setFromVariant(variantValue, value);
+        PdmValueFieldSpecialization<cvf::Mat4d>::setFromVariant( variantValue, value );
     }
 
-    static bool isDataElementEqual(const QVariant& variantValue, const QVariant& variantValue2)
+    static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
     {
-        return PdmValueFieldSpecialization< cvf::Mat4d >::isEqual(variantValue, variantValue2);
+        return PdmValueFieldSpecialization<cvf::Mat4d>::isEqual( variantValue, variantValue2 );
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
-    static QList<PdmOptionItemInfo> valueOptions(bool* useOptionsOnly, const cvf::Mat4d&)
+    static QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly, const cvf::Mat4d& )
     {
         return QList<PdmOptionItemInfo>();
     }
 
     /// Methods to retrieve the possible PdmObject pointed to by a field
-    static void childObjects(const PdmDataValueField< cvf::Mat4d >&, std::vector<PdmObjectHandle*>*)
-    { }
-
+    static void childObjects( const PdmDataValueField<cvf::Mat4d>&, std::vector<PdmObjectHandle*>* ) {}
 };
 
 } // end namespace caf
-

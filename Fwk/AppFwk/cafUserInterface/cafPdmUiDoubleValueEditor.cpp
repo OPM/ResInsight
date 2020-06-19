@@ -51,76 +51,78 @@
 
 namespace caf
 {
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiDoubleValueEditor);
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiDoubleValueEditor );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiDoubleValueEditor::PdmUiDoubleValueEditor() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmUiDoubleValueEditor::~PdmUiDoubleValueEditor() {}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void PdmUiDoubleValueEditor::configureAndUpdateUi(const QString& uiConfigName)
+PdmUiDoubleValueEditor::PdmUiDoubleValueEditor()
 {
-    CAF_ASSERT(!m_lineEdit.isNull());
+}
 
-    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiDoubleValueEditor::~PdmUiDoubleValueEditor()
+{
+}
 
-    m_lineEdit->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiDoubleValueEditor::configureAndUpdateUi( const QString& uiConfigName )
+{
+    CAF_ASSERT( !m_lineEdit.isNull() );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-    if (uiObject)
+    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
+
+    m_lineEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+
+    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
     {
-        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
-        if (m_attributes.m_validator)
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
+        if ( m_attributes.m_validator )
         {
-            m_lineEdit->setValidator(m_attributes.m_validator);
+            m_lineEdit->setValidator( m_attributes.m_validator );
         }
-
-
     }
 
     bool    valueOk = false;
-    double  value   = uiField()->uiValue().toDouble(&valueOk);
+    double  value   = uiField()->uiValue().toDouble( &valueOk );
     QString textValue;
-    if (valueOk)
+    if ( valueOk )
     {
-        if (m_attributes.m_numberFormat == PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED)
-            textValue = QString::number(value, 'f', m_attributes.m_decimals);
-        else if (m_attributes.m_numberFormat == PdmUiDoubleValueEditorAttribute::NumberFormat::SCIENTIFIC)
-            textValue = QString::number(value, 'e', m_attributes.m_decimals);
+        if ( m_attributes.m_numberFormat == PdmUiDoubleValueEditorAttribute::NumberFormat::FIXED )
+            textValue = QString::number( value, 'f', m_attributes.m_decimals );
+        else if ( m_attributes.m_numberFormat == PdmUiDoubleValueEditorAttribute::NumberFormat::SCIENTIFIC )
+            textValue = QString::number( value, 'e', m_attributes.m_decimals );
         else
-            textValue = QString::number(value, 'g', m_attributes.m_decimals);        
+            textValue = QString::number( value, 'g', m_attributes.m_decimals );
     }
     else
     {
         textValue = uiField()->uiValue().toString();
     }
 
-    m_lineEdit->setText(textValue);
+    m_lineEdit->setText( textValue );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDoubleValueEditor::createEditorWidget(QWidget* parent)
+QWidget* PdmUiDoubleValueEditor::createEditorWidget( QWidget* parent )
 {
-    QWidget* containerWidget = new QWidget(parent);
+    QWidget* containerWidget = new QWidget( parent );
 
     QHBoxLayout* layout = new QHBoxLayout();
-    layout->setMargin(0);
-    containerWidget->setLayout(layout);
+    layout->setMargin( 0 );
+    containerWidget->setLayout( layout );
 
-    m_lineEdit = new QLineEdit(containerWidget);
-    connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
+    m_lineEdit = new QLineEdit( containerWidget );
+    connect( m_lineEdit, SIGNAL( editingFinished() ), this, SLOT( slotEditingFinished() ) );
 
-    layout->addWidget(m_lineEdit);
+    layout->addWidget( m_lineEdit );
 
     return containerWidget;
 }
@@ -128,9 +130,9 @@ QWidget* PdmUiDoubleValueEditor::createEditorWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiDoubleValueEditor::createLabelWidget(QWidget* parent)
+QWidget* PdmUiDoubleValueEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel(parent);
+    m_label = new QShortenedLabel( parent );
     return m_label;
 }
 
@@ -150,7 +152,7 @@ void PdmUiDoubleValueEditor::writeValueToField()
     QString  textValue = m_lineEdit->text();
     QVariant v;
     v = textValue;
-    this->setValueToField(v);
+    this->setValueToField( v );
 }
 
 } // end namespace caf

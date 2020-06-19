@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiFilePathEditor.h"
 
 #include "cafFactory.h"
@@ -52,96 +51,93 @@
 #include <QLabel>
 #include <QLineEdit>
 
-
 namespace caf
 {
-
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiFilePathEditor);
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiFilePathEditor );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFilePathEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmUiFilePathEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    CAF_ASSERT(!m_lineEdit.isNull());
-    CAF_ASSERT(!m_label.isNull());
+    CAF_ASSERT( !m_lineEdit.isNull() );
+    CAF_ASSERT( !m_label.isNull() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
+    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
-    m_lineEdit->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
-    m_lineEdit->setToolTip(uiField()->uiToolTip(uiConfigName));
-    m_button->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
+    m_lineEdit->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+    m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+    m_button->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
 
-    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-    if (uiObject)
+    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
     {
-        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
     }
 
-    m_lineEdit->setText(uiField()->uiValue().toString());
+    m_lineEdit->setText( uiField()->uiValue().toString() );
 
-    if (m_attributes.m_appendUiSelectedFolderToText)
+    if ( m_attributes.m_appendUiSelectedFolderToText )
     {
-        m_label->setToolTip("Define multiple directories separated by ';'");
-        m_button->setText(QLatin1String("Append"));
+        m_label->setToolTip( "Define multiple directories separated by ';'" );
+        m_button->setText( QLatin1String( "Append" ) );
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiFilePathEditor::createEditorWidget(QWidget * parent)
+QWidget* PdmUiFilePathEditor::createEditorWidget( QWidget* parent )
 {
-    QWidget* placeholder = new QWidget(parent);
+    QWidget* placeholder = new QWidget( parent );
 
-    QHBoxLayout* layout = new QHBoxLayout(placeholder);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
+    QHBoxLayout* layout = new QHBoxLayout( placeholder );
+    layout->setContentsMargins( 0, 0, 0, 0 );
+    layout->setSpacing( 0 );
 
-    m_lineEdit = new QLineEdit(parent);
-    m_button = new QToolButton(parent);
-    m_button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred));
-    m_button->setText(QLatin1String("..."));
+    m_lineEdit = new QLineEdit( parent );
+    m_button   = new QToolButton( parent );
+    m_button->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred ) );
+    m_button->setText( QLatin1String( "..." ) );
 
-    layout->addWidget(m_lineEdit);
-    layout->addWidget(m_button);
+    layout->addWidget( m_lineEdit );
+    layout->addWidget( m_button );
 
-    connect(m_button, SIGNAL(clicked()), this, SLOT(fileSelectionClicked()));
-    connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
+    connect( m_button, SIGNAL( clicked() ), this, SLOT( fileSelectionClicked() ) );
+    connect( m_lineEdit, SIGNAL( editingFinished() ), this, SLOT( slotEditingFinished() ) );
 
     return placeholder;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiFilePathEditor::createLabelWidget(QWidget * parent)
+QWidget* PdmUiFilePathEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel(parent);
+    m_label = new QShortenedLabel( parent );
     return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiFilePathEditor::slotEditingFinished()
 {
     QVariant v;
-    QString textValue = m_lineEdit->text();
-    v = textValue;
-    this->setValueToField(v);
+    QString  textValue = m_lineEdit->text();
+    v                  = textValue;
+    this->setValueToField( v );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiFilePathEditor::fileSelectionClicked()
 {
     QString defaultPath;
-    if ( m_lineEdit->text().isEmpty())
+    if ( m_lineEdit->text().isEmpty() )
     {
-        if (m_attributes.m_defaultPath.isNull())
+        if ( m_attributes.m_defaultPath.isNull() )
         {
             defaultPath = QDir::homePath();
         }
@@ -155,20 +151,22 @@ void PdmUiFilePathEditor::fileSelectionClicked()
         defaultPath = m_lineEdit->text();
     }
 
-    if (m_attributes.m_selectDirectory)
+    if ( m_attributes.m_selectDirectory )
     {
-        QString directoryPath = QFileDialog::getExistingDirectory(m_lineEdit, 
-                                                tr("Get existing directory"),
-                                                defaultPath,
-                                                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-        
-        if (!directoryPath.isEmpty())
+        QString directoryPath =
+            QFileDialog::getExistingDirectory( m_lineEdit,
+                                               tr( "Get existing directory" ),
+                                               defaultPath,
+                                               QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks );
+
+        if ( !directoryPath.isEmpty() )
         {
             QString filePathString;
-            if (m_attributes.m_appendUiSelectedFolderToText)
+            if ( m_attributes.m_appendUiSelectedFolderToText )
             {
                 filePathString = m_lineEdit->text();
-                if (!filePathString.isEmpty() && !filePathString.endsWith(m_attributes.m_multipleItemSeparator, Qt::CaseInsensitive))
+                if ( !filePathString.isEmpty() &&
+                     !filePathString.endsWith( m_attributes.m_multipleItemSeparator, Qt::CaseInsensitive ) )
                 {
                     filePathString += m_attributes.m_multipleItemSeparator;
                 }
@@ -179,29 +177,32 @@ void PdmUiFilePathEditor::fileSelectionClicked()
                 filePathString = directoryPath;
             }
 
-            m_lineEdit->setText(filePathString);
+            m_lineEdit->setText( filePathString );
             slotEditingFinished();
         }
     }
     else
     {
         QString filePath;
-        if (m_attributes.m_selectSaveFileName)
+        if ( m_attributes.m_selectSaveFileName )
         {
-            filePath = QFileDialog::getSaveFileName(m_lineEdit, tr("Save File"), defaultPath, m_attributes.m_fileSelectionFilter);
+            filePath =
+                QFileDialog::getSaveFileName( m_lineEdit, tr( "Save File" ), defaultPath, m_attributes.m_fileSelectionFilter );
         }
         else
         {
-            filePath = QFileDialog::getOpenFileName(m_lineEdit, tr("Choose a file"), defaultPath, m_attributes.m_fileSelectionFilter);
+            filePath = QFileDialog::getOpenFileName( m_lineEdit,
+                                                     tr( "Choose a file" ),
+                                                     defaultPath,
+                                                     m_attributes.m_fileSelectionFilter );
         }
 
-        if (!filePath.isEmpty())
+        if ( !filePath.isEmpty() )
         {
-            m_lineEdit->setText(filePath);
+            m_lineEdit->setText( filePath );
             slotEditingFinished();
         }
     }
 }
-
 
 } // end namespace caf

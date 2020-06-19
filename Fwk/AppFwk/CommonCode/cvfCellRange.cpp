@@ -34,16 +34,12 @@
 //
 //##################################################################################################
 
-
-
 #include "cvfCellRange.h"
 
-
-namespace cvf {
-
-
+namespace cvf
+{
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CellRange::CellRange()
 {
@@ -52,65 +48,65 @@ CellRange::CellRange()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CellRange::CellRange(cvf::Vec3st min, cvf::Vec3st max)
+CellRange::CellRange( cvf::Vec3st min, cvf::Vec3st max )
 {
-    setRange(min, max);
+    setRange( min, max );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CellRange::CellRange(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK)
+CellRange::CellRange( size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK )
 {
-    setRange(Vec3st(minI, minJ, minK), Vec3st(maxI, maxJ, maxK));
+    setRange( Vec3st( minI, minJ, minK ), Vec3st( maxI, maxJ, maxK ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CellRange::setRange(const cvf::Vec3st& min, const cvf::Vec3st& max)
+void CellRange::setRange( const cvf::Vec3st& min, const cvf::Vec3st& max )
 {
     m_min = min;
     m_max = max;
 
-    CVF_ASSERT(m_min.x() != cvf::UNDEFINED_SIZE_T);
-    CVF_ASSERT(m_min.y() != cvf::UNDEFINED_SIZE_T);
-    CVF_ASSERT(m_min.z() != cvf::UNDEFINED_SIZE_T);
-    CVF_ASSERT(m_max.x() != cvf::UNDEFINED_SIZE_T);
-    CVF_ASSERT(m_max.y() != cvf::UNDEFINED_SIZE_T);
-    CVF_ASSERT(m_max.z() != cvf::UNDEFINED_SIZE_T);
+    CVF_ASSERT( m_min.x() != cvf::UNDEFINED_SIZE_T );
+    CVF_ASSERT( m_min.y() != cvf::UNDEFINED_SIZE_T );
+    CVF_ASSERT( m_min.z() != cvf::UNDEFINED_SIZE_T );
+    CVF_ASSERT( m_max.x() != cvf::UNDEFINED_SIZE_T );
+    CVF_ASSERT( m_max.y() != cvf::UNDEFINED_SIZE_T );
+    CVF_ASSERT( m_max.z() != cvf::UNDEFINED_SIZE_T );
 
-    CVF_ASSERT(normalize());
+    CVF_ASSERT( normalize() );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CellRange::range(cvf::Vec3st& min, cvf::Vec3st& max) const
+void CellRange::range( cvf::Vec3st& min, cvf::Vec3st& max ) const
 {
     min = m_min;
     max = m_max;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool CellRange::normalize()
 {
-    if (m_min == cvf::Vec3st::UNDEFINED || m_max == cvf::Vec3st::UNDEFINED)
+    if ( m_min == cvf::Vec3st::UNDEFINED || m_max == cvf::Vec3st::UNDEFINED )
     {
         return false;
     }
 
-    for (uint i = 0; i < 3; i++)
+    for ( uint i = 0; i < 3; i++ )
     {
-        if (m_min[i] > m_max[i])
+        if ( m_min[i] > m_max[i] )
         {
             size_t tmp = m_max[i];
-            m_max[i] = m_min[i];
-            m_min[i] = tmp;
+            m_max[i]   = m_min[i];
+            m_min[i]   = tmp;
         }
     }
 
@@ -118,15 +114,15 @@ bool CellRange::normalize()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool CellRange::isInRange(size_t i, size_t j, size_t k) const
+bool CellRange::isInRange( size_t i, size_t j, size_t k ) const
 {
-    cvf::Vec3st test(i, j, k);
+    cvf::Vec3st test( i, j, k );
 
-    for (uint idx = 0; idx < 3; idx++)
+    for ( uint idx = 0; idx < 3; idx++ )
     {
-        if (test[idx] < m_min[idx] || m_max[idx] <= test[idx])
+        if ( test[idx] < m_min[idx] || m_max[idx] <= test[idx] )
         {
             return false;
         }
@@ -134,7 +130,5 @@ bool CellRange::isInRange(size_t i, size_t j, size_t k) const
 
     return true;
 }
-
-
 
 } // namespace cvf

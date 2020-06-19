@@ -3,40 +3,42 @@
 
 #include "cafAppEnum.h"
 
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
+#include "cafPdmDataValueField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmReferenceHelper.h"
-#include "cafPdmDataValueField.h"
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
 
 #include <QDebug>
 
 class MsjSimpleObj : public caf::PdmObjectHandle
 {
 public:
-    MsjSimpleObj() : PdmObjectHandle()
-    { 
-        this->addField(&name, "Name");
-        this->addField(&id, "ID");
+    MsjSimpleObj()
+        : PdmObjectHandle()
+    {
+        this->addField( &name, "Name" );
+        this->addField( &id, "ID" );
 
         static int a = 0;
 
-        id = a++;
-        name = QString("Name %1").arg(id);
+        id   = a++;
+        name = QString( "Name %1" ).arg( id );
     }
 
     caf::PdmDataValueField<QString> name;
-    caf::PdmDataValueField<int> id;
+    caf::PdmDataValueField<int>     id;
 };
 
 class SimpleObjDerived : public MsjSimpleObj
 {
 public:
-    SimpleObjDerived() : MsjSimpleObj()
-    { 
-        this->addField(&valueA, "valueA");
+    SimpleObjDerived()
+        : MsjSimpleObj()
+    {
+        this->addField( &valueA, "valueA" );
     }
 
     caf::PdmDataValueField<int> valueA;
@@ -45,9 +47,10 @@ public:
 class SimpleObjDerivedOther : public MsjSimpleObj
 {
 public:
-    SimpleObjDerivedOther() : MsjSimpleObj()
-    { 
-        this->addField(&valueDouble, "valueDouble");
+    SimpleObjDerivedOther()
+        : MsjSimpleObj()
+    {
+        this->addField( &valueDouble, "valueDouble" );
     }
 
     caf::PdmDataValueField<double> valueDouble;
@@ -56,10 +59,11 @@ public:
 class ContainerObj : public caf::PdmObjectHandle
 {
 public:
-    ContainerObj() : PdmObjectHandle()
-    { 
-        this->addField(&derivedObjs,      "derivedObjs");
-        this->addField(&derivedOtherObjs, "derivedOtherObjs");
+    ContainerObj()
+        : PdmObjectHandle()
+    {
+        this->addField( &derivedObjs, "derivedObjs" );
+        this->addField( &derivedOtherObjs, "derivedOtherObjs" );
     }
 
     ~ContainerObj()
@@ -68,16 +72,16 @@ public:
         derivedOtherObjs.deleteAllChildObjects();
     }
 
-    caf::PdmChildArrayField<SimpleObjDerived*> derivedObjs;
+    caf::PdmChildArrayField<SimpleObjDerived*>      derivedObjs;
     caf::PdmChildArrayField<SimpleObjDerivedOther*> derivedOtherObjs;
 };
 
 template <class U, typename T>
-U findObjectById(T start, T end, int id)
+U findObjectById( T start, T end, int id )
 {
-    for (T it = start; it != end; it++)
+    for ( T it = start; it != end; it++ )
     {
-        if (id == it->p()->id())
+        if ( id == it->p()->id() )
         {
             return it->p();
         }
@@ -86,27 +90,28 @@ U findObjectById(T start, T end, int id)
     return NULL;
 }
 
-TEST(ChildArrayFieldHandle, DerivedObjects)
+TEST( ChildArrayFieldHandle, DerivedObjects )
 {
     ContainerObj* containerObj = new ContainerObj;
 
     SimpleObjDerived* s0 = new SimpleObjDerived;
     SimpleObjDerived* s1 = new SimpleObjDerived;
     SimpleObjDerived* s2 = new SimpleObjDerived;
-    containerObj->derivedObjs.push_back(s0);
-    containerObj->derivedObjs.push_back(s1);
-    containerObj->derivedObjs.push_back(s2);
+    containerObj->derivedObjs.push_back( s0 );
+    containerObj->derivedObjs.push_back( s1 );
+    containerObj->derivedObjs.push_back( s2 );
 
-    SimpleObjDerived* myObj = findObjectById<SimpleObjDerived*>(containerObj->derivedObjs.begin(), containerObj->derivedObjs.end(), 2);
-    EXPECT_EQ(s2, myObj);
+    SimpleObjDerived* myObj =
+        findObjectById<SimpleObjDerived*>( containerObj->derivedObjs.begin(), containerObj->derivedObjs.end(), 2 );
+    EXPECT_EQ( s2, myObj );
 
-    myObj = findObjectById<SimpleObjDerived*>(containerObj->derivedObjs.begin(), containerObj->derivedObjs.end(), -1);
-    EXPECT_EQ(NULL, myObj);
+    myObj = findObjectById<SimpleObjDerived*>( containerObj->derivedObjs.begin(), containerObj->derivedObjs.end(), -1 );
+    EXPECT_EQ( NULL, myObj );
 
     delete containerObj;
 }
 
-TEST(ChildArrayFieldHandle, DerivedOtherObjects)
+TEST( ChildArrayFieldHandle, DerivedOtherObjects )
 {
     ContainerObj* containerObj = new ContainerObj;
 
@@ -116,15 +121,19 @@ TEST(ChildArrayFieldHandle, DerivedOtherObjects)
 
     int s2Id = s2->id;
 
-    containerObj->derivedOtherObjs.push_back(s0);
-    containerObj->derivedOtherObjs.push_back(s1);
-    containerObj->derivedOtherObjs.push_back(s2);
+    containerObj->derivedOtherObjs.push_back( s0 );
+    containerObj->derivedOtherObjs.push_back( s1 );
+    containerObj->derivedOtherObjs.push_back( s2 );
 
-    SimpleObjDerivedOther* myObj = findObjectById<SimpleObjDerivedOther*>(containerObj->derivedOtherObjs.begin(), containerObj->derivedOtherObjs.end(), s2Id);
-    EXPECT_EQ(s2, myObj);
+    SimpleObjDerivedOther* myObj = findObjectById<SimpleObjDerivedOther*>( containerObj->derivedOtherObjs.begin(),
+                                                                           containerObj->derivedOtherObjs.end(),
+                                                                           s2Id );
+    EXPECT_EQ( s2, myObj );
 
-    myObj = findObjectById<SimpleObjDerivedOther*>(containerObj->derivedOtherObjs.begin(), containerObj->derivedOtherObjs.end(), -1);
-    EXPECT_EQ(NULL, myObj);
+    myObj = findObjectById<SimpleObjDerivedOther*>( containerObj->derivedOtherObjs.begin(),
+                                                    containerObj->derivedOtherObjs.end(),
+                                                    -1 );
+    EXPECT_EQ( NULL, myObj );
 
     delete containerObj;
 }

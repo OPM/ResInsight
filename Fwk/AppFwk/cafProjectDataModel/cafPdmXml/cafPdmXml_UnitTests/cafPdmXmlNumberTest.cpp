@@ -18,13 +18,15 @@ class SimpleObjectWithNumbers : public caf::PdmObjectHandle, public caf::PdmXmlO
     CAF_PDM_XML_HEADER_INIT;
 
 public:
-    SimpleObjectWithNumbers() : PdmObjectHandle(), PdmXmlObjectHandle(this, false)
+    SimpleObjectWithNumbers()
+        : PdmObjectHandle()
+        , PdmXmlObjectHandle( this, false )
     {
-        CAF_PDM_XML_InitField(&m_valueA, "ValueA");
-        CAF_PDM_XML_InitField(&m_valueB, "ValueB");
+        CAF_PDM_XML_InitField( &m_valueA, "ValueA" );
+        CAF_PDM_XML_InitField( &m_valueB, "ValueB" );
 
-        CAF_PDM_XML_InitField(&m_floatValueA, "FloatValueA");
-        CAF_PDM_XML_InitField(&m_floatValueB, "FloatValueB");
+        CAF_PDM_XML_InitField( &m_floatValueA, "FloatValueA" );
+        CAF_PDM_XML_InitField( &m_floatValueB, "FloatValueB" );
     }
 
     caf::PdmDataValueField<double> m_valueA;
@@ -33,12 +35,12 @@ public:
     caf::PdmDataValueField<float> m_floatValueA;
     caf::PdmDataValueField<float> m_floatValueB;
 };
-CAF_PDM_XML_SOURCE_INIT(SimpleObjectWithNumbers, "SimpleObjectWithNumbers");
+CAF_PDM_XML_SOURCE_INIT( SimpleObjectWithNumbers, "SimpleObjectWithNumbers" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST(SerializeNumbers, SimpleObjectWithDoubleValues)
+TEST( SerializeNumbers, SimpleObjectWithDoubleValues )
 {
     double valueA = 0.123456789;
     double valueB = 123456789 + valueA;
@@ -57,20 +59,20 @@ TEST(SerializeNumbers, SimpleObjectWithDoubleValues)
     {
         SimpleObjectWithNumbers obj1;
 
-        obj1.readObjectFromXmlString(objectAsText, caf::PdmDefaultObjectFactory::instance());
+        obj1.readObjectFromXmlString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
 
         {
             double epsilon = 1e-7;
 
-            double diffA = fabs(obj1.m_valueA - valueA);
-            EXPECT_TRUE(diffA < epsilon);
+            double diffA = fabs( obj1.m_valueA - valueA );
+            EXPECT_TRUE( diffA < epsilon );
         }
 
         {
             double epsilon = 3e-7;
 
-            double diffB = fabs(obj1.m_valueB - valueB);
-            EXPECT_TRUE(diffB < epsilon);
+            double diffB = fabs( obj1.m_valueB - valueB );
+            EXPECT_TRUE( diffB < epsilon );
         }
     }
 }
@@ -78,7 +80,7 @@ TEST(SerializeNumbers, SimpleObjectWithDoubleValues)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST(SerializeNumbers, SimpleObjectWithFloatValues)
+TEST( SerializeNumbers, SimpleObjectWithFloatValues )
 {
     float valueA = 0.123456789f;
     float valueB = 123456 + valueA;
@@ -97,14 +99,14 @@ TEST(SerializeNumbers, SimpleObjectWithFloatValues)
     {
         SimpleObjectWithNumbers obj1;
 
-        obj1.readObjectFromXmlString(objectAsText, caf::PdmDefaultObjectFactory::instance());
+        obj1.readObjectFromXmlString( objectAsText, caf::PdmDefaultObjectFactory::instance() );
 
         double epsilon = 1e-7;
 
-        double diffA = fabs(obj1.m_floatValueA - valueA);
-        EXPECT_TRUE(diffA < epsilon);
+        double diffA = fabs( obj1.m_floatValueA - valueA );
+        EXPECT_TRUE( diffA < epsilon );
 
-        double diffB = fabs(obj1.m_floatValueB - valueB);
-        EXPECT_TRUE(diffB < epsilon);
+        double diffB = fabs( obj1.m_floatValueB - valueB );
+        EXPECT_TRUE( diffB < epsilon );
     }
 }

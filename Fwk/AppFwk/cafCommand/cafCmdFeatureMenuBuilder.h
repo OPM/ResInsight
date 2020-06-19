@@ -57,20 +57,21 @@ public:
     CmdFeatureMenuBuilder();
     virtual ~CmdFeatureMenuBuilder();
 
-    CmdFeatureMenuBuilder& operator<<(const QString& commandIdOrSeparator);
-    CmdFeatureMenuBuilder& addCmdFeature(const QString commandId, const QString& customUiText = "");
-    CmdFeatureMenuBuilder& addCmdFeatureWithUserData(const QString commandId, const QString& customUiText,
-                                                     const QVariant& userData);
+    CmdFeatureMenuBuilder& operator<<( const QString& commandIdOrSeparator );
+    CmdFeatureMenuBuilder& addCmdFeature( const QString commandId, const QString& customUiText = "" );
+    CmdFeatureMenuBuilder&
+        addCmdFeatureWithUserData( const QString commandId, const QString& customUiText, const QVariant& userData );
 
     CmdFeatureMenuBuilder& addSeparator();
 
-    CmdFeatureMenuBuilder& subMenuStart(const QString& menuName, const QIcon& menuIcon = QIcon());
+    CmdFeatureMenuBuilder& subMenuStart( const QString& menuName, const QIcon& menuIcon = QIcon() );
     CmdFeatureMenuBuilder& subMenuEnd();
 
-    void                   appendToMenu(QMenu* menu);
+    void appendToMenu( QMenu* menu );
 
-    bool                   isCmdFeatureAdded(const QString &commandId);
-    size_t                 itemCount() const;
+    bool   isCmdFeatureAdded( const QString& commandId );
+    size_t itemCount() const;
+
 private:
     struct MenuItem
     {

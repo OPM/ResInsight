@@ -1,77 +1,75 @@
 #pragma once
 
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
 #include <QTextStream>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
-#include "cafInternalPdmStreamOperators.h"
-#include "cafInternalPdmFilePathStreamOperators.h"
-#include "cafPdmReferenceHelper.h"
 #include "cafInternalPdmFieldIoHelper.h"
-
-
+#include "cafInternalPdmFilePathStreamOperators.h"
+#include "cafInternalPdmStreamOperators.h"
+#include "cafPdmReferenceHelper.h"
 
 namespace caf
 {
-    class PdmObjectFactory;
-    template <typename T> class PdmPointer;
-
+class PdmObjectFactory;
+template <typename T>
+class PdmPointer;
 
 //--------------------------------------------------------------------------------------------------
-/// Generic write method for fields. Will work as long as DataType supports the stream operator 
-/// towards a QTextStream. Some special datatype should not specialize this method unless it is 
+/// Generic write method for fields. Will work as long as DataType supports the stream operator
+/// towards a QTextStream. Some special datatype should not specialize this method unless it is
 /// impossible/awkward to implement the stream operator
-/// Implemented in a proxy class to allow  partial specialization 
+/// Implemented in a proxy class to allow  partial specialization
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
 struct PdmFieldWriter
 {
-    static void    writeFieldData(const DataType & fieldValue, QXmlStreamWriter& xmlStream)
+    static void writeFieldData( const DataType& fieldValue, QXmlStreamWriter& xmlStream )
     {
-        QString dataString; 
-        QTextStream data(&dataString, QIODevice::WriteOnly); 
+        QString     dataString;
+        QTextStream data( &dataString, QIODevice::WriteOnly );
 
         // Use precision of 15 to cover most value ranges for double values
         // Default Qt behavior is precision of 6
-        data.setRealNumberPrecision(15);
+        data.setRealNumberPrecision( 15 );
 
-        data << fieldValue; 
-        xmlStream.writeCharacters(dataString);
+        data << fieldValue;
+        xmlStream.writeCharacters( dataString );
     }
 };
 
 template <typename DataType>
 struct PdmFieldReader
 {
-    static void    readFieldData(DataType & fieldValue, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory);
+    static void readFieldData( DataType& fieldValue, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory );
 };
 
 //--------------------------------------------------------------------------------------------------
-/// Generic read method for fields. Will work as long as DataType supports the stream operator 
-/// towards a QTextStream. Some special datatype should not specialize this method unless it is 
+/// Generic read method for fields. Will work as long as DataType supports the stream operator
+/// towards a QTextStream. Some special datatype should not specialize this method unless it is
 /// impossible/awkward to implement the stream operator
 //--------------------------------------------------------------------------------------------------
-template<typename DataType >
-void PdmFieldReader<DataType>::readFieldData(DataType & fieldValue, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory)
+template <typename DataType>
+void PdmFieldReader<DataType>::readFieldData( DataType& fieldValue, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory )
 {
-    PdmFieldIOHelper::skipComments(xmlStream);
-    if (!xmlStream.isCharacters()) return;
+    PdmFieldIOHelper::skipComments( xmlStream );
+    if ( !xmlStream.isCharacters() ) return;
 
-    QString dataString = xmlStream.text().toString();
-    QTextStream data(&dataString, QIODevice::ReadOnly);  
+    QString     dataString = xmlStream.text().toString();
+    QTextStream data( &dataString, QIODevice::ReadOnly );
     data >> fieldValue;
 
     // Make stream point to end of element
     QXmlStreamReader::TokenType type = xmlStream.readNext();
-    Q_UNUSED(type);
-    PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
+    Q_UNUSED( type );
+    PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Specialized read function for QStrings, because the >> operator only can read word by word
 //--------------------------------------------------------------------------------------------------
-template<>
-void PdmFieldReader<QString>::readFieldData(QString & field, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory);
+template <>
+void PdmFieldReader<QString>::readFieldData( QString& field, QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory );
 
 #if 0
 //--------------------------------------------------------------------------------------------------
@@ -126,4 +124,3 @@ struct PdmFieldReader< PdmPointer<DataType> >
 
 #endif
 } // End of namespace caf
-

@@ -34,36 +34,33 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafCmdExecuteCommand.h"
 
-namespace caf 
+namespace caf
 {
-
 class PdmChildArrayFieldHandle;
 class CmdAddItemExecData;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class CmdAddItemExec : public CmdExecuteCommand
 {
 public:
-    explicit CmdAddItemExec(NotificationCenter* notificationCenter);
-    ~CmdAddItemExec() override;;
+    explicit CmdAddItemExec( NotificationCenter* notificationCenter );
+    ~CmdAddItemExec() override;
+    ;
 
     CmdAddItemExecData* commandData();
 
     QString name() override;
-    void redo() override;
-    void undo() override;
+    void    redo() override;
+    void    undo() override;
 
 private:
     CmdAddItemExecData* m_commandData;
 };
-
-
 
 } // end namespace caf

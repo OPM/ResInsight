@@ -39,19 +39,19 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QValidator::State caf::PdmDoubleStringValidator::validate(QString& inputString, int& position) const
+QValidator::State caf::PdmDoubleStringValidator::validate( QString& inputString, int& position ) const
 {
-    if (m_defaultString == inputString)
+    if ( m_defaultString == inputString )
     {
         return QValidator::Acceptable;
     }
-    return QDoubleValidator::validate(inputString, position);
+    return QDoubleValidator::validate( inputString, position );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PdmDoubleStringValidator::fixup(QString& inputString) const
+void caf::PdmDoubleStringValidator::fixup( QString& inputString ) const
 {
     inputString = m_defaultString;
 }

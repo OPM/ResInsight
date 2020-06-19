@@ -44,33 +44,33 @@ using namespace caf;
 ///
 //--------------------------------------------------------------------------------------------------
 
-PopupMenuButton::PopupMenuButton(QWidget* parentWidget,
-                         Qt::Orientation orientation /*= Qt::Horizontal*/, 
-                         ToolButtonPopupMode popupMode /*=InstantPopup*/)
-    : QToolButton(parentWidget)
+PopupMenuButton::PopupMenuButton( QWidget*            parentWidget,
+                                  Qt::Orientation     orientation /*= Qt::Horizontal*/,
+                                  ToolButtonPopupMode popupMode /*=InstantPopup*/ )
+    : QToolButton( parentWidget )
 {
-    if (orientation == Qt::Horizontal)
+    if ( orientation == Qt::Horizontal )
     {
-        m_layout = new QHBoxLayout(this);
+        m_layout = new QHBoxLayout( this );
     }
     else
     {
-        m_layout = new QVBoxLayout(this);
+        m_layout = new QVBoxLayout( this );
     }
-    m_layout->setContentsMargins(QMargins(2, 2, 2, 2));
+    m_layout->setContentsMargins( QMargins( 2, 2, 2, 2 ) );
 
-    QMenu* menu = new QMenu(this);
-    menu->setLayout(m_layout);
-    setMenu(menu);
+    QMenu* menu = new QMenu( this );
+    menu->setLayout( m_layout );
+    setMenu( menu );
 
-    setCheckable(true);        
-    setPopupMode(popupMode);
+    setCheckable( true );
+    setPopupMode( popupMode );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::PopupMenuButton::addWidget(QWidget* widget, int stretch, Qt::Alignment alignment)
+void caf::PopupMenuButton::addWidget( QWidget* widget, int stretch, Qt::Alignment alignment )
 {
-    m_layout->addWidget(widget, stretch, alignment);
+    m_layout->addWidget( widget, stretch, alignment );
 }

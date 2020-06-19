@@ -38,43 +38,38 @@
 
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiWidgetObjectEditorHandle::PdmUiWidgetObjectEditorHandle()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiWidgetObjectEditorHandle::~PdmUiWidgetObjectEditorHandle()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiWidgetObjectEditorHandle::getOrCreateWidget(QWidget* parent)
+QWidget* PdmUiWidgetObjectEditorHandle::getOrCreateWidget( QWidget* parent )
 {
-    if (m_widget.isNull()) 
+    if ( m_widget.isNull() )
     {
-        m_widget = this->createWidget(parent);
+        m_widget = this->createWidget( parent );
     }
     return m_widget;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiWidgetObjectEditorHandle::widget() const
 {
     return m_widget;
 }
 
-
-} //End of namespace caf
-
+} // End of namespace caf

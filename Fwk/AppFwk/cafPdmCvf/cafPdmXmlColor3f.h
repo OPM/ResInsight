@@ -45,5 +45,5 @@ class QTextStream;
 /// QTextStream Stream operator for cvf::Color3f
 //==================================================================================================
 
-QTextStream& operator >> (QTextStream& str, cvf::Color3f& value);
-QTextStream& operator << (QTextStream& str, const cvf::Color3f& value);
+QTextStream& operator>>( QTextStream& str, cvf::Color3f& value );
+QTextStream& operator<<( QTextStream& str, const cvf::Color3f& value );

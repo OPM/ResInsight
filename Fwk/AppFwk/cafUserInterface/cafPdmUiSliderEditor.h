@@ -34,24 +34,21 @@
 //
 //##################################################################################################
 
-
 #pragma once
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QString>
-#include <QLabel>
-#include <QWidget>
-#include <QPointer>
-#include <QSpinBox>
 #include <QGroupBox>
+#include <QLabel>
+#include <QPointer>
 #include <QSlider>
+#include <QSpinBox>
+#include <QString>
+#include <QWidget>
 
-
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
-/// 
+///
 //==================================================================================================
 class PdmUiSliderEditorAttribute : public PdmUiEditorAttribute
 {
@@ -67,36 +64,34 @@ public:
     int m_maximum;
 };
 
-
 class PdmUiSliderEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiSliderEditor()          {} 
-    ~PdmUiSliderEditor() override {} 
+    PdmUiSliderEditor() {}
+    ~PdmUiSliderEditor() override {}
 
 protected:
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
 
 protected slots:
-    void        slotSliderValueChanged(int position);
-    void        slotSpinBoxValueChanged(int position);
+    void slotSliderValueChanged( int position );
+    void slotSpinBoxValueChanged( int position );
 
 private:
-    void        updateSliderPosition();
-    void        writeValueToField();
+    void updateSliderPosition();
+    void writeValueToField();
 
 private:
     QPointer<QSpinBox>        m_spinBox;
     QPointer<QSlider>         m_slider;
     QPointer<QShortenedLabel> m_label;
-  
+
     PdmUiSliderEditorAttribute m_attributes;
 };
-
 
 } // end namespace caf

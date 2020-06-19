@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <vector>
@@ -43,34 +42,37 @@ class QLineEdit;
 class QString;
 class QStringList;
 
-namespace caf {
-
+namespace caf
+{
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class Utils
 {
 public:
-    static double       editToDouble(QLineEdit* lineEdit, double defaultVal);
+    static double editToDouble( QLineEdit* lineEdit, double defaultVal );
 
-    static QString      absoluteFileName(const QString& fileName);
-    static QStringList  getFilesInDirectory(const QString& dirPath, const QString& nameFilter, bool getAbsoluteFileNames);
-    static QStringList  getFilesInDirectory(const QString& dirPath, const QStringList& nameFilters, bool getAbsoluteFileNames);
-    static QString      constructFullFileName(const QString& folder, const QString& baseFileName, const QString& extension);
-    static QString      makeValidFileBasename(const QString& fileBasenameCandidate);
+    static QString     absoluteFileName( const QString& fileName );
+    static QStringList getFilesInDirectory( const QString& dirPath, const QString& nameFilter, bool getAbsoluteFileNames );
+    static QStringList
+                   getFilesInDirectory( const QString& dirPath, const QStringList& nameFilters, bool getAbsoluteFileNames );
+    static QString constructFullFileName( const QString& folder, const QString& baseFileName, const QString& extension );
+    static QString makeValidFileBasename( const QString& fileBasenameCandidate );
 
-    static QString      indentString(int numSpacesToIndent, const QString& str);
-    
-    static bool         getSaveDirectoryAndCheckOverwriteFiles(const QString& defaultDir, std::vector<QString> fileNames, QString* saveDir);
+    static QString indentString( int numSpacesToIndent, const QString& str );
 
-    static bool         fileExists(const QString& fileName);
-    static QString      fileExtension(const QString& fileName);
-    static bool         isFolderWritable(const QString& folderName);
+    static bool getSaveDirectoryAndCheckOverwriteFiles( const QString&       defaultDir,
+                                                        std::vector<QString> fileNames,
+                                                        QString*             saveDir );
 
-    static bool         isStringMatch(const QString& filterString, const QString& value);
-    static bool         removeDirectoryAndFilesRecursively(const QString& dirName);
+    static bool    fileExists( const QString& fileName );
+    static QString fileExtension( const QString& fileName );
+    static bool    isFolderWritable( const QString& folderName );
+
+    static bool isStringMatch( const QString& filterString, const QString& value );
+    static bool removeDirectoryAndFilesRecursively( const QString& dirName );
 };
 
-}
+} // namespace caf

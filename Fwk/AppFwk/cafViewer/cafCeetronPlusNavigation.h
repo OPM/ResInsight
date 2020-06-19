@@ -39,15 +39,14 @@
 
 namespace caf
 {
-
 class CeetronPlusNavigation : public TrackBallBasedNavigation
 {
 public:
     CeetronPlusNavigation();
     ~CeetronPlusNavigation() override;
+
 protected:
-    bool  handleInputEvent(QInputEvent* inputEvent) override;
+    bool handleInputEvent( QInputEvent* inputEvent ) override;
 };
 
 } // End namespace caf
-

@@ -36,35 +36,33 @@
 
 #include "cafPdmUiGroup.h"
 
-
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiGroup::PdmUiGroup()
 {
-    m_isCollapsedByDefault = false;
+    m_isCollapsedByDefault   = false;
     m_hasForcedExpandedState = false;
-    m_forcedCollapseState = false;
-    m_enableFrame = true;
+    m_forcedCollapseState    = false;
+    m_enableFrame            = true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiGroup::setKeyword(const QString& keyword)
+void PdmUiGroup::setKeyword( const QString& keyword )
 {
     m_keyword = keyword;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString PdmUiGroup::keyword() const
 {
-    if (!m_keyword.isEmpty())
+    if ( !m_keyword.isEmpty() )
     {
         return m_keyword;
     }
@@ -74,7 +72,7 @@ QString PdmUiGroup::keyword() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool PdmUiGroup::isUiGroup() const
 {
@@ -82,32 +80,32 @@ bool PdmUiGroup::isUiGroup() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiGroup::setCollapsedByDefault(bool doCollapse)
+void PdmUiGroup::setCollapsedByDefault( bool doCollapse )
 {
     m_isCollapsedByDefault = doCollapse;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiGroup::setCollapsed(bool doCollapse)
+void PdmUiGroup::setCollapsed( bool doCollapse )
 {
     m_hasForcedExpandedState = true;
-    m_forcedCollapseState = doCollapse;
+    m_forcedCollapseState    = doCollapse;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiGroup::setEnableFrame(bool enableFrame)
+void PdmUiGroup::setEnableFrame( bool enableFrame )
 {
     m_enableFrame = enableFrame;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool PdmUiGroup::isExpandedByDefault() const
 {
@@ -115,7 +113,7 @@ bool PdmUiGroup::isExpandedByDefault() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool PdmUiGroup::hasForcedExpandedState() const
 {
@@ -123,7 +121,7 @@ bool PdmUiGroup::hasForcedExpandedState() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool PdmUiGroup::forcedExpandedState() const
 {
@@ -138,5 +136,4 @@ bool PdmUiGroup::enableFrame() const
     return m_enableFrame;
 }
 
-} //End of namespace caf
-
+} // End of namespace caf

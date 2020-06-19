@@ -41,10 +41,11 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 
-namespace caf {
-    CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, cvf::Vec3d);
-    CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<cvf::Vec3d>);
-}
+namespace caf
+{
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, cvf::Vec3d );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<cvf::Vec3d> );
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 // If the macro for registering the editor is put as the single statement

@@ -42,15 +42,16 @@
 
 namespace caf
 {
-    class AsyncWorkerManager
-    {
-    public:
-        static AsyncWorkerManager& instance();
-        ~AsyncWorkerManager();
-        void takeThreadOwnership(std::thread& thread, bool joinAtExit);
-    private:
-        typedef std::pair<std::thread, bool> ThreadAndJoinAtExitPair;
-        AsyncWorkerManager();
-        std::vector<ThreadAndJoinAtExitPair> m_threads;
-    };  
-}
+class AsyncWorkerManager
+{
+public:
+    static AsyncWorkerManager& instance();
+    ~AsyncWorkerManager();
+    void takeThreadOwnership( std::thread& thread, bool joinAtExit );
+
+private:
+    typedef std::pair<std::thread, bool> ThreadAndJoinAtExitPair;
+    AsyncWorkerManager();
+    std::vector<ThreadAndJoinAtExitPair> m_threads;
+};
+} // namespace caf

@@ -45,22 +45,22 @@ using namespace caf;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QShortenedLabel::QShortenedLabel(QWidget* parent /*= nullptr*/, Qt::WindowFlags f /*= Qt::WindowFlags()*/)
-    : QLabel(parent, f)
+QShortenedLabel::QShortenedLabel( QWidget* parent /*= nullptr*/, Qt::WindowFlags f /*= Qt::WindowFlags()*/ )
+    : QLabel( parent, f )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QShortenedLabel::setText(const QString& text)
+void QShortenedLabel::setText( const QString& text )
 {
     bool textHasChanged = m_fullLengthText != text;
 
     m_fullLengthText = text;
-    setDisplayText(text);
+    setDisplayText( text );
 
-    if (textHasChanged)
+    if ( textHasChanged )
     {
         adjustSize();
     }
@@ -71,7 +71,7 @@ void QShortenedLabel::setText(const QString& text)
 //--------------------------------------------------------------------------------------------------
 QString QShortenedLabel::fullText() const
 {
-     return m_fullLengthText;
+    return m_fullLengthText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,38 +81,37 @@ QSize QShortenedLabel::minimumSizeHint() const
 {
     const int minimumNumberOfCharacters = 10;
 
-    QFontMetrics fontMetrics = QApplication::fontMetrics();
-    QString fullLabelText = fullText();
-    QString shortenedText = fullLabelText.left(minimumNumberOfCharacters);
-    int minimumWidth = fontMetrics.width(shortenedText);
+    QFontMetrics fontMetrics   = QApplication::fontMetrics();
+    QString      fullLabelText = fullText();
+    QString      shortenedText = fullLabelText.left( minimumNumberOfCharacters );
+    int          minimumWidth  = fontMetrics.width( shortenedText );
 
-    if (!fullLabelText.isEmpty())
+    if ( !fullLabelText.isEmpty() )
     {
         int maxLineWidth      = 0;
         int maxFirstWordWidth = 0;
 
-        QStringList labelLines = fullLabelText.split("\n");
-        for (QString line : labelLines)
+        QStringList labelLines = fullLabelText.split( "\n" );
+        for ( QString line : labelLines )
         {
-            int lineWidth  = fontMetrics.width(line);
-            maxLineWidth = std::max(maxLineWidth, lineWidth);
-            QStringList words = line.split(" ");
-            if (!words.empty())
+            int lineWidth     = fontMetrics.width( line );
+            maxLineWidth      = std::max( maxLineWidth, lineWidth );
+            QStringList words = line.split( " " );
+            if ( !words.empty() )
             {
-                int wordWidth = fontMetrics.width(words.front() + "...");
-                maxFirstWordWidth  = std::max(maxFirstWordWidth, wordWidth);
+                int wordWidth     = fontMetrics.width( words.front() + "..." );
+                maxFirstWordWidth = std::max( maxFirstWordWidth, wordWidth );
             }
         }
         int minimumTextWidth = maxFirstWordWidth;
 
         // Prefer the max line width if there's just one character between them
-        if (maxFirstWordWidth + fontMetrics.maxWidth() >= maxLineWidth)
-            minimumTextWidth = maxLineWidth;
+        if ( maxFirstWordWidth + fontMetrics.maxWidth() >= maxLineWidth ) minimumTextWidth = maxLineWidth;
 
-        minimumWidth = std::max(minimumWidth, minimumTextWidth);
+        minimumWidth = std::max( minimumWidth, minimumTextWidth );
     }
     QSize minimumSize = QLabel::minimumSizeHint();
-    minimumSize.setWidth(minimumWidth);
+    minimumSize.setWidth( minimumWidth );
     return minimumSize;
 }
 
@@ -123,64 +122,64 @@ QSize QShortenedLabel::sizeHint() const
 {
     QFontMetrics fontMetrics = QApplication::fontMetrics();
     QString      labelText   = fullText();
-    
-    QStringList labelLines   = labelText.split("\n");
+
+    QStringList labelLines   = labelText.split( "\n" );
     int         maxLineWidth = 0;
-    for (const QString& line : labelLines)
+    for ( const QString& line : labelLines )
     {
-        maxLineWidth = std::max(maxLineWidth, fontMetrics.width(line));
+        maxLineWidth = std::max( maxLineWidth, fontMetrics.width( line ) );
     }
-        
-    return QSize(maxLineWidth, QLabel::sizeHint().height());
+
+    return QSize( maxLineWidth, QLabel::sizeHint().height() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QShortenedLabel::resizeEvent(QResizeEvent* event)
+void QShortenedLabel::resizeEvent( QResizeEvent* event )
 {
     QSize paintSize = event->size();
-    resizeText(paintSize);
-    QLabel::resizeEvent(event);
+    resizeText( paintSize );
+    QLabel::resizeEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void caf::QShortenedLabel::resizeText(QSize paintSize)
+void caf::QShortenedLabel::resizeText( QSize paintSize )
 {
     QString      labelText   = fullText();
     QFontMetrics fontMetrics = QApplication::fontMetrics();
 
-    QStringList labelLines   = labelText.split("\n");
+    QStringList labelLines   = labelText.split( "\n" );
     int         maxLineWidth = 0;
-    for (const QString& line : labelLines)
+    for ( const QString& line : labelLines )
     {
-        maxLineWidth += fontMetrics.width(line);
+        maxLineWidth += fontMetrics.width( line );
     }
 
-    if (maxLineWidth < paintSize.width())
+    if ( maxLineWidth < paintSize.width() )
     {
-        setDisplayText(labelText);
+        setDisplayText( labelText );
     }
     else
     {
-        int limitWidth = std::max(minimumSizeHint().width(), paintSize.width());
+        int limitWidth = std::max( minimumSizeHint().width(), paintSize.width() );
 
         QStringList elidedLines;
-        for (const QString& line : labelLines)
+        for ( const QString& line : labelLines )
         {
-            QString elidedLine = fontMetrics.elidedText(line, Qt::ElideRight, limitWidth);
-            elidedLines.push_back(elidedLine);
+            QString elidedLine = fontMetrics.elidedText( line, Qt::ElideRight, limitWidth );
+            elidedLines.push_back( elidedLine );
         }
-        setDisplayText(elidedLines.join("\n"));
+        setDisplayText( elidedLines.join( "\n" ) );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void QShortenedLabel::setDisplayText(const QString& displayText)
+void QShortenedLabel::setDisplayText( const QString& displayText )
 {
-    QLabel::setText(displayText);
+    QLabel::setText( displayText );
 }

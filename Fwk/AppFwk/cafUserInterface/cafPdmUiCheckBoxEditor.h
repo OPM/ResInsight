@@ -34,18 +34,16 @@
 //
 //##################################################################################################
 
-
 #pragma once
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QWidget>
-#include <QPointer>
 #include <QCheckBox>
 #include <QLabel>
+#include <QPointer>
+#include <QWidget>
 
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
 /// The default editor for several PdmFields.
 //==================================================================================================
@@ -53,15 +51,11 @@ namespace caf
 class PdmUiCheckBoxEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    PdmUiCheckBoxEditorAttribute()
-    {
-        m_useNativeCheckBoxLabel = false;
-    }
+    PdmUiCheckBoxEditorAttribute() { m_useNativeCheckBoxLabel = false; }
 
 public:
     bool m_useNativeCheckBoxLabel;
 };
-
 
 class PdmUiCheckBoxEditor : public PdmUiFieldEditorHandle
 {
@@ -69,21 +63,20 @@ class PdmUiCheckBoxEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiCheckBoxEditor()          {} 
-    ~PdmUiCheckBoxEditor() override {} 
+    PdmUiCheckBoxEditor() {}
+    ~PdmUiCheckBoxEditor() override {}
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
 protected slots:
-    void                slotClicked(bool checked);
+    void slotClicked( bool checked );
 
 private:
-    QPointer<QCheckBox>            m_checkBox;
+    QPointer<QCheckBox>       m_checkBox;
     QPointer<QShortenedLabel> m_label;
 };
-
 
 } // end namespace caf

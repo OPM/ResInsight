@@ -38,14 +38,13 @@
 
 #include <QStyledItemDelegate>
 
-namespace caf 
+namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
 /// Special handling of center aligned check boxes
 ///
 /// Based on http://qt-project.org/faq/answer/how_can_i_align_the_checkboxes_in_a_view
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiCheckBoxDelegate : public QStyledItemDelegate
 {
@@ -55,12 +54,13 @@ public:
     explicit PdmUiCheckBoxDelegate( QObject* pParent = nullptr );
     ~PdmUiCheckBoxDelegate() override;
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-    bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index) override;
+    void paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
+    bool editorEvent( QEvent*                     event,
+                      QAbstractItemModel*         model,
+                      const QStyleOptionViewItem& option,
+                      const QModelIndex&          index ) override;
 
-    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-
+    QSize sizeHint( const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
 };
-
 
 } // end namespace caf

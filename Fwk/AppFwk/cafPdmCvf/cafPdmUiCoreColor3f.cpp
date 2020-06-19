@@ -40,8 +40,9 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmUiColorEditor.h"
 
-namespace caf {
-    CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiColorEditor, cvf::Color3f);
+namespace caf
+{
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiColorEditor, cvf::Color3f );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,5 +52,4 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 PdmColor3fInitializer::PdmColor3fInitializer()
 {
-
 }

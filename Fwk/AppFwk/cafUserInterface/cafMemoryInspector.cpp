@@ -1,3 +1,5 @@
+// clang-format off
+
 #include "cafMemoryInspector.h"
 
 #include <QFile>
@@ -204,3 +206,5 @@ float caf::MemoryInspector::getRemainingMemoryCriticalThresholdFraction()
     return 0.05f;
 #endif
 }
+
+// clang-format on
