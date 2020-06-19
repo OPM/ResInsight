@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmUiItem.h"
@@ -42,9 +41,8 @@
 #include <QObject>
 #include <QPointer>
 
-namespace caf 
+namespace caf
 {
-
 class PdmUiItem;
 
 //==================================================================================================
@@ -59,8 +57,9 @@ public:
     ~PdmUiEditorHandle() override;
 
 public:
-    void        updateUi(const QString& uiConfigName);;
-    void        updateUi();
+    void updateUi( const QString& uiConfigName );
+    ;
+    void updateUi();
 
     PdmUiEditorHandle* topMostContainingEditor();
 
@@ -72,25 +71,26 @@ protected:
     /// Virtual method to be overridden. Needs to set up the supplied widget
     /// with all signals etc to make it communicate with this object
     /// Supposed to update all parts of the widgets, both visibility, sensitivity, decorations and field data
-    virtual void configureAndUpdateUi(const QString& uiConfigName) = 0;
+    virtual void configureAndUpdateUi( const QString& uiConfigName ) = 0;
 
 protected:
     /// This needs to be called from subclass when connecting to a PdmField or Object
-    void                bindToPdmItem(PdmUiItem* item);
-    PdmUiItem*          pdmItem()       { return m_pdmItem; }
-    const PdmUiItem*    pdmItem() const { return m_pdmItem; }
+    void             bindToPdmItem( PdmUiItem* item );
+    PdmUiItem*       pdmItem() { return m_pdmItem; }
+    const PdmUiItem* pdmItem() const { return m_pdmItem; }
+
 public: // PDM Internal
-    void                setContainingEditor(PdmUiEditorHandle* containingEditor) { m_containingEditor = containingEditor; }
+    void setContainingEditor( PdmUiEditorHandle* containingEditor ) { m_containingEditor = containingEditor; }
 
 private:
     friend PdmUiItem::~PdmUiItem();
-    PdmUiItem*          m_pdmItem;
-    QString             m_currentConfigName;
+    PdmUiItem* m_pdmItem;
+    QString    m_currentConfigName;
 
-    QPointer<PdmUiEditorHandle> m_containingEditor; // Editor containing this editor. Will be asked to updateUi (instead of this) if it exists
+    QPointer<PdmUiEditorHandle> m_containingEditor; // Editor containing this editor. Will be asked to updateUi (instead
+                                                    // of this) if it exists
 
-    bool m_isConfiguringUi; 
+    bool m_isConfiguringUi;
 };
 
 } // End of namespace caf
-

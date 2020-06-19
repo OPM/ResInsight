@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafCmdDeleteItemExec.h"
 #include "cafCmdDeleteItemExecData.h"
 
@@ -45,12 +44,10 @@
 #include "cafNotificationCenter.h"
 #include "cafSelectionManager.h"
 
-
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString CmdDeleteItemExec::name()
 {
@@ -58,89 +55,92 @@ QString CmdDeleteItemExec::name()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdDeleteItemExec::redo()
 {
-    PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
+    PdmFieldHandle* field =
+        PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>(field);
-    if (listField)
+    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
+    if ( listField )
     {
         std::vector<PdmObjectHandle*> children;
-        listField->childObjects(&children);
+        listField->childObjects( &children );
 
         PdmObjectHandle* obj = children[m_commandData->m_indexToObject];
-        caf::SelectionManager::instance()->removeObjectFromAllSelections(obj);
+        caf::SelectionManager::instance()->removeObjectFromAllSelections( obj );
 
-        if (m_commandData->m_deletedObjectAsXml().isEmpty())
+        if ( m_commandData->m_deletedObjectAsXml().isEmpty() )
         {
             QString encodedXml;
             {
-                m_commandData->m_deletedObjectAsXml = xmlObj(obj)->writeObjectToXmlString();
+                m_commandData->m_deletedObjectAsXml = xmlObj( obj )->writeObjectToXmlString();
             }
         }
 
-        listField->erase(m_commandData->m_indexToObject);
+        listField->erase( m_commandData->m_indexToObject );
 
-        
-        // TODO: The notification here could possibly be changed to 
+        // TODO: The notification here could possibly be changed to
         // PdmUiFieldHandle::notifyDataChange() similar to void CmdFieldChangeExec::redo()
 
-        caf::PdmUiObjectHandle* ownerUiObject = uiObj(listField->ownerObject());
-        if (ownerUiObject)
+        caf::PdmUiObjectHandle* ownerUiObject = uiObj( listField->ownerObject() );
+        if ( ownerUiObject )
         {
-            ownerUiObject->fieldChangedByUi(field, QVariant(), QVariant());
+            ownerUiObject->fieldChangedByUi( field, QVariant(), QVariant() );
         }
 
         listField->uiCapability()->updateConnectedEditors();
 
-        if (m_notificationCenter) m_notificationCenter->notifyObservers();
+        if ( m_notificationCenter ) m_notificationCenter->notifyObservers();
 
         delete obj;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdDeleteItemExec::undo()
 {
-    PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
+    PdmFieldHandle* field =
+        PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>(field);
-    if (listField)
+    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
+    if ( listField )
     {
-        PdmObjectHandle* obj = PdmXmlObjectHandle::readUnknownObjectFromXmlString(m_commandData->m_deletedObjectAsXml(), PdmDefaultObjectFactory::instance(), false);
+        PdmObjectHandle* obj = PdmXmlObjectHandle::readUnknownObjectFromXmlString( m_commandData->m_deletedObjectAsXml(),
+                                                                                   PdmDefaultObjectFactory::instance(),
+                                                                                   false );
 
-        listField->insertAt(m_commandData->m_indexToObject, obj);
+        listField->insertAt( m_commandData->m_indexToObject, obj );
 
-        // TODO: The notification here could possibly be changed to 
+        // TODO: The notification here could possibly be changed to
         // PdmUiFieldHandle::notifyDataChange() similar to void CmdFieldChangeExec::redo()
 
-        caf::PdmUiObjectHandle* ownerUiObject = uiObj(listField->ownerObject());
-        if (ownerUiObject)
+        caf::PdmUiObjectHandle* ownerUiObject = uiObj( listField->ownerObject() );
+        if ( ownerUiObject )
         {
-            ownerUiObject->fieldChangedByUi(field, QVariant(), QVariant());
+            ownerUiObject->fieldChangedByUi( field, QVariant(), QVariant() );
         }
 
         listField->uiCapability()->updateConnectedEditors();
 
-        if (m_notificationCenter) m_notificationCenter->notifyObservers();
+        if ( m_notificationCenter ) m_notificationCenter->notifyObservers();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CmdDeleteItemExec::CmdDeleteItemExec(NotificationCenter* notificationCenter)
-    : CmdExecuteCommand(notificationCenter)
+CmdDeleteItemExec::CmdDeleteItemExec( NotificationCenter* notificationCenter )
+    : CmdExecuteCommand( notificationCenter )
 {
     m_commandData = new CmdDeleteItemExecData;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdDeleteItemExecData* CmdDeleteItemExec::commandData()
 {

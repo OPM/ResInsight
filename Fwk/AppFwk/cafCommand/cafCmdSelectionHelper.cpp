@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafCmdSelectionHelper.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -42,38 +41,39 @@
 
 #include "cafSelectionManager.h"
 
-
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void CmdSelectionHelper::executeSelectionCommand(const std::vector<PdmObjectHandle*>& selection, int selectionLevel)
+void CmdSelectionHelper::executeSelectionCommand( const std::vector<PdmObjectHandle*>& selection, int selectionLevel )
 {
-    CmdSelectionChangeExec* selectionChangeExec = createSelectionCommand(selection, selectionLevel);
+    CmdSelectionChangeExec* selectionChangeExec = createSelectionCommand( selection, selectionLevel );
 
-    CmdExecCommandManager::instance()->processExecuteCommand(selectionChangeExec);
+    CmdExecCommandManager::instance()->processExecuteCommand( selectionChangeExec );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CmdSelectionChangeExec* CmdSelectionHelper::createSelectionCommand(const std::vector<PdmObjectHandle*>& selection, int selectionLevel)
+CmdSelectionChangeExec* CmdSelectionHelper::createSelectionCommand( const std::vector<PdmObjectHandle*>& selection,
+                                                                    int selectionLevel )
 {
-    CmdSelectionChangeExec* selectionChangeExec = new CmdSelectionChangeExec(SelectionManager::instance()->notificationCenter());
+    CmdSelectionChangeExec* selectionChangeExec =
+        new CmdSelectionChangeExec( SelectionManager::instance()->notificationCenter() );
     selectionChangeExec->commandData()->m_selectionLevel.v() = selectionLevel;
 
-    SelectionManager::instance()->selectionAsReferences(selectionChangeExec->commandData()->m_previousSelection.v(), selectionLevel);
+    SelectionManager::instance()->selectionAsReferences( selectionChangeExec->commandData()->m_previousSelection.v(),
+                                                         selectionLevel );
 
-    for (size_t i = 0; i < selection.size(); i++)
+    for ( size_t i = 0; i < selection.size(); i++ )
     {
-        QString itemRef = PdmReferenceHelper::referenceFromRootToObject(PdmReferenceHelper::findRoot(selection[i]), selection[i]);
-        selectionChangeExec->commandData()->m_newSelection.v().push_back(itemRef);
+        QString itemRef =
+            PdmReferenceHelper::referenceFromRootToObject( PdmReferenceHelper::findRoot( selection[i] ), selection[i] );
+        selectionChangeExec->commandData()->m_newSelection.v().push_back( itemRef );
     }
 
     return selectionChangeExec;
 }
-
 
 } // end namespace caf

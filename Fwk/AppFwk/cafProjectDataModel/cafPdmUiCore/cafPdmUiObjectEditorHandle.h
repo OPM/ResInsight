@@ -35,17 +35,15 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cafPdmUiEditorHandle.h"
 #include "cafPdmPointer.h"
+#include "cafPdmUiEditorHandle.h"
 
 #include <QPointer>
 
-namespace caf 
+namespace caf
 {
-
 class PdmObjectHandle;
 
 //==================================================================================================
@@ -58,20 +56,18 @@ public:
     PdmUiObjectEditorHandle();
     ~PdmUiObjectEditorHandle() override;
 
-    void                    setPdmObject(PdmObjectHandle* object);
-    PdmObjectHandle*        pdmObject();
-    const PdmObjectHandle*  pdmObject() const;
+    void                   setPdmObject( PdmObjectHandle* object );
+    PdmObjectHandle*       pdmObject();
+    const PdmObjectHandle* pdmObject() const;
 
     /// This function is intended to be called after a PdmObject has been created or deleted
-    static void             updateUiAllObjectEditors();
+    static void updateUiAllObjectEditors();
 
 protected:
-    virtual void            cleanupBeforeSettingPdmObject() {};
+    virtual void cleanupBeforeSettingPdmObject(){};
 
 private:
-
     static std::set<QPointer<PdmUiObjectEditorHandle>> m_sRegisteredObjectEditors;
 };
 
 } // End of namespace caf
-

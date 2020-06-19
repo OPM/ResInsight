@@ -38,28 +38,28 @@
 
 #include <QTextStream>
 
-QTextStream& operator >> (QTextStream& str, cvf::Mat3d& value)
+QTextStream& operator>>( QTextStream& str, cvf::Mat3d& value )
 {
-    for (int r = 0; r < 3; ++r)
+    for ( int r = 0; r < 3; ++r )
     {
-        for (int c = 0; c < 3; ++c)
+        for ( int c = 0; c < 3; ++c )
         {
-            str >> value(r, c);
+            str >> value( r, c );
         }
     }
 
     return str;
 }
 
-QTextStream& operator << (QTextStream& str, const cvf::Mat3d& value)
+QTextStream& operator<<( QTextStream& str, const cvf::Mat3d& value )
 {
-    for (int r = 0; r < 3; ++r)
+    for ( int r = 0; r < 3; ++r )
     {
-        for (int c = 0; c < 3; ++c)
+        for ( int c = 0; c < 3; ++c )
         {
-            str << value(r, c);
-            
-            if (r * c < 9)
+            str << value( r, c );
+
+            if ( r * c < 9 )
             {
                 str << " ";
             }

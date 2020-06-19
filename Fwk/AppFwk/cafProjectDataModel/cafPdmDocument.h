@@ -34,38 +34,33 @@
 //
 //##################################################################################################
 
-
 #pragma once
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
-namespace caf 
+namespace caf
 {
-
 //==================================================================================================
-/// The PdmDocument class is the main class to do file based IO, 
+/// The PdmDocument class is the main class to do file based IO,
 /// and is also supposed to act as the overall container of the objects read.
 //==================================================================================================
-class PdmDocument: public PdmObject
+class PdmDocument : public PdmObject
 {
     CAF_PDM_HEADER_INIT;
- public:
+
+public:
     PdmDocument();
 
-    PdmField<QString>   fileName;
+    PdmField<QString> fileName;
 
-    void                readFile();
-    bool                writeFile();
+    void readFile();
+    bool writeFile();
 
-    void                readFile(QIODevice* device);
-    void                writeFile(QIODevice* device);
+    void readFile( QIODevice* device );
+    void writeFile( QIODevice* device );
 
-    static void         updateUiIconStateRecursively(PdmObjectHandle* root);
+    static void updateUiIconStateRecursively( PdmObjectHandle* root );
 };
 
-
-
 } // End of namespace caf
-
-

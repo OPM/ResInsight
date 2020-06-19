@@ -39,11 +39,11 @@
 
 namespace caf
 {
-    template <typename T>
-    class AppEnum;
+template <typename T>
+class AppEnum;
 
-    class PdmOptionItemInfo;
-}
+class PdmOptionItemInfo;
+} // namespace caf
 
 namespace caf
 {
@@ -58,8 +58,8 @@ public:
 
     enum class FontSize
     {
-        INVALID = -1,
-        FONT_SIZE_8 = 8,
+        INVALID      = -1,
+        FONT_SIZE_8  = 8,
         FONT_SIZE_10 = 10,
         FONT_SIZE_12 = 12,
         FONT_SIZE_14 = 14,
@@ -81,13 +81,13 @@ public:
         XXLarge = +8
     };
     typedef caf::AppEnum<RelativeSize> RelativeSizeEnum;
-    
-    static int      absolutePointSize( FontSize normalPointSize, RelativeSize relativeSize = RelativeSize::Medium );
-    static int      pointSizeToPixelSize(FontSize pointSize);
-    static int      pointSizeToPixelSize( int pointSize );
-    static int      pixelSizeToPointSize( int pixelSize );
-    
-    static QList<caf::PdmOptionItemInfo> relativeSizeValueOptions(FontSize normalPointSize);
+
+    static int absolutePointSize( FontSize normalPointSize, RelativeSize relativeSize = RelativeSize::Medium );
+    static int pointSizeToPixelSize( FontSize pointSize );
+    static int pointSizeToPixelSize( int pointSize );
+    static int pixelSizeToPointSize( int pixelSize );
+
+    static QList<caf::PdmOptionItemInfo> relativeSizeValueOptions( FontSize normalPointSize );
 };
 
 //==================================================================================================

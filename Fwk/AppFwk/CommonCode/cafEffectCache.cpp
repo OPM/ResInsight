@@ -34,13 +34,11 @@
 //
 //##################################################################################################
 
-
-#include "cafEffectGenerator.h"
 #include "cafEffectCache.h"
+#include "cafEffectGenerator.h"
 
-namespace caf {
-
-
+namespace caf
+{
 //==================================================================================================
 //
 // EffectCache
@@ -48,7 +46,7 @@ namespace caf {
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 EffectCache::EffectCache()
 {
@@ -56,7 +54,7 @@ EffectCache::EffectCache()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 EffectCache* EffectCache::instance()
 {
@@ -65,25 +63,24 @@ EffectCache* EffectCache::instance()
     return &staticInstance;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-cvf::Effect* EffectCache::findEffect(const EffectGenerator* generator)
+cvf::Effect* EffectCache::findEffect( const EffectGenerator* generator )
 {
-    CVF_ASSERT(generator);
+    CVF_ASSERT( generator );
 
     // Effect cache does not support mixing of effect types. Clear cache if type changes.
-    if (EffectGenerator::renderingMode() != m_effectType)
+    if ( EffectGenerator::renderingMode() != m_effectType )
     {
         clear();
         m_effectType = EffectGenerator::renderingMode();
     }
 
     size_t i;
-    for (i = 0; i < m_effectCache.size(); i++)
+    for ( i = 0; i < m_effectCache.size(); i++ )
     {
-        if (m_effectCache[i].first->isEqual(generator))
+        if ( m_effectCache[i].first->isEqual( generator ) )
         {
             cvf::ref<cvf::Effect> effect = m_effectCache[i].second;
             return effect.p();
@@ -94,12 +91,12 @@ cvf::Effect* EffectCache::findEffect(const EffectGenerator* generator)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void EffectCache::clear()
 {
     size_t i;
-    for (i = 0; i < m_effectCache.size(); i++)
+    for ( i = 0; i < m_effectCache.size(); i++ )
     {
         EffectGenerator* effGenerator = m_effectCache[i].first;
         delete effGenerator;
@@ -109,24 +106,24 @@ void EffectCache::clear()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void EffectCache::addEffect(const EffectGenerator* generator, cvf::Effect* effect)
+void EffectCache::addEffect( const EffectGenerator* generator, cvf::Effect* effect )
 {
     EffectGenerator* myCopy = generator->copy();
-    m_effectCache.push_back(std::make_pair(myCopy, effect));
+    m_effectCache.push_back( std::make_pair( myCopy, effect ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void EffectCache::releaseUnreferencedEffects()
 {
-    std::vector<std::pair<EffectGenerator*, cvf::ref<cvf::Effect> > > newCache;
-    size_t i;
-    for (i = 0; i < m_effectCache.size(); i++)
+    std::vector<std::pair<EffectGenerator*, cvf::ref<cvf::Effect>>> newCache;
+    size_t                                                          i;
+    for ( i = 0; i < m_effectCache.size(); i++ )
     {
-        if (m_effectCache[i].second.p()->refCount() <= 1 )
+        if ( m_effectCache[i].second.p()->refCount() <= 1 )
         {
             m_effectCache[i].second = nullptr;
             delete m_effectCache[i].first;
@@ -134,12 +131,11 @@ void EffectCache::releaseUnreferencedEffects()
         }
         else
         {
-            newCache.push_back(m_effectCache[i]);
+            newCache.push_back( m_effectCache[i] );
         }
     }
-    
-    m_effectCache.swap(newCache);
+
+    m_effectCache.swap( newCache );
 }
 
-
-}
+} // namespace caf

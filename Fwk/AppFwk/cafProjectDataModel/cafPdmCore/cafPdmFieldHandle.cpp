@@ -2,10 +2,8 @@
 
 #include "cafPdmFieldCapability.h"
 
-
 namespace caf
 {
-
 #if 0
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -29,42 +27,42 @@ bool PdmFieldHandle::assertValid() const
 #endif
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldHandle::setKeyword(const QString& keyword)
+void PdmFieldHandle::setKeyword( const QString& keyword )
 {
     m_keyword = keyword;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool PdmFieldHandle::hasChildObjects()
 {
     std::vector<PdmObjectHandle*> children;
-    this->childObjects(&children);
-    return (children.size() > 0);
+    this->childObjects( &children );
+    return ( children.size() > 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmFieldHandle::~PdmFieldHandle()
 {
-    for (size_t i = 0; i < m_capabilities.size(); ++i)
+    for ( size_t i = 0; i < m_capabilities.size(); ++i )
     {
-        if (m_capabilities[i].second) delete m_capabilities[i].first;
+        if ( m_capabilities[i].second ) delete m_capabilities[i].first;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmFieldHandle::matchesKeyword(const QString& keyword) const
+bool PdmFieldHandle::matchesKeyword( const QString& keyword ) const
 {
-    if (m_keyword == keyword) return true;
+    if ( m_keyword == keyword ) return true;
 
-    return matchesKeywordAlias(keyword);
+    return matchesKeywordAlias( keyword );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,43 +87,43 @@ QString PdmFieldHandle::ownerClass() const
 /// Set the class in the class hierarchy the field actually belongs to.
 /// This can be different to ownerObject's class, which may be a sub-class.
 //--------------------------------------------------------------------------------------------------
-void PdmFieldHandle::setOwnerClass(const QString& ownerClass)
+void PdmFieldHandle::setOwnerClass( const QString& ownerClass )
 {
     m_ownerClass = ownerClass;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool PdmFieldHandle::hasPtrReferencedObjects()
 {
     std::vector<PdmObjectHandle*> ptrReffedObjs;
-    this->ptrReferencedObjects(&ptrReffedObjs);
-    return (ptrReffedObjs.size() > 0);
+    this->ptrReferencedObjects( &ptrReffedObjs );
+    return ( ptrReffedObjs.size() > 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmFieldHandle::registerKeywordAlias(const QString& alias)
+void PdmFieldHandle::registerKeywordAlias( const QString& alias )
 {
-    m_keywordAliases.push_back(alias);
+    m_keywordAliases.push_back( alias );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmFieldHandle::matchesKeywordAlias(const QString& keyword) const
+bool PdmFieldHandle::matchesKeywordAlias( const QString& keyword ) const
 {
-    for (const QString& alias : m_keywordAliases)
+    for ( const QString& alias : m_keywordAliases )
     {
-        if (alias == keyword) return true;
+        if ( alias == keyword ) return true;
     }
     return false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> PdmFieldHandle::keywordAliases() const
 {

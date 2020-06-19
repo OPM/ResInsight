@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiLineEditor.h"
 
 #include "cafFactory.h"
@@ -62,19 +61,16 @@
 #include <QString>
 #include <QStringListModel>
 
-
 namespace caf
 {
-
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiLineEditor::createEditorWidget(QWidget * parent)
+QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
 {
-    m_lineEdit = new PdmUiLineEdit(parent);
+    m_lineEdit = new PdmUiLineEdit( parent );
 
-    connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
+    connect( m_lineEdit, SIGNAL( editingFinished() ), this, SLOT( slotEditingFinished() ) );
 
     return m_lineEdit;
 }
@@ -82,127 +78,130 @@ QWidget* PdmUiLineEditor::createEditorWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiLineEditor::createLabelWidget(QWidget * parent)
+QWidget* PdmUiLineEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel(parent);
+    m_label = new QShortenedLabel( parent );
     return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    if (!m_label.isNull())
+    if ( !m_label.isNull() )
     {
-        PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
+        PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
     }
 
-    if (!m_lineEdit.isNull())
+    if ( !m_lineEdit.isNull() )
     {
-        bool isReadOnly = uiField()->isUiReadOnly(uiConfigName);
-        if (isReadOnly)
+        bool isReadOnly = uiField()->isUiReadOnly( uiConfigName );
+        if ( isReadOnly )
         {
-            m_lineEdit->setReadOnly(true);
+            m_lineEdit->setReadOnly( true );
 
-            m_lineEdit->setStyleSheet("QLineEdit {"
-                "color: #808080;"
-                "background-color: #F0F0F0;}");
+            m_lineEdit->setStyleSheet( "QLineEdit {"
+                                       "color: #808080;"
+                                       "background-color: #F0F0F0;}" );
         }
         else
         {
-            m_lineEdit->setReadOnly(false);
-            m_lineEdit->setStyleSheet("");
+            m_lineEdit->setReadOnly( false );
+            m_lineEdit->setStyleSheet( "" );
         }
 
-        m_lineEdit->setToolTip(uiField()->uiToolTip(uiConfigName));
+        m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
         PdmUiLineEditorAttribute leab;
         {
-            caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-            if (uiObject)
+            caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+            if ( uiObject )
             {
-                uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &leab);
+                uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );
             }
 
-            if (leab.validator)
+            if ( leab.validator )
             {
-                m_lineEdit->setValidator(leab.validator);
+                m_lineEdit->setValidator( leab.validator );
             }
 
-            m_lineEdit->setAvoidSendingEnterEventToParentWidget(leab.avoidSendingEnterEventToParentWidget);
+            m_lineEdit->setAvoidSendingEnterEventToParentWidget( leab.avoidSendingEnterEventToParentWidget );
 
-            if (leab.maximumWidth != -1)
+            if ( leab.maximumWidth != -1 )
             {
-                m_lineEdit->setMaximumWidth(leab.maximumWidth);
+                m_lineEdit->setMaximumWidth( leab.maximumWidth );
             }
 
-            if (!leab.placeholderText.isEmpty())
+            if ( !leab.placeholderText.isEmpty() )
             {
-                m_lineEdit->setPlaceholderText(leab.placeholderText);
+                m_lineEdit->setPlaceholderText( leab.placeholderText );
             }
         }
-      
+
         bool fromMenuOnly = true;
-        m_optionCache = uiField()->valueOptions(&fromMenuOnly);
-        CAF_ASSERT(fromMenuOnly); // Not supported
+        m_optionCache     = uiField()->valueOptions( &fromMenuOnly );
+        CAF_ASSERT( fromMenuOnly ); // Not supported
 
-        if (!m_optionCache.isEmpty() && fromMenuOnly == true)
+        if ( !m_optionCache.isEmpty() && fromMenuOnly == true )
         {
-            if (!m_completer)
+            if ( !m_completer )
             {
-                m_completer =  new QCompleter(this);
-                m_completerTextList = new QStringListModel( this);
+                m_completer         = new QCompleter( this );
+                m_completerTextList = new QStringListModel( this );
 
-                m_completer->setModel(m_completerTextList);
+                m_completer->setModel( m_completerTextList );
                 m_completer->setFilterMode( leab.completerFilterMode );
-                m_completer->setCaseSensitivity( leab.completerCaseSensitivity);
+                m_completer->setCaseSensitivity( leab.completerCaseSensitivity );
 
-                m_lineEdit->setCompleter(m_completer);
-                connect(m_completer, SIGNAL(activated(const QModelIndex&)), this, SLOT(slotCompleterActivated(const QModelIndex&)));
-                m_completer->popup()->installEventFilter(this);
+                m_lineEdit->setCompleter( m_completer );
+                connect( m_completer,
+                         SIGNAL( activated( const QModelIndex& ) ),
+                         this,
+                         SLOT( slotCompleterActivated( const QModelIndex& ) ) );
+                m_completer->popup()->installEventFilter( this );
             }
-            
+
             QStringList optionNames;
-            for (const PdmOptionItemInfo& item: m_optionCache)
+            for ( const PdmOptionItemInfo& item : m_optionCache )
             {
-                optionNames.push_back(item.optionUiText());
+                optionNames.push_back( item.optionUiText() );
             }
 
-            m_completerTextList->setStringList(optionNames);
+            m_completerTextList->setStringList( optionNames );
 
             int enumValue = uiField()->uiValue().toInt();
 
-            if (enumValue < m_optionCache.size() && enumValue > -1)
+            if ( enumValue < m_optionCache.size() && enumValue > -1 )
             {
-                m_lineEdit->setText(m_optionCache[enumValue].optionUiText());
+                m_lineEdit->setText( m_optionCache[enumValue].optionUiText() );
             }
         }
         else
         {
-            m_lineEdit->setCompleter(nullptr);
+            m_lineEdit->setCompleter( nullptr );
             delete m_completerTextList;
             delete m_completer;
             m_optionCache.clear();
 
             PdmUiLineEditorAttributeUiDisplayString displayStringAttrib;
-            caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-            if (uiObject)
+            caf::PdmUiObjectHandle*                 uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+            if ( uiObject )
             {
-                uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &displayStringAttrib);
+                uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &displayStringAttrib );
             }
 
             QString displayString;
-            if (displayStringAttrib.m_displayString.isEmpty())
+            if ( displayStringAttrib.m_displayString.isEmpty() )
             {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0) && QT_VERSION < QT_VERSION_CHECK(5, 9, 0))
-                bool valueOk = false;
-                double  value = uiField()->uiValue().toDouble(&valueOk);
-                if (valueOk)
+#if ( QT_VERSION >= QT_VERSION_CHECK( 5, 0, 0 ) && QT_VERSION < QT_VERSION_CHECK( 5, 9, 0 ) )
+                bool   valueOk = false;
+                double value   = uiField()->uiValue().toDouble( &valueOk );
+                if ( valueOk )
                 {
                     // Workaround for issue seen on Qt 5.6.1 on Linux
                     int precision = 8;
-                    displayString = QString::number(value, 'g', precision);
+                    displayString = QString::number( value, 'g', precision );
                 }
                 else
                 {
@@ -217,7 +216,7 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
                 displayString = displayStringAttrib.m_displayString;
             }
 
-            m_lineEdit->setText(displayString);
+            m_lineEdit->setText( displayString );
         }
     }
 }
@@ -229,53 +228,56 @@ QMargins PdmUiLineEditor::calculateLabelContentMargins() const
 {
     QSize editorSize = m_lineEdit->sizeHint();
     QSize labelSize  = m_label->sizeHint();
-    int heightDiff   = editorSize.height() - labelSize.height();
+    int   heightDiff = editorSize.height() - labelSize.height();
 
     QMargins contentMargins = m_label->contentsMargins();
-    if (heightDiff > 0)
+    if ( heightDiff > 0 )
     {
-        contentMargins.setTop(contentMargins.top() + heightDiff / 2);
-        contentMargins.setBottom(contentMargins.bottom() + heightDiff / 2);
+        contentMargins.setTop( contentMargins.top() + heightDiff / 2 );
+        contentMargins.setBottom( contentMargins.bottom() + heightDiff / 2 );
     }
     return contentMargins;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiLineEditor::slotEditingFinished()
 {
     QVariant v;
 
-    if (m_optionCache.size()) 
+    if ( m_optionCache.size() )
     {
-        int index = findIndexToOption(m_lineEdit->text());
-        if (index > -1)
+        int index = findIndexToOption( m_lineEdit->text() );
+        if ( index > -1 )
         {
-            v = QVariant(static_cast<unsigned int>(index));
-            this->setValueToField(v);
+            v = QVariant( static_cast<unsigned int>( index ) );
+            this->setValueToField( v );
         }
         else
         {
             // Try to complete the text in the widget
 
-            QModelIndex sourceindex = static_cast<QAbstractProxyModel*>(m_completer->completionModel())->mapToSource(m_completer->currentIndex());
+            QModelIndex sourceindex =
+                static_cast<QAbstractProxyModel*>( m_completer->completionModel() )->mapToSource( m_completer->currentIndex() );
 
             if ( sourceindex.isValid() )
             {
                 int currentRow = sourceindex.row();
                 {
-                    // If the existing value in the field is the same as the completer will hit, we need to echo the 
-                    // choice into the text field because the field values are equal, so the normal echoing is considered unneccessary by the caf system.
+                    // If the existing value in the field is the same as the completer will hit, we need to echo the
+                    // choice into the text field because the field values are equal, so the normal echoing is
+                    // considered unneccessary by the caf system.
                     int currentFieldIndexValue = uiField()->uiValue().toInt();
                     if ( currentRow == currentFieldIndexValue )
                     {
-                        m_lineEdit->setText(m_completer->completionModel()->data(m_completer->currentIndex()).toString());
+                        m_lineEdit->setText(
+                            m_completer->completionModel()->data( m_completer->currentIndex() ).toString() );
                     }
                 }
 
-                v = QVariant(static_cast<unsigned int>(sourceindex.row()));
-                this->setValueToField(v);
+                v = QVariant( static_cast<unsigned int>( sourceindex.row() ) );
+                this->setValueToField( v );
             }
             else
             {
@@ -287,36 +289,36 @@ void PdmUiLineEditor::slotEditingFinished()
     else
     {
         QString textValue = m_lineEdit->text();
-        v = textValue;
-        this->setValueToField(v);
+        v                 = textValue;
+        this->setValueToField( v );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiLineEditor::isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* editorField) const
+bool PdmUiLineEditor::isMultipleFieldsWithSameKeywordSelected( PdmFieldHandle* editorField ) const
 {
     std::vector<PdmFieldHandle*> fieldsToUpdate;
-    fieldsToUpdate.push_back(editorField);
+    fieldsToUpdate.push_back( editorField );
 
     // For current selection, find all fields with same keyword
     std::vector<PdmUiItem*> items;
-    SelectionManager::instance()->selectedItems(items, SelectionManager::FIRST_LEVEL);
+    SelectionManager::instance()->selectedItems( items, SelectionManager::FIRST_LEVEL );
 
-    for (size_t i = 0; i < items.size(); i++)
+    for ( size_t i = 0; i < items.size(); i++ )
     {
-        PdmUiFieldHandle* uiField = dynamic_cast<PdmUiFieldHandle*>(items[i]);
-        if (!uiField) continue;
+        PdmUiFieldHandle* uiField = dynamic_cast<PdmUiFieldHandle*>( items[i] );
+        if ( !uiField ) continue;
 
         PdmFieldHandle* field = uiField->fieldHandle();
-        if (field && field != editorField && field->keyword() == editorField->keyword())
+        if ( field && field != editorField && field->keyword() == editorField->keyword() )
         {
-            fieldsToUpdate.push_back(field);
+            fieldsToUpdate.push_back( field );
         }
     }
 
-    if (fieldsToUpdate.size() > 1)
+    if ( fieldsToUpdate.size() > 1 )
     {
         return true;
     }
@@ -327,15 +329,16 @@ bool PdmUiLineEditor::isMultipleFieldsWithSameKeywordSelected(PdmFieldHandle* ed
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiLineEdit::PdmUiLineEdit(QWidget* parent)
-    : QLineEdit(parent), m_avoidSendingEnterEvent(false)
+PdmUiLineEdit::PdmUiLineEdit( QWidget* parent )
+    : QLineEdit( parent )
+    , m_avoidSendingEnterEvent( false )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiLineEdit::setAvoidSendingEnterEventToParentWidget(bool avoidSendingEnterEvent)
+void PdmUiLineEdit::setAvoidSendingEnterEventToParentWidget( bool avoidSendingEnterEvent )
 {
     m_avoidSendingEnterEvent = avoidSendingEnterEvent;
 }
@@ -343,12 +346,12 @@ void PdmUiLineEdit::setAvoidSendingEnterEventToParentWidget(bool avoidSendingEnt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiLineEdit::keyPressEvent(QKeyEvent * event)
+void PdmUiLineEdit::keyPressEvent( QKeyEvent* event )
 {
-    QLineEdit::keyPressEvent(event);
-    if (m_avoidSendingEnterEvent)
+    QLineEdit::keyPressEvent( event );
+    if ( m_avoidSendingEnterEvent )
     {
-        if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
+        if ( event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return )
         {
             // accept enter/return events so they won't
             // be ever propagated to the parent dialog..
@@ -360,13 +363,13 @@ void PdmUiLineEdit::keyPressEvent(QKeyEvent * event)
 //--------------------------------------------------------------------------------------------------
 /// Event filter filtering events to the QCompleter
 //--------------------------------------------------------------------------------------------------
-bool PdmUiLineEditor::eventFilter(QObject *watched, QEvent *event)
+bool PdmUiLineEditor::eventFilter( QObject* watched, QEvent* event )
 {
     if ( event->type() == QEvent::KeyPress )
     {
-        QKeyEvent * ke = static_cast<QKeyEvent*>(event);
+        QKeyEvent* ke = static_cast<QKeyEvent*>( event );
 
-        if (ke->key() == Qt::Key_Return ||  ke->key() == Qt::Key_Enter)
+        if ( ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter )
         {
             m_ignoreCompleterActivated = true;
             this->m_completer->popup()->close();
@@ -379,11 +382,11 @@ bool PdmUiLineEditor::eventFilter(QObject *watched, QEvent *event)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiLineEditor::slotCompleterActivated(const QModelIndex& index)
+void PdmUiLineEditor::slotCompleterActivated( const QModelIndex& index )
 {
-    if (m_completer && !m_ignoreCompleterActivated)
+    if ( m_completer && !m_ignoreCompleterActivated )
     {
         slotEditingFinished();
     }
@@ -392,14 +395,14 @@ void PdmUiLineEditor::slotCompleterActivated(const QModelIndex& index)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-int PdmUiLineEditor::findIndexToOption(const QString& uiText)
+int PdmUiLineEditor::findIndexToOption( const QString& uiText )
 {
     QString uiTextTrimmed = uiText.trimmed();
-    for (int idx = 0; idx < m_optionCache.size(); ++idx)
+    for ( int idx = 0; idx < m_optionCache.size(); ++idx )
     {
-        if (uiTextTrimmed == m_optionCache[idx].optionUiText())
+        if ( uiTextTrimmed == m_optionCache[idx].optionUiText() )
         {
             return idx;
         }
@@ -408,8 +411,9 @@ int PdmUiLineEditor::findIndexToOption(const QString& uiText)
     return -1;
 }
 
-// Define at this location to avoid duplicate symbol definitions in 'cafPdmUiDefaultObjectEditor.cpp' in a cotire build. The
-// variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same line number.
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiLineEditor);
+// Define at this location to avoid duplicate symbol definitions in 'cafPdmUiDefaultObjectEditor.cpp' in a cotire build.
+// The variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same
+// line number.
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiLineEditor );
 
 } // end namespace caf

@@ -5,70 +5,71 @@
 
 namespace caf
 {
-    //--------------------------------------------------------------------------------------------------
-    /// Constructor that takes ownership of the data in the provided vector
-    //--------------------------------------------------------------------------------------------------
-    template<typename PdmObjectType>
-    AsyncPdmObjectVectorDeleter<PdmObjectType>::AsyncPdmObjectVectorDeleter(std::vector<PdmObjectType*>& pointerVector)        
+//--------------------------------------------------------------------------------------------------
+/// Constructor that takes ownership of the data in the provided vector
+//--------------------------------------------------------------------------------------------------
+template <typename PdmObjectType>
+AsyncPdmObjectVectorDeleter<PdmObjectType>::AsyncPdmObjectVectorDeleter( std::vector<PdmObjectType*>& pointerVector )
+{
+    m_pointersToDelete.reserve( pointerVector.size() );
+    for ( PdmObjectType* rawPointer : pointerVector )
     {
-        m_pointersToDelete.reserve(pointerVector.size());
-        for (PdmObjectType* rawPointer : pointerVector)
+        if ( rawPointer )
         {
-            if (rawPointer)
-            {
-                PdmObjectHandle* objectHandle = static_cast<PdmObjectHandle*>(rawPointer);
-                objectHandle->prepareForDelete();
-                m_pointersToDelete.push_back(objectHandle);
-            }
+            PdmObjectHandle* objectHandle = static_cast<PdmObjectHandle*>( rawPointer );
+            objectHandle->prepareForDelete();
+            m_pointersToDelete.push_back( objectHandle );
         }
-        pointerVector.clear();
     }
+    pointerVector.clear();
+}
 
-    //--------------------------------------------------------------------------------------------------
-    /// Constructor that takes ownership of the data in the provided vector
-    //--------------------------------------------------------------------------------------------------
-    template<typename PdmObjectType>
-    AsyncPdmObjectVectorDeleter<PdmObjectType>::AsyncPdmObjectVectorDeleter(std::vector<PdmPointer<PdmObjectType>>& pdmPointerVector)
+//--------------------------------------------------------------------------------------------------
+/// Constructor that takes ownership of the data in the provided vector
+//--------------------------------------------------------------------------------------------------
+template <typename PdmObjectType>
+AsyncPdmObjectVectorDeleter<PdmObjectType>::AsyncPdmObjectVectorDeleter( std::vector<PdmPointer<PdmObjectType>>& pdmPointerVector )
+{
+    m_pointersToDelete.reserve( pdmPointerVector.size() );
+    for ( PdmPointer<PdmObjectType>& pdmPointer : pdmPointerVector )
     {
-        m_pointersToDelete.reserve(pdmPointerVector.size());
-        for (PdmPointer<PdmObjectType>& pdmPointer : pdmPointerVector)
+        if ( pdmPointer.notNull() )
         {
-            if (pdmPointer.notNull())
-            {
-                PdmObjectHandle* objectHandle = pdmPointer.rawPtr();
-                objectHandle->prepareForDelete();
-                m_pointersToDelete.push_back(objectHandle);
-            }
+            PdmObjectHandle* objectHandle = pdmPointer.rawPtr();
+            objectHandle->prepareForDelete();
+            m_pointersToDelete.push_back( objectHandle );
         }
-        pdmPointerVector.clear();
     }
+    pdmPointerVector.clear();
+}
 
-    //--------------------------------------------------------------------------------------------------
-    /// Destructor will launch the asynchronous deletion if start() hasn't already been run.
-    //--------------------------------------------------------------------------------------------------
-    template<typename PdmObjectType>
-    AsyncPdmObjectVectorDeleter<PdmObjectType>::~AsyncPdmObjectVectorDeleter()
+//--------------------------------------------------------------------------------------------------
+/// Destructor will launch the asynchronous deletion if start() hasn't already been run.
+//--------------------------------------------------------------------------------------------------
+template <typename PdmObjectType>
+AsyncPdmObjectVectorDeleter<PdmObjectType>::~AsyncPdmObjectVectorDeleter()
+{
+    if ( !m_pointersToDelete.empty() )
     {
-        if (!m_pointersToDelete.empty())
-        {
-            start();
-        }
+        start();
     }
-  
-    //--------------------------------------------------------------------------------------------------
-    /// Perform deletion of the pointers in a separate thread.    
-    //--------------------------------------------------------------------------------------------------
-    template<typename PdmObjectType>
-    void AsyncPdmObjectVectorDeleter<PdmObjectType>::start()
-    {
-        std::thread thread([](std::vector<PdmObjectHandle*>&& pointerVector)
-        {
-            for (PdmObjectHandle* pointerToDelete : pointerVector)
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Perform deletion of the pointers in a separate thread.
+//--------------------------------------------------------------------------------------------------
+template <typename PdmObjectType>
+void AsyncPdmObjectVectorDeleter<PdmObjectType>::start()
+{
+    std::thread thread(
+        []( std::vector<PdmObjectHandle*>&& pointerVector ) {
+            for ( PdmObjectHandle* pointerToDelete : pointerVector )
             {
                 delete pointerToDelete;
             }
-        }, std::move(m_pointersToDelete));
-        AsyncWorkerManager::instance().takeThreadOwnership(thread, false);
-    }
-
+        },
+        std::move( m_pointersToDelete ) );
+    AsyncWorkerManager::instance().takeThreadOwnership( thread, false );
 }
+
+} // namespace caf

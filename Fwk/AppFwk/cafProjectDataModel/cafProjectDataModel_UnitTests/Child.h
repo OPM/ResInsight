@@ -6,7 +6,7 @@
 
 class TestObj;
 
-class Child: public caf::PdmObject
+class Child : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -15,8 +15,5 @@ public:
 
     ~Child();
 
-
     caf::PdmChildField<TestObj*> m_testObj;
 };
-
-

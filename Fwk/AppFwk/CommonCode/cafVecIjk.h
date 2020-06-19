@@ -34,18 +34,16 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <array>
 
 namespace caf
 {
-
 class VecIjk
 {
 public:
-    VecIjk(size_t i, size_t j, size_t k);
+    VecIjk( size_t i, size_t j, size_t k );
 
     size_t i() const;
     size_t j() const;
@@ -55,5 +53,4 @@ private:
     std::array<size_t, 3> m_values;
 };
 
-}
-
+} // namespace caf

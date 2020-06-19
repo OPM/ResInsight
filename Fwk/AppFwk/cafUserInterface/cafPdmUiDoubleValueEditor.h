@@ -62,7 +62,7 @@ public:
     };
     PdmUiDoubleValueEditorAttribute()
     {
-        m_decimals = 6;
+        m_decimals     = 6;
         m_numberFormat = NumberFormat::AUTOMATIC;
     }
 
@@ -85,9 +85,9 @@ public:
     ~PdmUiDoubleValueEditor() override;
 
 protected:
-    void     configureAndUpdateUi(const QString& uiConfigName) override;
-    QWidget* createEditorWidget(QWidget* parent) override;
-    QWidget* createLabelWidget(QWidget* parent) override;
+    void     configureAndUpdateUi( const QString& uiConfigName ) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    QWidget* createLabelWidget( QWidget* parent ) override;
 
 protected slots:
     void slotEditingFinished();

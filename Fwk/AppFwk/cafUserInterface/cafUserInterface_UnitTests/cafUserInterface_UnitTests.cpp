@@ -34,26 +34,25 @@
 //
 //##################################################################################################
 
-
 #include "gtest/gtest.h"
-#include <stdio.h>
 #include <iostream>
+#include <stdio.h>
 #include <string>
 
 #include <QApplication>
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-int main(int argc, char **argv) 
+int main( int argc, char** argv )
 {
-    QApplication app(argc, argv);
+    QApplication app( argc, argv );
 
-    testing::InitGoogleTest(&argc, argv);
+    testing::InitGoogleTest( &argc, argv );
     int result = RUN_ALL_TESTS();
 
     char text[5];
-    std::cin.getline(text, 5);
+    std::cin.getline( text, 5 );
 
     return result;
 }

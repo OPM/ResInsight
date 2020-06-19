@@ -44,11 +44,14 @@ class QStyledProgressBar : public QProgressBar
     Q_OBJECT
 
 public:
-    QStyledProgressBar(QString objectName, QWidget* parent = nullptr);
+    QStyledProgressBar( QString objectName, QWidget* parent = nullptr );
 
-    void setTextBackgroundAndProgressColor(QColor textColor, QColor backgroundColor, QColor backgroundFrameColor, QColor progressColor);
+    void setTextBackgroundAndProgressColor( QColor textColor,
+                                            QColor backgroundColor,
+                                            QColor backgroundFrameColor,
+                                            QColor progressColor );
 
 private:
-    static QString colorStringWithAlpha(QColor color);
+    static QString colorStringWithAlpha( QColor color );
 };
-}
+} // namespace caf

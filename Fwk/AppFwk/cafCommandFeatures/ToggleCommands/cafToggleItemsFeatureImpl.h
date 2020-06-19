@@ -38,33 +38,32 @@
 
 namespace caf
 {
-    class PdmUiItem;
-    class PdmUiTreeOrdering;
-    class PdmUiTreeView;
-
+class PdmUiItem;
+class PdmUiTreeOrdering;
+class PdmUiTreeView;
 
 //==================================================================================================
-/// 
+///
 //==================================================================================================
-class ToggleItemsFeatureImpl 
+class ToggleItemsFeatureImpl
 {
 public:
-  enum SelectionToggleType
-  {
-      TOGGLE_ON,
-      TOGGLE_OFF,
-      TOGGLE_SUBITEMS,
-      TOGGLE,
-      TOGGLE_UNDEFINED
-  };
+    enum SelectionToggleType
+    {
+        TOGGLE_ON,
+        TOGGLE_OFF,
+        TOGGLE_SUBITEMS,
+        TOGGLE,
+        TOGGLE_UNDEFINED
+    };
 
-  static bool isToggleCommandsAvailable();
-  static bool isToggleCommandsForSubItems();
-  static void setObjectToggleStateForSelection(SelectionToggleType state);
+    static bool isToggleCommandsAvailable();
+    static bool isToggleCommandsForSubItems();
+    static void setObjectToggleStateForSelection( SelectionToggleType state );
 
 private:
-  static caf::PdmUiTreeView* findTreeView(const caf::PdmUiItem* uiItem);
-  static caf::PdmUiTreeOrdering* findTreeItemFromSelectedUiItem(const caf::PdmUiItem* uiItem);
+    static caf::PdmUiTreeView*     findTreeView( const caf::PdmUiItem* uiItem );
+    static caf::PdmUiTreeOrdering* findTreeItemFromSelectedUiItem( const caf::PdmUiItem* uiItem );
 };
 
-};
+}; // namespace caf

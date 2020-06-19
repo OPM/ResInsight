@@ -44,36 +44,35 @@
 
 namespace caf
 {
-	
-CAF_CMD_SOURCE_INIT(ToggleItemsFeature, "cafToggleItemsFeature");
+CAF_CMD_SOURCE_INIT( ToggleItemsFeature, "cafToggleItemsFeature" );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool ToggleItemsFeature::isCommandEnabled() 
+bool ToggleItemsFeature::isCommandEnabled()
 {
     return ToggleItemsFeatureImpl::isToggleCommandsAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void ToggleItemsFeature::onActionTriggered(bool isChecked)
+void ToggleItemsFeature::onActionTriggered( bool isChecked )
 {
-    ToggleItemsFeatureImpl::setObjectToggleStateForSelection(ToggleItemsFeatureImpl::TOGGLE_SUBITEMS);
+    ToggleItemsFeatureImpl::setObjectToggleStateForSelection( ToggleItemsFeatureImpl::TOGGLE_SUBITEMS );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void ToggleItemsFeature::setupActionLook(QAction* actionToSetup)
+void ToggleItemsFeature::setupActionLook( QAction* actionToSetup )
 {
-    if (ToggleItemsFeatureImpl::isToggleCommandsForSubItems())
-        actionToSetup->setText("Toggle Sub Items");
+    if ( ToggleItemsFeatureImpl::isToggleCommandsForSubItems() )
+        actionToSetup->setText( "Toggle Sub Items" );
     else
-        actionToSetup->setText("Toggle");
+        actionToSetup->setText( "Toggle" );
 
-    actionToSetup->setIcon(QIcon(":/cafCommandFeatures/ToggleOnOffL16x16.png"));
+    actionToSetup->setIcon( QIcon( ":/cafCommandFeatures/ToggleOnOffL16x16.png" ) );
 }
 
-}
+} // namespace caf

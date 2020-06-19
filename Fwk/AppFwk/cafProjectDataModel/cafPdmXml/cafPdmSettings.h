@@ -34,25 +34,22 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <QSettings>
 
 namespace caf
 {
-
-    class PdmObjectHandle;
+class PdmObjectHandle;
 
 class PdmSettings
 {
 public:
-    static void readFieldsFromApplicationStore(caf::PdmObjectHandle* object, const QString context = "");
-    static void writeFieldsToApplicationStore(const caf::PdmObjectHandle* object, const QString context = "");
+    static void readFieldsFromApplicationStore( caf::PdmObjectHandle* object, const QString context = "" );
+    static void writeFieldsToApplicationStore( const caf::PdmObjectHandle* object, const QString context = "" );
 
-    static void readValueFieldsFromApplicationStore(caf::PdmObjectHandle* object, const QString folderName = "");
-    static void writeValueFieldsToApplicationStore(const caf::PdmObjectHandle* object, const QString folderName = "");
+    static void readValueFieldsFromApplicationStore( caf::PdmObjectHandle* object, const QString folderName = "" );
+    static void writeValueFieldsToApplicationStore( const caf::PdmObjectHandle* object, const QString folderName = "" );
 };
-
 
 } // end namespace caf

@@ -8,8 +8,8 @@ namespace caf
 class PdmUiObjectViewerCapability : public PdmObjectCapability
 {
 public:
-    virtual int  id() const = 0;
+    virtual int  id() const         = 0;
     virtual void createViewWidget() = 0;
-    virtual void zoomAll() = 0;
+    virtual void zoomAll()          = 0;
 };
-}
+} // namespace caf
