@@ -386,20 +386,17 @@ const caf::ColorTable& RiaColorTables::summaryCurveNoneRedGreenBlueBrownPaletteC
 //--------------------------------------------------------------------------------------------------
 const caf::ColorTable& RiaColorTables::wellLogPlotPaletteColors()
 {
-    static std::vector<cvf::Color3ub> colors{caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkBlue ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkRed ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkGreen ) ),
+    static std::vector<cvf::Color3ub> colors{caf::ColorTable::fromQColor( QColor( "peru" ) ),
+                                             caf::ColorTable::fromQColor( QColor( "blueviolet" ) ),
                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkYellow ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkMagenta ) ),
                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkCyan ) ),
+                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkMagenta ) ),
                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::darkGray ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::blue ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::red ) ),
-                                             caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::green ) ),
                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::yellow ) ),
                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::magenta ) ),
                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::cyan ) ),
                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::gray ) ),
+                                             caf::ColorTable::fromQColor( QColor( "yellowgreen" ) ),
                                              caf::ColorTable::fromQColor( Qt::GlobalColor( Qt::black ) )};
 
     static caf::ColorTable colorTable = caf::ColorTable( colors );
@@ -596,6 +593,16 @@ caf::ColorTable RiaColorTables::createBrightnessBasedColorTable( cvf::Color3ub b
         }
     }
     return caf::ColorTable( colors );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<RiaDefines::PhaseType, cvf::Color3f> RiaColorTables::phaseColors()
+{
+    return {{RiaDefines::PhaseType::WATER_PHASE, cvf::Color3f( cvf::Color3::DARK_BLUE )},
+            {RiaDefines::PhaseType::GAS_PHASE, cvf::Color3f( cvf::Color3::DARK_GREEN )},
+            {RiaDefines::PhaseType::OIL_PHASE, cvf::Color3f( cvf::Color3::DARK_RED )}};
 }
 
 //--------------------------------------------------------------------------------------------------

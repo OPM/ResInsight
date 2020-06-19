@@ -168,7 +168,8 @@ enum class PhaseType
 {
     OIL_PHASE,
     GAS_PHASE,
-    WATER_PHASE
+    WATER_PHASE,
+    PHASE_NOT_APPLICABLE
 };
 
 enum class ImportFileType

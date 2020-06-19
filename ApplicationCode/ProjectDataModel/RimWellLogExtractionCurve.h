@@ -112,6 +112,8 @@ protected:
     void              clampBranchIndex();
     std::set<QString> sortedSimWellNames();
     void              clearGeneratedSimWellPaths();
+    bool              isDefaultColor( const cvf::Color3f& color ) const;
+    void              checkAndApplyDefaultFillColor() override;
 
     caf::PdmPtrField<RimCase*>                  m_case;
     caf::PdmField<caf::AppEnum<TrajectoryType>> m_trajectoryType;

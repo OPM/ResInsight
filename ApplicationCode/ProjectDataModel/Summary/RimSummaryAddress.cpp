@@ -22,6 +22,8 @@
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 
+#include <QRegularExpression>
+
 namespace caf
 {
 template <>
@@ -152,4 +154,25 @@ void RimSummaryAddress::ensureIdIsAssigned()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return phase type if the current result is known to be of a particular
+/// fluid phase type. Otherwise the method will return PHASE_NOT_APPLICABLE.
+//--------------------------------------------------------------------------------------------------
+RiaDefines::PhaseType RimSummaryAddress::addressPhaseType() const
+{
+    if ( QRegularExpression( "^.OP" ).match( m_quantityName ).hasMatch() )
+    {
+        return RiaDefines::PhaseType::OIL_PHASE;
+    }
+    else if ( QRegularExpression( "^.GP" ).match( m_quantityName ).hasMatch() )
+    {
+        return RiaDefines::PhaseType::GAS_PHASE;
+    }
+    else if ( QRegularExpression( "^.WP" ).match( m_quantityName ).hasMatch() )
+    {
+        return RiaDefines::PhaseType::WATER_PHASE;
+    }
+    return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
 }

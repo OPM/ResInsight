@@ -111,6 +111,8 @@ private:
                                                          caf::PdmUiEditorAttribute* attribute ) override;
 
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryCase* summaryCase );
+    bool        isDefaultColor( const cvf::Color3f& color ) const;
+    void        checkAndApplyDefaultFillColor() override;
 
 private:
     // Y values
