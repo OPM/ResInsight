@@ -18,6 +18,7 @@
 
 #include "RigFemPartResultCalculatorPoreCompressibility.h"
 
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
 #include "RigFemPart.h"
@@ -216,8 +217,8 @@ RigFemScalarResultFrames*
 
                             // Calculate bulk modulus for solids (grains).
                             // Incoming unit for Young's Modulus is GPa: convert to Pa.
-                            double poissonRatio     = poissonRatioData[elmIdx];
-                            double youngsModuli     = youngsModuliData[elmIdx] * 1.0e9;
+                            double poissonRatio = poissonRatioData[elmIdx];
+                            double youngsModuli = RiaEclipseUnitTools::gigaPascalToPascal( youngsModuliData[elmIdx] );
                             double bulkModulusFrame = youngsModuli / ( 3.0 * ( 1.0 - 2.0 * poissonRatio ) );
                             double bulkModulus      = bulkModulusFrame / ( 1.0 - biotCoefficient );
 
@@ -229,7 +230,8 @@ RigFemScalarResultFrames*
                             // and convert unit from Bar to Pascal.
                             double referencePorePressure = referencePorFrameData[nodeIdx];
                             double framePorePressure     = porFrameData[nodeIdx];
-                            double deltaPorePressure     = ( framePorePressure - referencePorePressure ) * 100000.0;
+                            double deltaPorePressure =
+                                RiaEclipseUnitTools::barToPascal( framePorePressure - referencePorePressure );
 
                             // Calculate pore compressibility
                             double poreCompressibility = inf;
