@@ -146,8 +146,9 @@ protected:
     void                          curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
 private:
-    bool canCurveBeAttached() const;
-    void attachCurveAndErrorBars();
+    bool         canCurveBeAttached() const;
+    void         attachCurveAndErrorBars();
+    virtual void checkAndApplyDefaultFillColor();
 
 protected:
     QPointer<QwtPlot> m_parentQwtPlot;
@@ -172,6 +173,7 @@ protected:
     caf::PdmField<PointSymbol>        m_pointSymbol;
     caf::PdmField<LineStyle>          m_lineStyle;
     caf::PdmField<FillStyle>          m_fillStyle;
+    caf::PdmField<cvf::Color3f>       m_fillColor;
     caf::PdmField<CurveInterpolation> m_curveInterpolation;
     caf::PdmField<LabelPosition>      m_symbolLabelPosition;
     caf::PdmField<cvf::Color3f>       m_symbolEdgeColor;
