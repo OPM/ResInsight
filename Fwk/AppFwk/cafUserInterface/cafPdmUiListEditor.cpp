@@ -36,10 +36,10 @@
 
 #include "cafPdmUiListEditor.h"
 
-#include "cafPdmUiDefaultObjectEditor.h"
-#include "cafPdmObject.h"
-#include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmUiDefaultObjectEditor.h"
+#include "cafPdmUiFieldEditorHandle.h"
 
 #include "cafFactory.h"
 #include "cafQShortenedLabel.h"
@@ -53,11 +53,8 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
-#include <QListView>
 #include <QStringListModel>
 #include <QTimer>
-
-
 
 //==================================================================================================
 /// Helper class used to override flags to disable editable items
@@ -65,25 +62,25 @@
 class MyStringListModel : public QStringListModel
 {
 public:
-    explicit MyStringListModel(QObject *parent = nullptr) : QStringListModel(parent), m_isItemsEditable(false)  { }
-
-    Qt::ItemFlags flags (const QModelIndex& index) const override
+    explicit MyStringListModel( QObject* parent = nullptr )
+        : QStringListModel( parent )
+        , m_isItemsEditable( false )
     {
-        if (m_isItemsEditable)
+    }
+
+    Qt::ItemFlags flags( const QModelIndex& index ) const override
+    {
+        if ( m_isItemsEditable )
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
         else
             return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     }
 
-    void setItemsEditable(bool isEditable)
-    {
-        m_isItemsEditable = isEditable;
-    }
+    void setItemsEditable( bool isEditable ) { m_isItemsEditable = isEditable; }
 
 private:
     bool m_isItemsEditable;
 };
-
 
 //==================================================================================================
 /// Helper class used to control height of size hint
@@ -91,88 +88,81 @@ private:
 class QListViewHeightHint : public QListView
 {
 public:
-    explicit QListViewHeightHint(QWidget *parent = nullptr)
-        : m_heightHint(-1)
+    explicit QListViewHeightHint( QWidget* parent = nullptr )
+        : m_heightHint( -1 )
     {
     }
 
     //--------------------------------------------------------------------------------------------------
-    /// 
+    ///
     //--------------------------------------------------------------------------------------------------
     QSize sizeHint() const override
     {
         QSize mySize = QListView::sizeHint();
 
-        if (m_heightHint > 0)
+        if ( m_heightHint > 0 )
         {
-            mySize.setHeight(m_heightHint);
+            mySize.setHeight( m_heightHint );
         }
 
         return mySize;
     }
 
     //--------------------------------------------------------------------------------------------------
-    /// 
+    ///
     //--------------------------------------------------------------------------------------------------
-    void setHeightHint(int heightHint)
-    {
-        m_heightHint = heightHint;
-    }
+    void setHeightHint( int heightHint ) { m_heightHint = heightHint; }
 
 private:
     int m_heightHint;
 };
 
-
-
 namespace caf
 {
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiListEditor );
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiListEditor);
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-PdmUiListEditor::PdmUiListEditor() :
-    m_isEditOperationsAvailable(true),
-    m_optionItemCount(0),
-    m_isScrollToItemAllowed(true)
+PdmUiListEditor::PdmUiListEditor()
+    : m_isEditOperationsAvailable( true )
+    , m_optionItemCount( 0 )
+    , m_isScrollToItemAllowed( true )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiListEditor::~PdmUiListEditor()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     // TODO: Fix CAF_ASSERT( here when undoing in testapp
     // See PdmUiComboBoxEditor for pattern
     // This might also apply to other editors
 
-    CAF_ASSERT(!m_listView.isNull());
-    CAF_ASSERT(!m_label.isNull());
-    CAF_ASSERT(m_listView->selectionModel());
+    CAF_ASSERT( !m_listView.isNull() );
+    CAF_ASSERT( !m_label.isNull() );
+    CAF_ASSERT( m_listView->selectionModel() );
 
-    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
+    PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
-    m_listView->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
-    m_listView->setToolTip(uiField()->uiToolTip(uiConfigName));
+    m_listView->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+    m_listView->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    bool optionsOnly = true;
-    QList<PdmOptionItemInfo> options = uiField()->valueOptions(&optionsOnly);
-    m_optionItemCount = options.size();
-    if (options.size() > 0 || uiField()->isUiReadOnly(uiConfigName))
+    bool                     optionsOnly = true;
+    QList<PdmOptionItemInfo> options     = uiField()->valueOptions( &optionsOnly );
+    m_optionItemCount                    = options.size();
+    if ( options.size() > 0 || uiField()->isUiReadOnly( uiConfigName ) )
     {
         m_isEditOperationsAvailable = false;
     }
@@ -182,288 +172,293 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     PdmUiListEditorAttribute attributes;
-    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-    if (uiObject)
+    caf::PdmUiObjectHandle*  uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
     {
-        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &attributes);
-        
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
+
         QPalette myPalette;
 
-        if (attributes.m_baseColor == myPalette.color(QPalette::Active, QPalette::Base))
+        if ( attributes.m_baseColor == myPalette.color( QPalette::Active, QPalette::Base ) )
         {
-            m_listView->setStyleSheet("");
+            m_listView->setStyleSheet( "" );
         }
         else
         {
-            m_listView->setStyleSheet("background-color: " + attributes.m_baseColor.name() + ";");
+            m_listView->setStyleSheet( "background-color: " + attributes.m_baseColor.name() + ";" );
         }
 
-        m_listView->setHeightHint(attributes.m_heightHint);
-        if (!attributes.m_allowHorizontalScrollBar)
+        m_listView->setHeightHint( attributes.m_heightHint );
+        if ( !attributes.m_allowHorizontalScrollBar )
         {
-            m_listView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+            m_listView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
         }
     }
 
-    MyStringListModel* strListModel = dynamic_cast<MyStringListModel*>(m_model.data());
+    MyStringListModel* strListModel = dynamic_cast<MyStringListModel*>( m_model.data() );
 
-    CAF_ASSERT(strListModel);
+    CAF_ASSERT( strListModel );
 
-    if (!options.isEmpty())
+    if ( !options.isEmpty() )
     {
-        CAF_ASSERT(optionsOnly); // Handling Additions on the fly not implemented
+        CAF_ASSERT( optionsOnly ); // Handling Additions on the fly not implemented
 
-        strListModel->setItemsEditable(false);
-        QModelIndex currentItem =     m_listView->selectionModel()->currentIndex();
-        QStringList texts = PdmOptionItemInfo::extractUiTexts(options);
-        strListModel->setStringList(texts);
+        strListModel->setItemsEditable( false );
+        QModelIndex currentItem = m_listView->selectionModel()->currentIndex();
+        QStringList texts       = PdmOptionItemInfo::extractUiTexts( options );
+        strListModel->setStringList( texts );
 
         QVariant fieldValue = uiField()->uiValue();
-        if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
+        if ( fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt )
         {
             int col = 0;
             int row = uiField()->uiValue().toInt();
 
-            QModelIndex mi = strListModel->index(row, col);
+            QModelIndex mi = strListModel->index( row, col );
 
-            m_listView->selectionModel()->blockSignals(true);
-            m_listView->setSelectionMode(QAbstractItemView::SingleSelection);
-            if (row >= 0 ) 
+            m_listView->selectionModel()->blockSignals( true );
+            m_listView->setSelectionMode( QAbstractItemView::SingleSelection );
+            if ( row >= 0 )
             {
-                m_listView->selectionModel()->select(mi, QItemSelectionModel::SelectCurrent);
-                m_listView->selectionModel()->setCurrentIndex(mi, QItemSelectionModel::SelectCurrent);
+                m_listView->selectionModel()->select( mi, QItemSelectionModel::SelectCurrent );
+                m_listView->selectionModel()->setCurrentIndex( mi, QItemSelectionModel::SelectCurrent );
             }
             else // A negative value (Undefined UInt ) is interpreted as no selection
             {
-                 m_listView->selectionModel()->clearSelection();
+                m_listView->selectionModel()->clearSelection();
             }
 
-            m_listView->selectionModel()->blockSignals(false);
+            m_listView->selectionModel()->blockSignals( false );
         }
-        else if (fieldValue.type() == QVariant::List)
+        else if ( fieldValue.type() == QVariant::List )
         {
             QList<QVariant> valuesSelectedInField = fieldValue.toList();
-            QItemSelection selection;
+            QItemSelection  selection;
 
-            for (int i= 0 ; i < valuesSelectedInField.size(); ++i)
+            for ( int i = 0; i < valuesSelectedInField.size(); ++i )
             {
-                QModelIndex mi = strListModel->index(valuesSelectedInField[i].toInt(), 0);
-                selection.append(QItemSelectionRange (mi));
+                QModelIndex mi = strListModel->index( valuesSelectedInField[i].toInt(), 0 );
+                selection.append( QItemSelectionRange( mi ) );
             }
 
-            m_listView->selectionModel()->blockSignals(true);
-            
-            m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-            m_listView->selectionModel()->select(selection, QItemSelectionModel::Select);
-            m_listView->selectionModel()->setCurrentIndex(currentItem, QItemSelectionModel::Current);
+            m_listView->selectionModel()->blockSignals( true );
 
-            m_listView->selectionModel()->blockSignals(false);
+            m_listView->setSelectionMode( QAbstractItemView::ExtendedSelection );
+            m_listView->selectionModel()->select( selection, QItemSelectionModel::Select );
+            m_listView->selectionModel()->setCurrentIndex( currentItem, QItemSelectionModel::Current );
+
+            m_listView->selectionModel()->blockSignals( false );
         }
     }
     else
     {
-        m_listView->selectionModel()->blockSignals(true);
+        m_listView->selectionModel()->blockSignals( true );
 
-        QItemSelection selection =  m_listView->selectionModel()->selection();
-        QModelIndex currentItem =     m_listView->selectionModel()->currentIndex();
-        QVariant fieldValue = uiField()->uiValue();
-        QStringList texts = fieldValue.toStringList();
-        texts.push_back("");
-        strListModel->setStringList(texts);
-        
-        strListModel->setItemsEditable(true);
+        QItemSelection selection   = m_listView->selectionModel()->selection();
+        QModelIndex    currentItem = m_listView->selectionModel()->currentIndex();
+        QVariant       fieldValue  = uiField()->uiValue();
+        QStringList    texts       = fieldValue.toStringList();
+        texts.push_back( "" );
+        strListModel->setStringList( texts );
 
-        m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-        m_listView->selectionModel()->select(selection, QItemSelectionModel::Select);
-        m_listView->selectionModel()->setCurrentIndex(currentItem, QItemSelectionModel::Current);
+        strListModel->setItemsEditable( true );
 
-        m_listView->selectionModel()->blockSignals(false);
+        m_listView->setSelectionMode( QAbstractItemView::ExtendedSelection );
+        m_listView->selectionModel()->select( selection, QItemSelectionModel::Select );
+        m_listView->selectionModel()->setCurrentIndex( currentItem, QItemSelectionModel::Current );
+
+        m_listView->selectionModel()->blockSignals( false );
     }
 
-    QTimer::singleShot(150, this, SLOT(slotScrollToSelectedItem()));
+    QTimer::singleShot( 150, this, SLOT( slotScrollToSelectedItem() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiListEditor::createEditorWidget(QWidget * parent)
+QWidget* PdmUiListEditor::createEditorWidget( QWidget* parent )
 {
-    m_listView = new QListViewHeightHint(parent);
+    m_listView = new QListViewHeightHint( parent );
 
-    m_model = new MyStringListModel(m_listView);
-    m_listView->setModel(m_model);
+    m_model = new MyStringListModel( m_listView );
+    m_listView->setModel( m_model );
 
-    connect(m_listView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection& )), this, SLOT(slotSelectionChanged(const QItemSelection&, const QItemSelection& )));
-    connect(m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(slotListItemEdited(const QModelIndex&, const QModelIndex&)));
+    connect( m_listView->selectionModel(),
+             SIGNAL( selectionChanged( const QItemSelection&, const QItemSelection& ) ),
+             this,
+             SLOT( slotSelectionChanged( const QItemSelection&, const QItemSelection& ) ) );
+    connect( m_model,
+             SIGNAL( dataChanged( const QModelIndex&, const QModelIndex& ) ),
+             this,
+             SLOT( slotListItemEdited( const QModelIndex&, const QModelIndex& ) ) );
 
     // Used to track key press
-    m_listView->installEventFilter(this);
+    m_listView->installEventFilter( this );
 
     // Used to track mouse events
-    m_listView->viewport()->installEventFilter(this);
+    m_listView->viewport()->installEventFilter( this );
 
     return m_listView;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiListEditor::createLabelWidget(QWidget * parent)
+QWidget* PdmUiListEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel(parent);
+    m_label = new QShortenedLabel( parent );
     return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
+void PdmUiListEditor::slotSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected )
 {
-    if (m_optionItemCount == 0) return;
+    if ( m_optionItemCount == 0 ) return;
 
     m_isScrollToItemAllowed = false;
 
     QVariant fieldValue = uiField()->uiValue();
-    if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
+    if ( fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt )
     {
-        // NOTE : Workaround for update issue seen on RHEL6 with Qt 4.6.2 
-        // An invalid call to setSelection() from QAbstractItemView::keyPressEvent() causes the stepping using arrow keys
-        // in a single selection list to not work as expected.
+        // NOTE : Workaround for update issue seen on RHEL6 with Qt 4.6.2
+        // An invalid call to setSelection() from QAbstractItemView::keyPressEvent() causes the stepping using arrow
+        // keys in a single selection list to not work as expected.
         //
         // See also https://github.com/OPM/ResInsight/issues/879
         //
         // WORKAROUND : The list view is in single selection mode, and the selection is set based on current index
-        m_listView->selectionModel()->select(m_listView->currentIndex(), QItemSelectionModel::SelectCurrent);
+        m_listView->selectionModel()->select( m_listView->currentIndex(), QItemSelectionModel::SelectCurrent );
 
         QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
-        if (idxList.size() >= 1)
+        if ( idxList.size() >= 1 )
         {
-            if (idxList[0].row() < m_optionItemCount)
+            if ( idxList[0].row() < m_optionItemCount )
             {
-                this->setValueToField(QVariant(static_cast<unsigned int>(idxList[0].row())));
+                this->setValueToField( QVariant( static_cast<unsigned int>( idxList[0].row() ) ) );
             }
         }
     }
-    else if (fieldValue.type() == QVariant::List)
+    else if ( fieldValue.type() == QVariant::List )
     {
         QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
 
         QList<QVariant> valuesSelectedInField = fieldValue.toList();
 
-        if (idxList.size() == 1 && valuesSelectedInField.size() == 1)
+        if ( idxList.size() == 1 && valuesSelectedInField.size() == 1 )
         {
-            // NOTE : Workaround for update issue seen on RHEL6 with Qt 4.6.2 
-            // An invalid call to setSelection() from QAbstractItemView::keyPressEvent() causes the stepping using arrow keys
-            // in a multi selection list to not work as expected.
+            // NOTE : Workaround for update issue seen on RHEL6 with Qt 4.6.2
+            // An invalid call to setSelection() from QAbstractItemView::keyPressEvent() causes the stepping using arrow
+            // keys in a multi selection list to not work as expected.
             //
             // See also https://github.com/OPM/ResInsight/issues/879
             //
             // WORKAROUND : The list view has one or none items selected, manually set the selection from current index
-            m_listView->selectionModel()->select(m_listView->currentIndex(), QItemSelectionModel::SelectCurrent);
+            m_listView->selectionModel()->select( m_listView->currentIndex(), QItemSelectionModel::SelectCurrent );
 
             // Update the list of indexes after selection has been modified
             idxList = m_listView->selectionModel()->selectedIndexes();
         }
 
         QList<QVariant> valuesToSetInField;
-        for (int i = 0; i < idxList.size(); ++i)
+        for ( int i = 0; i < idxList.size(); ++i )
         {
-            if (idxList[i].row() < m_optionItemCount)
+            if ( idxList[i].row() < m_optionItemCount )
             {
-                valuesToSetInField.push_back(QVariant(static_cast<unsigned int>(idxList[i].row())));
+                valuesToSetInField.push_back( QVariant( static_cast<unsigned int>( idxList[i].row() ) ) );
             }
         }
 
-        this->setValueToField(valuesToSetInField);
+        this->setValueToField( valuesToSetInField );
     }
 
     m_isScrollToItemAllowed = true;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::slotListItemEdited(const QModelIndex&, const QModelIndex&)
+void PdmUiListEditor::slotListItemEdited( const QModelIndex&, const QModelIndex& )
 {
-    CAF_ASSERT(m_isEditOperationsAvailable);
+    CAF_ASSERT( m_isEditOperationsAvailable );
 
     QStringList uiList = m_model->stringList();
 
-    trimAndSetValuesToField(uiList);
+    trimAndSetValuesToField( uiList );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::slotScrollToSelectedItem() const
 {
-    if (m_isScrollToItemAllowed)
+    if ( m_isScrollToItemAllowed )
     {
         QModelIndex mi = m_listView->currentIndex();
-        if (mi.isValid())
+        if ( mi.isValid() )
         {
-            m_listView->scrollTo(mi);
+            m_listView->scrollTo( mi );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString PdmUiListEditor::contentAsString() const
 {
     QString str;
 
-    if (m_model)
+    if ( m_model )
     {
         QStringList uiList = m_model->stringList();
 
-        str = uiList.join("\n");
+        str = uiList.join( "\n" );
     }
 
     return str;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::pasteFromString(const QString& content)
+void PdmUiListEditor::pasteFromString( const QString& content )
 {
-    QStringList strList = content.split("\n");
+    QStringList strList = content.split( "\n" );
 
-    trimAndSetValuesToField(strList);
+    trimAndSetValuesToField( strList );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiListEditor::trimAndSetValuesToField(const QStringList& stringList)
+void PdmUiListEditor::trimAndSetValuesToField( const QStringList& stringList )
 {
     QStringList result;
-    for (const auto& str : stringList)
+    for ( const auto& str : stringList )
     {
-        if (str != "" && str != " ") result += str;
+        if ( str != "" && str != " " ) result += str;
     }
 
-    this->setValueToField(result);
+    this->setValueToField( result );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiListEditor::eventFilter(QObject* object, QEvent * event)
+bool PdmUiListEditor::eventFilter( QObject* object, QEvent* event )
 {
-    if (!m_listView)
+    if ( !m_listView )
     {
         return false;
     }
-    if (object == m_listView->viewport() && event->type() == QEvent::MouseMove)
+    if ( object == m_listView->viewport() && event->type() == QEvent::MouseMove )
     {
-        QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
-        if (mouseEvent)
+        QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>( event );
+        if ( mouseEvent )
         {
-            if (mouseEvent->buttons() & Qt::LeftButton
-                && mouseEvent->modifiers() & Qt::ControlModifier)
+            if ( mouseEvent->buttons() & Qt::LeftButton && mouseEvent->modifiers() & Qt::ControlModifier )
             {
                 // When Ctrl button is pressed, left mouse button is pressed, and the mouse is moving,
                 // a possible bug in Qt is observed causing the selection to end up with single item selection
@@ -476,54 +471,54 @@ bool PdmUiListEditor::eventFilter(QObject* object, QEvent * event)
         }
     }
 
-    if (object == m_listView && event->type() == QEvent::KeyPress)
+    if ( object == m_listView && event->type() == QEvent::KeyPress )
     {
-        QKeyEvent* keyEv = static_cast<QKeyEvent*>(event);
+        QKeyEvent* keyEv = static_cast<QKeyEvent*>( event );
 
-        if (m_isEditOperationsAvailable)
+        if ( m_isEditOperationsAvailable )
         {
-            if (keyEv->key() == Qt::Key_Delete || keyEv->key() == Qt::Key_Backspace )
+            if ( keyEv->key() == Qt::Key_Delete || keyEv->key() == Qt::Key_Backspace )
             {
-                QModelIndexList idxList =  m_listView->selectionModel()->selectedIndexes();
-                bool isAnyDeleted = false;
-                while(idxList.size())
+                QModelIndexList idxList      = m_listView->selectionModel()->selectedIndexes();
+                bool            isAnyDeleted = false;
+                while ( idxList.size() )
                 {
-                    m_model->removeRow(idxList[0].row());
-                    idxList =  m_listView->selectionModel()->selectedIndexes();
+                    m_model->removeRow( idxList[0].row() );
+                    idxList      = m_listView->selectionModel()->selectedIndexes();
                     isAnyDeleted = true;
                 }
 
-                if (isAnyDeleted)
+                if ( isAnyDeleted )
                 {
                     QStringList uiList = m_model->stringList();
 
-                    trimAndSetValuesToField(uiList);
+                    trimAndSetValuesToField( uiList );
                 }
                 return true;
             }
         }
 
-        if (keyEv->modifiers() & Qt::ControlModifier)
+        if ( keyEv->modifiers() & Qt::ControlModifier )
         {
-            if (keyEv->key() == Qt::Key_C)
+            if ( keyEv->key() == Qt::Key_C )
             {
                 QClipboard* clipboard = QApplication::clipboard();
-                if (clipboard)
+                if ( clipboard )
                 {
                     QString content = contentAsString();
-                    clipboard->setText(content);
+                    clipboard->setText( content );
 
                     return true;
                 }
             }
-            else if (m_isEditOperationsAvailable && keyEv->key() == Qt::Key_V)
+            else if ( m_isEditOperationsAvailable && keyEv->key() == Qt::Key_V )
             {
                 QClipboard* clipboard = QApplication::clipboard();
-                if (clipboard)
+                if ( clipboard )
                 {
                     QString content = clipboard->text();
-                    pasteFromString(content);
-                    
+                    pasteFromString( content );
+
                     return true;
                 }
             }

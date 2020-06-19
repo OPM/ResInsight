@@ -34,9 +34,8 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include "cafPdmCoreVec3d.h"
-#include "cafPdmXmlVec3d.h"
 #include "cafPdmUiCoreVec3d.h"
+#include "cafPdmXmlVec3d.h"

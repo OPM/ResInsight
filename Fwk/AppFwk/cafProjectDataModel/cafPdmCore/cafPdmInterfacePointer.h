@@ -37,50 +37,52 @@
 
 #include "cafPdmPointer.h"
 
-namespace caf 
+namespace caf
 {
-
-template<class T>
+template <class T>
 class PdmInterfacePointer
 {
 public:
-    inline PdmInterfacePointer () : m_iface(nullptr)                    { }
-    inline PdmInterfacePointer ( T * iface )                            { *this = iface; }
-    inline PdmInterfacePointer ( const PdmInterfacePointer<T> & other ) { *this = other.p();}
-
-    T* p() const 
+    inline PdmInterfacePointer()
+        : m_iface( nullptr )
     {
-        if ( m_implementingPdmObject.notNull() ) 
+    }
+    inline PdmInterfacePointer( T* iface ) { *this = iface; }
+    inline PdmInterfacePointer( const PdmInterfacePointer<T>& other ) { *this = other.p(); }
+
+    T* p() const
+    {
+        if ( m_implementingPdmObject.notNull() )
         {
             return m_iface;
         }
-        else 
+        else
         {
             return nullptr;
         }
     }
 
-    PdmInterfacePointer<T> & operator= ( T* iface )
+    PdmInterfacePointer<T>& operator=( T* iface )
     {
         m_implementingPdmObject = nullptr;
-        m_iface = nullptr;
+        m_iface                 = nullptr;
         if ( iface != nullptr )
         {
             m_implementingPdmObject = iface->implementingPdmObject();
-            m_iface = iface;
+            m_iface                 = iface;
         }
         return *this;
     }
 
-    bool                     isNull()     const                                { return m_implementingPdmObject.isNull(); }
-    bool                     notNull()    const                                { return m_implementingPdmObject.notNull(); }
-    operator                 T* ()        const                                { return p(); }
-    T*                       operator->() const                                { return p();  }
-    PdmInterfacePointer<T> & operator= ( const PdmInterfacePointer<T>& other ) {  return *this = other.p();}
+    bool                    isNull() const { return m_implementingPdmObject.isNull(); }
+    bool                    notNull() const { return m_implementingPdmObject.notNull(); }
+                            operator T*() const { return p(); }
+    T*                      operator->() const { return p(); }
+    PdmInterfacePointer<T>& operator=( const PdmInterfacePointer<T>& other ) { return *this = other.p(); }
 
 private:
-    T* m_iface; 
+    T*                               m_iface;
     PdmPointer<caf::PdmObjectHandle> m_implementingPdmObject;
 };
 
-}
+} // namespace caf

@@ -34,20 +34,19 @@
 //
 //##################################################################################################
 
-
 #pragma once
 #include "cafPdmUiFieldEditorHandle.h"
 
-#include <QWidget>
+#include <QLabel>
 #include <QPointer>
 #include <QPushButton>
-#include <QLabel>
+#include <QWidget>
 class QHBoxLayout;
 
-namespace caf 
+namespace caf
 {
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiActionPushButtonEditorAttribute : public PdmUiEditorAttribute
 {
@@ -55,9 +54,9 @@ public:
     // This is unused for now, but relevant customization would be:
     // * Size requirement to make several buttons same size
     //   possibly in the form of number of "X" characters
-    // * Horizontal Alignment options controlling how the button will place itself in the 
+    // * Horizontal Alignment options controlling how the button will place itself in the
     //   assigned area: Fill, Left, Right Center  default is Right
-    //   
+    //
     // * Optional label/icon to use in front of button
 };
 
@@ -72,24 +71,23 @@ class PdmUiActionPushButtonEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiActionPushButtonEditor()          {} 
-    ~PdmUiActionPushButtonEditor() override {} 
+    PdmUiActionPushButtonEditor() {}
+    ~PdmUiActionPushButtonEditor() override {}
 
-    static void configureEditorForField(PdmFieldHandle* fieldHandle);
+    static void configureEditorForField( PdmFieldHandle* fieldHandle );
 
 protected:
-    QWidget*    createEditorWidget(QWidget * parent) override;
-    //QWidget*    createLabelWidget(QWidget * parent) override;
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    QWidget* createEditorWidget( QWidget* parent ) override;
+    // QWidget*    createLabelWidget(QWidget * parent) override;
+    void configureAndUpdateUi( const QString& uiConfigName ) override;
 
 protected slots:
-    void        slotClicked(bool checked);
+    void slotClicked( bool checked );
 
 private:
-    QPointer<QPushButton>     m_pushButton;
-    //QPointer<QShortenedLabel> m_label;
-    QPointer<QHBoxLayout>     m_buttonLayout;
+    QPointer<QPushButton> m_pushButton;
+    // QPointer<QShortenedLabel> m_label;
+    QPointer<QHBoxLayout> m_buttonLayout;
 };
-
 
 } // end namespace caf

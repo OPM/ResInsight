@@ -38,7 +38,7 @@
 
 #include <QTextStream>
 
-QTextStream& operator >> (QTextStream& str, cvf::Color3f& value)
+QTextStream& operator>>( QTextStream& str, cvf::Color3f& value )
 {
     QString text;
 
@@ -47,12 +47,12 @@ QTextStream& operator >> (QTextStream& str, cvf::Color3f& value)
     str >> g;
     str >> b;
 
-    value.set(r, g, b);
+    value.set( r, g, b );
 
     return str;
 }
 
-QTextStream& operator << (QTextStream& str, const cvf::Color3f& value)
+QTextStream& operator<<( QTextStream& str, const cvf::Color3f& value )
 {
     str << value.r() << " " << value.g() << " " << value.b();
 

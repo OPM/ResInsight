@@ -46,46 +46,45 @@
 
 namespace caf
 {
-
 const int FontTools::MIN_FONT_SIZE = 6;
 
 template <>
 void FontTools::FontSizeEnum::setUp()
 {
-    addItem(FontTools::FontSize::FONT_SIZE_8, "8", "8");
-    addItem(FontTools::FontSize::FONT_SIZE_10, "10", "10");
-    addItem(FontTools::FontSize::FONT_SIZE_12, "12", "12");
-    addItem(FontTools::FontSize::FONT_SIZE_14, "14", "14");
-    addItem(FontTools::FontSize::FONT_SIZE_16, "16", "16");
-    addItem(FontTools::FontSize::FONT_SIZE_24, "24", "24");
-    addItem(FontTools::FontSize::FONT_SIZE_32, "32", "32");
+    addItem( FontTools::FontSize::FONT_SIZE_8, "8", "8" );
+    addItem( FontTools::FontSize::FONT_SIZE_10, "10", "10" );
+    addItem( FontTools::FontSize::FONT_SIZE_12, "12", "12" );
+    addItem( FontTools::FontSize::FONT_SIZE_14, "14", "14" );
+    addItem( FontTools::FontSize::FONT_SIZE_16, "16", "16" );
+    addItem( FontTools::FontSize::FONT_SIZE_24, "24", "24" );
+    addItem( FontTools::FontSize::FONT_SIZE_32, "32", "32" );
 
-    setDefault(FontTools::FontSize::FONT_SIZE_8);
+    setDefault( FontTools::FontSize::FONT_SIZE_8 );
 }
 
 template <>
 void FontTools::RelativeSizeEnum::setUp()
 {
-    addItem(FontTools::RelativeSize::XXSmall, "XX_Small", "XX Small");
-    addItem(FontTools::RelativeSize::XSmall, "X_Small", "X Small");
-    addItem(FontTools::RelativeSize::Small, "Small", "Small");
-    addItem(FontTools::RelativeSize::Medium, "Medium", "Medium");
-    addItem(FontTools::RelativeSize::Large, "Large", "Large");
-    addItem(FontTools::RelativeSize::XLarge, "X_Large", "X Large");
-    addItem(FontTools::RelativeSize::XXLarge, "XX_Large", "XX Large");
+    addItem( FontTools::RelativeSize::XXSmall, "XX_Small", "XX Small" );
+    addItem( FontTools::RelativeSize::XSmall, "X_Small", "X Small" );
+    addItem( FontTools::RelativeSize::Small, "Small", "Small" );
+    addItem( FontTools::RelativeSize::Medium, "Medium", "Medium" );
+    addItem( FontTools::RelativeSize::Large, "Large", "Large" );
+    addItem( FontTools::RelativeSize::XLarge, "X_Large", "X Large" );
+    addItem( FontTools::RelativeSize::XXLarge, "XX_Large", "XX Large" );
 
-    setDefault(FontTools::RelativeSize::Medium);
+    setDefault( FontTools::RelativeSize::Medium );
 }
-}
+} // namespace caf
 
 using namespace caf;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int FontTools::absolutePointSize(FontSize normalPointSize, RelativeSize relativeSize )
+int FontTools::absolutePointSize( FontSize normalPointSize, RelativeSize relativeSize )
 {
-    return static_cast<int>(normalPointSize) + static_cast<int>(relativeSize);
+    return static_cast<int>( normalPointSize ) + static_cast<int>( relativeSize );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,9 +105,9 @@ int FontTools::pointSizeToPixelSize( int pointSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int FontTools::pointSizeToPixelSize(FontSize pointSize)
+int FontTools::pointSizeToPixelSize( FontSize pointSize )
 {
-    return pointSizeToPixelSize((int) pointSize);
+    return pointSizeToPixelSize( (int)pointSize );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,19 +125,19 @@ int FontTools::pixelSizeToPointSize( int pixelSize )
     return pixelSize;
 }
 
-QList<PdmOptionItemInfo> FontTools::relativeSizeValueOptions(FontSize normalPointSize) 
+QList<PdmOptionItemInfo> FontTools::relativeSizeValueOptions( FontSize normalPointSize )
 {
     QList<caf::PdmOptionItemInfo> options;
-    for (size_t i = 0; i < RelativeSizeEnum::size(); ++i)
+    for ( size_t i = 0; i < RelativeSizeEnum::size(); ++i )
     {
-        QString uiText        = RelativeSizeEnum::uiTextFromIndex(i);
-        RelativeSize relSize  = RelativeSizeEnum::fromIndex(i);
-        int absolutePointSize = FontTools::absolutePointSize(normalPointSize, relSize);
-        if (absolutePointSize >= MIN_FONT_SIZE)
+        QString      uiText            = RelativeSizeEnum::uiTextFromIndex( i );
+        RelativeSize relSize           = RelativeSizeEnum::fromIndex( i );
+        int          absolutePointSize = FontTools::absolutePointSize( normalPointSize, relSize );
+        if ( absolutePointSize >= MIN_FONT_SIZE )
         {
-            uiText += QString(" (%1 pt)").arg(absolutePointSize);
-            options.push_back(PdmOptionItemInfo(uiText, relSize));
+            uiText += QString( " (%1 pt)" ).arg( absolutePointSize );
+            options.push_back( PdmOptionItemInfo( uiText, relSize ) );
         }
     }
-    return options;    
+    return options;
 }

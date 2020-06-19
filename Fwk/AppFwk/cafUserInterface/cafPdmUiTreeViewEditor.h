@@ -34,21 +34,19 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cafPdmUiTreeEditorHandle.h"
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiTreeEditorHandle.h"
 #include "cafPdmUiTreeViewQModel.h"
 
 #include <QAbstractItemModel>
 #include <QColor>
-#include <QPointer>
-#include <QWidget>
 #include <QItemSelectionModel>
+#include <QPointer>
 #include <QStyledItemDelegate>
 #include <QTreeView>
-
+#include <QWidget>
 
 class MySortFilterProxyModel;
 
@@ -57,9 +55,8 @@ class QMenu;
 class QTreeView;
 class QVBoxLayout;
 
-namespace caf 
+namespace caf
 {
-
 class PdmChildArrayFieldHandle;
 class PdmUiDragDropInterface;
 class PdmUiItem;
@@ -77,11 +74,10 @@ public:
     };
     PdmUiTreeViewItemAttribute()
         : tag()
-        , position(AT_END)
-        , bgColor(Qt::red)
-        , fgColor(Qt::white)
+        , position( AT_END )
+        , bgColor( Qt::red )
+        , fgColor( Qt::white )
     {
-
     }
     QString  tag;
     Position position;
@@ -92,26 +88,23 @@ public:
 class PdmUiTreeViewItemDelegate : public QStyledItemDelegate
 {
 public:
-    PdmUiTreeViewItemDelegate(QObject* parent, PdmUiTreeViewQModel* model);
+    PdmUiTreeViewItemDelegate( QObject* parent, PdmUiTreeViewQModel* model );
     void clearAttributes();
-    void addAttribute(QModelIndex index, const PdmUiTreeViewItemAttribute& attribute);
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    void addAttribute( QModelIndex index, const PdmUiTreeViewItemAttribute& attribute );
+    void paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
 
 private:
-    PdmUiTreeViewQModel* m_model;
+    PdmUiTreeViewQModel*                              m_model;
     std::map<QModelIndex, PdmUiTreeViewItemAttribute> m_attributes;
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiTreeViewEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    PdmUiTreeViewEditorAttribute()
-    {
-        currentObject = nullptr;
-    }
+    PdmUiTreeViewEditorAttribute() { currentObject = nullptr; }
 
 public:
     QStringList columnHeaders;
@@ -121,7 +114,7 @@ public:
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiTreeViewEditor : public PdmUiTreeEditorHandle
 {
@@ -130,62 +123,60 @@ public:
     PdmUiTreeViewEditor();
     ~PdmUiTreeViewEditor() override;
 
-    void        enableDefaultContextMenu(bool enable);
-    void        enableSelectionManagerUpdating(bool enable);
-    
-    void        enableAppendOfClassNameToUiItemText(bool enable);
-    bool        isAppendOfClassNameToUiItemTextEnabled();
+    void enableDefaultContextMenu( bool enable );
+    void enableSelectionManagerUpdating( bool enable );
 
-    QTreeView*  treeView();
-    bool        isTreeItemEditWidgetActive() const;
+    void enableAppendOfClassNameToUiItemText( bool enable );
+    bool isAppendOfClassNameToUiItemTextEnabled();
 
-    void        selectAsCurrentItem(const PdmUiItem* uiItem);
-    void        selectItems(std::vector<const PdmUiItem*> uiItems);
-    void        selectedUiItems(std::vector<PdmUiItem*>& objects);
-    void        setExpanded(const PdmUiItem* uiItem, bool doExpand) const;
+    QTreeView* treeView();
+    bool       isTreeItemEditWidgetActive() const;
 
-    PdmUiItem*  uiItemFromModelIndex(const QModelIndex& index) const;
-    QModelIndex findModelIndex(const PdmUiItem* object) const;
+    void selectAsCurrentItem( const PdmUiItem* uiItem );
+    void selectItems( std::vector<const PdmUiItem*> uiItems );
+    void selectedUiItems( std::vector<PdmUiItem*>& objects );
+    void setExpanded( const PdmUiItem* uiItem, bool doExpand ) const;
 
-    QWidget*    createWidget(QWidget* parent) override;
+    PdmUiItem*  uiItemFromModelIndex( const QModelIndex& index ) const;
+    QModelIndex findModelIndex( const PdmUiItem* object ) const;
 
-    void        setDragDropInterface(PdmUiDragDropInterface* dragDropInterface);
+    QWidget* createWidget( QWidget* parent ) override;
+
+    void setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
 
 signals:
-    void        selectionChanged();
+    void selectionChanged();
 
 protected:
-    void        configureAndUpdateUi(const QString& uiConfigName) override;
+    void configureAndUpdateUi( const QString& uiConfigName ) override;
 
-    void        updateMySubTree(PdmUiItem* uiItem) override;
+    void updateMySubTree( PdmUiItem* uiItem ) override;
 
-    void        updateContextMenuSignals();
+    void updateContextMenuSignals();
 
 private slots:
-    void        customMenuRequested(QPoint pos);
-    void        slotOnSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
+    void customMenuRequested( QPoint pos );
+    void slotOnSelectionChanged( const QItemSelection& selected, const QItemSelection& deselected );
 
 private:
     PdmChildArrayFieldHandle* currentChildArrayFieldHandle();
 
-    void        updateSelectionManager();
-    void        updateItemDelegateForSubTree(const QModelIndex& modelIndex = QModelIndex());
+    void updateSelectionManager();
+    void updateItemDelegateForSubTree( const QModelIndex& modelIndex = QModelIndex() );
 
-    bool        eventFilter(QObject *obj, QEvent *event) override;
+    bool eventFilter( QObject* obj, QEvent* event ) override;
 
 private:
-    QPointer<QWidget>               m_mainWidget;
-    QVBoxLayout*                    m_layout;
+    QPointer<QWidget> m_mainWidget;
+    QVBoxLayout*      m_layout;
 
-    PdmUiTreeViewWidget*            m_treeView;
-    PdmUiTreeViewQModel*            m_treeViewModel;
-    PdmUiTreeViewItemDelegate*          m_delegate;
+    PdmUiTreeViewWidget*       m_treeView;
+    PdmUiTreeViewQModel*       m_treeViewModel;
+    PdmUiTreeViewItemDelegate* m_delegate;
 
-    bool                            m_useDefaultContextMenu;
-    bool                            m_updateSelectionManager;
-    bool                            m_appendClassNameToUiItemText;
+    bool m_useDefaultContextMenu;
+    bool m_updateSelectionManager;
+    bool m_appendClassNameToUiItemText;
 };
-
-
 
 } // end namespace caf

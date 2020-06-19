@@ -37,98 +37,99 @@
 #include "cafPdmUiSelection3dEditorVisualizer.h"
 
 //==================================================================================================
-/// 
+///
 ///
 ///
 //==================================================================================================
 
 #include "cafSelectionManager.h"
 
-namespace caf 
+namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// The ownerViewer will take over ownership of this class. The ownerViewer is also the viewer distributed to 
+/// The ownerViewer will take over ownership of this class. The ownerViewer is also the viewer distributed to
 /// the 3dEditors created by this class to make them know where to exist.
 //--------------------------------------------------------------------------------------------------
-PdmUiSelection3dEditorVisualizer::PdmUiSelection3dEditorVisualizer(QWidget* ownerViewer)
-    : m_ownerViewer(ownerViewer)
+PdmUiSelection3dEditorVisualizer::PdmUiSelection3dEditorVisualizer( QWidget* ownerViewer )
+    : m_ownerViewer( ownerViewer )
 {
-    this->setParent(ownerViewer); // Makes this owned by the viewer.
+    this->setParent( ownerViewer ); // Makes this owned by the viewer.
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 PdmUiSelection3dEditorVisualizer::~PdmUiSelection3dEditorVisualizer()
 {
-    for (const auto& editor: m_active3DEditors)
+    for ( const auto& editor : m_active3DEditors )
     {
         delete editor;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiSelection3dEditorVisualizer::updateVisibleEditors()
 {
-    for (const auto& editor: m_active3DEditors)
+    for ( const auto& editor : m_active3DEditors )
     {
-        if (editor) editor->updateUi();
+        if ( editor ) editor->updateUi();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiSelection3dEditorVisualizer::onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels )
 {
-    if (!changedSelectionLevels.count(0)) return;
+    if ( !changedSelectionLevels.count( 0 ) ) return;
 
-    for (const auto& editor: m_active3DEditors)
+    for ( const auto& editor : m_active3DEditors )
     {
         delete editor;
     }
 
     m_active3DEditors.clear();
 
-    if (!m_ownerViewer) return;
+    if ( !m_ownerViewer ) return;
 
     std::set<PdmUiItem*> totalSelection;
-    for ( int selLevel: changedSelectionLevels )
+    for ( int selLevel : changedSelectionLevels )
     {
         std::vector<PdmUiItem*> items;
-        caf::SelectionManager::instance()->selectedItems(items, selLevel );
-        totalSelection.insert(items.begin(), items.end());
+        caf::SelectionManager::instance()->selectedItems( items, selLevel );
+        totalSelection.insert( items.begin(), items.end() );
     }
 
-    for (PdmUiItem* item: totalSelection)
+    for ( PdmUiItem* item : totalSelection )
     {
-        QString editor3dTypeName = item->ui3dEditorTypeName(m_configName);
-        if (!editor3dTypeName.isEmpty())
+        QString editor3dTypeName = item->ui3dEditorTypeName( m_configName );
+        if ( !editor3dTypeName.isEmpty() )
         {
-            PdmObjectHandle* itemObject = dynamic_cast<PdmObjectHandle*>(item);
+            PdmObjectHandle* itemObject = dynamic_cast<PdmObjectHandle*>( item );
             if ( itemObject )
             {
                 // Editor in main view
                 {
-                    PdmUi3dObjectEditorHandle* editor3d = caf::Factory<PdmUi3dObjectEditorHandle, QString>::instance()->create(editor3dTypeName);
-                    editor3d->setViewer(m_ownerViewer, false);
-                    editor3d->setPdmObject(itemObject);
-                    m_active3DEditors.emplace_back(editor3d);
+                    PdmUi3dObjectEditorHandle* editor3d =
+                        caf::Factory<PdmUi3dObjectEditorHandle, QString>::instance()->create( editor3dTypeName );
+                    editor3d->setViewer( m_ownerViewer, false );
+                    editor3d->setPdmObject( itemObject );
+                    m_active3DEditors.emplace_back( editor3d );
                     editor3d->updateUi();
                 }
-                
-                QVariant isComparisonActive = m_ownerViewer->property("cafViewer_IsComparisonViewActive");
+
+                QVariant isComparisonActive = m_ownerViewer->property( "cafViewer_IsComparisonViewActive" );
 
                 // Editor in comparison view
-                if (!isComparisonActive.isNull() && isComparisonActive.isValid() && isComparisonActive.toBool())
+                if ( !isComparisonActive.isNull() && isComparisonActive.isValid() && isComparisonActive.toBool() )
                 {
-                    PdmUi3dObjectEditorHandle* editor3d = caf::Factory<PdmUi3dObjectEditorHandle, QString>::instance()->create(editor3dTypeName);
-                    editor3d->setViewer(m_ownerViewer, true);
-                    editor3d->setPdmObject(itemObject);
-                    m_active3DEditors.emplace_back(editor3d);
+                    PdmUi3dObjectEditorHandle* editor3d =
+                        caf::Factory<PdmUi3dObjectEditorHandle, QString>::instance()->create( editor3dTypeName );
+                    editor3d->setViewer( m_ownerViewer, true );
+                    editor3d->setPdmObject( itemObject );
+                    m_active3DEditors.emplace_back( editor3d );
                     editor3d->updateUi();
                 }
             }
@@ -139,4 +140,3 @@ void PdmUiSelection3dEditorVisualizer::onSelectionManagerSelectionChanged( const
 }
 
 } // end namespace caf
-

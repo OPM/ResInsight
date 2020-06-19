@@ -44,13 +44,12 @@ namespace caf
 class StyleSheetTools
 {
 public:
-    static QString createFrameStyleSheet(const QString& classType,
-                                         const QString& objectName,
-                                         const QColor&  textColor,
-                                         const QColor&  backgroundColor,
-                                         const QColor&  backgroundFrameColor);
-    static QString colorStringWithAlpha(const QColor& color);
+    static QString createFrameStyleSheet( const QString& classType,
+                                          const QString& objectName,
+                                          const QColor&  textColor,
+                                          const QColor&  backgroundColor,
+                                          const QColor&  backgroundFrameColor );
+    static QString colorStringWithAlpha( const QColor& color );
 };
 
-}
-
+} // namespace caf

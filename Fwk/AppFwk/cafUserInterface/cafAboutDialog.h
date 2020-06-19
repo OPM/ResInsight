@@ -34,53 +34,54 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
 #include <QDialog>
 
 class QGridLayout;
 
-namespace caf {
-
-
+namespace caf
+{
 //==================================================================================================
 //
-// 
+//
 //
 //==================================================================================================
 class AboutDialog : public QDialog
 {
 public:
-    explicit AboutDialog(QWidget* parent);
+    explicit AboutDialog( QWidget* parent );
 
-    void    setApplicationName(const QString& appName);
-    void    setApplicationVersion(const QString& ver);
-    void    setCopyright(const QString& copyright);
+    void setApplicationName( const QString& appName );
+    void setApplicationVersion( const QString& ver );
+    void setCopyright( const QString& copyright );
 
-    void    showQtVersion(bool show);
-    void    addVersionEntry(const QString& verLabel, const QString& verText);
-    void    setIsDebugBuild(bool isDebugBuild);
+    void showQtVersion( bool show );
+    void addVersionEntry( const QString& verLabel, const QString& verText );
+    void setIsDebugBuild( bool isDebugBuild );
 
-    void    create();
+    void create();
 
-    static QString  versionStringForcurrentOpenGLContext();
-
-private:
-    void    addStringPairToVerInfoLayout(const QString& labelStr, const QString& infoStr, QGridLayout* verInfoLayout, int insertRow);
+    static QString versionStringForcurrentOpenGLContext();
 
 private:
-    bool            m_isCreated;            // Indicates if the create() function has been called
+    void addStringPairToVerInfoLayout( const QString& labelStr,
+                                       const QString& infoStr,
+                                       QGridLayout*   verInfoLayout,
+                                       int            insertRow );
 
-    QString         m_appName;                // Application name, appears in bold at the top of the dialog. 
-    QString         m_appVersion;            // Application version info. Can be empty
-    QString            m_appCopyright;            // Application copyright string. Can be empty
+private:
+    bool m_isCreated; // Indicates if the create() function has been called
 
-    bool            m_showQtVersion;        // Flags whether Qt version info should be shown
-    QStringList     m_verLabels;            // Labels for user specified version entries
-    QStringList     m_verTexts;                // The actual version text for user specified version entries
+    QString m_appName; // Application name, appears in bold at the top of the dialog.
+    QString m_appVersion; // Application version info. Can be empty
+    QString m_appCopyright; // Application copyright string. Can be empty
 
-    bool            m_isDebugBuild;            // If set to true, will show info in dlg to indicate that this is a debug build
+    bool        m_showQtVersion; // Flags whether Qt version info should be shown
+    QStringList m_verLabels; // Labels for user specified version entries
+    QStringList m_verTexts; // The actual version text for user specified version entries
+
+    bool m_isDebugBuild; // If set to true, will show info in dlg to indicate that this is a debug build
 };
 
-}
+} // namespace caf

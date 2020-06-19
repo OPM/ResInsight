@@ -1,13 +1,12 @@
 #pragma once
 
-#include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
+#include "cafPdmObject.h"
 
 #include <QXmlStreamWriter>
 
-namespace caf 
+namespace caf
 {
-
 class PdmReferenceHelper;
 
 //==================================================================================================
@@ -16,54 +15,54 @@ class PdmReferenceHelper;
 class PdmObjectGroup : public PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     PdmObjectGroup();
     ~PdmObjectGroup() override;
 
     std::vector<PdmObjectHandle*> objects;
 
-    void                         deleteObjects();
-    void                         addObject(PdmObjectHandle * obj);
+    void deleteObjects();
+    void addObject( PdmObjectHandle* obj );
 
     template <typename T>
-    void objectsByType(std::vector<PdmPointer<T> >* typedObjects ) const
+    void objectsByType( std::vector<PdmPointer<T>>* typedObjects ) const
     {
-        if (!typedObjects) return;
+        if ( !typedObjects ) return;
         size_t it;
-        for (it = 0; it != objects.size(); ++it)
+        for ( it = 0; it != objects.size(); ++it )
         {
-            T* obj = dynamic_cast<T*>(objects[it]);
-            if (obj) typedObjects->push_back(obj);
+            T* obj = dynamic_cast<T*>( objects[it] );
+            if ( obj ) typedObjects->push_back( obj );
         }
     }
 
     template <typename T>
-    void createCopyByType(std::vector<PdmPointer<T> >* copyOfTypedObjects, PdmObjectFactory* objectFactory) const;
+    void createCopyByType( std::vector<PdmPointer<T>>* copyOfTypedObjects, PdmObjectFactory* objectFactory ) const;
 };
-
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void PdmObjectGroup::createCopyByType(std::vector<PdmPointer<T> >* copyOfTypedObjects, PdmObjectFactory* objectFactory) const
+void PdmObjectGroup::createCopyByType( std::vector<PdmPointer<T>>* copyOfTypedObjects, PdmObjectFactory* objectFactory ) const
 {
-    std::vector<PdmPointer<T> > sourceTypedObjects;
-    objectsByType(&sourceTypedObjects);
+    std::vector<PdmPointer<T>> sourceTypedObjects;
+    objectsByType( &sourceTypedObjects );
 
-    for (size_t i = 0; i < sourceTypedObjects.size(); i++)
+    for ( size_t i = 0; i < sourceTypedObjects.size(); i++ )
     {
-        QString xml = xmlObj(sourceTypedObjects[i])->writeObjectToXmlString();
+        QString xml = xmlObj( sourceTypedObjects[i] )->writeObjectToXmlString();
 
-        PdmObjectHandle* objectCopy = PdmXmlObjectHandle::readUnknownObjectFromXmlString(xml, PdmDefaultObjectFactory::instance(), true);
+        PdmObjectHandle* objectCopy =
+            PdmXmlObjectHandle::readUnknownObjectFromXmlString( xml, PdmDefaultObjectFactory::instance(), true );
 
-        T* typedObject = dynamic_cast<T*>(objectCopy);
-        CAF_ASSERT(typedObject);
+        T* typedObject = dynamic_cast<T*>( objectCopy );
+        CAF_ASSERT( typedObject );
 
-        copyOfTypedObjects->push_back(typedObject);
+        copyOfTypedObjects->push_back( typedObject );
     }
 }
-
 
 //==================================================================================================
 /// The PdmObjectCollection serves as a container of unknown PdmObjects stored in a PdmChildArrayField
@@ -71,6 +70,7 @@ void PdmObjectGroup::createCopyByType(std::vector<PdmPointer<T> >* copyOfTypedOb
 class PdmObjectCollection : public PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     PdmObjectCollection();
     ~PdmObjectCollection() override;
@@ -78,7 +78,4 @@ public:
     caf::PdmChildArrayField<PdmObjectHandle*> objects;
 };
 
-
 } // End of namespace caf
-
-

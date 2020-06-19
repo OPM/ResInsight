@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiComboBoxEditor.h"
 
 #include "cafPdmField.h"
@@ -52,28 +51,33 @@
 #include <QListView>
 #include <QWheelEvent>
 
-
 namespace caf
 {
-
-CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiComboBoxEditor);
-
+CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiComboBoxEditor );
 
 /* GIMP RGBA C-Source image dump (StepDown.c) */
 
-static const struct {
-    unsigned int 	 width;
-    unsigned int 	 height;
-    unsigned int 	 bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */ 
-    unsigned char	 pixel_data[16 * 16 * 4 + 1];
+static const struct
+{
+    unsigned int  width;
+    unsigned int  height;
+    unsigned int  bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */
+    unsigned char pixel_data[16 * 16 * 4 + 1];
 } stepDownImageData = {
-    16, 16, 4,
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000AAA\001\030\030\030\001"
+    16,
+    16,
+    4,
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000AA"
+    "A\001\030\030\030\001"
     "\037\037\037\001\020\020\020\001\004\004\004\001\016\016\016\001!!!\001\"\"\"\001(((\001\060\060\060\001$$"
-    "$\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000UUU\014FFF\242\030\030\030\256\037\037\037\256"
+    "$\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000UUU\014FFF\242\030\030\030\256\037\037\037"
+    "\256"
     "\022\022\022\256\005\005\005\256\021\021\021\256'''\256...\256\061\061\061\256\067\067\067"
     "\256&&&\256AAAzTTT\010\000\000\000\000\000\000\000\000xxx\014```\273\033\033\033\377&&&\377\""
     "\"\"\377\017\017\017\377\"\"\"\377LLL\377___\377^^^\377^^^\377AAA\376OOOXTT"
@@ -82,9 +86,11 @@ static const struct {
     "\000\000\000\000\000KKK\004\066\066\066z\040\040\040\370\"\"\"\377\014\014\014\377$$$\377SSS\377"
     "ccc\377bbb\377NNN\362\202\202\202=\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
     "\000\000\000\000\000\064\064\064\040===\312\032\032\032\375\017\017\017\377$$$\377WWW\377bbb"
-    "\377MMM\374LLL\200iii\006\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000W"
+    "\377MMM\374LLL\200iii\006\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000W"
     "WW\001AAA\063###\330\007\007\007\377(((\377VVV\377UUU\377WWW\314\217\217\217\040\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000;;;\001\066\066"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000;;;\001\066\066"
     "\066}\027\027\027\371(((\377TTT\377FFF\360\\\\\\C\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
     "\000\000\000\000\000\000\000\000\000\000\000\000\000\000TTT\015\025\025\025\036\040\040\040!<<<<???\360\"\"\""
     "\377===\377ddd\266GGG\062\026\026\026\061\040\040\040\066\"\"\"\022\000\000\000\000\000\000\000\000"
@@ -93,41 +99,52 @@ static const struct {
     "AA\010\000\000\000\000\000\000\000\000bbb\014QQQ\264%%%\355$$$\363\035\035\035\352\034\034\034\351"
     "&&&\353$$$\344)))\346\061\061\061\345\066\066\066\350\062\062\062\335\064\064\064\201"
     "???\007\000\000\000\000\000\000\000\000\000\000\000\000SSS\023@@@?\070\070\070E---=,,,<///>\"\"\"\067&&"
-    "&\070$$$\070---:CCC\060;;;\015\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "&\070$$$\070---:CCC\060;;;"
+    "\015\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000"
     "\000\000\000\000\000",
 };
 
 QIcon createStepDownIcon()
 {
-    QImage img(stepDownImageData.pixel_data,stepDownImageData.width, stepDownImageData.height, QImage::Format_ARGB32 );
+    QImage img( stepDownImageData.pixel_data, stepDownImageData.width, stepDownImageData.height, QImage::Format_ARGB32 );
     QPixmap pxMap;
-    pxMap = QPixmap::fromImage(img);
+    pxMap = QPixmap::fromImage( img );
 
-    return QIcon(pxMap);
+    return QIcon( pxMap );
 }
 
 static const QIcon& stepDownIcon()
 {
-    static QIcon expandDownIcon(createStepDownIcon());
+    static QIcon expandDownIcon( createStepDownIcon() );
     return expandDownIcon;
 }
 
 /* GIMP RGBA C-Source image dump (StepUp.c) */
 
-static const struct {
-    unsigned int 	 width;
-    unsigned int 	 height;
-    unsigned int 	 bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */ 
-    unsigned char	 pixel_data[16 * 16 * 4 + 1];
+static const struct
+{
+    unsigned int  width;
+    unsigned int  height;
+    unsigned int  bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */
+    unsigned char pixel_data[16 * 16 * 4 + 1];
 } stepUpImageData = {
-    16, 16, 4,
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000;;;\015CCC\060---:"
+    16,
+    16,
+    4,
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000;;"
+    ";\015CCC\060---:"
     "$$$\070&&&\070\"\"\"\067///>,,,<---=\070\070\070E@@@?SSS\023\000\000\000\000\000\000\000\000\000\000"
     "\000\000???\007\064\064\064\201\062\062\062\335\066\066\066\350\061\061\061\345)))\346$$$\344"
     "&&&\353\034\034\034\351\035\035\035\352$$$\363%%%\355QQQ\264bbb\014\000\000\000\000\000\000"
@@ -136,11 +153,14 @@ static const struct {
     "\000\000\000\000\000\000\000\000\000\000\000\000\"\"\"\022\040\040\040\066\026\026\026\061GGG\062ddd\266=="
     "=\377\"\"\"\377???\360<<<<\040\040\040!\025\025\025\036TTT\015\000\000\000\000\000\000\000\000\000"
     "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\\\\\\CFFF\360TTT\377(((\377\027\027"
-    "\027\371\066\066\066};;;\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\027\371\066\066\066};;;"
+    "\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
     "\000\000\000\000\000\000\000\217\217\217\040WWW\314UUU\377VVV\377(((\377\007\007\007\377###\330"
-    "AAA\063WWW\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000iii\006LLL\200M"
+    "AAA\063WWW\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000iii"
+    "\006LLL\200M"
     "MM\374bbb\377WWW\377$$$\377\017\017\017\377\032\032\032\375===\312\064\064\064\040"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\202\202\202=NNN\362bbb\377"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\202\202\202="
+    "NNN\362bbb\377"
     "ccc\377SSS\377$$$\377\014\014\014\377\"\"\"\377\040\040\040\370\066\066\066zKKK\004"
     "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\177\177\177\032NNN\300WWW\376hhh\377]]]\377"
     "WWW\377'''\377\017\017\017\377%%%\377&&&\377+++\343JJJ\071\000\000\000\000\000\000\000\000\000"
@@ -149,192 +169,194 @@ static const struct {
     "\256\067\067\067\256\061\061\061\256...\256'''\256\021\021\021\256\005\005\005\256\022\022"
     "\022\256\037\037\037\256\030\030\030\256FFF\242UUU\014\000\000\000\000\000\000\000\000\000\000\000\000\000"
     "\000\000\000$$$\001\060\060\060\001(((\001\"\"\"\001!!!\001\016\016\016\001\004\004\004\001\020\020\020\001\037"
-    "\037\037\001\030\030\030\001AAA\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\037\037\001\030\030\030\001AAA\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+    "\000\000\000\000\000\000\000\000"
     "\000\000\000\000",
 };
 
 QIcon createStepUpIcon()
 {
-    QImage img(stepUpImageData.pixel_data,stepUpImageData.width, stepUpImageData.height, QImage::Format_ARGB32 );
+    QImage  img( stepUpImageData.pixel_data, stepUpImageData.width, stepUpImageData.height, QImage::Format_ARGB32 );
     QPixmap pxMap;
-    pxMap = QPixmap::fromImage(img);
+    pxMap = QPixmap::fromImage( img );
 
-    return QIcon(pxMap);
+    return QIcon( pxMap );
 }
 
 static const QIcon& stepUpIcon()
 {
-    static QIcon stepUpIcon(createStepUpIcon());
+    static QIcon stepUpIcon( createStepUpIcon() );
     return stepUpIcon;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
+void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    if (!m_label.isNull())
+    if ( !m_label.isNull() )
     {
-        PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
+        PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
     }
 
     // Handle attributes
-    caf::PdmUiObjectHandle* uiObject = uiObj(uiField()->fieldHandle()->ownerObject());
-    if (uiObject)
+    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
     {
-        uiObject->editorAttribute(uiField()->fieldHandle(), uiConfigName, &m_attributes);
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
     }
 
-    if (!m_comboBox.isNull())
+    if ( !m_comboBox.isNull() )
     {
-        m_comboBox->setEnabled(!uiField()->isUiReadOnly(uiConfigName));
-        m_comboBox->setToolTip(uiField()->uiToolTip(uiConfigName));
+        m_comboBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+        m_comboBox->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
+        bool                     fromMenuOnly = true;
+        QList<PdmOptionItemInfo> options      = uiField()->valueOptions( &fromMenuOnly );
+        CAF_ASSERT( fromMenuOnly ); // Not supported
 
-        bool fromMenuOnly = true;
-        QList<PdmOptionItemInfo> options = uiField()->valueOptions(&fromMenuOnly);
-        CAF_ASSERT(fromMenuOnly); // Not supported
-
-        m_comboBox->blockSignals(true);
+        m_comboBox->blockSignals( true );
         m_comboBox->clear();
-        QListView* listView = dynamic_cast<QListView*>(m_comboBox->view());
-        if (listView)
+        QListView* listView = dynamic_cast<QListView*>( m_comboBox->view() );
+        if ( listView )
         {
-            listView->setSpacing(2);
+            listView->setSpacing( 2 );
         }
 
-        if (!options.isEmpty())
+        if ( !options.isEmpty() )
         {
-            for (const auto& option : options)
+            for ( const auto& option : options )
             {
                 auto icon = option.icon();
-                if (icon)
-                    m_comboBox->addItem(*icon, option.optionUiText());
+                if ( icon )
+                    m_comboBox->addItem( *icon, option.optionUiText() );
                 else
-                    m_comboBox->addItem(option.optionUiText());
-                m_comboBox->setIconSize(m_attributes.iconSize);
+                    m_comboBox->addItem( option.optionUiText() );
+                m_comboBox->setIconSize( m_attributes.iconSize );
             }
-            m_comboBox->setCurrentIndex(uiField()->uiValue().toInt());
+            m_comboBox->setCurrentIndex( uiField()->uiValue().toInt() );
         }
         else
         {
-            m_comboBox->addItem(uiField()->uiValue().toString());
-            m_comboBox->setCurrentIndex(0);
+            m_comboBox->addItem( uiField()->uiValue().toString() );
+            m_comboBox->setCurrentIndex( 0 );
         }
 
-        if (m_attributes.adjustWidthToContents)
+        if ( m_attributes.adjustWidthToContents )
         {
-            m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+            m_comboBox->setSizeAdjustPolicy( QComboBox::AdjustToContents );
         }
-        else if (m_attributes.minimumContentsLength > 0)
+        else if ( m_attributes.minimumContentsLength > 0 )
         {
-            m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
-            m_comboBox->setMinimumContentsLength(m_attributes.minimumContentsLength);
+            m_comboBox->setSizeAdjustPolicy( QComboBox::AdjustToMinimumContentsLength );
+            m_comboBox->setMinimumContentsLength( m_attributes.minimumContentsLength );
             // Make sure the popup adjusts to the content even if the widget itself doesn't
             QFont font = m_comboBox->view()->font();
-            
-            int maxTextWidth = 0;
+
+            int  maxTextWidth = 0;
             bool labelsElided = false;
-            for (const PdmOptionItemInfo& option : options)
+            for ( const PdmOptionItemInfo& option : options )
             {
                 QString label = option.optionUiText();
-                if (label.size() > m_attributes.maximumMenuContentsLength)
+                if ( label.size() > m_attributes.maximumMenuContentsLength )
                 {
-                    label.resize(m_attributes.maximumMenuContentsLength);
+                    label.resize( m_attributes.maximumMenuContentsLength );
                     labelsElided = true;
                 }
-                maxTextWidth  = std::max(maxTextWidth, QFontMetrics(font).boundingRect(label).width());
+                maxTextWidth = std::max( maxTextWidth, QFontMetrics( font ).boundingRect( label ).width() );
             }
 
             int marginWidth = m_comboBox->view()->contentsMargins().left() + m_comboBox->view()->contentsMargins().right();
-            m_comboBox->view()->setMinimumWidth(maxTextWidth + marginWidth);
-            m_comboBox->view()->setTextElideMode(labelsElided ? Qt::ElideMiddle : Qt::ElideNone);
+            m_comboBox->view()->setMinimumWidth( maxTextWidth + marginWidth );
+            m_comboBox->view()->setTextElideMode( labelsElided ? Qt::ElideMiddle : Qt::ElideNone );
         }
 
-        if (m_attributes.enableEditableContent)
+        if ( m_attributes.enableEditableContent )
         {
-            m_comboBox->setEditable(true);
+            m_comboBox->setEditable( true );
 
-            m_comboBox->lineEdit()->setPlaceholderText(m_attributes.placeholderText);
+            m_comboBox->lineEdit()->setPlaceholderText( m_attributes.placeholderText );
         }
 
-        if (m_attributes.minimumWidth != -1)
+        if ( m_attributes.minimumWidth != -1 )
         {
-            m_comboBox->setMinimumWidth(m_attributes.minimumWidth);
+            m_comboBox->setMinimumWidth( m_attributes.minimumWidth );
         }
 
-        m_comboBox->blockSignals(false);
+        m_comboBox->blockSignals( false );
     }
 
-    if (!m_layout.isNull())
+    if ( !m_layout.isNull() )
     {
-        if (m_attributes.showPreviousAndNextButtons)
+        if ( m_attributes.showPreviousAndNextButtons )
         {
-            if (m_previousItemButton.isNull())
+            if ( m_previousItemButton.isNull() )
             {
-                m_previousItemButton = new QToolButton(m_placeholder);
-                connect(m_previousItemButton, SIGNAL(clicked()), this, SLOT(slotPreviousButtonPressed()));
+                m_previousItemButton = new QToolButton( m_placeholder );
+                connect( m_previousItemButton, SIGNAL( clicked() ), this, SLOT( slotPreviousButtonPressed() ) );
 
-                m_previousItemButton->setToolTip("Previous");
+                m_previousItemButton->setToolTip( "Previous" );
             }
 
-            if (m_nextItemButton.isNull())
+            if ( m_nextItemButton.isNull() )
             {
-                m_nextItemButton = new QToolButton(m_placeholder);
-                connect(m_nextItemButton, SIGNAL(clicked()), this, SLOT(slotNextButtonPressed()));
+                m_nextItemButton = new QToolButton( m_placeholder );
+                connect( m_nextItemButton, SIGNAL( clicked() ), this, SLOT( slotNextButtonPressed() ) );
 
-                m_nextItemButton->setToolTip("Next");
+                m_nextItemButton->setToolTip( "Next" );
             }
 
-            m_layout->insertWidget(1, m_previousItemButton);
-            m_layout->insertWidget(2, m_nextItemButton);
+            m_layout->insertWidget( 1, m_previousItemButton );
+            m_layout->insertWidget( 2, m_nextItemButton );
 
-            if (m_comboBox->count() == 0 || m_comboBox->currentIndex() <= 0)
+            if ( m_comboBox->count() == 0 || m_comboBox->currentIndex() <= 0 )
             {
-                QIcon disabledIcon(stepUpIcon().pixmap(16, 16, QIcon::Disabled));
-                m_previousItemButton->setIcon(disabledIcon);
-            }
-            else
-            {
-                m_previousItemButton->setIcon(stepUpIcon());
-            }
-
-            if (m_comboBox->count() == 0 || m_comboBox->currentIndex() >= m_comboBox->count() - 1)
-            {
-                QIcon disabledIcon(stepDownIcon().pixmap(16, 16, QIcon::Disabled));
-                m_nextItemButton->setIcon(disabledIcon);
+                QIcon disabledIcon( stepUpIcon().pixmap( 16, 16, QIcon::Disabled ) );
+                m_previousItemButton->setIcon( disabledIcon );
             }
             else
             {
-                m_nextItemButton->setIcon(stepDownIcon());
+                m_previousItemButton->setIcon( stepUpIcon() );
+            }
+
+            if ( m_comboBox->count() == 0 || m_comboBox->currentIndex() >= m_comboBox->count() - 1 )
+            {
+                QIcon disabledIcon( stepDownIcon().pixmap( 16, 16, QIcon::Disabled ) );
+                m_nextItemButton->setIcon( disabledIcon );
+            }
+            else
+            {
+                m_nextItemButton->setIcon( stepDownIcon() );
             }
 
             // Update button texts
-            if (!m_attributes.nextButtonText.isEmpty())
+            if ( !m_attributes.nextButtonText.isEmpty() )
             {
-                m_nextItemButton->setToolTip(m_attributes.nextButtonText);
+                m_nextItemButton->setToolTip( m_attributes.nextButtonText );
             }
 
-            if (!m_attributes.prevButtonText.isEmpty())
+            if ( !m_attributes.prevButtonText.isEmpty() )
             {
-                m_previousItemButton->setToolTip(m_attributes.prevButtonText);
+                m_previousItemButton->setToolTip( m_attributes.prevButtonText );
             }
         }
         else
         {
-            if (m_previousItemButton)
+            if ( m_previousItemButton )
             {
-                m_layout->removeWidget(m_previousItemButton);
+                m_layout->removeWidget( m_previousItemButton );
                 m_previousItemButton->deleteLater();
             }
 
-            if (m_nextItemButton)
+            if ( m_nextItemButton )
             {
-                m_layout->removeWidget(m_nextItemButton);
+                m_layout->removeWidget( m_nextItemButton );
                 m_nextItemButton->deleteLater();
             }
         }
@@ -348,13 +370,13 @@ QMargins PdmUiComboBoxEditor::calculateLabelContentMargins() const
 {
     QSize editorSize = m_comboBox->sizeHint();
     QSize labelSize  = m_label->sizeHint();
-    int heightDiff   = editorSize.height() - labelSize.height();
+    int   heightDiff = editorSize.height() - labelSize.height();
 
     QMargins contentMargins = m_label->contentsMargins();
-    if (heightDiff > 0)
+    if ( heightDiff > 0 )
     {
-        contentMargins.setTop(contentMargins.top() + heightDiff / 2);
-        contentMargins.setBottom(contentMargins.bottom() + heightDiff / 2);
+        contentMargins.setTop( contentMargins.top() + heightDiff / 2 );
+        contentMargins.setBottom( contentMargins.bottom() + heightDiff / 2 );
     }
     return contentMargins;
 }
@@ -369,18 +391,19 @@ QMargins PdmUiComboBoxEditor::calculateLabelContentMargins() const
 class CustomQComboBox : public QComboBox
 {
 public:
-    explicit CustomQComboBox(QWidget* parent = nullptr)
-        : QComboBox(parent)
-    {}
+    explicit CustomQComboBox( QWidget* parent = nullptr )
+        : QComboBox( parent )
+    {
+    }
 
     //--------------------------------------------------------------------------------------------------
-    /// 
+    ///
     //--------------------------------------------------------------------------------------------------
-    void wheelEvent(QWheelEvent *e) override
+    void wheelEvent( QWheelEvent* e ) override
     {
-        if (hasFocus())
+        if ( hasFocus() )
         {
-            QComboBox::wheelEvent(e);
+            QComboBox::wheelEvent( e );
         }
         else
         {
@@ -391,64 +414,64 @@ public:
 
 protected:
     //--------------------------------------------------------------------------------------------------
-    /// 
+    ///
     //--------------------------------------------------------------------------------------------------
-    void focusInEvent(QFocusEvent* e) override
+    void focusInEvent( QFocusEvent* e ) override
     {
-        setFocusPolicy(Qt::WheelFocus);
-        QComboBox::focusInEvent(e);
+        setFocusPolicy( Qt::WheelFocus );
+        QComboBox::focusInEvent( e );
     }
 
     //--------------------------------------------------------------------------------------------------
-    /// 
+    ///
     //--------------------------------------------------------------------------------------------------
-    void focusOutEvent(QFocusEvent* e) override
+    void focusOutEvent( QFocusEvent* e ) override
     {
-        setFocusPolicy(Qt::StrongFocus);
-        QComboBox::focusOutEvent(e);
+        setFocusPolicy( Qt::StrongFocus );
+        QComboBox::focusOutEvent( e );
     }
 };
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiComboBoxEditor::createEditorWidget(QWidget * parent)
+QWidget* PdmUiComboBoxEditor::createEditorWidget( QWidget* parent )
 {
-    m_comboBox = new CustomQComboBox(parent);
-    m_comboBox->setFocusPolicy(Qt::StrongFocus);
+    m_comboBox = new CustomQComboBox( parent );
+    m_comboBox->setFocusPolicy( Qt::StrongFocus );
 
-    m_placeholder = new QWidget(parent);
+    m_placeholder = new QWidget( parent );
 
-    m_layout = new QHBoxLayout(m_placeholder);
-    m_layout->setContentsMargins(0,0,0,0);
-    m_layout->setSpacing(0);
-    m_layout->addWidget(m_comboBox);
+    m_layout = new QHBoxLayout( m_placeholder );
+    m_layout->setContentsMargins( 0, 0, 0, 0 );
+    m_layout->setSpacing( 0 );
+    m_layout->addWidget( m_comboBox );
 
-    connect(m_comboBox, SIGNAL(activated(int)), this, SLOT(slotIndexActivated(int)));
+    connect( m_comboBox, SIGNAL( activated( int ) ), this, SLOT( slotIndexActivated( int ) ) );
 
     return m_placeholder;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-QWidget* PdmUiComboBoxEditor::createLabelWidget(QWidget * parent)
+QWidget* PdmUiComboBoxEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel(parent);
+    m_label = new QShortenedLabel( parent );
     return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void PdmUiComboBoxEditor::slotIndexActivated(int index)
+void PdmUiComboBoxEditor::slotIndexActivated( int index )
 {
-    if (m_attributes.enableEditableContent)
+    if ( m_attributes.enableEditableContent )
     {
         // Use the text directly, as the item text could be entered directly by the user
 
-        auto text = m_comboBox->itemText(index);
-        this->setValueToField(text);
+        auto text = m_comboBox->itemText( index );
+        this->setValueToField( text );
     }
     else
     {
@@ -458,34 +481,34 @@ void PdmUiComboBoxEditor::slotIndexActivated(int index)
         QVariant v;
         v = index;
 
-        QVariant uintValue(v.toUInt());
-        this->setValueToField(uintValue);
+        QVariant uintValue( v.toUInt() );
+        this->setValueToField( uintValue );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiComboBoxEditor::slotNextButtonPressed()
 {
     int indexCandidate = m_comboBox->currentIndex() + 1;
 
-    if (indexCandidate < m_comboBox->count())
+    if ( indexCandidate < m_comboBox->count() )
     {
-        slotIndexActivated(indexCandidate);
+        slotIndexActivated( indexCandidate );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void PdmUiComboBoxEditor::slotPreviousButtonPressed()
 {
     int indexCandidate = m_comboBox->currentIndex() - 1;
 
-    if (indexCandidate > -1 && indexCandidate < m_comboBox->count())
+    if ( indexCandidate > -1 && indexCandidate < m_comboBox->count() )
     {
-        slotIndexActivated(indexCandidate);
+        slotIndexActivated( indexCandidate );
     }
 }
 

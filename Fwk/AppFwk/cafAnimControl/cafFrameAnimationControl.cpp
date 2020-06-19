@@ -34,15 +34,12 @@
 //
 //##################################################################################################
 
-
 #include "cafFrameAnimationControl.h"
 
 #include <QTimer>
 
-
 namespace caf
 {
-
 //==================================================================================================
 ///
 /// \class RIAnimationControl
@@ -55,41 +52,41 @@ namespace caf
 static const int TIMEOUT_DEFAULT = 100;
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-FrameAnimationControl::FrameAnimationControl(QObject* parent)
-    : QObject(parent)
+FrameAnimationControl::FrameAnimationControl( QObject* parent )
+    : QObject( parent )
 {
-    m_timer = new QTimer(this);
-    connect(m_timer, SIGNAL(timeout()), SLOT(slotTimerTriggered()));
+    m_timer = new QTimer( this );
+    connect( m_timer, SIGNAL( timeout() ), SLOT( slotTimerTriggered() ) );
 
     setDefault();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::setDefault()
 {
-    setCurrentFrame(0);
-    setNumFrames(0);
-    setTimeout(TIMEOUT_DEFAULT);
-    setForward(true);
-    setRepeatFromStart(false);
-    setRepeatFwdBwd(false);
+    setCurrentFrame( 0 );
+    setNumFrames( 0 );
+    setTimeout( TIMEOUT_DEFAULT );
+    setForward( true );
+    setRepeatFromStart( false );
+    setRepeatFwdBwd( false );
     //    m_lastTimeStamp = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::start()
 {
-    m_timer->start(m_timeout);
+    m_timer->start( m_timeout );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::stop()
 {
@@ -98,7 +95,7 @@ void FrameAnimationControl::stop()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::pause()
 {
@@ -106,31 +103,31 @@ void FrameAnimationControl::pause()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::stepForward()
 {
-    if (m_currentFrame < m_numFrames - 1)
+    if ( m_currentFrame < m_numFrames - 1 )
     {
         m_timer->stop();
-        setCurrentFrame(m_currentFrame + 1);
+        setCurrentFrame( m_currentFrame + 1 );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::stepBackward()
 {
-    if (m_currentFrame >= 1)
+    if ( m_currentFrame >= 1 )
     {
         m_timer->stop();
-        setCurrentFrame(m_currentFrame - 1);
+        setCurrentFrame( m_currentFrame - 1 );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool FrameAnimationControl::isActive() const
 {
@@ -138,19 +135,19 @@ bool FrameAnimationControl::isActive() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void FrameAnimationControl::setCurrentFrame(int frameIndex)
+void FrameAnimationControl::setCurrentFrame( int frameIndex )
 {
-    if (frameIndex >= 0)
+    if ( frameIndex >= 0 )
     {
         m_currentFrame = frameIndex;
-        emit changeFrame(m_currentFrame);
+        emit changeFrame( m_currentFrame );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int FrameAnimationControl::currentFrame() const
 {
@@ -162,29 +159,28 @@ int FrameAnimationControl::currentFrame() const
 /// Used when views are linked and need to update current frame without emitting a signal
 /// Emitting a signal will cause infinite recursion
 //--------------------------------------------------------------------------------------------------
-void FrameAnimationControl::setCurrentFrameOnly(int frameIndex)
+void FrameAnimationControl::setCurrentFrameOnly( int frameIndex )
 {
-    if (frameIndex >= 0)
+    if ( frameIndex >= 0 )
     {
         m_currentFrame = frameIndex;
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void FrameAnimationControl::setNumFrames(int numFrames)
+void FrameAnimationControl::setNumFrames( int numFrames )
 {
     m_numFrames = numFrames < 0 ? 0 : numFrames;
-    
-    emit frameCountChanged(m_numFrames);
 
-    if (m_currentFrame >= numFrames ) m_currentFrame = 0; // Should we emit frameChanged ?
+    emit frameCountChanged( m_numFrames );
 
+    if ( m_currentFrame >= numFrames ) m_currentFrame = 0; // Should we emit frameChanged ?
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int FrameAnimationControl::numFrames() const
 {
@@ -192,16 +188,16 @@ int FrameAnimationControl::numFrames() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void FrameAnimationControl::setTimeout(int milliSeconds)
+void FrameAnimationControl::setTimeout( int milliSeconds )
 {
     m_timeout = milliSeconds < 0 ? 0 : milliSeconds;
-    if (isActive()) start();
+    if ( isActive() ) start();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 int FrameAnimationControl::timeout() const
 {
@@ -209,15 +205,15 @@ int FrameAnimationControl::timeout() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void FrameAnimationControl::setForward(bool forward)
+void FrameAnimationControl::setForward( bool forward )
 {
     m_forward = forward;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool FrameAnimationControl::forward() const
 {
@@ -225,16 +221,16 @@ bool FrameAnimationControl::forward() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void FrameAnimationControl::setRepeatFromStart(bool turnRepeatOn)
+void FrameAnimationControl::setRepeatFromStart( bool turnRepeatOn )
 {
     m_repeatFromStart = turnRepeatOn;
-    if (turnRepeatOn) m_repeatFwdBwd = false;
+    if ( turnRepeatOn ) m_repeatFwdBwd = false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool FrameAnimationControl::isRepeatingFromStart() const
 {
@@ -242,16 +238,16 @@ bool FrameAnimationControl::isRepeatingFromStart() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void FrameAnimationControl::setRepeatFwdBwd(bool turnRepeatOn)
+void FrameAnimationControl::setRepeatFwdBwd( bool turnRepeatOn )
 {
     m_repeatFwdBwd = turnRepeatOn;
-    if (turnRepeatOn) m_repeatFromStart = false;
+    if ( turnRepeatOn ) m_repeatFromStart = false;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 bool FrameAnimationControl::isRepeatingFwdBwd() const
 {
@@ -259,23 +255,23 @@ bool FrameAnimationControl::isRepeatingFwdBwd() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::slotPlayFwd()
 {
-    setForward(true);
+    setForward( true );
     start();
 }
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::slotPlayBwd()
 {
-    setForward(false);
+    setForward( false );
     start();
 }
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::slotStop()
 {
@@ -283,7 +279,7 @@ void FrameAnimationControl::slotStop()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::slotPause()
 {
@@ -291,7 +287,7 @@ void FrameAnimationControl::slotPause()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::slotStepForward()
 {
@@ -299,7 +295,7 @@ void FrameAnimationControl::slotStepForward()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::slotStepBackward()
 {
@@ -312,17 +308,17 @@ void FrameAnimationControl::slotStepBackward()
 void FrameAnimationControl::slotTimerTriggered()
 {
     // Update current frame according to settings
-    if (m_forward)
+    if ( m_forward )
     {
-        if (m_currentFrame + 1 >= m_numFrames)
+        if ( m_currentFrame + 1 >= m_numFrames )
         {
-            if (m_repeatFromStart)
+            if ( m_repeatFromStart )
             {
                 m_currentFrame = 0;
             }
-            else if (m_repeatFwdBwd)
+            else if ( m_repeatFwdBwd )
             {
-                setForward(false);
+                setForward( false );
                 m_currentFrame--;
             }
             else
@@ -338,15 +334,15 @@ void FrameAnimationControl::slotTimerTriggered()
     }
     else
     {
-        if (m_currentFrame - 1 < 0)
+        if ( m_currentFrame - 1 < 0 )
         {
-            if (m_repeatFromStart)
+            if ( m_repeatFromStart )
             {
                 m_currentFrame = m_numFrames - 1;
             }
-            else if (m_repeatFwdBwd)
+            else if ( m_repeatFwdBwd )
             {
-                setForward(true);
+                setForward( true );
                 m_currentFrame++; // Ends up as 1 (second frame) makes 2 1 0 1 2 and not 2 1 0 0 1 2
             }
             else
@@ -362,29 +358,29 @@ void FrameAnimationControl::slotTimerTriggered()
     }
 
     // Emit signal with updated frame index
-    emit changeFrame(m_currentFrame);
+    emit changeFrame( m_currentFrame );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::skipToEnd()
 {
     m_timer->stop();
-    setCurrentFrame(m_numFrames-1);
+    setCurrentFrame( m_numFrames - 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::skipToStart()
 {
     m_timer->stop();
-    setCurrentFrame(0);
+    setCurrentFrame( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::slotSkipToEnd()
 {
@@ -392,7 +388,7 @@ void FrameAnimationControl::slotSkipToEnd()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void FrameAnimationControl::slotSkipToStart()
 {
@@ -400,21 +396,19 @@ void FrameAnimationControl::slotSkipToStart()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void FrameAnimationControl::slotRepeatFromStart(bool turnRepeatOn)
+void FrameAnimationControl::slotRepeatFromStart( bool turnRepeatOn )
 {
-    setRepeatFromStart(turnRepeatOn);
+    setRepeatFromStart( turnRepeatOn );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-void FrameAnimationControl::slotRepeatFwdBwd(bool turnRepeatOn)
+void FrameAnimationControl::slotRepeatFwdBwd( bool turnRepeatOn )
 {
-    setRepeatFwdBwd(turnRepeatOn);  
+    setRepeatFwdBwd( turnRepeatOn );
 }
-
-
 
 } // End namespace caf

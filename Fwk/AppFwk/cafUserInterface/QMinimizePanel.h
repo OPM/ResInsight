@@ -2,7 +2,7 @@
 //
 //   QMinimizePanel
 //   Copyright (C) 2017 Ceetron Solutions AS
-//  
+//
 //   This class may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
 //
@@ -50,33 +50,31 @@ class QMinimizePanel : public QFrame
 {
     Q_OBJECT
 public:
-    explicit QMinimizePanel(QWidget* parent=nullptr);
-    explicit QMinimizePanel(const QString &title, QWidget* parent=nullptr);
+    explicit QMinimizePanel( QWidget* parent = nullptr );
+    explicit QMinimizePanel( const QString& title, QWidget* parent = nullptr );
     ~QMinimizePanel() override;
 
-    QFrame* contentFrame();  
-    void    setTitle (const QString& title);
+    QFrame* contentFrame();
+    void    setTitle( const QString& title );
     QString title() const;
-    void    enableFrame(bool showFrame);
+    void    enableFrame( bool showFrame );
     bool    isExpanded() const;
 public slots:
-    void    setExpanded(bool isExpanded);
-    void    toggleExpanded();
+    void setExpanded( bool isExpanded );
+    void toggleExpanded();
 
 signals:
-    void    expandedChanged(bool isExpanded);
+    void expandedChanged( bool isExpanded );
 
 protected:
-
-    QFrame*         m_titleFrame;
-    QLabel*         m_titleLabel;
-    QPushButton*    m_collapseButton;
-    QFrame*         m_contentFrame;
+    QFrame*      m_titleFrame;
+    QLabel*      m_titleLabel;
+    QPushButton* m_collapseButton;
+    QFrame*      m_contentFrame;
 
 private:
-    void    initialize(const QString &title);
+    void initialize( const QString& title );
 
     QString titleFrameStyleSheet();
     QString contentFrameStyleSheet();
-
 };

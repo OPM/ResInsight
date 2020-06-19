@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafCmdAddItemExec.h"
 
 #include "cafCmdAddItemExecData.h"
@@ -45,102 +44,102 @@
 
 #include "cafPdmChildArrayField.h"
 
-
-
 namespace caf
 {
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 QString CmdAddItemExec::name()
 {
-    PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
+    PdmFieldHandle* field =
+        PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
     QString containedObjectType = "object";
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>(field);
-    if (listField)
+    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
+    if ( listField )
     {
         PdmXmlFieldHandle* xfh = listField->xmlCapability();
-        containedObjectType = xfh->dataTypeName();
+        containedObjectType    = xfh->dataTypeName();
     }
 
-    return QString("Create new '%1'").arg(containedObjectType);
+    return QString( "Create new '%1'" ).arg( containedObjectType );
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdAddItemExec::redo()
 {
-    PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject,  m_commandData->m_pathToField);
+    PdmFieldHandle* field =
+        PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>(field);
-    if (listField && field->xmlCapability())
+    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
+    if ( listField && field->xmlCapability() )
     {
         QString classKeyword = field->xmlCapability()->dataTypeName();
 
-        if (classKeyword.isEmpty()) return;
+        if ( classKeyword.isEmpty() ) return;
 
-        caf::PdmObjectHandle* obj = PdmDefaultObjectFactory::instance()->create(classKeyword);
-        
-        if (!obj) return;
+        caf::PdmObjectHandle* obj = PdmDefaultObjectFactory::instance()->create( classKeyword );
 
-        listField->insertAt(m_commandData->m_indexAfter, obj);
+        if ( !obj ) return;
 
-        if (m_commandData->m_indexAfter == -1)
+        listField->insertAt( m_commandData->m_indexAfter, obj );
+
+        if ( m_commandData->m_indexAfter == -1 )
         {
-            m_commandData->m_createdItemIndex = static_cast<int>(listField->size() - 1);
+            m_commandData->m_createdItemIndex = static_cast<int>( listField->size() - 1 );
         }
         else
         {
             m_commandData->m_createdItemIndex = m_commandData->m_indexAfter;
         }
 
-        if (m_notificationCenter) m_notificationCenter->notifyObserversOfDataChange(obj);
+        if ( m_notificationCenter ) m_notificationCenter->notifyObserversOfDataChange( obj );
 
         listField->uiCapability()->updateConnectedEditors();
 
-        if (listField->ownerObject())
+        if ( listField->ownerObject() )
         {
-            caf::PdmUiObjectHandle* ownerUiObject = uiObj(listField->ownerObject());
-            if (ownerUiObject)
+            caf::PdmUiObjectHandle* ownerUiObject = uiObj( listField->ownerObject() );
+            if ( ownerUiObject )
             {
-                ownerUiObject->fieldChangedByUi(listField, QVariant(), QVariant());
+                ownerUiObject->fieldChangedByUi( listField, QVariant(), QVariant() );
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 void CmdAddItemExec::undo()
 {
-    PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
+    PdmFieldHandle* field =
+        PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>(field);
-    if (listField && m_commandData->m_createdItemIndex >= 0)
+    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
+    if ( listField && m_commandData->m_createdItemIndex >= 0 )
     {
         std::vector<caf::PdmObjectHandle*> children;
-        listField->childObjects(&children);
+        listField->childObjects( &children );
 
         caf::PdmObjectHandle* obj = children[m_commandData->m_createdItemIndex];
 
-        caf::SelectionManager::instance()->removeObjectFromAllSelections(obj);
+        caf::SelectionManager::instance()->removeObjectFromAllSelections( obj );
 
-        listField->erase(m_commandData->m_createdItemIndex);
+        listField->erase( m_commandData->m_createdItemIndex );
         listField->uiCapability()->updateConnectedEditors();
 
-        if (m_notificationCenter) m_notificationCenter->notifyObservers();
+        if ( m_notificationCenter ) m_notificationCenter->notifyObservers();
 
-        if (listField->ownerObject())
+        if ( listField->ownerObject() )
         {
-            caf::PdmUiObjectHandle* ownerUiObject = uiObj(listField->ownerObject());
-            if (ownerUiObject)
+            caf::PdmUiObjectHandle* ownerUiObject = uiObj( listField->ownerObject() );
+            if ( ownerUiObject )
             {
-                ownerUiObject->fieldChangedByUi(listField, QVariant(), QVariant());
+                ownerUiObject->fieldChangedByUi( listField, QVariant(), QVariant() );
             }
         }
 
@@ -149,25 +148,23 @@ void CmdAddItemExec::undo()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
-CmdAddItemExec::CmdAddItemExec(NotificationCenter* notificationCenter)
-    : CmdExecuteCommand(notificationCenter)
+CmdAddItemExec::CmdAddItemExec( NotificationCenter* notificationCenter )
+    : CmdExecuteCommand( notificationCenter )
 {
     m_commandData = new CmdAddItemExecData;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdAddItemExec::~CmdAddItemExec()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 CmdAddItemExecData* CmdAddItemExec::commandData()
 {

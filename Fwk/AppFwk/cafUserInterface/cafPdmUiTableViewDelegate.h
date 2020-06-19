@@ -36,46 +36,40 @@
 
 #pragma once
 
-
 #include <QStyledItemDelegate>
 
-
-namespace caf 
+namespace caf
 {
-
 class PdmUiTableViewQModel;
 
-
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 class PdmUiTableViewDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 
 public:
-    PdmUiTableViewDelegate(QObject* parent, PdmUiTableViewQModel* model);
+    PdmUiTableViewDelegate( QObject* parent, PdmUiTableViewQModel* model );
     ~PdmUiTableViewDelegate() override;
 
-    QWidget*    createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
-    void        setEditorData(QWidget* editor, const QModelIndex& index) const override;
-    void        updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+    QWidget* createEditor( QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
+    void     setEditorData( QWidget* editor, const QModelIndex& index ) const override;
+    void updateEditorGeometry( QWidget* editor, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
 
-    bool        isEditorOpen() const;
+    bool isEditorOpen() const;
 
-    protected slots:
-    void        slotEditorDestroyed(QObject* obj);
+protected slots:
+    void slotEditorDestroyed( QObject* obj );
 
 protected:
-    void        paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    void paint( QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index ) const override;
 
 private:
     PdmUiTableViewQModel* m_model;
 
-    // Counter for active table cell editors 
-    mutable int          m_activeEditorCount;
+    // Counter for active table cell editors
+    mutable int m_activeEditorCount;
 };
-
-
 
 } // end namespace caf
