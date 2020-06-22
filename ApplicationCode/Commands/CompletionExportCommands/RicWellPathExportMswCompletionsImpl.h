@@ -121,6 +121,7 @@ private:
 
     static void createValveCompletions( std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
                                         const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                        const RimWellPath*                                wellPath,
                                         RiaEclipseUnitTools::UnitSystem                   unitSystem );
 
     static void
