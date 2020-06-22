@@ -427,7 +427,7 @@ bool RimPlotCurve::isCurveVisible() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setCurveVisiblity( bool visible )
+void RimPlotCurve::setCurveVisibility( bool visible )
 {
     m_showCurve = visible;
 }

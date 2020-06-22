@@ -81,7 +81,7 @@ public:
     void                          resetAppearance();
 
     bool isCurveVisible() const;
-    void setCurveVisiblity( bool visible );
+    void setCurveVisibility( bool visible );
 
     void updateCurveName();
     void updateCurveNameAndUpdatePlotLegendAndTitle();

@@ -340,7 +340,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         curve->setSmoothingThreshold( 0.002 );
         if ( resultNames[i] == RiaDefines::wbsSHMkResult() )
         {
-            curve->setCurveVisiblity( false );
+            curve->setCurveVisibility( false );
         }
     }
 

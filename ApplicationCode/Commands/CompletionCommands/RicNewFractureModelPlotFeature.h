@@ -62,7 +62,8 @@ private:
                                        RimEclipseCase*       eclipseCase,
                                        int                   timeStep,
                                        const QString&        trackTitle,
-                                       const PlotDefVector&  curveConfiguration );
+                                       const PlotDefVector&  curveConfiguration,
+                                       bool                  isPlotLogarithmic );
 
     static void createElasticPropertiesTrack( RimFractureModelPlot*                   plot,
                                               RimFractureModel*                       fractureModel,

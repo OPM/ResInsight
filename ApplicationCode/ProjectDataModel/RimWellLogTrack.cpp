@@ -513,7 +513,7 @@ int RimWellLogTrack::axisFontSize() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::doRemoveFromCollection()
 {
-    RimWellLogPlot* wellLogPlot = nullptr;
+    RimDepthTrackPlot* wellLogPlot = nullptr;
     this->firstAncestorOrThisOfType( wellLogPlot );
     if ( wellLogPlot )
     {
@@ -749,7 +749,7 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
                                        m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MINOR );
     }
 
-    RimWellLogPlot* wellLogPlot = nullptr;
+    RimDepthTrackPlot* wellLogPlot = nullptr;
     this->firstAncestorOrThisOfType( wellLogPlot );
     if ( wellLogPlot )
     {
@@ -1098,7 +1098,7 @@ void RimWellLogTrack::visibleDepthRange( double* minDepth, double* maxDepth )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::onLoadDataAndUpdate()
 {
-    RimWellLogPlot* wellLogPlot = nullptr;
+    RimDepthTrackPlot* wellLogPlot = nullptr;
     firstAncestorOrThisOfType( wellLogPlot );
 
     if ( wellLogPlot && m_plotWidget )
@@ -1255,7 +1255,7 @@ void RimWellLogTrack::setXAxisTitle( const QString& text )
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogTrack::yAxisTitle() const
 {
-    RimWellLogPlot* parent;
+    RimDepthTrackPlot* parent;
     this->firstAncestorOrThisOfType( parent );
     if ( parent )
     {
@@ -1428,7 +1428,7 @@ void RimWellLogTrack::updateParentPlotZoom()
 {
     if ( m_plotWidget )
     {
-        RimWellLogPlot* wellLogPlot;
+        RimDepthTrackPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );
         if ( wellLogPlot )
         {
@@ -1897,7 +1897,7 @@ RimDepthTrackPlot* RimWellLogTrack::parentWellLogPlot() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::handleWheelEvent( QWheelEvent* event )
 {
-    RimWellLogPlot* wellLogPlot = nullptr;
+    RimDepthTrackPlot* wellLogPlot = nullptr;
     this->firstAncestorOrThisOfType( wellLogPlot );
 
     if ( wellLogPlot )
