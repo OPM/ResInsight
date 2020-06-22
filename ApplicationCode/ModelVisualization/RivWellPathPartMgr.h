@@ -135,6 +135,8 @@ private:
 
     static cvf::Color3f mapWellMeasurementToColor( const QString& measurementKind, double value );
 
+    bool isWellPathEnabled( const cvf::BoundingBox& wellPathClipBoundingBox ) const;
+
 private:
     caf::PdmPointer<RimWellPath> m_rimWellPath;
     caf::PdmPointer<Rim3dView>   m_rimView;

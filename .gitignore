@@ -61,6 +61,7 @@ Ankh.NoLoad
 .vs
 out
 CMakeSettings.json
+enc_temp_folder
 
 #Visual Studio Code files
 .vscode

@@ -382,12 +382,29 @@ void RicWellPathExportMswCompletionsImpl::generateWelsegsSegments(
                     {
                         formatter.comment( completion->label() );
 
-                        formatter.add( completion->subSegments().front()->segmentNumber() );
-                        formatter.add( completion->subSegments().front()->segmentNumber() );
+                        auto firstSubSegment = completion->subSegments().front();
+
+                        formatter.add( firstSubSegment->segmentNumber() );
+                        formatter.add( firstSubSegment->segmentNumber() );
                         formatter.add( completion->branchNumber() );
                         formatter.add( segment->segmentNumber() );
-                        formatter.add( 0.1 ); // ICDs have 0.1 length
-                        formatter.add( 0 ); // Depth change
+
+                        double length = 0.0;
+                        double depth  = 0.0;
+
+                        if ( exportInfo.lengthAndDepthText() == QString( "INC" ) )
+                        {
+                            length = firstSubSegment->deltaMD();
+                            depth  = firstSubSegment->deltaTVD();
+                        }
+                        else
+                        {
+                            length = firstSubSegment->endMD();
+                            depth  = firstSubSegment->endTVD();
+                        }
+
+                        formatter.add( length );
+                        formatter.add( depth );
                         formatter.add( exportInfo.linerDiameter() );
                         formatter.add( exportInfo.roughnessFactor() );
                         formatter.rowCompleted();
@@ -849,17 +866,17 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExport
         for ( auto& sub : subs->installedLateralIndices() )
         {
             double subEndMD  = subs->measuredDepth( sub.subIndex );
-            double subEndTVD = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( subEndMD ).z();
+            double subEndTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, subEndMD );
             int    subSegCount =
                 SubSegmentIntersectionInfo::numberOfSplittedSegments( subStartMD, subEndMD, maxSegmentLength );
             double subSegLen = ( subEndMD - subStartMD ) / subSegCount;
 
             double startMd  = subStartMD;
-            double startTvd = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( startMd ).z();
+            double startTvd = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, startMd );
             for ( int ssi = 0; ssi < subSegCount; ssi++ )
             {
                 double endMd  = startMd + subSegLen;
-                double endTvd = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( endMd ).z();
+                double endTvd = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, endMd );
 
                 std::shared_ptr<RicMswSegment> location(
                     new RicMswSegment( subs->generatedName(), startMd, endMd, startTvd, endTvd, sub.subIndex ) );
@@ -1078,7 +1095,7 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generatePerforationsMswExp
                                                                                eclipseCase,
                                                                                &foundSubGridIntersections );
 
-    createValveCompletions( mainBoreSegments, perforationIntervals, unitSystem );
+    createValveCompletions( mainBoreSegments, perforationIntervals, wellPath, unitSystem );
     assignValveContributionsToSuperICDsOrAICDs( mainBoreSegments, perforationIntervals, unitSystem );
     moveIntersectionsToICVs( mainBoreSegments, perforationIntervals, unitSystem );
     moveIntersectionsToSuperICDsOrAICDs( mainBoreSegments );
@@ -1311,6 +1328,7 @@ RicWellPathExportMswCompletionsImpl::MainBoreSegments
 void RicWellPathExportMswCompletionsImpl::createValveCompletions(
     std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
     const std::vector<const RimPerforationInterval*>& perforationIntervals,
+    const RimWellPath*                                wellPath,
     RiaEclipseUnitTools::UnitSystem                   unitSystem )
 {
     for ( size_t nMainSegment = 0u; nMainSegment < mainBoreSegments.size(); ++nMainSegment )
@@ -1337,7 +1355,12 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
 
                 for ( size_t nSubValve = 0u; nSubValve < valve->valveLocations().size(); ++nSubValve )
                 {
-                    double valveMD = valve->valveLocations()[nSubValve];
+                    double valveMD       = valve->valveLocations()[nSubValve];
+                    double valveStartTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, valveMD );
+
+                    double valveLengthMD = 0.1;
+                    double valveEndTVD =
+                        RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, valveMD + valveLengthMD );
 
                     std::pair<double, double> valveSegment = valve->valveSegments()[nSubValve];
                     double                    overlapStart = std::max( valveSegment.first, segment->startMD() );
@@ -1351,7 +1374,7 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                             QString valveLabel =
                                 QString( "%1 #%2" ).arg( "Combined Valve for segment" ).arg( nMainSegment + 2 );
                             std::shared_ptr<RicMswSubSegment> subSegment(
-                                new RicMswSubSegment( valveMD, valveMD + 0.1, 0.0, 0.0 ) );
+                                new RicMswSubSegment( valveMD, valveMD + valveLengthMD, valveStartTVD, valveEndTVD ) );
 
                             superAICD = std::make_shared<RicMswPerforationAICD>( valveLabel, valve );
                             superAICD->addSubSegment( subSegment );
@@ -1361,7 +1384,7 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                             QString valveLabel =
                                 QString( "%1 #%2" ).arg( "Combined Valve for segment" ).arg( nMainSegment + 2 );
                             std::shared_ptr<RicMswSubSegment> subSegment(
-                                new RicMswSubSegment( valveMD, valveMD + 0.1, 0.0, 0.0 ) );
+                                new RicMswSubSegment( valveMD, valveMD + valveLengthMD, valveStartTVD, valveEndTVD ) );
 
                             superICD = std::make_shared<RicMswPerforationICD>( valveLabel, valve );
                             superICD->addSubSegment( subSegment );
@@ -1371,7 +1394,7 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                             QString valveLabel =
                                 QString( "ICV %1 at segment #%2" ).arg( valve->name() ).arg( nMainSegment + 2 );
                             std::shared_ptr<RicMswSubSegment> subSegment(
-                                new RicMswSubSegment( valveMD, valveMD + 0.1, 0.0, 0.0 ) );
+                                new RicMswSubSegment( valveMD, valveMD + valveLengthMD, valveStartTVD, valveEndTVD ) );
 
                             ICV = std::make_shared<RicMswPerforationICV>( valveLabel, valve );
                             ICV->addSubSegment( subSegment );
@@ -1385,8 +1408,17 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                     {
                         QString valveLabel =
                             QString( "%1 #%2" ).arg( "Combined Valve for segment" ).arg( nMainSegment + 2 );
-                        std::shared_ptr<RicMswSubSegment> subSegment(
-                            new RicMswSubSegment( overlapStart, overlapStart + 0.1, 0.0, 0.0 ) );
+
+                        double overlapValveStartTVD =
+                            RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, overlapStart );
+                        double overlapEndTVD =
+                            RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath,
+                                                                                       overlapStart + valveLengthMD );
+
+                        std::shared_ptr<RicMswSubSegment> subSegment( new RicMswSubSegment( overlapStart,
+                                                                                            overlapStart + valveLengthMD,
+                                                                                            overlapValveStartTVD,
+                                                                                            overlapEndTVD ) );
                         superICD = std::make_shared<RicMswPerforationICD>( valveLabel, valve );
                         superICD->addSubSegment( subSegment );
                     }
@@ -1395,8 +1427,17 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions(
                     {
                         QString valveLabel =
                             QString( "%1 #%2" ).arg( "Combined Valve for segment" ).arg( nMainSegment + 2 );
-                        std::shared_ptr<RicMswSubSegment> subSegment(
-                            new RicMswSubSegment( overlapStart, overlapStart + 0.1, 0.0, 0.0 ) );
+
+                        double overlapValveStartTVD =
+                            RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, overlapStart );
+                        double overlapEndTVD =
+                            RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath,
+                                                                                       overlapStart + valveLengthMD );
+
+                        std::shared_ptr<RicMswSubSegment> subSegment( new RicMswSubSegment( overlapStart,
+                                                                                            overlapStart + valveLengthMD,
+                                                                                            overlapValveStartTVD,
+                                                                                            overlapEndTVD ) );
                         superAICD = std::make_shared<RicMswPerforationAICD>( valveLabel, valve );
                         superAICD->addSubSegment( subSegment );
                     }
@@ -1908,6 +1949,18 @@ void RicWellPathExportMswCompletionsImpl::assignBranchAndSegmentNumbers( const R
     {
         assignBranchAndSegmentNumbers( caseToApply, location, &branchNumber, &segmentNumber );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( const RimWellPath* wellPath, double measuredDepth )
+{
+    CVF_ASSERT( wellPath && wellPath->wellPathGeometry() );
+
+    double tvdValue = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( measuredDepth ).z();
+
+    return tvdValue;
 }
 
 SubSegmentIntersectionInfo::SubSegmentIntersectionInfo( size_t     globCellIndex,

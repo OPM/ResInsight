@@ -121,6 +121,7 @@ private:
 
     static void createValveCompletions( std::vector<std::shared_ptr<RicMswSegment>>&      mainBoreSegments,
                                         const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                        const RimWellPath*                                wellPath,
                                         RiaEclipseUnitTools::UnitSystem                   unitSystem );
 
     static void
@@ -163,4 +164,6 @@ private:
                                                int*                           branchNum,
                                                int*                           segmentNum );
     static void assignBranchAndSegmentNumbers( const RimEclipseCase* caseToApply, RicMswExportInfo* exportInfo );
+
+    static double tvdFromMeasuredDepth( const RimWellPath* wellPath, double measuredDepth );
 };
