@@ -56,6 +56,7 @@
 #include <QString>
 
 #include <algorithm>
+#include <set>
 
 CAF_CMD_SOURCE_INIT( RicNewFractureModelPlotFeature, "RicNewFractureModelPlotFeature" );
 
@@ -90,7 +91,6 @@ RimFractureModelPlot*
         auto task = progInfo.task( "Creating parameters track", 15 );
 
         std::map<QString, PlotDefVector> plots;
-
         plots["Porosity"] = {std::make_tuple( "PORO",
                                               RiaDefines::ResultCatType::STATIC_NATIVE,
                                               RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE,
@@ -114,9 +114,13 @@ RimFractureModelPlot*
                                                   RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE,
                                                   false )};
 
+        std::set<QString> logarithmicPlots;
+        logarithmicPlots.insert( "Permeability" );
+
         for ( auto result : plots )
         {
-            createParametersTrack( plot, fractureModel, eclipseCase, timeStep, result.first, result.second );
+            bool logarithmicPlot = logarithmicPlots.count( result.first ) > 0;
+            createParametersTrack( plot, fractureModel, eclipseCase, timeStep, result.first, result.second, logarithmicPlot );
         }
     }
 
@@ -320,7 +324,8 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
                                                             RimEclipseCase*       eclipseCase,
                                                             int                   timeStep,
                                                             const QString&        trackTitle,
-                                                            const PlotDefVector&  curveConfigurations )
+                                                            const PlotDefVector&  curveConfigurations,
+                                                            bool                  isPlotLogarithmic )
 {
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackTitle, plot );
     plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
@@ -369,7 +374,7 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
 
     plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
     plotTrack->setShowRegionLabels( true );
-    plotTrack->setLogarithmicScale( false );
+    plotTrack->setLogarithmicScale( isPlotLogarithmic );
     plotTrack->setAutoScaleXEnabled( true );
     plotTrack->updateConnectedEditors();
     plot->updateConnectedEditors();
