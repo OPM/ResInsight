@@ -223,5 +223,10 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::buildCon
         intersectionsNoGap.push_back( current );
     }
 
+    if ( !originalIntersections.empty() )
+    {
+        intersectionsNoGap.push_back( originalIntersections.back() );
+    }
+
     return intersectionsNoGap;
 }
