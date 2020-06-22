@@ -248,6 +248,7 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     curve->setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
     curve->setLineThickness( 2 );
     curve->setAutoNameComponents( false, true, false, false, false );
+    curve->setCurveVisibility( false );
 
     faciesTrack->addCurve( curve );
     faciesTrack->setAutoScaleXEnabled( true );
