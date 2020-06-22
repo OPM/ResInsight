@@ -680,7 +680,7 @@ void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve
 
     if ( forceVisible )
     {
-        curveCopy->setCurveVisiblity( true );
+        curveCopy->setCurveVisibility( true );
     }
 
     plot->addCurveNoUpdate( curveCopy );
@@ -704,7 +704,7 @@ void RicSummaryPlotEditorUi::copyEnsembleCurveAndAddToCurveSet( const RimSummary
 
     if ( forceVisible )
     {
-        curveCopy->setCurveVisiblity( true );
+        curveCopy->setCurveVisibility( true );
     }
 
     curveSet->addCurve( curveCopy );
@@ -935,7 +935,7 @@ void RicSummaryPlotEditorUi::setInitialCurveVisibility( const RimSummaryPlot* ta
         auto curveDef = std::make_pair( curve->summaryCaseY(), curve->summaryAddressY() );
         if ( sourceCurveDefs.count( curveDef ) == 0 )
         {
-            curve->setCurveVisiblity( false );
+            curve->setCurveVisibility( false );
         }
     }
 
