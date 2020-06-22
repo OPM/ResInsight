@@ -132,6 +132,26 @@ bool RivWellPathPartMgr::isWellPathWithinBoundingBox( const cvf::BoundingBox& we
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RivWellPathPartMgr::isWellPathEnabled( const cvf::BoundingBox& wellPathClipBoundingBox ) const
+{
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
+    if ( !wellPathCollection ) return false;
+
+    if ( !wellPathCollection->isActive() ) return false;
+
+    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return false;
+
+    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::ALL_ON && m_rimWellPath->showWellPath() == false )
+        return false;
+
+    if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return false;
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendStaticFracturePartsToModel( cvf::ModelBasicList*    model,
                                                            const cvf::BoundingBox& wellPathClipBoundingBox )
 {
@@ -770,16 +790,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel( cvf::ModelBasicList* 
                                                            double                            characteristicCellSize,
                                                            const cvf::BoundingBox&           wellPathClipBoundingBox )
 {
-    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
-    if ( !wellPathCollection ) return;
-
-    if ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF ) return;
-
-    if ( wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON &&
-         m_rimWellPath->showWellPath() == false )
-        return;
-
-    if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return;
+    if ( !isWellPathEnabled( wellPathClipBoundingBox ) ) return;
 
     // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
     buildWellPathParts( displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox, false );
@@ -804,9 +815,11 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel( cvf::ModelBasicList* 
     appendWellPathAttributesToModel( model, displayCoordTransform, characteristicCellSize );
 
     RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
-    if ( !gridView ) return;
-    m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr( m_rimWellPath, gridView );
-    m_3dWellLogPlanePartMgr->appendPlaneToModel( model, displayCoordTransform, wellPathClipBoundingBox, true );
+    if ( gridView )
+    {
+        m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr( m_rimWellPath, gridView );
+        m_3dWellLogPlanePartMgr->appendPlaneToModel( model, displayCoordTransform, wellPathClipBoundingBox, true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -849,17 +862,7 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
 {
     CVF_ASSERT( model );
 
-    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
-    if ( !wellPathCollection ) return;
-
-    if ( m_rimWellPath.isNull() ) return;
-
-    bool showWellPath = ( wellPathCollection->isActive() &&
-                          ( ( wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_OFF ) ||
-                            ( wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_ON &&
-                              m_rimWellPath->showWellPath() ) ) );
-
-    if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return;
+    bool showWellPath = isWellPathEnabled( wellPathClipBoundingBox );
 
     if ( showWellPath )
     {
@@ -874,13 +877,14 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
     if ( showWellPath )
     {
         RimGridView* gridView = dynamic_cast<RimGridView*>( m_rimView.p() );
-        if ( !gridView ) return;
-
-        if ( m_3dWellLogPlanePartMgr.isNull() )
+        if ( gridView )
         {
-            m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr( m_rimWellPath, gridView );
+            if ( m_3dWellLogPlanePartMgr.isNull() )
+            {
+                m_3dWellLogPlanePartMgr = new Riv3dWellLogPlanePartMgr( m_rimWellPath, gridView );
+            }
+            m_3dWellLogPlanePartMgr->appendPlaneToModel( model, displayCoordTransform, wellPathClipBoundingBox, false );
         }
-        m_3dWellLogPlanePartMgr->appendPlaneToModel( model, displayCoordTransform, wellPathClipBoundingBox, false );
     }
 }
 
