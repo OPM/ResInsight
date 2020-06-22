@@ -132,24 +132,24 @@ caf::ColorTable ColorTable::inverted() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ColorTable::contains(const cvf::Color3ub& color) const
+bool ColorTable::contains( const cvf::Color3ub& color ) const
 {
-    auto it = std::find(m_colors.begin(), m_colors.end(), color);
+    auto it = std::find( m_colors.begin(), m_colors.end(), color );
     return it != m_colors.end();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool ColorTable::contains(const cvf::Color3f& color) const
+bool ColorTable::contains( const cvf::Color3f& color ) const
 {
-    return contains(cvf::Color3ub(color));
+    return contains( cvf::Color3ub( color ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3ub ColorTable::fromQColor(const QColor& color)
+cvf::Color3ub ColorTable::fromQColor( const QColor& color )
 {
     return cvf::Color3ub( color.red(), color.green(), color.blue() );
 }
