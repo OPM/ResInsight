@@ -80,6 +80,18 @@ void caf::AppEnum<RimGeoMechCase::BiotCoefficientType>::setUp()
     setDefault( RimGeoMechCase::BiotCoefficientType::BIOT_NONE );
 }
 
+template <>
+void caf::AppEnum<RimGeoMechCase::InitialPermeabilityType>::setUp()
+{
+    addItem( RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED,
+             "INITIAL_PERMEABILITY_FIXED",
+             "Fixed initial permeability" );
+    addItem( RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_PER_ELEMENT,
+             "INITIAL_PERMEABILITY_PER_ELEMENT",
+             "Initial permeability from element properties" );
+    setDefault( RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED );
+}
+
 } // End namespace caf
 
 //--------------------------------------------------------------------------------------------------
@@ -139,6 +151,24 @@ RimGeoMechCase::RimGeoMechCase( void )
 
     CAF_PDM_InitField( &m_biotResultAddress, "BiotResultAddress", QString( "" ), "Value", "", "", "" );
     m_biotResultAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+
+    caf::AppEnum<InitialPermeabilityType> defaultInitialPermeabilityType =
+        RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED;
+    CAF_PDM_InitField( &m_initialPermeabilityType,
+                       "InitialPermeabilityType",
+                       defaultInitialPermeabilityType,
+                       "Initial Permeability",
+                       "",
+                       "",
+                       "" );
+    CAF_PDM_InitField( &m_initialPermeabilityFixed, "InitialPermeabilityFixed", 1.0, "Fixed Initial Permeability", "", "", "" );
+    m_initialPermeabilityFixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_initialPermeabilityResultAddress, "InitialPermeabilityAddress", QString( "" ), "Value", "", "", "" );
+    m_initialPermeabilityResultAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_permeabilityExponent, "PermeabilityExponent", 1.0, "Permeability Exponent", "", "", "" );
+    m_permeabilityExponent.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "" );
     m_contourMapCollection = new RimGeoMechContourMapViewCollection;
@@ -619,6 +649,38 @@ QString RimGeoMechCase::biotResultAddress() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimGeoMechCase::InitialPermeabilityType RimGeoMechCase::initialPermeabilityType() const
+{
+    return m_initialPermeabilityType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGeoMechCase::initialPermeabilityFixed() const
+{
+    return m_initialPermeabilityFixed;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechCase::initialPermeabilityAddress() const
+{
+    return m_initialPermeabilityResultAddress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGeoMechCase::permeabilityExponent() const
+{
+    return m_permeabilityExponent;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::setApplyTimeFilter( bool applyTimeFilter )
 {
     m_applyTimeFilter = applyTimeFilter;
@@ -734,6 +796,56 @@ void RimGeoMechCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                 }
 
                 rigCaseData->femPartResults()->setBiotCoefficientParameters( 1.0, biotResultAddress() );
+            }
+        }
+
+        updateConnectedViews();
+    }
+    else if ( changedField == &m_initialPermeabilityFixed || changedField == &m_initialPermeabilityType ||
+              changedField == &m_initialPermeabilityResultAddress || changedField == &m_permeabilityExponent )
+    {
+        RigGeoMechCaseData* rigCaseData = geoMechData();
+        if ( rigCaseData && rigCaseData->femPartResults() )
+        {
+            if ( m_initialPermeabilityType() == RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED )
+            {
+                rigCaseData->femPartResults()->setPermeabilityParameters( initialPermeabilityFixed(),
+                                                                          "",
+                                                                          permeabilityExponent() );
+            }
+            else if ( m_initialPermeabilityType() ==
+                      RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_PER_ELEMENT )
+            {
+                if ( changedField == &m_initialPermeabilityType )
+                {
+                    // Show info message to user when selecting "from file" option before
+                    // an element property has been imported
+                    std::vector<std::string> elementProperties = possibleElementPropertyFieldNames();
+                    if ( elementProperties.empty() )
+                    {
+                        QString importMessage =
+                            QString( "Please import initial permeability from file (typically called perm.inp) by "
+                                     "selecting 'Import Element Property Table' on the Geomechanical Model." );
+                        RiaLogging::info( importMessage );
+                        // Set back to default value
+                        m_initialPermeabilityType = RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED;
+                        return;
+                    }
+                }
+
+                if ( initialPermeabilityAddress().isEmpty() )
+                {
+                    // Automatically select the first available property element if empty
+                    std::vector<std::string> elementProperties = possibleElementPropertyFieldNames();
+                    if ( !elementProperties.empty() )
+                    {
+                        m_initialPermeabilityResultAddress = QString::fromStdString( elementProperties[0] );
+                    }
+                }
+
+                rigCaseData->femPartResults()->setPermeabilityParameters( initialPermeabilityFixed(),
+                                                                          initialPermeabilityAddress(),
+                                                                          permeabilityExponent() );
             }
         }
 
@@ -977,6 +1089,16 @@ void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     m_biotResultAddress.uiCapability()->setUiHidden( m_biotCoefficientType !=
                                                      RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT );
 
+    caf::PdmUiGroup* permeabilityGroup = uiOrdering.addNewGroup( "Permeability" );
+    permeabilityGroup->add( &m_initialPermeabilityType );
+    permeabilityGroup->add( &m_initialPermeabilityFixed );
+    permeabilityGroup->add( &m_initialPermeabilityResultAddress );
+    m_initialPermeabilityFixed.uiCapability()->setUiHidden(
+        m_initialPermeabilityType != RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED );
+    m_initialPermeabilityResultAddress.uiCapability()->setUiHidden(
+        m_initialPermeabilityType != RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_PER_ELEMENT );
+    permeabilityGroup->add( &m_permeabilityExponent );
+
     caf::PdmUiGroup* timeStepFilterGroup = uiOrdering.addNewGroup( "Time Step Filter" );
     timeStepFilterGroup->setCollapsedByDefault( true );
     m_timeStepFilter->uiOrdering( uiConfigName, *timeStepFilterGroup );
@@ -1030,7 +1152,7 @@ QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions( const caf::
             options.push_back( caf::PdmOptionItemInfo( m_elementPropertyFileNames.v().at( i ).path(), (int)i, true ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_biotResultAddress )
+    else if ( fieldNeedingOptions == &m_biotResultAddress || fieldNeedingOptions == &m_initialPermeabilityResultAddress )
     {
         std::vector<std::string> elementProperties = possibleElementPropertyFieldNames();
 
