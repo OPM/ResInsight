@@ -163,4 +163,6 @@ private:
                                                int*                           branchNum,
                                                int*                           segmentNum );
     static void assignBranchAndSegmentNumbers( const RimEclipseCase* caseToApply, RicMswExportInfo* exportInfo );
+
+    static double tvdFromMeasuredDepth( const RimWellPath* wellPath, double measuredDepth );
 };
