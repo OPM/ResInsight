@@ -325,13 +325,6 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackTitle, plot );
     plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     plotTrack->setColSpan( RimPlot::TWO );
-    plotTrack->setVisibleXRange( 0.0, 2.0 );
-    plotTrack->setAutoScaleXEnabled( true );
-    plotTrack->setTickIntervals( 1.0, 0.2 );
-    plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
-    plotTrack->setShowRegionLabels( true );
-    plotTrack->setShowWindow( true );
-    plotTrack->setLogarithmicScale( false );
 
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
@@ -367,7 +360,6 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
         }
 
         plotTrack->addCurve( curve );
-        plotTrack->setAutoScaleXEnabled( true );
         curve->loadDataAndUpdate( true );
 
         curve->updateConnectedEditors();
@@ -375,6 +367,10 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
         colorIndex++;
     }
 
+    plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
+    plotTrack->setShowRegionLabels( true );
+    plotTrack->setLogarithmicScale( false );
+    plotTrack->setAutoScaleXEnabled( true );
     plotTrack->updateConnectedEditors();
     plot->updateConnectedEditors();
 
@@ -397,14 +393,11 @@ void RicNewFractureModelPlotFeature::createElasticPropertiesTrack( RimFractureMo
     QString          trackName = caf::AppEnum<RimElasticPropertiesCurve::PropertyType>::uiText( propertyType );
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackName, plot );
     plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
-    plotTrack->setColSpan( RimPlot::TWO );
-    plotTrack->setVisibleXRange( 0.0, 2.0 );
-    plotTrack->setAutoScaleXEnabled( true );
-    plotTrack->setTickIntervals( 1.0, 0.2 );
     plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
     plotTrack->setLogarithmicScale( false );
     plotTrack->setShowRegionLabels( true );
     plotTrack->setShowWindow( true );
+    plotTrack->setColSpan( RimPlot::TWO );
 
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
