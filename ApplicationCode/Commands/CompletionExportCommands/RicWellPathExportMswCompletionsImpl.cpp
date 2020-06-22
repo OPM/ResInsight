@@ -849,17 +849,17 @@ RicMswExportInfo RicWellPathExportMswCompletionsImpl::generateFishbonesMswExport
         for ( auto& sub : subs->installedLateralIndices() )
         {
             double subEndMD  = subs->measuredDepth( sub.subIndex );
-            double subEndTVD = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( subEndMD ).z();
+            double subEndTVD = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, subEndMD );
             int    subSegCount =
                 SubSegmentIntersectionInfo::numberOfSplittedSegments( subStartMD, subEndMD, maxSegmentLength );
             double subSegLen = ( subEndMD - subStartMD ) / subSegCount;
 
             double startMd  = subStartMD;
-            double startTvd = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( startMd ).z();
+            double startTvd = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, startMd );
             for ( int ssi = 0; ssi < subSegCount; ssi++ )
             {
                 double endMd  = startMd + subSegLen;
-                double endTvd = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( endMd ).z();
+                double endTvd = RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( wellPath, endMd );
 
                 std::shared_ptr<RicMswSegment> location(
                     new RicMswSegment( subs->generatedName(), startMd, endMd, startTvd, endTvd, sub.subIndex ) );
@@ -1903,6 +1903,18 @@ void RicWellPathExportMswCompletionsImpl::assignBranchAndSegmentNumbers( const R
     {
         assignBranchAndSegmentNumbers( caseToApply, location, &branchNumber, &segmentNumber );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicWellPathExportMswCompletionsImpl::tvdFromMeasuredDepth( const RimWellPath* wellPath, double measuredDepth )
+{
+    CVF_ASSERT( wellPath && wellPath->wellPathGeometry() );
+
+    double tvdValue = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( measuredDepth ).z();
+
+    return tvdValue;
 }
 
 SubSegmentIntersectionInfo::SubSegmentIntersectionInfo( size_t     globCellIndex,
