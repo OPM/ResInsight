@@ -336,8 +336,6 @@ void RigWellLogCurveData::interpolateSegment( RiaDefines::DepthTypeEnum resampli
 
     size_t secondIndex = firstIndex + 1;
 
-    if ( secondIndex >= depthIt->second.size() ) return;
-
     double depth0 = depthIt->second[firstIndex];
     double depth1 = depthIt->second[secondIndex];
     double x0     = m_xValues[firstIndex];
@@ -381,7 +379,6 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
 
     std::vector<double> xValues;
 
-    bool                                                     isTVDAvailable = false;
     std::map<RiaDefines::DepthTypeEnum, std::vector<double>> resampledDepths;
 
     auto depthIt = m_depths.find( resamplingDepthType );
@@ -393,18 +390,21 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
     bool reverseOrder = resamplingDepthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER;
 
     size_t segmentSearchStartIdx = 0;
-    for ( double depth : depths )
+    for ( auto depth : depths )
     {
+        bool foundPoint = false;
         if ( isLeftOf( depth, depthIt->second.front(), reverseOrder, eps ) )
         {
             // Extrapolate from front two
             interpolateSegment( resamplingDepthType, depth, 0, xValues, resampledDepths, eps );
+            foundPoint = true;
         }
         else if ( isLeftOf( depthIt->second.back(), depth, reverseOrder, eps ) )
         {
             // Extrapolate from end two
             const size_t N = depthIt->second.size() - 1;
             interpolateSegment( resamplingDepthType, depth, N - 1, xValues, resampledDepths, eps );
+            foundPoint = true;
         }
         else
         {
@@ -424,6 +424,8 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
                         }
                     }
                     segmentSearchStartIdx = segmentStartIdx + 1;
+                    foundPoint            = true;
+                    break;
                 }
                 else if ( segmentStartIdx < depthIt->second.size() - 1 &&
                           isLeftOf( depthIt->second[segmentStartIdx], depth, reverseOrder, eps ) &&
@@ -433,9 +435,12 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
                 {
                     interpolateSegment( resamplingDepthType, depth, segmentStartIdx, xValues, resampledDepths, eps );
                     segmentSearchStartIdx = segmentStartIdx;
+                    foundPoint            = true;
+                    break;
                 }
             }
         }
+        CAF_ASSERT( foundPoint );
     }
 
     resampledDepths.insert( std::make_pair( resamplingDepthType, depths ) );

@@ -193,6 +193,10 @@ protected:
     // Overridden PDM methods
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void                 childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void                 updateStackedCurveData();
+    void                 updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxis );
+
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;

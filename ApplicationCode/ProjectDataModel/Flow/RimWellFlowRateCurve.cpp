@@ -165,11 +165,14 @@ void RimWellFlowRateCurve::onLoadDataAndUpdate( bool updateParentPlot )
     {
         m_qwtPlotCurve->setTitle( createCurveAutoName() );
 
-        RimWellLogTrack* track = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( track );
-        track->updateStackedCurveData();
+        if ( updateParentPlot )
+        {
+            RimWellLogTrack* track = nullptr;
+            this->firstAncestorOrThisOfTypeAsserted( track );
+            track->updateStackedCurveData();
 
-        updateZoomInParentPlot();
+            updateZoomInParentPlot();
+        }
 
         if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
     }
