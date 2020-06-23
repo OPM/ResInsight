@@ -460,6 +460,7 @@ void RimWellLogTrack::calculateYZoomRange()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateXZoom()
 {
+    const double eps = 1.0e-8;
     if ( !m_plotWidget ) return;
 
     calculateXZoomRange();
@@ -469,6 +470,13 @@ void RimWellLogTrack::updateXZoom()
         m_visibleXRangeMin = m_availableXRangeMin;
         m_visibleXRangeMax = m_availableXRangeMax;
 
+        // Consider auto zooming to full range [0..1] range
+        if ( -eps < m_visibleXRangeMin && m_visibleXRangeMin < 0.25 && 0.75 < m_visibleXRangeMax &&
+             m_visibleXRangeMax < 1.0 + eps && !m_isLogarithmicScaleEnabled )
+        {
+            m_visibleXRangeMin = 0.0;
+            m_visibleXRangeMax = 1.0;
+        }
         computeAndSetXRangeMinForLogarithmicScale();
         updateEditors();
     }
@@ -708,6 +716,25 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateWellPathAttributesOnPlot();
         updateParentLayout();
         RiuPlotMainWindowTools::refreshToolbars();
+    }
+    else if ( changedField == &m_stackCurves )
+    {
+        updateStackedCurveData();
+
+        m_isAutoScaleXEnabled = true;
+        updateXZoom();
+        m_plotWidget->scheduleReplot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( m_stackCurves )
+    {
+        updateStackedCurveData();
     }
 }
 
@@ -2081,6 +2108,7 @@ void RimWellLogTrack::uiOrderingForXAxisSettings( caf::PdmUiOrdering& uiOrdering
     gridGroup->add( &m_visibleXRangeMin );
     gridGroup->add( &m_visibleXRangeMax );
     gridGroup->add( &m_xAxisGridVisibility );
+    gridGroup->add( &m_stackCurves );
 
     // TODO Revisit if these settings are required
     // See issue https://github.com/OPM/ResInsight/issues/4367
@@ -2258,6 +2286,8 @@ std::vector<QString> RimWellLogTrack::formationNamesVector( RimCase* rimCase )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateStackedCurveData()
 {
+    const double eps = 1.0e-8;
+
     RimWellLogPlot* wellLogPlot;
     firstAncestorOrThisOfTypeAsserted( wellLogPlot );
 
@@ -2270,6 +2300,13 @@ void RimWellLogTrack::updateStackedCurveData()
         reverseOrder = true;
     }
 
+    // Reset all curves
+    for ( auto curve : visibleCurves() )
+    {
+        curve->loadDataAndUpdate( false );
+    }
+
+    // Stack the curves that are meant to be stacked
     std::map<int, std::vector<RimWellLogCurve*>> stackedCurves = visibleStackedCurves();
 
     for ( auto groupCurvePair : stackedCurves )
@@ -2299,8 +2336,8 @@ void RimWellLogTrack::updateStackedCurveData()
                     auto it = std::lower_bound( allDepthValues.begin(),
                                                 allDepthValues.end(),
                                                 depth,
-                                                [reverseOrder]( double lhs, double rhs ) {
-                                                    return reverseOrder ? rhs < lhs : lhs < rhs;
+                                                [eps, reverseOrder]( double lhs, double rhs ) {
+                                                    return reverseOrder ? lhs - rhs > eps : rhs - lhs > eps;
                                                 } );
 
                     // Insert if there is no larger or equal depths or if the first equal or if it actually larger.
@@ -2330,6 +2367,12 @@ void RimWellLogTrack::updateStackedCurveData()
             tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, 0.0, displayUnit, false );
             auto plotDepthValues          = tempCurveData.depthPlotValues( depthType, displayUnit );
             auto polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
+
+            // Apply a area filled style if it isn't already set
+            if ( curve->fillStyle() == Qt::NoBrush )
+            {
+                curve->setFillStyle( Qt::SolidPattern );
+            }
 
             curve->setOverrideCurveData( allStackedValues, plotDepthValues, polyLineStartStopIndices );
             curve->setZOrder( zPos );

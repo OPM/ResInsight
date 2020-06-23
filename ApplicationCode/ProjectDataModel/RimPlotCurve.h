@@ -80,6 +80,8 @@ public:
     void                          setSymbolSize( int sizeInPixels );
     void                          setLineThickness( int thickness );
     void                          resetAppearance();
+    Qt::BrushStyle                fillStyle() const;
+    void                          setFillStyle( Qt::BrushStyle brushStyle );
 
     bool isCurveVisible() const;
     void setCurveVisibility( bool visible );

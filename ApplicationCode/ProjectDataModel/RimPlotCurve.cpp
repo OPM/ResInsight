@@ -18,6 +18,7 @@
 
 #include "RimPlotCurve.h"
 
+#include "RiaColorTools.h"
 #include "RiaCurveDataTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
@@ -770,7 +771,7 @@ void RimPlotCurve::updateCurveAppearance()
     if ( m_qwtPlotCurve )
     {
         QColor fillColor( m_fillColor.value().rByte(), m_fillColor.value().gByte(), m_fillColor.value().bByte() );
-        fillColor.setAlpha( 130 );
+        fillColor = RiaColorTools::blendQColors( fillColor, QColor( Qt::white ), 3, 1 );
         QBrush fillBrush( fillColor, m_fillStyle() );
         m_qwtPlotCurve->setAppearance( m_lineStyle(), m_curveInterpolation(), m_curveThickness(), curveColor, fillBrush );
         m_qwtPlotCurve->setSymbol( symbol );
@@ -981,6 +982,22 @@ void RimPlotCurve::resetAppearance()
     setLineStyle( RiuQwtPlotCurve::STYLE_SOLID );
     setSymbol( RiuQwtSymbol::SYMBOL_NONE );
     setSymbolSkipDistance( 10 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Qt::BrushStyle RimPlotCurve::fillStyle() const
+{
+    return m_fillStyle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setFillStyle( Qt::BrushStyle brushStyle )
+{
+    m_fillStyle = brushStyle;
 }
 
 //--------------------------------------------------------------------------------------------------

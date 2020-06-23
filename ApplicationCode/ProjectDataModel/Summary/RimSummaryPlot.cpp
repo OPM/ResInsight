@@ -1336,6 +1336,71 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    updateStackedCurveData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateStackedCurveData()
+{
+    if ( m_leftYAxisProperties->stackCurves() ) updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    if ( m_rightYAxisProperties->stackCurves() ) updateStackedCurveDataForAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxis )
+{
+    // Reset all curves
+    for ( RimSummaryCurve* curve : visibleSummaryCurvesForAxis( plotAxis ) )
+    {
+        curve->loadDataAndUpdate( false );
+    }
+
+    RimPlotAxisProperties* axisProperties = yAxisPropertiesLeftOrRight( plotAxis );
+    if ( axisProperties->stackCurves() )
+    {
+        // Z-position of curve, to draw them in correct order
+        double zPos = -10000.0;
+
+        std::vector<time_t> allTimeSteps;
+        for ( RimSummaryCurve* curve : visibleSummaryCurvesForAxis( plotAxis ) )
+        {
+            allTimeSteps.insert( allTimeSteps.end(), curve->timeStepsY().begin(), curve->timeStepsY().end() );
+        }
+        std::sort( allTimeSteps.begin(), allTimeSteps.end() );
+        allTimeSteps.erase( std::unique( allTimeSteps.begin(), allTimeSteps.end() ), allTimeSteps.end() );
+
+        std::vector<double> allStackedValues( allTimeSteps.size(), 0.0 );
+        for ( RimSummaryCurve* curve : visibleSummaryCurvesForAxis( plotAxis ) )
+        {
+            for ( size_t i = 0; i < allTimeSteps.size(); ++i )
+            {
+                double value = curve->yValueAtTimeT( allTimeSteps[i] );
+                if ( value != std::numeric_limits<double>::infinity() )
+                {
+                    allStackedValues[i] += value;
+                }
+            }
+
+            // Apply a area filled style if it isn't already set
+            if ( curve->fillStyle() == Qt::NoBrush )
+            {
+                curve->setFillStyle( Qt::SolidPattern );
+            }
+            curve->setOverrideCurveDataY( allTimeSteps, allStackedValues );
+            curve->setZOrder( zPos );
+            zPos -= 1.0;
+        }
+    }
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QImage RimSummaryPlot::snapshotWindowContent()
 {
     QImage image;

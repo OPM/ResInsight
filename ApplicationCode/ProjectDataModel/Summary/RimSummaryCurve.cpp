@@ -341,6 +341,43 @@ const std::vector<time_t>& RimSummaryCurve::timeStepsY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimSummaryCurve::yValueAtTimeT( time_t time ) const
+{
+    const std::vector<time_t>& timeSteps = timeStepsY();
+    const std::vector<double>  values    = valuesY();
+
+    if ( timeSteps.empty() || time < timeSteps.front() || time > timeSteps.back() )
+        return std::numeric_limits<double>::infinity();
+
+    for ( size_t i = 0; i < timeSteps.size(); ++i )
+    {
+        if ( timeSteps[i] == time )
+        {
+            return values[i];
+        }
+        else if ( i < timeSteps.size() - 1u && timeSteps[i] < time && time < timeSteps[i + 1] )
+        {
+            if ( m_curveInterpolation == RiuQwtPlotCurve::INTERPOLATION_STEP_LEFT )
+            {
+                return values[i + 1];
+            }
+            else
+            {
+                double slope = 0.0;
+                if ( timeSteps[i + 1] != timeSteps[i] )
+                {
+                    slope = ( values[i + 1] - values[i] ) / (double)( timeSteps[i + 1] - timeSteps[i] );
+                }
+                return slope * ( time - timeSteps[i] ) + values[i];
+            }
+        }
+    }
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryCaseX( RimSummaryCase* sumCase )
 {
     m_xValuesSummaryCase = sumCase;

@@ -63,6 +63,7 @@ public:
     void                       setLeftOrRightAxisY( RiaDefines::PlotAxis plotAxis );
     RiaDefines::PlotAxis       axisY() const;
     const std::vector<time_t>& timeStepsY() const;
+    double                     yValueAtTimeT( time_t time ) const;
 
     // X Axis functions
     void                     setSummaryCaseX( RimSummaryCase* sumCase );

@@ -72,6 +72,7 @@ public:
     void                 setAutoZoom( bool enableAutoZoom );
     bool                 isAxisInverted() const;
     void                 setAxisInverted( bool inverted );
+    bool                 stackCurves() const;
 
     std::vector<RimPlotAxisAnnotation*> annotations() const;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation );
@@ -114,6 +115,7 @@ private:
     caf::PdmField<bool> m_displayUnitText;
     caf::PdmField<bool> m_isAutoZoom;
     caf::PdmField<bool> m_isAxisInverted;
+    caf::PdmField<bool> m_stackCurves;
 
     caf::PdmField<QString> m_name;
     QwtPlot::Axis          m_axis;
