@@ -89,6 +89,7 @@
 #include <QWheelEvent>
 
 #include <algorithm>
+#include <set>
 
 #define RI_LOGPLOTTRACK_MINX_DEFAULT -10.0
 #define RI_LOGPLOTTRACK_MAXX_DEFAULT 100.0
@@ -185,6 +186,7 @@ RimWellLogTrack::RimWellLogTrack()
     m_visibleDepthRangeMax.uiCapability()->setUiHidden( true );
     m_visibleDepthRangeMax.xmlCapability()->disableIO();
 
+    CAF_PDM_InitField( &m_stackCurves, "StackCurves", false, "Stack Curves", "", "", "" );
     CAF_PDM_InitField( &m_isAutoScaleXEnabled, "AutoScaleX", true, "Auto Scale", "", "", "" );
     m_isAutoScaleXEnabled.uiCapability()->setUiHidden( true );
 
@@ -357,12 +359,7 @@ void RimWellLogTrack::detachAllPlotItems()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::calculateXZoomRange()
 {
-    std::map<int, std::vector<RimWellFlowRateCurve*>> stackCurveGroups = visibleStackedCurves();
-    for ( const std::pair<int, std::vector<RimWellFlowRateCurve*>>& curveGroup : stackCurveGroups )
-    {
-        for ( RimWellFlowRateCurve* stCurve : curveGroup.second )
-            stCurve->updateStackedPlotData();
-    }
+    updateStackedCurveData();
 
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
@@ -2002,17 +1999,21 @@ void RimWellLogTrack::setLogarithmicScale( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, std::vector<RimWellFlowRateCurve*>> RimWellLogTrack::visibleStackedCurves()
+std::map<int, std::vector<RimWellLogCurve*>> RimWellLogTrack::visibleStackedCurves()
 {
-    std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurves;
+    std::map<int, std::vector<RimWellLogCurve*>> stackedCurves;
     for ( RimWellLogCurve* curve : m_curves )
     {
         if ( curve && curve->isCurveVisible() )
         {
             RimWellFlowRateCurve* wfrCurve = dynamic_cast<RimWellFlowRateCurve*>( curve );
-            if ( wfrCurve != nullptr )
+            if ( wfrCurve != nullptr ) // Flow rate curves are always stacked
             {
                 stackedCurves[wfrCurve->groupId()].push_back( wfrCurve );
+            }
+            else if ( m_stackCurves() )
+            {
+                stackedCurves[-1].push_back( curve );
             }
         }
     }
@@ -2250,6 +2251,91 @@ std::vector<QString> RimWellLogTrack::formationNamesVector( RimCase* rimCase )
     }
 
     return std::vector<QString>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateStackedCurveData()
+{
+    RimWellLogPlot* wellLogPlot;
+    firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+
+    RimWellLogPlot::DepthTypeEnum depthType    = wellLogPlot->depthType();
+    RiaDefines::DepthUnitType     displayUnit  = wellLogPlot->depthUnit();
+    bool                          reverseOrder = false;
+    if ( depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
+    {
+        displayUnit  = RiaDefines::DepthUnitType::UNIT_NONE;
+        reverseOrder = true;
+    }
+
+    std::map<int, std::vector<RimWellLogCurve*>> stackedCurves = visibleStackedCurves();
+
+    for ( auto groupCurvePair : stackedCurves )
+    {
+        int                                  groupId              = groupCurvePair.first;
+        const std::vector<RimWellLogCurve*>& stackedCurvesInGroup = groupCurvePair.second;
+        if ( stackedCurvesInGroup.empty() ) continue;
+
+        // Z-position of curve, to draw them in correct order
+        double zPos = -10000.0 + 100.0 * static_cast<double>( groupId );
+
+        // Find common depths. We retain all depths from the first curve and insert ones that aren't already added.
+        std::vector<double> allDepthValues;
+
+        for ( auto curve : stackedCurvesInGroup )
+        {
+            auto depths = curve->curveData()->depths( depthType );
+            if ( allDepthValues.empty() )
+            {
+                allDepthValues.insert( allDepthValues.end(), depths.begin(), depths.end() );
+            }
+            else
+            {
+                for ( double depth : depths )
+                {
+                    // Finds the first larger or equal depth.
+                    auto it = std::lower_bound( allDepthValues.begin(),
+                                                allDepthValues.end(),
+                                                depth,
+                                                [reverseOrder]( double lhs, double rhs ) {
+                                                    return reverseOrder ? rhs < lhs : lhs < rhs;
+                                                } );
+
+                    // Insert if there is no larger or equal depths or if the first equal or if it actually larger.
+                    if ( it == allDepthValues.end() || std::fabs( depth - *it ) > 1.0e-8 )
+                    {
+                        allDepthValues.insert( it, depth );
+                    }
+                }
+            }
+        }
+        if ( allDepthValues.empty() ) continue;
+
+        std::vector<double> allStackedValues( allDepthValues.size(), 0.0 );
+        for ( auto curve : stackedCurvesInGroup )
+        {
+            auto interpolatedCurveValues = curve->curveData()->calculateResampledCurveData( depthType, allDepthValues );
+            auto xValues                 = interpolatedCurveValues->xValues();
+            for ( size_t i = 0; i < xValues.size(); ++i )
+            {
+                if ( xValues[i] != HUGE_VAL )
+                {
+                    allStackedValues[i] += xValues[i];
+                }
+            }
+
+            RigWellLogCurveData tempCurveData;
+            tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, 0.0, displayUnit, false );
+            auto plotDepthValues          = tempCurveData.depthPlotValues( depthType, displayUnit );
+            auto polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
+
+            curve->setOverrideCurveData( allStackedValues, plotDepthValues, polyLineStartStopIndices );
+            curve->setZOrder( zPos );
+            zPos -= 1.0;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

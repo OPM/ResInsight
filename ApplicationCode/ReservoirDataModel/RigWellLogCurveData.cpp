@@ -325,6 +325,124 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
     return reSampledData;
 }
 
+void RigWellLogCurveData::interpolateSegment( RiaDefines::DepthTypeEnum resamplingDepthType,
+                                              double                    depthValue,
+                                              size_t                    firstIndex,
+                                              std::vector<double>&      xValues,
+                                              std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& resampledDepths,
+                                              const double                                              eps ) const
+{
+    auto depthIt = m_depths.find( resamplingDepthType );
+
+    size_t secondIndex = firstIndex + 1;
+
+    if ( secondIndex >= depthIt->second.size() ) return;
+
+    double depth0 = depthIt->second[firstIndex];
+    double depth1 = depthIt->second[secondIndex];
+    double x0     = m_xValues[firstIndex];
+    double x1     = m_xValues[secondIndex];
+    double slope  = 0.0;
+    if ( std::fabs( depth1 - depth0 ) > eps )
+    {
+        slope = ( x1 - x0 ) / ( depth1 - depth0 );
+    }
+    double xValue = slope * ( depthValue - depth0 ) + x0;
+    xValues.push_back( xValue );
+
+    for ( auto depthTypeValuesPair : m_depths )
+    {
+        if ( depthTypeValuesPair.first != resamplingDepthType )
+        {
+            double otherDepth0 = depthTypeValuesPair.second[0];
+            double otherDepth1 = depthTypeValuesPair.second[1];
+            double otherSlope  = ( otherDepth1 - otherDepth0 ) / ( depth1 - depth0 );
+            resampledDepths[depthTypeValuesPair.first].push_back( otherSlope * ( depthValue - depth0 ) + otherDepth0 );
+        }
+    }
+}
+
+bool isLeftOf( double x1, double x2, bool reverseOrder, double eps )
+{
+    if ( reverseOrder )
+    {
+        return x1 - x2 > eps;
+    }
+    return x2 - x1 > eps;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Assumes the data is well ordered
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( RiaDefines::DepthTypeEnum resamplingDepthType,
+                                                                                const std::vector<double>& depths ) const
+{
+    const double eps = 1.0e-8;
+
+    std::vector<double> xValues;
+
+    bool                                                     isTVDAvailable = false;
+    std::map<RiaDefines::DepthTypeEnum, std::vector<double>> resampledDepths;
+
+    auto depthIt = m_depths.find( resamplingDepthType );
+
+    cvf::ref<RigWellLogCurveData> reSampledData = new RigWellLogCurveData;
+
+    if ( depthIt->second.empty() ) return reSampledData;
+
+    bool reverseOrder = resamplingDepthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER;
+
+    size_t segmentSearchStartIdx = 0;
+    for ( double depth : depths )
+    {
+        if ( isLeftOf( depth, depthIt->second.front(), reverseOrder, eps ) )
+        {
+            // Extrapolate from front two
+            interpolateSegment( resamplingDepthType, depth, 0, xValues, resampledDepths, eps );
+        }
+        else if ( isLeftOf( depthIt->second.back(), depth, reverseOrder, eps ) )
+        {
+            // Extrapolate from end two
+            const size_t N = depthIt->second.size() - 1;
+            interpolateSegment( resamplingDepthType, depth, N - 1, xValues, resampledDepths, eps );
+        }
+        else
+        {
+            for ( size_t segmentStartIdx = segmentSearchStartIdx; segmentStartIdx < depthIt->second.size();
+                  ++segmentStartIdx )
+            {
+                if ( std::fabs( depthIt->second[segmentStartIdx] - depth ) < eps ) // already have this depth point,
+                                                                                   // reuse it
+                {
+                    xValues.push_back( m_xValues[segmentStartIdx] );
+                    for ( auto depthTypeValuesPair : m_depths )
+                    {
+                        if ( depthTypeValuesPair.first != resamplingDepthType )
+                        {
+                            resampledDepths[depthTypeValuesPair.first].push_back(
+                                depthTypeValuesPair.second[segmentStartIdx] );
+                        }
+                    }
+                    segmentSearchStartIdx = segmentStartIdx + 1;
+                }
+                else if ( segmentStartIdx < depthIt->second.size() - 1 &&
+                          isLeftOf( depthIt->second[segmentStartIdx], depth, reverseOrder, eps ) &&
+                          isLeftOf( depth, depthIt->second[segmentStartIdx + 1], reverseOrder, eps ) ) // interpolate
+                                                                                                       // between two
+                                                                                                       // closest points
+                {
+                    interpolateSegment( resamplingDepthType, depth, segmentStartIdx, xValues, resampledDepths, eps );
+                    segmentSearchStartIdx = segmentStartIdx;
+                }
+            }
+        }
+    }
+
+    resampledDepths.insert( std::make_pair( resamplingDepthType, depths ) );
+    reSampledData->setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true );
+    return reSampledData;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -335,7 +453,7 @@ void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
 
     m_intervalsOfContinousValidValues.clear();
 
-    if ( !m_isExtractionCurve )
+    if ( !m_isExtractionCurve || !m_depths.count( RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) )
     {
         m_intervalsOfContinousValidValues = intervalsOfValidValues;
     }

@@ -191,7 +191,7 @@ public:
 
     void setLogarithmicScale( bool enable );
 
-    std::map<int, std::vector<RimWellFlowRateCurve*>> visibleStackedCurves();
+    std::map<int, std::vector<RimWellLogCurve*>> visibleStackedCurves();
 
     std::vector<RimWellLogCurve*> curves() const;
     std::vector<RimWellLogCurve*> visibleCurves() const;
@@ -224,6 +224,7 @@ public:
                                        std::vector<std::pair<double, double>>* yValues );
 
     static std::vector<QString> formationNamesVector( RimCase* rimCase );
+    void                        updateStackedCurveData();
 
     static void addOverburden( std::vector<QString>& namesVector, CurveSamplingPointData& curveData, double height );
     static void addUnderburden( std::vector<QString>& namesVector, CurveSamplingPointData& curveData, double height );
@@ -304,6 +305,7 @@ private:
     caf::PdmField<double>                     m_visibleDepthRangeMin;
     caf::PdmField<double>                     m_visibleDepthRangeMax;
 
+    caf::PdmField<bool>                         m_stackCurves;
     caf::PdmField<bool>                         m_isAutoScaleXEnabled;
     caf::PdmField<bool>                         m_isLogarithmicScaleEnabled;
     caf::PdmField<RimWellLogPlot::AxisGridEnum> m_xAxisGridVisibility;
