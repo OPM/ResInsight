@@ -42,7 +42,6 @@ public:
                                     RiaDefines::DepthTypeEnum  depthType,
                                     const std::vector<double>& depthValues,
                                     const std::vector<double>& flowRates );
-    void updateStackedPlotData();
 
     RimEclipseResultCase* rimCase();
     int                   timeStep();

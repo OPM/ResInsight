@@ -75,6 +75,14 @@ public:
     std::vector<std::pair<size_t, size_t>> polylineStartStopIndices() const;
 
     cvf::ref<RigWellLogCurveData> calculateResampledCurveData( double newMeasuredDepthStepSize ) const;
+    cvf::ref<RigWellLogCurveData> calculateResampledCurveData( RiaDefines::DepthTypeEnum  resamplingDepthType,
+                                                               const std::vector<double>& depths ) const;
+    void                          interpolateSegment( RiaDefines::DepthTypeEnum                                 resamplingDepthType,
+                                                      double                                                    depthValue,
+                                                      size_t                                                    firstIndex,
+                                                      std::vector<double>&                                      xValues,
+                                                      std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& resampledDepths,
+                                                      const double                                              eps ) const;
 
 private:
     void calculateIntervalsOfContinousValidValues();

@@ -165,7 +165,9 @@ void RimWellFlowRateCurve::onLoadDataAndUpdate( bool updateParentPlot )
     {
         m_qwtPlotCurve->setTitle( createCurveAutoName() );
 
-        updateStackedPlotData();
+        RimWellLogTrack* track = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted( track );
+        track->updateStackedCurveData();
 
         updateZoomInParentPlot();
 
@@ -184,9 +186,9 @@ void RimWellFlowRateCurve::updateCurveAppearance()
     {
         RimWellLogTrack* wellLogTrack;
         firstAncestorOrThisOfTypeAsserted( wellLogTrack );
-        std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
-        const std::vector<RimWellFlowRateCurve*>&         curveGroup         = stackedCurveGroups[this->m_groupId];
-        isLastCurveInGroup                                                   = ( curveGroup.back() == this );
+        std::map<int, std::vector<RimWellLogCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
+        const std::vector<RimWellLogCurve*>&         curveGroup         = stackedCurveGroups[this->m_groupId];
+        isLastCurveInGroup                                              = ( curveGroup.back() == this );
     }
 
     if ( isUsingConnectionNumberDepthType() )
@@ -239,81 +241,6 @@ void RimWellFlowRateCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     m_curveColor.uiCapability()->setUiReadOnly( true );
 
     uiOrdering.skipRemainingFields();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellFlowRateCurve::updateStackedPlotData()
-{
-    RimWellLogPlot* wellLogPlot;
-    firstAncestorOrThisOfTypeAsserted( wellLogPlot );
-
-    RimWellLogTrack* wellLogTrack;
-    firstAncestorOrThisOfTypeAsserted( wellLogTrack );
-
-    RimWellLogPlot::DepthTypeEnum depthType   = wellLogPlot->depthType();
-    RiaDefines::DepthUnitType     displayUnit = wellLogPlot->depthUnit();
-    if ( depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
-    {
-        displayUnit = RiaDefines::DepthUnitType::UNIT_NONE;
-    }
-
-    std::vector<double>                    depthValues;
-    std::vector<double>                    stackedValues;
-    std::vector<std::pair<size_t, size_t>> polyLineStartStopIndices;
-
-    // Z-position of curve, to draw them in correct order
-    double zPos = -10000.0 + 100.0 * static_cast<double>( groupId() );
-
-    // Starting way behind the grid (z == 0) at -10000 giving room for 100 groups with 100 curves each before getting
-    // above the grid
-    {
-        std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
-
-        std::vector<RimWellFlowRateCurve*> stackedCurves;
-
-        if ( stackedCurveGroups.count( groupId() ) > 0 )
-        {
-            stackedCurves = stackedCurveGroups[groupId()];
-        }
-
-        std::vector<double> allDepthValues = curveData()->depths( depthType );
-        if ( allDepthValues.empty() ) return;
-
-        std::vector<double> allStackedValues( allDepthValues.size() );
-
-        for ( RimWellFlowRateCurve* stCurve : stackedCurves )
-        {
-            std::vector<double> allValues = stCurve->curveData()->xValues();
-
-            for ( size_t i = 0; i < allValues.size(); ++i )
-            {
-                if ( allValues[i] != HUGE_VAL )
-                {
-                    allStackedValues[i] += allValues[i];
-                }
-            }
-
-            if ( stCurve == this ) break;
-            zPos -= 1.0;
-        }
-
-        RigWellLogCurveData tempCurveData;
-        tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, 0.0, displayUnit, false );
-
-        depthValues              = tempCurveData.depthPlotValues( depthType, displayUnit );
-        stackedValues            = tempCurveData.xPlotValues();
-        polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
-    }
-
-    auto minmax_it = std::minmax_element( stackedValues.begin(), stackedValues.end() );
-
-    this->setOverrideCurveDataXRange( *( minmax_it.first ), *( minmax_it.second ) );
-    m_qwtPlotCurve->setSamples( stackedValues.data(), depthValues.data(), static_cast<int>( depthValues.size() ) );
-    m_qwtPlotCurve->setLineSegmentStartStopIndices( polyLineStartStopIndices );
-
-    m_qwtPlotCurve->setZ( zPos );
 }
 
 //--------------------------------------------------------------------------------------------------

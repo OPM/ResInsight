@@ -75,6 +75,10 @@ public:
 
     static QString wellLogCurveIconName();
 
+    void setOverrideCurveData( const std::vector<double>&               xValues,
+                               const std::vector<double>&               depthValues,
+                               const RiaCurveDataTools::CurveIntervals& curveIntervals );
+
 protected:
     void updateZoomInParentPlot() override;
     void updateLegendsInPlot() override;
