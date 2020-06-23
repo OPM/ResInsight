@@ -54,9 +54,6 @@ public:
     void useTimeBasedTimeAxis();
     void setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic );
 
-signals:
-    void plotZoomed();
-
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
     void setDefaults();

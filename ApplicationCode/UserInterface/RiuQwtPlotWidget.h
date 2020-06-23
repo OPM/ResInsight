@@ -143,6 +143,7 @@ signals:
     void plotItemSelected( QwtPlotItem* plotItem, bool toggleSelection, int sampleIndex );
     void onKeyPressEvent( QKeyEvent* event );
     void onWheelEvent( QWheelEvent* event );
+    void plotZoomed();
 
 protected:
     bool eventFilter( QObject* watched, QEvent* event ) override;
