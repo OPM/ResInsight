@@ -86,6 +86,7 @@
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
 
+#include <QDebug>
 #include <QWheelEvent>
 
 #include <algorithm>
@@ -278,6 +279,10 @@ RimWellLogTrack::RimWellLogTrack()
 //--------------------------------------------------------------------------------------------------
 RimWellLogTrack::~RimWellLogTrack()
 {
+    for ( auto curve : m_curves )
+    {
+        disconnectCurveSignals( curve );
+    }
     m_curves.deleteAllChildObjects();
 }
 
@@ -725,11 +730,23 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+void RimWellLogTrack::curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible )
 {
+    qDebug() << "Curve turned " << ( visible ? "on" : "off" );
     if ( m_stackCurves )
     {
         updateStackedCurveData();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::curveAppearanceChanged( const caf::SignalEmitter* emitter )
+{
+    if ( m_plotWidget )
+    {
+        m_plotWidget->scheduleReplot();
     }
 }
 
@@ -1035,6 +1052,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions( const caf:
 void RimWellLogTrack::addCurve( RimWellLogCurve* curve )
 {
     m_curves.push_back( curve );
+    connectCurveSignals( curve );
 
     if ( m_plotWidget )
     {
@@ -1048,6 +1066,7 @@ void RimWellLogTrack::addCurve( RimWellLogCurve* curve )
 void RimWellLogTrack::insertCurve( RimWellLogCurve* curve, size_t index )
 {
     m_curves.insert( index, curve );
+    connectCurveSignals( curve );
     // Todo: Mark curve data to use either TVD or MD
 
     if ( m_plotWidget )
@@ -1066,6 +1085,7 @@ void RimWellLogTrack::removeCurve( RimWellLogCurve* curve )
     {
         m_curves[index]->detachQwtCurve();
         m_curves.removeChildObject( curve );
+        disconnectCurveSignals( curve );
     }
 }
 
@@ -1818,6 +1838,11 @@ void RimWellLogTrack::initAfterRead()
     {
         m_colorShadingLegend = RimRegularLegendConfig::mapToColorLegend( m_colorShadingPalette_OBSOLETE() );
     }
+
+    for ( auto curve : m_curves )
+    {
+        connectCurveSignals( curve );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1980,6 +2005,24 @@ std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( Ria
         return {{waterStartTVDRKB, waterEndTVDRKB}, {waterEndTVDRKB, rockEndTVDRKB}};
     }
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::connectCurveSignals( RimWellLogCurve* curve )
+{
+    curve->visibilityChanged.connect( this, &RimWellLogTrack::curveVisibilityChanged );
+    curve->appearanceChanged.connect( this, &RimWellLogTrack::curveAppearanceChanged );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::disconnectCurveSignals( RimWellLogCurve* curve )
+{
+    curve->visibilityChanged.disconnect( this );
+    curve->appearanceChanged.disconnect( this );
 }
 
 //--------------------------------------------------------------------------------------------------

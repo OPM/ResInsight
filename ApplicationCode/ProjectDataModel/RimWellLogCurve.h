@@ -23,6 +23,7 @@
 #include "RiaWellLogUnitTools.h"
 #include "RimPlotCurve.h"
 
+#include "cafSignal.h"
 #include "cvfObject.h"
 
 class RigWellLogCurveData;
