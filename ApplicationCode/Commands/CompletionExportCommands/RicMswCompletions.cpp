@@ -246,6 +246,7 @@ RicMswPerforationAICD::RicMswPerforationAICD( const QString& label, const RimWel
     , m_valid( false )
     , m_deviceOpen( false )
     , m_length( 0.0 )
+    , m_flowScalingFactor( 0.0 )
 {
 }
 
@@ -303,6 +304,22 @@ double RicMswPerforationAICD::length() const
 void RicMswPerforationAICD::setLength( double length )
 {
     m_length = length;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RicMswPerforationAICD::flowScalingFactor() const
+{
+    return m_flowScalingFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicMswPerforationAICD::setflowScalingFactor( double scalingFactor )
+{
+    m_flowScalingFactor = scalingFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
