@@ -264,8 +264,9 @@ std::vector<std::pair<double, double>> RimWellPathValve::valveSegments() const
     RimPerforationInterval* perforationInterval = nullptr;
     this->firstAncestorOrThisOfType( perforationInterval );
 
-    double              startMD  = perforationInterval->startMD();
-    double              endMD    = perforationInterval->endMD();
+    double startMD = this->startMD();
+    double endMD   = this->endMD();
+
     std::vector<double> valveMDs = valveLocations();
 
     std::vector<std::pair<double, double>> segments;
@@ -381,7 +382,7 @@ double RimWellPathValve::startMD() const
     {
         return m_measuredDepth;
     }
-    else if ( m_multipleValveLocations()->valveLocations().empty() )
+    else if ( m_multipleValveLocations()->valveLocations().size() < 2 )
     {
         return m_multipleValveLocations->rangeStart();
     }
@@ -400,7 +401,7 @@ double RimWellPathValve::endMD() const
     {
         return m_measuredDepth + 0.5;
     }
-    else if ( m_multipleValveLocations()->valveLocations().empty() )
+    else if ( m_multipleValveLocations()->valveLocations().size() < 2 )
     {
         return m_multipleValveLocations->rangeEnd();
     }
