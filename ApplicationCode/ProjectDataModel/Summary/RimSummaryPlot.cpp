@@ -1392,7 +1392,7 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
             {
                 curve->setFillStyle( Qt::SolidPattern );
             }
-            curve->setOverrideCurveDataY( allTimeSteps, allStackedValues );
+            // curve->setOverrideCurveDataY( allTimeSteps, allStackedValues );
             curve->setZOrder( zPos );
             zPos -= 1.0;
         }

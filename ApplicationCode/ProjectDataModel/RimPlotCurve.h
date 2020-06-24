@@ -44,6 +44,12 @@ class RimPlotCurve : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<>        appearanceChanged;
+    caf::Signal<bool>    visibilityChanged;
+    caf::Signal<>        dataChanged;
+    caf::Signal<QString> nameChanged;
+
+public:
     typedef caf::AppEnum<RiuQwtPlotCurve::CurveInterpolationEnum> CurveInterpolation;
     typedef caf::AppEnum<RiuQwtPlotCurve::LineStyleEnum>          LineStyle;
     typedef caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>           PointSymbol;

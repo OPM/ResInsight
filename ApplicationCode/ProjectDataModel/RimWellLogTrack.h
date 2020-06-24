@@ -250,7 +250,8 @@ private:
     void doRemoveFromCollection() override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );
+    void curveAppearanceChanged( const caf::SignalEmitter* emitter );
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
@@ -294,6 +295,9 @@ private:
 
     std::vector<std::pair<double, double>> waterAndRockRegions( RiaDefines::DepthTypeEnum  depthType,
                                                                 const RigWellLogExtractor* extractor ) const;
+
+    void connectCurveSignals( RimWellLogCurve* curve );
+    void disconnectCurveSignals( RimWellLogCurve* curve );
 
 private:
     QString m_xAxisTitle;

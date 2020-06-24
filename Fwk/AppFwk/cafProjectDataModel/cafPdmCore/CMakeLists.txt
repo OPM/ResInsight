@@ -47,6 +47,8 @@ set( PROJECT_FILES
     cafNotificationCenter.cpp
     cafNotificationCenter.h
 
+    cafSignal.h
+
     cafTristate.cpp
     cafTristate.h
     cafFilePath.cpp

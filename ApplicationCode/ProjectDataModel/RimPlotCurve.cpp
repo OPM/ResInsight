@@ -121,6 +121,10 @@ void RimPlotCurve::FillStyle::setUp()
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotCurve::RimPlotCurve()
+    : appearanceChanged( this )
+    , visibilityChanged( this )
+    , dataChanged( this )
+    , nameChanged( this )
 {
     CAF_PDM_InitObject( "Curve", ":/WellLogCurve16x16.png", "", "" );
 
@@ -204,6 +208,7 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     {
         this->updateCurveVisibility();
         if ( m_showCurve() ) loadDataAndUpdate( false );
+        visibilityChanged.send( m_showCurve() );
     }
     else if ( changedField == &m_curveName )
     {
@@ -232,6 +237,8 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
             m_curveThickness.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE );
             m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurve::STYLE_NONE );
         }
+
+        appearanceChanged.send();
     }
     else if ( changedField == &m_isUsingAutoName )
     {
@@ -241,6 +248,7 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
         }
 
         updateCurveNameAndUpdatePlotLegendAndTitle();
+        nameChanged.send( curveName() );
     }
     else if ( changedField == &m_showLegend )
     {
@@ -504,6 +512,7 @@ void RimPlotCurve::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateLegendsInPlot()
 {
+    nameChanged.send( curveName() );
     if ( m_parentQwtPlot != nullptr )
     {
         m_parentQwtPlot->updateLegend();

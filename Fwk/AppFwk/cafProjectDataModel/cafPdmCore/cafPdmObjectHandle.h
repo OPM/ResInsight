@@ -2,7 +2,7 @@
 
 #include "cafAssert.h"
 #include "cafPdmBase.h"
-#include "cafSignalHandle.h"
+#include "cafSignal.h"
 
 #include <QString>
 
@@ -20,7 +20,7 @@ class PdmChildArrayFieldHandle;
 //==================================================================================================
 /// The base class of all objects
 //==================================================================================================
-class PdmObjectHandle : public SignalObserver
+class PdmObjectHandle : public SignalObserver, public SignalEmitter
 {
 public:
     PdmObjectHandle();
