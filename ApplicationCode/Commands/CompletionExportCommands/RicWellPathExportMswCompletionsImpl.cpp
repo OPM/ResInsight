@@ -241,6 +241,36 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForPerforations(
         return;
     }
 
+    // Check if there exist overlap between valves in a perforation interval
+    for ( const auto& perfInterval : perforationIntervals )
+    {
+        for ( const auto& valve : perfInterval->valves() )
+        {
+            for ( const auto& otherValve : perfInterval->valves() )
+            {
+                if ( otherValve != valve )
+                {
+                    bool hasIntersection =
+                        !( ( valve->endMD() < otherValve->startMD() ) || ( otherValve->endMD() < valve->startMD() ) );
+
+                    if ( hasIntersection )
+                    {
+                        RiaLogging::error(
+                            QString( "Valve overlap detected for perforation interval : %1" ).arg( perfInterval->name() ) );
+
+                        RiaLogging::error( "Name of valves" );
+                        RiaLogging::error( valve->name() );
+                        RiaLogging::error( otherValve->name() );
+
+                        RiaLogging::error( "Failed to export well segments" );
+
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     RicMswExportInfo exportInfo =
         generatePerforationsMswExportInfo( eclipseCase, wellPath, timeStep, perforationIntervals );
 
