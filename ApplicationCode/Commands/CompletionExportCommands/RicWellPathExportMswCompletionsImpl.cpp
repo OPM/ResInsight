@@ -737,7 +737,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable( RifTextDataTabl
                          "Segment Number",
                          "Segment Number",
                          "Strength of AICD",
-                         "Length of AICD",
+                         "Flow Scaling Factor for AICD",
                          "Density of Calibration Fluid",
                          "Viscosity of Calibration Fluid",
                          "Critical water in liquid fraction for emulsions viscosity model",
@@ -781,13 +781,16 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable( RifTextDataTabl
                 {
                     CVF_ASSERT( aicd->subSegments().size() == 1u );
                     tighterFormatter.comment( aicd->label() );
-                    tighterFormatter.add( exportInfo.wellPath()->completions()->wellNameForExport() ); // 1
+                    tighterFormatter.add( exportInfo.wellPath()->completions()->wellNameForExport() ); // #1
                     tighterFormatter.add( aicd->subSegments().front()->segmentNumber() );
                     tighterFormatter.add( aicd->subSegments().front()->segmentNumber() );
 
                     std::array<double, AICD_NUM_PARAMS> values = aicd->values();
                     tighterFormatter.add( values[AICD_STRENGTH] );
-                    tighterFormatter.add( aicd->length() ); // 5
+
+                    tighterFormatter.add( aicd->flowScalingFactor() ); // #5 Flow scaling factor used when item #11 is
+                                                                       // set to '1'
+
                     tighterFormatter.add( values[AICD_DENSITY_CALIB_FLUID] );
                     tighterFormatter.add( values[AICD_VISCOSITY_CALIB_FLUID] );
                     tighterFormatter.addValueOrDefaultMarker( values[AICD_CRITICAL_WATER_IN_LIQUID_FRAC],
@@ -795,13 +798,16 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable( RifTextDataTabl
                     tighterFormatter.addValueOrDefaultMarker( values[AICD_EMULSION_VISC_TRANS_REGION],
                                                               RicMswExportInfo::defaultDoubleValue() );
                     tighterFormatter.addValueOrDefaultMarker( values[AICD_MAX_RATIO_EMULSION_VISC],
-                                                              RicMswExportInfo::defaultDoubleValue() ); // 10
-                    tighterFormatter.add( 1 );
+                                                              RicMswExportInfo::defaultDoubleValue() ); // #10
+
+                    tighterFormatter.add( 1 ); // #11 : Always use method "b. Scale factor". The value of the scale
+                                               // factor is given in item #5
+
                     tighterFormatter.addValueOrDefaultMarker( values[AICD_MAX_FLOW_RATE],
                                                               RicMswExportInfo::defaultDoubleValue() );
                     tighterFormatter.add( values[AICD_VOL_FLOW_EXP] );
                     tighterFormatter.add( values[AICD_VISOSITY_FUNC_EXP] );
-                    tighterFormatter.add( aicd->isOpen() ? "OPEN" : "SHUT" ); // 15
+                    tighterFormatter.add( aicd->isOpen() ? "OPEN" : "SHUT" ); // #15
                     tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_DENSITY],
                                                               RicMswExportInfo::defaultDoubleValue() );
                     tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_DENSITY],
@@ -811,7 +817,7 @@ void RicWellPathExportMswCompletionsImpl::generateWsegAicdTable( RifTextDataTabl
                     tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_VISCOSITY],
                                                               RicMswExportInfo::defaultDoubleValue() );
                     tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_VISCOSITY],
-                                                              RicMswExportInfo::defaultDoubleValue() ); // 20
+                                                              RicMswExportInfo::defaultDoubleValue() ); // #20
                     tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_VISCOSITY],
                                                               RicMswExportInfo::defaultDoubleValue() );
                     tighterFormatter.rowCompleted();
@@ -1274,9 +1280,9 @@ RicWellPathExportMswCompletionsImpl::MainBoreSegments
 {
     MainBoreSegments mainBoreSegments;
 
-    // Intersections along the well path with grid geometry is handled by well log extraction tools. The threshold in
-    // RigWellLogExtractionTools::isEqualDepth is currently set to 0.1m, and this is a pretty large threshold based on
-    // the indicated threshold of 0.001m for MSW segments
+    // Intersections along the well path with grid geometry is handled by well log extraction tools.
+    // The threshold in RigWellLogExtractionTools::isEqualDepth is currently set to 0.1m, and this
+    // is a pretty large threshold based on the indicated threshold of 0.001m for MSW segments
     const double segmentLengthThreshold = 1.0e-3;
 
     for ( const auto& cellIntInfo : subSegIntersections )
@@ -1511,7 +1517,6 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperICDsOrA
 
             std::vector<const RimWellPathValve*> perforationValves;
             interval->descendantsIncludingThisOfType( perforationValves );
-
             for ( const RimWellPathValve* valve : perforationValves )
             {
                 if ( !valve->isChecked() ) continue;
@@ -1526,7 +1531,11 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperICDsOrA
 
                     if ( overlap > 0.0 && accumulator )
                     {
-                        if ( accumulator->accumulateValveParameters( valve, nSubValve, overlap / valveSegmentLength ) )
+                        double lengthOpenForFlow = std::fabs( valve->endMD() - valve->startMD() );
+                        if ( accumulator->accumulateValveParameters( valve,
+                                                                     nSubValve,
+                                                                     overlap / valveSegmentLength,
+                                                                     lengthOpenForFlow ) )
                         {
                             assignedRegularValves[superValve].insert( std::make_pair( valve, nSubValve ) );
                         }

@@ -39,8 +39,9 @@ public:
     }
     virtual bool accumulateValveParameters( const RimWellPathValve* wellPathValve,
                                             size_t                  subValve,
-                                            double                  contributionFraction ) = 0;
-    virtual void applyToSuperValve( std::shared_ptr<RicMswValve> valve )  = 0;
+                                            double                  contributionFraction,
+                                            double                  totalValveLengthOpenForFlow ) = 0;
+    virtual void applyToSuperValve( std::shared_ptr<RicMswValve> valve )         = 0;
 
 protected:
     RiaEclipseUnitTools::UnitSystem m_unitSystem;
@@ -55,7 +56,8 @@ public:
     RicMswICDAccumulator( RiaEclipseUnitTools::UnitSystem unitSystem );
     bool accumulateValveParameters( const RimWellPathValve* wellPathValve,
                                     size_t                  subValve,
-                                    double                  contributionFraction ) override;
+                                    double                  contributionFraction,
+                                    double                  totalValveLengthOpenForFlow ) override;
     void applyToSuperValve( std::shared_ptr<RicMswValve> valve ) override;
 
 private:
@@ -72,7 +74,8 @@ public:
     RicMswAICDAccumulator( RiaEclipseUnitTools::UnitSystem unitSystem );
     bool accumulateValveParameters( const RimWellPathValve* wellPathValve,
                                     size_t                  subValve,
-                                    double                  contributionFraction ) override;
+                                    double                  contributionFraction,
+                                    double                  totalValveLengthOpenForFlow ) override;
     void applyToSuperValve( std::shared_ptr<RicMswValve> valve ) override;
 
 private:
@@ -80,4 +83,5 @@ private:
     bool                                                           m_deviceOpen;
     std::array<RiaWeightedMeanCalculator<double>, AICD_NUM_PARAMS> m_meanCalculators;
     double                                                         m_accumulatedLength;
+    double                                                         m_accumulatedFlowScalingFactorDivisor;
 };
