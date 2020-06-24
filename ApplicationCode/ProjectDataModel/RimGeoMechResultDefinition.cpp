@@ -828,6 +828,10 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
     {
         return "1/GPa";
     }
+    else if ( this->resultFieldName() == "POROSITY-PERMEABILITY" && this->resultComponentName() == "PERM" )
+    {
+        return "mD";
+    }
     else
     {
         for ( auto resultName : RiaDefines::wbsDerivedResultNames() )
