@@ -73,7 +73,7 @@ template <>
 void caf::AppEnum<RimGeoMechCase::BiotCoefficientType>::setUp()
 {
     addItem( RimGeoMechCase::BiotCoefficientType::BIOT_NONE, "BIOT_NONE", "None" );
-    addItem( RimGeoMechCase::BiotCoefficientType::BIOT_FIXED, "BIOT_FIXED", "Fixed biot coefficient" );
+    addItem( RimGeoMechCase::BiotCoefficientType::BIOT_FIXED, "BIOT_FIXED", "Fixed Biot Coefficient" );
     addItem( RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT,
              "BIOT_PER_ELEMENT",
              "Biot coefficient from element properties" );
@@ -85,7 +85,7 @@ void caf::AppEnum<RimGeoMechCase::InitialPermeabilityType>::setUp()
 {
     addItem( RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED,
              "INITIAL_PERMEABILITY_FIXED",
-             "Fixed initial permeability" );
+             "Fixed Initial Permeability" );
     addItem( RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_PER_ELEMENT,
              "INITIAL_PERMEABILITY_PER_ELEMENT",
              "Initial permeability from element properties" );
@@ -146,7 +146,7 @@ RimGeoMechCase::RimGeoMechCase( void )
 
     caf::AppEnum<BiotCoefficientType> defaultBiotCoefficientType = RimGeoMechCase::BiotCoefficientType::BIOT_NONE;
     CAF_PDM_InitField( &m_biotCoefficientType, "BiotCoefficientType", defaultBiotCoefficientType, "Biot Coefficient", "", "", "" );
-    CAF_PDM_InitField( &m_biotFixedCoefficient, "BiotFixedCoefficient", 1.0, "Fixed coefficient", "", "", "" );
+    CAF_PDM_InitField( &m_biotFixedCoefficient, "BiotFixedCoefficient", 1.0, "Fixed Coefficient", "", "", "" );
     m_biotFixedCoefficient.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_biotResultAddress, "BiotResultAddress", QString( "" ), "Value", "", "", "" );
