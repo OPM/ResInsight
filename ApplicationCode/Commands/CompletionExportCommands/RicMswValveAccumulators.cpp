@@ -45,11 +45,25 @@ bool RicMswICDAccumulator::accumulateValveParameters( const RimWellPathValve* we
     if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICV ||
          wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICD )
     {
+        double lengthFraction = 1.0;
+
+        if ( wellPathValve->componentType() == RiaDefines::WellPathComponentType::ICD )
+        {
+            std::pair<double, double> valveSegment       = wellPathValve->valveSegments()[subValve];
+            double                    valveSegmentLength = std::fabs( valveSegment.second - valveSegment.first );
+            if ( totalValveLengthOpenForFlow > 1.0e-8 )
+            {
+                lengthFraction = valveSegmentLength / totalValveLengthOpenForFlow;
+            }
+        }
+
+        double combinedFraction = contributionFraction * lengthFraction;
+
         double icdOrificeRadius = wellPathValve->orificeDiameter( m_unitSystem ) / 2;
         double icdArea          = icdOrificeRadius * icdOrificeRadius * cvf::PI_D;
 
-        m_areaSum += icdArea * contributionFraction;
-        m_coefficientCalculator.addValueAndWeight( wellPathValve->flowCoefficient(), icdArea * contributionFraction );
+        m_areaSum += icdArea * combinedFraction;
+        m_coefficientCalculator.addValueAndWeight( wellPathValve->flowCoefficient(), icdArea * combinedFraction );
         return true;
     }
     return false;
@@ -99,21 +113,23 @@ bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
             m_deviceOpen = m_deviceOpen || params->isOpen();
             if ( params->isOpen() )
             {
-                std::array<double, AICD_NUM_PARAMS> values = params->doubleValues();
-                for ( size_t i = 0; i < (size_t)AICD_NUM_PARAMS; ++i )
-                {
-                    if ( RiaStatisticsTools::isValidNumber( values[i] ) )
-                    {
-                        m_meanCalculators[i].addValueAndWeight( values[i], contributionFraction );
-                    }
-                }
-
                 std::pair<double, double> valveSegment       = wellPathValve->valveSegments()[subValve];
                 double                    valveSegmentLength = std::fabs( valveSegment.second - valveSegment.first );
                 double                    lengthFraction     = 1.0;
                 if ( totalValveLengthOpenForFlow > 1.0e-8 )
                 {
                     lengthFraction = valveSegmentLength / totalValveLengthOpenForFlow;
+                }
+
+                double combinedFraction = contributionFraction * lengthFraction;
+
+                std::array<double, AICD_NUM_PARAMS> values = params->doubleValues();
+                for ( size_t i = 0; i < (size_t)AICD_NUM_PARAMS; ++i )
+                {
+                    if ( RiaStatisticsTools::isValidNumber( values[i] ) )
+                    {
+                        m_meanCalculators[i].addValueAndWeight( values[i], combinedFraction );
+                    }
                 }
 
                 // https://github.com/OPM/ResInsight/issues/6126
@@ -123,11 +139,11 @@ bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
                 // length_fraction = length_COMPSEGS / Sum_lenght_COMPSEGS_for_valve
                 // N_AICDs = number of AICDs in perforation interval
 
-                double divisor = wellPathValve->valveLocations().size() * lengthFraction * contributionFraction;
+                double divisor = wellPathValve->valveLocations().size() * combinedFraction;
 
                 m_accumulatedFlowScalingFactorDivisor += divisor;
 
-                m_accumulatedLength += lengthFraction * contributionFraction;
+                m_accumulatedLength += combinedFraction;
             }
         }
         return true;
