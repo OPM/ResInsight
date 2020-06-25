@@ -136,7 +136,7 @@ bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* w
                 //
                 // flowScalingFactor =  1 / (length_fraction * N_AICDs)
                 // where:
-                // length_fraction = length_COMPSEGS / Sum_lenght_COMPSEGS_for_valve
+                // length_fraction = length_COMPSEGS / Sum_length_COMPSEGS_for_valve
                 // N_AICDs = number of AICDs in perforation interval
 
                 double divisor = wellPathValve->valveLocations().size() * combinedFraction;
