@@ -714,16 +714,21 @@ void RicWellPathExportMswCompletionsImpl::generateWsegvalvTable( RifTextDataTabl
                 if ( !icd->subSegments().empty() )
                 {
                     CVF_ASSERT( icd->subSegments().size() == 1u );
-                    if ( icd->completionType() == RigCompletionData::PERFORATION_ICD ||
-                         icd->completionType() == RigCompletionData::PERFORATION_ICV )
+
+                    auto firstSubSegment = icd->subSegments().front();
+                    if ( !firstSubSegment->intersections().empty() )
                     {
-                        formatter.comment( icd->label() );
+                        if ( icd->completionType() == RigCompletionData::PERFORATION_ICD ||
+                             icd->completionType() == RigCompletionData::PERFORATION_ICV )
+                        {
+                            formatter.comment( icd->label() );
+                        }
+                        formatter.add( exportInfo.wellPath()->completions()->wellNameForExport() );
+                        formatter.add( firstSubSegment->segmentNumber() );
+                        formatter.add( icd->flowCoefficient() );
+                        formatter.add( QString( "%1" ).arg( icd->area(), 8, 'g', 4 ) );
+                        formatter.rowCompleted();
                     }
-                    formatter.add( exportInfo.wellPath()->completions()->wellNameForExport() );
-                    formatter.add( icd->subSegments().front()->segmentNumber() );
-                    formatter.add( icd->flowCoefficient() );
-                    formatter.add( QString( "%1" ).arg( icd->area(), 8, 'g', 4 ) );
-                    formatter.rowCompleted();
                 }
             }
         }
