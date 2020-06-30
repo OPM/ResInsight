@@ -28,4 +28,7 @@ QString conductivityResultName();
 QString unitStringConductivity( RiaEclipseUnitTools::UnitSystem unitSystem );
 
 double nonDarcyFlowAlpha( RiaEclipseUnitTools::UnitSystem unitSystem );
+
+QString faciesColorLegendName();
+QString rockTypeColorLegendName();
 }; // namespace RiaDefines

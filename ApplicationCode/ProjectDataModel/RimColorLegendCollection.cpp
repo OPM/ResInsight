@@ -17,11 +17,14 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimColorLegendCollection.h"
-#include "RimColorLegend.h"
-#include "RimRegularLegendConfig.h"
 
+#include "RiaFractureDefines.h"
+
+#include "RimColorLegend.h"
 #include "RimColorLegendItem.h"
 #include "RimProject.h"
+#include "RimRegularLegendConfig.h"
+
 #include <QString>
 
 CAF_PDM_SOURCE_INIT( RimColorLegendCollection, "ColorLegendCollection" );
@@ -183,7 +186,7 @@ RimColorLegendItem* RimColorLegendCollection::createColorLegendItem( const QStri
 RimColorLegend* RimColorLegendCollection::createRockTypeColorLegend() const
 {
     RimColorLegend* colorLegend = new RimColorLegend;
-    colorLegend->setColorLegendName( "Rock Types" );
+    colorLegend->setColorLegendName( RiaDefines::rockTypeColorLegendName() );
 
     // Rock types colors taken from "Equinor GeoStandard - May 2020" document.
     // 6.3.1 Epiclastic rocks

@@ -48,6 +48,7 @@
 #include "RiuQwtPlotWidget.h"
 
 #include "RiaApplication.h"
+#include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
@@ -212,7 +213,7 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
         fractureModelPlot->getPorosityValues( poroValues );
 
         // TODO: make this settable??
-        QString         colorLegendName = "Facies colors";
+        QString         colorLegendName = RiaDefines::faciesColorLegendName();
         RimColorLegend* colorLegend     = RimProject::current()->colorLegendCollection()->findByName( colorLegendName );
         if ( !colorLegend )
         {

@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaFractureDefines.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
@@ -232,7 +233,8 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
     faciesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS );
     faciesTrack->setRegionPropertyResultType( RiaDefines::ResultCatType::INPUT_PROPERTY, defaultProperty );
 
-    RimColorLegend* faciesColors = RimProject::current()->colorLegendCollection()->findByName( "Facies colors" );
+    RimColorLegend* faciesColors =
+        RimProject::current()->colorLegendCollection()->findByName( RiaDefines::faciesColorLegendName() );
     if ( faciesColors )
     {
         faciesTrack->setColorShadingLegend( faciesColors );
@@ -282,7 +284,8 @@ void RicNewFractureModelPlotFeature::createLayersTrack( RimFractureModelPlot* pl
     faciesTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     faciesTrack->setFormationCase( eclipseCase );
 
-    RimColorLegend* faciesColors = RimProject::current()->colorLegendCollection()->findByName( "Facies colors" );
+    RimColorLegend* faciesColors =
+        RimProject::current()->colorLegendCollection()->findByName( RiaDefines::faciesColorLegendName() );
     if ( faciesColors )
     {
         faciesTrack->setColorShadingLegend( faciesColors );
