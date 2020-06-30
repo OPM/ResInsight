@@ -269,6 +269,25 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         updateFieldVisibility();
     }
 
+    if ( ( changedField == &m_colorLegend || changedField == &m_mappingMode ) &&
+         m_mappingMode() == MappingType::CATEGORY_INTEGER )
+    {
+        std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
+        if ( m_colorLegend() )
+        {
+            for ( auto item : m_colorLegend->colorLegendItems() )
+            {
+                cvf::Color3ub ubColor( item->color() );
+                QString       categoryName = item->categoryName() + QString( " [%1]" ).arg( item->categoryValue() );
+                categories.push_back( std::make_tuple( categoryName, item->categoryValue(), ubColor ) );
+            }
+        }
+
+        std::reverse( categories.begin(), categories.end() );
+
+        setCategoryItems( categories );
+    }
+
     updateLegend();
 
     RimGridView* view = nullptr;
@@ -1025,28 +1044,10 @@ QList<caf::PdmOptionItemInfo>
     this->firstAncestorOrThisOfType( rftCurveSet );
     if ( rftCurveSet ) hasRftPlotParent = true;
 
-    bool isCategoryResult = false;
-    bool isAllanDiagram   = false;
+    bool isAllanDiagram = false;
     {
         RimEclipseCellColors* eclCellColors = nullptr;
         this->firstAncestorOrThisOfType( eclCellColors );
-        RimGeoMechResultDefinition* gmCellColors = nullptr;
-        this->firstAncestorOrThisOfType( gmCellColors );
-        RimCellEdgeColors* eclCellEdgColors = nullptr;
-        this->firstAncestorOrThisOfType( eclCellEdgColors );
-        RimWellMeasurementInView* wellMeasurementInView = nullptr;
-        this->firstAncestorOrThisOfType( wellMeasurementInView );
-
-        if ( ( eclCellColors && eclCellColors->hasCategoryResult() ) ||
-             ( gmCellColors && gmCellColors->hasCategoryResult() ) ||
-             ( eclCellEdgColors && eclCellEdgColors->hasCategoryResult() ) ||
-             ( ensembleCurveSet && ensembleCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT ) ||
-             ( rftCurveSet && rftCurveSet->currentEnsembleParameterType() == EnsembleParameter::TYPE_TEXT ) ||
-             ( crossPlotCurveSet && crossPlotCurveSet->groupingByCategoryResult() ) ||
-             ( wellMeasurementInView && wellMeasurementInView->hasCategoryResult() ) )
-        {
-            isCategoryResult = true;
-        }
 
         if ( eclCellColors && eclCellColors->resultType() == RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
         {
@@ -1073,10 +1074,7 @@ QList<caf::PdmOptionItemInfo>
             mappingTypes.push_back( LOG10_DISCRETE );
         }
 
-        if ( isCategoryResult )
-        {
-            mappingTypes.push_back( CATEGORY_INTEGER );
-        }
+        mappingTypes.push_back( CATEGORY_INTEGER );
 
         for ( MappingType mapType : mappingTypes )
         {
