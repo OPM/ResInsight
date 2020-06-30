@@ -109,6 +109,23 @@ void RimFractureModelPlot::getPorosityValues( std::vector<double>& values ) cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFractureModelPlot::getFaciesValues( std::vector<double>& values ) const
+{
+    std::vector<RimFractureModelCurve*> curves;
+    descendantsIncludingThisOfType( curves );
+
+    for ( RimFractureModelCurve* curve : curves )
+    {
+        if ( curve->eclipseResultVariable() == "OPERNUM_1" )
+        {
+            values = curve->curveData()->xValues();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimFractureModelPlot::calculateLayers( std::vector<std::pair<double, double>>& layerBoundaryDepths,
                                             std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes ) const
 {

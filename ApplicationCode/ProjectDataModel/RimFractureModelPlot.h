@@ -37,6 +37,7 @@ public:
     void setFractureModel( RimFractureModel* fractureModel );
 
     void getPorosityValues( std::vector<double>& values ) const;
+    void getFaciesValues( std::vector<double>& values ) const;
 
     std::vector<double> calculateTrueVerticalDepth() const;
     std::vector<double> calculatePorosity() const;

@@ -145,7 +145,6 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
         CurveSamplingPointData curveData =
             RimWellLogTrack::curveSamplingPointData( &eclExtractor, formationResultAccessor.p() );
 
-        std::vector<std::pair<double, double>> yValues;
         std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( eclipseCase );
 
         double overburdenHeight = m_fractureModel->overburdenHeight();
@@ -163,44 +162,17 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
         measuredDepthValues = curveData.md;
         tvDepthValues       = curveData.tvd;
 
-        std::vector<QString> formationNamesToPlot;
-        RimWellLogTrack::findRegionNamesToPlot( curveData,
-                                                formationNamesVector,
-                                                RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
-                                                &formationNamesToPlot,
-                                                &yValues );
-
         // Extract facies data
-        m_eclipseResultDefinition->setResultVariable( "OPERNUM_1" );
-        m_eclipseResultDefinition->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
-        m_eclipseResultDefinition->setEclipseCase( eclipseCase );
-        m_eclipseResultDefinition->loadResult();
-
-        cvf::ref<RigResultAccessor> faciesResultAccessor =
-            RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
-                                                                  0,
-                                                                  m_timeStep,
-                                                                  m_eclipseResultDefinition );
-
-        if ( !faciesResultAccessor.notNull() )
+        RimFractureModelPlot* fractureModelPlot;
+        firstAncestorOrThisOfType( fractureModelPlot );
+        if ( !fractureModelPlot )
         {
-            RiaLogging::error( QString( "No facies result found." ) );
+            RiaLogging::error( QString( "No facies data found for layer curve." ) );
             return;
         }
 
         std::vector<double> faciesValues;
-        eclExtractor.curveData( faciesResultAccessor.p(), &faciesValues );
-        if ( overburdenHeight > 0.0 )
-        {
-            faciesValues.insert( faciesValues.begin(), std::numeric_limits<double>::infinity() );
-            faciesValues.insert( faciesValues.begin(), std::numeric_limits<double>::infinity() );
-        }
-
-        if ( underburdenHeight > 0.0 )
-        {
-            faciesValues.push_back( std::numeric_limits<double>::infinity() );
-            faciesValues.push_back( std::numeric_limits<double>::infinity() );
-        }
+        fractureModelPlot->getFaciesValues( faciesValues );
 
         assert( faciesValues.size() == curveData.data.size() );
 
@@ -254,40 +226,6 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
                                          xUnits );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// QString RimLayerCurve::findFaciesName( const RimColorLegend& colorLegend, double value )
-// {
-//     for ( auto item : colorLegend.colorLegendItems() )
-//     {
-//         if ( item->categoryValue() == static_cast<int>( value ) ) return item->categoryName();
-//     }
-
-//     return "not found";
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimLayerCurve::findFormationNameForDepth( const std::vector<QString>&                   formationNames,
-                                                  const std::vector<std::pair<double, double>>& depthRanges,
-                                                  double                                        depth )
-{
-    //    assert(formationNames.size() == depthRanges.size());
-    for ( size_t i = 0; i < formationNames.size(); i++ )
-    {
-        double high = depthRanges[i].second;
-        double low  = depthRanges[i].first;
-        if ( depth >= low && depth <= high )
-        {
-            return formationNames[i];
-        }
-    }
-
-    return "not found";
 }
 
 //--------------------------------------------------------------------------------------------------
