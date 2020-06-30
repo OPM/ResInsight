@@ -24,6 +24,7 @@
 
 #include "RimElasticPropertiesCurve.h"
 #include "RimFractureModelCurve.h"
+#include "RimFractureModelStressCurve.h"
 
 class RimEclipseCase;
 class RimFractureModelPlot;
@@ -70,6 +71,12 @@ private:
                                               RimEclipseCase*                         eclipseCase,
                                               int                                     timeStep,
                                               RimElasticPropertiesCurve::PropertyType propertyType );
+
+    static void createStressTrack( RimFractureModelPlot*                     plot,
+                                   RimFractureModel*                         fractureModel,
+                                   RimEclipseCase*                           eclipseCase,
+                                   int                                       timeStep,
+                                   RimFractureModelStressCurve::PropertyType propertyType );
 
     static RimFractureModelPlot* createFractureModelPlot( bool showAfterCreation, const QString& plotDescription );
 
