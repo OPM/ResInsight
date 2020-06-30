@@ -66,7 +66,8 @@ template <typename... Args>
 class Signal
 {
 public:
-    using MemberCallback = std::function<void( const SignalEmitter*, Args... args )>;
+    using MemberCallback              = std::function<void( const SignalEmitter*, Args... args )>;
+    using MemberCallbackAndActiveFlag = std::pair<MemberCallback, bool>;
 
 public:
     Signal( const SignalEmitter* emitter )
@@ -84,7 +85,7 @@ public:
             // Call method
             ( observer->*method )( emitter, args... );
         };
-        m_observerCallbacks[observer] = lambda;
+        m_observerCallbacks[observer] = std::make_pair( lambda, true );
     }
 
     void disconnect( SignalObserver* observer ) { m_observerCallbacks.erase( observer ); }
@@ -92,15 +93,30 @@ public:
     {
         for ( auto observerCallbackPair : m_observerCallbacks )
         {
-            observerCallbackPair.second( m_emitter, args... );
+            if ( observerCallbackPair.second.second )
+            {
+                observerCallbackPair.second.first( m_emitter, args... );
+            }
         }
+    }
+    void block( SignalObserver* observer )
+    {
+        auto it = m_observerCallbacks.find( observer );
+        CAF_ASSERT( it != m_observerCallbacks.end() );
+        it->second.second = false;
+    }
+    void unblock( SignalObserver* observer )
+    {
+        auto it = m_observerCallbacks.find( observer );
+        CAF_ASSERT( it != m_observerCallbacks.end() );
+        it->second.second = true;
     }
 
 private:
     Signal( const Signal& rhs ) = default;
     Signal& operator=( const Signal& rhs ) = default;
 
-    std::map<SignalObserver*, MemberCallback> m_observerCallbacks;
-    const SignalEmitter*                      m_emitter;
+    std::map<SignalObserver*, MemberCallbackAndActiveFlag> m_observerCallbacks;
+    const SignalEmitter*                                   m_emitter;
 };
 } // namespace caf
