@@ -272,20 +272,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     if ( ( changedField == &m_colorLegend || changedField == &m_mappingMode ) &&
          m_mappingMode() == MappingType::CATEGORY_INTEGER )
     {
-        std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
-        if ( m_colorLegend() )
-        {
-            for ( auto item : m_colorLegend->colorLegendItems() )
-            {
-                cvf::Color3ub ubColor( item->color() );
-                QString       categoryName = item->categoryName() + QString( " [%1]" ).arg( item->categoryValue() );
-                categories.push_back( std::make_tuple( categoryName, item->categoryValue(), ubColor ) );
-            }
-        }
-
-        std::reverse( categories.begin(), categories.end() );
-
-        setCategoryItems( categories );
+        updateCategoryItems();
     }
 
     updateLegend();
@@ -587,6 +574,11 @@ void RimRegularLegendConfig::initAfterRead()
         m_colorLegend = RimRegularLegendConfig::mapToColorLegend( m_colorRangeMode_OBSOLETE() );
     }
 
+    if ( m_mappingMode() == MappingType::CATEGORY_INTEGER )
+    {
+        updateCategoryItems();
+    }
+
     updateFieldVisibility();
 
     this->updateUiIconFromToggleField();
@@ -691,6 +683,28 @@ double RimRegularLegendConfig::roundToNumSignificantDigits( double domainValue, 
     double newDomainValue = integerPart / factor;
 
     return newDomainValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::updateCategoryItems()
+{
+    std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
+    if ( m_colorLegend() )
+    {
+        for ( auto item : m_colorLegend->colorLegendItems() )
+        {
+            cvf::Color3ub ubColor( item->color() );
+            QString       categoryName = item->categoryName() + QString( " [%1]" ).arg( item->categoryValue() );
+            categories.push_back( std::make_tuple( categoryName, item->categoryValue(), ubColor ) );
+        }
+    }
+
+    // Reverse the categories to make the ordering identical to items in project tree
+    std::reverse( categories.begin(), categories.end() );
+
+    setCategoryItems( categories );
 }
 
 //--------------------------------------------------------------------------------------------------
