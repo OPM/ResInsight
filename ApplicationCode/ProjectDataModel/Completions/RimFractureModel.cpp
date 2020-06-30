@@ -220,10 +220,12 @@ QList<caf::PdmOptionItemInfo> RimFractureModel::calculateValueOptions( const caf
     else if ( fieldNeedingOptions == &m_overburdenFacies || fieldNeedingOptions == &m_underburdenFacies )
     {
         RimColorLegend* faciesColors = RimProject::current()->colorLegendCollection()->findByName( "Facies colors" );
-
-        for ( RimColorLegendItem* item : faciesColors->colorLegendItems() )
+        if ( faciesColors )
         {
-            options.push_back( caf::PdmOptionItemInfo( item->categoryName(), item->categoryName() ) );
+            for ( RimColorLegendItem* item : faciesColors->colorLegendItems() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( item->categoryName(), item->categoryName() ) );
+            }
         }
     }
 
