@@ -178,9 +178,7 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
         std::vector<double> faciesValues;
         eclExtractor.curveData( faciesResultAccessor.p(), &faciesValues );
 
-        assert( faciesValues.size() == formationNamesToPlot.size() );
-
-        values.resize( faciesValues.size() ); // formationNamesToPlot.size() );
+        values.resize( faciesValues.size() );
 
         int     layerNo               = 0;
         QString previousFormationName = "";
