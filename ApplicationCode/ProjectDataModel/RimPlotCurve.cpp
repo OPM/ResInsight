@@ -844,6 +844,10 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::Pd
 void RimPlotCurve::loadDataAndUpdate( bool updateParentPlot )
 {
     this->onLoadDataAndUpdate( updateParentPlot );
+    if ( updateParentPlot )
+    {
+        dataChanged.send();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
