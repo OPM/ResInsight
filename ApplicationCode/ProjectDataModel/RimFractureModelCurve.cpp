@@ -151,7 +151,7 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
         }
         else
         {
-            std::cerr << "RESULT ACCESSOR IS NULL" << std::endl;
+            RiaLogging::error( QString( "No result found for %1" ).arg( m_eclipseResultDefinition()->resultVariable() ) );
         }
 
         double overburdenHeight = m_fractureModel->overburdenHeight();

@@ -2426,7 +2426,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
             std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( m_formationCase );
 
-            std::cout << "Burden: over=" << m_overburdenHeight() << " under=" << m_underburdenHeight() << std::endl;
             if ( m_overburdenHeight > 0.0 )
             {
                 addOverburden( formationNamesVector, curveData, m_overburdenHeight );
@@ -2445,16 +2444,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                     plot->depthType(),
                                                     &formationNamesToPlot,
                                                     &yValues );
-
-            for ( auto n : formationNamesToPlot )
-            {
-                std::cout << "Formation names: " << n.toStdString() << std::endl;
-            }
-
-            for ( size_t i = 0; i < curveData.data.size(); i++ )
-            {
-                std::cout << "Curve data[" << i << "]: " << curveData.tvd[i] << " " << curveData.data[i] << std::endl;
-            }
 
             const std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
 
