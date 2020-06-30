@@ -126,9 +126,7 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
                                                  m_fractureModel->thicknessDirectionWellPath()->wellPathGeometry(),
                                                  "fracture model" );
 
-        measuredDepthValues = eclExtractor.cellIntersectionMDs();
-        tvDepthValues       = eclExtractor.cellIntersectionTVDs();
-        rkbDiff             = eclExtractor.wellPathData()->rkbDiff();
+        rkbDiff = eclExtractor.wellPathData()->rkbDiff();
 
         // Extract formation data
         cvf::ref<RigResultAccessor> formationResultAccessor = RigResultAccessorFactory::
@@ -149,6 +147,21 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
 
         std::vector<std::pair<double, double>> yValues;
         std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( eclipseCase );
+
+        double overburdenHeight = m_fractureModel->overburdenHeight();
+        if ( overburdenHeight > 0.0 )
+        {
+            RimWellLogTrack::addOverburden( formationNamesVector, curveData, overburdenHeight );
+        }
+
+        double underburdenHeight = m_fractureModel->underburdenHeight();
+        if ( underburdenHeight > 0.0 )
+        {
+            RimWellLogTrack::addUnderburden( formationNamesVector, curveData, underburdenHeight );
+        }
+
+        measuredDepthValues = curveData.md;
+        tvDepthValues       = curveData.tvd;
 
         std::vector<QString> formationNamesToPlot;
         RimWellLogTrack::findRegionNamesToPlot( curveData,
@@ -177,23 +190,35 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
 
         std::vector<double> faciesValues;
         eclExtractor.curveData( faciesResultAccessor.p(), &faciesValues );
+        if ( overburdenHeight > 0.0 )
+        {
+            faciesValues.insert( faciesValues.begin(), std::numeric_limits<double>::infinity() );
+            faciesValues.insert( faciesValues.begin(), std::numeric_limits<double>::infinity() );
+        }
+
+        if ( underburdenHeight > 0.0 )
+        {
+            faciesValues.push_back( std::numeric_limits<double>::infinity() );
+            faciesValues.push_back( std::numeric_limits<double>::infinity() );
+        }
+
+        assert( faciesValues.size() == curveData.data.size() );
 
         values.resize( faciesValues.size() );
 
-        int     layerNo               = 0;
-        QString previousFormationName = "";
-        double  previousFacies        = -1.0;
+        int    layerNo           = 0;
+        double previousFormation = -1.0;
+        double previousFacies    = -1.0;
         for ( size_t i = 0; i < faciesValues.size(); i++ )
         {
-            QString formationName = findFormationNameForDepth( formationNamesToPlot, yValues, tvDepthValues[i] );
-            if ( previousFormationName != formationName || previousFacies != faciesValues[i] )
+            if ( previousFormation != curveData.data[i] || previousFacies != faciesValues[i] )
             {
                 layerNo++;
             }
 
-            values[i]             = layerNo;
-            previousFormationName = formationName;
-            previousFacies        = faciesValues[i];
+            values[i]         = layerNo;
+            previousFormation = curveData.data[i];
+            previousFacies    = faciesValues[i];
         }
 
         RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();

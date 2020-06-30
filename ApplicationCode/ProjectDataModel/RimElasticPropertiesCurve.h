@@ -67,9 +67,27 @@ protected:
     void performDataExtraction( bool* isUsingPseudoLength ) override;
 
     static QString findFaciesName( const RimColorLegend& colorLegend, double value );
-    static QString findFormationNameForDepth( const std::vector<QString>&                   formationNames,
-                                              const std::vector<std::pair<double, double>>& depthRanges,
-                                              double                                        depth );
+    static double  findFaciesValue( const RimColorLegend& colorLegend, const QString& name );
+
+    static void addOverburden( std::vector<QString>& formationNames,
+                               std::vector<double>&  formationValues,
+                               std::vector<double>&  faciesValues,
+                               std::vector<double>&  tvDepthValues,
+                               std::vector<double>&  measuredDepthValues,
+                               double                overburdenHeight,
+                               double                defaultPoroValue,
+                               const QString&        formationName,
+                               double                faciesValue );
+
+    static void addUnderburden( std::vector<QString>& formationNames,
+                                std::vector<double>&  formationValues,
+                                std::vector<double>&  faciesValues,
+                                std::vector<double>&  tvDepthValues,
+                                std::vector<double>&  measuredDepthValues,
+                                double                overburdenHeight,
+                                double                defaultPoroValue,
+                                const QString&        formationName,
+                                double                faciesValue );
 
     caf::PdmPtrField<RimFractureModel*>       m_fractureModel;
     caf::PdmField<caf::AppEnum<PropertyType>> m_propertyType;

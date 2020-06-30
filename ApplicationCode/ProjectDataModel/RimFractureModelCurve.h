@@ -69,6 +69,18 @@ protected:
                                                            int                                timeStepIndex,
                                                            RimEclipseResultDefinition*        eclipseResultDefinition );
 
+    static void addOverburden( std::vector<double>& tvDepthValues,
+                               std::vector<double>& measuredDepthValues,
+                               std::vector<double>& values,
+                               double               overburdenHeight,
+                               double               defaultOverburdenValue );
+
+    static void addUnderburden( std::vector<double>& tvDepthValues,
+                                std::vector<double>& measuredDepthValues,
+                                std::vector<double>& values,
+                                double               underburdenHeight,
+                                double               defaultUnderburdenValue );
+
     caf::PdmPtrField<RimFractureModel*>               m_fractureModel;
     caf::PdmField<caf::AppEnum<MissingValueStrategy>> m_missingValueStrategy;
 };

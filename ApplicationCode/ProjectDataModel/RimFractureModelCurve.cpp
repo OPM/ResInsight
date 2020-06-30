@@ -154,6 +154,32 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
             std::cerr << "RESULT ACCESSOR IS NULL" << std::endl;
         }
 
+        double overburdenHeight = m_fractureModel->overburdenHeight();
+        if ( overburdenHeight > 0.0 )
+        {
+            double defaultOverburdenValue = std::numeric_limits<double>::infinity();
+            if ( m_missingValueStrategy() == RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE )
+            {
+                defaultOverburdenValue =
+                    m_fractureModel->getDefaultForMissingOverburdenValue( m_eclipseResultDefinition()->resultVariable() );
+            }
+
+            addOverburden( tvDepthValues, measuredDepthValues, values, overburdenHeight, defaultOverburdenValue );
+        }
+
+        double underburdenHeight = m_fractureModel->underburdenHeight();
+        if ( underburdenHeight > 0.0 )
+        {
+            double defaultUnderburdenValue = std::numeric_limits<double>::infinity();
+            if ( m_missingValueStrategy() == RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE )
+            {
+                defaultUnderburdenValue =
+                    m_fractureModel->getDefaultForMissingUnderburdenValue( m_eclipseResultDefinition()->resultVariable() );
+            }
+
+            addUnderburden( tvDepthValues, measuredDepthValues, values, underburdenHeight, defaultUnderburdenValue );
+        }
+
         if ( hasMissingValues( values ) )
         {
             if ( m_missingValueStrategy() == RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE )
@@ -318,4 +344,59 @@ cvf::ref<RigResultAccessor>
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelCurve::addOverburden( std::vector<double>& tvDepthValues,
+                                           std::vector<double>& measuredDepthValues,
+                                           std::vector<double>& values,
+                                           double               overburdenHeight,
+                                           double               defaultOverburdenValue )
+{
+    if ( !values.empty() )
+    {
+        // Prepend the new "fake" depth for start of overburden
+        double tvdTop = tvDepthValues[0];
+        tvDepthValues.insert( tvDepthValues.begin(), tvdTop );
+        tvDepthValues.insert( tvDepthValues.begin(), tvdTop - overburdenHeight );
+
+        // TODO: this is not always correct
+        double mdTop = measuredDepthValues[0];
+        measuredDepthValues.insert( measuredDepthValues.begin(), mdTop );
+        measuredDepthValues.insert( measuredDepthValues.begin(), mdTop - overburdenHeight );
+
+        values.insert( values.begin(), defaultOverburdenValue );
+        values.insert( values.begin(), defaultOverburdenValue );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelCurve::addUnderburden( std::vector<double>& tvDepthValues,
+                                            std::vector<double>& measuredDepthValues,
+                                            std::vector<double>& values,
+                                            double               underburdenHeight,
+                                            double               defaultUnderburdenValue )
+{
+    if ( !values.empty() )
+    {
+        size_t lastIndex = tvDepthValues.size() - 1;
+
+        // Append the new "fake" depth for start of underburden
+        double tvdBottom = tvDepthValues[lastIndex];
+        tvDepthValues.push_back( tvdBottom );
+        tvDepthValues.push_back( tvdBottom + underburdenHeight );
+
+        // Append the new "fake" md
+        // TODO: check if this is correct???
+        double mdBottom = measuredDepthValues[lastIndex];
+        measuredDepthValues.push_back( mdBottom );
+        measuredDepthValues.push_back( mdBottom + underburdenHeight );
+
+        values.push_back( defaultUnderburdenValue );
+        values.push_back( defaultUnderburdenValue );
+    }
 }

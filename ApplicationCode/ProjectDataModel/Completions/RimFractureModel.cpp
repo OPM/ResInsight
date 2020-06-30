@@ -30,6 +30,9 @@
 #include "RigWellPath.h"
 
 #include "Rim3dView.h"
+#include "RimColorLegend.h"
+#include "RimColorLegendCollection.h"
+#include "RimColorLegendItem.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -115,6 +118,18 @@ RimFractureModel::RimFractureModel()
     CAF_PDM_InitField( &m_verticalStressGradient, "VerticalStressGradient", 0.238, "Vertical Stress Gradient", "", "", "" );
     CAF_PDM_InitField( &m_stressDepth, "StressDepth", 1000.0, "Stress Depth", "", "", "" );
 
+    CAF_PDM_InitField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_overburdenFormation, "OverburdenFormation", "Overburden Formation", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_overburdenFacies, "OverburdenFacies", "Overburden Facies", "", "", "" );
+    CAF_PDM_InitField( &m_overburdenPorosity, "OverburdenPorosity", 0.0, "Overburden Porosity", "", "", "" );
+    CAF_PDM_InitField( &m_overburdenPermeability, "OverburdenPermeability", 10.0e-6, "Overburden Permeability", "", "", "" );
+
+    CAF_PDM_InitField( &m_underburdenHeight, "UnderburdenHeight", 50.0, "Underburden Height", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_underburdenFormation, "UnderburdenFormation", "Underburden Formation", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_underburdenFacies, "UnderburdenFacies", "Underburden Facies", "", "", "" );
+    CAF_PDM_InitField( &m_underburdenPorosity, "UnderburdenPorosity", 0.0, "Underburden Porosity", "", "", "" );
+    CAF_PDM_InitField( &m_underburdenPermeability, "UnderburdenPermeability", 10.0e-6, "Underburden Permeability", "", "", "" );
+
     CAF_PDM_InitFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
     m_elasticProperties.uiCapability()->setUiHidden( true );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
@@ -174,6 +189,45 @@ void RimFractureModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 
         RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimFractureModel::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                                       bool*                      useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_overburdenFormation || fieldNeedingOptions == &m_underburdenFormation )
+    {
+        // Find an eclipse case
+        RimProject* proj = RimProject::current();
+        if ( proj->eclipseCases().empty() ) return options;
+
+        RimEclipseCase* eclipseCase = proj->eclipseCases()[0];
+        if ( !eclipseCase ) return options;
+
+        RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+        if ( !eclipseCaseData ) return options;
+
+        std::vector<QString> formationNames = eclipseCase->eclipseCaseData()->formationNames();
+        for ( const QString& formationName : formationNames )
+        {
+            options.push_back( caf::PdmOptionItemInfo( formationName, formationName ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_overburdenFacies || fieldNeedingOptions == &m_underburdenFacies )
+    {
+        RimColorLegend* faciesColors = RimProject::current()->colorLegendCollection()->findByName( "Facies colors" );
+
+        for ( RimColorLegendItem* item : faciesColors->colorLegendItems() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( item->categoryName(), item->categoryName() ) );
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -533,6 +587,46 @@ double RimFractureModel::getDefaultForMissingValue( const QString& keyword ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimFractureModel::getDefaultForMissingOverburdenValue( const QString& keyword ) const
+{
+    if ( keyword == QString( "PORO" ) )
+    {
+        return defaultOverburdenPorosity();
+    }
+    else if ( keyword == QString( "PERMX" ) || keyword == QString( "PERMZ" ) )
+    {
+        return defaultOverburdenPermeability();
+    }
+    else
+    {
+        RiaLogging::error( QString( "Missing default overburden value for %1." ).arg( keyword ) );
+        return std::numeric_limits<double>::infinity();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::getDefaultForMissingUnderburdenValue( const QString& keyword ) const
+{
+    if ( keyword == QString( "PORO" ) )
+    {
+        return defaultUnderburdenPorosity();
+    }
+    else if ( keyword == QString( "PERMX" ) || keyword == QString( "PERMZ" ) )
+    {
+        return defaultUnderburdenPermeability();
+    }
+    else
+    {
+        RiaLogging::error( QString( "Missing default underburden value for %1." ).arg( keyword ) );
+        return std::numeric_limits<double>::infinity();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimFractureModel::verticalStress() const
 {
     return m_verticalStress;
@@ -552,4 +646,84 @@ double RimFractureModel::verticalStressGradient() const
 double RimFractureModel::stressDepth() const
 {
     return m_stressDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::overburdenHeight() const
+{
+    return m_overburdenHeight;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::underburdenHeight() const
+{
+    return m_underburdenHeight;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::defaultOverburdenPorosity() const
+{
+    return m_overburdenPorosity;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::defaultUnderburdenPorosity() const
+{
+    return m_underburdenPorosity;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::defaultOverburdenPermeability() const
+{
+    return m_overburdenPermeability;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModel::defaultUnderburdenPermeability() const
+{
+    return m_underburdenPermeability;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFractureModel::overburdenFormation() const
+{
+    return m_overburdenFormation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFractureModel::overburdenFacies() const
+{
+    return m_overburdenFacies;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFractureModel::underburdenFormation() const
+{
+    return m_underburdenFormation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFractureModel::underburdenFacies() const
+{
+    return m_underburdenFacies;
 }
