@@ -1331,8 +1331,8 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::initialPermeabilityDe
             RigFemResultAddress( elementType, "POROSITY-PERMEABILITY", "DPHI", RigFemResultAddress::allTimeLapsesValue() ) );
         results.insert(
             RigFemResultAddress( elementType, "POROSITY-PERMEABILITY", "PERM", RigFemResultAddress::allTimeLapsesValue() ) );
-        return results;
     }
+    return results;
 }
 
 //--------------------------------------------------------------------------------------------------
