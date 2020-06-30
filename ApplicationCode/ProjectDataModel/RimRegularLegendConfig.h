@@ -166,6 +166,8 @@ private:
     void   updateFieldVisibility();
     double roundToNumSignificantDigits( double value, double precision );
 
+    void updateCategoryItems();
+
     friend class RimViewLinker;
 
 private:
