@@ -465,7 +465,6 @@ void RimWellLogTrack::calculateYZoomRange()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateXZoom()
 {
-    const double eps = 1.0e-8;
     if ( !m_plotWidget ) return;
 
     calculateXZoomRange();
@@ -475,12 +474,10 @@ void RimWellLogTrack::updateXZoom()
         m_visibleXRangeMin = m_availableXRangeMin;
         m_visibleXRangeMax = m_availableXRangeMax;
 
-        // Consider auto zooming to full range [0..1] range
-        if ( -eps < m_visibleXRangeMin && m_visibleXRangeMin < 0.25 && 0.75 < m_visibleXRangeMax &&
-             m_visibleXRangeMax < 1.0 + eps && !m_isLogarithmicScaleEnabled )
+        // Set min limit to 0.0 for stacked curves
+        if ( m_stackCurves && !m_isLogarithmicScaleEnabled )
         {
             m_visibleXRangeMin = 0.0;
-            m_visibleXRangeMax = 1.0;
         }
         computeAndSetXRangeMinForLogarithmicScale();
         updateEditors();
@@ -735,9 +732,19 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::curveDataChanged( const caf::SignalEmitter* emitter )
+{
+    if ( m_stackCurves )
+    {
+        updateStackedCurveData();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible )
 {
-    qDebug() << "Curve turned " << ( visible ? "on" : "off" );
     if ( m_stackCurves )
     {
         updateStackedCurveData();
@@ -2017,6 +2024,7 @@ std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( Ria
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::connectCurveSignals( RimWellLogCurve* curve )
 {
+    curve->dataChanged.connect( this, &RimWellLogTrack::curveDataChanged );
     curve->visibilityChanged.connect( this, &RimWellLogTrack::curveVisibilityChanged );
     curve->appearanceChanged.connect( this, &RimWellLogTrack::curveAppearanceChanged );
 }
@@ -2026,6 +2034,7 @@ void RimWellLogTrack::connectCurveSignals( RimWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::disconnectCurveSignals( RimWellLogCurve* curve )
 {
+    curve->dataChanged.disconnect( this );
     curve->visibilityChanged.disconnect( this );
     curve->appearanceChanged.disconnect( this );
 }
