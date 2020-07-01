@@ -181,6 +181,7 @@ public:
         CAF_ASSERT( it != m_observerCallbacks.end() );
         it->second.second = true;
     }
+    size_t observerCount() const { return m_observerCallbacks.size(); }
 
 private:
     Signal( const Signal& rhs ) = default;
