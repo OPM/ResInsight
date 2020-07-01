@@ -378,6 +378,17 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setOverrideCurveDataY( const std::vector<time_t>& dateTimes, const std::vector<double>& yValues )
+{
+    if ( m_qwtPlotCurve )
+    {
+        m_qwtPlotCurve->setSamplesFromTimeTAndYValues( dateTimes, yValues, true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryCaseX( RimSummaryCase* sumCase )
 {
     m_xValuesSummaryCase = sumCase;
