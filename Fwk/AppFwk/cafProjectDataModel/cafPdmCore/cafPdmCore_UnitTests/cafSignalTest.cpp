@@ -134,3 +134,18 @@ TEST( SignalTest, MessageTest )
     emitter.setSimpleStruct( testStruct );
     ASSERT_EQ( testStruct, observer.structValue() );
 }
+
+TEST( SignalTest, ObserverDeletion )
+{
+    TestEmitter emitter;
+    ASSERT_EQ( (size_t)0, emitter.basicSignal.observerCount() );
+    {
+        TestObserver observer;
+        observer.connectAllSignals( &emitter );
+        ASSERT_EQ( (size_t)1, emitter.basicSignal.observerCount() );
+        emitter.triggerBasicSignal();
+        ASSERT_EQ( true, observer.receivedBasicSignal() );
+    }
+    ASSERT_EQ( (size_t)0, emitter.basicSignal.observerCount() );
+    emitter.triggerBasicSignal();
+}
