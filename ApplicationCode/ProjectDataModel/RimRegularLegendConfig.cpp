@@ -696,8 +696,7 @@ void RimRegularLegendConfig::updateCategoryItems()
         for ( auto item : m_colorLegend->colorLegendItems() )
         {
             cvf::Color3ub ubColor( item->color() );
-            QString       categoryName = item->categoryName() + QString( " [%1]" ).arg( item->categoryValue() );
-            categories.push_back( std::make_tuple( categoryName, item->categoryValue(), ubColor ) );
+            categories.push_back( std::make_tuple( item->itemName(), item->categoryValue(), ubColor ) );
         }
     }
 
