@@ -385,7 +385,7 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
 
     cvf::ref<RigWellLogCurveData> reSampledData = new RigWellLogCurveData;
 
-    if ( depthIt->second.empty() ) return reSampledData;
+    if ( depthIt == m_depths.end() || depthIt->second.empty() ) return reSampledData;
 
     bool reverseOrder = resamplingDepthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER;
 
