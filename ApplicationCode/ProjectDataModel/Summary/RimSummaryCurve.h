@@ -64,6 +64,7 @@ public:
     RiaDefines::PlotAxis       axisY() const;
     const std::vector<time_t>& timeStepsY() const;
     double                     yValueAtTimeT( time_t time ) const;
+    void setOverrideCurveDataY( const std::vector<time_t>& xValues, const std::vector<double>& yValues );
 
     // X Axis functions
     void                     setSummaryCaseX( RimSummaryCase* sumCase );

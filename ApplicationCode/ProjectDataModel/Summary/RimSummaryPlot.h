@@ -226,6 +226,13 @@ private:
 
     void cleanupBeforeClose();
 
+    void connectCurveSignals( RimSummaryCurve* curve );
+    void disconnectCurveSignals( RimSummaryCurve* curve );
+
+    void curveDataChanged( const caf::SignalEmitter* emitter );
+    void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );
+    void curveAppearanceChanged( const caf::SignalEmitter* emitter );
+
 private:
     caf::PdmField<bool> m_normalizeCurveYValues;
 

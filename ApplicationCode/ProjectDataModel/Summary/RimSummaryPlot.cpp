@@ -1142,7 +1142,7 @@ void RimSummaryPlot::addCurveAndUpdate( RimSummaryCurve* curve )
     if ( curve )
     {
         m_summaryCurveCollection->addCurve( curve );
-
+        connectCurveSignals( curve );
         if ( m_plotWidget )
         {
             curve->setParentQwtPlotAndReplot( m_plotWidget );
@@ -1159,7 +1159,7 @@ void RimSummaryPlot::addCurveNoUpdate( RimSummaryCurve* curve )
     if ( curve )
     {
         m_summaryCurveCollection->addCurve( curve );
-
+        connectCurveSignals( curve );
         if ( m_plotWidget )
         {
             curve->setParentQwtPlotNoReplot( m_plotWidget );
@@ -1189,6 +1189,7 @@ void RimSummaryPlot::deleteCurves( const std::vector<RimSummaryCurve*>& curves )
                 if ( c == curve )
                 {
                     m_summaryCurveCollection->deleteCurve( curve );
+                    disconnectCurveSignals( curve );
                     continue;
                 }
             }
@@ -1358,6 +1359,12 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
     // Reset all curves
     for ( RimSummaryCurve* curve : visibleSummaryCurvesForAxis( plotAxis ) )
     {
+        // Apply a area filled style if it isn't already set
+        if ( curve->fillStyle() == Qt::NoBrush )
+        {
+            curve->setFillStyle( Qt::SolidPattern );
+        }
+
         curve->loadDataAndUpdate( false );
     }
 
@@ -1387,15 +1394,14 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
                 }
             }
 
-            // Apply a area filled style if it isn't already set
-            if ( curve->fillStyle() == Qt::NoBrush )
-            {
-                curve->setFillStyle( Qt::SolidPattern );
-            }
-            // curve->setOverrideCurveDataY( allTimeSteps, allStackedValues );
+            curve->setOverrideCurveDataY( allTimeSteps, allStackedValues );
             curve->setZOrder( zPos );
             zPos -= 1.0;
         }
+    }
+    if ( m_plotWidget )
+    {
+        m_plotWidget->scheduleReplot();
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -1554,12 +1560,63 @@ std::set<RimPlotAxisPropertiesInterface*> RimSummaryPlot::allPlotAxes() const
 void RimSummaryPlot::cleanupBeforeClose()
 {
     detachAllPlotItems();
+    for ( auto curve : summaryCurves() )
+    {
+        disconnectCurveSignals( curve );
+    }
 
     if ( m_plotWidget )
     {
         m_plotWidget->setParent( nullptr );
         delete m_plotWidget;
         m_plotWidget = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::connectCurveSignals( RimSummaryCurve* curve )
+{
+    curve->dataChanged.connect( this, &RimSummaryPlot::curveDataChanged );
+    curve->visibilityChanged.connect( this, &RimSummaryPlot::curveVisibilityChanged );
+    curve->appearanceChanged.connect( this, &RimSummaryPlot::curveAppearanceChanged );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::disconnectCurveSignals( RimSummaryCurve* curve )
+{
+    curve->dataChanged.disconnect( this );
+    curve->visibilityChanged.disconnect( this );
+    curve->appearanceChanged.disconnect( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::curveDataChanged( const caf::SignalEmitter* emitter )
+{
+    updateStackedCurveData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible )
+{
+    updateStackedCurveData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::curveAppearanceChanged( const caf::SignalEmitter* emitter )
+{
+    if ( m_plotWidget )
+    {
+        m_plotWidget->scheduleReplot();
     }
 }
 
@@ -1753,6 +1810,13 @@ void RimSummaryPlot::initAfterRead()
         setAutoScaleXEnabled( false );
         setAutoScaleYEnabled( false );
     }
+
+    for ( auto curve : summaryCurves() )
+    {
+        connectCurveSignals( curve );
+    }
+
+    updateStackedCurveData();
 
     RimProject* proj = nullptr;
     this->firstAncestorOrThisOfType( proj );
