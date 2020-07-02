@@ -160,6 +160,10 @@ private:
 
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
+    void connectAxisSignals( RimPlotAxisProperties* axis );
+    void axisSettingsChanged( const caf::SignalEmitter* emitter );
+    void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
+
     void buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder );
 
 private:

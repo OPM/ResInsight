@@ -74,7 +74,7 @@ public:
 
     static caf::ColorTable createBrightnessBasedColorTable( cvf::Color3ub baseColor, int brightnessLevelCount );
 
-    static std::map<RiaDefines::PhaseType, cvf::Color3f> phaseColors();
+    static std::map<RiaDefines::PhaseType, caf::ColorTable> phaseColors();
 
 private:
     static std::vector<cvf::Color3ub> categoryColors();

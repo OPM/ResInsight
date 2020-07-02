@@ -312,6 +312,7 @@ private:
     caf::PdmField<double>                     m_visibleDepthRangeMax;
 
     caf::PdmField<bool>                         m_stackCurves;
+    caf::PdmField<bool>                         m_stackWithPhaseColors;
     caf::PdmField<bool>                         m_isAutoScaleXEnabled;
     caf::PdmField<bool>                         m_isLogarithmicScaleEnabled;
     caf::PdmField<RimWellLogPlot::AxisGridEnum> m_xAxisGridVisibility;

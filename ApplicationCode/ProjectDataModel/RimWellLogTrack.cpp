@@ -188,6 +188,7 @@ RimWellLogTrack::RimWellLogTrack()
     m_visibleDepthRangeMax.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_stackCurves, "StackCurves", false, "Stack Curves", "", "", "" );
+    CAF_PDM_InitField( &m_stackWithPhaseColors, "StackWithPhaseColors", false, "  with phase colors", "", "", "" );
     CAF_PDM_InitField( &m_isAutoScaleXEnabled, "AutoScaleX", true, "Auto Scale", "", "", "" );
     m_isAutoScaleXEnabled.uiCapability()->setUiHidden( true );
 
@@ -719,7 +720,7 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateParentLayout();
         RiuPlotMainWindowTools::refreshToolbars();
     }
-    else if ( changedField == &m_stackCurves )
+    else if ( changedField == &m_stackCurves || changedField == &m_stackWithPhaseColors )
     {
         updateStackedCurveData();
 
@@ -2161,6 +2162,10 @@ void RimWellLogTrack::uiOrderingForXAxisSettings( caf::PdmUiOrdering& uiOrdering
     gridGroup->add( &m_visibleXRangeMax );
     gridGroup->add( &m_xAxisGridVisibility );
     gridGroup->add( &m_stackCurves );
+    if ( m_stackCurves )
+    {
+        gridGroup->add( &m_stackWithPhaseColors );
+    }
 
     // TODO Revisit if these settings are required
     // See issue https://github.com/OPM/ResInsight/issues/4367
@@ -2352,10 +2357,13 @@ void RimWellLogTrack::updateStackedCurveData()
         reverseOrder = true;
     }
 
+    std::map<RiaDefines::PhaseType, size_t> curvePhaseCount;
+
     // Reset all curves
     for ( auto curve : visibleCurves() )
     {
         curve->loadDataAndUpdate( false );
+        curvePhaseCount[curve->phaseType()]++;
     }
 
     // Stack the curves that are meant to be stacked
@@ -2402,6 +2410,7 @@ void RimWellLogTrack::updateStackedCurveData()
         }
         if ( allDepthValues.empty() ) continue;
 
+        size_t              stackIndex = 0u;
         std::vector<double> allStackedValues( allDepthValues.size(), 0.0 );
         for ( auto curve : stackedCurvesInGroup )
         {
@@ -2428,6 +2437,10 @@ void RimWellLogTrack::updateStackedCurveData()
 
             curve->setOverrideCurveData( allStackedValues, plotDepthValues, polyLineStartStopIndices );
             curve->setZOrder( zPos );
+            if ( m_stackWithPhaseColors() )
+            {
+                curve->assignStackColor( stackIndex, curvePhaseCount[curve->phaseType()] );
+            }
             zPos -= 1.0;
         }
     }

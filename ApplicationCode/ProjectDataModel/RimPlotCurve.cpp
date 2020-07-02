@@ -18,6 +18,7 @@
 
 #include "RimPlotCurve.h"
 
+#include "RiaColorTables.h"
 #include "RiaColorTools.h"
 #include "RiaCurveDataTools.h"
 #include "RiaGuiApplication.h"
@@ -679,6 +680,31 @@ void RimPlotCurve::updateUiIconFromPlotSymbol()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::PhaseType RimPlotCurve::phaseType() const
+{
+    return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::assignStackColor( size_t index, size_t count )
+{
+    auto allPhaseColors = RiaColorTables::phaseColors();
+    auto it             = allPhaseColors.find( phaseType() );
+    if ( it != allPhaseColors.end() )
+    {
+        caf::ColorTable interpolatedPhaseColors = it->second.interpolated( count );
+
+        auto color = interpolatedPhaseColors.cycledColor3f( index );
+        this->setColor( color );
+        this->setFillColor( color );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimPlotCurve::canCurveBeAttached() const
 {
     if ( !m_parentQwtPlot )
@@ -1011,6 +1037,14 @@ Qt::BrushStyle RimPlotCurve::fillStyle() const
 void RimPlotCurve::setFillStyle( Qt::BrushStyle brushStyle )
 {
     m_fillStyle = brushStyle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setFillColor( const cvf::Color3f& fillColor )
+{
+    m_fillColor = fillColor;
 }
 
 //--------------------------------------------------------------------------------------------------

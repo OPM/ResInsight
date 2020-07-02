@@ -74,6 +74,9 @@ RimGridCrossPlot::RimGridCrossPlot()
     m_yAxisProperties->setNameAndAxis( "Y-Axis", QwtPlot::yLeft );
     m_yAxisProperties->setEnableTitleTextSettings( false );
 
+    connectAxisSignals( m_xAxisProperties() );
+    connectAxisSignals( m_yAxisProperties() );
+
     CAF_PDM_InitFieldNoDefault( &m_crossPlotDataSets, "CrossPlotCurve", "Cross Plot Data Set", "", "", "" );
     m_crossPlotDataSets.uiCapability()->setUiHidden( true );
 
@@ -432,6 +435,31 @@ QString RimGridCrossPlot::generateInfoBoxText() const
         infoText += curveInfoTexts.front();
     }
     return infoText.join( "\n" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::connectAxisSignals( RimPlotAxisProperties* axis )
+{
+    axis->settingsChanged.connect( this, &RimGridCrossPlot::axisSettingsChanged );
+    axis->logarithmicChanged.connect( this, &RimGridCrossPlot::axisLogarithmicChanged );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
+{
+    updateAxes();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCrossPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic )
+{
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

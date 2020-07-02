@@ -20,6 +20,7 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaDefines.h"
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtSymbol.h"
@@ -88,6 +89,7 @@ public:
     void                          resetAppearance();
     Qt::BrushStyle                fillStyle() const;
     void                          setFillStyle( Qt::BrushStyle brushStyle );
+    void                          setFillColor( const cvf::Color3f& fillColor );
 
     bool isCurveVisible() const;
     void setCurveVisibility( bool visible );
@@ -116,6 +118,9 @@ public:
     virtual void updateCurveAppearance();
     bool         isCrossPlotCurve() const;
     void         updateUiIconFromPlotSymbol();
+
+    virtual RiaDefines::PhaseType phaseType() const;
+    void                          assignStackColor( size_t index, size_t count );
 
 protected:
     virtual QString createCurveAutoName()                        = 0;
@@ -155,9 +160,9 @@ protected:
     void                          curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
 private:
-    bool         canCurveBeAttached() const;
-    void         attachCurveAndErrorBars();
-    virtual void checkAndApplyDefaultFillColor();
+    bool canCurveBeAttached() const;
+    void attachCurveAndErrorBars();
+    void checkAndApplyDefaultFillColor();
 
 protected:
     QPointer<QwtPlot> m_parentQwtPlot;

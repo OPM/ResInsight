@@ -80,6 +80,9 @@ public:
                                const std::vector<double>&               depthValues,
                                const RiaCurveDataTools::CurveIntervals& curveIntervals );
 
+    virtual RiaDefines::PhaseType resultPhase() const;
+    virtual void                  assignStackColor( size_t index, size_t count );
+
 protected:
     void updateZoomInParentPlot() override;
     void updateLegendsInPlot() override;
