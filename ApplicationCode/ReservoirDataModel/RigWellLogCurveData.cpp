@@ -427,16 +427,19 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
                     foundPoint            = true;
                     break;
                 }
-                else if ( segmentStartIdx < depthIt->second.size() - 1 &&
-                          isLeftOf( depthIt->second[segmentStartIdx], depth, reverseOrder, eps ) &&
-                          isLeftOf( depth, depthIt->second[segmentStartIdx + 1], reverseOrder, eps ) ) // interpolate
-                                                                                                       // between two
-                                                                                                       // closest points
+                else if ( segmentStartIdx < depthIt->second.size() - 1 )
                 {
-                    interpolateSegment( resamplingDepthType, depth, segmentStartIdx, xValues, resampledDepths, eps );
-                    segmentSearchStartIdx = segmentStartIdx;
-                    foundPoint            = true;
-                    break;
+                    double minDepthSegment =
+                        std::min( depthIt->second[segmentStartIdx], depthIt->second[segmentStartIdx + 1] );
+                    double maxDepthSegment =
+                        std::max( depthIt->second[segmentStartIdx], depthIt->second[segmentStartIdx + 1] );
+                    if ( cvf::Math::valueInRange( depth, minDepthSegment, maxDepthSegment ) )
+                    {
+                        interpolateSegment( resamplingDepthType, depth, segmentStartIdx, xValues, resampledDepths, eps );
+                        segmentSearchStartIdx = segmentStartIdx;
+                        foundPoint            = true;
+                        break;
+                    }
                 }
             }
         }
