@@ -511,7 +511,6 @@ void RimSummaryCurve::updateZoomInParentPlot()
 void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
-    checkAndApplyDefaultFillColor();
 
     m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address();
     m_xValuesSummaryAddressUiField = m_xValuesSummaryAddress->address();
@@ -759,46 +758,6 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOption
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCurve::isDefaultColor( const cvf::Color3f& color ) const
-{
-    if ( RiaColorTables::summaryCurveDefaultPaletteColors().contains( color ) ) return true;
-
-    auto phaseColors = RiaColorTables::phaseColors();
-    for ( auto phaseColorPair : phaseColors )
-    {
-        if ( phaseColorPair.second == color ) return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::checkAndApplyDefaultFillColor()
-{
-    if ( !m_fillColor().isValid() )
-    {
-        m_fillColor = m_curveColor;
-    }
-
-    if ( m_yValuesSummaryAddress && m_fillStyle != Qt::BrushStyle::NoBrush )
-    {
-        auto         phaseColors = RiaColorTables::phaseColors();
-        auto         it          = phaseColors.find( m_yValuesSummaryAddress->addressPhaseType() );
-        cvf::Color3f phaseColor;
-        if ( it != phaseColors.end() )
-        {
-            phaseColor = it->second;
-        }
-
-        if ( isDefaultColor( m_curveColor() ) ) m_curveColor = phaseColor;
-        if ( isDefaultColor( m_fillColor() ) ) m_fillColor = phaseColor;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setZIndexFromCurveInfo()
 {
     auto sumAddr = summaryAddressY();
@@ -832,6 +791,14 @@ void RimSummaryCurve::setZIndexFromCurveInfo()
     }
 
     setZOrder( zOrder );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::PhaseType RimSummaryCurve::phaseType() const
+{
+    return m_yValuesSummaryAddress->addressPhaseType();
 }
 
 //--------------------------------------------------------------------------------------------------

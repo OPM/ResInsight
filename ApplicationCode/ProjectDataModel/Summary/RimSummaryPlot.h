@@ -233,6 +233,12 @@ private:
     void curveVisibilityChanged( const caf::SignalEmitter* emitter, bool visible );
     void curveAppearanceChanged( const caf::SignalEmitter* emitter );
 
+    void connectAxisSignals( RimPlotAxisProperties* axis );
+    void axisSettingsChanged( const caf::SignalEmitter* emitter );
+    void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
+    void axisStackingChanged( const caf::SignalEmitter* emitter, bool stackCurves );
+    void axisStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors );
+
 private:
     caf::PdmField<bool> m_normalizeCurveYValues;
 

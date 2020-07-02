@@ -190,6 +190,10 @@ RimSummaryPlot::RimSummaryPlot()
     m_bottomAxisProperties = new RimPlotAxisProperties;
     m_bottomAxisProperties->setNameAndAxis( "Bottom X-Axis", QwtPlot::xBottom );
 
+    connectAxisSignals( m_leftYAxisProperties() );
+    connectAxisSignals( m_rightYAxisProperties() );
+    connectAxisSignals( m_bottomAxisProperties() );
+
     CAF_PDM_InitFieldNoDefault( &m_timeAxisProperties, "TimeAxisProperties", "Time Axis", "", "", "" );
     m_timeAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_timeAxisProperties = new RimSummaryTimeAxisProperties;
@@ -1356,6 +1360,10 @@ void RimSummaryPlot::updateStackedCurveData()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxis )
 {
+    RimPlotAxisProperties* axisProperties = yAxisPropertiesLeftOrRight( plotAxis );
+
+    std::map<RiaDefines::PhaseType, size_t> curvePhaseCount;
+
     // Reset all curves
     for ( RimSummaryCurve* curve : visibleSummaryCurvesForAxis( plotAxis ) )
     {
@@ -1366,9 +1374,10 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
         }
 
         curve->loadDataAndUpdate( false );
+
+        curvePhaseCount[curve->phaseType()]++;
     }
 
-    RimPlotAxisProperties* axisProperties = yAxisPropertiesLeftOrRight( plotAxis );
     if ( axisProperties->stackCurves() )
     {
         // Z-position of curve, to draw them in correct order
@@ -1383,6 +1392,8 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
         allTimeSteps.erase( std::unique( allTimeSteps.begin(), allTimeSteps.end() ), allTimeSteps.end() );
 
         std::vector<double> allStackedValues( allTimeSteps.size(), 0.0 );
+
+        size_t stackIndex = 0u;
         for ( RimSummaryCurve* curve : visibleSummaryCurvesForAxis( plotAxis ) )
         {
             for ( size_t i = 0; i < allTimeSteps.size(); ++i )
@@ -1396,6 +1407,10 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxi
 
             curve->setOverrideCurveDataY( allTimeSteps, allStackedValues );
             curve->setZOrder( zPos );
+            if ( axisProperties->stackWithPhaseColors() )
+            {
+                curve->assignStackColor( stackIndex, curvePhaseCount[curve->phaseType()] );
+            }
             zPos -= 1.0;
         }
     }
@@ -1617,6 +1632,57 @@ void RimSummaryPlot::curveAppearanceChanged( const caf::SignalEmitter* emitter )
     if ( m_plotWidget )
     {
         m_plotWidget->scheduleReplot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::connectAxisSignals( RimPlotAxisProperties* axis )
+{
+    axis->settingsChanged.connect( this, &RimSummaryPlot::axisSettingsChanged );
+    axis->logarithmicChanged.connect( this, &RimSummaryPlot::axisLogarithmicChanged );
+    axis->stackingChanged.connect( this, &RimSummaryPlot::axisStackingChanged );
+    axis->stackingColorsChanged.connect( this, &RimSummaryPlot::axisStackingColorsChanged );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
+{
+    updateAxes();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic )
+{
+    loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::axisStackingChanged( const caf::SignalEmitter* emitter, bool stackCurves )
+{
+    auto axisProps = dynamic_cast<const RimPlotAxisProperties*>( emitter );
+    if ( axisProps )
+    {
+        updateStackedCurveDataForAxis( axisProps->plotAxisType() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::axisStackingColorsChanged( const caf::SignalEmitter* emitter, bool stackWithPhaseColors )
+{
+    auto axisProps = dynamic_cast<const RimPlotAxisProperties*>( emitter );
+    if ( axisProps )
+    {
+        updateStackedCurveDataForAxis( axisProps->plotAxisType() );
     }
 }
 

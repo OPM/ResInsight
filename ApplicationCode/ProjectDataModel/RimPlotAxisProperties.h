@@ -51,6 +51,12 @@ public:
     };
 
 public:
+    caf::Signal<>     settingsChanged;
+    caf::Signal<bool> logarithmicChanged;
+    caf::Signal<bool> stackingChanged;
+    caf::Signal<bool> stackingColorsChanged;
+
+public:
     RimPlotAxisProperties();
 
     void                  setEnableTitleTextSettings( bool enable );
@@ -73,6 +79,7 @@ public:
     bool                 isAxisInverted() const;
     void                 setAxisInverted( bool inverted );
     bool                 stackCurves() const;
+    bool                 stackWithPhaseColors() const;
 
     std::vector<RimPlotAxisAnnotation*> annotations() const;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation );
@@ -116,6 +123,7 @@ private:
     caf::PdmField<bool> m_isAutoZoom;
     caf::PdmField<bool> m_isAxisInverted;
     caf::PdmField<bool> m_stackCurves;
+    caf::PdmField<bool> m_stackWithPhaseColors;
 
     caf::PdmField<QString> m_name;
     QwtPlot::Axis          m_axis;

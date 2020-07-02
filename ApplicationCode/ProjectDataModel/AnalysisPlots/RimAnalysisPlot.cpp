@@ -1597,6 +1597,31 @@ std::set<RimPlotAxisPropertiesInterface*> RimAnalysisPlot::allPlotAxes() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::connectAxisSignals( RimPlotAxisProperties* axis )
+{
+    axis->settingsChanged.connect( this, &RimAnalysisPlot::axisSettingsChanged );
+    axis->logarithmicChanged.connect( this, &RimAnalysisPlot::axisLogarithmicChanged );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
+{
+    updateAxes();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic )
+{
+    loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::buildTestPlot( RiuGroupedBarChartBuilder& chartBuilder )
 {
     chartBuilder.addBarEntry( "T1_The_red_Fox", "", "", std::numeric_limits<double>::infinity(), "R1", "", 0.4 );
