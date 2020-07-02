@@ -686,6 +686,8 @@ void RimDepthTrackPlot::onPlotAdditionOrRemoval()
 {
     calculateAvailableDepthRange();
     updateZoom();
+    updateSubPlotNames();
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

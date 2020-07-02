@@ -24,10 +24,6 @@
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellLogPlot.h"
 
-#include "RimGridCrossPlot.h"
-#include "RimGridCrossPlotCollection.h"
-#include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
@@ -86,4 +82,34 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
     destTrack->setAutoScaleXEnabled( true );
     destTrack->updateParentPlotZoom();
     destTrack->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( RimWellLogPlot*                      wellLogPlot,
+                                                              const std::vector<RimWellLogTrack*>& tracksToMove,
+                                                              RimWellLogTrack*                     insertAfterTrack )
+{
+    CVF_ASSERT( wellLogPlot );
+
+    for ( size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++ )
+    {
+        RimWellLogTrack* plot      = tracksToMove[tIdx];
+        caf::PdmObject*  pdmObject = dynamic_cast<caf::PdmObject*>( plot );
+        RimWellLogPlot*  srcPlot;
+        pdmObject->firstAncestorOrThisOfType( srcPlot );
+        if ( srcPlot )
+        {
+            srcPlot->removePlot( plot );
+        }
+    }
+
+    size_t insertionStartIndex = 0;
+    if ( insertAfterTrack ) insertionStartIndex = wellLogPlot->plotIndex( insertAfterTrack ) + 1;
+
+    for ( size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++ )
+    {
+        wellLogPlot->insertPlot( tracksToMove[tIdx], insertionStartIndex + tIdx );
+    }
 }

@@ -65,6 +65,12 @@ private:
                                      caf::PdmObjectGroup& objectGroup,
                                      RimWellLogTrack*     wellLogPlotTrack,
                                      int                  insertAtPosition );
+
+    bool handleWellLogPlotDrop( Qt::DropAction       action,
+                                caf::PdmObjectGroup& objectGroup,
+                                RimWellLogPlot*      wellLogPlot,
+                                int                  insertAtPosition );
+
     bool handleMultiPlotDrop( Qt::DropAction       action,
                               caf::PdmObjectGroup& objectGroup,
                               RimMultiPlot*        multiPlot,
