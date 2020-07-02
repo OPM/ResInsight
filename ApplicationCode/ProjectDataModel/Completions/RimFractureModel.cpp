@@ -21,6 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaCompletionTypeCalculationScheduler.h"
 #include "RiaEclipseUnitTools.h"
+#include "RiaFractureDefines.h"
 #include "RiaLogging.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -219,7 +220,8 @@ QList<caf::PdmOptionItemInfo> RimFractureModel::calculateValueOptions( const caf
     }
     else if ( fieldNeedingOptions == &m_overburdenFacies || fieldNeedingOptions == &m_underburdenFacies )
     {
-        RimColorLegend* faciesColors = RimProject::current()->colorLegendCollection()->findByName( "Facies colors" );
+        RimColorLegend* faciesColors =
+            RimProject::current()->colorLegendCollection()->findByName( RiaDefines::faciesColorLegendName() );
         if ( faciesColors )
         {
             for ( RimColorLegendItem* item : faciesColors->colorLegendItems() )
