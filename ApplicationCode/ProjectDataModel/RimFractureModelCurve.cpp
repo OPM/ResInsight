@@ -82,6 +82,9 @@ RimFractureModelCurve::RimFractureModelCurve()
     CAF_PDM_InitField( &m_missingValueStrategy, "MissingValueStrategy", defaultValue, "Missing Value Strategy", "", "", "" );
     m_missingValueStrategy.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_curveProperty, "CurveProperty", "Curve Property", "", "", "" );
+    m_curveProperty.uiCapability()->setUiHidden( true );
+
     m_wellPath = nullptr;
 }
 
@@ -107,6 +110,22 @@ void RimFractureModelCurve::setFractureModel( RimFractureModel* fractureModel )
 void RimFractureModelCurve::setEclipseResultCategory( RiaDefines::ResultCatType catType )
 {
     m_eclipseResultDefinition->setResultType( catType );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFractureModelCurve::setCurveProperty( RiaDefines::CurveProperty curveProperty )
+{
+    m_curveProperty = curveProperty;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::CurveProperty RimFractureModelCurve::curveProperty() const
+{
+    return m_curveProperty();
 }
 
 //--------------------------------------------------------------------------------------------------

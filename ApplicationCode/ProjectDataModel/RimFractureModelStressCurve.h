@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RimFractureModelPropertyCurve.h"
 #include "RimWellLogExtractionCurve.h"
 
 #include "RiuQwtSymbol.h"
@@ -35,7 +36,7 @@ class RimColorLegend;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimFractureModelStressCurve : public RimWellLogExtractionCurve
+class RimFractureModelStressCurve : public RimWellLogExtractionCurve, public RimFractureModelPropertyCurve
 {
     CAF_PDM_HEADER_INIT;
 
@@ -51,13 +52,14 @@ public:
 
     void setFractureModel( RimFractureModel* fractureModel );
 
-    void setPropertyType( PropertyType propertyType );
+    void                      setCurveProperty( RiaDefines::CurveProperty ) override;
+    RiaDefines::CurveProperty curveProperty() const override;
 
 protected:
     QString createCurveAutoName() override;
 
     void performDataExtraction( bool* isUsingPseudoLength ) override;
 
-    caf::PdmPtrField<RimFractureModel*>       m_fractureModel;
-    caf::PdmField<caf::AppEnum<PropertyType>> m_propertyType;
+    caf::PdmPtrField<RimFractureModel*>                    m_fractureModel;
+    caf::PdmField<caf::AppEnum<RiaDefines::CurveProperty>> m_curveProperty;
 };

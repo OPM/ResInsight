@@ -59,25 +59,6 @@
 
 CAF_PDM_SOURCE_INIT( RimElasticPropertiesCurve, "ElasticPropertiesCurve" );
 
-namespace caf
-{
-template <>
-void AppEnum<RimElasticPropertiesCurve::PropertyType>::setUp()
-{
-    addItem( RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS, "YOUNGS_MODULUS", "Young's Modulus" );
-    addItem( RimElasticPropertiesCurve::PropertyType::POISSONS_RATIO, "POISSONS_RATIO", "Poisson's Ratio" );
-    addItem( RimElasticPropertiesCurve::PropertyType::K_IC, "K_IC", "K-Ic" );
-    addItem( RimElasticPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT, "PROPPANT_EMBEDMENT", "Proppant Embedment" );
-    addItem( RimElasticPropertiesCurve::PropertyType::BIOT_COEFFICIENT, "BIOT_COEFFICIENT", "Biot Coefficient" );
-    addItem( RimElasticPropertiesCurve::PropertyType::K0, "K0", "k0" );
-    addItem( RimElasticPropertiesCurve::PropertyType::FLUID_LOSS_COEFFICIENT,
-             "FLUID_LOSS_COEFFICIENT",
-             "Fluid Loss Coefficient" );
-    addItem( RimElasticPropertiesCurve::PropertyType::SPURT_LOSS, "SPURT_LOSS", "Spurt Loss" );
-    setDefault( RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS );
-}
-}; // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -89,7 +70,8 @@ RimElasticPropertiesCurve::RimElasticPropertiesCurve()
     m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_fractureModel.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_propertyType, "PropertyType", "Property Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveProperty, "CurveProperty", "Curve Property", "", "", "" );
+    m_curveProperty.uiCapability()->setUiHidden( true );
 
     m_wellPath = nullptr;
 }
@@ -121,9 +103,17 @@ void RimElasticPropertiesCurve::setEclipseResultCategory( RiaDefines::ResultCatT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimElasticPropertiesCurve::setPropertyType( PropertyType propertyType )
+void RimElasticPropertiesCurve::setCurveProperty( RiaDefines::CurveProperty curveProperty )
 {
-    m_propertyType = propertyType;
+    m_curveProperty = curveProperty;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::CurveProperty RimElasticPropertiesCurve::curveProperty() const
+{
+    return m_curveProperty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -274,42 +264,42 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
             {
                 const RigElasticProperties& rigElasticProperties = elasticProperties->propertiesForFacies( faciesKey );
 
-                if ( m_propertyType() == PropertyType::YOUNGS_MODULUS )
+                if ( m_curveProperty() == RiaDefines::CurveProperty::YOUNGS_MODULUS )
                 {
                     double val = rigElasticProperties.getYoungsModulus( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::POISSONS_RATIO )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::POISSONS_RATIO )
                 {
                     double val = rigElasticProperties.getPoissonsRatio( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::K_IC )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::K_IC )
                 {
                     double val = rigElasticProperties.getK_Ic( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::PROPPANT_EMBEDMENT )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::PROPPANT_EMBEDMENT )
                 {
                     double val = rigElasticProperties.getProppantEmbedment( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::BIOT_COEFFICIENT )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::BIOT_COEFFICIENT )
                 {
                     double val = rigElasticProperties.getBiotCoefficient( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::K0 )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::K0 )
                 {
                     double val = rigElasticProperties.getK0( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::FLUID_LOSS_COEFFICIENT )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT )
                 {
                     double val = rigElasticProperties.getFluidLossCoefficient( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::SPURT_LOSS )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::SPURT_LOSS )
                 {
                     double val = rigElasticProperties.getSpurtLoss( porosity );
                     values.push_back( val );
@@ -391,7 +381,7 @@ double RimElasticPropertiesCurve::findFaciesValue( const RimColorLegend& colorLe
 //--------------------------------------------------------------------------------------------------
 QString RimElasticPropertiesCurve::createCurveAutoName()
 {
-    return caf::AppEnum<RimElasticPropertiesCurve::PropertyType>::uiText( m_propertyType() );
+    return caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_curveProperty() );
 }
 
 //--------------------------------------------------------------------------------------------------

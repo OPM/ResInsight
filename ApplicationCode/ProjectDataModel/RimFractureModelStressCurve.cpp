@@ -43,17 +43,6 @@
 
 CAF_PDM_SOURCE_INIT( RimFractureModelStressCurve, "RimFractureModelStressCurve" );
 
-namespace caf
-{
-template <>
-void AppEnum<RimFractureModelStressCurve::PropertyType>::setUp()
-{
-    addItem( RimFractureModelStressCurve::PropertyType::STRESS, "STRESS", "Stress" );
-    addItem( RimFractureModelStressCurve::PropertyType::STRESS_GRADIENT, "STRESS_GRADIENT", "Stress Gradient" );
-    setDefault( RimFractureModelStressCurve::PropertyType::STRESS );
-}
-}; // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -65,7 +54,8 @@ RimFractureModelStressCurve::RimFractureModelStressCurve()
     m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_fractureModel.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_propertyType, "PropertyType", "Property Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveProperty, "CurveProperty", "Curve Property", "", "", "" );
+    m_curveProperty.uiCapability()->setUiHidden( true );
 
     m_wellPath = nullptr;
 }
@@ -80,9 +70,17 @@ RimFractureModelStressCurve::~RimFractureModelStressCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureModelStressCurve::setPropertyType( PropertyType propertyType )
+void RimFractureModelStressCurve::setCurveProperty( RiaDefines::CurveProperty curveProperty )
 {
-    m_propertyType = propertyType;
+    m_curveProperty = curveProperty;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::CurveProperty RimFractureModelStressCurve::curveProperty() const
+{
+    return m_curveProperty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,7 +121,7 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
         tvDepthValues.push_back( RiaEclipseUnitTools::feetToMeter( f ) );
     }
 
-    if ( m_propertyType() == PropertyType::STRESS )
+    if ( m_curveProperty() == RiaDefines::CurveProperty::STRESS )
     {
         values = fractureModelPlot->calculateStress();
     }
@@ -188,5 +186,5 @@ void RimFractureModelStressCurve::performDataExtraction( bool* isUsingPseudoLeng
 //--------------------------------------------------------------------------------------------------
 QString RimFractureModelStressCurve::createCurveAutoName()
 {
-    return caf::AppEnum<RimFractureModelStressCurve::PropertyType>::uiText( m_propertyType() );
+    return caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_curveProperty() );
 }

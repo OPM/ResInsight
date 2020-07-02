@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RimFractureModelPropertyCurve.h"
 #include "RimWellLogExtractionCurve.h"
 
 #include "RiuQwtSymbol.h"
@@ -35,23 +36,11 @@ class RimColorLegend;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimElasticPropertiesCurve : public RimWellLogExtractionCurve
+class RimElasticPropertiesCurve : public RimWellLogExtractionCurve, public RimFractureModelPropertyCurve
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class PropertyType
-    {
-        YOUNGS_MODULUS,
-        POISSONS_RATIO,
-        K_IC,
-        PROPPANT_EMBEDMENT,
-        BIOT_COEFFICIENT,
-        K0,
-        FLUID_LOSS_COEFFICIENT,
-        SPURT_LOSS
-    };
-
     RimElasticPropertiesCurve();
     ~RimElasticPropertiesCurve() override;
 
@@ -59,7 +48,8 @@ public:
 
     void setEclipseResultCategory( RiaDefines::ResultCatType catType );
 
-    void setPropertyType( PropertyType propertyType );
+    void                      setCurveProperty( RiaDefines::CurveProperty ) override;
+    RiaDefines::CurveProperty curveProperty() const override;
 
 protected:
     QString createCurveAutoName() override;
@@ -89,6 +79,6 @@ protected:
                                 const QString&        formationName,
                                 double                faciesValue );
 
-    caf::PdmPtrField<RimFractureModel*>       m_fractureModel;
-    caf::PdmField<caf::AppEnum<PropertyType>> m_propertyType;
+    caf::PdmPtrField<RimFractureModel*>                    m_fractureModel;
+    caf::PdmField<caf::AppEnum<RiaDefines::CurveProperty>> m_curveProperty;
 };

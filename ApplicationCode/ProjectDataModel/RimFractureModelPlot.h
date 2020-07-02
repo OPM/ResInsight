@@ -19,6 +19,8 @@
 
 #include "RimDepthTrackPlot.h"
 
+#include "RiaFractureModelDefines.h"
+
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
@@ -32,6 +34,26 @@ class RimFractureModelPlot : public RimDepthTrackPlot
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class PropertyType
+    {
+        FACIES,
+        LAYERS,
+        POROSITY,
+        PERMEABILITY_X,
+        PERMEABILITY_Z,
+        INITIAL_PRESSURE,
+        PRESSURE,
+        STRESS,
+        STRESS_GRADIENT,
+        YOUNGS_MODULUS,
+        POISSONS_RATIO,
+        K_IC,
+        PROPPANT_EMBEDMENT,
+        BIOT_COEFFICIENT,
+        K0,
+        FLUID_LOSS_COEFFICIENT,
+    };
+
     RimFractureModelPlot();
 
     void setFractureModel( RimFractureModel* fractureModel );
@@ -54,10 +76,12 @@ public:
     std::vector<double> calculateProppandEmbedment() const;
 
 protected:
-    std::vector<double>        findCurveAndComputeLayeredAverage( const QString& curveName ) const;
+    std::vector<double> findCurveAndComputeLayeredAverage( RiaDefines::CurveProperty curveProperty ) const;
+    std::vector<double> findCurveXValuesByProperty( RiaDefines::CurveProperty curveProperty ) const;
+
     void                       calculateLayers( std::vector<std::pair<double, double>>& layerBoundaryDepths,
                                                 std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes ) const;
-    RimWellLogExtractionCurve* findCurveByName( const QString& curveName ) const;
+    RimWellLogExtractionCurve* findCurveByProperty( RiaDefines::CurveProperty curveProperty ) const;
     bool calculateStressWithGradients( std::vector<double>& stress, std::vector<double>& stressGradients ) const;
 
     static double computeValueAtDepth( const std::vector<double>&              values,

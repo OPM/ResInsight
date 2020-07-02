@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RimFractureModelPropertyCurve.h"
 #include "RimWellLogExtractionCurve.h"
 
 #include "RiuQwtSymbol.h"
@@ -37,7 +38,7 @@ class RigResultAccessor;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimFractureModelCurve : public RimWellLogExtractionCurve
+class RimFractureModelCurve : public RimWellLogExtractionCurve, public RimFractureModelPropertyCurve
 {
     CAF_PDM_HEADER_INIT;
 
@@ -56,6 +57,9 @@ public:
     void setEclipseResultCategory( RiaDefines::ResultCatType catType );
 
     void setMissingValueStrategy( MissingValueStrategy strategy );
+
+    void                      setCurveProperty( RiaDefines::CurveProperty ) override;
+    RiaDefines::CurveProperty curveProperty() const override;
 
 protected:
     void performDataExtraction( bool* isUsingPseudoLength ) override;
@@ -81,6 +85,7 @@ protected:
                                 double               underburdenHeight,
                                 double               defaultUnderburdenValue );
 
-    caf::PdmPtrField<RimFractureModel*>               m_fractureModel;
-    caf::PdmField<caf::AppEnum<MissingValueStrategy>> m_missingValueStrategy;
+    caf::PdmPtrField<RimFractureModel*>                    m_fractureModel;
+    caf::PdmField<caf::AppEnum<MissingValueStrategy>>      m_missingValueStrategy;
+    caf::PdmField<caf::AppEnum<RiaDefines::CurveProperty>> m_curveProperty;
 };

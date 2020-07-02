@@ -69,6 +69,9 @@ RimLayerCurve::RimLayerCurve()
     m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_fractureModel.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_curveProperty, "CurveProperty", "Curve Property", "", "", "" );
+    m_curveProperty.uiCapability()->setUiHidden( true );
+
     m_wellPath = nullptr;
 }
 
@@ -87,22 +90,6 @@ void RimLayerCurve::setFractureModel( RimFractureModel* fractureModel )
     m_fractureModel = fractureModel;
     m_wellPath      = fractureModel->thicknessDirectionWellPath();
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimLayerCurve::setEclipseResultCategory( RiaDefines::ResultCatType catType )
-// {
-//     m_eclipseResultDefinition->setResultType( catType );
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimLayerCurve::setPropertyType( PropertyType propertyType )
-// {
-//     m_propertyType = propertyType;
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -234,4 +221,20 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
 QString RimLayerCurve::createCurveAutoName()
 {
     return "Layers";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimLayerCurve::setCurveProperty( RiaDefines::CurveProperty curveProperty )
+{
+    m_curveProperty = curveProperty;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::CurveProperty RimLayerCurve::curveProperty() const
+{
+    return m_curveProperty();
 }

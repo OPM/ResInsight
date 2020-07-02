@@ -95,25 +95,30 @@ RimFractureModelPlot*
         plots["Porosity"] = {std::make_tuple( "PORO",
                                               RiaDefines::ResultCatType::STATIC_NATIVE,
                                               RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE,
-                                              false )};
+                                              false,
+                                              RiaDefines::CurveProperty::POROSITY )};
 
         plots["Pressure"] = {std::make_tuple( "PRESSURE",
                                               RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                               RimFractureModelCurve::MissingValueStrategy::LINEAR_INTERPOLATION,
-                                              false ),
+                                              false,
+                                              RiaDefines::CurveProperty::PRESSURE ),
                              std::make_tuple( "PRESSURE",
                                               RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                               RimFractureModelCurve::MissingValueStrategy::LINEAR_INTERPOLATION,
-                                              true )};
+                                              true,
+                                              RiaDefines::CurveProperty::INITIAL_PRESSURE )};
 
         plots["Permeability"] = {std::make_tuple( "PERMX",
                                                   RiaDefines::ResultCatType::STATIC_NATIVE,
                                                   RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE,
-                                                  false ),
+                                                  false,
+                                                  RiaDefines::CurveProperty::PERMEABILITY_X ),
                                  std::make_tuple( "PERMZ",
                                                   RiaDefines::ResultCatType::STATIC_NATIVE,
                                                   RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE,
-                                                  false )};
+                                                  false,
+                                                  RiaDefines::CurveProperty::PERMEABILITY_Z )};
 
         std::set<QString> logarithmicPlots;
         logarithmicPlots.insert( "Permeability" );
@@ -128,15 +133,14 @@ RimFractureModelPlot*
     {
         auto task = progInfo.task( "Creating facies properties track", 15 );
 
-        std::vector<RimElasticPropertiesCurve::PropertyType> results =
-            {RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS,
-             RimElasticPropertiesCurve::PropertyType::POISSONS_RATIO,
-             RimElasticPropertiesCurve::PropertyType::K_IC,
-             RimElasticPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT,
-             RimElasticPropertiesCurve::PropertyType::BIOT_COEFFICIENT,
-             RimElasticPropertiesCurve::PropertyType::K0,
-             RimElasticPropertiesCurve::PropertyType::FLUID_LOSS_COEFFICIENT,
-             RimElasticPropertiesCurve::PropertyType::SPURT_LOSS};
+        std::vector<RiaDefines::CurveProperty> results = {RiaDefines::CurveProperty::YOUNGS_MODULUS,
+                                                          RiaDefines::CurveProperty::POISSONS_RATIO,
+                                                          RiaDefines::CurveProperty::K_IC,
+                                                          RiaDefines::CurveProperty::PROPPANT_EMBEDMENT,
+                                                          RiaDefines::CurveProperty::BIOT_COEFFICIENT,
+                                                          RiaDefines::CurveProperty::K0,
+                                                          RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT,
+                                                          RiaDefines::CurveProperty::SPURT_LOSS};
 
         for ( auto result : results )
         {
@@ -146,8 +150,8 @@ RimFractureModelPlot*
 
     {
         auto task = progInfo.task( "Creating stress track", 2 );
-        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RimFractureModelStressCurve::PropertyType::STRESS );
-        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RimFractureModelStressCurve::PropertyType::STRESS_GRADIENT );
+        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::STRESS );
+        createStressTrack( plot, fractureModel, eclipseCase, timeStep, RiaDefines::CurveProperty::STRESS_GRADIENT );
     }
 
     {
@@ -257,6 +261,7 @@ void RicNewFractureModelPlotFeature::createFaciesTrack( RimFractureModelPlot* pl
 
     RimFractureModelCurve* curve = new RimFractureModelCurve;
     curve->setFractureModel( fractureModel );
+    curve->setCurveProperty( RiaDefines::CurveProperty::FACIES );
     curve->setCase( eclipseCase );
     curve->setEclipseResultCategory( RiaDefines::ResultCatType::INPUT_PROPERTY );
     curve->setEclipseResultVariable( defaultProperty );
@@ -307,6 +312,7 @@ void RicNewFractureModelPlotFeature::createLayersTrack( RimFractureModelPlot* pl
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
     RimLayerCurve* curve = new RimLayerCurve;
+    curve->setCurveProperty( RiaDefines::CurveProperty::LAYERS );
     curve->setFractureModel( fractureModel );
     curve->setCase( eclipseCase );
     curve->setColor( colors.cycledColor3f( 0 ) );
@@ -353,9 +359,10 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
         RiaDefines::ResultCatType                   resultCategoryType   = std::get<1>( curveConfig );
         RimFractureModelCurve::MissingValueStrategy missingValueStrategy = std::get<2>( curveConfig );
         bool                                        fixedInitialTimeStep = std::get<3>( curveConfig );
+        RiaDefines::CurveProperty                   curveProperty        = std::get<4>( curveConfig );
 
         RimFractureModelCurve* curve = new RimFractureModelCurve;
-
+        curve->setCurveProperty( curveProperty );
         curve->setFractureModel( fractureModel );
         curve->setCase( eclipseCase );
         curve->setEclipseResultVariable( resultVariable );
@@ -402,13 +409,13 @@ void RicNewFractureModelPlotFeature::createParametersTrack( RimFractureModelPlot
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewFractureModelPlotFeature::createElasticPropertiesTrack( RimFractureModelPlot* plot,
-                                                                   RimFractureModel*     fractureModel,
-                                                                   RimEclipseCase*       eclipseCase,
-                                                                   int                   timeStep,
-                                                                   RimElasticPropertiesCurve::PropertyType propertyType )
+void RicNewFractureModelPlotFeature::createElasticPropertiesTrack( RimFractureModelPlot*     plot,
+                                                                   RimFractureModel*         fractureModel,
+                                                                   RimEclipseCase*           eclipseCase,
+                                                                   int                       timeStep,
+                                                                   RiaDefines::CurveProperty propertyType )
 {
-    QString          trackName = caf::AppEnum<RimElasticPropertiesCurve::PropertyType>::uiText( propertyType );
+    QString          trackName = caf::AppEnum<RiaDefines::CurveProperty>::uiText( propertyType );
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackName, plot );
     plotTrack->setFormationWellPath( fractureModel->thicknessDirectionWellPath() );
     plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
@@ -420,7 +427,7 @@ void RicNewFractureModelPlotFeature::createElasticPropertiesTrack( RimFractureMo
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
     RimElasticPropertiesCurve* curve = new RimElasticPropertiesCurve;
-    curve->setPropertyType( propertyType );
+    curve->setCurveProperty( propertyType );
     curve->setFractureModel( fractureModel );
     curve->setCase( eclipseCase );
     curve->setColor( colors.cycledColor3f( 0 ) );
@@ -447,13 +454,13 @@ void RicNewFractureModelPlotFeature::createElasticPropertiesTrack( RimFractureMo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewFractureModelPlotFeature::createStressTrack( RimFractureModelPlot*                     plot,
-                                                        RimFractureModel*                         fractureModel,
-                                                        RimEclipseCase*                           eclipseCase,
-                                                        int                                       timeStep,
-                                                        RimFractureModelStressCurve::PropertyType propertyType )
+void RicNewFractureModelPlotFeature::createStressTrack( RimFractureModelPlot*     plot,
+                                                        RimFractureModel*         fractureModel,
+                                                        RimEclipseCase*           eclipseCase,
+                                                        int                       timeStep,
+                                                        RiaDefines::CurveProperty propertyType )
 {
-    QString          trackName = caf::AppEnum<RimFractureModelStressCurve::PropertyType>::uiText( propertyType );
+    QString          trackName = caf::AppEnum<RiaDefines::CurveProperty>::uiText( propertyType );
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, trackName, plot );
     plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
     plotTrack->setLogarithmicScale( false );
@@ -464,7 +471,7 @@ void RicNewFractureModelPlotFeature::createStressTrack( RimFractureModelPlot*   
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
     RimFractureModelStressCurve* curve = new RimFractureModelStressCurve;
-    curve->setPropertyType( propertyType );
+    curve->setCurveProperty( propertyType );
     curve->setFractureModel( fractureModel );
     curve->setCase( eclipseCase );
     curve->setColor( colors.cycledColor3f( 0 ) );
