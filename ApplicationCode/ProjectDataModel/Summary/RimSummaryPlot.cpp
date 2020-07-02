@@ -1192,8 +1192,8 @@ void RimSummaryPlot::deleteCurves( const std::vector<RimSummaryCurve*>& curves )
             {
                 if ( c == curve )
                 {
-                    m_summaryCurveCollection->deleteCurve( curve );
                     disconnectCurveSignals( curve );
+                    m_summaryCurveCollection->deleteCurve( curve );
                     continue;
                 }
             }
