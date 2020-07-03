@@ -217,6 +217,35 @@ void RimFractureModelCurve::performDataExtraction( bool* isUsingPseudoLength )
                                           .arg( m_eclipseResultDefinition()->resultVariable() ) );
                     std::vector<double> replacementValues;
                     eclExtractor.curveData( backupResAcc.p(), &replacementValues );
+
+                    double overburdenHeight = m_fractureModel->overburdenHeight();
+                    if ( overburdenHeight > 0.0 )
+                    {
+                        double defaultOverburdenValue = std::numeric_limits<double>::infinity();
+                        if ( m_missingValueStrategy() == RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE )
+                        {
+                            defaultOverburdenValue = m_fractureModel->getDefaultForMissingOverburdenValue(
+                                m_eclipseResultDefinition()->resultVariable() );
+                        }
+
+                        replacementValues.insert( replacementValues.begin(), defaultOverburdenValue );
+                        replacementValues.insert( replacementValues.begin(), defaultOverburdenValue );
+                    }
+
+                    double underburdenHeight = m_fractureModel->underburdenHeight();
+                    if ( underburdenHeight > 0.0 )
+                    {
+                        double defaultUnderburdenValue = std::numeric_limits<double>::infinity();
+                        if ( m_missingValueStrategy() == RimFractureModelCurve::MissingValueStrategy::DEFAULT_VALUE )
+                        {
+                            defaultUnderburdenValue = m_fractureModel->getDefaultForMissingUnderburdenValue(
+                                m_eclipseResultDefinition()->resultVariable() );
+                        }
+
+                        replacementValues.push_back( defaultUnderburdenValue );
+                        replacementValues.push_back( defaultUnderburdenValue );
+                    }
+
                     replaceMissingValues( values, replacementValues );
                 }
 
@@ -319,7 +348,7 @@ void RimFractureModelCurve::replaceMissingValues( std::vector<double>& values, d
 //--------------------------------------------------------------------------------------------------
 void RimFractureModelCurve::replaceMissingValues( std::vector<double>& values, const std::vector<double>& replacementValues )
 {
-    assert( values.size() == replacementValues.size() );
+    CVF_ASSERT( values.size() == replacementValues.size() );
     for ( size_t i = 0; i < values.size(); i++ )
     {
         if ( values[i] == std::numeric_limits<double>::infinity() )
