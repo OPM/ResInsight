@@ -33,8 +33,10 @@ class RicWellLogPlotTrackFeatureImpl
 public:
     static void moveCurvesToWellLogPlotTrack( RimWellLogTrack*                     dstTrack,
                                               const std::vector<RimWellLogCurve*>& curves,
-                                              RimWellLogCurve*                     insertAfterCurve );
+                                              RimWellLogCurve*                     curveToInsertBeforeOrAfter,
+                                              bool                                 isSwapOperation );
     static void moveTracksToWellLogPlot( RimWellLogPlot*                      wellLogPlot,
                                          const std::vector<RimWellLogTrack*>& tracks,
-                                         RimWellLogTrack*                     trackToInsertAfter );
+                                         RimWellLogTrack*                     trackToInsertBeforeOrAfter,
+                                         bool                                 isSwapOperation );
 };

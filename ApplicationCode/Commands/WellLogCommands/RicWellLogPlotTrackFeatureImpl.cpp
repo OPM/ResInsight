@@ -35,7 +35,8 @@
 //--------------------------------------------------------------------------------------------------
 void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTrack*                     destTrack,
                                                                    const std::vector<RimWellLogCurve*>& curves,
-                                                                   RimWellLogCurve* curveToInsertAfter )
+                                                                   RimWellLogCurve* curveToInsertBeforeOrAfter,
+                                                                   bool             isSwapOperation )
 {
     CVF_ASSERT( destTrack );
 
@@ -52,6 +53,7 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
         {
             wellLogPlotTrack->removeCurve( curve );
             wellLogPlotTrack->updateConnectedEditors();
+            wellLogPlotTrack->updateStackedCurveData();
             srcTracks.insert( wellLogPlotTrack );
             RimWellLogPlot* plot;
             wellLogPlotTrack->firstAncestorOrThisOfType( plot );
@@ -60,7 +62,11 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
     }
 
     size_t insertionStartIndex = 0;
-    if ( curveToInsertAfter ) insertionStartIndex = destTrack->curveIndex( curveToInsertAfter ) + 1;
+    if ( curveToInsertBeforeOrAfter )
+    {
+        insertionStartIndex = destTrack->curveIndex( curveToInsertBeforeOrAfter );
+        if ( !isSwapOperation ) insertionStartIndex += 1;
+    }
 
     for ( size_t cIdx = 0; cIdx < curves.size(); cIdx++ )
     {
@@ -79,6 +85,7 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
     }
 
     destTrack->loadDataAndUpdate();
+    destTrack->updateStackedCurveData();
     destTrack->setAutoScaleXEnabled( true );
     destTrack->updateParentPlotZoom();
     destTrack->updateConnectedEditors();
@@ -89,7 +96,8 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
 //--------------------------------------------------------------------------------------------------
 void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( RimWellLogPlot*                      wellLogPlot,
                                                               const std::vector<RimWellLogTrack*>& tracksToMove,
-                                                              RimWellLogTrack*                     insertAfterTrack )
+                                                              RimWellLogTrack* trackToInsertBeforeOrAfter,
+                                                              bool             isSwapOperation )
 {
     CVF_ASSERT( wellLogPlot );
 
@@ -106,7 +114,11 @@ void RicWellLogPlotTrackFeatureImpl::moveTracksToWellLogPlot( RimWellLogPlot*   
     }
 
     size_t insertionStartIndex = 0;
-    if ( insertAfterTrack ) insertionStartIndex = wellLogPlot->plotIndex( insertAfterTrack ) + 1;
+    if ( trackToInsertBeforeOrAfter )
+    {
+        insertionStartIndex = wellLogPlot->plotIndex( trackToInsertBeforeOrAfter );
+        if ( !isSwapOperation ) insertionStartIndex += 1;
+    }
 
     for ( size_t tIdx = 0; tIdx < tracksToMove.size(); tIdx++ )
     {
