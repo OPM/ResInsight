@@ -444,6 +444,9 @@ void RimSummaryCurveCollection::moveCurvesToCollection( RimSummaryCurveCollectio
     for ( auto curve : curves )
     {
         RimSummaryCurveCollection* srcCollection = nullptr;
+
+        if ( curve == curveToInsertBeforeOrAfter ) continue;
+
         curve->firstAncestorOrThisOfTypeAsserted( srcCollection );
 
         srcCollection->removeCurve( curve );

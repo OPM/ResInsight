@@ -1078,13 +1078,20 @@ void RimWellLogTrack::addCurve( RimWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::insertCurve( RimWellLogCurve* curve, size_t index )
 {
-    m_curves.insert( index, curve );
-    connectCurveSignals( curve );
-    // Todo: Mark curve data to use either TVD or MD
-
-    if ( m_plotWidget )
+    if ( index >= m_curves.size() )
     {
-        curve->setParentQwtPlotAndReplot( m_plotWidget );
+        addCurve( curve );
+    }
+    else
+    {
+        m_curves.insert( index, curve );
+        connectCurveSignals( curve );
+        // Todo: Mark curve data to use either TVD or MD
+
+        if ( m_plotWidget )
+        {
+            curve->setParentQwtPlotAndReplot( m_plotWidget );
+        }
     }
 }
 

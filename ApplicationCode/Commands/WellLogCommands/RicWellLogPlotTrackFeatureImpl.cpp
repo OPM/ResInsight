@@ -47,6 +47,8 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
     {
         RimWellLogCurve* curve = curves[cIdx];
 
+        if ( curve == curveToInsertBeforeOrAfter ) continue;
+
         RimWellLogTrack* wellLogPlotTrack;
         curve->firstAncestorOrThisOfType( wellLogPlotTrack );
         if ( wellLogPlotTrack )
