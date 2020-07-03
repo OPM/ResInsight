@@ -2403,6 +2403,16 @@ void RimWellLogTrack::updateStackedCurveData()
                 }
             }
         }
+        // The above doesn't sort nearly identical depths. The resampling below requires that.
+        if ( depthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER )
+        {
+            std::sort( allDepthValues.begin(), allDepthValues.end(), std::greater<double>() );
+        }
+        else
+        {
+            std::sort( allDepthValues.begin(), allDepthValues.end() );
+        }
+
         if ( allDepthValues.empty() ) continue;
 
         size_t              stackIndex = 0u;
