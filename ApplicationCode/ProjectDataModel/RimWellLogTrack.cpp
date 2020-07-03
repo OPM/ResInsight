@@ -259,6 +259,11 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault( &m_wellPathComponentSource, "AttributesWellPathSource", "Well Path", "", "", "" );
     CAF_PDM_InitFieldNoDefault( &m_wellPathAttributeCollection, "AttributesCollection", "Well Attributes", "", "", "" );
 
+    CAF_PDM_InitField( &m_overburdenHeight, "OverburdenHeight", 0.0, "Overburden Height", "", "", "" );
+    m_overburdenHeight.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_underburdenHeight, "UnderburdenHeight", 0.0, "Underburden Height", "", "", "" );
+    m_underburdenHeight.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
     m_resultDefinition.uiCapability()->setUiHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
@@ -2393,11 +2398,11 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             extractor = geoMechWellLogExtractor;
         }
 
-        // Attach water and rock base formations
-        const std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
-
         if ( geoMechWellLogExtractor )
         {
+            // Attach water and rock base formations
+            const std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
+
             const caf::ColorTable waterAndRockColors = RiaColorTables::waterAndRockPaletteColors();
             const std::vector<std::pair<double, double>> waterAndRockIntervals =
                 waterAndRockRegions( plot->depthType(), extractor );
@@ -2419,8 +2424,19 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                  m_formationCase == nullptr )
                 return;
 
-            std::vector<std::pair<double, double>> yValues;
             std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( m_formationCase );
+
+            if ( m_overburdenHeight > 0.0 )
+            {
+                addOverburden( formationNamesVector, curveData, m_overburdenHeight );
+            }
+
+            if ( m_underburdenHeight > 0.0 )
+            {
+                addUnderburden( formationNamesVector, curveData, m_underburdenHeight );
+            }
+
+            std::vector<std::pair<double, double>> yValues;
 
             std::vector<QString> formationNamesToPlot;
             RimWellLogTrack::findRegionNamesToPlot( curveData,
@@ -2428,6 +2444,8 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                     plot->depthType(),
                                                     &formationNamesToPlot,
                                                     &yValues );
+
+            const std::pair<double, double> xRange = std::make_pair( m_visibleXRangeMin(), m_visibleXRangeMax() );
 
             caf::ColorTable colorTable( m_colorShadingLegend->colorArray() );
             m_annotationTool->attachNamedRegions( m_plotWidget,
@@ -2490,6 +2508,16 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
         for ( RimColorLegendItem* legendItem : m_colorShadingLegend()->colorLegendItems() )
         {
             namesVector.push_back( legendItem->categoryName() );
+        }
+
+        if ( m_overburdenHeight > 0.0 )
+        {
+            addOverburden( namesVector, curveData, m_overburdenHeight );
+        }
+
+        if ( m_underburdenHeight > 0.0 )
+        {
+            addUnderburden( namesVector, curveData, m_underburdenHeight );
         }
 
         std::vector<QString>                   namesToPlot;
@@ -2766,4 +2794,70 @@ void RimWellLogTrack::onChildDeleted( caf::PdmChildArrayFieldHandle*      childA
     updateZoomInQwt();
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateWellLogPlotToolBar();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setOverburdenHeight( double overburdenHeight )
+{
+    m_overburdenHeight = overburdenHeight;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setUnderburdenHeight( double underburdenHeight )
+{
+    m_underburdenHeight = underburdenHeight;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::addOverburden( std::vector<QString>& namesVector, CurveSamplingPointData& curveData, double height )
+{
+    if ( !curveData.data.empty() )
+    {
+        namesVector.push_back( "Overburden" );
+
+        // Prepend the new "fake" depth for start of overburden
+        double tvdTop = curveData.tvd[0];
+        curveData.tvd.insert( curveData.tvd.begin(), tvdTop );
+        curveData.tvd.insert( curveData.tvd.begin(), tvdTop - height );
+
+        // TODO: this is not always correct
+        double mdTop = curveData.md[0];
+        curveData.md.insert( curveData.md.begin(), mdTop );
+        curveData.md.insert( curveData.md.begin(), mdTop - height );
+
+        curveData.data.insert( curveData.data.begin(), namesVector.size() - 1 );
+        curveData.data.insert( curveData.data.begin(), namesVector.size() - 1 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::addUnderburden( std::vector<QString>& namesVector, CurveSamplingPointData& curveData, double height )
+{
+    if ( !curveData.data.empty() )
+    {
+        namesVector.push_back( "Underburden" );
+
+        size_t lastIndex = curveData.tvd.size() - 1;
+
+        // Append the new "fake" depth for start of underburden
+        double tvdBottom = curveData.tvd[lastIndex];
+        curveData.tvd.push_back( tvdBottom );
+        curveData.tvd.push_back( tvdBottom + height );
+
+        // TODO: this is not always correct
+        double mdBottom = curveData.md[lastIndex];
+        curveData.md.push_back( mdBottom );
+        curveData.md.push_back( mdBottom + height );
+
+        curveData.data.push_back( namesVector.size() - 1 );
+        curveData.data.push_back( namesVector.size() - 1 );
+    }
 }

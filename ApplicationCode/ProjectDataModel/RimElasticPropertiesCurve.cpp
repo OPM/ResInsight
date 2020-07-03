@@ -59,25 +59,6 @@
 
 CAF_PDM_SOURCE_INIT( RimElasticPropertiesCurve, "ElasticPropertiesCurve" );
 
-namespace caf
-{
-template <>
-void AppEnum<RimElasticPropertiesCurve::PropertyType>::setUp()
-{
-    addItem( RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS, "YOUNGS_MODULUS", "Young's Modulus" );
-    addItem( RimElasticPropertiesCurve::PropertyType::POISSONS_RATIO, "POISSONS_RATIO", "Poisson's Ratio" );
-    addItem( RimElasticPropertiesCurve::PropertyType::K_IC, "K_IC", "K-Ic" );
-    addItem( RimElasticPropertiesCurve::PropertyType::PROPPANT_EMBEDMENT, "PROPPANT_EMBEDMENT", "Proppant Embedment" );
-    addItem( RimElasticPropertiesCurve::PropertyType::BIOT_COEFFICIENT, "BIOT_COEFFICIENT", "Biot Coefficient" );
-    addItem( RimElasticPropertiesCurve::PropertyType::K0, "K0", "k0" );
-    addItem( RimElasticPropertiesCurve::PropertyType::FLUID_LOSS_COEFFICIENT,
-             "FLUID_LOSS_COEFFICIENT",
-             "Fluid Loss Coefficient" );
-    addItem( RimElasticPropertiesCurve::PropertyType::SPURT_LOSS, "SPURT_LOSS", "Spurt Loss" );
-    setDefault( RimElasticPropertiesCurve::PropertyType::YOUNGS_MODULUS );
-}
-}; // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -89,7 +70,8 @@ RimElasticPropertiesCurve::RimElasticPropertiesCurve()
     m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_fractureModel.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_propertyType, "PropertyType", "Property Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveProperty, "CurveProperty", "Curve Property", "", "", "" );
+    m_curveProperty.uiCapability()->setUiHidden( true );
 
     m_wellPath = nullptr;
 }
@@ -121,9 +103,17 @@ void RimElasticPropertiesCurve::setEclipseResultCategory( RiaDefines::ResultCatT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimElasticPropertiesCurve::setPropertyType( PropertyType propertyType )
+void RimElasticPropertiesCurve::setCurveProperty( RiaDefines::CurveProperty curveProperty )
 {
-    m_propertyType = propertyType;
+    m_curveProperty = curveProperty;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::CurveProperty RimElasticPropertiesCurve::curveProperty() const
+{
+    return m_curveProperty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,15 +159,10 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
         CurveSamplingPointData curveData =
             RimWellLogTrack::curveSamplingPointData( &eclExtractor, formationResultAccessor.p() );
 
+        std::vector<double> formationValues = curveData.data;
+
         std::vector<std::pair<double, double>> yValues;
         std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( eclipseCase );
-
-        std::vector<QString> formationNamesToPlot;
-        RimWellLogTrack::findRegionNamesToPlot( curveData,
-                                                formationNamesVector,
-                                                RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
-                                                &formationNamesToPlot,
-                                                &yValues );
 
         // Extract facies data
         m_eclipseResultDefinition->setResultVariable( "OPERNUM_1" );
@@ -229,12 +214,49 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
             return;
         }
 
+        double overburdenHeight = m_fractureModel->overburdenHeight();
+        if ( overburdenHeight > 0.0 )
+        {
+            double  defaultPoroValue    = m_fractureModel->defaultOverburdenPorosity();
+            QString overburdenFormation = m_fractureModel->overburdenFormation();
+            QString overburdenFacies    = m_fractureModel->overburdenFacies();
+
+            addOverburden( formationNamesVector,
+                           formationValues,
+                           faciesValues,
+                           tvDepthValues,
+                           measuredDepthValues,
+                           overburdenHeight,
+                           defaultPoroValue,
+                           overburdenFormation,
+                           findFaciesValue( *colorLegend, overburdenFacies ) );
+        }
+
+        double underburdenHeight = m_fractureModel->underburdenHeight();
+        if ( underburdenHeight > 0.0 )
+        {
+            double  defaultPoroValue     = m_fractureModel->defaultUnderburdenPorosity();
+            QString underburdenFormation = m_fractureModel->underburdenFormation();
+            QString underburdenFacies    = m_fractureModel->underburdenFacies();
+
+            addUnderburden( formationNamesVector,
+                            formationValues,
+                            faciesValues,
+                            tvDepthValues,
+                            measuredDepthValues,
+                            underburdenHeight,
+                            defaultPoroValue,
+                            underburdenFormation,
+                            findFaciesValue( *colorLegend, underburdenFacies ) );
+        }
+
         for ( size_t i = 0; i < tvDepthValues.size(); i++ )
         {
             // TODO: get from somewhere??
             QString fieldName     = "Norne";
             QString faciesName    = findFaciesName( *colorLegend, faciesValues[i] );
-            QString formationName = findFormationNameForDepth( formationNamesToPlot, yValues, tvDepthValues[i] );
+            int     idx           = static_cast<int>( formationValues[i] );
+            QString formationName = formationNamesVector[idx];
             double  porosity      = poroValues[i];
 
             FaciesKey faciesKey = std::make_tuple( fieldName, formationName, faciesName );
@@ -242,42 +264,42 @@ void RimElasticPropertiesCurve::performDataExtraction( bool* isUsingPseudoLength
             {
                 const RigElasticProperties& rigElasticProperties = elasticProperties->propertiesForFacies( faciesKey );
 
-                if ( m_propertyType() == PropertyType::YOUNGS_MODULUS )
+                if ( m_curveProperty() == RiaDefines::CurveProperty::YOUNGS_MODULUS )
                 {
                     double val = rigElasticProperties.getYoungsModulus( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::POISSONS_RATIO )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::POISSONS_RATIO )
                 {
                     double val = rigElasticProperties.getPoissonsRatio( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::K_IC )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::K_IC )
                 {
                     double val = rigElasticProperties.getK_Ic( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::PROPPANT_EMBEDMENT )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::PROPPANT_EMBEDMENT )
                 {
                     double val = rigElasticProperties.getProppantEmbedment( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::BIOT_COEFFICIENT )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::BIOT_COEFFICIENT )
                 {
                     double val = rigElasticProperties.getBiotCoefficient( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::K0 )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::K0 )
                 {
                     double val = rigElasticProperties.getK0( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::FLUID_LOSS_COEFFICIENT )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT )
                 {
                     double val = rigElasticProperties.getFluidLossCoefficient( porosity );
                     values.push_back( val );
                 }
-                else if ( m_propertyType() == PropertyType::SPURT_LOSS )
+                else if ( m_curveProperty() == RiaDefines::CurveProperty::SPURT_LOSS )
                 {
                     double val = rigElasticProperties.getSpurtLoss( porosity );
                     values.push_back( val );
@@ -344,22 +366,14 @@ QString RimElasticPropertiesCurve::findFaciesName( const RimColorLegend& colorLe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimElasticPropertiesCurve::findFormationNameForDepth( const std::vector<QString>& formationNames,
-                                                              const std::vector<std::pair<double, double>>& depthRanges,
-                                                              double                                        depth )
+double RimElasticPropertiesCurve::findFaciesValue( const RimColorLegend& colorLegend, const QString& name )
 {
-    //    assert(formationNames.size() == depthRanges.size());
-    for ( size_t i = 0; i < formationNames.size(); i++ )
+    for ( auto item : colorLegend.colorLegendItems() )
     {
-        double high = depthRanges[i].second;
-        double low  = depthRanges[i].first;
-        if ( depth >= low && depth <= high )
-        {
-            return formationNames[i];
-        }
+        if ( item->categoryName() == name ) return item->categoryValue();
     }
 
-    return "not found";
+    return std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -367,5 +381,76 @@ QString RimElasticPropertiesCurve::findFormationNameForDepth( const std::vector<
 //--------------------------------------------------------------------------------------------------
 QString RimElasticPropertiesCurve::createCurveAutoName()
 {
-    return caf::AppEnum<RimElasticPropertiesCurve::PropertyType>::uiText( m_propertyType() );
+    return caf::AppEnum<RiaDefines::CurveProperty>::uiText( m_curveProperty() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimElasticPropertiesCurve::addOverburden( std::vector<QString>& formationNames,
+                                               std::vector<double>&  formationValues,
+                                               std::vector<double>&  faciesValues,
+                                               std::vector<double>&  tvDepthValues,
+                                               std::vector<double>&  measuredDepthValues,
+                                               double                overburdenHeight,
+                                               double                defaultPoroValue,
+                                               const QString&        formationName,
+                                               double                faciesValue )
+{
+    if ( !faciesValues.empty() )
+    {
+        // Prepend the new "fake" depth for start of overburden
+        double tvdTop = tvDepthValues[0];
+        tvDepthValues.insert( tvDepthValues.begin(), tvdTop );
+        tvDepthValues.insert( tvDepthValues.begin(), tvdTop - overburdenHeight );
+
+        // TODO: this is not always correct
+        double mdTop = measuredDepthValues[0];
+        measuredDepthValues.insert( measuredDepthValues.begin(), mdTop );
+        measuredDepthValues.insert( measuredDepthValues.begin(), mdTop - overburdenHeight );
+
+        formationNames.push_back( formationName );
+
+        formationValues.insert( formationValues.begin(), formationNames.size() - 1 );
+        formationValues.insert( formationValues.begin(), formationNames.size() - 1 );
+
+        faciesValues.insert( faciesValues.begin(), faciesValue );
+        faciesValues.insert( faciesValues.begin(), faciesValue );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimElasticPropertiesCurve::addUnderburden( std::vector<QString>& formationNames,
+                                                std::vector<double>&  formationValues,
+                                                std::vector<double>&  faciesValues,
+                                                std::vector<double>&  tvDepthValues,
+                                                std::vector<double>&  measuredDepthValues,
+                                                double                underburdenHeight,
+                                                double                defaultPoroValue,
+                                                const QString&        formationName,
+                                                double                faciesValue )
+{
+    if ( !faciesValues.empty() )
+    {
+        size_t lastIndex = tvDepthValues.size() - 1;
+
+        double tvdBottom = tvDepthValues[lastIndex];
+        tvDepthValues.push_back( tvdBottom );
+        tvDepthValues.push_back( tvdBottom + underburdenHeight );
+
+        // TODO: this is not always correct
+        double mdBottom = measuredDepthValues[lastIndex];
+        measuredDepthValues.push_back( mdBottom );
+        measuredDepthValues.push_back( mdBottom + underburdenHeight );
+
+        formationNames.push_back( formationName );
+
+        formationValues.push_back( formationNames.size() - 1 );
+        formationValues.push_back( formationNames.size() - 1 );
+
+        faciesValues.push_back( faciesValue );
+        faciesValues.push_back( faciesValue );
+    }
 }

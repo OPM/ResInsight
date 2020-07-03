@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RimFractureModelPropertyCurve.h"
 #include "RimWellLogExtractionCurve.h"
 
 #include "cafPdmField.h"
@@ -29,7 +30,7 @@ class RimColorLegend;
 //==================================================================================================
 ///
 //==================================================================================================
-class RimLayerCurve : public RimWellLogExtractionCurve
+class RimLayerCurve : public RimWellLogExtractionCurve, public RimFractureModelPropertyCurve
 {
     CAF_PDM_HEADER_INIT;
 
@@ -41,6 +42,9 @@ public:
 
     void setEclipseResultCategory( RiaDefines::ResultCatType catType );
 
+    void                      setCurveProperty( RiaDefines::CurveProperty ) override;
+    RiaDefines::CurveProperty curveProperty() const override;
+
 protected:
     QString createCurveAutoName() override;
 
@@ -51,6 +55,6 @@ protected:
                                               const std::vector<std::pair<double, double>>& depthRanges,
                                               double                                        depth );
 
-    caf::PdmPtrField<RimFractureModel*> m_fractureModel;
-    // caf::PdmField<caf::AppEnum<PropertyType>> m_propertyType;
+    caf::PdmPtrField<RimFractureModel*>                    m_fractureModel;
+    caf::PdmField<caf::AppEnum<RiaDefines::CurveProperty>> m_curveProperty;
 };

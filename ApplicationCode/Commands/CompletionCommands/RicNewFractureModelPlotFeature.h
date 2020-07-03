@@ -24,14 +24,15 @@
 
 #include "RimElasticPropertiesCurve.h"
 #include "RimFractureModelCurve.h"
+#include "RimFractureModelStressCurve.h"
 
 class RimEclipseCase;
 class RimFractureModelPlot;
 class RimFractureModelPlotCollection;
 class RimFractureModel;
 
-typedef std::tuple<QString, RiaDefines::ResultCatType, RimFractureModelCurve::MissingValueStrategy, bool> PlotDef;
-typedef std::vector<PlotDef>                                                                              PlotDefVector;
+typedef std::tuple<QString, RiaDefines::ResultCatType, RimFractureModelCurve::MissingValueStrategy, bool, RiaDefines::CurveProperty> PlotDef;
+typedef std::vector<PlotDef> PlotDefVector;
 
 //==================================================================================================
 ///
@@ -65,11 +66,17 @@ private:
                                        const PlotDefVector&  curveConfiguration,
                                        bool                  isPlotLogarithmic );
 
-    static void createElasticPropertiesTrack( RimFractureModelPlot*                   plot,
-                                              RimFractureModel*                       fractureModel,
-                                              RimEclipseCase*                         eclipseCase,
-                                              int                                     timeStep,
-                                              RimElasticPropertiesCurve::PropertyType propertyType );
+    static void createElasticPropertiesTrack( RimFractureModelPlot*     plot,
+                                              RimFractureModel*         fractureModel,
+                                              RimEclipseCase*           eclipseCase,
+                                              int                       timeStep,
+                                              RiaDefines::CurveProperty propertyType );
+
+    static void createStressTrack( RimFractureModelPlot*     plot,
+                                   RimFractureModel*         fractureModel,
+                                   RimEclipseCase*           eclipseCase,
+                                   int                       timeStep,
+                                   RiaDefines::CurveProperty propertyType );
 
     static RimFractureModelPlot* createFractureModelPlot( bool showAfterCreation, const QString& plotDescription );
 

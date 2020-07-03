@@ -69,6 +69,9 @@ RimLayerCurve::RimLayerCurve()
     m_fractureModel.uiCapability()->setUiTreeChildrenHidden( true );
     m_fractureModel.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_curveProperty, "CurveProperty", "Curve Property", "", "", "" );
+    m_curveProperty.uiCapability()->setUiHidden( true );
+
     m_wellPath = nullptr;
 }
 
@@ -87,22 +90,6 @@ void RimLayerCurve::setFractureModel( RimFractureModel* fractureModel )
     m_fractureModel = fractureModel;
     m_wellPath      = fractureModel->thicknessDirectionWellPath();
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimLayerCurve::setEclipseResultCategory( RiaDefines::ResultCatType catType )
-// {
-//     m_eclipseResultDefinition->setResultType( catType );
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-// void RimLayerCurve::setPropertyType( PropertyType propertyType )
-// {
-//     m_propertyType = propertyType;
-// }
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -126,9 +113,7 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
                                                  m_fractureModel->thicknessDirectionWellPath()->wellPathGeometry(),
                                                  "fracture model" );
 
-        measuredDepthValues = eclExtractor.cellIntersectionMDs();
-        tvDepthValues       = eclExtractor.cellIntersectionTVDs();
-        rkbDiff             = eclExtractor.wellPathData()->rkbDiff();
+        rkbDiff = eclExtractor.wellPathData()->rkbDiff();
 
         // Extract formation data
         cvf::ref<RigResultAccessor> formationResultAccessor = RigResultAccessorFactory::
@@ -147,53 +132,52 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
         CurveSamplingPointData curveData =
             RimWellLogTrack::curveSamplingPointData( &eclExtractor, formationResultAccessor.p() );
 
-        std::vector<std::pair<double, double>> yValues;
         std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( eclipseCase );
 
-        std::vector<QString> formationNamesToPlot;
-        RimWellLogTrack::findRegionNamesToPlot( curveData,
-                                                formationNamesVector,
-                                                RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
-                                                &formationNamesToPlot,
-                                                &yValues );
+        double overburdenHeight = m_fractureModel->overburdenHeight();
+        if ( overburdenHeight > 0.0 )
+        {
+            RimWellLogTrack::addOverburden( formationNamesVector, curveData, overburdenHeight );
+        }
+
+        double underburdenHeight = m_fractureModel->underburdenHeight();
+        if ( underburdenHeight > 0.0 )
+        {
+            RimWellLogTrack::addUnderburden( formationNamesVector, curveData, underburdenHeight );
+        }
+
+        measuredDepthValues = curveData.md;
+        tvDepthValues       = curveData.tvd;
 
         // Extract facies data
-        m_eclipseResultDefinition->setResultVariable( "OPERNUM_1" );
-        m_eclipseResultDefinition->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
-        m_eclipseResultDefinition->setEclipseCase( eclipseCase );
-        m_eclipseResultDefinition->loadResult();
-
-        cvf::ref<RigResultAccessor> faciesResultAccessor =
-            RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
-                                                                  0,
-                                                                  m_timeStep,
-                                                                  m_eclipseResultDefinition );
-
-        if ( !faciesResultAccessor.notNull() )
+        RimFractureModelPlot* fractureModelPlot;
+        firstAncestorOrThisOfType( fractureModelPlot );
+        if ( !fractureModelPlot )
         {
-            RiaLogging::error( QString( "No facies result found." ) );
+            RiaLogging::error( QString( "No facies data found for layer curve." ) );
             return;
         }
 
         std::vector<double> faciesValues;
-        eclExtractor.curveData( faciesResultAccessor.p(), &faciesValues );
+        fractureModelPlot->getFaciesValues( faciesValues );
+
+        assert( faciesValues.size() == curveData.data.size() );
 
         values.resize( faciesValues.size() );
 
-        int     layerNo               = 0;
-        QString previousFormationName = "";
-        double  previousFacies        = -1.0;
+        int    layerNo           = 0;
+        double previousFormation = -1.0;
+        double previousFacies    = -1.0;
         for ( size_t i = 0; i < faciesValues.size(); i++ )
         {
-            QString formationName = findFormationNameForDepth( formationNamesToPlot, yValues, tvDepthValues[i] );
-            if ( previousFormationName != formationName || previousFacies != faciesValues[i] )
+            if ( previousFormation != curveData.data[i] || previousFacies != faciesValues[i] )
             {
                 layerNo++;
             }
 
-            values[i]             = layerNo;
-            previousFormationName = formationName;
-            previousFacies        = faciesValues[i];
+            values[i]         = layerNo;
+            previousFormation = curveData.data[i];
+            previousFacies    = faciesValues[i];
         }
 
         RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
@@ -234,41 +218,23 @@ void RimLayerCurve::performDataExtraction( bool* isUsingPseudoLength )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// QString RimLayerCurve::findFaciesName( const RimColorLegend& colorLegend, double value )
-// {
-//     for ( auto item : colorLegend.colorLegendItems() )
-//     {
-//         if ( item->categoryValue() == static_cast<int>( value ) ) return item->categoryName();
-//     }
-
-//     return "not found";
-// }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimLayerCurve::findFormationNameForDepth( const std::vector<QString>&                   formationNames,
-                                                  const std::vector<std::pair<double, double>>& depthRanges,
-                                                  double                                        depth )
+QString RimLayerCurve::createCurveAutoName()
 {
-    //    assert(formationNames.size() == depthRanges.size());
-    for ( size_t i = 0; i < formationNames.size(); i++ )
-    {
-        double high = depthRanges[i].second;
-        double low  = depthRanges[i].first;
-        if ( depth >= low && depth <= high )
-        {
-            return formationNames[i];
-        }
-    }
-
-    return "not found";
+    return "Layers";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimLayerCurve::createCurveAutoName()
+void RimLayerCurve::setCurveProperty( RiaDefines::CurveProperty curveProperty )
 {
-    return "Layers";
+    m_curveProperty = curveProperty;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::CurveProperty RimLayerCurve::curveProperty() const
+{
+    return m_curveProperty();
 }
