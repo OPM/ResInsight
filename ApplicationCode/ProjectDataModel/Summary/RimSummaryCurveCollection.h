@@ -40,6 +40,9 @@ class RimSummaryCurveCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> curvesAddedOrRemoved;
+
+public:
     RimSummaryCurveCollection();
     ~RimSummaryCurveCollection() override;
 
@@ -53,7 +56,9 @@ public:
     RimSummaryCurve* findRimCurveFromQwtCurve( const QwtPlotCurve* qwtCurve ) const;
 
     void addCurve( RimSummaryCurve* curve );
+    void insertCurve( RimSummaryCurve* curve, size_t index );
     void deleteCurve( RimSummaryCurve* curve );
+    void removeCurve( RimSummaryCurve* curve );
 
     std::vector<RimSummaryCurve*> curves() const;
     std::vector<RimSummaryCurve*>
@@ -74,6 +79,11 @@ public:
 
     RimSummaryPlotSourceStepping*
         sourceSteppingObject( RimSummaryPlotSourceStepping::SourceSteppingType sourceSteppingType ) const;
+
+    static void moveCurvesToCollection( RimSummaryCurveCollection*          collection,
+                                        const std::vector<RimSummaryCurve*> curves,
+                                        RimSummaryCurve*                    curveToInsertBeforeOrAfter,
+                                        bool                                isSwapOperation );
 
 private:
     caf::PdmFieldHandle* objectToggleField() override;

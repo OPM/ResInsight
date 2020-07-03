@@ -47,6 +47,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryCurveCollection, "RimSummaryCurveCollection" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveCollection::RimSummaryCurveCollection()
+    : curvesAddedOrRemoved( this )
 {
     CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png", "", "" );
 
@@ -183,13 +184,39 @@ void RimSummaryCurveCollection::addCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::insertCurve( RimSummaryCurve* curve, size_t index )
+{
+    if ( index >= m_curves.size() )
+    {
+        m_curves.push_back( curve );
+    }
+    else
+    {
+        m_curves.insert( index, curve );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::deleteCurve( RimSummaryCurve* curve )
+{
+    removeCurve( curve );
+    if ( curve )
+    {
+        curve->markCachedDataForPurge();
+        delete curve;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::removeCurve( RimSummaryCurve* curve )
 {
     if ( curve )
     {
         m_curves.removeChildObject( curve );
-        curve->markCachedDataForPurge();
-        delete curve;
     }
 }
 
@@ -400,6 +427,52 @@ RimSummaryPlotSourceStepping*
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::moveCurvesToCollection( RimSummaryCurveCollection*          collection,
+                                                        const std::vector<RimSummaryCurve*> curves,
+                                                        RimSummaryCurve*                    curveToInsertBeforeOrAfter,
+                                                        bool                                isSwapOperation )
+{
+    CAF_ASSERT( collection );
+
+    std::set<RimSummaryCurveCollection*> srcCollections;
+
+    for ( auto curve : curves )
+    {
+        RimSummaryCurveCollection* srcCollection = nullptr;
+        curve->firstAncestorOrThisOfTypeAsserted( srcCollection );
+
+        srcCollection->removeCurve( curve );
+        srcCollections.insert( srcCollection );
+    }
+
+    for ( auto collection : srcCollections )
+    {
+        collection->updateConnectedEditors();
+        collection->curvesAddedOrRemoved.send();
+    }
+
+    size_t insertionStartIndex = std::numeric_limits<size_t>::infinity();
+    if ( curveToInsertBeforeOrAfter )
+    {
+        insertionStartIndex = collection->m_curves.index( curveToInsertBeforeOrAfter );
+    }
+
+    if ( insertionStartIndex < collection->m_curves.size() && !isSwapOperation )
+    {
+        insertionStartIndex += 1;
+    }
+    for ( size_t cIdx = 0; cIdx < curves.size(); ++cIdx )
+    {
+        collection->insertCurve( curves[cIdx], insertionStartIndex + cIdx );
+    }
+
+    collection->updateConnectedEditors();
+    collection->curvesAddedOrRemoved.send();
 }
 
 //--------------------------------------------------------------------------------------------------

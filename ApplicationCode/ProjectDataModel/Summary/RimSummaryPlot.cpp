@@ -163,6 +163,7 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );
     m_summaryCurveCollection = new RimSummaryCurveCollection;
+    m_summaryCurveCollection->curvesAddedOrRemoved.connect( this, &RimSummaryPlot::onCurvesAddedOrRemoved );
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSetCollection, "EnsembleCurveSetCollection", "", "", "", "" );
     m_ensembleCurveSetCollection.uiCapability()->setUiTreeHidden( true );
@@ -2094,6 +2095,15 @@ void RimSummaryPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
             keyEvent->accept();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::onCurvesAddedOrRemoved( const SignalEmitter* emitter )
+{
+    loadDataAndUpdate();
+    updateStackedCurveData();
 }
 
 //--------------------------------------------------------------------------------------------------

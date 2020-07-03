@@ -33,6 +33,8 @@ class RimMultiPlot;
 class RimIdenticalGridCaseGroup;
 class RimSummaryCaseCollection;
 class RimSummaryCaseMainCollection;
+class RimSummaryCurve;
+class RimSummaryPlot;
 class RimWellLogPlot;
 class RimWellLogTrack;
 class RimWellLogCurve;
@@ -61,6 +63,12 @@ private:
     bool handleGridCaseGroupDrop( Qt::DropAction             action,
                                   caf::PdmObjectGroup&       objectGroup,
                                   RimIdenticalGridCaseGroup* gridCaseGroup );
+
+    bool handleWellLogPlotCurveDrop( Qt::DropAction       action,
+                                     caf::PdmObjectGroup& objectGroup,
+                                     RimWellLogCurve*     wellLogPlotCurve,
+                                     bool                 isSwapOperation = false );
+
     bool handleWellLogPlotTrackDrop( Qt::DropAction       action,
                                      caf::PdmObjectGroup& objectGroup,
                                      RimWellLogTrack*     wellLogPlotTrack,
@@ -73,14 +81,17 @@ private:
                                 int                  insertAtPosition,
                                 bool                 isSwapOperation = false );
 
+    bool handleSummaryCurveDrop( Qt::DropAction       action,
+                                 caf::PdmObjectGroup& objectGroup,
+                                 RimSummaryCurve*     summaryCurveTarget,
+                                 bool                 isSwapOperation = false );
+
+    bool handleSummaryPlotDrop( Qt::DropAction action, caf::PdmObjectGroup& objectGroup, RimSummaryPlot* summaryPlot );
+
     bool handleMultiPlotDrop( Qt::DropAction       action,
                               caf::PdmObjectGroup& objectGroup,
                               RimMultiPlot*        multiPlot,
                               int                  insertAtPosition );
-    bool handleWellLogPlotCurveDrop( Qt::DropAction       action,
-                                     caf::PdmObjectGroup& objectGroup,
-                                     RimWellLogCurve*     wellLogPlotCurve,
-                                     bool                 isSwapOperation = false );
     bool handleSummaryCaseCollectionDrop( Qt::DropAction            action,
                                           caf::PdmObjectGroup&      objectGroup,
                                           RimSummaryCaseCollection* summaryCaseCollection );

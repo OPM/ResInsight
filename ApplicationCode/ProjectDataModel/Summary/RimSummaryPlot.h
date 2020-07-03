@@ -189,6 +189,8 @@ private:
     void doRemoveFromCollection() override;
     void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
+    void onCurvesAddedOrRemoved( const SignalEmitter* emitter );
+
 protected:
     // Overridden PDM methods
     caf::PdmFieldHandle* userDescriptionField() override;
