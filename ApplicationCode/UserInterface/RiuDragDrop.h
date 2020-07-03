@@ -64,12 +64,14 @@ private:
     bool handleWellLogPlotTrackDrop( Qt::DropAction       action,
                                      caf::PdmObjectGroup& objectGroup,
                                      RimWellLogTrack*     wellLogPlotTrack,
-                                     int                  insertAtPosition );
+                                     int                  insertAtPosition,
+                                     bool                 isSwapOperation = false );
 
     bool handleWellLogPlotDrop( Qt::DropAction       action,
                                 caf::PdmObjectGroup& objectGroup,
                                 RimWellLogPlot*      wellLogPlot,
-                                int                  insertAtPosition );
+                                int                  insertAtPosition,
+                                bool                 isSwapOperation = false );
 
     bool handleMultiPlotDrop( Qt::DropAction       action,
                               caf::PdmObjectGroup& objectGroup,
@@ -77,7 +79,8 @@ private:
                               int                  insertAtPosition );
     bool handleWellLogPlotCurveDrop( Qt::DropAction       action,
                                      caf::PdmObjectGroup& objectGroup,
-                                     RimWellLogCurve*     wellLogPlotCurve );
+                                     RimWellLogCurve*     wellLogPlotCurve,
+                                     bool                 isSwapOperation = false );
     bool handleSummaryCaseCollectionDrop( Qt::DropAction            action,
                                           caf::PdmObjectGroup&      objectGroup,
                                           RimSummaryCaseCollection* summaryCaseCollection );
@@ -87,6 +90,7 @@ private:
 
     static void objectGroupFromModelIndexes( caf::PdmObjectGroup* objectGroup, const QModelIndexList& indexes );
     static std::vector<caf::PdmPointer<caf::PdmObjectHandle>> objectHandlesFromSelection();
+    static bool isSwapOperation( const QModelIndexList& dragIndices, const QModelIndex& dropTargetIndex );
 
 private:
     mutable std::vector<caf::PdmPointer<caf::PdmObjectHandle>> m_dragItems;
