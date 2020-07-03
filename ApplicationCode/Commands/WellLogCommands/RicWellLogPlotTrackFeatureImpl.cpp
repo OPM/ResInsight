@@ -52,8 +52,6 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
         if ( wellLogPlotTrack )
         {
             wellLogPlotTrack->removeCurve( curve );
-            wellLogPlotTrack->updateConnectedEditors();
-            wellLogPlotTrack->updateStackedCurveData();
             srcTracks.insert( wellLogPlotTrack );
             RimWellLogPlot* plot;
             wellLogPlotTrack->firstAncestorOrThisOfType( plot );
@@ -73,15 +71,17 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
         destTrack->insertCurve( curves[cIdx], insertionStartIndex + cIdx );
     }
 
-    for ( std::set<RimWellLogPlot*>::iterator pIt = srcPlots.begin(); pIt != srcPlots.end(); ++pIt )
+    for ( auto track : srcTracks )
     {
-        ( *pIt )->calculateAvailableDepthRange();
+        track->setAutoScaleXEnabled( true );
+        track->updateParentPlotZoom();
+        track->updateConnectedEditors();
+        track->updateStackedCurveData();
     }
 
-    for ( std::set<RimWellLogTrack*>::iterator tIt = srcTracks.begin(); tIt != srcTracks.end(); ++tIt )
+    for ( auto plot : srcPlots )
     {
-        ( *tIt )->setAutoScaleXEnabled( true );
-        ( *tIt )->updateParentPlotZoom();
+        plot->calculateAvailableDepthRange();
     }
 
     destTrack->loadDataAndUpdate();
