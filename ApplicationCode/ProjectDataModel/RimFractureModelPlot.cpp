@@ -152,20 +152,23 @@ void RimFractureModelPlot::calculateLayers( std::vector<std::pair<double, double
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimFractureModelPlot::computeValueAtDepth( const std::vector<double>&              values,
-                                                  std::vector<std::pair<double, double>>& layerBoundaryDepths,
-                                                  double                                  depth )
+double RimFractureModelPlot::findValueAtTopOfLayer( const std::vector<double>&                    values,
+                                                    const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                                    size_t                                        layerNo )
 {
-    for ( size_t i = 0; i < layerBoundaryDepths.size(); i++ )
-    {
-        if ( layerBoundaryDepths[i].first <= depth && layerBoundaryDepths[i].second >= depth )
-        {
-            return values[i];
-        }
-    }
+    int index = layerBoundaryIndexes[layerNo].first;
+    return values.at( index );
+}
 
-    RiaLogging::error( QString( "Failed to compute value at depth: %1" ).arg( depth ) );
-    return std::numeric_limits<double>::infinity();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimFractureModelPlot::findValueAtBottomOfLayer( const std::vector<double>&                    values,
+                                                       const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
+                                                       size_t                                        layerNo )
+{
+    int index = layerBoundaryIndexes[layerNo].second;
+    return values.at( index );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -357,11 +360,11 @@ bool RimFractureModelPlot::calculateStressWithGradients( std::vector<double>& st
         double depthBottomOfZone = layerBoundaryDepths[i].second;
 
         // Data from curves at the top zone depth
-        double k0               = computeValueAtDepth( k0Data, layerBoundaryDepths, depthTopOfZone );
-        double biot             = computeValueAtDepth( biotData, layerBoundaryDepths, depthTopOfZone );
-        double poissonsRatio    = computeValueAtDepth( poissonsRatioData, layerBoundaryDepths, depthTopOfZone );
-        double initialPressure  = computeValueAtDepth( initialPressureData, layerBoundaryDepths, depthTopOfZone );
-        double timeStepPressure = computeValueAtDepth( timeStepPressureData, layerBoundaryDepths, depthTopOfZone );
+        double k0               = findValueAtTopOfLayer( k0Data, layerBoundaryIndexes, i );
+        double biot             = findValueAtTopOfLayer( biotData, layerBoundaryIndexes, i );
+        double poissonsRatio    = findValueAtTopOfLayer( poissonsRatioData, layerBoundaryIndexes, i );
+        double initialPressure  = findValueAtTopOfLayer( initialPressureData, layerBoundaryIndexes, i );
+        double timeStepPressure = findValueAtTopOfLayer( timeStepPressureData, layerBoundaryIndexes, i );
 
         // Vertical stress
         // Use difference between reference depth and depth of top of zone
@@ -387,8 +390,8 @@ bool RimFractureModelPlot::calculateStressWithGradients( std::vector<double>& st
         if ( i == layerBoundaryDepths.size() - 1 )
         {
             // Use the bottom of the last layer to compute gradient for last layer
-            double bottomInitialPressure =
-                computeValueAtDepth( initialPressureData, layerBoundaryDepths, depthBottomOfZone );
+            double bottomInitialPressure = findValueAtBottomOfLayer( initialPressureData, layerBoundaryIndexes, i );
+
             double bottomDepthDiff = depthBottomOfZone - stressDepthRef;
             double bottomSv        = verticalStressRef + verticalStressGradientRef * bottomDepthDiff;
             stressForGradients.push_back( bottomSv );
@@ -407,7 +410,7 @@ bool RimFractureModelPlot::calculateStressWithGradients( std::vector<double>& st
         double diffStress   = stressForGradients[i + 1] - stressForGradients[i];
         double diffPressure = pressureForGradients[i + 1] - pressureForGradients[i];
         double diffDepth    = depthForGradients[i + 1] - depthForGradients[i];
-        double k0           = computeValueAtDepth( k0Data, layerBoundaryDepths, depthForGradients[i] );
+        double k0           = findValueAtTopOfLayer( k0Data, layerBoundaryIndexes, i );
         double gradient     = ( diffStress * k0 + diffPressure * ( 1.0 - k0 ) ) / diffDepth;
         stressGradients.push_back( RiaEclipseUnitTools::barPerMeterToPsiPerFeet( gradient ) );
     }
