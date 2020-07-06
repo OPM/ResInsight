@@ -39,6 +39,7 @@
 #include "RigFemPartResultCalculatorFOS.h"
 #include "RigFemPartResultCalculatorFormationIndices.h"
 #include "RigFemPartResultCalculatorGamma.h"
+#include "RigFemPartResultCalculatorMudWeightWindow.h"
 #include "RigFemPartResultCalculatorNE.h"
 #include "RigFemPartResultCalculatorNodalGradients.h"
 #include "RigFemPartResultCalculatorNormalSE.h"
@@ -173,6 +174,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPoreCompressibility( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPorosityPermeability( *this ) ) );
+    m_resultCalculators.push_back(
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorMudWeightWindow( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
 }
@@ -707,6 +710,11 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["PORO-PERM"].push_back( "PHI" );
             fieldCompNames["PORO-PERM"].push_back( "DPHI" );
             fieldCompNames["PORO-PERM"].push_back( "PERM" );
+
+            fieldCompNames["MUD-WEIGHT"].push_back( "MWW" );
+            fieldCompNames["MUD-WEIGHT"].push_back( "MWM" );
+            fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
+            fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
         }
         else if ( resPos == RIG_INTEGRATION_POINT )
         {
@@ -790,6 +798,11 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["PORO-PERM"].push_back( "PHI" );
             fieldCompNames["PORO-PERM"].push_back( "DPHI" );
             fieldCompNames["PORO-PERM"].push_back( "PERM" );
+
+            fieldCompNames["MUD-WEIGHT"].push_back( "MWW" );
+            fieldCompNames["MUD-WEIGHT"].push_back( "MWM" );
+            fieldCompNames["MUD-WEIGHT"].push_back( "UMWL" );
+            fieldCompNames["MUD-WEIGHT"].push_back( "LMWL" );
         }
         else if ( resPos == RIG_ELEMENT_NODAL_FACE )
         {
